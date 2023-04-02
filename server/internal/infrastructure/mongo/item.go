@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
@@ -19,7 +20,7 @@ import (
 )
 
 var (
-	itemIndexes = []string{"assets", "project", "schema", "fields.schemafield"}
+	itemIndexes = []string{"assets", "modelid", "project", "schema", "fields.schemafield"}
 )
 
 type Item struct {
@@ -203,6 +204,12 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.
 	}
 
 	return item.VersionedList(c.Result).Sort(nil), nil
+}
+
+func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {
+	return r.client.Timestamp(ctx, bson.M{
+		"modelid": modelID.String(),
+	}, version.Eq(version.Latest.OrVersion()))
 }
 
 func (r *Item) IsArchived(ctx context.Context, id id.ItemID) (bool, error) {

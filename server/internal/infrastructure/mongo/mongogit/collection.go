@@ -4,13 +4,16 @@ import (
 	"context"
 	"errors"
 	"io"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -59,23 +62,19 @@ func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *vers
 		return err
 	}
 
-	var newmeta Meta
 	var refs []version.Ref
 	actualVr.Match(nil, func(r version.Ref) { refs = []version.Ref{r} })
+	newmeta := Meta{
+		ObjectID: primitive.NewObjectIDFromTimestamp(util.Now()),
+		Version:  version.New(),
+		Refs:     refs,
+	}
 	if meta == nil {
 		if !actualVr.IsRef(version.Latest) {
 			return rerror.ErrNotFound // invalid dest
 		}
-		newmeta = Meta{
-			Version: version.New(),
-			Refs:    refs,
-		}
 	} else {
-		newmeta = Meta{
-			Version: version.New(),
-			Parents: []version.Version{meta.Version},
-			Refs:    refs,
-		}
+		newmeta.Parents = []version.Version{meta.Version}
 	}
 
 	if err := version.MatchVersionOrRef(actualVr, nil, func(r version.Ref) error {
@@ -151,6 +150,18 @@ func (c *Collection) ArchiveOne(ctx context.Context, filter bson.M, archived boo
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
+}
+
+func (c *Collection) Timestamp(ctx context.Context, filter any, q version.Query) (time.Time, error) {
+	consumer := mongox.SliceConsumer[Meta]{}
+	f := apply(q, filter)
+	if err := c.client.Find(ctx, f, &consumer, options.Find().SetLimit(1).SetSort(bson.D{{Key: "_id", Value: -1}})); err != nil {
+		return time.Time{}, err
+	}
+	if len(consumer.Result) == 0 {
+		return time.Time{}, rerror.ErrNotFound
+	}
+	return consumer.Result[0].Timestamp(), nil
 }
 
 func (c *Collection) RemoveOne(ctx context.Context, filter any) error {
