@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -38,6 +39,7 @@ type Props = {
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
+  onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
   onTypeChange: (
     value: PreviewType,
@@ -56,6 +58,7 @@ const AssetMolecule: React.FC<Props> = ({
   viewerType,
   displayUnzipFileList,
   onAssetItemSelect,
+  onAssetDecompress,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -112,7 +115,18 @@ const AssetMolecule: React.FC<Props> = ({
           <Card
             title={asset.fileName}
             toolbar={
-              <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+              <>
+                <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+                {asset.archiveExtractionStatus === "SKIPPED" && (
+                  <UnzipButton
+                    onClick={() => {
+                      onAssetDecompress(asset.id);
+                    }}
+                    icon={<Icon icon="unzip" />}>
+                    {t("Unzip")}
+                  </UnzipButton>
+                )}
+              </>
             }>
             <UnzipFileList
               file={asset.file}
@@ -149,6 +163,10 @@ const AssetMolecule: React.FC<Props> = ({
     </BodyContainer>
   );
 };
+
+const UnzipButton = styled(Button)`
+  margin-left: 24px;
+`;
 
 const BodyContainer = styled.div`
   display: flex;

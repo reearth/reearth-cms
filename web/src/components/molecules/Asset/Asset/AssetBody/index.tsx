@@ -18,6 +18,7 @@ export type Props = {
   displayUnzipFileList: boolean;
   commentsPanel?: JSX.Element;
   onAssetItemSelect: (item: AssetItem) => void;
+  onAssetDecompress: (assetId: string) => void;
   onTypeChange: (
     value: PreviewType,
     option: DefaultOptionType | DefaultOptionType[],
@@ -37,6 +38,7 @@ const AssetWrapper: React.FC<Props> = ({
   displayUnzipFileList,
   commentsPanel,
   onAssetItemSelect,
+  onAssetDecompress,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -61,6 +63,7 @@ const AssetWrapper: React.FC<Props> = ({
             isModalVisible={isModalVisible}
             viewerType={viewerType}
             displayUnzipFileList={displayUnzipFileList}
+            onAssetDecompress={onAssetDecompress}
             onAssetItemSelect={onAssetItemSelect}
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}
