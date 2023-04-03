@@ -45,12 +45,14 @@ export default (assetId?: string) => {
     variables: {
       assetId: assetId ?? "",
     },
+    fetchPolicy: "network-only",
   });
 
   const { data: rawFile, loading: loading2 } = useGetAssetFileQuery({
     variables: {
       assetId: assetId ?? "",
     },
+    fetchPolicy: "network-only",
   });
 
   const { data: rawAssetItem } = useGetAssetItemQuery({
@@ -109,7 +111,7 @@ export default (assetId?: string) => {
         if (!assetId) return;
         const result = await decompressAssetMutation({
           variables: { assetId },
-          refetchQueries: ["GetAsset"],
+          refetchQueries: ["GetAsset", "GetAssetFile"],
         });
         if (result.errors || !result.data?.decompressAsset) {
           Notification.error({ message: t("Failed to decompress asset.") });
