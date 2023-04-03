@@ -214,6 +214,15 @@ export type CreateWorkspacePayload = {
   workspace: Workspace;
 };
 
+export type DecompressAssetInput = {
+  assetId: Scalars['ID'];
+};
+
+export type DecompressAssetPayload = {
+  __typename?: 'DecompressAssetPayload';
+  asset: Asset;
+};
+
 export type DeleteAssetInput = {
   assetId: Scalars['ID'];
 };
@@ -511,6 +520,7 @@ export type Mutation = {
   createThread?: Maybe<ThreadPayload>;
   createWebhook?: Maybe<WebhookPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
+  decompressAsset?: Maybe<DecompressAssetPayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
   deleteComment?: Maybe<DeleteCommentPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
@@ -610,6 +620,11 @@ export type MutationCreateWebhookArgs = {
 
 export type MutationCreateWorkspaceArgs = {
   input: CreateWorkspaceInput;
+};
+
+
+export type MutationDecompressAssetArgs = {
+  input: DecompressAssetInput;
 };
 
 
@@ -1549,6 +1564,13 @@ export type DeleteAssetMutationVariables = Exact<{
 
 
 export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset?: { __typename?: 'DeleteAssetPayload', assetId: string } | null };
+
+export type DecompressAssetMutationVariables = Exact<{
+  assetId: Scalars['ID'];
+}>;
+
+
+export type DecompressAssetMutation = { __typename?: 'Mutation', decompressAsset?: { __typename?: 'DecompressAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
 
 export type AddCommentMutationVariables = Exact<{
   threadId: Scalars['ID'];
@@ -2606,6 +2628,41 @@ export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
 export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
 export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
+export const DecompressAssetDocument = gql`
+    mutation DecompressAsset($assetId: ID!) {
+  decompressAsset(input: {assetId: $assetId}) {
+    asset {
+      ...assetFragment
+    }
+  }
+}
+    ${AssetFragmentFragmentDoc}`;
+export type DecompressAssetMutationFn = Apollo.MutationFunction<DecompressAssetMutation, DecompressAssetMutationVariables>;
+
+/**
+ * __useDecompressAssetMutation__
+ *
+ * To run a mutation, you first call `useDecompressAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDecompressAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [decompressAssetMutation, { data, loading, error }] = useDecompressAssetMutation({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useDecompressAssetMutation(baseOptions?: Apollo.MutationHookOptions<DecompressAssetMutation, DecompressAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DecompressAssetMutation, DecompressAssetMutationVariables>(DecompressAssetDocument, options);
+      }
+export type DecompressAssetMutationHookResult = ReturnType<typeof useDecompressAssetMutation>;
+export type DecompressAssetMutationResult = Apollo.MutationResult<DecompressAssetMutation>;
+export type DecompressAssetMutationOptions = Apollo.BaseMutationOptions<DecompressAssetMutation, DecompressAssetMutationVariables>;
 export const AddCommentDocument = gql`
     mutation AddComment($threadId: ID!, $content: String!) {
   addComment(input: {threadId: $threadId, content: $content}) {
