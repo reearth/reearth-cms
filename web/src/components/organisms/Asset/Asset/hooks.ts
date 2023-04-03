@@ -111,7 +111,7 @@ export default (assetId?: string) => {
         if (!assetId) return;
         const result = await decompressAssetMutation({
           variables: { assetId },
-          refetchQueries: ["GetAsset", "GetAssetFile"],
+          refetchQueries: ["GetAsset"],
         });
         if (result.errors || !result.data?.decompressAsset) {
           Notification.error({ message: t("Failed to decompress asset.") });
