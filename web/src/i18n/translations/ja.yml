@@ -30,9 +30,11 @@ Auto: 自動
 Service Language: 利用言語
 This will change the UI language: UIの言語設定を変更します。
 Language: 言語
+Unzip: ''
 Asset Type: アセットの種類
 Created Time: 作成日時
 Created By: 作成者
+Linked to: ''
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
@@ -56,7 +58,6 @@ Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
 ID: ''
-Linked to: ''
 Deselect: 選択解除
 Delete: 削除
 Upload Asset: アセットをアップロード
@@ -250,6 +251,8 @@ Failed to delete user.: ユーザーの削除に失敗しました。
 Successfully deleted user!: ユーザーの削除に成功しました。
 Failed to update asset.: アセットの更新に失敗しました。
 Asset was successfully updated!: アセットの更新に成功しました。
+Failed to decompress asset.: ''
+Asset is being decompressed!: ''
 Failed to add one or more assets.: アセットの追加に失敗しました。
 Successfully added one or more assets!: アセットの追加に成功しました。
 Successfully added asset!: アセットの追加に成功しました。
