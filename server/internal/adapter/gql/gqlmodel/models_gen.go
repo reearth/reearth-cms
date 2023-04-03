@@ -202,6 +202,14 @@ type CreateWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type DecompressAssetInput struct {
+	AssetID ID `json:"assetId"`
+}
+
+type DecompressAssetPayload struct {
+	Asset *Asset `json:"asset"`
+}
+
 type DeleteAssetInput struct {
 	AssetID ID `json:"assetId"`
 }

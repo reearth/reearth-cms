@@ -134,6 +134,10 @@ type ComplexityRoot struct {
 		Workspace func(childComplexity int) int
 	}
 
+	DecompressAssetPayload struct {
+		Asset func(childComplexity int) int
+	}
+
 	DeleteAssetPayload struct {
 		AssetID func(childComplexity int) int
 	}
@@ -315,6 +319,7 @@ type ComplexityRoot struct {
 		CreateThread                   func(childComplexity int, input gqlmodel.CreateThreadInput) int
 		CreateWebhook                  func(childComplexity int, input gqlmodel.CreateWebhookInput) int
 		CreateWorkspace                func(childComplexity int, input gqlmodel.CreateWorkspaceInput) int
+		DecompressAsset                func(childComplexity int, input gqlmodel.DecompressAssetInput) int
 		DeleteAsset                    func(childComplexity int, input gqlmodel.DeleteAssetInput) int
 		DeleteComment                  func(childComplexity int, input gqlmodel.DeleteCommentInput) int
 		DeleteField                    func(childComplexity int, input gqlmodel.DeleteFieldInput) int
@@ -670,6 +675,7 @@ type MutationResolver interface {
 	CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error)
 	UpdateAsset(ctx context.Context, input gqlmodel.UpdateAssetInput) (*gqlmodel.UpdateAssetPayload, error)
 	DeleteAsset(ctx context.Context, input gqlmodel.DeleteAssetInput) (*gqlmodel.DeleteAssetPayload, error)
+	DecompressAsset(ctx context.Context, input gqlmodel.DecompressAssetInput) (*gqlmodel.DecompressAssetPayload, error)
 	UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error)
 	RemoveMyAuth(ctx context.Context, input gqlmodel.RemoveMyAuthInput) (*gqlmodel.UpdateMePayload, error)
 	DeleteMe(ctx context.Context, input gqlmodel.DeleteMeInput) (*gqlmodel.DeleteMePayload, error)
@@ -1058,6 +1064,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateWorkspacePayload.Workspace(childComplexity), true
+
+	case "DecompressAssetPayload.asset":
+		if e.complexity.DecompressAssetPayload.Asset == nil {
+			break
+		}
+
+		return e.complexity.DecompressAssetPayload.Asset(childComplexity), true
 
 	case "DeleteAssetPayload.assetId":
 		if e.complexity.DeleteAssetPayload.AssetID == nil {
@@ -1821,6 +1834,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateWorkspace(childComplexity, args["input"].(gqlmodel.CreateWorkspaceInput)), true
+
+	case "Mutation.decompressAsset":
+		if e.complexity.Mutation.DecompressAsset == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_decompressAsset_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DecompressAsset(childComplexity, args["input"].(gqlmodel.DecompressAssetInput)), true
 
 	case "Mutation.deleteAsset":
 		if e.complexity.Mutation.DeleteAsset == nil {
@@ -3343,6 +3368,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateThreadInput,
 		ec.unmarshalInputCreateWebhookInput,
 		ec.unmarshalInputCreateWorkspaceInput,
+		ec.unmarshalInputDecompressAssetInput,
 		ec.unmarshalInputDeleteAssetInput,
 		ec.unmarshalInputDeleteCommentInput,
 		ec.unmarshalInputDeleteFieldInput,
@@ -3615,6 +3641,10 @@ input DeleteAssetInput {
   assetId: ID!
 }
 
+input DecompressAssetInput {
+  assetId: ID!
+}
+
 type CreateAssetPayload {
   asset: Asset!
 }
@@ -3625,6 +3655,10 @@ type UpdateAssetPayload {
 
 type DeleteAssetPayload {
   assetId: ID!
+}
+
+type DecompressAssetPayload {
+  asset: Asset!
 }
 
 type AssetConnection {
@@ -3659,6 +3693,7 @@ extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
+  decompressAsset(input: DecompressAssetInput!): DecompressAssetPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/user.graphql", Input: `type User implements Node {
@@ -4872,6 +4907,21 @@ func (ec *executionContext) field_Mutation_createWorkspace_args(ctx context.Cont
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWorkspaceInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_decompressAsset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.DecompressAssetInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDecompressAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDecompressAssetInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7708,6 +7758,82 @@ func (ec *executionContext) fieldContext_CreateWorkspacePayload_workspace(ctx co
 				return ec.fieldContext_Workspace_personal(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Workspace", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DecompressAssetPayload_asset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DecompressAssetPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DecompressAssetPayload_asset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Asset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Asset)
+	fc.Result = res
+	return ec.marshalNAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAsset(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DecompressAssetPayload_asset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DecompressAssetPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Asset_id(ctx, field)
+			case "project":
+				return ec.fieldContext_Asset_project(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Asset_projectId(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Asset_createdAt(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Asset_createdBy(ctx, field)
+			case "createdByType":
+				return ec.fieldContext_Asset_createdByType(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Asset_createdById(ctx, field)
+			case "items":
+				return ec.fieldContext_Asset_items(ctx, field)
+			case "size":
+				return ec.fieldContext_Asset_size(ctx, field)
+			case "previewType":
+				return ec.fieldContext_Asset_previewType(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Asset_uuid(ctx, field)
+			case "thread":
+				return ec.fieldContext_Asset_thread(ctx, field)
+			case "threadId":
+				return ec.fieldContext_Asset_threadId(ctx, field)
+			case "url":
+				return ec.fieldContext_Asset_url(ctx, field)
+			case "archiveExtractionStatus":
+				return ec.fieldContext_Asset_archiveExtractionStatus(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Asset", field.Name)
 		},
 	}
 	return fc, nil
@@ -12136,6 +12262,62 @@ func (ec *executionContext) fieldContext_Mutation_deleteAsset(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_decompressAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_decompressAsset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DecompressAsset(rctx, fc.Args["input"].(gqlmodel.DecompressAssetInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.DecompressAssetPayload)
+	fc.Result = res
+	return ec.marshalODecompressAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDecompressAssetPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_decompressAsset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "asset":
+				return ec.fieldContext_DecompressAssetPayload_asset(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DecompressAssetPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_decompressAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -24569,6 +24751,34 @@ func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDecompressAssetInput(ctx context.Context, obj interface{}) (gqlmodel.DecompressAssetInput, error) {
+	var it gqlmodel.DecompressAssetInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"assetId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "assetId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetId"))
+			it.AssetID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputDeleteAssetInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteAssetInput, error) {
 	var it gqlmodel.DeleteAssetInput
 	asMap := map[string]interface{}{}
@@ -27680,6 +27890,34 @@ func (ec *executionContext) _CreateWorkspacePayload(ctx context.Context, sel ast
 	return out
 }
 
+var decompressAssetPayloadImplementors = []string{"DecompressAssetPayload"}
+
+func (ec *executionContext) _DecompressAssetPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DecompressAssetPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, decompressAssetPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DecompressAssetPayload")
+		case "asset":
+
+			out.Values[i] = ec._DecompressAssetPayload_asset(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var deleteAssetPayloadImplementors = []string{"DeleteAssetPayload"}
 
 func (ec *executionContext) _DeleteAssetPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteAssetPayload) graphql.Marshaler {
@@ -29032,6 +29270,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteAsset(ctx, field)
+			})
+
+		case "decompressAsset":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_decompressAsset(ctx, field)
 			})
 
 		case "updateMe":
@@ -32190,6 +32434,11 @@ func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, se
 	return res
 }
 
+func (ec *executionContext) unmarshalNDecompressAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDecompressAssetInput(ctx context.Context, v interface{}) (gqlmodel.DecompressAssetInput, error) {
+	res, err := ec.unmarshalInputDecompressAssetInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNDeleteAssetInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetInput(ctx context.Context, v interface{}) (gqlmodel.DeleteAssetInput, error) {
 	res, err := ec.unmarshalInputDeleteAssetInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -34267,6 +34516,13 @@ func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context,
 	}
 	res := graphql.MarshalTime(*v)
 	return res
+}
+
+func (ec *executionContext) marshalODecompressAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDecompressAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DecompressAssetPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DecompressAssetPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeleteAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteAssetPayload) graphql.Marshaler {
