@@ -22,6 +22,7 @@ import {
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
+  useDecompressAssetMutation,
   useGetAssetFileQuery,
   useGetAssetItemQuery,
   useGetAssetQuery,
@@ -99,6 +100,25 @@ export default (assetId?: string) => {
         }
       })(),
     [t, updateAssetMutation],
+  );
+
+  const [decompressAssetMutation] = useDecompressAssetMutation();
+  const handleAssetDecompress = useCallback(
+    (assetId: string) =>
+      (async () => {
+        if (!assetId) return;
+        const result = await decompressAssetMutation({
+          variables: { assetId },
+          refetchQueries: ["GetAsset"],
+        });
+        if (result.errors || !result.data?.decompressAsset) {
+          Notification.error({ message: t("Failed to decompress asset.") });
+        }
+        if (result) {
+          Notification.success({ message: t("Asset is being decompressed!") });
+        }
+      })(),
+    [t, decompressAssetMutation],
   );
 
   useEffect(() => {
@@ -192,6 +212,7 @@ export default (assetId?: string) => {
     viewerType,
     displayUnzipFileList,
     handleAssetItemSelect,
+    handleAssetDecompress,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,
