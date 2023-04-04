@@ -86,7 +86,7 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase
 			}
 		}
 
-		if hasApprovedRequest && !latest.Refs().Has(version.Public) {
+		if hasPublicVersion && !latest.Refs().Has(version.Public) {
 			s = s.Wrap(item.StatusChanged)
 		}
 		if hasWaitingRequest {
