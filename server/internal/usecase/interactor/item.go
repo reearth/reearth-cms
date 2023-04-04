@@ -70,15 +70,25 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase
 		if hasPublicVersion {
 			s = s.Wrap(item.StatusPublic)
 		}
-		hasApprovedRequest := lo.ContainsBy(requests, func(r *request.Request) bool {
-			return r.Items().IDs().Has(itemId) && r.State() == request.StateApproved
-		})
+		hasApprovedRequest, hasWaitingRequest := false, false
+		for _, r := range requests {
+			if !r.Items().IDs().Has(itemId) {
+				continue
+			}
+			switch r.State() {
+			case request.StateApproved:
+				hasApprovedRequest = true
+			case request.StateWaiting:
+				hasWaitingRequest = true
+			}
+			if hasApprovedRequest && hasWaitingRequest {
+				break
+			}
+		}
+
 		if hasApprovedRequest && !latest.Refs().Has(version.Public) {
 			s = s.Wrap(item.StatusChanged)
 		}
-		hasWaitingRequest := lo.ContainsBy(requests, func(r *request.Request) bool {
-			return r.Items().IDs().Has(itemId) && r.State() == request.StateWaiting
-		})
 		if hasWaitingRequest {
 			s = s.Wrap(item.StatusReview)
 		}
