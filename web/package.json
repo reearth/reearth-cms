@@ -81,7 +81,7 @@
     "@vitest/coverage-c8": "0.25.7",
     "antd": "4.24.7",
     "apollo-upload-client": "17.0.0",
-    "cesium": "1.102.0",
+    "cesium": "1.104.0",
     "cesium-mvt-imagery-provider": "1.1.1",
     "formik": "2.2.9",
     "graphiql": "2.2.0",
