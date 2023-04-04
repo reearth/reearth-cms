@@ -138,3 +138,13 @@ export const UPDATE_ITEM = gql`
     }
   }
 `;
+
+export const UNPUBLISH_ITEM = gql`
+  mutation UnPublishItem($itemId: [ID!]!) {
+    unPublishItem(input: { itemId: $itemId }) {
+      items {
+        id
+      }
+    }
+  }
+`;

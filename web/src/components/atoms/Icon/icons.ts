@@ -43,6 +43,7 @@ import {
   FileTwoTone,
   PictureTwoTone,
   LoadingOutlined,
+  EyeInvisibleOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -123,4 +124,5 @@ export default {
   loading: LoadingOutlined,
   linked: Linked,
   unzip: Unzip,
+  eyeInvisible: EyeInvisibleOutlined,
 };
