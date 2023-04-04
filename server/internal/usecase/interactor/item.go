@@ -20,6 +20,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -320,6 +321,76 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		}
 
 		return i.repos.Item.Remove(ctx, itemID)
+	})
+}
+
+func (i Item) UnPublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
+		items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		// check all items were found
+		if len(items) != len(itemIDs) {
+			return nil, interfaces.ErrItemMissing
+		}
+
+		// check all items on the same models
+		s := lo.CountBy(items, func(itm item.Versioned) bool {
+			return itm.Value().Model() == items[0].Value().Model()
+		})
+		if s != len(items) {
+			return nil, interfaces.ErrItemsShouldBeOnSameModel
+		}
+
+		m, err := i.repos.Model.FindByID(ctx, items[0].Value().Model())
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, m.Project())
+		if err != nil {
+			return nil, err
+		}
+
+		sch, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		if !operator.IsMaintainingWorkspace(prj.Workspace()) {
+			return nil, interfaces.ErrInvalidOperator
+		}
+
+		// remove public ref from the items
+		for _, itm := range items {
+			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, nil); err != nil {
+				return nil, err
+			}
+		}
+
+		for _, itm := range items {
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: prj.Workspace(),
+				Type:      event.ItemUnpublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: sch,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
+		return items, nil
 	})
 }
 

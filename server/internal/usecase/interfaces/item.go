@@ -17,10 +17,12 @@ import (
 )
 
 var (
-	ErrItemFieldRequired   = rerror.NewE(i18n.T("item field required"))
-	ErrInvalidField        = rerror.NewE(i18n.T("invalid field"))
-	ErrDuplicatedItemValue = rerror.NewE(i18n.T("duplicated value"))
-	ErrFieldValueExist     = rerror.NewE(i18n.T("field value exist"))
+	ErrItemFieldRequired        = rerror.NewE(i18n.T("item field required"))
+	ErrInvalidField             = rerror.NewE(i18n.T("invalid field"))
+	ErrDuplicatedItemValue      = rerror.NewE(i18n.T("duplicated value"))
+	ErrFieldValueExist          = rerror.NewE(i18n.T("field value exist"))
+	ErrItemsShouldBeOnSameModel = rerror.NewE(i18n.T("items should be on the same model"))
+	ErrItemMissing              = rerror.NewE(i18n.T("one or more items not found"))
 )
 
 type ItemFieldParam struct {
@@ -57,4 +59,5 @@ type Item interface {
 	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
 	Update(context.Context, UpdateItemParam, *usecase.Operator) (item.Versioned, error)
 	Delete(context.Context, id.ItemID, *usecase.Operator) error
+	UnPublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 }

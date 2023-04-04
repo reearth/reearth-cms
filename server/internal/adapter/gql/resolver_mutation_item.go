@@ -6,7 +6,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error) {
@@ -69,4 +71,23 @@ func (r *mutationResolver) DeleteItem(ctx context.Context, input gqlmodel.Delete
 	}
 
 	return &gqlmodel.DeleteItemPayload{ItemID: input.ItemID}, nil
+}
+
+func (r *mutationResolver) UnPublishItem(ctx context.Context, input gqlmodel.UnPublishItemInput) (*gqlmodel.UnPublishItemPayload, error) {
+	op := getOperator(ctx)
+	iid, err := gqlmodel.ToIDs[id.Item](input.ItemID)
+	if err != nil {
+		return nil, err
+	}
+	res, err := usecases(ctx).Item.UnPublish(ctx, iid, op)
+	if err != nil {
+		return nil, err
+	}
+	s, err := usecases(ctx).Schema.FindByID(ctx, res[0].Value().Schema(), op)
+	if err != nil {
+		return nil, err
+	}
+	return &gqlmodel.UnPublishItemPayload{
+		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t.Value(), s) }),
+	}, nil
 }
