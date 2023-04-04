@@ -79,7 +79,7 @@ const UnzipFileList: React.FC<Props> = ({
 
   return (
     <UnzipFileListWrapper>
-      {archiveExtractionStatus === "IN_PROGRESS" ? (
+      {archiveExtractionStatus === "IN_PROGRESS" || archiveExtractionStatus === "PENDING" ? (
         <ExtractionInProgressWrapper>
           <Spin tip={t("Decompressing...")} size="large" />
         </ExtractionInProgressWrapper>

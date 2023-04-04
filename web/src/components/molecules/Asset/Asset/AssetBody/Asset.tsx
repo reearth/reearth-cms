@@ -38,6 +38,7 @@ type Props = {
   isModalVisible: boolean;
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
+  decompressing: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
@@ -57,6 +58,7 @@ const AssetMolecule: React.FC<Props> = ({
   isModalVisible,
   viewerType,
   displayUnzipFileList,
+  decompressing,
   onAssetItemSelect,
   onAssetDecompress,
   onTypeChange,
@@ -122,6 +124,7 @@ const AssetMolecule: React.FC<Props> = ({
                     onClick={() => {
                       onAssetDecompress(asset.id);
                     }}
+                    loading={decompressing}
                     icon={<Icon icon="unzip" />}>
                     {t("Unzip")}
                   </UnzipButton>
