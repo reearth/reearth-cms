@@ -68,7 +68,7 @@ invalid values: 無効な値です。
 invalid workspace name: 無効なワークスペース名です。
 item field required: このフィールドは必須項目です。
 items cannot be empty: アイテムは空にできません。
-items should be on the same model: ""
+items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
 max must be larger then min: 最大値は最小値より大きい必要があります。
 missing fields: フィールドが不足しています。
 missing required config: 必須項目が設定されていません。
@@ -79,7 +79,7 @@ not implemented yet: 未実装です。
 not locked: ロックされていません。
 not verified user: 未認証のユーザーです。
 nothing is updated: アップデートされた項目はありません。
-one or more items not found: ""
+one or more items not found: 対象のアイテムが見つかりませんでした。
 only requests with status waiting can be approved: レビュー待ちのリクエストのみ承認可能です。
 only reviewers can approve: レビュワーのみ承認可能です。
 operation denied: 操作が拒否されました。
