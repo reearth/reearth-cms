@@ -59,5 +59,5 @@ type Item interface {
 	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
 	Update(context.Context, UpdateItemParam, *usecase.Operator) (item.Versioned, error)
 	Delete(context.Context, id.ItemID, *usecase.Operator) error
-	UnPublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
+	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 }

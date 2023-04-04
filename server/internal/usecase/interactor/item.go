@@ -341,7 +341,7 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 	})
 }
 
-func (i Item) UnPublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
+func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
 	if operator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}

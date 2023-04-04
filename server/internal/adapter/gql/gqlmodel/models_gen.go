@@ -787,11 +787,11 @@ type ThreadPayload struct {
 	Thread *Thread `json:"thread"`
 }
 
-type UnPublishItemInput struct {
+type UnpublishItemInput struct {
 	ItemID []ID `json:"itemId"`
 }
 
-type UnPublishItemPayload struct {
+type UnpublishItemPayload struct {
 	Items []*Item `json:"items"`
 }
 

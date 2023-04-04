@@ -73,13 +73,13 @@ func (r *mutationResolver) DeleteItem(ctx context.Context, input gqlmodel.Delete
 	return &gqlmodel.DeleteItemPayload{ItemID: input.ItemID}, nil
 }
 
-func (r *mutationResolver) UnPublishItem(ctx context.Context, input gqlmodel.UnPublishItemInput) (*gqlmodel.UnPublishItemPayload, error) {
+func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.UnpublishItemInput) (*gqlmodel.UnpublishItemPayload, error) {
 	op := getOperator(ctx)
 	iid, err := gqlmodel.ToIDs[id.Item](input.ItemID)
 	if err != nil {
 		return nil, err
 	}
-	res, err := usecases(ctx).Item.UnPublish(ctx, iid, op)
+	res, err := usecases(ctx).Item.Unpublish(ctx, iid, op)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (r *mutationResolver) UnPublishItem(ctx context.Context, input gqlmodel.UnP
 	if err != nil {
 		return nil, err
 	}
-	return &gqlmodel.UnPublishItemPayload{
+	return &gqlmodel.UnpublishItemPayload{
 		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t.Value(), s) }),
 	}, nil
 }

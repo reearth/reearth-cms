@@ -335,7 +335,7 @@ type ComplexityRoot struct {
 		RemoveIntegrationFromWorkspace func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
 		RemoveMyAuth                   func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		RemoveUserFromWorkspace        func(childComplexity int, input gqlmodel.RemoveUserFromWorkspaceInput) int
-		UnPublishItem                  func(childComplexity int, input gqlmodel.UnPublishItemInput) int
+		UnpublishItem                  func(childComplexity int, input gqlmodel.UnpublishItemInput) int
 		UpdateAsset                    func(childComplexity int, input gqlmodel.UpdateAssetInput) int
 		UpdateComment                  func(childComplexity int, input gqlmodel.UpdateCommentInput) int
 		UpdateField                    func(childComplexity int, input gqlmodel.UpdateFieldInput) int
@@ -559,7 +559,7 @@ type ComplexityRoot struct {
 		Thread func(childComplexity int) int
 	}
 
-	UnPublishItemPayload struct {
+	UnpublishItemPayload struct {
 		Items func(childComplexity int) int
 	}
 
@@ -711,7 +711,7 @@ type MutationResolver interface {
 	CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error)
 	UpdateItem(ctx context.Context, input gqlmodel.UpdateItemInput) (*gqlmodel.ItemPayload, error)
 	DeleteItem(ctx context.Context, input gqlmodel.DeleteItemInput) (*gqlmodel.DeleteItemPayload, error)
-	UnPublishItem(ctx context.Context, input gqlmodel.UnPublishItemInput) (*gqlmodel.UnPublishItemPayload, error)
+	UnpublishItem(ctx context.Context, input gqlmodel.UnpublishItemInput) (*gqlmodel.UnpublishItemPayload, error)
 	CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	UpdateIntegration(ctx context.Context, input gqlmodel.UpdateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	DeleteIntegration(ctx context.Context, input gqlmodel.DeleteIntegrationInput) (*gqlmodel.DeleteIntegrationPayload, error)
@@ -2033,17 +2033,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveUserFromWorkspace(childComplexity, args["input"].(gqlmodel.RemoveUserFromWorkspaceInput)), true
 
-	case "Mutation.unPublishItem":
-		if e.complexity.Mutation.UnPublishItem == nil {
+	case "Mutation.unpublishItem":
+		if e.complexity.Mutation.UnpublishItem == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_unPublishItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_unpublishItem_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UnPublishItem(childComplexity, args["input"].(gqlmodel.UnPublishItemInput)), true
+		return e.complexity.Mutation.UnpublishItem(childComplexity, args["input"].(gqlmodel.UnpublishItemInput)), true
 
 	case "Mutation.updateAsset":
 		if e.complexity.Mutation.UpdateAsset == nil {
@@ -3076,12 +3076,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ThreadPayload.Thread(childComplexity), true
 
-	case "UnPublishItemPayload.items":
-		if e.complexity.UnPublishItemPayload.Items == nil {
+	case "UnpublishItemPayload.items":
+		if e.complexity.UnpublishItemPayload.Items == nil {
 			break
 		}
 
-		return e.complexity.UnPublishItemPayload.Items(childComplexity), true
+		return e.complexity.UnpublishItemPayload.Items(childComplexity), true
 
 	case "UpdateAssetPayload.asset":
 		if e.complexity.UpdateAssetPayload.Asset == nil {
@@ -3429,7 +3429,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldURLInput,
 		ec.unmarshalInputSchemaMarkdownTextInput,
 		ec.unmarshalInputSort,
-		ec.unmarshalInputUnPublishItemInput,
+		ec.unmarshalInputUnpublishItemInput,
 		ec.unmarshalInputUpdateAssetInput,
 		ec.unmarshalInputUpdateCommentInput,
 		ec.unmarshalInputUpdateFieldInput,
@@ -4476,7 +4476,7 @@ input DeleteItemInput {
   itemId: ID!
 }
 
-input UnPublishItemInput {
+input UnpublishItemInput {
   itemId: [ID!]!
 }
 
@@ -4489,7 +4489,7 @@ type DeleteItemPayload {
   itemId: ID!
 }
 
-type UnPublishItemPayload {
+type UnpublishItemPayload {
   items: [Item!]!
 }
 
@@ -4535,7 +4535,7 @@ extend type Mutation {
   createItem(input: CreateItemInput!): ItemPayload
   updateItem(input: UpdateItemInput!): ItemPayload
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
-  unPublishItem(input: UnPublishItemInput!): UnPublishItemPayload
+  unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/integration.graphql", Input: `enum IntegrationType {
@@ -5190,13 +5190,13 @@ func (ec *executionContext) field_Mutation_removeUserFromWorkspace_args(ctx cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_unPublishItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_unpublishItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 gqlmodel.UnPublishItemInput
+	var arg0 gqlmodel.UnpublishItemInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUnPublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnPublishItemInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUnpublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnpublishItemInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -14056,8 +14056,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteItem(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_unPublishItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_unPublishItem(ctx, field)
+func (ec *executionContext) _Mutation_unpublishItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_unpublishItem(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -14070,7 +14070,7 @@ func (ec *executionContext) _Mutation_unPublishItem(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UnPublishItem(rctx, fc.Args["input"].(gqlmodel.UnPublishItemInput))
+		return ec.resolvers.Mutation().UnpublishItem(rctx, fc.Args["input"].(gqlmodel.UnpublishItemInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14079,12 +14079,12 @@ func (ec *executionContext) _Mutation_unPublishItem(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.UnPublishItemPayload)
+	res := resTmp.(*gqlmodel.UnpublishItemPayload)
 	fc.Result = res
-	return ec.marshalOUnPublishItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnPublishItemPayload(ctx, field.Selections, res)
+	return ec.marshalOUnpublishItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnpublishItemPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_unPublishItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_unpublishItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -14093,9 +14093,9 @@ func (ec *executionContext) fieldContext_Mutation_unPublishItem(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "items":
-				return ec.fieldContext_UnPublishItemPayload_items(ctx, field)
+				return ec.fieldContext_UnpublishItemPayload_items(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type UnPublishItemPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UnpublishItemPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -14105,7 +14105,7 @@ func (ec *executionContext) fieldContext_Mutation_unPublishItem(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_unPublishItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_unpublishItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -20396,8 +20396,8 @@ func (ec *executionContext) fieldContext_ThreadPayload_thread(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _UnPublishItemPayload_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.UnPublishItemPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnPublishItemPayload_items(ctx, field)
+func (ec *executionContext) _UnpublishItemPayload_items(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.UnpublishItemPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnpublishItemPayload_items(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -20427,9 +20427,9 @@ func (ec *executionContext) _UnPublishItemPayload_items(ctx context.Context, fie
 	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnPublishItemPayload_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UnPublishItemPayload",
+		Object:     "UnpublishItemPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -26459,8 +26459,8 @@ func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj interfac
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUnPublishItemInput(ctx context.Context, obj interface{}) (gqlmodel.UnPublishItemInput, error) {
-	var it gqlmodel.UnPublishItemInput
+func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context, obj interface{}) (gqlmodel.UnpublishItemInput, error) {
+	var it gqlmodel.UnpublishItemInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -29674,10 +29674,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_deleteItem(ctx, field)
 			})
 
-		case "unPublishItem":
+		case "unpublishItem":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_unPublishItem(ctx, field)
+				return ec._Mutation_unpublishItem(ctx, field)
 			})
 
 		case "createIntegration":
@@ -31455,19 +31455,19 @@ func (ec *executionContext) _ThreadPayload(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var unPublishItemPayloadImplementors = []string{"UnPublishItemPayload"}
+var unpublishItemPayloadImplementors = []string{"UnpublishItemPayload"}
 
-func (ec *executionContext) _UnPublishItemPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.UnPublishItemPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, unPublishItemPayloadImplementors)
+func (ec *executionContext) _UnpublishItemPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.UnpublishItemPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unpublishItemPayloadImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UnPublishItemPayload")
+			out.Values[i] = graphql.MarshalString("UnpublishItemPayload")
 		case "items":
 
-			out.Values[i] = ec._UnPublishItemPayload_items(ctx, field, obj)
+			out.Values[i] = ec._UnpublishItemPayload_items(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -33951,8 +33951,8 @@ func (ec *executionContext) marshalNURL2netᚋurlᚐURL(ctx context.Context, sel
 	return res
 }
 
-func (ec *executionContext) unmarshalNUnPublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnPublishItemInput(ctx context.Context, v interface{}) (gqlmodel.UnPublishItemInput, error) {
-	res, err := ec.unmarshalInputUnPublishItemInput(ctx, v)
+func (ec *executionContext) unmarshalNUnpublishItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnpublishItemInput(ctx context.Context, v interface{}) (gqlmodel.UnpublishItemInput, error) {
+	res, err := ec.unmarshalInputUnpublishItemInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -35507,11 +35507,11 @@ func (ec *executionContext) marshalOURL2ᚖnetᚋurlᚐURL(ctx context.Context, 
 	return res
 }
 
-func (ec *executionContext) marshalOUnPublishItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnPublishItemPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.UnPublishItemPayload) graphql.Marshaler {
+func (ec *executionContext) marshalOUnpublishItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUnpublishItemPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.UnpublishItemPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._UnPublishItemPayload(ctx, sel, v)
+	return ec._UnpublishItemPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOUpdateAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.UpdateAssetPayload) graphql.Marshaler {
