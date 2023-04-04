@@ -49,33 +49,40 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Opera
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
-func (i Item) ItemStatus(ctx context.Context, list id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
-	requests, err := i.repos.Request.FindByItems(ctx, list)
+func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
+	requests, err := i.repos.Request.FindByItems(ctx, itemsIds)
 	if err != nil {
 		return nil, err
 	}
-	items, err := i.FindByIDs(ctx, list, nil)
+	items, err := i.repos.Item.FindAllVersionsByIDs(ctx, itemsIds)
 	if err != nil {
 		return nil, err
 	}
 	res := map[id.ItemID]item.Status{}
-	for _, itm := range list {
+	for _, itemId := range itemsIds {
 		s := item.StatusDraft
-		for _, req := range requests {
-			if req.Items().IDs().Has(itm) {
-				switch req.State() {
-				case request.StateWaiting:
-					s = s.Wrap(item.StatusReview)
-				case request.StateApproved:
-					s = s.Wrap(item.StatusPublic)
-					if !items.Item(itm).Refs().Has(version.Public) {
-						s = s.Wrap(item.StatusChanged)
-					}
-				}
-			}
+		latest, _ := lo.Find(items, func(v item.Versioned) bool {
+			return v.Value().ID() == itemId && v.Refs().Has(version.Latest)
+		})
+		hasPublicVersion := lo.ContainsBy(items, func(v item.Versioned) bool {
+			return v.Value().ID() == itemId && v.Refs().Has(version.Public)
+		})
+		if hasPublicVersion {
+			s = s.Wrap(item.StatusPublic)
 		}
-
-		res[itm] = s
+		hasApprovedRequest := lo.ContainsBy(requests, func(r *request.Request) bool {
+			return r.Items().IDs().Has(itemId) && r.State() == request.StateApproved
+		})
+		if hasApprovedRequest && !latest.Refs().Has(version.Public) {
+			s = s.Wrap(item.StatusChanged)
+		}
+		hasWaitingRequest := lo.ContainsBy(requests, func(r *request.Request) bool {
+			return r.Items().IDs().Has(itemId) && r.State() == request.StateWaiting
+		})
+		if hasWaitingRequest {
+			s = s.Wrap(item.StatusReview)
+		}
+		res[itemId] = s
 	}
 	return res, nil
 }
