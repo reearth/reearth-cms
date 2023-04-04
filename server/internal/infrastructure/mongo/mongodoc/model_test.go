@@ -43,6 +43,51 @@ func TestModelDocument_Model(t *testing.T) {
 				MustBuild(),
 			wantErr: false,
 		},
+		{
+			name: "Invalid id 1",
+			mDoc: &ModelDocument{
+				ID:          "abc",
+				Name:        "abc",
+				Description: "xyz",
+				Key:         "mmm123",
+				Public:      true,
+				Project:     pId.String(),
+				Schema:      sId.String(),
+				UpdatedAt:   now,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Invalid id 2",
+			mDoc: &ModelDocument{
+				ID:          mId.String(),
+				Name:        "abc",
+				Description: "xyz",
+				Key:         "mmm123",
+				Public:      true,
+				Project:     "abc",
+				Schema:      sId.String(),
+				UpdatedAt:   now,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Invalid id 3",
+			mDoc: &ModelDocument{
+				ID:          mId.String(),
+				Name:        "abc",
+				Description: "xyz",
+				Key:         "mmm123",
+				Public:      true,
+				Project:     pId.String(),
+				Schema:      "abc",
+				UpdatedAt:   now,
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

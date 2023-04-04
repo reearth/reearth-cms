@@ -78,6 +78,11 @@ func TestNewProjectPublication(t *testing.T) {
 				Scope:       "public",
 			},
 		},
+		{
+			name: "nil",
+			args: nil,
+			want: nil,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -106,7 +111,34 @@ func TestProjectDocument_Model(t *testing.T) {
 				Name:        "abc",
 				Description: "xyz",
 				Alias:       "ppp123",
-				ImageURL:    "",
+				ImageURL:    "https://hugo.com",
+				Workspace:   wId.String(),
+				Publication: &ProjectPublicationDocument{
+					AssetPublic: true,
+					Scope:       "public",
+				},
+			},
+			want: project.New().
+				ID(pId).
+				Name("abc").
+				Description("xyz").
+				Alias("ppp123").
+				ImageURL(lo.Must(url.Parse("https://hugo.com"))).
+				UpdatedAt(now).
+				Workspace(wId).
+				Publication(pp).
+				MustBuild(),
+			wantErr: false,
+		},
+		{
+			name: "invalid image url",
+			pDoc: &ProjectDocument{
+				ID:          pId.String(),
+				UpdatedAt:   now,
+				Name:        "abc",
+				Description: "xyz",
+				Alias:       "ppp123",
+				ImageURL:    "abc",
 				Workspace:   wId.String(),
 				Publication: &ProjectPublicationDocument{
 					AssetPublic: true,
@@ -124,6 +156,42 @@ func TestProjectDocument_Model(t *testing.T) {
 				Publication(pp).
 				MustBuild(),
 			wantErr: false,
+		},
+		{
+			name: "invalid id 1",
+			pDoc: &ProjectDocument{
+				ID:          "abc",
+				UpdatedAt:   now,
+				Name:        "abc",
+				Description: "xyz",
+				Alias:       "ppp123",
+				ImageURL:    "abc",
+				Workspace:   wId.String(),
+				Publication: &ProjectPublicationDocument{
+					AssetPublic: true,
+					Scope:       "public",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "invalid id 2",
+			pDoc: &ProjectDocument{
+				ID:          pId.String(),
+				UpdatedAt:   now,
+				Name:        "abc",
+				Description: "xyz",
+				Alias:       "ppp123",
+				ImageURL:    "abc",
+				Workspace:   "abc",
+				Publication: &ProjectPublicationDocument{
+					AssetPublic: true,
+					Scope:       "public",
+				},
+			},
+			want:    nil,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -153,6 +221,11 @@ func TestProjectPublicationDocument_Model(t *testing.T) {
 				Scope:       "public",
 			},
 			want: project.NewPublication(project.PublicationScopePublic, true),
+		},
+		{
+			name:  "nil",
+			ppDoc: nil,
+			want:  nil,
 		},
 	}
 	for _, tt := range tests {

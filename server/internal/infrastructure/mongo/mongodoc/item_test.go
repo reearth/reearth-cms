@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/integration"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestItemDocument_Model(t *testing.T) {
-	iId, pId, sId, tId, mId, uId := item.NewID(), project.NewID(), schema.NewID(), thread.NewID(), model.NewID(), user.NewID()
+	iId, pId, sId, tId, mId, uId, gId := item.NewID(), project.NewID(), schema.NewID(), thread.NewID(), model.NewID(), user.NewID(), integration.NewID()
 	now := time.Now()
 	tests := []struct {
 		name    string
@@ -37,6 +38,102 @@ func TestItemDocument_Model(t *testing.T) {
 			},
 			want:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId).Model(mId).Timestamp(now).User(uId).MustBuild(),
 			wantErr: false,
+		},
+		{
+			name: "model",
+			iDoc: &ItemDocument{
+				ID:          iId.String(),
+				Project:     pId.String(),
+				Schema:      sId.String(),
+				Thread:      tId.String(),
+				ModelID:     mId.String(),
+				Fields:      nil,
+				Timestamp:   now,
+				User:        nil,
+				Integration: gId.StringRef(),
+			},
+			want:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId).Model(mId).Timestamp(now).Integration(gId).MustBuild(),
+			wantErr: false,
+		},
+		{
+			name: "invalid id 1",
+			iDoc: &ItemDocument{
+				ID:          "abc",
+				Project:     pId.String(),
+				Schema:      sId.String(),
+				Thread:      tId.String(),
+				ModelID:     mId.String(),
+				Fields:      nil,
+				Timestamp:   now,
+				User:        uId.StringRef(),
+				Integration: nil,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "invalid id 2",
+			iDoc: &ItemDocument{
+				ID:          iId.String(),
+				Project:     "abc",
+				Schema:      sId.String(),
+				Thread:      tId.String(),
+				ModelID:     mId.String(),
+				Fields:      nil,
+				Timestamp:   now,
+				User:        uId.StringRef(),
+				Integration: nil,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "invalid id 3",
+			iDoc: &ItemDocument{
+				ID:          iId.String(),
+				Project:     pId.String(),
+				Schema:      "abc",
+				Thread:      tId.String(),
+				ModelID:     mId.String(),
+				Fields:      nil,
+				Timestamp:   now,
+				User:        uId.StringRef(),
+				Integration: nil,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "invalid id 4",
+			iDoc: &ItemDocument{
+				ID:          iId.String(),
+				Project:     pId.String(),
+				Schema:      sId.String(),
+				Thread:      "abc",
+				ModelID:     mId.String(),
+				Fields:      nil,
+				Timestamp:   now,
+				User:        uId.StringRef(),
+				Integration: nil,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "invalid id 5",
+			iDoc: &ItemDocument{
+				ID:          iId.String(),
+				Project:     pId.String(),
+				Schema:      sId.String(),
+				Thread:      tId.String(),
+				ModelID:     "abc",
+				Fields:      nil,
+				Timestamp:   now,
+				User:        uId.StringRef(),
+				Integration: nil,
+			},
+			want:    nil,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {

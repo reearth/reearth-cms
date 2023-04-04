@@ -68,7 +68,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 
 	var imageURL *url.URL
 	if d.ImageURL != "" {
-		if imageURL, err = url.Parse(d.ImageURL); err != nil {
+		if imageURL, err = url.Parse(d.ImageURL); err != nil || imageURL.Host == "" || imageURL.Scheme == "" {
 			imageURL = nil
 		}
 	}
