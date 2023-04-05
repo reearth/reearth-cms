@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
 type Props = {
-  title: string;
+  title: string | JSX.Element;
   toolbar?: ReactNode;
   children?: ReactNode;
   style?: CSSProperties;

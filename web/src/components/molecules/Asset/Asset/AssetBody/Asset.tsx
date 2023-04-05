@@ -115,7 +115,17 @@ const AssetMolecule: React.FC<Props> = ({
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
-            title={asset.fileName}
+            title={
+              <>
+                {asset.fileName}{" "}
+                <CopyIcon
+                  icon="copy"
+                  onClick={() => {
+                    navigator.clipboard.writeText(asset.url);
+                  }}
+                />
+              </>
+            }
             toolbar={
               <>
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
@@ -166,6 +176,13 @@ const AssetMolecule: React.FC<Props> = ({
     </BodyContainer>
   );
 };
+
+const CopyIcon = styled(Icon)<{ selected?: boolean }>`
+  margin-left: 16px;
+  &:active {
+    color: #096dd9;
+  }
+`;
 
 const UnzipButton = styled(Button)`
   margin-left: 24px;
