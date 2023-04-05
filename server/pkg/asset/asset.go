@@ -3,6 +3,7 @@ package asset
 import (
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -10,7 +11,7 @@ type Asset struct {
 	id                      ID
 	project                 ProjectID
 	createdAt               time.Time
-	user                    *UserID
+	user                    *accountdomain.UserID
 	integration             *IntegrationID
 	fileName                string
 	size                    uint64
@@ -38,7 +39,7 @@ func (a *Asset) CreatedAt() time.Time {
 	return a.createdAt
 }
 
-func (a *Asset) User() *UserID {
+func (a *Asset) User() *accountdomain.UserID {
 	return a.user
 }
 

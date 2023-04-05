@@ -7,11 +7,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error) {
-	wid, err := gqlmodel.ToID[id.Workspace](input.WorkspaceID)
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,9 @@ package repo
 import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -13,8 +15,8 @@ type Container struct {
 	Asset       Asset
 	AssetFile   AssetFile
 	Lock        Lock
-	User        User
-	Workspace   Workspace
+	User        accountrepo.User
+	Workspace   accountrepo.Workspace
 	Project     Project
 	Model       Model
 	Schema      Schema
@@ -93,11 +95,11 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 	}
 }
 
-func (f WorkspaceFilter) CanRead(id user.WorkspaceID) bool {
+func (f WorkspaceFilter) CanRead(id accountdomain.WorkspaceID) bool {
 	return f.Readable == nil || f.Readable.Has(id) || f.CanWrite(id)
 }
 
-func (f WorkspaceFilter) CanWrite(id user.WorkspaceID) bool {
+func (f WorkspaceFilter) CanWrite(id accountdomain.WorkspaceID) bool {
 	return f.Writable == nil || f.Writable.Has(id)
 }
 

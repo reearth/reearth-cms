@@ -10,6 +10,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +19,7 @@ import (
 
 func TestThread_FindByID(t *testing.T) {
 	id1 := id.NewThreadID()
-	wid1 := id.NewWorkspaceID()
+	wid1 := accountdomain.NewWorkspaceID()
 	comments := []*thread.Comment{}
 	th1 := thread.New().ID(id1).Workspace(wid1).Comments(comments).MustBuild()
 
@@ -112,12 +114,12 @@ func TestThread_FindByID(t *testing.T) {
 
 func TestThread_FindByIDs(t *testing.T) {
 	id1 := id.NewThreadID()
-	wid1 := id.NewWorkspaceID()
+	wid1 := accountdomain.NewWorkspaceID()
 	comments1 := []*thread.Comment{}
 	th1 := thread.New().ID(id1).Workspace(wid1).Comments(comments1).MustBuild()
 
 	id2 := id.NewThreadID()
-	wid2 := id.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
 	comments2 := []*thread.Comment{}
 	th2 := thread.New().ID(id2).Workspace(wid2).Comments(comments2).MustBuild()
 
@@ -138,7 +140,7 @@ func TestThread_FindByIDs(t *testing.T) {
 		{
 			name: "0 count with thread for another workspaces",
 			seeds: thread.List{
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
 			},
 			arg:     []id.ThreadID{},
 			want:    nil,
@@ -157,8 +159,8 @@ func TestThread_FindByIDs(t *testing.T) {
 			name: "1 count with multi threads",
 			seeds: thread.List{
 				th1,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
 			},
 			arg:     []id.ThreadID{id1},
 			want:    thread.List{th1},
@@ -169,8 +171,8 @@ func TestThread_FindByIDs(t *testing.T) {
 			seeds: thread.List{
 				th1,
 				th2,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Comments([]*thread.Comment{}).MustBuild(),
 			},
 			arg:     []id.ThreadID{id1, id2},
 			want:    thread.List{th1, th2},
@@ -204,19 +206,21 @@ func TestThread_FindByIDs(t *testing.T) {
 }
 
 func TestThreadRepo_CreateThread(t *testing.T) {
-	wid := id.NewWorkspaceID()
-	wid2 := id.WorkspaceID{}
-	uid := id.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.WorkspaceID{}
+	uid := accountdomain.NewUserID()
 	op := &usecase.Operator{
-		User:               &uid,
-		ReadableWorkspaces: nil,
-		WritableWorkspaces: nil,
-		OwningWorkspaces:   []id.WorkspaceID{wid},
+		AcOperator: &accountusecase.Operator{
+			User:               &uid,
+			ReadableWorkspaces: nil,
+			WritableWorkspaces: nil,
+			OwningWorkspaces:   []accountdomain.WorkspaceID{wid},
+		},
 	}
 
 	tests := []struct {
 		name     string
-		arg      id.WorkspaceID
+		arg      accountdomain.WorkspaceID
 		operator *usecase.Operator
 		wantErr  error
 	}{
@@ -230,18 +234,21 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 			name: "Save error: invalid workspace id",
 			arg:  wid2,
 			operator: &usecase.Operator{
-				User:               &uid,
-				ReadableWorkspaces: nil,
-				WritableWorkspaces: nil,
-				OwningWorkspaces:   []id.WorkspaceID{wid2},
+				AcOperator: &accountusecase.Operator{
+					User:               &uid,
+					ReadableWorkspaces: nil,
+					WritableWorkspaces: nil,
+					OwningWorkspaces:   []accountdomain.WorkspaceID{wid2}},
 			},
 			wantErr: thread.ErrNoWorkspaceID,
 		},
 		{
-			name:     "operator error",
-			arg:      wid,
-			operator: &usecase.Operator{},
-			wantErr:  interfaces.ErrOperationDenied,
+			name: "operator error",
+			arg:  wid,
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
 			name:     "operator succeed",
@@ -274,15 +281,16 @@ func TestThreadRepo_CreateThread(t *testing.T) {
 }
 
 func TestThread_AddComment(t *testing.T) {
-	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "aaa")
-	wid := id.NewWorkspaceID()
+	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(accountdomain.NewUserID()), "aaa")
+	wid := accountdomain.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{}).MustBuild()
-	uid := id.NewUserID()
+	uid := accountdomain.NewUserID()
 	op := &usecase.Operator{
-		User:               &uid,
-		ReadableWorkspaces: nil,
-		WritableWorkspaces: nil,
-		OwningWorkspaces:   []id.WorkspaceID{wid},
+		AcOperator: &accountusecase.Operator{
+			User:               &uid,
+			ReadableWorkspaces: nil,
+			WritableWorkspaces: nil,
+			OwningWorkspaces:   []accountdomain.WorkspaceID{wid}},
 	}
 
 	type args struct {
@@ -301,8 +309,10 @@ func TestThread_AddComment(t *testing.T) {
 			name: "workspaces invalid operator",
 			seed: th1,
 			args: args{
-				content:  c1.Content(),
-				operator: &usecase.Operator{},
+				content: c1.Content(),
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			wantErr: interfaces.ErrInvalidOperator,
 		},
@@ -376,16 +386,17 @@ func TestThread_AddComment(t *testing.T) {
 }
 
 func TestThread_UpdateComment(t *testing.T) {
-	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "aaa")
-	c2 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "test")
-	wid := id.NewWorkspaceID()
+	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(accountdomain.NewUserID()), "aaa")
+	c2 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(accountdomain.NewUserID()), "test")
+	wid := accountdomain.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
-	uid := id.NewUserID()
+	uid := accountdomain.NewUserID()
 	op := &usecase.Operator{
-		User:               &uid,
-		ReadableWorkspaces: nil,
-		WritableWorkspaces: nil,
-		OwningWorkspaces:   []id.WorkspaceID{wid},
+		AcOperator: &accountusecase.Operator{
+			User:               &uid,
+			ReadableWorkspaces: nil,
+			WritableWorkspaces: nil,
+			OwningWorkspaces:   []accountdomain.WorkspaceID{wid}},
 	}
 
 	type args struct {
@@ -406,9 +417,11 @@ func TestThread_UpdateComment(t *testing.T) {
 			name: "workspaces operation denied",
 			seed: th1,
 			args: args{
-				comment:  c1,
-				content:  "updated",
-				operator: &usecase.Operator{},
+				comment: c1,
+				content: "updated",
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			wantErr: interfaces.ErrInvalidOperator,
 		},
@@ -479,16 +492,17 @@ func TestThread_UpdateComment(t *testing.T) {
 }
 
 func TestThread_DeleteComment(t *testing.T) {
-	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "aaa")
-	c2 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(id.NewUserID()), "test")
-	wid := id.NewWorkspaceID()
+	c1 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(accountdomain.NewUserID()), "aaa")
+	c2 := thread.NewComment(thread.NewCommentID(), operator.OperatorFromUser(accountdomain.NewUserID()), "test")
+	wid := accountdomain.NewWorkspaceID()
 	th1 := thread.New().NewID().Workspace(wid).Comments([]*thread.Comment{c1, c2}).MustBuild()
-	uid := id.NewUserID()
+	uid := accountdomain.NewUserID()
 	op := &usecase.Operator{
-		User:               &uid,
-		ReadableWorkspaces: nil,
-		WritableWorkspaces: nil,
-		OwningWorkspaces:   []id.WorkspaceID{wid},
+		AcOperator: &accountusecase.Operator{
+			User:               &uid,
+			ReadableWorkspaces: nil,
+			WritableWorkspaces: nil,
+			OwningWorkspaces:   []accountdomain.WorkspaceID{wid}},
 	}
 
 	type args struct {
@@ -505,9 +519,11 @@ func TestThread_DeleteComment(t *testing.T) {
 		mockError bool
 	}{
 		{
-			name:    "workspaces operation denied",
-			seed:    th1,
-			args:    args{commentId: c1.ID(), operator: &usecase.Operator{}},
+			name: "workspaces operation denied",
+			seed: th1,
+			args: args{commentId: c1.ID(), operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			}},
 			wantErr: interfaces.ErrInvalidOperator,
 		},
 		{

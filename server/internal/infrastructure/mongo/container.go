@@ -5,6 +5,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
@@ -30,8 +32,8 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 	c := &repo.Container{
 		Asset:       NewAsset(client),
 		AssetFile:   NewAssetFile(client),
-		Workspace:   NewWorkspace(client),
-		User:        NewUser(client),
+		User:        accountmongo.NewUser(client),
+		Workspace:   accountmongo.NewWorkspace(client),
 		Transaction: client.Transaction(),
 		Lock:        lock,
 		Project:     NewProject(client),
@@ -63,8 +65,6 @@ func Init(r *repo.Container) error {
 
 	return util.Try(
 		r.Asset.(*Asset).Init,
-		r.Workspace.(*Workspace).Init,
-		r.User.(*User).Init,
 		r.Project.(*ProjectRepo).Init,
 		r.Item.(*Item).Init,
 		r.Model.(*Model).Init,
@@ -94,7 +94,7 @@ func logIndexResult(name string, r mongox.IndexResult) {
 	log.Infof("mongo: %s: index deleted: %v, updated: %v, created: %v", name, d, u, a)
 }
 
-func applyWorkspaceFilter(filter interface{}, ids id.WorkspaceIDList) interface{} {
+func applyWorkspaceFilter(filter interface{}, ids accountdomain.WorkspaceIDList) interface{} {
 	if ids == nil {
 		return filter
 	}

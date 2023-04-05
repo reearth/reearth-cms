@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -68,7 +69,7 @@ func (r *Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList) (
 	}), nil
 }
 
-func (r *Integration) FindByUser(ctx context.Context, userID id.UserID) (integration.List, error) {
+func (r *Integration) FindByUser(ctx context.Context, userID accountdomain.UserID) (integration.List, error) {
 	return r.find(ctx, bson.M{
 		"developer": userID.String(),
 	})

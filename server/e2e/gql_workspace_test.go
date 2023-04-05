@@ -8,27 +8,27 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	uId1  = accountdomain.NewUserID()
+	uId1 = accountdomain.NewUserID()
 	uId2 = accountdomain.NewUserID()
 	uId3 = accountdomain.NewUserID()
 	wId  = accountdomain.NewWorkspaceID()
 	wId2 = accountdomain.NewWorkspaceID()
-	iId1  = accountdomain.NewIntegrationID()
+	iId1 = accountdomain.NewIntegrationID()
 	iId2 = accountdomain.NewIntegrationID()
 	iId3 = accountdomain.NewIntegrationID()
 )
 
-func baseSeederWorkspace(ctx context.Context, r *accountrepo.Container) error {
+func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 	u := user.New().ID(uId1).
 		Name("e2e").
 		Email("e2e@e2e.com").
@@ -68,7 +68,7 @@ func baseSeederWorkspace(ctx context.Context, r *accountrepo.Container) error {
 			uId1: roleOwner,
 		}).
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
-			iId1:  roleOwner,
+			iId1: roleOwner,
 			iId3: roleReader,
 		}).
 		MustBuild()
@@ -79,7 +79,7 @@ func baseSeederWorkspace(ctx context.Context, r *accountrepo.Container) error {
 	w2 := workspace.New().ID(wId2).
 		Name("e2e2").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
-			uId1:  roleOwner,
+			uId1: roleOwner,
 			uId3: roleReader,
 		}).
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{

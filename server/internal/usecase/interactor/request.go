@@ -51,7 +51,7 @@ func (r Request) FindByProject(ctx context.Context, pid id.ProjectID, filter int
 }
 
 func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam, operator *usecase.Operator) (*request.Request, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -89,7 +89,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			NewID().
 			Workspace(ws.ID()).
 			Project(param.ProjectID).
-			CreatedBy(*operator.User).
+			CreatedBy(*operator.AcOperator.User).
 			Thread(th.ID()).
 			Items(param.Items).
 			Title(param.Title)
@@ -126,7 +126,7 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 }
 
 func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam, operator *usecase.Operator) (*request.Request, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -142,7 +142,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 		}
 
 		// only owners, maintainers, and the request creator can update requests
-		canUpdate := *operator.User == req.CreatedBy() || ws.Members().IsOwnerOrMaintainer(*operator.User)
+		canUpdate := *operator.AcOperator.User == req.CreatedBy() || ws.Members().IsOwnerOrMaintainer(*operator.AcOperator.User)
 		if !operator.IsWritableWorkspace(req.Workspace()) && canUpdate {
 			return nil, interfaces.ErrOperationDenied
 		}
@@ -193,7 +193,7 @@ func (r Request) Update(ctx context.Context, param interfaces.UpdateRequestParam
 }
 
 func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestIDList, operator *usecase.Operator) error {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return interfaces.ErrInvalidOperator
 	}
 
@@ -207,7 +207,7 @@ func (r Request) CloseAll(ctx context.Context, pid id.ProjectID, ids id.RequestI
 }
 
 func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *usecase.Operator) (*request.Request, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -220,7 +220,7 @@ func (r Request) Approve(ctx context.Context, requestID id.RequestID, operator *
 			return nil, interfaces.ErrInvalidOperator
 		}
 		// only reviewers can approve
-		if !req.Reviewers().Has(*operator.User) {
+		if !req.Reviewers().Has(*operator.AcOperator.User) {
 			return nil, rerror.NewE(i18n.T("only reviewers can approve"))
 		}
 

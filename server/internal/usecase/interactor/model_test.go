@@ -139,8 +139,8 @@ func TestModel_Create(t *testing.T) {
 	mockTime := time.Now()
 	// mId := id.NewModelID()
 	// sId := id.NewSchemaID()
-	// wid1 := id.NewWorkspaceID()
-	// wid2 := id.NewWorkspaceID()
+	// wid1 := accountdomain.NewWorkspaceID()
+	// wid2 := accountdomain.NewWorkspaceID()
 	//
 	// pid1 := id.NewProjectID()
 	// p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mockTime).MustBuild()

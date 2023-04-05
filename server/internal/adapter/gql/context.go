@@ -6,7 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	acuser "github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
 )
 
@@ -28,8 +28,8 @@ func AttachUsecases(ctx context.Context, u *interfaces.Container, enableDataLoad
 	return ctx
 }
 
-func getAcUser(ctx context.Context) *acuser.User {
-	return adapter.AcUser(ctx)
+func getUser(ctx context.Context) *user.User {
+	return adapter.User(ctx)
 }
 
 //
@@ -42,7 +42,7 @@ func getOperator(ctx context.Context) *usecase.Operator {
 }
 
 func getAcOperator(ctx context.Context) *accountusecase.Operator {
-	return adapter.AcOperator(ctx)
+	return adapter.Operator(ctx).AcOperator
 }
 
 func usecases(ctx context.Context) *interfaces.Container {

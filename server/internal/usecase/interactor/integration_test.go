@@ -12,7 +12,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -22,21 +24,23 @@ type testData struct {
 	Now        time.Time
 	Op         *usecase.Operator
 	Uri        *url.URL
-	UId        id.UserID
+	UId        accountdomain.UserID
 	IId1, IId2 id.IntegrationID
 	I1, I2     *integration.Integration
 }
 
 func testSuite() testData {
 	now := time.Now().Truncate(time.Millisecond).UTC()
-	wid := id.NewWorkspaceID()
-	uId := id.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID()
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:               lo.ToPtr(u.ID()),
-		ReadableWorkspaces: nil,
-		WritableWorkspaces: nil,
-		OwningWorkspaces:   []id.WorkspaceID{wid},
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: nil,
+			WritableWorkspaces: nil,
+			OwningWorkspaces:   []accountdomain.WorkspaceID{wid},
+		},
 	}
 	uri := lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test"))
 	iId1 := id.NewIntegrationID()

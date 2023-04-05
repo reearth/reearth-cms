@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -13,7 +14,7 @@ import (
 
 func TestToAsset(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	id1 := id.NewAssetID()
 	var pti asset.PreviewType = asset.PreviewTypeImage
 	uuid := uuid.New().String()

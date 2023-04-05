@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestIntegration_Clone(t *testing.T) {
 	iId := id.NewIntegrationID()
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	wId := id.NewWebhookID()
 	now := time.Now()
 	tests := []struct {
@@ -169,7 +170,7 @@ func TestIntegration_Description(t *testing.T) {
 }
 
 func TestIntegration_Developer(t *testing.T) {
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	type fields struct {
 		id          ID
 		name        string
@@ -397,7 +398,7 @@ func TestIntegration_SetDescription(t *testing.T) {
 }
 
 func TestIntegration_SetDeveloper(t *testing.T) {
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	type fields struct {
 		id          ID
 		name        string

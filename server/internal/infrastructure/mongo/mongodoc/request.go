@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -68,7 +69,7 @@ func NewRequest(r *request.Request) (*RequestDocument, string) {
 		Title:       r.Title(),
 		Description: r.Description(),
 		CreatedBy:   r.CreatedBy().String(),
-		Reviewers: lo.Map(r.Reviewers(), func(u id.UserID, i int) string {
+		Reviewers: lo.Map(r.Reviewers(), func(u accountdomain.UserID, i int) string {
 			return u.String()
 		}),
 		State:      r.State().String(),
@@ -104,11 +105,11 @@ func (d *RequestDocument) Model() (*request.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-	wid, err := id.WorkspaceIDFrom(d.Workspace)
+	wid, err := accountdomain.WorkspaceIDFrom(d.Workspace)
 	if err != nil {
 		return nil, err
 	}
-	uid, err := id.UserIDFrom(d.CreatedBy)
+	uid, err := accountdomain.UserIDFrom(d.CreatedBy)
 	if err != nil {
 		return nil, err
 	}

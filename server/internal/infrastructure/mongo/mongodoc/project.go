@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 )
 
@@ -61,7 +62,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	tid, err := id.WorkspaceIDFrom(d.Workspace)
+	tid, err := accountdomain.WorkspaceIDFrom(d.Workspace)
 	if err != nil {
 		return nil, err
 	}

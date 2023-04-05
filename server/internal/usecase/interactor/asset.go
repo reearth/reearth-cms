@@ -70,7 +70,7 @@ func (i *Asset) GetURL(a *asset.Asset) string {
 }
 
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, afile *asset.File, err error) {
-	if op.User == nil && op.Integration == nil {
+	if op.AcOperator.User == nil && op.Integration == nil {
 		return nil, nil, interfaces.ErrInvalidOperator
 	}
 
@@ -138,8 +138,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
 
-			if op.User != nil {
-				ab.CreatedByUser(*op.User)
+			if op.AcOperator.User != nil {
+				ab.CreatedByUser(*op.AcOperator.User)
 			}
 			if op.Integration != nil {
 				ab.CreatedByIntegration(*op.Integration)
@@ -198,7 +198,7 @@ func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *a
 }
 
 func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, operator *usecase.Operator) (result *asset.Asset, err error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -229,7 +229,7 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 }
 
 func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, error) {
-	if op.User == nil && op.Integration == nil && !op.Machine {
+	if op.AcOperator.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -316,7 +316,7 @@ func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
 }
 
 func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return aId, interfaces.ErrInvalidOperator
 	}
 

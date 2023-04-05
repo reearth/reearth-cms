@@ -4,14 +4,18 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestOperator_EventOperator(t *testing.T) {
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	op := Operator{
-		User:        &uId,
 		Integration: nil,
+		AcOperator: &accountusecase.Operator{
+			User: &uId,
+		},
 	}
 
 	eOp := op.Operator()
@@ -21,9 +25,12 @@ func TestOperator_EventOperator(t *testing.T) {
 	assert.Equal(t, &uId, eOp.User())
 
 	iId := id.NewIntegrationID()
+
 	op = Operator{
-		User:        nil,
 		Integration: &iId,
+		AcOperator: &accountusecase.Operator{
+			User: nil,
+		},
 	}
 
 	eOp = op.Operator()

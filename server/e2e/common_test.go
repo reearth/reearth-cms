@@ -38,11 +38,14 @@ func StartServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Se
 	ctx := context.Background()
 
 	var repos *repo.Container
+	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false))
+		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false))
 	} else {
 		repos = memory.New()
+		accountRepos = accountmemory.New()
 	}
 
 	if seeder != nil {
@@ -51,9 +54,9 @@ func StartServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Se
 		}
 	}
 
-	return StartServerWithRepos(t, cfg, repos), repos
+	return StartServerWithRepos(t, cfg, repos, accountRepos), repos
 }
-func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container) *httpexpect.Expect {
+func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container, accountrepos *accountrepo.Container) *httpexpect.Expect {
 	t.Helper()
 
 	if testing.Short() {
@@ -68,10 +71,14 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container) 
 	}
 
 	srv := app.NewServer(ctx, &app.ServerConfig{
-		Config: cfg,
-		Repos:  repos,
+		Config:  cfg,
+		Repos:   repos,
+		AcRepos: accountrepos,
 		Gateways: &gateway.Container{
 			File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "https://example.com")),
+		},
+		AcGateways: &accountgateway.Container{
+			Mailer: mailer.New(&mailer.Config{}),
 		},
 	})
 
@@ -96,18 +103,12 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container) 
 	return httpexpect.New(t, "http://"+l.Addr().String())
 }
 
-type GQLSeeder func(ctx context.Context, r *accountrepo.Container) error
-
-func init() {
-	mongotest.Env = "REEARTH_DB"
-}
-
-func StartGQLServer(t *testing.T, cfg *app.Config, useMongo bool, seeder GQLSeeder) (*httpexpect.Expect, *accountrepo.Container) {
+func StartGQLServer(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, *accountrepo.Container) {
 	e, r := StartGQLServerAndRepos(t, cfg, useMongo, seeder)
 	return e, r
 }
 
-func StartGQLServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder GQLSeeder) (*httpexpect.Expect, *accountrepo.Container) {
+func StartGQLServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, *accountrepo.Container) {
 	ctx := context.Background()
 
 	var repos *repo.Container
@@ -123,7 +124,7 @@ func StartGQLServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder
 	}
 
 	if seeder != nil {
-		if err := seeder(ctx, accountRepos); err != nil {
+		if err := seeder(ctx, repos); err != nil {
 			t.Fatalf("failed to seed the db: %s", err)
 		}
 	}

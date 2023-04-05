@@ -3,6 +3,8 @@ package project
 import (
 	"net/url"
 	"time"
+
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 type Builder struct {
@@ -75,7 +77,7 @@ func (b *Builder) ImageURL(imageURL *url.URL) *Builder {
 	return b
 }
 
-func (b *Builder) Workspace(team WorkspaceID) *Builder {
+func (b *Builder) Workspace(team accountdomain.WorkspaceID) *Builder {
 	b.p.workspaceID = team
 	return b
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -89,7 +90,7 @@ func TestProject_UpdateDescription(t *testing.T) {
 
 func TestProject_UpdateTeam(t *testing.T) {
 	p := &Project{}
-	p.UpdateTeam(NewWorkspaceID())
+	p.UpdateTeam(accountdomain.NewWorkspaceID())
 	assert.NotNil(t, p.Workspace())
 }
 

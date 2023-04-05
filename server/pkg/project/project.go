@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
@@ -17,7 +18,7 @@ var (
 
 type Project struct {
 	id          ID
-	workspaceID WorkspaceID
+	workspaceID accountdomain.WorkspaceID
 	name        string
 	description string
 	alias       string
@@ -55,7 +56,7 @@ func (p *Project) ImageURL() *url.URL {
 	return &imageURL2
 }
 
-func (p *Project) Workspace() WorkspaceID {
+func (p *Project) Workspace() accountdomain.WorkspaceID {
 	return p.workspaceID
 }
 
@@ -102,7 +103,7 @@ func (p *Project) UpdateAlias(alias string) error {
 	return nil
 }
 
-func (p *Project) UpdateTeam(team WorkspaceID) {
+func (p *Project) UpdateTeam(team accountdomain.WorkspaceID) {
 	p.workspaceID = team
 }
 

@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 )
@@ -67,7 +68,7 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 	if err != nil {
 		return nil, err
 	}
-	uId, err := id.UserIDFrom(d.Developer)
+	uId, err := accountdomain.UserIDFrom(d.Developer)
 	if err != nil {
 		return nil, err
 	}

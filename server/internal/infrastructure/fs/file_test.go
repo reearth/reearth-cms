@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -127,7 +128,7 @@ func TestFile_GetURL(t *testing.T) {
 	n := "xxx.yyy"
 	a := asset.New().NewID().
 		Project(id.NewProjectID()).
-		CreatedByUser(id.NewUserID()).
+		CreatedByUser(accountdomain.NewUserID()).
 		Size(1000).FileName(n).
 		UUID(u).
 		Thread(id.NewThreadID()).

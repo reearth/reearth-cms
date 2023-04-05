@@ -8,19 +8,20 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestUc_checkPermission(t *testing.T) {
-	tid := id.NewWorkspaceID()
+	tid := accountdomain.NewWorkspaceID()
 
 	tests := []struct {
 		name               string
 		op                 *usecase.Operator
-		readableWorkspaces id.WorkspaceIDList
-		writableWorkspaces id.WorkspaceIDList
+		readableWorkspaces accountdomain.WorkspaceIDList
+		writableWorkspaces accountdomain.WorkspaceIDList
 		wantErr            bool
 	}{
 		{
@@ -29,38 +30,45 @@ func TestUc_checkPermission(t *testing.T) {
 		},
 		{
 			name:               "nil operator 2",
-			readableWorkspaces: id.WorkspaceIDList{id.NewWorkspaceID()},
+			readableWorkspaces: accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID()},
 			wantErr:            false,
 		},
 		{
 			name:               "can read a workspace",
-			readableWorkspaces: id.WorkspaceIDList{tid},
+			readableWorkspaces: accountdomain.WorkspaceIDList{tid},
 			op: &usecase.Operator{
-				ReadableWorkspaces: id.WorkspaceIDList{tid},
+				AcOperator: &accountusecase.Operator{
+					ReadableWorkspaces: accountdomain.WorkspaceIDList{tid},
+				},
 			},
 			wantErr: false,
 		},
 		{
 			name:               "cannot read a workspace",
-			readableWorkspaces: id.WorkspaceIDList{id.NewWorkspaceID()},
+			readableWorkspaces: accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID()},
 			op: &usecase.Operator{
-				ReadableWorkspaces: id.WorkspaceIDList{},
-			},
+				AcOperator: &accountusecase.Operator{
+					ReadableWorkspaces: accountdomain.WorkspaceIDList{},
+				}},
 			wantErr: true,
 		},
 		{
 			name:               "can write a workspace",
-			writableWorkspaces: id.WorkspaceIDList{tid},
+			writableWorkspaces: accountdomain.WorkspaceIDList{tid},
 			op: &usecase.Operator{
-				WritableWorkspaces: id.WorkspaceIDList{tid},
+				AcOperator: &accountusecase.Operator{
+					WritableWorkspaces: accountdomain.WorkspaceIDList{tid},
+				},
 			},
 			wantErr: false,
 		},
 		{
 			name:               "cannot write a workspace",
-			writableWorkspaces: id.WorkspaceIDList{tid},
+			writableWorkspaces: accountdomain.WorkspaceIDList{tid},
 			op: &usecase.Operator{
-				WritableWorkspaces: id.WorkspaceIDList{},
+				AcOperator: &accountusecase.Operator{
+					WritableWorkspaces: accountdomain.WorkspaceIDList{},
+				},
 			},
 			wantErr: true,
 		},
@@ -86,7 +94,7 @@ func TestUc_checkPermission(t *testing.T) {
 }
 
 func TestUc(t *testing.T) {
-	workspaces := id.WorkspaceIDList{id.NewWorkspaceID(), id.NewWorkspaceID(), id.NewWorkspaceID()}
+	workspaces := accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID(), accountdomain.NewWorkspaceID(), accountdomain.NewWorkspaceID()}
 	assert.Equal(t, &uc{}, Usecase())
 	assert.Equal(t, &uc{readableWorkspaces: workspaces}, (&uc{}).WithReadableWorkspaces(workspaces...))
 	assert.Equal(t, &uc{writableWorkspaces: workspaces}, (&uc{}).WithWritableWorkspaces(workspaces...))

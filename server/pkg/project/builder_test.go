@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -79,7 +80,7 @@ func TestBuilder_ImageURL(t *testing.T) {
 
 func TestBuilder_Team(t *testing.T) {
 	var tb = New().NewID()
-	res := tb.Workspace(NewWorkspaceID()).MustBuild()
+	res := tb.Workspace(accountdomain.NewWorkspaceID()).MustBuild()
 	assert.NotNil(t, res.Workspace())
 }
 
@@ -103,7 +104,7 @@ func TestBuilder_Build(t *testing.T) {
 	d := time.Date(1900, 1, 1, 00, 00, 0, 1, time.UTC)
 	i, _ := url.Parse("ttt://xxx.aa/")
 	pid := NewID()
-	tid := NewWorkspaceID()
+	tid := accountdomain.NewWorkspaceID()
 
 	type args struct {
 		name, description string
@@ -111,7 +112,7 @@ func TestBuilder_Build(t *testing.T) {
 		id                ID
 		updatedAt         time.Time
 		imageURL          *url.URL
-		team              WorkspaceID
+		team              accountdomain.WorkspaceID
 	}
 
 	tests := []struct {
@@ -194,7 +195,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 	d := time.Date(1900, 1, 1, 00, 00, 0, 1, time.UTC)
 	i, _ := url.Parse("ttt://xxx.aa/")
 	pid := NewID()
-	tid := NewWorkspaceID()
+	tid := accountdomain.NewWorkspaceID()
 
 	type args struct {
 		name, description string
@@ -202,7 +203,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 		id                ID
 		updatedAt         time.Time
 		imageURL          *url.URL
-		team              WorkspaceID
+		team              accountdomain.WorkspaceID
 	}
 
 	tests := []struct {

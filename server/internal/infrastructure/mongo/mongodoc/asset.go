@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 )
@@ -107,7 +108,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus)))
 
 	if d.User != nil {
-		uid, err := id.UserIDFrom(*d.User)
+		uid, err := accountdomain.UserIDFrom(*d.User)
 		if err != nil {
 			return nil, err
 		}

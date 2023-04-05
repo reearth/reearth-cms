@@ -142,7 +142,7 @@ func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p 
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -192,8 +192,8 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Thread(th.ID()).
 			Fields(fields)
 
-		if operator.User != nil {
-			ib = ib.User(*operator.User)
+		if operator.AcOperator.User != nil {
+			ib = ib.User(*operator.AcOperator.User)
 		}
 		if operator.Integration != nil {
 			ib = ib.Integration(*operator.Integration)
@@ -233,7 +233,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 }
 
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	if len(param.Fields) == 0 {
@@ -300,7 +300,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return interfaces.ErrInvalidOperator
 	}
 
