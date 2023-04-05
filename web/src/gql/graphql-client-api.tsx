@@ -536,7 +536,7 @@ export type Mutation = {
   removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
-  unPublishItem?: Maybe<UnPublishItemPayload>;
+  unpublishItem?: Maybe<UnpublishItemPayload>;
   updateAsset?: Maybe<UpdateAssetPayload>;
   updateComment?: Maybe<CommentPayload>;
   updateField?: Maybe<FieldPayload>;
@@ -704,8 +704,8 @@ export type MutationRemoveUserFromWorkspaceArgs = {
 };
 
 
-export type MutationUnPublishItemArgs = {
-  input: UnPublishItemInput;
+export type MutationUnpublishItemArgs = {
+  input: UnpublishItemInput;
 };
 
 
@@ -1287,12 +1287,12 @@ export type ThreadPayload = {
   thread: Thread;
 };
 
-export type UnPublishItemInput = {
+export type UnpublishItemInput = {
   itemId: Array<Scalars['ID']>;
 };
 
-export type UnPublishItemPayload = {
-  __typename?: 'UnPublishItemPayload';
+export type UnpublishItemPayload = {
+  __typename?: 'UnpublishItemPayload';
   items: Array<Item>;
 };
 
@@ -1733,12 +1733,12 @@ export type UpdateItemMutationVariables = Exact<{
 
 export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string }> } } | null };
 
-export type UnPublishItemMutationVariables = Exact<{
+export type UnpublishItemMutationVariables = Exact<{
   itemId: Array<Scalars['ID']> | Scalars['ID'];
 }>;
 
 
-export type UnPublishItemMutation = { __typename?: 'Mutation', unPublishItem?: { __typename?: 'UnPublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
+export type UnpublishItemMutation = { __typename?: 'Mutation', unpublishItem?: { __typename?: 'UnpublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -3400,41 +3400,41 @@ export function useUpdateItemMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdateItemMutationHookResult = ReturnType<typeof useUpdateItemMutation>;
 export type UpdateItemMutationResult = Apollo.MutationResult<UpdateItemMutation>;
 export type UpdateItemMutationOptions = Apollo.BaseMutationOptions<UpdateItemMutation, UpdateItemMutationVariables>;
-export const UnPublishItemDocument = gql`
-    mutation UnPublishItem($itemId: [ID!]!) {
-  unPublishItem(input: {itemId: $itemId}) {
+export const UnpublishItemDocument = gql`
+    mutation UnpublishItem($itemId: [ID!]!) {
+  unpublishItem(input: {itemId: $itemId}) {
     items {
       id
     }
   }
 }
     `;
-export type UnPublishItemMutationFn = Apollo.MutationFunction<UnPublishItemMutation, UnPublishItemMutationVariables>;
+export type UnpublishItemMutationFn = Apollo.MutationFunction<UnpublishItemMutation, UnpublishItemMutationVariables>;
 
 /**
- * __useUnPublishItemMutation__
+ * __useUnpublishItemMutation__
  *
- * To run a mutation, you first call `useUnPublishItemMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUnPublishItemMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUnpublishItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnpublishItemMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [unPublishItemMutation, { data, loading, error }] = useUnPublishItemMutation({
+ * const [unpublishItemMutation, { data, loading, error }] = useUnpublishItemMutation({
  *   variables: {
  *      itemId: // value for 'itemId'
  *   },
  * });
  */
-export function useUnPublishItemMutation(baseOptions?: Apollo.MutationHookOptions<UnPublishItemMutation, UnPublishItemMutationVariables>) {
+export function useUnpublishItemMutation(baseOptions?: Apollo.MutationHookOptions<UnpublishItemMutation, UnpublishItemMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UnPublishItemMutation, UnPublishItemMutationVariables>(UnPublishItemDocument, options);
+        return Apollo.useMutation<UnpublishItemMutation, UnpublishItemMutationVariables>(UnpublishItemDocument, options);
       }
-export type UnPublishItemMutationHookResult = ReturnType<typeof useUnPublishItemMutation>;
-export type UnPublishItemMutationResult = Apollo.MutationResult<UnPublishItemMutation>;
-export type UnPublishItemMutationOptions = Apollo.BaseMutationOptions<UnPublishItemMutation, UnPublishItemMutationVariables>;
+export type UnpublishItemMutationHookResult = ReturnType<typeof useUnpublishItemMutation>;
+export type UnpublishItemMutationResult = Apollo.MutationResult<UnpublishItemMutation>;
+export type UnpublishItemMutationOptions = Apollo.BaseMutationOptions<UnpublishItemMutation, UnpublishItemMutationVariables>;
 export const GetModelsDocument = gql`
     query GetModels($projectId: ID!, $pagination: Pagination) {
   models(projectId: $projectId, pagination: $pagination) {

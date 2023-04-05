@@ -140,8 +140,8 @@ export const UPDATE_ITEM = gql`
 `;
 
 export const UNPUBLISH_ITEM = gql`
-  mutation UnPublishItem($itemId: [ID!]!) {
-    unPublishItem(input: { itemId: $itemId }) {
+  mutation UnpublishItem($itemId: [ID!]!) {
+    unpublishItem(input: { itemId: $itemId }) {
       items {
         id
       }

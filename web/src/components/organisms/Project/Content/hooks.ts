@@ -8,7 +8,7 @@ import {
   RequestState as GQLRequestState,
   Request as GQLRequest,
   useGetModalRequestsQuery,
-  useUnPublishItemMutation,
+  useUnpublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
@@ -74,7 +74,7 @@ export default () => {
     [updateRequest, t],
   );
 
-  const [unpublishItem] = useUnPublishItemMutation();
+  const [unpublishItem] = useUnpublishItemMutation();
 
   const handleUnpublish = useCallback(
     async (itemIds: string[]) => {
@@ -84,7 +84,7 @@ export default () => {
         },
         refetchQueries: ["SearchItem", "GetItem"],
       });
-      if (item.errors || !item.data?.unPublishItem) {
+      if (item.errors || !item.data?.unpublishItem) {
         Notification.error({ message: t("Failed to unpublish items.") });
         return;
       }
