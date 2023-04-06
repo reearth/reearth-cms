@@ -51,18 +51,14 @@ func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
 }
 
 func (r *Item) Init() error {
-	res, err := r.client.Client().Indexes2(
+	return createIndexes2(
 		context.Background(),
+		r.client.Client(),
 		append(
 			r.client.Indexes(),
 			mongox.IndexFromKeys(itemIndexes, false)...,
 		)...,
 	)
-	if err != nil {
-		return err
-	}
-	logIndexResult(r.client.Client().Client().Name(), res)
-	return nil
 }
 
 func (r *Item) FindByID(ctx context.Context, id id.ItemID, ref *version.Ref) (item.Versioned, error) {
