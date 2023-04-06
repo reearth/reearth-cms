@@ -30,6 +30,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 	c := &repo.Container{
 		Asset:       NewAsset(client),
 		AssetFile:   NewAssetFile(client),
+		AssetUpload: NewAssetUpload(client),
 		Workspace:   NewWorkspace(client),
 		User:        NewUser(client),
 		Transaction: client.Transaction(),
@@ -63,6 +64,7 @@ func Init(r *repo.Container) error {
 
 	return util.Try(
 		r.Asset.(*Asset).Init,
+		r.AssetUpload.(*AssetUpload).Init,
 		r.Workspace.(*Workspace).Init,
 		r.User.(*User).Init,
 		r.Project.(*ProjectRepo).Init,
