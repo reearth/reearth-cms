@@ -43,6 +43,7 @@ import {
   FileTwoTone,
   PictureTwoTone,
   LoadingOutlined,
+  EyeInvisibleOutlined,
   CopyOutlined,
 } from "@ant-design/icons";
 
@@ -124,5 +125,6 @@ export default {
   loading: LoadingOutlined,
   linked: Linked,
   unzip: Unzip,
+  eyeInvisible: EyeInvisibleOutlined,
   copy: CopyOutlined,
 };

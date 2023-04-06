@@ -105,8 +105,9 @@ Role: ロール
 API key: APIキー
 Account: アカウント
 unique: ユニーク
-New Request: 新規リクエスト
 Add to Request: 既存のリクエストに追加
+Unpublish: 非公開
+New Request: 新規リクエスト
 Please input field!: フィールドを入力してください。
 Title: タイトル
 State: ステータス
@@ -157,7 +158,6 @@ Code Example: ''
 your model id here: ''
 Update: アップデート
 Publish: 公開
-Unpublish: 非公開
 Decompress: 圧縮
 This is your webhook name: Webhookの名前です
 Please input the name of the webhook!: Webhookの名前を入力してください
@@ -282,6 +282,8 @@ Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
 Successfully updated Request!: リクエストの更新に成功しました。
+Failed to unpublish items.: ''
+Successfully unpublished items!: ''
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to delete model.: モデルの削除に失敗しました。
