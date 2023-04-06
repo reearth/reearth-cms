@@ -118,6 +118,52 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestItem_FindAllVersionsByIDs(t *testing.T) {
+	now1 := time.Now().Truncate(time.Millisecond).UTC()
+	now2 := now1.Add(time.Second)
+	nowid1 := primitive.NewObjectIDFromTimestamp(time.Date(2022, time.April, 1, 0, 0, 0, 0, time.UTC)).Timestamp()
+	nowid2 := primitive.NewObjectIDFromTimestamp(time.Date(2022, time.April, 2, 0, 0, 0, 0, time.UTC)).Timestamp()
+
+	iid1 := id.NewItemID()
+	iid2 := id.NewItemID()
+	sfid := schema.NewFieldID()
+	pid := id.NewProjectID()
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
+	i1 := item.New().ID(iid1).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).Timestamp(now1).MustBuild()
+	i2 := item.New().ID(iid2).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).Thread(id.NewThreadID()).Timestamp(now2).MustBuild()
+
+	init := mongotest.Connect(t)
+	client := mongox.NewClientWithDatabase(init(t))
+
+	r := NewItem(client)
+	ctx := context.Background()
+	defer util.MockNow(nowid1)()
+	assert.NoError(t, r.Save(ctx, i1))
+
+	got1, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1})
+	assert.NoError(t, err)
+	assert.Equal(t, item.VersionedList{
+		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1),
+	}, got1)
+
+	defer util.MockNow(nowid2)()
+	assert.NoError(t, r.Save(ctx, i2))
+
+	got2, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1, iid2})
+	assert.NoError(t, err)
+	assert.Equal(t, item.VersionedList{
+		version.NewValue(got2[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1),
+		version.NewValue(got2[1].Version(), nil, version.NewRefs(version.Latest), nowid2, i2),
+	}, got2)
+
+	r = r.Filtered(repo.ProjectFilter{
+		Readable: []id.ProjectID{id.NewProjectID()},
+	})
+	got3, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1, iid2})
+	assert.Nil(t, got3)
+	assert.NoError(t, err)
+}
+
 func TestItem_FindByIDs(t *testing.T) {
 	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
 

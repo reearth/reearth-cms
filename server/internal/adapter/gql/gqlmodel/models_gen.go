@@ -787,6 +787,14 @@ type ThreadPayload struct {
 	Thread *Thread `json:"thread"`
 }
 
+type UnpublishItemInput struct {
+	ItemID []ID `json:"itemId"`
+}
+
+type UnpublishItemPayload struct {
+	Items []*Item `json:"items"`
+}
+
 type UpdateAssetInput struct {
 	ID          ID           `json:"id"`
 	PreviewType *PreviewType `json:"previewType"`
