@@ -217,6 +217,19 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.
 	return item.VersionedList(c.Result).Sort(nil), nil
 }
 
+func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+	c := mongodoc.NewVersionedItemConsumer()
+	if err := r.client.Find(ctx, r.readFilter(bson.M{
+		"id": bson.M{
+			"$in": ids.Strings(),
+		},
+	}), version.All(), c); err != nil {
+		return nil, err
+	}
+
+	return item.VersionedList(c.Result).Sort(nil), nil
+}
+
 func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {
 	return r.client.Timestamp(ctx, bson.M{
 		"modelid": modelID.String(),
