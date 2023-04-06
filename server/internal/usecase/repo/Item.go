@@ -28,6 +28,7 @@ type Item interface {
 	LastModifiedByModel(context.Context, id.ModelID) (time.Time, error)
 	Search(context.Context, *item.Query, *usecasex.Sort, *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error)
 	FindAllVersionsByID(context.Context, id.ItemID) (item.VersionedList, error)
+	FindAllVersionsByIDs(context.Context, id.ItemIDList) (item.VersionedList, error)
 	FindByModelAndValue(context.Context, id.ModelID, []FieldAndValue, *version.Ref) (item.VersionedList, error)
 	IsArchived(context.Context, id.ItemID) (bool, error)
 	Save(context.Context, *item.Item) error
