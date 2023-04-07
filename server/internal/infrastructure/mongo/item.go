@@ -223,7 +223,7 @@ func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (ite
 		return nil, err
 	}
 
-	return item.VersionedList(c.Result).Sort(nil), nil
+	return item.VersionedList(c.Result), nil
 }
 
 func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {

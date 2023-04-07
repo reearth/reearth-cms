@@ -2,6 +2,7 @@ package item
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -88,6 +89,7 @@ func TestList_ItemsByField(t *testing.T) {
 }
 
 func TestVersionedList_FilterFields(t *testing.T) {
+	now := time.Now()
 	fId := id.NewFieldID()
 	i := New().NewID().
 		Schema(id.NewSchemaID()).
@@ -97,13 +99,14 @@ func TestVersionedList_FilterFields(t *testing.T) {
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple())}).
 		MustBuild()
 	vl := VersionedList{
-		version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), i),
+		version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i),
 	}
 
 	assert.Equal(t, vl.FilterFields(id.FieldIDList{fId}), vl.FilterFields(id.FieldIDList{fId}))
 }
 
 func TestVersionedList_Item(t *testing.T) {
+	now := time.Now()
 	fId := id.NewFieldID()
 	iId := id.NewItemID()
 	i := New().ID(iId).
@@ -115,13 +118,14 @@ func TestVersionedList_Item(t *testing.T) {
 		MustBuild()
 	v := version.New()
 	vl := VersionedList{
-		version.MustBeValue(v, nil, version.NewRefs(version.Latest), i),
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
 	}
 
-	assert.Equal(t, version.MustBeValue(v, nil, version.NewRefs(version.Latest), i), vl.Item(iId))
+	assert.Equal(t, version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i), vl.Item(iId))
 }
 
 func TestVersionedList_Unwrap(t *testing.T) {
+	now := time.Now()
 	fId := id.NewFieldID()
 	iId := id.NewItemID()
 	i := New().ID(iId).
@@ -133,7 +137,7 @@ func TestVersionedList_Unwrap(t *testing.T) {
 		MustBuild()
 	v := version.New()
 	vl := VersionedList{
-		version.MustBeValue(v, nil, version.NewRefs(version.Latest), i),
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
 	}
 
 	assert.Equal(t, List{i}, vl.Unwrap())
