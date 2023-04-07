@@ -214,6 +214,15 @@ export type CreateWorkspacePayload = {
   workspace: Workspace;
 };
 
+export type DecompressAssetInput = {
+  assetId: Scalars['ID'];
+};
+
+export type DecompressAssetPayload = {
+  __typename?: 'DecompressAssetPayload';
+  asset: Asset;
+};
+
 export type DeleteAssetInput = {
   assetId: Scalars['ID'];
 };
@@ -511,6 +520,7 @@ export type Mutation = {
   createThread?: Maybe<ThreadPayload>;
   createWebhook?: Maybe<WebhookPayload>;
   createWorkspace?: Maybe<CreateWorkspacePayload>;
+  decompressAsset?: Maybe<DecompressAssetPayload>;
   deleteAsset?: Maybe<DeleteAssetPayload>;
   deleteComment?: Maybe<DeleteCommentPayload>;
   deleteField?: Maybe<DeleteFieldPayload>;
@@ -526,6 +536,7 @@ export type Mutation = {
   removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
+  unpublishItem?: Maybe<UnpublishItemPayload>;
   updateAsset?: Maybe<UpdateAssetPayload>;
   updateComment?: Maybe<CommentPayload>;
   updateField?: Maybe<FieldPayload>;
@@ -613,6 +624,11 @@ export type MutationCreateWorkspaceArgs = {
 };
 
 
+export type MutationDecompressAssetArgs = {
+  input: DecompressAssetInput;
+};
+
+
 export type MutationDeleteAssetArgs = {
   input: DeleteAssetInput;
 };
@@ -685,6 +701,11 @@ export type MutationRemoveMyAuthArgs = {
 
 export type MutationRemoveUserFromWorkspaceArgs = {
   input: RemoveUserFromWorkspaceInput;
+};
+
+
+export type MutationUnpublishItemArgs = {
+  input: UnpublishItemInput;
 };
 
 
@@ -1266,6 +1287,15 @@ export type ThreadPayload = {
   thread: Thread;
 };
 
+export type UnpublishItemInput = {
+  itemId: Array<Scalars['ID']>;
+};
+
+export type UnpublishItemPayload = {
+  __typename?: 'UnpublishItemPayload';
+  items: Array<Item>;
+};
+
 export type UpdateAssetInput = {
   id: Scalars['ID'];
   previewType?: InputMaybe<PreviewType>;
@@ -1550,6 +1580,13 @@ export type DeleteAssetMutationVariables = Exact<{
 
 export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset?: { __typename?: 'DeleteAssetPayload', assetId: string } | null };
 
+export type DecompressAssetMutationVariables = Exact<{
+  assetId: Scalars['ID'];
+}>;
+
+
+export type DecompressAssetMutation = { __typename?: 'Mutation', decompressAsset?: { __typename?: 'DecompressAssetPayload', asset: { __typename?: 'Asset', id: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
+
 export type AddCommentMutationVariables = Exact<{
   threadId: Scalars['ID'];
   content: Scalars['String'];
@@ -1695,6 +1732,13 @@ export type UpdateItemMutationVariables = Exact<{
 
 
 export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string }> } } | null };
+
+export type UnpublishItemMutationVariables = Exact<{
+  itemId: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type UnpublishItemMutation = { __typename?: 'Mutation', unpublishItem?: { __typename?: 'UnpublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2606,6 +2650,41 @@ export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
 export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
 export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
+export const DecompressAssetDocument = gql`
+    mutation DecompressAsset($assetId: ID!) {
+  decompressAsset(input: {assetId: $assetId}) {
+    asset {
+      ...assetFragment
+    }
+  }
+}
+    ${AssetFragmentFragmentDoc}`;
+export type DecompressAssetMutationFn = Apollo.MutationFunction<DecompressAssetMutation, DecompressAssetMutationVariables>;
+
+/**
+ * __useDecompressAssetMutation__
+ *
+ * To run a mutation, you first call `useDecompressAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDecompressAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [decompressAssetMutation, { data, loading, error }] = useDecompressAssetMutation({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useDecompressAssetMutation(baseOptions?: Apollo.MutationHookOptions<DecompressAssetMutation, DecompressAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DecompressAssetMutation, DecompressAssetMutationVariables>(DecompressAssetDocument, options);
+      }
+export type DecompressAssetMutationHookResult = ReturnType<typeof useDecompressAssetMutation>;
+export type DecompressAssetMutationResult = Apollo.MutationResult<DecompressAssetMutation>;
+export type DecompressAssetMutationOptions = Apollo.BaseMutationOptions<DecompressAssetMutation, DecompressAssetMutationVariables>;
 export const AddCommentDocument = gql`
     mutation AddComment($threadId: ID!, $content: String!) {
   addComment(input: {threadId: $threadId, content: $content}) {
@@ -3321,6 +3400,41 @@ export function useUpdateItemMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdateItemMutationHookResult = ReturnType<typeof useUpdateItemMutation>;
 export type UpdateItemMutationResult = Apollo.MutationResult<UpdateItemMutation>;
 export type UpdateItemMutationOptions = Apollo.BaseMutationOptions<UpdateItemMutation, UpdateItemMutationVariables>;
+export const UnpublishItemDocument = gql`
+    mutation UnpublishItem($itemId: [ID!]!) {
+  unpublishItem(input: {itemId: $itemId}) {
+    items {
+      id
+    }
+  }
+}
+    `;
+export type UnpublishItemMutationFn = Apollo.MutationFunction<UnpublishItemMutation, UnpublishItemMutationVariables>;
+
+/**
+ * __useUnpublishItemMutation__
+ *
+ * To run a mutation, you first call `useUnpublishItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnpublishItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unpublishItemMutation, { data, loading, error }] = useUnpublishItemMutation({
+ *   variables: {
+ *      itemId: // value for 'itemId'
+ *   },
+ * });
+ */
+export function useUnpublishItemMutation(baseOptions?: Apollo.MutationHookOptions<UnpublishItemMutation, UnpublishItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UnpublishItemMutation, UnpublishItemMutationVariables>(UnpublishItemDocument, options);
+      }
+export type UnpublishItemMutationHookResult = ReturnType<typeof useUnpublishItemMutation>;
+export type UnpublishItemMutationResult = Apollo.MutationResult<UnpublishItemMutation>;
+export type UnpublishItemMutationOptions = Apollo.BaseMutationOptions<UnpublishItemMutation, UnpublishItemMutationVariables>;
 export const GetModelsDocument = gql`
     query GetModels($projectId: ID!, $pagination: Pagination) {
   models(projectId: $projectId, pagination: $pagination) {

@@ -116,3 +116,13 @@ export const DELETE_ASSET = gql`
     }
   }
 `;
+
+export const DECOMPRESS_ASSET = gql`
+  mutation DecompressAsset($assetId: ID!) {
+    decompressAsset(input: { assetId: $assetId }) {
+      asset {
+        ...assetFragment
+      }
+    }
+  }
+`;

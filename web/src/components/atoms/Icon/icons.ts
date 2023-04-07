@@ -43,6 +43,8 @@ import {
   FileTwoTone,
   PictureTwoTone,
   LoadingOutlined,
+  EyeInvisibleOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -60,6 +62,7 @@ import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
+import Unzip from "./Icons/unzip.svg";
 
 export default {
   home: HomeOutlined,
@@ -121,4 +124,7 @@ export default {
   pictureTwoTone: PictureTwoTone,
   loading: LoadingOutlined,
   linked: Linked,
+  unzip: Unzip,
+  eyeInvisible: EyeInvisibleOutlined,
+  copy: CopyOutlined,
 };
