@@ -2,16 +2,18 @@ package version
 
 import (
 	"testing"
+	"time"
 
+	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewValues(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
-	v := NewValue(vx, nil, nil, 0)
-	v2 := NewValue(vx, nil, NewRefs("y"), 1)
-	v3 := NewValue(vy, nil, NewRefs("y"), 1)
-	v4 := NewValue(vy, NewVersions(vz), nil, 0)
+	v := NewValue(vx, nil, nil, time.Time{}, 0)
+	v2 := NewValue(vx, nil, NewRefs("y"), time.Time{}, 1)
+	v3 := NewValue(vy, nil, NewRefs("y"), time.Time{}, 1)
+	v4 := NewValue(vy, NewVersions(vz), nil, time.Time{}, 0)
 	assert.Equal(t, &Values[int]{
 		inner: []*Value[int]{v},
 	}, NewValues(v))
@@ -22,8 +24,8 @@ func TestNewValues(t *testing.T) {
 
 func TestValues_MustBeValues(t *testing.T) {
 	vx := New()
-	v := NewValue(vx, nil, nil, 0)
-	v2 := NewValue(vx, nil, nil, 0)
+	v := NewValue(vx, nil, nil, time.Time{}, 0)
+	v2 := NewValue(vx, nil, nil, time.Time{}, 0)
 
 	assert.Equal(t, &Values[int]{
 		inner: []*Value[int]{v},
@@ -44,21 +46,21 @@ func TestValues_Get(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	v := &Values[string]{
 		inner: []*Value[string]{
-			NewValue(vx, nil, nil, "foo1"),
-			NewValue(vy, nil, nil, "foo2"),
-			NewValue(vz, nil, NewRefs(Latest), "foo3"),
+			NewValue(vx, nil, nil, time.Time{}, "foo1"),
+			NewValue(vy, nil, nil, time.Time{}, "foo2"),
+			NewValue(vz, nil, NewRefs(Latest), time.Time{}, "foo3"),
 		},
 	}
 
 	got := v.Get(vz.OrRef())
-	assert.Equal(t, NewValue(vz, nil, NewRefs(Latest), "foo3"), got)
+	assert.Equal(t, NewValue(vz, nil, NewRefs(Latest), time.Time{}, "foo3"), got)
 
 	// cannot modify
 	got.value = "d"
 	assert.Equal(t, "foo3", v.Get(vz.OrRef()).Value())
 
 	got = v.Get(Ref(Latest).OrVersion())
-	assert.Equal(t, NewValue(vz, nil, NewRefs(Latest), "foo3"), got)
+	assert.Equal(t, NewValue(vz, nil, NewRefs(Latest), time.Time{}, "foo3"), got)
 
 	// cannot modify
 	got.value = "d"
@@ -72,20 +74,20 @@ func TestValues_Latest(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	assert.Equal(
 		t,
-		NewValue(vx, nil, NewRefs("latest"), ""),
+		NewValue(vx, nil, NewRefs("latest"), time.Time{}, ""),
 		(&Values[string]{
 			inner: []*Value[string]{
-				NewValue(vx, nil, NewRefs("latest"), ""),
-				NewValue(vy, nil, nil, ""),
-				NewValue(vz, nil, nil, ""),
+				NewValue(vx, nil, NewRefs("latest"), time.Time{}, ""),
+				NewValue(vy, nil, nil, time.Time{}, ""),
+				NewValue(vz, nil, nil, time.Time{}, ""),
 			},
 		}).Latest(),
 	)
 	assert.Nil(t, (&Values[string]{
 		inner: []*Value[string]{
-			NewValue(vx, nil, NewRefs("a"), ""),
-			NewValue(vy, nil, nil, ""),
-			NewValue(vz, nil, nil, ""),
+			NewValue(vx, nil, NewRefs("a"), time.Time{}, ""),
+			NewValue(vy, nil, nil, time.Time{}, ""),
+			NewValue(vz, nil, nil, time.Time{}, ""),
 		},
 	}).Latest())
 	assert.Nil(t, (*Values[string])(nil).Latest())
@@ -95,16 +97,16 @@ func TestValues_LatestVersion(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	assert.Equal(t, vx.Ref(), (&Values[string]{
 		inner: []*Value[string]{
-			NewValue(vx, nil, NewRefs("latest"), ""),
-			NewValue(vy, nil, nil, ""),
-			NewValue(vz, nil, nil, ""),
+			NewValue(vx, nil, NewRefs("latest"), time.Time{}, ""),
+			NewValue(vy, nil, nil, time.Time{}, ""),
+			NewValue(vz, nil, nil, time.Time{}, ""),
 		},
 	}).LatestVersion())
 	assert.Nil(t, (&Values[string]{
 		inner: []*Value[string]{
-			NewValue(vx, nil, NewRefs("a"), ""),
-			NewValue(vy, nil, nil, ""),
-			NewValue(vz, nil, nil, ""),
+			NewValue(vx, nil, NewRefs("a"), time.Time{}, ""),
+			NewValue(vy, nil, nil, time.Time{}, ""),
+			NewValue(vz, nil, nil, time.Time{}, ""),
 		},
 	}).LatestVersion())
 	assert.Nil(t, (*Values[string])(nil).LatestVersion())
@@ -114,9 +116,9 @@ func TestValues_All(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	v := &Values[string]{
 		inner: []*Value[string]{
-			NewValue(vx, nil, NewRefs("latest"), "a"),
-			NewValue(vy, nil, nil, "b"),
-			NewValue(vz, nil, nil, "c"),
+			NewValue(vx, nil, NewRefs("latest"), time.Time{}, "a"),
+			NewValue(vy, nil, nil, time.Time{}, "b"),
+			NewValue(vz, nil, nil, time.Time{}, "c"),
 		},
 	}
 	got := v.All()
@@ -129,9 +131,9 @@ func TestValues_Clone(t *testing.T) {
 	vx, vy, vz := New(), New(), New()
 	v := &Values[string]{
 		inner: []*Value[string]{
-			NewValue(vx, nil, NewRefs("latest"), "a"),
-			NewValue(vy, nil, nil, "b"),
-			NewValue(vz, nil, nil, "c"),
+			NewValue(vx, nil, NewRefs("latest"), time.Time{}, "a"),
+			NewValue(vy, nil, nil, time.Time{}, "b"),
+			NewValue(vz, nil, nil, time.Time{}, "c"),
 		},
 		archived: true,
 	}
@@ -143,18 +145,21 @@ func TestValues_Clone(t *testing.T) {
 }
 
 func TestValues_Add(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
 	vx, vy := New(), New()
 	v := &Values[string]{
 		inner: []*Value[string]{
-			NewValue(vx, NewVersions(vy), NewRefs(Latest), "1"),
-			NewValue(vy, nil, NewRefs("a"), "2"),
+			NewValue(vx, NewVersions(vy), NewRefs(Latest), time.Time{}, "1"),
+			NewValue(vy, nil, NewRefs("a"), time.Time{}, "2"),
 		},
 	}
 
 	v.Add("3", Ref("a").OrVersion().Ref())
 	vv := v.Get(Ref("a").OrVersion())
-	assert.Equal(t, NewValue(vv.Version(), NewVersions(vy), NewRefs("a"), "3"), vv)
-	assert.Equal(t, NewValue(vy, nil, nil, "2"), v.Get(vy.OrRef()))
+	assert.Equal(t, NewValue(vv.Version(), NewVersions(vy), NewRefs("a"), now, "3"), vv)
+	assert.Equal(t, NewValue(vy, nil, nil, time.Time{}, "2"), v.Get(vy.OrRef()))
 	assert.True(t, v.validate())
 
 	v.Add("3", Ref("").OrVersion().Ref())
@@ -190,8 +195,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			name: "ref is not found",
 			target: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
-					NewValue(vy, nil, NewRefs("B"), "b"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
+					NewValue(vy, nil, NewRefs("B"), time.Time{}, "b"),
 				}},
 			args: args{
 				ref: "A",
@@ -199,8 +204,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
-					NewValue(vy, nil, NewRefs("B"), "b"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
+					NewValue(vy, nil, NewRefs("B"), time.Time{}, "b"),
 				},
 			},
 		},
@@ -208,8 +213,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			name: "ref should be deleted",
 			target: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
-					NewValue(vy, nil, NewRefs("B"), "b"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
+					NewValue(vy, nil, NewRefs("B"), time.Time{}, "b"),
 				},
 			},
 			args: args{
@@ -218,8 +223,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
-					NewValue(vy, nil, nil, "b"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
+					NewValue(vy, nil, nil, time.Time{}, "b"),
 				},
 			},
 		},
@@ -227,8 +232,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			name: "new ref should be set",
 			target: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
-					NewValue(vy, nil, NewRefs("B"), "b"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
+					NewValue(vy, nil, NewRefs("B"), time.Time{}, "b"),
 				},
 			},
 			args: args{
@@ -237,8 +242,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, NewRefs("A"), "a"),
-					NewValue(vy, nil, NewRefs("B"), "b"),
+					NewValue(vx, nil, NewRefs("A"), time.Time{}, "a"),
+					NewValue(vy, nil, NewRefs("B"), time.Time{}, "b"),
 				},
 			},
 		},
@@ -246,8 +251,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			name: "ref should be moved",
 			target: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, NewRefs("A"), "a"),
-					NewValue(vy, nil, NewRefs("B"), "b"),
+					NewValue(vx, nil, NewRefs("A"), time.Time{}, "a"),
+					NewValue(vy, nil, NewRefs("B"), time.Time{}, "b"),
 				},
 			},
 			args: args{
@@ -256,8 +261,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, NewRefs("A", "B"), "a"),
-					NewValue(vy, nil, nil, "b"),
+					NewValue(vx, nil, NewRefs("A", "B"), time.Time{}, "a"),
+					NewValue(vy, nil, nil, time.Time{}, "b"),
 				},
 			},
 		},
@@ -265,8 +270,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			name: "latest should not be updated",
 			target: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
-					NewValue(vy, NewVersions(vx), NewRefs(Latest), "b"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
+					NewValue(vy, NewVersions(vx), NewRefs(Latest), time.Time{}, "b"),
 				},
 			},
 			args: args{
@@ -275,8 +280,8 @@ func TestValues_UpdateRef(t *testing.T) {
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
-					NewValue(vy, NewVersions(vx), NewRefs(Latest), "b"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
+					NewValue(vy, NewVersions(vx), NewRefs(Latest), time.Time{}, "b"),
 				},
 			},
 		},
@@ -284,7 +289,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			name: "archived should not be updated",
 			target: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
 				},
 				archived: true,
 			},
@@ -294,7 +299,7 @@ func TestValues_UpdateRef(t *testing.T) {
 			},
 			want: &Values[string]{
 				inner: []*Value[string]{
-					NewValue(vx, nil, nil, "a"),
+					NewValue(vx, nil, nil, time.Time{}, "a"),
 				},
 				archived: true,
 			},

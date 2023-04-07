@@ -30,6 +30,7 @@ const ContentList: React.FC = () => {
     requestModalPage,
     requestModalPageSize,
     handleBulkAddItemToRequest: handleAddItemToRequest,
+    handleUnpublish,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
@@ -92,6 +93,7 @@ const ContentList: React.FC = () => {
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
+      onUnpublish={handleUnpublish}
       onItemDelete={handleItemDelete}
       onItemAdd={handleNavigateToItemForm}
       onAddItemToRequestModalClose={handleAddItemToRequestModalClose}

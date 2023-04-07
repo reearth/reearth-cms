@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -245,6 +246,9 @@ func TestItem_FindBySchema(t *testing.T) {
 }
 
 func TestItem_FindAllVersionsByID(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
 	i1 := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
@@ -267,7 +271,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), i1),
+		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
 	}, res)
 
 	// second version
@@ -277,8 +281,8 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	res, err = itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(res[0].Version(), nil, nil, i1),
-		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), i1),
+		version.NewValue(res[0].Version(), nil, nil, now, i1),
+		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), now, i1),
 	}, res)
 
 	// not found
@@ -822,4 +826,70 @@ func TestItem_Delete(t *testing.T) {
 	wantErr := rerror.ErrNotFound
 	err = itemUC.Delete(ctx, id.NewItemID(), op)
 	assert.Equal(t, wantErr, err)
+}
+
+func TestWorkFlow(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
+	wid := id.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).MustBuild()
+	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
+	ri, _ := request.NewItem(i.ID())
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	req1 := request.New().
+		NewID().
+		Workspace(wid).
+		Project(prj.ID()).
+		Reviewers(id.UserIDList{u.ID()}).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{ri}).
+		Title("foo").
+		MustBuild()
+	op := &usecase.Operator{
+		User:             lo.ToPtr(u.ID()),
+		OwningWorkspaces: id.WorkspaceIDList{wid},
+	}
+	ctx := context.Background()
+
+	db := memory.New()
+	err := db.Project.Save(ctx, prj)
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s)
+	assert.NoError(t, err)
+	err = db.Model.Save(ctx, m)
+	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i)
+	assert.NoError(t, err)
+
+	itemUC := NewItem(db, nil)
+
+	status, err := itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusDraft}, status)
+
+	err = db.Request.Save(ctx, req1)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusReview}, status)
+
+	requestUC := NewRequest(db, nil)
+	_, err = requestUC.Approve(ctx, req1.ID(), op)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
+
+	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusDraft}, status)
 }

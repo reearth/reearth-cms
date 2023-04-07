@@ -180,6 +180,44 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		})
 }
 
+func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(
+		ctx, operator, i.repos,
+		Usecase().Transaction(),
+		func(ctx context.Context) (*asset.Asset, error) {
+			a, err := i.repos.Asset.FindByID(ctx, aId)
+			if err != nil {
+				return nil, err
+			}
+
+			if !operator.CanUpdate(a) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			f, err := i.repos.AssetFile.FindByID(ctx, aId)
+			if err != nil {
+				return nil, err
+			}
+
+			if err := i.triggerDecompressEvent(ctx, a, f); err != nil {
+				return nil, err
+			}
+
+			a.UpdateArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusPending))
+
+			if err := i.repos.Asset.Save(ctx, a); err != nil {
+				return nil, err
+			}
+
+			return a, nil
+		},
+	)
+}
+
 func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {
 	taskPayload := task.DecompressAssetPayload{
 		AssetID: a.ID().String(),

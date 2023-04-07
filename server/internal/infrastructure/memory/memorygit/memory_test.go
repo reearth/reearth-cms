@@ -2,6 +2,7 @@ package memorygit
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
@@ -14,10 +15,10 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 	vsm := &VersionedSyncMap[string, string]{
 		m: util.SyncMapFrom(map[string]*version.Values[string]{
 			"a": version.MustBeValues(
-				version.NewValue(vx, nil, nil, "A"),
+				version.NewValue(vx, nil, nil, time.Time{}, "A"),
 			),
 			"b": version.MustBeValues(
-				version.NewValue(vx, nil, version.NewRefs("a"), "B"),
+				version.NewValue(vx, nil, version.NewRefs("a"), time.Time{}, "B"),
 			),
 		}),
 	}
@@ -128,16 +129,16 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
 		map[string]*version.Values[string]{
 			"a": version.MustBeValues(
-				version.NewValue(vx, nil, nil, "A"),
+				version.NewValue(vx, nil, nil, time.Time{}, "A"),
 			),
 			"b": version.MustBeValues(
-				version.NewValue(vx, nil, version.NewRefs("a"), "B"),
+				version.NewValue(vx, nil, version.NewRefs("a"), time.Time{}, "B"),
 			),
 			"c": version.MustBeValues(
-				version.NewValue(vx, nil, nil, "C"),
+				version.NewValue(vx, nil, nil, time.Time{}, "C"),
 			),
 			"d": version.MustBeValues(
-				version.NewValue(vy, nil, version.NewRefs("a"), "D"),
+				version.NewValue(vy, nil, version.NewRefs("a"), time.Time{}, "D"),
 			),
 		},
 	)}
@@ -191,7 +192,7 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			got := tc.m.LoadAll(tc.input.keys, tc.input.vor)
+			got := tc.m.LoadAll(tc.input.keys, &tc.input.vor)
 			got2 := version.UnwrapValues(got)
 			slices.Sort(got2)
 			assert.Equal(t, tc.want, got2)
@@ -204,9 +205,9 @@ func TestVersionedSyncMap_LoadAllVersions(t *testing.T) {
 	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
 		map[string]*version.Values[string]{
 			"a": version.MustBeValues(
-				version.NewValue(vx, nil, nil, "A"),
-				version.NewValue(vy, nil, nil, "B"),
-				version.NewValue(vz, nil, nil, "C"),
+				version.NewValue(vx, nil, nil, time.Time{}, "A"),
+				version.NewValue(vy, nil, nil, time.Time{}, "B"),
+				version.NewValue(vz, nil, nil, time.Time{}, "C"),
 			),
 		},
 	)}
@@ -227,9 +228,9 @@ func TestVersionedSyncMap_LoadAllVersions(t *testing.T) {
 				key: "a",
 			},
 			want: version.MustBeValues(
-				version.NewValue(vx, nil, nil, "A"),
-				version.NewValue(vy, nil, nil, "B"),
-				version.NewValue(vz, nil, nil, "C"),
+				version.NewValue(vx, nil, nil, time.Time{}, "A"),
+				version.NewValue(vy, nil, nil, time.Time{}, "B"),
+				version.NewValue(vz, nil, nil, time.Time{}, "C"),
 			),
 		},
 		{
@@ -296,8 +297,8 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 			target: &VersionedSyncMap[string, string]{
 				m: util.SyncMapFrom(
 					map[string]*version.Values[string]{
-						"1": version.MustBeValues(version.NewValue(vx, nil, nil, "a")),
-						"2": version.MustBeValues(version.NewValue(vx, nil, nil, "a")),
+						"1": version.MustBeValues(version.NewValue(vx, nil, nil, time.Time{}, "a")),
+						"2": version.MustBeValues(version.NewValue(vx, nil, nil, time.Time{}, "a")),
 					},
 				),
 			},
@@ -307,7 +308,7 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 				vr:  vx.OrRef().Ref(),
 			},
 			want: version.MustBeValues(
-				version.NewValue(vx, nil, version.NewRefs("A"), "a"),
+				version.NewValue(vx, nil, version.NewRefs("A"), time.Time{}, "a"),
 			),
 		},
 	}

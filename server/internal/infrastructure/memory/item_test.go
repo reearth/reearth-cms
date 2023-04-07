@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -99,6 +100,8 @@ func TestItem_FindByIDs(t *testing.T) {
 }
 
 func TestItem_FindAllVersionsByID(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
 	ctx := context.Background()
 	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 	r := NewItem()
@@ -107,7 +110,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	v, err := r.FindAllVersionsByID(ctx, i.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), i),
+		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), now, i),
 	}, v)
 
 	r = r.Filtered(repo.ProjectFilter{
@@ -115,6 +118,39 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 		Writable: []id.ProjectID{},
 	})
 	res, err := r.FindAllVersionsByID(ctx, i.ID())
+	assert.NoError(t, err)
+	assert.Empty(t, res)
+}
+
+func TestItem_FindAllVersionsByIDs(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+	ctx := context.Background()
+	iid1, iid2 := item.NewID(), item.NewID()
+	i1 := item.New().ID(iid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(iid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	r := NewItem()
+	_ = r.Save(ctx, i1)
+
+	v, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{i1.ID()})
+	assert.NoError(t, err)
+	assert.Equal(t, item.VersionedList{
+		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
+	}, v)
+
+	_ = r.Save(ctx, i2)
+	v, err = r.FindAllVersionsByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()})
+	assert.NoError(t, err)
+	assert.Equal(t, item.VersionedList{
+		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
+		version.MustBeValue(v[1].Version(), nil, version.NewRefs(version.Latest), now, i2),
+	}, v)
+
+	r = r.Filtered(repo.ProjectFilter{
+		Readable: []id.ProjectID{},
+		Writable: []id.ProjectID{},
+	})
+	res, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()})
 	assert.NoError(t, err)
 	assert.Empty(t, res)
 }
@@ -211,6 +247,9 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 }
 
 func TestItem_UpdateRef(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
 	vx := version.Ref("xxx")
 	ctx := context.Background()
 	i := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
@@ -219,7 +258,7 @@ func TestItem_UpdateRef(t *testing.T) {
 	v, _ := r.FindByID(ctx, i.ID(), nil)
 	_ = r.UpdateRef(ctx, i.ID(), vx, v.Version().OrRef().Ref())
 	v2, _ := r.FindByID(ctx, i.ID(), nil)
-	assert.Equal(t, version.MustBeValue(v.Version(), nil, version.NewRefs(vx, version.Latest), i), v2)
+	assert.Equal(t, version.MustBeValue(v.Version(), nil, version.NewRefs(vx, version.Latest), now, i), v2)
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)

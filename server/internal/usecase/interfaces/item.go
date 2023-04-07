@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -16,10 +17,12 @@ import (
 )
 
 var (
-	ErrItemFieldRequired   = rerror.NewE(i18n.T("item field required"))
-	ErrInvalidField        = rerror.NewE(i18n.T("invalid field"))
-	ErrDuplicatedItemValue = rerror.NewE(i18n.T("duplicated value"))
-	ErrFieldValueExist     = rerror.NewE(i18n.T("field value exist"))
+	ErrItemFieldRequired        = rerror.NewE(i18n.T("item field required"))
+	ErrInvalidField             = rerror.NewE(i18n.T("invalid field"))
+	ErrDuplicatedItemValue      = rerror.NewE(i18n.T("duplicated value"))
+	ErrFieldValueExist          = rerror.NewE(i18n.T("field value exist"))
+	ErrItemsShouldBeOnSameModel = rerror.NewE(i18n.T("items should be on the same model"))
+	ErrItemMissing              = rerror.NewE(i18n.T("one or more items not found"))
 )
 
 type ItemFieldParam struct {
@@ -51,8 +54,10 @@ type Item interface {
 	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	Search(context.Context, *item.Query, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	LastModifiedByModel(context.Context, id.ModelID, *usecase.Operator) (time.Time, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
 	Update(context.Context, UpdateItemParam, *usecase.Operator) (item.Versioned, error)
 	Delete(context.Context, id.ItemID, *usecase.Operator) error
+	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 }
