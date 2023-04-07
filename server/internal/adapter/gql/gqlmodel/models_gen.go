@@ -202,6 +202,14 @@ type CreateWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type DecompressAssetInput struct {
+	AssetID ID `json:"assetId"`
+}
+
+type DecompressAssetPayload struct {
+	Asset *Asset `json:"asset"`
+}
+
 type DeleteAssetInput struct {
 	AssetID ID `json:"assetId"`
 }
@@ -777,6 +785,14 @@ type Thread struct {
 
 type ThreadPayload struct {
 	Thread *Thread `json:"thread"`
+}
+
+type UnpublishItemInput struct {
+	ItemID []ID `json:"itemId"`
+}
+
+type UnpublishItemPayload struct {
+	Items []*Item `json:"items"`
 }
 
 type UpdateAssetInput struct {

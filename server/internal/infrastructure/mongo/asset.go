@@ -32,7 +32,14 @@ func NewAsset(client *mongox.Client) repo.Asset {
 }
 
 func (r *Asset) Init() error {
-	return createIndexes(context.Background(), r.client, assetIndexes, assetUniqueIndexes)
+	return createIndexes2(
+		context.Background(),
+		r.client,
+		append(
+			mongox.IndexFromKeys(assetUniqueIndexes, true),
+			mongox.IndexFromKeys(assetIndexes, false)...,
+		)...,
+	)
 }
 
 func (r *Asset) Filtered(f repo.ProjectFilter) repo.Asset {
