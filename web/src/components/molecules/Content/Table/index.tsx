@@ -53,6 +53,7 @@ export type Props = {
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
@@ -82,6 +83,7 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onUnpublish,
   onSearchTerm,
   onContentTableChange,
   onItemSelect,
@@ -194,6 +196,9 @@ const ContentTable: React.FC<Props> = ({
       <Space size={16}>
         <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
           <Icon icon="plus" /> {t("Add to Request")}
+        </PrimaryButton>
+        <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
+          <Icon icon="eyeInvisible" /> {t("Unpublish")}
         </PrimaryButton>
         <PrimaryButton onClick={props.onCleanSelected}>
           <Icon icon="clear" /> {t("Deselect")}

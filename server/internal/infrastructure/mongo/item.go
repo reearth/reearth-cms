@@ -51,18 +51,14 @@ func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
 }
 
 func (r *Item) Init() error {
-	res, err := r.client.Client().Indexes2(
+	return createIndexes2(
 		context.Background(),
+		r.client.Client(),
 		append(
 			r.client.Indexes(),
 			mongox.IndexFromKeys(itemIndexes, false)...,
 		)...,
 	)
-	if err != nil {
-		return err
-	}
-	logIndexResult(r.client.Client().Client().Name(), res)
-	return nil
 }
 
 func (r *Item) FindByID(ctx context.Context, id id.ItemID, ref *version.Ref) (item.Versioned, error) {
@@ -210,6 +206,19 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.Find(ctx, r.readFilter(bson.M{
 		"id": itemID.String(),
+	}), version.All(), c); err != nil {
+		return nil, err
+	}
+
+	return item.VersionedList(c.Result).Sort(nil), nil
+}
+
+func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+	c := mongodoc.NewVersionedItemConsumer()
+	if err := r.client.Find(ctx, r.readFilter(bson.M{
+		"id": bson.M{
+			"$in": ids.Strings(),
+		},
 	}), version.All(), c); err != nil {
 		return nil, err
 	}

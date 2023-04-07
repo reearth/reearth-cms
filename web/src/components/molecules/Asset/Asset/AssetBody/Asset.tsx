@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -37,7 +38,9 @@ type Props = {
   isModalVisible: boolean;
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
+  decompressing: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
+  onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
   onTypeChange: (
     value: PreviewType,
@@ -55,7 +58,9 @@ const AssetMolecule: React.FC<Props> = ({
   isModalVisible,
   viewerType,
   displayUnzipFileList,
+  decompressing,
   onAssetItemSelect,
+  onAssetDecompress,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -110,9 +115,31 @@ const AssetMolecule: React.FC<Props> = ({
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
-            title={asset.fileName}
+            title={
+              <>
+                {asset.fileName}{" "}
+                <CopyIcon
+                  icon="copy"
+                  onClick={() => {
+                    navigator.clipboard.writeText(asset.url);
+                  }}
+                />
+              </>
+            }
             toolbar={
-              <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+              <>
+                <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+                {asset.archiveExtractionStatus === "SKIPPED" && (
+                  <UnzipButton
+                    onClick={() => {
+                      onAssetDecompress(asset.id);
+                    }}
+                    loading={decompressing}
+                    icon={<Icon icon="unzip" />}>
+                    {t("Unzip")}
+                  </UnzipButton>
+                )}
+              </>
             }>
             <UnzipFileList
               file={asset.file}
@@ -149,6 +176,17 @@ const AssetMolecule: React.FC<Props> = ({
     </BodyContainer>
   );
 };
+
+const CopyIcon = styled(Icon)<{ selected?: boolean }>`
+  margin-left: 16px;
+  &:active {
+    color: #096dd9;
+  }
+`;
+
+const UnzipButton = styled(Button)`
+  margin-left: 24px;
+`;
 
 const BodyContainer = styled.div`
   display: flex;
