@@ -192,7 +192,7 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			got := tc.m.LoadAll(tc.input.keys, tc.input.vor)
+			got := tc.m.LoadAll(tc.input.keys, &tc.input.vor)
 			got2 := version.UnwrapValues(got)
 			slices.Sort(got2)
 			assert.Equal(t, tc.want, got2)

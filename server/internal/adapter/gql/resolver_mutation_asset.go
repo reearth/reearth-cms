@@ -72,3 +72,18 @@ func (r *mutationResolver) DeleteAsset(ctx context.Context, input gqlmodel.Delet
 
 	return &gqlmodel.DeleteAssetPayload{AssetID: gqlmodel.IDFrom(res)}, nil
 }
+
+func (r *mutationResolver) DecompressAsset(ctx context.Context, input gqlmodel.DecompressAssetInput) (*gqlmodel.DecompressAssetPayload, error) {
+	aid, err := gqlmodel.ToID[id.Asset](input.AssetID)
+	if err != nil {
+		return nil, err
+	}
+
+	uc := usecases(ctx).Asset
+	res, err2 := uc.DecompressByID(ctx, aid, getOperator(ctx))
+	if err2 != nil {
+		return nil, err2
+	}
+
+	return &gqlmodel.DecompressAssetPayload{Asset: gqlmodel.ToAsset(res, uc.GetURL)}, nil
+}
