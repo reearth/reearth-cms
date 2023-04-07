@@ -22,6 +22,7 @@ import {
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
+  useDecompressAssetMutation,
   useGetAssetFileQuery,
   useGetAssetItemQuery,
   useGetAssetQuery,
@@ -37,6 +38,7 @@ export default (assetId?: string) => {
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
+  const [decompressing, setDecompressing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
 
@@ -44,12 +46,14 @@ export default (assetId?: string) => {
     variables: {
       assetId: assetId ?? "",
     },
+    fetchPolicy: "network-only",
   });
 
   const { data: rawFile, loading: loading2 } = useGetAssetFileQuery({
     variables: {
       assetId: assetId ?? "",
     },
+    fetchPolicy: "network-only",
   });
 
   const { data: rawAssetItem } = useGetAssetItemQuery({
@@ -99,6 +103,27 @@ export default (assetId?: string) => {
         }
       })(),
     [t, updateAssetMutation],
+  );
+
+  const [decompressAssetMutation] = useDecompressAssetMutation();
+  const handleAssetDecompress = useCallback(
+    (assetId: string) =>
+      (async () => {
+        if (!assetId) return;
+        setDecompressing(true);
+        const result = await decompressAssetMutation({
+          variables: { assetId },
+          refetchQueries: ["GetAsset"],
+        });
+        setDecompressing(false);
+        if (result.errors || !result.data?.decompressAsset) {
+          Notification.error({ message: t("Failed to decompress asset.") });
+        }
+        if (result) {
+          Notification.success({ message: t("Asset is being decompressed!") });
+        }
+      })(),
+    [t, decompressAssetMutation, setDecompressing],
   );
 
   useEffect(() => {
@@ -191,7 +216,9 @@ export default (assetId?: string) => {
     collapsed,
     viewerType,
     displayUnzipFileList,
+    decompressing,
     handleAssetItemSelect,
+    handleAssetDecompress,
     handleToggleCommentMenu,
     handleAssetUpdate,
     handleTypeChange,

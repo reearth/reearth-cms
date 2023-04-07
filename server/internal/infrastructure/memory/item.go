@@ -24,7 +24,7 @@ type Item struct {
 }
 
 func (r *Item) FindByAssets(ctx context.Context, assetID id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
@@ -111,7 +111,7 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 		return nil, r.err
 	}
 
-	return item.VersionedList(r.data.LoadAll(list, ref.OrLatest().OrVersion())).Sort(nil), nil
+	return item.VersionedList(r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion()))).Sort(nil), nil
 }
 
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
@@ -120,6 +120,18 @@ func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.Versio
 	}
 
 	res := r.data.LoadAllVersions(id).All()
+	sortItems(res)
+	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
+		return r.f.CanRead(i.Value().Project())
+	}), nil
+}
+
+func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	res := r.data.LoadAll(ids, nil)
 	sortItems(res)
 	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
 		return r.f.CanRead(i.Value().Project())
