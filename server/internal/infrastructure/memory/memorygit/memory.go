@@ -28,12 +28,16 @@ func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res *vers
 	return vv, true
 }
 
-func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr version.VersionOrRef) (res []*version.Value[V]) {
+func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr *version.VersionOrRef) (res []*version.Value[V]) {
 	m.Range(func(k K, v *version.Values[V]) bool {
 		for _, kk := range keys {
 			if k == kk {
-				if found := v.Get(vr); found != nil {
-					res = append(res, found)
+				if vr == nil {
+					res = append(res, v.All()...)
+				} else {
+					if found := v.Get(*vr); found != nil {
+						res = append(res, found)
+					}
 				}
 			}
 		}

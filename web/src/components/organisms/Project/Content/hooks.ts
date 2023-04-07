@@ -8,6 +8,7 @@ import {
   RequestState as GQLRequestState,
   Request as GQLRequest,
   useGetModalRequestsQuery,
+  useUnpublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
@@ -73,6 +74,26 @@ export default () => {
     [updateRequest, t],
   );
 
+  const [unpublishItem] = useUnpublishItemMutation();
+
+  const handleUnpublish = useCallback(
+    async (itemIds: string[]) => {
+      const item = await unpublishItem({
+        variables: {
+          itemId: itemIds,
+        },
+        refetchQueries: ["SearchItem", "GetItem"],
+      });
+      if (item.errors || !item.data?.unpublishItem) {
+        Notification.error({ message: t("Failed to unpublish items.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully unpublished items!") });
+    },
+    [unpublishItem, t],
+  );
+
   const handleAddItemToRequestModalClose = useCallback(
     () => setAddItemToRequestModalShown(false),
     [],
@@ -95,6 +116,7 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
+    handleUnpublish,
     handleRequestTableChange,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,

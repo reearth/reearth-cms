@@ -40,6 +40,7 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -102,6 +103,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  onUnpublish,
   onCollapse,
   onUploadModalCancel,
   setUploadUrl,
@@ -158,6 +160,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          onUnpublish={onUnpublish}
           onChange={onChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}
