@@ -42,7 +42,7 @@ const CommentsPanel: React.FC<Props> = ({
       trigger={<Icon icon={collapsed ? "panelToggleLeft" : "panelToggleRight"} />}>
       <ContentWrapper>
         {collapsed ? (
-          <StyledIcon icon="message" />
+          <StyledIcon icon="message" onClick={() => onCollapse(false)} />
         ) : (
           <>
             <ThreadWrapper>
