@@ -110,7 +110,7 @@ export default () => {
         if (!projectId) return;
         const result = await deleteRequestMutation({
           variables: { projectId, requestsId },
-          refetchQueries: ["GetRequests"],
+          refetchQueries: ["GetRequests", "GetRequest"],
         });
         if (result.errors) {
           Notification.error({ message: t("Failed to delete one or more requests.") });
@@ -129,7 +129,7 @@ export default () => {
       (async () => {
         const result = await approveRequestMutation({
           variables: { requestId },
-          refetchQueries: ["GetRequests"],
+          refetchQueries: ["GetRequests", "GetRequest"],
         });
         if (result.errors) {
           Notification.error({ message: t("Failed to approve request.") });
@@ -143,7 +143,7 @@ export default () => {
   );
 
   const [createComment] = useAddCommentMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetRequests", "GetRequest"],
   });
 
   const handleCommentCreate = useCallback(
@@ -179,7 +179,7 @@ export default () => {
   );
 
   const [updateComment] = useUpdateCommentMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetRequests", "GetRequest"],
   });
 
   const handleCommentUpdate = useCallback(
@@ -202,7 +202,7 @@ export default () => {
   );
 
   const [deleteComment] = useDeleteCommentMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetRequests", "GetRequest"],
   });
 
   const handleCommentDelete = useCallback(
