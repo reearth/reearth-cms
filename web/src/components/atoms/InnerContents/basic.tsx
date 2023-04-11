@@ -34,7 +34,6 @@ const PaddedContent = styled(Content)`
   display: flex;
   flex-direction: column;
   margin: 16px;
-  height: calc(100% - 32px);
 `;
 
 const Header = styled.div`

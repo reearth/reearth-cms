@@ -64,6 +64,7 @@ const StyledMD = styled.div<{ disabled?: boolean }>`
   width: 100% !important;
   height: 142px;
   line-height: 1;
+  word-break: break-all;
   &:hover,
   &:focus {
     border-color: ${({ disabled }) => (disabled ? "inherited" : "#40a9ff")};
