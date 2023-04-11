@@ -42,11 +42,11 @@ const CommentsPanel: React.FC<Props> = ({
       trigger={<Icon icon={collapsed ? "panelToggleLeft" : "panelToggleRight"} />}>
       <ContentWrapper>
         {collapsed ? (
-          <StyledIcon icon="message" />
+          <StyledIcon icon="message" onClick={() => onCollapse(false)} />
         ) : (
           <>
             <ThreadWrapper>
-              <Title>{t("Comments")}</Title>
+              <Title onClick={() => onCollapse(true)}>{t("Comments")}</Title>
               <CommentsContainer>
                 <Thread
                   me={me}
@@ -82,6 +82,7 @@ const ThreadWrapper = styled.div`
 
 const Title = styled.h3`
   font-size: 18px;
+  cursor: pointer;
 `;
 
 const CommentsContainer = styled.div`
