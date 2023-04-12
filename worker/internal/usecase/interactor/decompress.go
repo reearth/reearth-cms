@@ -42,7 +42,7 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 
 	de, err := decompressor.New(compressedFile, size, ext, uploadFunc)
 	if err != nil {
-		if errors.Is(err, decompressor.ErrUnsupportedExtention) {
+		if errors.Is(err, decompressor.ErrUnsupportedExtension) {
 			log.Infof("unsupported extension: decompression skipped assetID=%s ext=%s", assetID, ext)
 			return nil
 		}
