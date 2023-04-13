@@ -14,9 +14,6 @@ var (
 )
 
 const (
-	// configPrefix            = "REEARTH_CMS_WORKER"
-	// gcsAssetBasePath string = "assets"
-
 	workersNumber    = 500
 	workerQueueDepth = 20000
 )
@@ -52,27 +49,18 @@ func New(r io.ReaderAt, size int64, ext string, wFn WalkFunc) (*Decompressor, er
 	}, nil
 }
 
-func (uz *Decompressor) Decompress(assetBasePath string) error {
+func (uz *Decompressor) Decompress() error {
 	if uz == nil {
 		return nil
 	}
 	archiveFiles := lo.Filter(uz.ar.files(), func(f file, _ int) bool {
 		return !f.skip()
 	})
-
-	// base := filepath.Join(gcsAssetBasePath, assetBasePath)
-	uz.readConcurrent(archiveFiles /*, base*/)
+	uz.readConcurrent(archiveFiles)
 	return nil
 }
 
-func (uz *Decompressor) readConcurrent(zfs []file /*, assetBasePath string*/) {
-	// conf, err := ReadDecompressorConfig()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// ctx := context.Background()
-	// client, _ := storage.NewClient(ctx)
-	// db := client.Bucket(conf.BucketName)
+func (uz *Decompressor) readConcurrent(zfs []file) {
 	var wg sync.WaitGroup
 	workQueue := make(chan file, workerQueueDepth)
 	for i := 0; i < workersNumber; i++ {
@@ -94,7 +82,6 @@ func (uz *Decompressor) readConcurrent(zfs []file /*, assetBasePath string*/) {
 							log.Fatal(err)
 						}
 					}(x)
-					// w := db.Object(getFileDestinationPath(assetBasePath, fn)).NewWriter(ctx)
 					w, err := uz.wFn(fn)
 					if err != nil {
 						log.Errorf("failed to invoke walk func", fn, err.Error())
@@ -125,15 +112,3 @@ func (uz *Decompressor) readConcurrent(zfs []file /*, assetBasePath string*/) {
 	close(workQueue)
 	wg.Wait()
 }
-
-// func getFileDestinationPath(firstPath, secondPath string) string {
-// 	lastElementOfFirstPath := filepath.Base(firstPath)
-// 	tempArray := strings.Split(secondPath, "/")
-// 	firstElementOfSecondPath := tempArray[0]
-//
-// 	if lastElementOfFirstPath == firstElementOfSecondPath {
-// 		return filepath.Join(filepath.Dir(firstPath), secondPath)
-// 	}
-//
-// 	return filepath.Join(firstPath, secondPath)
-// }

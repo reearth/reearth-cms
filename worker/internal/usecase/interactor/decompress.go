@@ -33,7 +33,7 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 	}
 
 	uploadFunc := func(name string) (io.WriteCloser, error) {
-		w, err := u.gateways.File.Upload(ctx, path.Join(base, name))
+		w, err := u.gateways.File.Upload(ctx, smartJoinPath(base, name))
 		if err != nil {
 			return nil, err
 		}
@@ -49,9 +49,21 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 		return err
 	}
 
-	if err = de.Decompress(base); err != nil {
+	if err = de.Decompress(); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func smartJoinPath(firstPath, secondPath string) string {
+	lastElementOfFirstPath := path.Base(firstPath)
+	tempArray := strings.Split(secondPath, "/")
+	firstElementOfSecondPath := tempArray[0]
+
+	if lastElementOfFirstPath == firstElementOfSecondPath {
+		return path.Join(path.Dir(firstPath), secondPath)
+	}
+
+	return path.Join(firstPath, secondPath)
 }

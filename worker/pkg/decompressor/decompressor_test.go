@@ -73,7 +73,7 @@ func TestDecompressor_Decompress(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	assert.NoError(t, uz.Decompress("testdata"))
+	assert.NoError(t, uz.Decompress())
 	for k, v := range files {
 		assert.Equal(t, expectedFiles[k], v.Bytes())
 	}
@@ -95,7 +95,7 @@ func TestDecompressor_Decompress(t *testing.T) {
 		return files[name], nil
 	})
 	require.NoError(t, err)
-	assert.NoError(t, uz2.Decompress("testdata"))
+	assert.NoError(t, uz2.Decompress())
 	for k, v := range files {
 		assert.Equal(t, expectedFiles[k], v.Bytes())
 	}
@@ -133,6 +133,6 @@ func TestDecompressor_DecompressFile(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	err = d.Decompress("")
+	err = d.Decompress()
 	assert.NoError(t, err)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"path"
 	"testing"
 
 	wfs "github.com/reearth/reearth-cms/worker/internal/infrastructure/fs"
@@ -65,4 +66,31 @@ func NewCMS() gateway.CMS {
 
 func (c *mockCMS) NotifyAssetDecompressed(_ context.Context, _ string, _ *asset.ArchiveExtractionStatus) error {
 	return nil
+}
+
+func Test_smartJoinPath(t *testing.T) {
+	tests := []struct {
+		name       string
+		firstPath  string
+		secondPath string
+		want       string
+	}{
+		{
+			name:       "join and remove duplicates",
+			firstPath:  path.Join("a", "b"),
+			secondPath: path.Join("b", "c"),
+			want:       path.Join("a", "b", "c"),
+		},
+		{
+			name:       "join",
+			firstPath:  path.Join("a", "b"),
+			secondPath: path.Join("c", "d"),
+			want:       path.Join("a", "b", "c", "d"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, smartJoinPath(tt.firstPath, tt.secondPath))
+		})
+	}
 }
