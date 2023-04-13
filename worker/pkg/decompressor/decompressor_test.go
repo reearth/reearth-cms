@@ -114,7 +114,10 @@ func TestDecompressor_Decompress(t *testing.T) {
 	// assert.Equal(t, errors.New("test"), uz.Decompress("testdata"))
 }
 
-func TestDecompressor_Decompress2(t *testing.T) {
+// Use this test case to check if everything work correctly locally
+func TestDecompressor_DecompressFile(t *testing.T) {
+	t.Skip("experimental test skipped")
+
 	fn := "精度検証（PlateauView掲載データ）.zip"
 	zf := lo.Must(os.Open("testdata/" + fn))
 
@@ -123,7 +126,6 @@ func TestDecompressor_Decompress2(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// normal scenario (zip)
 	d, err := New(zf, fInfo.Size(), "zip", func(name string) (io.WriteCloser, error) {
 		p := "testdata/" + fn + ".out" + "/" + name
 		_ = os.MkdirAll(filepath.Dir(p), 0770)
