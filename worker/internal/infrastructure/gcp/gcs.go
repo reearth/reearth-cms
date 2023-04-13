@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
-	"path/filepath"
+	"path"
 
 	"cloud.google.com/go/storage"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
@@ -74,14 +74,9 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	name = filepath.Join(gcsAssetBasePath, name)
+	name = path.Join(gcsAssetBasePath, name)
 
 	object := bucket.Object(name)
-	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
-		log.Errorf("gcs: upload delete err: %+v\n", err)
-		return nil, gateway.ErrFailedToUploadFile
-	}
-
 	writer := object.NewWriter(ctx)
 	writer.ObjectAttrs.CacheControl = f.cacheControl
 	return writer, nil
@@ -185,12 +180,12 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	return bucket, nil
 }
 
-func getGCSObjectNameFromURL(assetBasePath string, path string) string {
-	if path == "" {
+func getGCSObjectNameFromURL(assetBasePath string, assetPath string) string {
+	if assetPath == "" {
 		return ""
 	}
 
-	p := filepath.Join(assetBasePath, path)
+	p := path.Join(assetBasePath, assetPath)
 
 	return p
 }
