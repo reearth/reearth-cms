@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
-	"net/url"
 	"path"
 
 	"cloud.google.com/go/storage"
@@ -17,39 +15,21 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
-	cacheSize               = 5 * 1024 * 1024 * 1024 // 5GB
 )
 
 type fileRepo struct {
 	bucketName   string
-	base         *url.URL
 	cacheControl string
 	bucket       *storage.BucketHandle
 }
 
-type Buffer struct {
-	b bytes.Reader
-}
-
-func NewFile(bucketName, base string, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName string, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
 
-	var u *url.URL
-	if base == "" {
-		base = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
-	}
-
-	var err error
-	u, _ = url.Parse(base)
-	if err != nil {
-		return nil, errors.New("invalid base URL")
-	}
-
 	return &fileRepo{
 		bucketName:   bucketName,
-		base:         u,
 		cacheControl: cacheControl,
 	}, nil
 }
@@ -59,11 +39,9 @@ func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser,
 		return nil, 0, rerror.ErrNotFound
 	}
 	objectName := getGCSObjectNameFromURL(gcsAssetBasePath, path)
-	// return f.NewGCSReaderAt(ctx, objectName)
 	return f.readAll(ctx, objectName)
 }
 
-// Upload is the function which allows this func's user to generate the function to upload asset to GCS dynamically
 func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, error) {
 	if name == "" {
 		return nil, gateway.ErrInvalidFile
@@ -81,21 +59,6 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 	writer := object.NewWriter(ctx)
 	writer.ObjectAttrs.CacheControl = f.cacheControl
 	return writer, nil
-}
-
-// GCSReaderAt is a struct which implements io.ReadAt interface
-func (f *fileRepo) NewGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
-	rowReaderAt, size, err := f.newRawGCSReaderAt(ctx, objectName)
-	if err != nil {
-		log.Errorf("gcs: rawGCSReaderAt err: ObjectName=%s, err=%+v\n", objectName, err)
-		return nil, 0, rerror.ErrInternalBy(err)
-	}
-	return rowReaderAt, size, nil
-}
-
-type rawGCSReaderAt struct {
-	ctx context.Context
-	obj *storage.ObjectHandle
 }
 
 func (f *fileRepo) readAll(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
@@ -122,56 +85,13 @@ func (f *fileRepo) readAll(ctx context.Context, objectName string) (gateway.Read
 	}
 
 	reader := bytes.NewReader(objectData)
-	bufReader := Buffer{
+	bufReader := buffer{
 		*reader,
 	}
 
 	return &bufReader, int64(len(objectData)), nil
 }
 
-func (b *Buffer) Close() error {
-	return nil
-}
-
-func (b *Buffer) ReadAt(b2 []byte, off int64) (n int, err error) {
-	return b.b.ReadAt(b2, off)
-}
-
-// newRawGCSReaderAt implements io.ReadAt
-func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
-	if objectName == "" {
-		return nil, 0, rerror.ErrNotFound
-	}
-
-	bucket, err := f.getBucket(ctx)
-	if err != nil {
-		log.Errorf("gcs: read bucket err: %+v\n", err)
-		return nil, 0, rerror.ErrInternalBy(err)
-	}
-	obj := bucket.Object(objectName)
-	attr, err := obj.Attrs(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
-	size := attr.Size
-	return &rawGCSReaderAt{ctx, obj}, size, nil
-}
-
-func (g *rawGCSReaderAt) ReadAt(b []byte, off int64) (n int, err error) {
-	rc, err := g.obj.NewRangeReader(g.ctx, off, int64(len(b)))
-	if err != nil {
-		return
-	}
-	defer rc.Close()
-
-	return rc.Read(b)
-}
-
-func (g *rawGCSReaderAt) Close() error {
-	return nil
-}
-
-// helpers
 func (f *fileRepo) getBucket(ctx context.Context) (*storage.BucketHandle, error) {
 	if f.bucket == nil {
 		client, err := storage.NewClient(ctx)
@@ -187,8 +107,17 @@ func getGCSObjectNameFromURL(assetBasePath string, assetPath string) string {
 	if assetPath == "" {
 		return ""
 	}
+	return path.Join(assetBasePath, assetPath)
+}
 
-	p := path.Join(assetBasePath, assetPath)
+type buffer struct {
+	b bytes.Reader
+}
 
-	return p
+func (b *buffer) Close() error {
+	return nil
+}
+
+func (b *buffer) ReadAt(b2 []byte, off int64) (n int, err error) {
+	return b.b.ReadAt(b2, off)
 }
