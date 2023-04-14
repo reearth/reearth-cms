@@ -79,32 +79,26 @@ func (uz *Decompressor) readConcurrent(zfs []file) {
 					if err != nil {
 						log.Errorf("failed to open read file File=%s, Err=%s", fn, err.Error())
 						log.Fatal(err)
+						return
 					}
-					defer func(x io.ReadCloser) {
-						if err := x.Close(); err != nil {
-							log.Errorf("failed to close read file File=%s, Err=%s", fn, err.Error())
-							log.Fatal(err)
-						}
-					}(x)
 					w, err := uz.wFn(fn)
 					if err != nil {
 						log.Errorf("failed to invoke walk func", fn, err.Error())
 						log.Fatal(err)
 						return
 					}
-					// defer func(w io.WriteCloser) {
-					// 	if err := w.Close(); err != nil {
-					// 		log.Errorf("failed to close write file File=%s, Err=%s", fn, err.Error())
-					// 		log.Fatal(err)
-					// 	}
-					// }(w)
-
 					if _, err := io.Copy(w, x); err != nil {
 						log.Errorf("failed to copy file to Storage File=%s, Err=%s", fn, err.Error())
-						return
 					}
-
-					// log.Infof("worker %3d[%4d/%4d]: wrote %s", i, done, len(uz.ar.files()), fn)
+					// NOTE: do not use deffer to close the reader, writer!
+					if err := x.Close(); err != nil {
+						log.Errorf("failed to close read file File=%s, Err=%s", fn, err.Error())
+						log.Fatal(err)
+					}
+					if err := w.Close(); err != nil {
+						log.Errorf("failed to close write file File=%s, Err=%s", fn, err.Error())
+						log.Fatal(err)
+					}
 				}(f)
 			}
 		}(i)

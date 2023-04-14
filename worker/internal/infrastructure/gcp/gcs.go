@@ -24,6 +24,7 @@ type fileRepo struct {
 	bucketName   string
 	base         *url.URL
 	cacheControl string
+	bucket       *storage.BucketHandle
 }
 
 type Buffer struct {
@@ -68,7 +69,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 		return nil, gateway.ErrInvalidFile
 	}
 
-	bucket, err := f.bucket(ctx)
+	bucket, err := f.getBucket(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
 		return nil, rerror.ErrInternalBy(err)
@@ -78,7 +79,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 
 	object := bucket.Object(name)
 	writer := object.NewWriter(ctx)
-	writer.ObjectAttrs.CacheControl = f.cacheControl
+	// writer.ObjectAttrs.CacheControl = f.cacheControl
 	return writer, nil
 }
 
@@ -102,7 +103,7 @@ func (f *fileRepo) readAll(ctx context.Context, objectName string) (gateway.Read
 		return nil, 0, rerror.ErrNotFound
 	}
 
-	bucket, err := f.bucket(ctx)
+	bucket, err := f.getBucket(ctx)
 	if err != nil {
 		log.Errorf("gcs: read bucket err: %+v\n", err)
 		return nil, 0, rerror.ErrInternalBy(err)
@@ -142,7 +143,7 @@ func (f *fileRepo) newRawGCSReaderAt(ctx context.Context, objectName string) (ga
 		return nil, 0, rerror.ErrNotFound
 	}
 
-	bucket, err := f.bucket(ctx)
+	bucket, err := f.getBucket(ctx)
 	if err != nil {
 		log.Errorf("gcs: read bucket err: %+v\n", err)
 		return nil, 0, rerror.ErrInternalBy(err)
@@ -171,13 +172,15 @@ func (g *rawGCSReaderAt) Close() error {
 }
 
 // helpers
-func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return nil, err
+func (f *fileRepo) getBucket(ctx context.Context) (*storage.BucketHandle, error) {
+	if f.bucket == nil {
+		client, err := storage.NewClient(ctx)
+		if err != nil {
+			return nil, err
+		}
+		f.bucket = client.Bucket(f.bucketName)
 	}
-	bucket := client.Bucket(f.bucketName)
-	return bucket, nil
+	return f.bucket, nil
 }
 
 func getGCSObjectNameFromURL(assetBasePath string, assetPath string) string {
