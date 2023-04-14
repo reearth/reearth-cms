@@ -25,6 +25,10 @@ func (f zipFile) skip() bool {
 	return strings.HasPrefix(fn, "/") || strings.HasSuffix(fn, "/") // || f.f.NonUTF8
 }
 
+func (f zipFile) size() uint64 {
+	return f.f.UncompressedSize64
+}
+
 type zipArchive struct {
 	zr *zip.Reader
 }

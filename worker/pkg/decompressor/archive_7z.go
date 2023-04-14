@@ -25,6 +25,10 @@ func (f sevenZipFile) skip() bool {
 	return strings.HasPrefix(fn, "/") || strings.HasSuffix(fn, "/")
 }
 
+func (f sevenZipFile) size() uint64 {
+	return f.f.UncompressedSize
+}
+
 type sevenZipArchive struct {
 	sr *sevenzip.Reader
 }

@@ -31,6 +31,7 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 		log.Errorf("failed to load zip file from storage, Asset=%s, Path=%s, Err=%s", assetID, assetPath, err.Error())
 		return err
 	}
+	log.Infof("archive downloaded from storage, archive size=%d", size)
 
 	uploadFunc := func(name string) (io.WriteCloser, error) {
 		w, err := u.gateways.File.Upload(ctx, smartJoinPath(base, name))
