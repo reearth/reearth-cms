@@ -1,8 +1,14 @@
-import { Button } from "./Button";
-import "./header.css";
+import React from 'react';
+
+import { Button } from './Button';
+import './header.css';
+
+type User = {
+  name: string;
+};
 
 interface HeaderProps {
-  user?: {};
+  user?: User;
   onLogin: () => void;
   onLogout: () => void;
   onCreateAccount: () => void;
@@ -32,7 +38,12 @@ export const Header = ({ user, onLogin, onLogout, onCreateAccount }: HeaderProps
       </div>
       <div>
         {user ? (
-          <Button size="small" onClick={onLogout} label="Log out" />
+          <>
+            <span className="welcome">
+              Welcome, <b>{user.name}</b>!
+            </span>
+            <Button size="small" onClick={onLogout} label="Log out" />
+          </>
         ) : (
           <>
             <Button size="small" onClick={onLogin} label="Log in" />
