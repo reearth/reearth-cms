@@ -100,8 +100,8 @@
     "react-drag-listview": "0.2.1",
     "react-i18next": "11.18.6",
     "react-json-tree": "0.18.0",
-    "react-markdown": "8.0.4",
-    "react-resizable": "3.0.4",
+    "react-markdown": "8.0.7",
+    "react-resizable": "3.0.5",
     "react-router-dom": "6.4.5",
     "react-svg": "15.1.15",
     "resium": "1.16.1"
