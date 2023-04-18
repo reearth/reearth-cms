@@ -154,20 +154,26 @@ func TestIntegration_Create(t *testing.T) {
 func TestIntegration_Update(t *testing.T) {
 	ts := testSuite()
 
+	wid := id.NewWorkspaceID()
+	uId := id.NewUserID()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
 	type args struct {
 		id     integration.ID
 		params interfaces.UpdateIntegrationParam
 	}
 	tests := []struct {
-		name    string
-		seeds   []*integration.Integration
-		args    args
-		want    *integration.Integration
-		wantErr error
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		args     args
+		want     *integration.Integration
+		wantErr  error
 	}{
 		{
-			name:  "update",
-			seeds: []*integration.Integration{ts.I1},
+			name:     "update",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
 			args: args{
 				id: ts.IId1,
 				params: interfaces.UpdateIntegrationParam{
@@ -184,6 +190,39 @@ func TestIntegration_Update(t *testing.T) {
 				return i
 			}(),
 			wantErr: nil,
+		},
+		{
+			name:     "invalid operator",
+			operator: &usecase.Operator{},
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+				params: interfaces.UpdateIntegrationParam{
+					Name:        lo.ToPtr("updated name"),
+					Description: lo.ToPtr("updated desc"),
+					Logo:        lo.Must1(url.Parse("https://sub.hugo.com")),
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				User:               lo.ToPtr(u.ID()),
+				ReadableWorkspaces: []id.WorkspaceID{wid},
+			},
+			seeds: []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+				params: interfaces.UpdateIntegrationParam{
+					Name:        lo.ToPtr("updated name"),
+					Description: lo.ToPtr("updated desc"),
+					Logo:        lo.Must1(url.Parse("https://sub.hugo.com")),
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
 		},
 	}
 	for _, tt := range tests {
@@ -202,7 +241,7 @@ func TestIntegration_Update(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.Update(ctx, tt.args.id, tt.args.params, ts.Op)
+			got, err := i.Update(ctx, tt.args.id, tt.args.params, tt.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -222,17 +261,40 @@ func TestIntegration_Update(t *testing.T) {
 func TestIntegration_Delete(t *testing.T) {
 	ts := testSuite()
 
+	wid := id.NewWorkspaceID()
+	uId := id.NewUserID()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
 	tests := []struct {
-		name    string
-		seeds   []*integration.Integration
-		args    integration.ID
-		wantErr error
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		args     integration.ID
+		wantErr  error
 	}{
 		{
-			name:    "delete",
+			name:     "delete",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1, ts.I2},
+			args:     ts.IId1,
+			wantErr:  nil,
+		},
+		{
+			name:     "invalid operator",
+			operator: &usecase.Operator{},
+			seeds:    []*integration.Integration{ts.I1, ts.I2},
+			args:     ts.IId1,
+			wantErr:  interfaces.ErrInvalidOperator,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				User:               lo.ToPtr(u.ID()),
+				ReadableWorkspaces: []id.WorkspaceID{wid},
+			},
 			seeds:   []*integration.Integration{ts.I1, ts.I2},
 			args:    ts.IId1,
-			wantErr: nil,
+			wantErr: interfaces.ErrOperationDenied,
 		},
 	}
 	for _, tt := range tests {
@@ -251,7 +313,7 @@ func TestIntegration_Delete(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			err := i.Delete(ctx, tt.args, ts.Op)
+			err := i.Delete(ctx, tt.args, tt.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -269,18 +331,28 @@ func TestIntegration_FindByIDs(t *testing.T) {
 	ts := testSuite()
 
 	tests := []struct {
-		name    string
-		seeds   []*integration.Integration
-		args    []integration.ID
-		want    []*integration.Integration
-		wantErr error
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		args     []integration.ID
+		want     []*integration.Integration
+		wantErr  error
 	}{
 		{
-			name:    "test",
-			seeds:   []*integration.Integration{ts.I1},
-			args:    []integration.ID{ts.IId1},
-			want:    []*integration.Integration{ts.I1},
-			wantErr: nil,
+			name:     "test",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args:     []integration.ID{ts.IId1},
+			want:     []*integration.Integration{ts.I1},
+			wantErr:  nil,
+		},
+		{
+			name:     "test",
+			operator: &usecase.Operator{},
+			seeds:    []*integration.Integration{ts.I1},
+			args:     []integration.ID{ts.IId1},
+			want:     nil,
+			wantErr:  interfaces.ErrInvalidOperator,
 		},
 	}
 	for _, tt := range tests {
@@ -299,7 +371,7 @@ func TestIntegration_FindByIDs(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.FindByIDs(ctx, tt.args, ts.Op)
+			got, err := i.FindByIDs(ctx, tt.args, tt.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -319,16 +391,25 @@ func TestIntegration_FindByMe(t *testing.T) {
 	ts := testSuite()
 
 	tests := []struct {
-		name    string
-		seeds   []*integration.Integration
-		want    []*integration.Integration
-		wantErr error
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		want     []*integration.Integration
+		wantErr  error
 	}{
 		{
-			name:    "test",
-			seeds:   []*integration.Integration{ts.I1, ts.I3},
-			want:    []*integration.Integration{ts.I1},
-			wantErr: nil,
+			name:     "test",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1, ts.I3},
+			want:     []*integration.Integration{ts.I1},
+			wantErr:  nil,
+		},
+		{
+			name:     "invalid operator",
+			operator: &usecase.Operator{},
+			seeds:    []*integration.Integration{ts.I1, ts.I3},
+			want:     nil,
+			wantErr:  interfaces.ErrInvalidOperator,
 		},
 	}
 	for _, tt := range tests {
@@ -347,7 +428,7 @@ func TestIntegration_FindByMe(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.FindByMe(ctx, ts.Op)
+			got, err := i.FindByMe(ctx, tt.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -366,20 +447,26 @@ func TestIntegration_FindByMe(t *testing.T) {
 func TestIntegration_CreateWebhook(t *testing.T) {
 	ts := testSuite()
 
+	wid := id.NewWorkspaceID()
+	uId := id.NewUserID()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
 	type args struct {
 		id     integration.ID
 		params interfaces.CreateWebhookParam
 	}
 	tests := []struct {
-		name    string
-		seeds   []*integration.Integration
-		args    args
-		want    *integration.Webhook
-		wantErr error
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		args     args
+		want     *integration.Webhook
+		wantErr  error
 	}{
 		{
-			name:  "create",
-			seeds: []*integration.Integration{ts.I1},
+			name:     "create",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
 			args: args{
 				id: ts.IId1,
 				params: interfaces.CreateWebhookParam{
@@ -391,6 +478,41 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 			},
 			want:    integration.NewWebhookBuilder().NewID().Name("w1").Url(ts.Uri).Active(true).Trigger(integration.WebhookTrigger{}).MustBuild(),
 			wantErr: nil,
+		},
+		{
+			name:     "invalid operator",
+			operator: &usecase.Operator{},
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+				params: interfaces.CreateWebhookParam{
+					Name:    "w1",
+					URL:     *ts.Uri,
+					Active:  true,
+					Trigger: &interfaces.WebhookTriggerParam{},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				User:               lo.ToPtr(u.ID()),
+				ReadableWorkspaces: []id.WorkspaceID{wid},
+			},
+			seeds: []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+				params: interfaces.CreateWebhookParam{
+					Name:    "w1",
+					URL:     *ts.Uri,
+					Active:  true,
+					Trigger: &interfaces.WebhookTriggerParam{},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
 		},
 	}
 	for _, tt := range tests {
@@ -409,7 +531,7 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.CreateWebhook(ctx, tt.args.id, tt.args.params, ts.Op)
+			got, err := i.CreateWebhook(ctx, tt.args.id, tt.args.params, tt.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -423,6 +545,10 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 func TestIntegration_UpdateWebhook(t *testing.T) {
 	ts := testSuite()
 
+	wid := id.NewWorkspaceID()
+	uId := id.NewUserID()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
 	wId := id.NewWebhookID()
 	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
 	type args struct {
@@ -431,15 +557,17 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 		params interfaces.UpdateWebhookParam
 	}
 	tests := []struct {
-		name    string
-		seeds   []*integration.Integration
-		args    args
-		want    *integration.Webhook
-		wantErr error
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		args     args
+		want     *integration.Webhook
+		wantErr  error
 	}{
 		{
-			name:  "create",
-			seeds: []*integration.Integration{ts.I2},
+			name:     "create",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I2},
 			args: args{
 				iId: ts.IId2,
 				wId: wId,
@@ -455,8 +583,48 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "update item not found",
-			seeds: []*integration.Integration{},
+			name:     "invalid operator",
+			operator: &usecase.Operator{},
+			seeds:    []*integration.Integration{ts.I2},
+			args: args{
+				iId: ts.IId2,
+				wId: wId,
+				params: interfaces.UpdateWebhookParam{
+					Name:    lo.ToPtr("w1"),
+					URL:     ts.Uri,
+					Active:  lo.ToPtr(true),
+					Trigger: &interfaces.WebhookTriggerParam{},
+					Secret:  lo.ToPtr("secret_test"),
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				User:               lo.ToPtr(u.ID()),
+				ReadableWorkspaces: []id.WorkspaceID{wid},
+			},
+			seeds: []*integration.Integration{ts.I2},
+			args: args{
+				iId: ts.IId2,
+				wId: wId,
+				params: interfaces.UpdateWebhookParam{
+					Name:    lo.ToPtr("w1"),
+					URL:     ts.Uri,
+					Active:  lo.ToPtr(true),
+					Trigger: &interfaces.WebhookTriggerParam{},
+					Secret:  lo.ToPtr("secret_test"),
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:     "update item not found",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{},
 			args: args{
 				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
@@ -470,8 +638,9 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:  "update item not found",
-			seeds: []*integration.Integration{ts.I1},
+			name:     "update item not found",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
 			args: args{
 				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
@@ -501,7 +670,7 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			got, err := i.UpdateWebhook(ctx, tt.args.iId, tt.args.wId, tt.args.params, ts.Op)
+			got, err := i.UpdateWebhook(ctx, tt.args.iId, tt.args.wId, tt.args.params, tt.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
@@ -515,6 +684,10 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 func TestIntegration_DeleteWebhook(t *testing.T) {
 	ts := testSuite()
 
+	wid := id.NewWorkspaceID()
+	uId := id.NewUserID()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
 	wId := id.NewWebhookID()
 	ts.I2.SetWebhook([]*integration.Webhook{integration.NewWebhookBuilder().ID(wId).MustBuild()})
 	type args struct {
@@ -523,15 +696,17 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 		params interfaces.UpdateWebhookParam
 	}
 	tests := []struct {
-		name    string
-		seeds   []*integration.Integration
-		args    args
-		want    *integration.Webhook
-		wantErr error
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		args     args
+		want     *integration.Webhook
+		wantErr  error
 	}{
 		{
-			name:  "create",
-			seeds: []*integration.Integration{ts.I2},
+			name:     "create",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I2},
 			args: args{
 				iId: ts.IId2,
 				wId: wId,
@@ -546,8 +721,46 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "update item not found",
-			seeds: []*integration.Integration{},
+			name:     "invalid operator",
+			operator: &usecase.Operator{},
+			seeds:    []*integration.Integration{ts.I2},
+			args: args{
+				iId: ts.IId2,
+				wId: wId,
+				params: interfaces.UpdateWebhookParam{
+					Name:    lo.ToPtr("w1"),
+					URL:     ts.Uri,
+					Active:  lo.ToPtr(true),
+					Trigger: &interfaces.WebhookTriggerParam{},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				User:               lo.ToPtr(u.ID()),
+				ReadableWorkspaces: []id.WorkspaceID{wid},
+			},
+			seeds: []*integration.Integration{ts.I2},
+			args: args{
+				iId: ts.IId2,
+				wId: wId,
+				params: interfaces.UpdateWebhookParam{
+					Name:    lo.ToPtr("w1"),
+					URL:     ts.Uri,
+					Active:  lo.ToPtr(true),
+					Trigger: &interfaces.WebhookTriggerParam{},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:     "update item not found",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{},
 			args: args{
 				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
@@ -561,8 +774,9 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			wantErr: rerror.ErrNotFound,
 		},
 		{
-			name:  "update item not found",
-			seeds: []*integration.Integration{ts.I1},
+			name:     "update item not found",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
 			args: args{
 				iId: ts.IId1,
 				params: interfaces.UpdateWebhookParam{
@@ -592,7 +806,7 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			i := Integration{
 				repos: db,
 			}
-			err := i.DeleteWebhook(ctx, tt.args.iId, tt.args.wId, ts.Op)
+			err := i.DeleteWebhook(ctx, tt.args.iId, tt.args.wId, tt.operator)
 			if tt.wantErr != nil {
 				assert.Equal(t, tt.wantErr, err)
 				return
