@@ -849,6 +849,35 @@ func TestAsset_Update(t *testing.T) {
 		wantErr error
 	}{
 		{
+			name:  "invalid operator",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				upp: interfaces.UpdateAssetParam{
+					AssetID:     aid1,
+					PreviewType: &pti,
+				},
+				operator: &usecase.Operator{},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:  "operation denied",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				upp: interfaces.UpdateAssetParam{
+					AssetID:     aid1,
+					PreviewType: &pti,
+				},
+				operator: &usecase.Operator{
+					User:             &uid,
+					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
 			name:  "update",
 			seeds: []*asset.Asset{a1, a2},
 			args: args{
