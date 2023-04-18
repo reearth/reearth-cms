@@ -387,6 +387,7 @@ func TestAsset_FindByProject(t *testing.T) {
 func TestAsset_Create(t *testing.T) {
 	mocktime := time.Now()
 	ws := user.NewWorkspace().NewID().MustBuild()
+	ws2 := user.NewWorkspace().NewID().MustBuild()
 
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(ws.ID()).UpdatedAt(mocktime).MustBuild()
@@ -502,6 +503,62 @@ func TestAsset_Create(t *testing.T) {
 			want:     nil,
 			wantFile: nil,
 			wantErr:  interfaces.ErrFileNotIncluded,
+		},
+		{
+			name:  "Create invalid operator",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: p1.ID(),
+					File:      nil,
+				},
+				operator: &usecase.Operator{},
+			},
+			want:     nil,
+			wantFile: nil,
+			wantErr:  interfaces.ErrInvalidOperator,
+		},
+		{
+			name:  "Create project not found",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: project.NewID(),
+					File: &file.File{
+						Path:    "aaa.txt",
+						Content: io.NopCloser(buf),
+						Size:    10*1024*1024*1024 + 1,
+					},
+				},
+				operator: &usecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					WritableWorkspaces: []id.WorkspaceID{ws.ID()},
+				},
+			},
+			want:     nil,
+			wantFile: nil,
+			wantErr:  rerror.ErrNotFound,
+		},
+		{
+			name:  "Create operator denied",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: p1.ID(),
+					File: &file.File{
+						Path:    "aaa.txt",
+						Content: io.NopCloser(buf),
+						Size:    10*1024*1024*1024 + 1,
+					},
+				},
+				operator: &usecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					WritableWorkspaces: []id.WorkspaceID{ws2.ID()},
+				},
+			},
+			want:     nil,
+			wantFile: nil,
+			wantErr:  interfaces.ErrOperationDenied,
 		},
 	}
 
