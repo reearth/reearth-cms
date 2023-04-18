@@ -1018,7 +1018,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			},
 			assetID: assetID1,
 			status:  sp,
-			want: nil,
+			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
@@ -1173,6 +1173,30 @@ func TestAsset_Delete(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: nil,
+		},
+		{
+			name:       "invalid operator",
+			seedsAsset: []*asset.Asset{a1, a2},
+			args: args{
+				id:       id.NewAssetID(),
+				operator: &usecase.Operator{},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:         "operation denied",
+			seedsAsset:   []*asset.Asset{a1, a2},
+			seedsProject: []*project.Project{proj1, proj2},
+			args: args{
+				id: aid1,
+				operator: &usecase.Operator{
+					User:               &uid,
+					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
 			name:       "delete not found",
