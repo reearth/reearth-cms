@@ -870,7 +870,7 @@ func TestAsset_Update(t *testing.T) {
 					PreviewType: &pti,
 				},
 				operator: &usecase.Operator{
-					User:             &uid,
+					User:               &uid,
 					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
 				},
 			},
@@ -970,6 +970,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 
 	tests := []struct {
 		name            string
+		operator        *usecase.Operator
 		seedAssets      []*asset.Asset
 		seedFiles       map[asset.ID]*asset.File
 		seedProjects    []*project.Project
@@ -981,7 +982,48 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		wantErr         error
 	}{
 		{
-			name: "update asset not found",
+			name:     "invalid operator",
+			operator: &usecase.Operator{},
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:     "not found",
+			operator: op,
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				User:               &uid,
+				ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+			},
+			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
+			seedFiles: map[asset.ID]*asset.File{
+				a1.ID(): a1f,
+				a2.ID(): a2f,
+			},
+			seedProjects: []*project.Project{proj},
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			status:  sp,
+			want: nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:     "update asset not found",
+			operator: op,
 			prepareFileFunc: func() afero.Fs {
 				return mockFs()
 			},
@@ -991,6 +1033,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		},
 		{
 			name:       "update file not found",
+			operator:   op,
 			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
 			seedFiles: map[asset.ID]*asset.File{
 				a1.ID(): a1f,
@@ -1005,6 +1048,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		},
 		{
 			name:       "update",
+			operator:   op,
 			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
 			seedFiles: map[asset.ID]*asset.File{
 				a1.ID(): a1f,
@@ -1069,7 +1113,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				},
 				ignoreEvent: true,
 			}
-			got, err := assetUC.UpdateFiles(ctx, tc.assetID, tc.status, op)
+			got, err := assetUC.UpdateFiles(ctx, tc.assetID, tc.status, tc.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
