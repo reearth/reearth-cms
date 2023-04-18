@@ -113,6 +113,59 @@ func TestItem_FindByID(t *testing.T) {
 	}
 }
 
+func TestItem_FindByIDs(t *testing.T) {
+	sid := id.NewSchemaID()
+
+	tests := []struct {
+		name    string
+		seeds   item.List
+		arg     id.ItemIDList
+		want    item.VersionedList
+		wantErr error
+	}{
+		{
+			name:    "0 count in empty db",
+			seeds:   item.List{},
+			arg:     []id.ItemID{},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "0 count with item for another workspaces",
+			seeds: item.List{
+				item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild(),
+			},
+			arg:     []id.ItemID{},
+			want:    nil,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, i := range tc.seeds {
+				err := db.Item.Save(ctx, i)
+				assert.NoError(t, err)
+			}
+			itemUC := NewItem(db, nil)
+
+			got, err := itemUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestItem_FindBySchema(t *testing.T) {
 	uid := id.NewUserID()
 	wid := id.NewWorkspaceID()
