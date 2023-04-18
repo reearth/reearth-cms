@@ -602,8 +602,40 @@ func TestItem_Create(t *testing.T) {
 		WritableWorkspaces: []id.WorkspaceID{s.Workspace()},
 	}
 
-	// ok
+	// invalid operator
 	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID().Ref(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, &usecase.Operator{})
+	assert.Equal(t, interfaces.ErrInvalidOperator, err)
+	assert.Nil(t, item)
+
+	// operation denied
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID().Ref(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, &usecase.Operator{
+		User: id.NewUserID().Ref(),
+	})
+	assert.Equal(t, interfaces.ErrOperationDenied, err)
+	assert.Nil(t, item)
+
+	// ok
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: s.ID(),
 		ModelID:  m.ID(),
 		Fields: []interfaces.ItemFieldParam{
@@ -731,6 +763,20 @@ func TestItem_Update(t *testing.T) {
 	assert.Equal(t, item.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
+	// invalid operator
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID().Ref(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, &usecase.Operator{})
+	assert.Equal(t, interfaces.ErrInvalidOperator, err)
+	assert.Nil(t, item)
+
 	// ok with key
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
@@ -855,7 +901,12 @@ func TestItem_Delete(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
+	id2 := id.NewItemID()
+	id3 := id.NewItemID()
+	id4 := id.NewItemID()
 	i1 := item.New().ID(id1).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(id2).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().ID(id3).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	op := &usecase.Operator{
 		User:             lo.ToPtr(u.ID()),
@@ -871,6 +922,26 @@ func TestItem_Delete(t *testing.T) {
 	itemUC.ignoreEvent = true
 	err = itemUC.Delete(ctx, id1, op)
 	assert.NoError(t, err)
+
+	// invalid operator
+	err = db.Item.Save(ctx, i2)
+	assert.NoError(t, err)
+	err = itemUC.Delete(ctx, id2, &usecase.Operator{})
+	assert.Equal(t, interfaces.ErrInvalidOperator, err)
+
+	// operation denied
+	err = db.Item.Save(ctx, i3)
+	assert.NoError(t, err)
+	err = itemUC.Delete(ctx, id3, &usecase.Operator{
+		User: lo.ToPtr(u.ID()),
+	})
+	assert.Equal(t, interfaces.ErrOperationDenied, err)
+
+	// not found
+	err = itemUC.Delete(ctx, id4, &usecase.Operator{
+		User: lo.ToPtr(u.ID()),
+	})
+	assert.Equal(t, rerror.ErrNotFound, err)
 
 	_, err = itemUC.FindByID(ctx, id1, op)
 	assert.Error(t, err)
@@ -938,6 +1009,15 @@ func TestWorkFlow(t *testing.T) {
 	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
+
+	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
+		User:               lo.ToPtr(u.ID()),
+		ReadableWorkspaces: id.WorkspaceIDList{wid},
+	})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
 
 	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, op)
 	assert.NoError(t, err)
