@@ -143,6 +143,99 @@ func TestAsset_FindByID(t *testing.T) {
 		})
 	}
 }
+
+func TestAsset_DecompressByID(t *testing.T) {
+	ws1 := user.NewWorkspace().NewID().MustBuild()
+	pid1 := id.NewProjectID()
+	id1 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	u1 := user.New().ID(uid1).Name("aaa").Email("aaa@bbb.com").Workspace(ws1.ID()).MustBuild()
+	a1 := asset.New().
+		ID(id1).
+		Project(pid1).
+		CreatedByUser(uid1).
+		Size(1000).
+		FileName("aaa.zip").
+		Thread(id.NewThreadID()).
+		NewUUID().
+		MustBuild()
+
+	type args struct {
+		id       id.AssetID
+		operator *usecase.Operator
+	}
+
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		want    *asset.Asset
+		wantErr error
+	}{
+		{
+			name:  "No user or integration",
+			seeds: []*asset.Asset{},
+			args: args{
+				id:       id.NewAssetID(),
+				operator: &usecase.Operator{},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:  "Operation denied",
+			seeds: []*asset.Asset{a1},
+			args: args{
+				id: a1.ID(),
+				operator: &usecase.Operator{
+					User:               lo.ToPtr(u1.ID()),
+					ReadableWorkspaces: []id.WorkspaceID{ws1.ID()},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:  "not found",
+			seeds: []*asset.Asset{a1},
+			args: args{
+				id: asset.NewID(),
+				operator: &usecase.Operator{
+					User:             lo.ToPtr(u1.ID()),
+					OwningProjects:   []id.ProjectID{pid1},
+					OwningWorkspaces: []id.WorkspaceID{ws1.ID()},
+				},
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
+				assert.NoError(t, err)
+			}
+			assetUC := NewAsset(db, nil)
+
+			got, err := assetUC.DecompressByID(ctx, tc.args.id, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestAsset_FindFileByID(t *testing.T) {
 	pid := id.NewProjectID()
 	id1 := id.NewAssetID()
