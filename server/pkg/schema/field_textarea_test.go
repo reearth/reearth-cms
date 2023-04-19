@@ -16,6 +16,14 @@ func TestFieldTextArea_Type(t *testing.T) {
 	assert.Equal(t, value.TypeTextArea, (&FieldTextArea{s: &FieldString{t: value.TypeTextArea}}).Type())
 }
 
+func TestFieldTextArea_TypeProperty(t *testing.T) {
+	f := FieldTextArea{}
+	assert.Equal(t, &TypeProperty{
+		t:        f.Type(),
+		textArea: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldTextArea_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldTextArea)(nil).Clone())
 	assert.Equal(t, &FieldTextArea{}, (&FieldTextArea{}).Clone())

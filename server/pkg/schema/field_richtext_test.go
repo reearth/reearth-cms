@@ -16,6 +16,14 @@ func TestFieldRichText_Type(t *testing.T) {
 	assert.Equal(t, value.TypeRichText, (&FieldRichText{s: &FieldString{t: value.TypeRichText}}).Type())
 }
 
+func TestFieldRichText_TypeProperty(t *testing.T) {
+	f := FieldRichText{}
+	assert.Equal(t, &TypeProperty{
+		t:        f.Type(),
+		richText: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldRichText_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldRichText)(nil).Clone())
 	assert.Equal(t, &FieldRichText{}, (&FieldRichText{}).Clone())

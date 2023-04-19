@@ -334,6 +334,36 @@ func TestSchema_Workspace(t *testing.T) {
 	}
 }
 
+func TestSchema_Project(t *testing.T) {
+	pId := id.NewProjectID()
+	tests := []struct {
+		name string
+		s    Schema
+		want id.ProjectID
+	}{
+		{
+			name: "id",
+			want: id.ProjectID{},
+		},
+		{
+			name: "id",
+			s: Schema{
+				project: pId,
+			},
+			want: pId,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, tc.s.Project())
+		})
+	}
+}
+
 func TestSchema_Clone(t *testing.T) {
 	s := &Schema{id: NewID()}
 	c := s.Clone()

@@ -176,3 +176,19 @@ func TestItem_AssetIDs(t *testing.T) {
 		},
 	}).AssetIDs())
 }
+
+func TestItem_User(t *testing.T) {
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple())
+	uid := id.NewUserID()
+	i1 := New().NewID().User(uid).Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+
+	assert.Equal(t, &uid, i1.User())
+}
+
+func TestItem_Integration(t *testing.T) {
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple())
+	iid := id.NewIntegrationID()
+	i1 := New().NewID().Integration(iid).Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+
+	assert.Equal(t, &iid, i1.Integration())
+}
