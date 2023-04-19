@@ -162,34 +162,37 @@ func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
 	pr, pw := io.Pipe()
 
 	go func() {
-		defer pw.Close()
+		var err error
+		defer func() {
+			_ = pw.CloseWithError(err)
+		}()
 
 		w := csv.NewWriter(pw)
-
 		keys := lo.Map(s.Fields(), func(f *schema.Field, _ int) string {
 			return f.Key().String()
 		})
-		err := w.Write(append([]string{"id"}, keys...))
+		err = w.Write(append([]string{"id"}, keys...))
 		if err != nil {
 			log.Errorf("filed to write csv headers, err: %+v", err)
-			return // err
+			return
 		}
 
 		for _, itm := range l.Results {
 			values := []string{itm.ID}
 			for _, k := range keys {
 				// values = append(values, fmt.Sprintf("%v", itm.Fields[k]))
-				v, err := json.Marshal(itm.Fields[k])
+				var v []byte
+				v, err = json.Marshal(itm.Fields[k])
 				if err != nil {
 					log.Errorf("filed to json marshal field value, err: %+v", err)
-					return // err
+					return
 				}
 				values = append(values, fmt.Sprintf("%v", string(v)))
 			}
-			err := w.Write(values)
+			err = w.Write(values)
 			if err != nil {
 				log.Errorf("filed to write csv value, err: %+v", err)
-				return // err
+				return
 			}
 		}
 		w.Flush()
