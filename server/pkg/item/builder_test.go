@@ -55,6 +55,18 @@ func TestBuilder_Model(t *testing.T) {
 	assert.Equal(t, mid, b.Model())
 }
 
+func TestBuilder_User(t *testing.T) {
+	uId := id.NewUserID()
+	b := New().User(uId)
+	assert.Equal(t, &uId, b.i.user)
+}
+
+func TestBuilder_Integration(t *testing.T) {
+	iId := id.NewIntegrationID()
+	b := New().Integration(iId)
+	assert.Equal(t, &iId, b.i.integration)
+}
+
 func TestBuilder_Thread(t *testing.T) {
 	tid := id.NewThreadID()
 	b := New().NewID().Model(id.NewModelID()).Project(id.NewProjectID()).Schema(id.NewSchemaID()).Thread(tid).MustBuild()

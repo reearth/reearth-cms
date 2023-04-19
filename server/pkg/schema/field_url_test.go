@@ -15,6 +15,14 @@ func TestFieldURL_Type(t *testing.T) {
 	assert.Equal(t, value.TypeURL, (&FieldURL{}).Type())
 }
 
+func TestFieldURL_TypeProperty(t *testing.T) {
+	f := FieldURL{}
+	assert.Equal(t, &TypeProperty{
+		t:   f.Type(),
+		url: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldURL_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldURL)(nil).Clone())
 	assert.Equal(t, &FieldURL{}, (&FieldURL{}).Clone())

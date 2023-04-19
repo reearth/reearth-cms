@@ -22,6 +22,7 @@ func TestUser(t *testing.T) {
 			Workspace WorkspaceID
 			Auths     []Auth
 			Lang      language.Tag
+			Theme     Theme
 		}
 	}{
 		{
@@ -42,6 +43,7 @@ func TestUser(t *testing.T) {
 				Workspace WorkspaceID
 				Auths     []Auth
 				Lang      language.Tag
+				Theme     Theme
 			}{
 				Id:        uid,
 				Name:      "xxx",
@@ -51,7 +53,8 @@ func TestUser(t *testing.T) {
 					Provider: "aaa",
 					Sub:      "sss",
 				}},
-				Lang: language.Make("en"),
+				Lang:  language.Make("en"),
+				Theme: ThemeDefault,
 			},
 		},
 	}
@@ -66,6 +69,7 @@ func TestUser(t *testing.T) {
 			assert.Equal(t, tc.Expected.Auths, tc.User.Auths())
 			assert.Equal(t, tc.Expected.Email, tc.User.Email())
 			assert.Equal(t, tc.Expected.Lang, tc.User.Lang())
+			assert.Equal(t, tc.Expected.Theme, tc.User.Theme())
 		})
 	}
 }
@@ -310,6 +314,12 @@ func TestUser_UpdateLang(t *testing.T) {
 	assert.Equal(t, language.Make("en"), u.Lang())
 }
 
+func TestUser_UpdateTheme(t *testing.T) {
+	u := New().NewID().Name("aaa").Email("aaa@bbb.com").MustBuild()
+	u.UpdateTheme(ThemeDark)
+	assert.Equal(t, ThemeDark, u.Theme())
+}
+
 func TestUser_UpdateWorkspace(t *testing.T) {
 	tid := NewWorkspaceID()
 	u := New().NewID().Name("aaa").Email("aaa@bbb.com").MustBuild()
@@ -426,21 +436,28 @@ func TestUser_SetPassword(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want string
+		want bool
 	}{
 		{
 			name: "should set non-latin characters password",
 			args: args{
 				pass: "Àêîôûtest1",
 			},
-			want: "Àêîôûtest1",
+			want: true,
 		},
 		{
 			name: "should set latin characters password",
 			args: args{
 				pass: "Testabc1",
 			},
-			want: "Testabc1",
+			want: true,
+		},
+		{
+			name: "zero length password",
+			args: args{
+				pass: "",
+			},
+			want: false,
 		},
 	}
 
@@ -449,9 +466,9 @@ func TestUser_SetPassword(t *testing.T) {
 		t.Run(tc.name, func(tt *testing.T) {
 			u := &User{}
 			_ = u.SetPassword(tc.args.pass)
-			got, err := u.password.Verify(tc.want)
+			got, err := u.password.Verify(tc.args.pass)
 			assert.NoError(tt, err)
-			assert.True(tt, got)
+			assert.Equal(tt, tc.want, got)
 		})
 	}
 }

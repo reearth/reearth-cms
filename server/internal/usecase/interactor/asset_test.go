@@ -141,6 +141,194 @@ func TestAsset_FindByID(t *testing.T) {
 	}
 }
 
+func TestAsset_DecompressByID(t *testing.T) {
+	ws1 := user.NewWorkspace().NewID().MustBuild()
+	pid1 := id.NewProjectID()
+	id1 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	u1 := user.New().ID(uid1).Name("aaa").Email("aaa@bbb.com").Workspace(ws1.ID()).MustBuild()
+	a1 := asset.New().
+		ID(id1).
+		Project(pid1).
+		CreatedByUser(uid1).
+		Size(1000).
+		FileName("aaa.zip").
+		Thread(id.NewThreadID()).
+		NewUUID().
+		MustBuild()
+
+	type args struct {
+		id       id.AssetID
+		operator *usecase.Operator
+	}
+
+	tests := []struct {
+		name    string
+		seeds   []*asset.Asset
+		args    args
+		want    *asset.Asset
+		wantErr error
+	}{
+		{
+			name:  "No user or integration",
+			seeds: []*asset.Asset{},
+			args: args{
+				id:       id.NewAssetID(),
+				operator: &usecase.Operator{},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:  "Operation denied",
+			seeds: []*asset.Asset{a1},
+			args: args{
+				id: a1.ID(),
+				operator: &usecase.Operator{
+					User:               lo.ToPtr(u1.ID()),
+					ReadableWorkspaces: []id.WorkspaceID{ws1.ID()},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:  "not found",
+			seeds: []*asset.Asset{a1},
+			args: args{
+				id: asset.NewID(),
+				operator: &usecase.Operator{
+					User:             lo.ToPtr(u1.ID()),
+					OwningProjects:   []id.ProjectID{pid1},
+					OwningWorkspaces: []id.WorkspaceID{ws1.ID()},
+				},
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
+				assert.NoError(t, err)
+			}
+			assetUC := NewAsset(db, nil)
+
+			got, err := assetUC.DecompressByID(ctx, tc.args.id, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestAsset_FindFileByID(t *testing.T) {
+	pid := id.NewProjectID()
+	id1 := id.NewAssetID()
+	uid1 := id.NewUserID()
+	a1 := asset.New().
+		ID(id1).
+		Project(pid).
+		CreatedByUser(uid1).
+		Size(1000).
+		Thread(id.NewThreadID()).
+		NewUUID().
+		MustBuild()
+	af1 := asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Build()
+	op := &usecase.Operator{}
+
+	type args struct {
+		id       id.AssetID
+		operator *usecase.Operator
+	}
+
+	tests := []struct {
+		name      string
+		seeds     []*asset.Asset
+		seedFiles map[asset.ID]*asset.File
+		args      args
+		want      *asset.File
+		wantErr   error
+	}{
+		{
+			name:  "Asset Not found",
+			seeds: []*asset.Asset{a1},
+			args: args{
+				id:       asset.NewID(),
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "Asset file Not found",
+			seeds: []*asset.Asset{a1},
+			seedFiles: map[asset.ID]*asset.File{
+				asset.NewID(): af1,
+			},
+			args: args{
+				id:       id1,
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "Asset file found",
+			seeds: []*asset.Asset{a1},
+			seedFiles: map[asset.ID]*asset.File{
+				id1: af1,
+			},
+			args: args{
+				id:       id1,
+				operator: op,
+			},
+			want:    af1,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, a := range tc.seeds {
+				err := db.Asset.Save(ctx, a.Clone())
+				assert.NoError(t, err)
+			}
+			for id, f := range tc.seedFiles {
+				err := db.AssetFile.Save(ctx, id, f.Clone())
+				assert.Nil(t, err)
+			}
+
+			assetUC := NewAsset(db, nil)
+
+			got, err := assetUC.FindFileByID(ctx, tc.args.id, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func TestAsset_FindByIDs(t *testing.T) {
 	pid1 := id.NewProjectID()
 	uid1 := id.NewUserID()
@@ -384,6 +572,7 @@ func TestAsset_FindByProject(t *testing.T) {
 func TestAsset_Create(t *testing.T) {
 	mocktime := time.Now()
 	ws := user.NewWorkspace().NewID().MustBuild()
+	ws2 := user.NewWorkspace().NewID().MustBuild()
 
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(ws.ID()).UpdatedAt(mocktime).MustBuild()
@@ -500,6 +689,62 @@ func TestAsset_Create(t *testing.T) {
 			wantFile: nil,
 			wantErr:  interfaces.ErrFileNotIncluded,
 		},
+		{
+			name:  "Create invalid operator",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: p1.ID(),
+					File:      nil,
+				},
+				operator: &usecase.Operator{},
+			},
+			want:     nil,
+			wantFile: nil,
+			wantErr:  interfaces.ErrInvalidOperator,
+		},
+		{
+			name:  "Create project not found",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: project.NewID(),
+					File: &file.File{
+						Path:    "aaa.txt",
+						Content: io.NopCloser(buf),
+						Size:    10*1024*1024*1024 + 1,
+					},
+				},
+				operator: &usecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					WritableWorkspaces: []id.WorkspaceID{ws.ID()},
+				},
+			},
+			want:     nil,
+			wantFile: nil,
+			wantErr:  rerror.ErrNotFound,
+		},
+		{
+			name:  "Create operator denied",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: p1.ID(),
+					File: &file.File{
+						Path:    "aaa.txt",
+						Content: io.NopCloser(buf),
+						Size:    10*1024*1024*1024 + 1,
+					},
+				},
+				operator: &usecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					WritableWorkspaces: []id.WorkspaceID{ws2.ID()},
+				},
+			},
+			want:     nil,
+			wantFile: nil,
+			wantErr:  interfaces.ErrOperationDenied,
+		},
 	}
 
 	for _, tc := range tests {
@@ -601,6 +846,35 @@ func TestAsset_Update(t *testing.T) {
 		wantErr error
 	}{
 		{
+			name:  "invalid operator",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				upp: interfaces.UpdateAssetParam{
+					AssetID:     aid1,
+					PreviewType: &pti,
+				},
+				operator: &usecase.Operator{},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:  "operation denied",
+			seeds: []*asset.Asset{a1, a2},
+			args: args{
+				upp: interfaces.UpdateAssetParam{
+					AssetID:     aid1,
+					PreviewType: &pti,
+				},
+				operator: &usecase.Operator{
+					User:               &uid,
+					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
 			name:  "update",
 			seeds: []*asset.Asset{a1, a2},
 			args: args{
@@ -693,6 +967,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 
 	tests := []struct {
 		name            string
+		operator        *usecase.Operator
 		seedAssets      []*asset.Asset
 		seedFiles       map[asset.ID]*asset.File
 		seedProjects    []*project.Project
@@ -704,7 +979,48 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		wantErr         error
 	}{
 		{
-			name: "update asset not found",
+			name:     "invalid operator",
+			operator: &usecase.Operator{},
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:     "not found",
+			operator: op,
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				User:               &uid,
+				ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+			},
+			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
+			seedFiles: map[asset.ID]*asset.File{
+				a1.ID(): a1f,
+				a2.ID(): a2f,
+			},
+			seedProjects: []*project.Project{proj},
+			prepareFileFunc: func() afero.Fs {
+				return mockFs()
+			},
+			assetID: assetID1,
+			status:  sp,
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:     "update asset not found",
+			operator: op,
 			prepareFileFunc: func() afero.Fs {
 				return mockFs()
 			},
@@ -714,6 +1030,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		},
 		{
 			name:       "update file not found",
+			operator:   op,
 			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
 			seedFiles: map[asset.ID]*asset.File{
 				a1.ID(): a1f,
@@ -728,6 +1045,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		},
 		{
 			name:       "update",
+			operator:   op,
 			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
 			seedFiles: map[asset.ID]*asset.File{
 				a1.ID(): a1f,
@@ -792,7 +1110,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				},
 				ignoreEvent: true,
 			}
-			got, err := assetUC.UpdateFiles(ctx, tc.assetID, tc.status, op)
+			got, err := assetUC.UpdateFiles(ctx, tc.assetID, tc.status, tc.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -852,6 +1170,30 @@ func TestAsset_Delete(t *testing.T) {
 			},
 			want:    nil,
 			wantErr: nil,
+		},
+		{
+			name:       "invalid operator",
+			seedsAsset: []*asset.Asset{a1, a2},
+			args: args{
+				id:       id.NewAssetID(),
+				operator: &usecase.Operator{},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:         "operation denied",
+			seedsAsset:   []*asset.Asset{a1, a2},
+			seedsProject: []*project.Project{proj1, proj2},
+			args: args{
+				id: aid1,
+				operator: &usecase.Operator{
+					User:               &uid,
+					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
 			name:       "delete not found",

@@ -24,7 +24,7 @@ func (f *FieldTextArea) MaxLength() *int {
 }
 
 func (f *FieldTextArea) Type() value.Type {
-	return f.s.Type()
+	return value.TypeTextArea
 }
 
 func (f *FieldTextArea) Clone() *FieldTextArea {

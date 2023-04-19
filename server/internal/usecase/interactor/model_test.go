@@ -13,8 +13,88 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestModel_FindByID(t *testing.T) {
+	sid := id.NewSchemaID()
+	id1 := id.NewModelID()
+	m1 := model.New().ID(id1).Key(key.Random()).Schema(sid).Project(id.NewProjectID()).MustBuild()
+	id2 := id.NewModelID()
+	m2 := model.New().ID(id2).Key(key.Random()).Schema(sid).Project(id.NewProjectID()).MustBuild()
+
+	op := &usecase.Operator{
+		User: lo.ToPtr(user.NewID()),
+	}
+
+	tests := []struct {
+		name  string
+		seeds model.List
+		args  struct {
+			id       id.ModelID
+			operator *usecase.Operator
+		}
+		want        *model.Model
+		mockModelErr bool
+		wantErr     error
+	}{
+		{
+			name:  "find 1 of 2",
+			seeds: model.List{m1, m2},
+			args: struct {
+				id       id.ModelID
+				operator *usecase.Operator
+			}{
+				id:       id1,
+				operator: op,
+			},
+			want:    m1,
+			wantErr: nil,
+		},
+		{
+			name:  "find 1 of 0",
+			seeds: model.List{},
+			args: struct {
+				id       id.ModelID
+				operator *usecase.Operator
+			}{
+				id:       id1,
+				operator: op,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			if tc.mockModelErr {
+				memory.SetModelError(db.Model, tc.wantErr)
+			}
+			for _, p := range tc.seeds {
+				err := db.Model.Save(ctx, p)
+				assert.NoError(t, err)
+			}
+			modelUC := NewModel(db, nil)
+
+			got, err := modelUC.FindByID(ctx, tc.args.id, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
 
 func TestModel_CheckKey(t *testing.T) {
 	mockTime := time.Now()
