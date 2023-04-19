@@ -37,7 +37,7 @@ type RequestItem struct {
 type RequestConsumer = mongox.SliceFuncConsumer[*RequestDocument, *request.Request]
 
 func NewRequestConsumer() *RequestConsumer {
-	return NewComsumer[*RequestDocument, *request.Request]()
+	return NewConsumer[*RequestDocument, *request.Request]()
 }
 
 func NewRequest(r *request.Request) (*RequestDocument, string) {

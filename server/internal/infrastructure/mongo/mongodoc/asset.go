@@ -40,7 +40,7 @@ type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
 type AssetAndFileConsumer = mongox.SliceConsumer[*AssetAndFileDocument]
 
 func NewAssetConsumer() *AssetConsumer {
-	return NewComsumer[*AssetDocument, *asset.Asset]()
+	return NewConsumer[*AssetDocument, *asset.Asset]()
 }
 
 func NewAsset(a *asset.Asset) (*AssetDocument, string) {
