@@ -3,7 +3,6 @@ package interactor
 import (
 	"context"
 	"path"
-	"path/filepath"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -47,7 +46,7 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter inte
 	})
 }
 
-func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, op *usecase.Operator) (*asset.File, error) {
+func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, error) {
 	_, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
 		return nil, err
@@ -283,7 +282,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 
 			assetFiles := lo.Filter(lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
 				return asset.NewFile().
-					Name(filepath.Base(f.Name)).
+					Name(path.Base(f.Name)).
 					Path(f.Name).
 					GuessContentType().
 					Build()
@@ -326,10 +325,10 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 
 func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
 	for _, entry := range files {
-		if filepath.Base(entry.Name) == "tileset.json" {
+		if path.Base(entry.Name) == "tileset.json" {
 			return lo.ToPtr(asset.PreviewTypeGeo3dTiles)
 		}
-		if filepath.Ext(entry.Name) == ".mvt" {
+		if path.Ext(entry.Name) == ".mvt" {
 			return lo.ToPtr(asset.PreviewTypeGeoMvt)
 		}
 	}
