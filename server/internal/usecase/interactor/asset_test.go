@@ -710,7 +710,7 @@ func TestAsset_Create(t *testing.T) {
 				cpp: interfaces.CreateAssetParam{
 					ProjectID: project.NewID(),
 					File: &file.File{
-						Path:    "aaa.txt",
+						Name:    "aaa.txt",
 						Content: io.NopCloser(buf),
 						Size:    10*1024*1024*1024 + 1,
 					},
@@ -731,7 +731,7 @@ func TestAsset_Create(t *testing.T) {
 				cpp: interfaces.CreateAssetParam{
 					ProjectID: p1.ID(),
 					File: &file.File{
-						Path:    "aaa.txt",
+						Name:    "aaa.txt",
 						Content: io.NopCloser(buf),
 						Size:    10*1024*1024*1024 + 1,
 					},
