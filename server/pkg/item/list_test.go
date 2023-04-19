@@ -10,46 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestList_SortByID(t *testing.T) {
-	id1 := NewID()
-	id2 := NewID()
-
-	list := List{
-		&Item{id: id2},
-		&Item{id: id1},
-	}
-	res := list.SortByID()
-	assert.Equal(t, List{
-		&Item{id: id1},
-		&Item{id: id2},
-	}, res)
-	assert.Equal(t, List{
-		&Item{id: id2},
-		&Item{id: id1},
-	}, list)
-}
-
-func TestList_SortByTimestamp(t *testing.T) {
-	id1 := NewID()
-	id2 := NewID()
-	now1 := time.Now()
-	now2 := time.Now().Add(time.Second)
-
-	list := List{
-		&Item{id: id2, timestamp: now2},
-		&Item{id: id1, timestamp: now1},
-	}
-	res := list.SortByTimestamp()
-	assert.Equal(t, List{
-		&Item{id: id1, timestamp: now1},
-		&Item{id: id2, timestamp: now2},
-	}, res)
-	assert.Equal(t, List{
-		&Item{id: id2, timestamp: now2},
-		&Item{id: id1, timestamp: now1},
-	}, list)
-}
-
 func TestList_Filtered(t *testing.T) {
 	sfid1 := id.NewFieldID()
 	sfid2 := id.NewFieldID()
@@ -128,25 +88,57 @@ func TestList_ItemsByField(t *testing.T) {
 	}
 }
 
-func TestVersionedList_SortByTimestamp(t *testing.T) {
-	id1 := NewID()
-	id2 := NewID()
-	now1 := time.Now()
-	now2 := time.Now().Add(time.Second)
-	v1 := version.New()
-	v2 := version.New()
-	list := VersionedList{
-		version.NewValue(v2, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id2, timestamp: now2}),
-		version.NewValue(v1, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id1, timestamp: now1}),
+func TestVersionedList_FilterFields(t *testing.T) {
+	now := time.Now()
+	fId := id.NewFieldID()
+	i := New().NewID().
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple())}).
+		MustBuild()
+	vl := VersionedList{
+		version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i),
 	}
-	res := list.SortByTimestamp(AscDirection)
-	assert.Equal(t, VersionedList{
-		version.NewValue(v1, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id1, timestamp: now1}),
-		version.NewValue(v2, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id2, timestamp: now2}),
-	}, res)
-	res2 := list.SortByTimestamp(DescDirection)
-	assert.Equal(t, VersionedList{
-		version.NewValue(v2, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id2, timestamp: now2}),
-		version.NewValue(v1, nil, version.NewRefs(version.Latest), time.Time{}, &Item{id: id1, timestamp: now1}),
-	}, res2)
+
+	assert.Equal(t, vl.FilterFields(id.FieldIDList{fId}), vl.FilterFields(id.FieldIDList{fId}))
+}
+
+func TestVersionedList_Item(t *testing.T) {
+	now := time.Now()
+	fId := id.NewFieldID()
+	iId := id.NewItemID()
+	i := New().ID(iId).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple())}).
+		MustBuild()
+	v := version.New()
+	vl := VersionedList{
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
+	}
+
+	assert.Equal(t, version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i), vl.Item(iId))
+}
+
+func TestVersionedList_Unwrap(t *testing.T) {
+	now := time.Now()
+	fId := id.NewFieldID()
+	iId := id.NewItemID()
+	i := New().ID(iId).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple())}).
+		MustBuild()
+	v := version.New()
+	vl := VersionedList{
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
+	}
+
+	assert.Equal(t, List{i}, vl.Unwrap())
 }

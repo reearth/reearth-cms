@@ -10,6 +10,7 @@ import (
 func TestNewKey(t *testing.T) {
 	assert.Equal(t, Key{key: "aaaaaaa"}, NewKey("aaaaaaa"))
 	assert.Equal(t, Key{key: "aaaa"}, NewKey("aaaa"))
+	assert.Equal(t, Key{}, NewKey("aaa!@#"))
 }
 
 func TestRandomKey(t *testing.T) {

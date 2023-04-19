@@ -68,7 +68,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 
 	var imageURL *url.URL
 	if d.ImageURL != "" {
-		if imageURL, err = url.Parse(d.ImageURL); err != nil {
+		if imageURL, err = url.Parse(d.ImageURL); err != nil || imageURL.Host == "" || imageURL.Scheme == "" {
 			imageURL = nil
 		}
 	}
@@ -95,5 +95,5 @@ func (d *ProjectPublicationDocument) Model() *project.Publication {
 type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Project]
 
 func NewProjectConsumer() *ProjectConsumer {
-	return NewComsumer[*ProjectDocument, *project.Project]()
+	return NewConsumer[*ProjectDocument, *project.Project]()
 }

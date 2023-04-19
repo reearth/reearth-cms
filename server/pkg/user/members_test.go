@@ -137,6 +137,15 @@ func TestMembers_IsOnlyOwner(t *testing.T) {
 	assert.True(t, m.IsOnlyOwner(uid))
 }
 
+func TestMembers_IsOwnerOrMaintainer(t *testing.T) {
+	uid := NewID()
+	m := NewMembersWith(map[ID]Member{uid: {Role: RoleOwner}, NewID(): {Role: RoleReader}})
+	assert.True(t, m.IsOwnerOrMaintainer(uid))
+
+	m = NewMembersWith(map[ID]Member{uid: {Role: RoleMaintainer}, NewID(): {Role: RoleReader}})
+	assert.True(t, m.IsOwnerOrMaintainer(uid))
+}
+
 func TestMembers_Leave(t *testing.T) {
 	uid := NewID()
 
@@ -292,15 +301,59 @@ func TestMembers_UpdateIntegrationRole(t *testing.T) {
 	}
 }
 
-func TestMembers_IntegrationIDs(t *testing.T) {
+func TestMembers_Integrations(t *testing.T) {
 	i1 := integration.NewID()
 	i2 := integration.NewID()
 	u1 := NewID()
 	m := NewMembersWith(map[ID]Member{u1: {Role: RoleOwner}})
+
+	err := m.AddIntegration(i1, "", u1)
+	assert.NoError(t, err)
+	assert.Equal(t, map[integration.ID]Member{
+		i1: {
+			Role:      RoleReader,
+			Disabled:  false,
+			InvitedBy: u1,
+		},
+	}, m.Integrations())
+
+	err = m.AddIntegration(i1, "", u1)
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrUserAlreadyJoined)
+
+	m = NewMembersWith(map[ID]Member{u1: {Role: RoleOwner}})
 	lo.Must0(m.AddIntegration(i1, RoleWriter, u1))
 	lo.Must0(m.AddIntegration(i2, RoleWriter, u1))
 
+	assert.Equal(t, map[integration.ID]Member{
+		i1: {
+			Role:      RoleWriter,
+			Disabled:  false,
+			InvitedBy: u1,
+		},
+		i2: {
+			Role:      RoleWriter,
+			Disabled:  false,
+			InvitedBy: u1,
+		},
+	}, m.Integrations())
+
 	assert.Equal(t, IntegrationIDList{i1, i2}, m.IntegrationIDs())
+
+	err = m.DeleteIntegration(integration.NewID())
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, ErrTargetUserNotInTheWorkspace)
+
+	err = m.DeleteIntegration(i1)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[integration.ID]Member{
+		i2: {
+			Role:      RoleWriter,
+			Disabled:  false,
+			InvitedBy: u1,
+		},
+	}, m.Integrations())
 }
 
 func TestMembers_Join(t *testing.T) {

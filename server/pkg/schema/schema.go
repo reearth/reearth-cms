@@ -45,7 +45,7 @@ func (s *Schema) AddField(f *Field) {
 	if s.Fields().Count() == 0 {
 		f.order = 0
 	} else {
-		//get the biggest order
+		// get the biggest order
 		f.order = s.Fields().Ordered()[s.Fields().Count()-1].Order() + 1
 	}
 	s.fields = append(s.fields, f)
@@ -84,6 +84,7 @@ func (s *Schema) Clone() *Schema {
 
 	return &Schema{
 		id:        s.ID(),
+		project:   s.Project().Clone(),
 		workspace: s.Workspace().Clone(),
 		fields:    slices.Clone(s.fields),
 	}

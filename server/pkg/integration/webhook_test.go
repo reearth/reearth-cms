@@ -482,3 +482,20 @@ func TestWebhook_Url(t *testing.T) {
 		})
 	}
 }
+
+func TestWebhook_Secret(t *testing.T) {
+	w := Webhook{}
+	w.SetSecret("xyz")
+	assert.Equal(t, "xyz", w.secret)
+	assert.Equal(t, "xyz", w.Secret())
+}
+
+func TestWebhookTrigger_Enable(t *testing.T) {
+	wt := WebhookTrigger{}
+
+	assert.False(t, wt.IsActive(event.ItemCreate))
+	wt.Enable(event.ItemCreate)
+	assert.True(t, wt.IsActive(event.ItemCreate))
+	wt.Disable(event.ItemCreate)
+	assert.False(t, wt.IsActive(event.ItemCreate))
+}
