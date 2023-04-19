@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
@@ -23,6 +24,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/thread"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -44,9 +46,13 @@ var (
 	palias = "PROJECT_ALIAS"
 	sfKey  = key.Random()
 	sfKey2 = id.NewKey("asset")
+
+	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
+	defer util.MockNow(now)()
+
 	u := user.New().ID(uId).
 		Name("e2e").
 		Email("e2e@e2e.com").
