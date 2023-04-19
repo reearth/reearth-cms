@@ -263,6 +263,7 @@ func TestUser_FindByPasswordResetRequest(t *testing.T) {
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 			} else {
+				assert.Nil(t, err)
 				assert.Equal(t, tc.want, got)
 			}
 		})
