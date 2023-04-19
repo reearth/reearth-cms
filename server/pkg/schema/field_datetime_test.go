@@ -16,6 +16,14 @@ func TestFieldDateTime_Type(t *testing.T) {
 	assert.Equal(t, value.TypeDateTime, (&FieldDateTime{}).Type())
 }
 
+func TestFieldDateTime_TypeProperty(t *testing.T) {
+	f := FieldDateTime{}
+	assert.Equal(t, &TypeProperty{
+		t:        f.Type(),
+		dateTime: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldDateTime_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldDateTime)(nil).Clone())
 	assert.Equal(t, &FieldDateTime{}, (&FieldDateTime{}).Clone())
