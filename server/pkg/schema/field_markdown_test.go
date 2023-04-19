@@ -16,6 +16,14 @@ func TestFieldMarkdown_Type(t *testing.T) {
 	assert.Equal(t, value.TypeMarkdown, (&FieldMarkdown{s: &FieldString{t: value.TypeMarkdown}}).Type())
 }
 
+func TestFieldMarkdown_TypeProperty(t *testing.T) {
+	f := FieldMarkdown{}
+	assert.Equal(t, &TypeProperty{
+		t:        f.Type(),
+		markdown: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldMarkdown_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldMarkdown)(nil).Clone())
 	assert.Equal(t, &FieldMarkdown{}, (&FieldMarkdown{}).Clone())

@@ -16,6 +16,14 @@ func TestFieldAsset_Type(t *testing.T) {
 	assert.Equal(t, value.TypeAsset, (&FieldAsset{}).Type())
 }
 
+func TestFieldAsset_TypeProperty(t *testing.T) {
+	f := FieldAsset{}
+	assert.Equal(t, &TypeProperty{
+		t:     f.Type(),
+		asset: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldAsset_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldAsset)(nil).Clone())
 	assert.Equal(t, &FieldAsset{}, (&FieldAsset{}).Clone())

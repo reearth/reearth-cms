@@ -24,7 +24,7 @@ func (f *FieldMarkdown) MaxLength() *int {
 }
 
 func (f *FieldMarkdown) Type() value.Type {
-	return f.s.Type()
+	return value.TypeMarkdown
 }
 
 func (f *FieldMarkdown) Clone() *FieldMarkdown {

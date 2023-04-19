@@ -52,6 +52,14 @@ func TestQuery_Project(t *testing.T) {
 	assert.Equal(t, pid, q.Project())
 }
 
+func TestQuery_Schema(t *testing.T) {
+	sId := id.NewSchemaID()
+	q := &Query{
+		schema: &sId,
+	}
+	assert.Equal(t, &sId, q.Schema())
+}
+
 func TestQuery_Q(t *testing.T) {
 	str := "foo"
 	q := &Query{
