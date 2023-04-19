@@ -12,20 +12,20 @@ type sevenZipFile struct {
 	f *sevenzip.File
 }
 
-func (f sevenZipFile) name() string {
+func (f sevenZipFile) Name() string {
 	return f.f.Name
 }
 
-func (f sevenZipFile) open() (io.ReadCloser, error) {
+func (f sevenZipFile) Open() (io.ReadCloser, error) {
 	return f.f.Open()
 }
 
-func (f sevenZipFile) skip() bool {
-	fn := f.name()
+func (f sevenZipFile) Skip() bool {
+	fn := f.Name()
 	return strings.HasPrefix(fn, "/") || strings.HasSuffix(fn, "/")
 }
 
-func (f sevenZipFile) size() uint64 {
+func (f sevenZipFile) Size() uint64 {
 	return f.f.UncompressedSize
 }
 
@@ -33,7 +33,7 @@ type sevenZipArchive struct {
 	sr *sevenzip.Reader
 }
 
-func new7ZipReader(r io.ReaderAt, size int64) (archive, error) {
+func new7ZipReader(r io.ReaderAt, size int64) (Archive, error) {
 	reader, err := sevenzip.NewReader(r, size)
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func new7ZipReader(r io.ReaderAt, size int64) (archive, error) {
 	}, nil
 }
 
-func (a sevenZipArchive) files() []file {
-	return lo.Map(a.sr.File, func(f *sevenzip.File, _ int) file {
+func (a sevenZipArchive) Files() []File {
+	return lo.Map(a.sr.File, func(f *sevenzip.File, _ int) File {
 		return sevenZipFile{f: f}
 	})
 }

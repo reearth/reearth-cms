@@ -12,20 +12,20 @@ type zipFile struct {
 	f *zip.File
 }
 
-func (f zipFile) name() string {
+func (f zipFile) Name() string {
 	return f.f.Name
 }
 
-func (f zipFile) open() (io.ReadCloser, error) {
+func (f zipFile) Open() (io.ReadCloser, error) {
 	return f.f.Open()
 }
 
-func (f zipFile) skip() bool {
-	fn := f.name()
+func (f zipFile) Skip() bool {
+	fn := f.Name()
 	return strings.HasPrefix(fn, "/") || strings.HasSuffix(fn, "/") // || f.f.NonUTF8
 }
 
-func (f zipFile) size() uint64 {
+func (f zipFile) Size() uint64 {
 	return f.f.UncompressedSize64
 }
 
@@ -33,7 +33,7 @@ type zipArchive struct {
 	zr *zip.Reader
 }
 
-func newZipReader(r io.ReaderAt, size int64) (archive, error) {
+func newZipReader(r io.ReaderAt, size int64) (Archive, error) {
 	reader, err := zip.NewReader(r, size)
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func newZipReader(r io.ReaderAt, size int64) (archive, error) {
 	}, nil
 }
 
-func (a zipArchive) files() []file {
-	return lo.Map(a.zr.File, func(f *zip.File, _ int) file {
+func (a zipArchive) Files() []File {
+	return lo.Map(a.zr.File, func(f *zip.File, _ int) File {
 		return zipFile{f: f}
 	})
 }

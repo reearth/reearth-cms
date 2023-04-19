@@ -4,13 +4,13 @@ import (
 	"io"
 )
 
-type file interface {
-	name() string
-	open() (io.ReadCloser, error)
-	skip() bool
-	size() uint64
+type File interface {
+	Name() string
+	Open() (io.ReadCloser, error)
+	Skip() bool
+	Size() uint64
 }
 
-type archive interface {
-	files() []file
+type Archive interface {
+	Files() []File
 }

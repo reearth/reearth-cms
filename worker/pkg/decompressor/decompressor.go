@@ -21,12 +21,12 @@ const (
 type WalkFunc func(name string) (io.WriteCloser, error)
 
 type Decompressor struct {
-	ar  archive
+	ar  Archive
 	wFn WalkFunc
 }
 
 func New(r io.ReaderAt, size int64, ext string, wFn WalkFunc) (*Decompressor, error) {
-	var a archive
+	var a Archive
 	switch ext {
 	case "zip":
 		var err error
@@ -53,26 +53,26 @@ func (uz *Decompressor) Decompress() error {
 	if uz == nil {
 		return nil
 	}
-	archiveFiles := lo.Filter(uz.ar.files(), func(f file, _ int) bool {
-		return !f.skip()
+	archiveFiles := lo.Filter(uz.ar.Files(), func(f File, _ int) bool {
+		return !f.Skip()
 	})
 	log.Infof("archive total entries=%d", len(archiveFiles))
 	uz.readConcurrent(archiveFiles)
 	return nil
 }
 
-func (uz *Decompressor) readConcurrent(zfs []file) {
+func (uz *Decompressor) readConcurrent(zfs []File) {
 	var wg sync.WaitGroup
-	workQueue := make(chan file, workerQueueDepth)
+	workQueue := make(chan File, workerQueueDepth)
 	for i := 0; i < workersNumber; i++ {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
 			for f := range workQueue {
-				func(f file) {
-					fn := f.name()
-					log.Infof("worker %3d: extracting file Size=%5d File=%s", i, f.size(), fn)
-					x, err := f.open()
+				func(f File) {
+					fn := f.Name()
+					log.Infof("worker %3d: extracting file Size=%5d File=%s", i, f.Size(), fn)
+					x, err := f.Open()
 					if err != nil {
 						log.Errorf("failed to open read file File=%s, Err=%s", fn, err.Error())
 						log.Fatal(err)
