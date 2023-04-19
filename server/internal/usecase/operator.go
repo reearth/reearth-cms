@@ -49,6 +49,9 @@ func (o *Operator) Workspaces(r user.Role) []id.WorkspaceID {
 }
 
 func (o *Operator) AllReadableWorkspaces() user.WorkspaceIDList {
+	if o == nil {
+		return nil
+	}
 	return append(o.ReadableWorkspaces, o.AllWritableWorkspaces()...)
 }
 
