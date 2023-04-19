@@ -118,7 +118,7 @@ func TestDecompressor_Decompress(t *testing.T) {
 func TestDecompressor_DecompressFile(t *testing.T) {
 	t.Skip("experimental test skipped")
 
-	fn := "精度検証（PlateauView掲載データ）.zip"
+	fn := "hoge.zip"
 	zf := lo.Must(os.Open("testdata/" + fn))
 
 	fInfo, err := zf.Stat()
