@@ -1,11 +1,11 @@
 package publicapi
 
 import (
-	"bytes"
 	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,6 +13,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -158,30 +159,41 @@ func intParams(c echo.Context, params ...string) (int64, bool) {
 }
 
 func toCSV(c echo.Context, l ListResult[Item], s *schema.Schema) error {
-	b := &bytes.Buffer{}
-	w := csv.NewWriter(b)
+	pr, pw := io.Pipe()
 
-	keys := lo.Map(s.Fields(), func(f *schema.Field, _ int) string {
-		return f.Key().String()
-	})
-	err := w.Write(append([]string{"id"}, keys...))
-	if err != nil {
-		return err
-	}
+	go func() {
+		defer pw.Close()
 
-	for _, itm := range l.Results {
-		values := []string{itm.ID}
-		for _, k := range keys {
-			// values = append(values, fmt.Sprintf("%v", itm.Fields[k]))
-			values = append(values, fmt.Sprintf("%v", string(lo.Must1(json.Marshal(itm.Fields[k])))))
-		}
-		err := w.Write(values)
+		w := csv.NewWriter(pw)
+
+		keys := lo.Map(s.Fields(), func(f *schema.Field, _ int) string {
+			return f.Key().String()
+		})
+		err := w.Write(append([]string{"id"}, keys...))
 		if err != nil {
-			panic(err)
+			log.Errorf("filed to write csv headers, err: %+v", err)
+			return // err
 		}
-	}
 
-	w.Flush()
+		for _, itm := range l.Results {
+			values := []string{itm.ID}
+			for _, k := range keys {
+				// values = append(values, fmt.Sprintf("%v", itm.Fields[k]))
+				v, err := json.Marshal(itm.Fields[k])
+				if err != nil {
+					log.Errorf("filed to json marshal field value, err: %+v", err)
+					return // err
+				}
+				values = append(values, fmt.Sprintf("%v", string(v)))
+			}
+			err := w.Write(values)
+			if err != nil {
+				log.Errorf("filed to write csv value, err: %+v", err)
+				return // err
+			}
+		}
+		w.Flush()
+	}()
 
-	return c.Stream(http.StatusOK, "text/csv", b)
+	return c.Stream(http.StatusOK, "text/csv", pr)
 }
