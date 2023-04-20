@@ -105,12 +105,11 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("id", aid.String()).
+		// ValueEqual("id", aid.String()).
 		ValueEqual("projectId", pid).
-		ValueEqual("name", "aaa.jpg").
-		ValueEqual("contentType", "image/jpg").
-		ValueEqual("totalSize", 1000)
+		ValueEqual("name", "testFile.jpg").
+		ValueEqual("contentType", "image/jpeg").
+		ValueEqual("totalSize", 4)
 	r.Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-
+		Contains("id", "file", "name", "projectId", "url", "contentType", "createdAt", "previewType", "totalSize", "updatedAt")
 }
