@@ -5,6 +5,7 @@ import { assetFileFragment, threadFragment, integrationFragment } from "@reearth
 export const assetFragment = gql`
   fragment assetFragment on Asset {
     id
+    fileName
     projectId
     createdAt
     createdBy {
