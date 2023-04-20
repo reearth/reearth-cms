@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
@@ -19,7 +20,10 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 		File:      gqlmodel.FromFile(input.File),
 	}
 	if input.URL != nil {
-		params.URL = *input.URL
+		params.File, err = file.FromURL(*input.URL)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if input.SkipDecompression != nil {
 		params.SkipDecompression = *input.SkipDecompression

@@ -4,15 +4,12 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"mime"
-	"net/http"
-	"os"
 	"path"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/jarcoal/httpmock"
+	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -588,8 +585,8 @@ func TestAsset_Create(t *testing.T) {
 
 	buf := bytes.NewBufferString("Hello")
 	buf2 := bytes.NewBufferString("Hello")
-	af := asset.NewFile().Name("aaa.txt").Size(uint64(buf.Len())).Path("aaa.txt").Build()
-	af2 := asset.NewFile().Name("aaa.txt").Size(uint64(buf2.Len())).Path("aaa.txt").Build()
+	af := asset.NewFile().Name("aaa.txt").Size(uint64(buf.Len())).Path("aaa.txt").ContentType("text/plain; charset=utf-8").Build()
+	af2 := asset.NewFile().Name("aaa.txt").Size(uint64(buf2.Len())).Path("aaa.txt").ContentType("text/plain; charset=utf-8").Build()
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
@@ -610,7 +607,7 @@ func TestAsset_Create(t *testing.T) {
 				cpp: interfaces.CreateAssetParam{
 					ProjectID: p1.ID(),
 					File: &file.File{
-						Path:    "aaa.txt",
+						Name:    "aaa.txt",
 						Content: io.NopCloser(buf),
 						Size:    int64(buf.Len()),
 					},
@@ -638,7 +635,7 @@ func TestAsset_Create(t *testing.T) {
 				cpp: interfaces.CreateAssetParam{
 					ProjectID: p1.ID(),
 					File: &file.File{
-						Path:    "aaa.txt",
+						Name:    "aaa.txt",
 						Content: io.NopCloser(buf2),
 						Size:    int64(buf2.Len()),
 					},
@@ -667,7 +664,7 @@ func TestAsset_Create(t *testing.T) {
 				cpp: interfaces.CreateAssetParam{
 					ProjectID: p1.ID(),
 					File: &file.File{
-						Path:    "aaa.txt",
+						Name:    "aaa.txt",
 						Content: io.NopCloser(buf),
 						Size:    10*1024*1024*1024 + 1,
 					},
@@ -713,7 +710,7 @@ func TestAsset_Create(t *testing.T) {
 				cpp: interfaces.CreateAssetParam{
 					ProjectID: project.NewID(),
 					File: &file.File{
-						Path:    "aaa.txt",
+						Name:    "aaa.txt",
 						Content: io.NopCloser(buf),
 						Size:    10*1024*1024*1024 + 1,
 					},
@@ -734,7 +731,7 @@ func TestAsset_Create(t *testing.T) {
 				cpp: interfaces.CreateAssetParam{
 					ProjectID: p1.ID(),
 					File: &file.File{
-						Path:    "aaa.txt",
+						Name:    "aaa.txt",
 						Content: io.NopCloser(buf),
 						Size:    10*1024*1024*1024 + 1,
 					},
@@ -934,8 +931,8 @@ func TestAsset_Update(t *testing.T) {
 
 func TestAsset_UpdateFiles(t *testing.T) {
 	uid := id.NewUserID()
-	assetID1 := asset.NewID()
-	assetID2 := asset.NewID()
+	assetID1, uuid1 := asset.NewID(), "5130c89f-8f67-4766-b127-49ee6796d464"
+	assetID2, uuid2 := asset.NewID(), uuid.New().String()
 	ws := user.NewWorkspace().NewID().MustBuild()
 	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
 
@@ -946,7 +943,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		Project(proj.ID()).
 		CreatedByUser(uid).
 		Size(1000).
-		UUID("5130c89f-8f67-4766-b127-49ee6796d464").
+		UUID(uuid1).
 		Thread(thid).
 		ArchiveExtractionStatus(sp).
 		MustBuild()
@@ -956,7 +953,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		Project(proj.ID()).
 		CreatedByUser(uid).
 		Size(1000).
-		UUID("5130c89f-8f67-4766-b127-49ee6796d464").
+		UUID(uuid2).
 		Thread(id.NewThreadID()).
 		ArchiveExtractionStatus(sp).
 		MustBuild()
@@ -1064,17 +1061,17 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				ID(assetID1).
 				Project(proj.ID()).
 				CreatedByUser(uid).
-				UUID("5130c89f-8f67-4766-b127-49ee6796d464").
 				Size(1000).
+				UUID(uuid1).
 				Thread(thid).
 				ArchiveExtractionStatus(sp).
 				MustBuild(),
-			wantFile: asset.NewFile().Name("xxx").Path("/xxx.zip").GuessContentType().Children([]*asset.File{
-				asset.NewFile().Name("xxx").Path("/xxx").Dir().Children([]*asset.File{
-					asset.NewFile().Name("yyy").Path("/xxx/yyy").Dir().Children([]*asset.File{
-						asset.NewFile().Name("hello.txt").Path("/xxx/yyy/hello.txt").GuessContentType().Build(),
+			wantFile: asset.NewFile().Name("xxx").Path(path.Join("xxx.zip")).GuessContentType().Children([]*asset.File{
+				asset.NewFile().Name("xxx").Path(path.Join("xxx")).Dir().Children([]*asset.File{
+					asset.NewFile().Name("yyy").Path(path.Join("xxx", "yyy")).Dir().Children([]*asset.File{
+						asset.NewFile().Name("hello.txt").Path(path.Join("xxx", "yyy", "hello.txt")).GuessContentType().Build(),
 					}).Build(),
-					asset.NewFile().Name("zzz.txt").Path("/xxx/zzz.txt").GuessContentType().Build(),
+					asset.NewFile().Name("zzz.txt").Path(path.Join("xxx", "zzz.txt")).GuessContentType().Build(),
 				}).Build(),
 			}).Build(),
 			wantErr: nil,
@@ -1255,30 +1252,6 @@ func TestAsset_Delete(t *testing.T) {
 	}
 }
 
-func TestAsset_getExtenalFile(t *testing.T) {
-	URL := "https://cms.com/test.txt"
-	f := lo.Must(os.Open("testdata/test.txt"))
-	defer f.Close()
-	z := lo.Must(io.ReadAll(f))
-
-	httpmock.Activate()
-	defer httpmock.Deactivate()
-
-	httpmock.RegisterResponder("GET", URL, func(r *http.Request) (*http.Response, error) {
-		res := httpmock.NewBytesResponse(200, z)
-		res.Header.Set("Content-Type", mime.TypeByExtension(path.Ext(URL)))
-		return res, nil
-	})
-
-	expected := file.File{Path: "/test.txt", Content: f}
-
-	got, err := getExternalFile(context.Background(), URL)
-	assert.NoError(t, err)
-	assert.Equal(t, expected.Path, got.Path)
-	assert.Equal(t, z, lo.Must(io.ReadAll(got.Content)))
-
-}
-
 type file2 struct {
 	gateway.File
 }
@@ -1298,11 +1271,11 @@ func TestAsset_GetURL(t *testing.T) {
 
 func mockFs() afero.Fs {
 	files := map[string]string{
-		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.zip":           "xxx",
-		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/zzz.txt":       "zzz",
-		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx/yyy/hello.txt": "hello",
-		"plugins/aaa~1.0.0/foo.js":                                       "bar",
-		"published/s.json":                                               "{}",
+		path.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464", "xxx.zip"):                 "xxx",
+		path.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464", "xxx", "zzz.txt"):          "zzz",
+		path.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464", "xxx", "yyy", "hello.txt"): "hello",
+		path.Join("plugins", "aaa~1.0.0", "foo.js"):                                                "bar",
+		path.Join("published", "s.json"):                                                           "{}",
 	}
 
 	fs := afero.NewMemMapFs()
