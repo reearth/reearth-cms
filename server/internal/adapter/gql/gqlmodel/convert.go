@@ -61,7 +61,7 @@ func FromFile(f *graphql.Upload) *file.File {
 	}
 	return &file.File{
 		Content:     io.NopCloser(f.File),
-		Path:        f.Filename,
+		Name:        f.Filename,
 		Size:        f.Size,
 		ContentType: f.ContentType,
 	}
