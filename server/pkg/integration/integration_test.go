@@ -2,6 +2,7 @@ package integration
 
 import (
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -1303,4 +1304,12 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			assert.Equal(t, tt.want, i.webhooks)
 		})
 	}
+}
+
+func TestIntegration_RandomToken(t *testing.T) {
+	i := Integration{}
+	i.RandomToken()
+	assert.NotNil(t, i.token)
+	assert.True(t, strings.HasPrefix(i.token, "secret_"))
+	assert.Equal(t, 50, len(i.token))
 }

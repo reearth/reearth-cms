@@ -36,6 +36,7 @@ func ToAsset(a *asset.Asset, urlResolver func(a *asset.Asset) string) *Asset {
 		PreviewType:             ToPreviewType(a.PreviewType()),
 		UUID:                    a.UUID(),
 		URL:                     url,
+		FileName:                a.FileName(),
 		ThreadID:                IDFrom(a.Thread()),
 		ArchiveExtractionStatus: ToArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 		Size:                    int64(a.Size()),

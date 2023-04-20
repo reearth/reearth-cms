@@ -70,6 +70,7 @@ type Asset struct {
 	Thread                  *Thread                  `json:"thread"`
 	ThreadID                ID                       `json:"threadId"`
 	URL                     string                   `json:"url"`
+	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus"`
 }
 
