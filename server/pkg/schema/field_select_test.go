@@ -15,6 +15,14 @@ func TestFieldSelect_Type(t *testing.T) {
 	assert.Equal(t, value.TypeSelect, (&FieldSelect{}).Type())
 }
 
+func TestFieldSelect_TypeProperty(t *testing.T) {
+	f := FieldSelect{}
+	assert.Equal(t, &TypeProperty{
+		t:       f.Type(),
+		selectt: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldSelect_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldSelect)(nil).Clone())
 	assert.Equal(t, &FieldSelect{}, (&FieldSelect{}).Clone())

@@ -168,6 +168,13 @@ func TestValues_Add(t *testing.T) {
 	v.archived = true
 	v.Add("3", Ref("xxx").OrVersion().Ref())
 	assert.Nil(t, v.Get(Ref("xxx").OrVersion()))
+
+	v = &Values[string]{}
+	v.Add("3", Ref("xxx").OrVersion().Ref())
+	assert.True(t, v.validate())
+	assert.Equal(t, "3", v.inner[0].value)
+	assert.Equal(t, NewRefs(Latest), v.inner[0].refs)
+	assert.Nil(t, v.inner[0].parents)
 }
 
 func TestValues_UpdateRef(t *testing.T) {

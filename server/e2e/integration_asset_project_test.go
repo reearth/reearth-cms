@@ -92,14 +92,15 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithMultipart().
 		WithFile("file", "path", b).
+		WithForm(map[string]any{"skipDecompression": true}).
 		Expect().
 		Status(http.StatusNotFound)
 
-	t.Skip("creating asset skipped because of worker event")
 	r := e.POST("/api/projects/{projectId}/assets", pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithMultipart().
 		WithFile("file", "./testFile.jpg", strings.NewReader("test")).
+		WithForm(map[string]any{"skipDecompression": true}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().

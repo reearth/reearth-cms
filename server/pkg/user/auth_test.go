@@ -3,6 +3,7 @@ package user
 import (
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 
 	"github.com/stretchr/testify/assert"
@@ -102,4 +103,10 @@ func TestGenReearthSub(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func TestAuth_Ref(t *testing.T) {
+	auth := GenReearthSub(uuid.New().String())
+	assert.Equal(t, auth, auth.Ref())
+	assert.NotSame(t, auth, auth.Ref())
 }
