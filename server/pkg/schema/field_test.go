@@ -122,6 +122,13 @@ func TestField_SetDescription(t *testing.T) {
 	assert.Equal(t, "a", f.Description())
 }
 
+func TestField_SetOrder(t *testing.T) {
+	f := &Field{order: 0}
+	f.SetOrder(3)
+	assert.Equal(t, &Field{order: 3}, f)
+	assert.Equal(t, 3, f.Order())
+}
+
 func TestField_SetKey(t *testing.T) {
 	f := &Field{}
 	k := key.Random()
@@ -149,16 +156,19 @@ func TestField_SetTypeProperty(t *testing.T) {
 	assert.Equal(t, &Field{defaultValue: value.TypeText.Value("aaa").AsMultiple()}, f)
 }
 
-func TestField_SetDefautValue(t *testing.T) {
+func TestField_SetDefaultValue(t *testing.T) {
 	f := &Field{typeProperty: NewText(lo.ToPtr(1)).TypeProperty()}
 	assert.NoError(t, f.SetDefaultValue(value.TypeText.Value("a").AsMultiple()))
 	assert.Equal(t, value.TypeText.Value("a").AsMultiple(), f.defaultValue)
+	assert.Equal(t, value.TypeText.Value("a").AsMultiple(), f.DefaultValue())
 
 	assert.NoError(t, f.SetDefaultValue(nil))
 	assert.Nil(t, f.defaultValue)
+	assert.Nil(t, f.DefaultValue())
 
 	assert.ErrorContains(t, f.SetDefaultValue(value.TypeText.Value("aaa").AsMultiple()), "it sholud be shorter than 1 characters")
 	assert.Nil(t, f.defaultValue)
+	assert.Nil(t, f.DefaultValue())
 }
 
 func TestField_Validate(t *testing.T) {

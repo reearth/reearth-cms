@@ -2,9 +2,6 @@ package interactor
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"net/url"
 	"path"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -13,11 +10,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
-	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -35,15 +30,15 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 	}
 }
 
-func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.Asset, error) {
 	return i.repos.Asset.FindByID(ctx, aid)
 }
 
-func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, operator *usecase.Operator) (asset.List, error) {
+func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.Operator) (asset.List, error) {
 	return i.repos.Asset.FindByIDs(ctx, assets)
 }
 
-func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, operator *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
 	return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
 		Sort:       filter.Sort,
 		Keyword:    filter.Keyword,
@@ -51,7 +46,7 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter inte
 	})
 }
 
-func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, op *usecase.Operator) (*asset.File, error) {
+func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, error) {
 	_, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
 		return nil, err
@@ -74,7 +69,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, interfaces.ErrInvalidOperator
 	}
 
-	if inp.File == nil && inp.URL == "" {
+	if inp.File == nil {
 		return nil, nil, interfaces.ErrFileNotIncluded
 	}
 
@@ -87,35 +82,17 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, interfaces.ErrOperationDenied
 	}
 
-	var uuid string
-	var size int64
-	var file *file.File
-	if inp.File != nil {
-		file = inp.File
-		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
-		if err != nil {
-			return nil, nil, err
-		}
+	uuid, size, err := i.gateways.File.UploadAsset(ctx, inp.File)
+	if err != nil {
+		return nil, nil, err
 	}
+	inp.File.Size = size
 
 	return Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
-			if inp.URL != "" {
-				file, err = getExternalFile(ctx, inp.URL)
-				if err != nil {
-					return nil, nil, err
-				}
-				uuid, size, err = i.gateways.File.UploadAsset(ctx, file)
-				if err != nil {
-					return nil, nil, err
-				}
-			}
-			file.Size = int64(size)
-
 			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
-
 			if err != nil {
 				return nil, nil, err
 			}
@@ -131,9 +108,9 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
-				FileName(path.Base(file.Path)).
-				Size(uint64(file.Size)).
-				Type(asset.PreviewTypeFromContentType(file.ContentType)).
+				FileName(path.Base(inp.File.Name)).
+				Size(uint64(inp.File.Size)).
+				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
 				UUID(uuid).
 				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
@@ -150,7 +127,12 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
-			f := asset.NewFile().Name(file.Path).Path(file.Path).Size(uint64(file.Size)).ContentType(file.ContentType).Build()
+			f := asset.NewFile().
+				Name(inp.File.Name).
+				Path(inp.File.Name).
+				Size(uint64(inp.File.Size)).
+				GuessContentType().
+				Build()
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, nil, err
@@ -411,31 +393,4 @@ func (i *Asset) event(ctx context.Context, e Event) error {
 
 	_, err := createEvent(ctx, i.repos, i.gateways, e)
 	return err
-}
-
-func getExternalFile(ctx context.Context, rawURL string) (*file.File, error) {
-	URL, err := url.Parse(rawURL)
-	if err != nil {
-		return nil, err
-	}
-
-	filename := path.Join("/", path.Base(URL.Path))
-	req, err := http.NewRequestWithContext(ctx, "GET", URL.String(), nil)
-	if err != nil {
-		return nil, rerror.ErrInternalBy(err)
-	}
-
-	client := http.DefaultClient
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, rerror.ErrInternalBy(err)
-	}
-
-	if res.StatusCode > 300 {
-		return nil, rerror.ErrInternalBy(fmt.Errorf("status code is %d", res.StatusCode))
-	}
-	ct := res.Header.Get("Content-Type")
-	file := &file.File{Content: res.Body, Path: filename, ContentType: ct}
-
-	return file, nil
 }

@@ -3,6 +3,7 @@ package schema
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
@@ -13,6 +14,7 @@ import (
 
 func TestNewField(t *testing.T) {
 	// ok
+	now := time.Now()
 	tp := NewText(nil).TypeProperty()
 	dv := tp.Type().Value("aaa")
 	id := id.NewFieldID()
@@ -28,6 +30,8 @@ func TestNewField(t *testing.T) {
 			multiple:     true,
 			required:     true,
 			typeProperty: tp,
+			order:        3,
+			updatedAt:    now,
 			defaultValue: dv.AsMultiple(),
 		},
 		NewField(tp).
@@ -39,8 +43,18 @@ func TestNewField(t *testing.T) {
 			Unique(true).
 			Required(true).
 			DefaultValue(dv.AsMultiple()).
+			Order(3).
+			UpdatedAt(now).
+			Type(tp).
 			MustBuild(),
 	)
+
+	f := NewField(tp).
+		ID(id).
+		RandomKey().
+		Type(tp).
+		MustBuild()
+	assert.NotNil(t, f.Key())
 
 	// error: invalid id
 	_, err := NewField(tp).Build()

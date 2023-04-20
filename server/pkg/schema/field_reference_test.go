@@ -17,6 +17,14 @@ func TestFieldReference_Type(t *testing.T) {
 	assert.Equal(t, value.TypeReference, (&FieldReference{}).Type())
 }
 
+func TestFieldReference_TypeProperty(t *testing.T) {
+	f := FieldReference{}
+	assert.Equal(t, &TypeProperty{
+		t:         f.Type(),
+		reference: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldReference_Clone(t *testing.T) {
 	m := id.NewModelID()
 	assert.Nil(t, (*FieldReference)(nil).Clone())
