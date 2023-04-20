@@ -8,7 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-// GET|/assets/{assetId}
+// GET /assets/{assetId}
 func TestIntegrationGetAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
@@ -39,7 +39,7 @@ func TestIntegrationGetAssetAPI(t *testing.T) {
 		ValueEqual("totalSize", 1000)
 }
 
-// DELETE|/assets/{assetId}
+// DELETE /assets/{assetId}
 func TestIntegrationDeleteAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
