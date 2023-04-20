@@ -3,7 +3,9 @@ package e2e
 import (
 	"bytes"
 	"net/http"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -27,12 +29,17 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	// e.GET("/api/projects/{projectId}/assets", id.NewProjectID()).
-	// 	WithHeader("authorization", "Bearer "+secret).
-	// 	WithQuery("page", 1).
-	// 	WithQuery("perPage", 5).
-	// 	Expect().
-	// 	Status(http.StatusNotFound)
+	e.GET("/api/projects/{projectId}/assets", id.NewProjectID()).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 0)
 
 	obj := e.GET("/api/projects/{projectId}/assets", pid).
 		WithHeader("authorization", "Bearer "+secret).
@@ -41,21 +48,20 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
-
-	obj.Value("page").Equal(1)
-	obj.Value("perPage").Equal(5)
-	obj.Value("totalCount").Equal(1)
+		Object().
+		ValueEqual("page", 1).
+		ValueEqual("perPage", 5).
+		ValueEqual("totalCount", 1)
 
 	al := obj.Value("items").Array()
 	al.Length().Equal(1)
-	a := al.First().Object()
-	a.Value("id").Equal(aid.String())
-	a.Value("projectId").Equal(pid)
-	a.Value("totalSize").Equal(1000)
-	a.Value("previewType").Equal("unknown")
-	// a.Value("createdAt").Equal("")
-	// a.Value("updatedAt").Equal("")
+	al.First().Object().
+		ValueEqual("id", aid.String()).
+		ValueEqual("projectId", pid).
+		ValueEqual("totalSize", 1000).
+		ValueEqual("previewType", "unknown").
+		ValueEqual("createdAt", aid.Timestamp().UTC().Format("2006-01-02T15:04:05.000Z")).
+		ValueEqual("updatedAt", time.Time{}.Format("2006-01-02T15:04:05Z"))
 }
 
 // POST projects/{projectId}/assets
@@ -93,16 +99,17 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 	r := e.POST("/api/projects/{projectId}/assets", pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithMultipart().
-		WithFile("file", "testData/image.png").
+		WithFile("file", "./testFile.jpg", strings.NewReader("test")).
 		WithForm(map[string]any{"skipDecompression": true}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
+		Object().
+		// ValueEqual("id", aid.String()).
+		ValueEqual("projectId", pid).
+		ValueEqual("name", "testFile.jpg").
+		ValueEqual("contentType", "image/jpeg").
+		ValueEqual("totalSize", 4)
 	r.Keys().
-		Contains("createdAt", "file", "id", "name", "previewType", "projectId", "contentType", "url", "totalSize")
-	r.Value("projectId").Equal(pid)
-	r.Value("name").Equal("image.png")
-	r.Value("contentType").Equal("image/png")
-	r.Value("totalSize").Equal(2502)
+		Contains("id", "file", "name", "projectId", "url", "contentType", "createdAt", "previewType", "totalSize", "updatedAt")
 }
