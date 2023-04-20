@@ -4,41 +4,41 @@ import (
 	"context"
 	"io"
 	"os"
-	// "testing"
+	"path"
+	"testing"
 
-	// wfs "github.com/reearth/reearth-cms/worker/internal/infrastructure/fs"
-	// "github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
+	wfs "github.com/reearth/reearth-cms/worker/internal/infrastructure/fs"
+	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/worker/pkg/asset"
-
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
-	// "github.com/stretchr/testify/assert"
-	// "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-// func TestUsecase_Decompress(t *testing.T) {
-// 	fs := mockFs()
-// 	mCMS := NewCMS()
-// 	fileGateway, err := wfs.NewFile(fs, "")
-// 	require.NoError(t, err)
+func TestUsecase_Decompress(t *testing.T) {
+	fs := mockFs()
+	mCMS := NewCMS()
+	fileGateway, err := wfs.NewFile(fs, "")
+	require.NoError(t, err)
 
-// 	uc := NewUsecase(gateway.NewGateway(fileGateway, mCMS))
+	uc := NewUsecase(gateway.NewGateway(fileGateway, mCMS), nil)
 
-// 	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.zip"))
+	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.zip"))
 
-// 	f := lo.Must(fs.Open("test/test1.txt"))
-// 	content := lo.Must(io.ReadAll(f))
-// 	_ = f.Close()
-// 	assert.Equal(t, "hello1", string(content))
+	f := lo.Must(os.Open("testdata/test1.txt"))
+	content := lo.Must(io.ReadAll(f))
+	_ = f.Close()
+	assert.Equal(t, "hello1", string(content))
 
-// 	f = lo.Must(fs.Open("test/test2.txt"))
-// 	content = lo.Must(io.ReadAll(f))
-// 	_ = f.Close()
-// 	assert.Equal(t, "hello2", string(content))
+	f = lo.Must(os.Open("testdata/test2.txt"))
+	content = lo.Must(io.ReadAll(f))
+	_ = f.Close()
+	assert.Equal(t, "hello2", string(content))
 
-// 	// unsupported extenstion doesn't return error
-// 	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.tar.gz"))
-// }
+	// unsupported extension doesn't return error
+	assert.NoError(t, uc.Decompress(context.Background(), "aaa", "test.tar.gz"))
+}
 
 func mockFs() afero.Fs {
 	fs := afero.NewMemMapFs()
@@ -60,10 +60,37 @@ func mockFs() afero.Fs {
 type mockCMS struct {
 }
 
-func NewCMS() *mockCMS {
+func NewCMS() gateway.CMS {
 	return &mockCMS{}
 }
 
-func (c *mockCMS) NotifyAssetDecompressed(ctx context.Context, assetId string, status *asset.ArchiveExtractionStatus) error {
+func (c *mockCMS) NotifyAssetDecompressed(_ context.Context, _ string, _ *asset.ArchiveExtractionStatus) error {
 	return nil
+}
+
+func Test_smartJoinPath(t *testing.T) {
+	tests := []struct {
+		name       string
+		firstPath  string
+		secondPath string
+		want       string
+	}{
+		{
+			name:       "join and remove duplicates",
+			firstPath:  path.Join("a", "b"),
+			secondPath: path.Join("b", "c"),
+			want:       path.Join("a", "b", "c"),
+		},
+		{
+			name:       "join",
+			firstPath:  path.Join("a", "b"),
+			secondPath: path.Join("c", "d"),
+			want:       path.Join("a", "b", "c", "d"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, smartJoinPath(tt.firstPath, tt.secondPath))
+		})
+	}
 }
