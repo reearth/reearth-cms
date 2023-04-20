@@ -29,12 +29,12 @@ func (b *FileBuilder) ContentType(contentType string) *FileBuilder {
 	return b
 }
 
-func (b *FileBuilder) Path(path string) *FileBuilder {
-	if !strings.HasPrefix(path, "/") && path != "" {
-		path = "/" + path
+func (b *FileBuilder) Path(filePath string) *FileBuilder {
+	if !strings.HasPrefix(filePath, "/") && filePath != "" {
+		filePath = "/" + filePath
 	}
 
-	b.f.path = path
+	b.f.path = filePath
 	return b
 }
 

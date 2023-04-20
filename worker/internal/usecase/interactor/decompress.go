@@ -16,7 +16,7 @@ import (
 func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
 	err := u.decompress(ctx, assetID, assetPath)
 	if err != nil {
-		log.Errorf("failed to notify to CMS, Asset=%s, Path=%s", assetID, assetPath)
+		log.Errorf("failed to decompress asset, Asset=%s, Path=%s", assetID, assetPath)
 		return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusFailed))
 	}
 	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusDone))
@@ -28,12 +28,13 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 
 	compressedFile, size, err := u.gateways.File.Read(ctx, assetPath)
 	if err != nil {
-		log.Errorf("failed to load zip file from storage, Asset=%s, Path=%s, Err=%s", assetID, assetPath, err.Error())
+		log.Errorf("failed to load archive file from storage, Asset=%s, Path=%s, Err=%s", assetID, assetPath, err.Error())
 		return err
 	}
+	log.Infof("archive file downloaded from storage, Size=%d", size)
 
 	uploadFunc := func(name string) (io.WriteCloser, error) {
-		w, err := u.gateways.File.Upload(ctx, path.Join(base, name))
+		w, err := u.gateways.File.Upload(ctx, smartJoinPath(base, name))
 		if err != nil {
 			return nil, err
 		}
@@ -42,16 +43,28 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 
 	de, err := decompressor.New(compressedFile, size, ext, uploadFunc)
 	if err != nil {
-		if errors.Is(err, decompressor.ErrUnsupportedExtention) {
-			log.Infof("unsupported extension: decompression skipped assetID=%s ext=%s", assetID, ext)
+		if errors.Is(err, decompressor.ErrUnsupportedExtension) {
+			log.Warnf("unsupported extension: decompression skipped assetID=%s ext=%s", assetID, ext)
 			return nil
 		}
 		return err
 	}
 
-	if err = de.Decompress(base); err != nil {
+	if err = de.Decompress(); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func smartJoinPath(firstPath, secondPath string) string {
+	lastElementOfFirstPath := path.Base(firstPath)
+	tempArray := strings.Split(secondPath, "/")
+	firstElementOfSecondPath := tempArray[0]
+
+	if lastElementOfFirstPath == firstElementOfSecondPath {
+		return path.Join(path.Dir(firstPath), secondPath)
+	}
+
+	return path.Join(firstPath, secondPath)
 }

@@ -25,7 +25,7 @@ func TestConvert_FromFile(t *testing.T) {
 	}
 	want1 := file.File{
 		Content:     io.NopCloser(strings.NewReader("aaa")),
-		Path:        "aaa.txt",
+		Name:        "aaa.txt",
 		Size:        buflen,
 		ContentType: "text/plain",
 	}
