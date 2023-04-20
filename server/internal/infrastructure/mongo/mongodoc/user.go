@@ -122,5 +122,5 @@ func (d *PasswordResetDocument) Model() *user.PasswordReset {
 type UserConsumer = mongox.SliceFuncConsumer[*UserDocument, *user.User]
 
 func NewUserConsumer() *UserConsumer {
-	return NewComsumer[*UserDocument, *user.User]()
+	return NewConsumer[*UserDocument, *user.User]()
 }

@@ -11,7 +11,6 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
-	"github.com/kennygrant/sanitize"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
@@ -109,9 +108,9 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 		return "", 0, gateway.ErrFileTooLarge
 	}
 
-	uuid := newUUID()
+	fileUUID := newUUID()
 
-	p := getGCSObjectPath(uuid, file.Path)
+	p := getGCSObjectPath(fileUUID, file.Name)
 	if p == "" {
 		return "", 0, gateway.ErrInvalidFile
 	}
@@ -120,7 +119,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 	if err != nil {
 		return "", 0, err
 	}
-	return uuid, size, nil
+	return fileUUID, size, nil
 }
 
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
@@ -129,11 +128,7 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 		return gateway.ErrInvalidFile
 	}
 
-	sn := sanitize.Path(p)
-	if sn == "" {
-		return gateway.ErrInvalidFile
-	}
-	return f.delete(ctx, sn)
+	return f.delete(ctx, p)
 }
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
@@ -198,7 +193,7 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 		return 0, rerror.ErrInternalBy(err)
 	}
 
-	return int64(attr.Size), nil
+	return attr.Size, nil
 }
 
 func (f *fileRepo) delete(ctx context.Context, filename string) error {

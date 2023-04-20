@@ -24,6 +24,14 @@ func TestFieldInteger_Type(t *testing.T) {
 	assert.Equal(t, value.TypeInteger, (&FieldInteger{}).Type())
 }
 
+func TestFieldInteger_TypeProperty(t *testing.T) {
+	f := FieldInteger{}
+	assert.Equal(t, &TypeProperty{
+		t:       f.Type(),
+		integer: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldInteger_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldInteger)(nil).Clone())
 	assert.Equal(t, &FieldInteger{

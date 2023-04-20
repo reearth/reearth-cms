@@ -16,6 +16,14 @@ func TestFieldText_Type(t *testing.T) {
 	assert.Equal(t, value.TypeText, (&FieldText{s: &FieldString{t: value.TypeText}}).Type())
 }
 
+func TestFieldText_TypeProperty(t *testing.T) {
+	f := FieldText{}
+	assert.Equal(t, &TypeProperty{
+		t:    f.Type(),
+		text: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldText_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldText)(nil).Clone())
 	assert.Equal(t, &FieldText{}, (&FieldText{}).Clone())
