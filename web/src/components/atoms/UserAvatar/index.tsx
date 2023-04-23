@@ -18,7 +18,7 @@ const UserAvatar: React.FC<Props> = ({ username, shadow, anonymous, ...props }) 
   );
 };
 
-const UserAvatarWrapper = styled(Avatar) <{ shadow?: boolean; anonymous?: boolean }>`
+const UserAvatarWrapper = styled(Avatar)<{ shadow?: boolean; anonymous?: boolean }>`
   color: #fff;
   background-color: ${({ anonymous }) => (anonymous ? "#BFBFBF" : "#3F3D45")};
   box-shadow: ${({ shadow }) => (shadow ? "0px 4px 4px rgba(0, 0, 0, 0.25)" : "none")};

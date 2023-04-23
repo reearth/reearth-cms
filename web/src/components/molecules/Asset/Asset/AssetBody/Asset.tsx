@@ -7,7 +7,6 @@ import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -17,6 +16,7 @@ import {
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
+import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import {
   GeoViewer,

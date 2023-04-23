@@ -4,9 +4,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {

@@ -111,7 +111,7 @@ export default () => {
         });
       }
     } else {
-      setCurrentProject();
+      setCurrentProject(undefined);
     }
   }, [projectId, projectData?.node, setCurrentProject]);
 

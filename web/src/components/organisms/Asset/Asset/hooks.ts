@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
   Asset,
   AssetItem,
@@ -9,7 +10,6 @@ import {
   ViewerType,
   AssetFile,
 } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import {
   geoFormats,
   geo3dFormats,
