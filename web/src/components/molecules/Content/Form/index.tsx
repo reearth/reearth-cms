@@ -213,6 +213,7 @@ const ContentForm: React.FC<Props> = ({
           {model?.schema.fields.map(field =>
             field.type === "TextArea" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {
@@ -235,6 +236,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "MarkdownText" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {
@@ -255,6 +257,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "Integer" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {
@@ -281,6 +284,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "Asset" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {
@@ -315,6 +319,7 @@ const ContentForm: React.FC<Props> = ({
                   />
                 ) : (
                   <AssetItem
+                    key={field.id}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}
@@ -340,6 +345,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "Select" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 name={field.id}
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
@@ -357,6 +363,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "Bool" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 name={field.id}
                 valuePropName="checked"
@@ -365,6 +372,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 name={field.id}
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}
@@ -403,6 +411,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {

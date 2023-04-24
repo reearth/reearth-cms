@@ -30,7 +30,7 @@ export default ({ integrationId }: Params) => {
   }, [integrations, integrationId]);
 
   const webhookInitialValues = useMemo(() => {
-    if (!selectedIntegration || !selectedIntegration.config.webhooks || !webhookId) return {};
+    if (!selectedIntegration?.config.webhooks || !webhookId) return {};
     const selectedWebhook = selectedIntegration.config.webhooks.find(
       webhook => webhook.id === webhookId,
     );
