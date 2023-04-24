@@ -24,7 +24,7 @@ func (f *FieldText) MaxLength() *int {
 }
 
 func (f *FieldText) Type() value.Type {
-	return f.s.Type()
+	return value.TypeText
 }
 
 func (f *FieldText) Clone() *FieldText {

@@ -78,5 +78,5 @@ func (d *EventDocument) Model() (*event.Event[any], error) {
 type EventConsumer = mongox.SliceFuncConsumer[*EventDocument, *event.Event[any]]
 
 func NewEventConsumer() *EventConsumer {
-	return NewComsumer[*EventDocument, *event.Event[any]]()
+	return NewConsumer[*EventDocument, *event.Event[any]]()
 }

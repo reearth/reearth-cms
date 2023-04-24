@@ -12,10 +12,10 @@ import (
 type ThreadDocument struct {
 	ID        string
 	Workspace string
-	Comments  []*Comment
+	Comments  []*CommentDocument
 }
 
-type Comment struct {
+type CommentDocument struct {
 	ID          string
 	User        *string
 	Integration *string
@@ -25,12 +25,12 @@ type Comment struct {
 type ThreadConsumer = mongox.SliceFuncConsumer[*ThreadDocument, *thread.Thread]
 
 func NewThreadConsumer() *ThreadConsumer {
-	return NewComsumer[*ThreadDocument, *thread.Thread]()
+	return NewConsumer[*ThreadDocument, *thread.Thread]()
 }
 
 func NewThread(a *thread.Thread) (*ThreadDocument, string) {
 	thid := a.ID().String()
-	comments := util.Map(a.Comments(), func(c *thread.Comment) *Comment { return NewComment(c) })
+	comments := util.Map(a.Comments(), func(c *thread.Comment) *CommentDocument { return NewComment(c) })
 	thd, id := &ThreadDocument{
 		ID:        thid,
 		Workspace: a.Workspace().String(),
@@ -51,7 +51,7 @@ func (d *ThreadDocument) Model() (*thread.Thread, error) {
 		return nil, err
 	}
 
-	comments := util.Map(d.Comments, func(c *Comment) *thread.Comment {
+	comments := util.Map(d.Comments, func(c *CommentDocument) *thread.Comment {
 		return c.Model()
 	})
 
@@ -62,12 +62,12 @@ func (d *ThreadDocument) Model() (*thread.Thread, error) {
 		Build()
 }
 
-func NewComment(c *thread.Comment) *Comment {
+func NewComment(c *thread.Comment) *CommentDocument {
 	if c == nil {
 		return nil
 	}
 
-	return &Comment{
+	return &CommentDocument{
 		ID:          c.ID().String(),
 		User:        c.Author().User().StringRef(),
 		Integration: c.Author().Integration().StringRef(),
@@ -75,7 +75,7 @@ func NewComment(c *thread.Comment) *Comment {
 	}
 }
 
-func (c *Comment) Model() *thread.Comment {
+func (c *CommentDocument) Model() *thread.Comment {
 	if c == nil {
 		return nil
 	}

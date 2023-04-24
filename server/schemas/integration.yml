@@ -4,6 +4,32 @@ info:
   description: ReEarth-CMS Integration API
   version: 1.0.0
 paths:
+  '/models/{modelId}':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    get:
+      operationId: ModelGet
+      security:
+        - bearerAuth: []
+      summary: Returns a model.
+      tags:
+        - Models
+      description: Returns a model.
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/models/{modelId}/items':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
@@ -80,6 +106,33 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ModelGetWithProject
+      security:
+        - bearerAuth: []
+      summary: Returns a model.
+      tags:
+        - Models
+      description: Returns a model.
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
@@ -90,7 +143,7 @@ paths:
         - bearerAuth: []
       summary: Returns a list of items.
       tags:
-        - Project items
+        - Items project
       description: Returns a list of items with filtering and ordering.
       parameters:
         - $ref: '#/components/parameters/sortParam'
@@ -131,7 +184,7 @@ paths:
     post:
       operationId: ItemCreateWithProject
       tags:
-        - Project items
+        - Items project
       security:
         - bearerAuth: []
       requestBody:
@@ -251,7 +304,7 @@ paths:
     get:
       operationId: ItemCommentList
       tags:
-        - Comments
+        - Items comments
       security:
         - bearerAuth: []
       responses:
@@ -275,7 +328,7 @@ paths:
     post:
       operationId: ItemCommentCreate
       tags:
-        - Comments
+        - Items comments
       security:
         - bearerAuth: []
       requestBody:
@@ -307,7 +360,7 @@ paths:
     patch:
       operationId: ItemCommentUpdate
       tags:
-        - Comments
+        - Items comments
       security:
         - bearerAuth: []
       summary: Update Item Comment
@@ -337,7 +390,7 @@ paths:
     delete:
       operationId: ItemCommentDelete
       tags:
-        - Comments
+        - Items comments
       security:
         - bearerAuth: []
       responses:
@@ -390,7 +443,7 @@ paths:
     get:
       operationId: AssetFilter
       tags:
-        - Assets
+        - Assets project
       security:
         - bearerAuth: []
       summary: Returns a list of assets.
@@ -430,7 +483,7 @@ paths:
     post:
       operationId: AssetCreate
       tags:
-        - Assets
+        - Assets project
       security:
         - bearerAuth: []
       summary: Create an new asset.
@@ -444,6 +497,9 @@ paths:
                 file:
                   type: string
                   format: binary
+                skipDecompression:
+                  type: boolean
+                  default: false
           application/json:
             schema:
               type: object
@@ -514,7 +570,7 @@ paths:
     get:
       operationId: AssetCommentList
       tags:
-        - Asset comments
+        - Assets comments
       security:
         - bearerAuth: []
       responses:
@@ -538,7 +594,7 @@ paths:
     post:
       operationId: AssetCommentCreate
       tags:
-        - Asset comments
+        - Assets comments
       security:
         - bearerAuth: []
       requestBody:
@@ -570,7 +626,7 @@ paths:
     patch:
       operationId: AssetCommentUpdate
       tags:
-        - Asset comments
+        - Assets comments
       security:
         - bearerAuth: []
       summary: Update AssetComment
@@ -600,7 +656,7 @@ paths:
     delete:
       operationId: AssetCommentDelete
       tags:
-        - Asset comments
+        - Assets comments
       security:
         - bearerAuth: []
       responses:
@@ -749,12 +805,21 @@ components:
         schemaId:
           x-go-type: id.SchemaID
           type: string
+        name:
+          type: string
+        description:
+          type: string
+        public:
+          type: boolean
         key:
           type: string
         createdAt:
           type: string
           format: date-time
         updatedAt:
+          type: string
+          format: date-time
+        lastModified:
           type: string
           format: date-time
     schema:

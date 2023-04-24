@@ -257,7 +257,7 @@ func TestRequest_FindByProject(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
-			//tt.Parallel()
+			// tt.Parallel()
 			got, _, _ := r.FindByProject(ctx, tc.args.id, tc.args.filter, nil, nil)
 
 			assert.Equal(t, tc.want, len(got))
@@ -310,14 +310,12 @@ func TestRequest_FindByItem(t *testing.T) {
 		Readable: []id.ProjectID{pid},
 		Writable: []id.ProjectID{pid},
 	}
-	r := NewRequest().Filtered(pf)
-	_ = r.Save(ctx, req1)
-	_ = r.Save(ctx, req2)
-	_ = r.Save(ctx, req3)
+
 	tests := []struct {
-		name  string
-		input id.ItemIDList
-		want  int
+		name    string
+		input   id.ItemIDList
+		want    int
+		wantErr error
 	}{
 		{
 			name:  "must find 2",
@@ -334,20 +332,34 @@ func TestRequest_FindByItem(t *testing.T) {
 			input: id.ItemIDList{id.NewItemID()},
 			want:  0,
 		},
+		{
+			name:    "error",
+			input:   id.ItemIDList{id.NewItemID()},
+			wantErr: errors.New("test"),
+		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			// t.Parallel()
-			got, _ := r.FindByItems(ctx, tc.input)
+		t.Run(tc.name, func(tt *testing.T) {
+			tc := tc
+			tt.Parallel()
 
+			r := NewRequest().Filtered(pf)
+			_ = r.Save(ctx, req1)
+			_ = r.Save(ctx, req2)
+			_ = r.Save(ctx, req3)
+			if tc.wantErr != nil {
+				SetRequestError(r, tc.wantErr)
+			}
+
+			got, err := r.FindByItems(ctx, tc.input)
+			if tc.wantErr != nil {
+				assert.Same(t, tc.wantErr, err)
+				return
+			}
+
+			assert.Nil(tt, err)
 			assert.Equal(t, tc.want, len(got))
 		})
 	}
-
-	wantErr := errors.New("test")
-	SetRequestError(r, wantErr)
-	_, err := r.FindByItems(ctx, id.ItemIDList{item1.Item()})
-	assert.Same(t, wantErr, err)
 }

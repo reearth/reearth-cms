@@ -63,5 +63,5 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 type ModelConsumer = mongox.SliceFuncConsumer[*ModelDocument, *model.Model]
 
 func NewModelConsumer() *ModelConsumer {
-	return NewComsumer[*ModelDocument, *model.Model]()
+	return NewConsumer[*ModelDocument, *model.Model]()
 }

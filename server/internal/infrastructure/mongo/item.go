@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
@@ -19,7 +20,18 @@ import (
 )
 
 var (
-	itemIndexes = []string{"assets", "project", "schema", "fields.schemafield"}
+	itemIndexes = []string{
+		"assets",
+		"modelid",
+		"project",
+		"schema",
+		"fields.schemafield",
+		"project,schema,!timestamp,!id,__r",
+		"modelid,id,__r",
+		// "__r,assets,project,__", // cannot index parallel arrays
+		"__r,project,__",
+		"schema,id,__r,project",
+	}
 )
 
 type Item struct {
@@ -39,18 +51,14 @@ func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
 }
 
 func (r *Item) Init() error {
-	res, err := r.client.Client().Indexes2(
+	return createIndexes2(
 		context.Background(),
+		r.client.Client(),
 		append(
 			r.client.Indexes(),
 			mongox.IndexFromKeys(itemIndexes, false)...,
 		)...,
 	)
-	if err != nil {
-		return err
-	}
-	logIndexResult(r.client.Client().Client().Name(), res)
-	return nil
 }
 
 func (r *Item) FindByID(ctx context.Context, id id.ItemID, ref *version.Ref) (item.Versioned, error) {
@@ -88,7 +96,7 @@ func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version
 	res, pi, err := r.paginate(ctx, bson.M{
 		"modelid": modelID.String(),
 	}, ref, nil, pagination)
-	return res.Sort(nil), pi, err
+	return res, pi, err
 }
 
 func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -98,7 +106,7 @@ func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *v
 	res, pi, err := r.paginate(ctx, bson.M{
 		"project": projectID.String(),
 	}, ref, nil, pagination)
-	return res.Sort(nil), pi, err
+	return res, pi, err
 }
 
 func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
@@ -202,7 +210,26 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.
 		return nil, err
 	}
 
-	return item.VersionedList(c.Result).Sort(nil), nil
+	return c.Result, nil
+}
+
+func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+	c := mongodoc.NewVersionedItemConsumer()
+	if err := r.client.Find(ctx, r.readFilter(bson.M{
+		"id": bson.M{
+			"$in": ids.Strings(),
+		},
+	}), version.All(), c); err != nil {
+		return nil, err
+	}
+
+	return item.VersionedList(c.Result), nil
+}
+
+func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {
+	return r.client.Timestamp(ctx, bson.M{
+		"modelid": modelID.String(),
+	}, version.Eq(version.Latest.OrVersion()))
 }
 
 func (r *Item) IsArchived(ctx context.Context, id id.ItemID) (bool, error) {

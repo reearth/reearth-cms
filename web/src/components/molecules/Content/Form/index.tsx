@@ -2,7 +2,9 @@ import styled from "@emotion/styled";
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
@@ -73,6 +75,7 @@ export interface Props {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -113,6 +116,7 @@ const ContentForm: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  onUnpublish,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -166,6 +170,19 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
+  const items: MenuProps["items"] = [
+    {
+      key: "addToRequest",
+      label: t("Add to Request"),
+      onClick: onAddItemToRequestModalOpen,
+    },
+    {
+      key: "unpublish",
+      label: t("Unpublish"),
+      onClick: () => itemId && onUnpublish([itemId]),
+    },
+  ];
+
   return (
     <>
       <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
@@ -182,9 +199,11 @@ const ContentForm: React.FC<Props> = ({
                   <Button type="primary" onClick={onModalOpen}>
                     {t("New Request")}
                   </Button>
-                  <Button type="primary" onClick={onAddItemToRequestModalOpen}>
-                    {t("Add to Request")}
-                  </Button>
+                  <Dropdown menu={{ items }} trigger={["click"]}>
+                    <Button>
+                      <Icon icon="ellipsis" />
+                    </Button>
+                  </Dropdown>
                 </>
               )}
             </>
@@ -194,6 +213,7 @@ const ContentForm: React.FC<Props> = ({
           {model?.schema.fields.map(field =>
             field.type === "TextArea" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {
@@ -216,6 +236,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "MarkdownText" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {
@@ -236,6 +257,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "Integer" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {
@@ -262,6 +284,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "Asset" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {
@@ -296,6 +319,7 @@ const ContentForm: React.FC<Props> = ({
                   />
                 ) : (
                   <AssetItem
+                    key={field.id}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}
@@ -321,6 +345,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "Select" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 name={field.id}
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
@@ -338,6 +363,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "Bool" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 name={field.id}
                 valuePropName="checked"
@@ -346,6 +372,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 name={field.id}
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}
@@ -384,6 +411,7 @@ const ContentForm: React.FC<Props> = ({
               </Form.Item>
             ) : (
               <Form.Item
+                key={field.id}
                 extra={field.description}
                 rules={[
                   {

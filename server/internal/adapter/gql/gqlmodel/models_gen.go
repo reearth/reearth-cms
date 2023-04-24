@@ -70,6 +70,7 @@ type Asset struct {
 	Thread                  *Thread                  `json:"thread"`
 	ThreadID                ID                       `json:"threadId"`
 	URL                     string                   `json:"url"`
+	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus"`
 }
 
@@ -200,6 +201,14 @@ type CreateWorkspaceInput struct {
 
 type CreateWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type DecompressAssetInput struct {
+	AssetID ID `json:"assetId"`
+}
+
+type DecompressAssetPayload struct {
+	Asset *Asset `json:"asset"`
 }
 
 type DeleteAssetInput struct {
@@ -777,6 +786,14 @@ type Thread struct {
 
 type ThreadPayload struct {
 	Thread *Thread `json:"thread"`
+}
+
+type UnpublishItemInput struct {
+	ItemID []ID `json:"itemId"`
+}
+
+type UnpublishItemPayload struct {
+	Items []*Item `json:"items"`
 }
 
 type UpdateAssetInput struct {

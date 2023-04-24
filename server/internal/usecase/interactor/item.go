@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -19,6 +20,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -47,33 +49,50 @@ func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Opera
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
-func (i Item) ItemStatus(ctx context.Context, list id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
-	requests, err := i.repos.Request.FindByItems(ctx, list)
+func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase.Operator) (map[id.ItemID]item.Status, error) {
+	requests, err := i.repos.Request.FindByItems(ctx, itemsIds)
 	if err != nil {
 		return nil, err
 	}
-	items, err := i.FindByIDs(ctx, list, nil)
+	items, err := i.repos.Item.FindAllVersionsByIDs(ctx, itemsIds)
 	if err != nil {
 		return nil, err
 	}
 	res := map[id.ItemID]item.Status{}
-	for _, itm := range list {
+	for _, itemId := range itemsIds {
 		s := item.StatusDraft
-		for _, req := range requests {
-			if req.Items().IDs().Has(itm) {
-				switch req.State() {
-				case request.StateWaiting:
-					s = s.Wrap(item.StatusReview)
-				case request.StateApproved:
-					s = s.Wrap(item.StatusPublic)
-					if !items.Item(itm).Refs().Has(version.Public) {
-						s = s.Wrap(item.StatusChanged)
-					}
-				}
+		latest, _ := lo.Find(items, func(v item.Versioned) bool {
+			return v.Value().ID() == itemId && v.Refs().Has(version.Latest)
+		})
+		hasPublicVersion := lo.ContainsBy(items, func(v item.Versioned) bool {
+			return v.Value().ID() == itemId && v.Refs().Has(version.Public)
+		})
+		if hasPublicVersion {
+			s = s.Wrap(item.StatusPublic)
+		}
+		hasApprovedRequest, hasWaitingRequest := false, false
+		for _, r := range requests {
+			if !r.Items().IDs().Has(itemId) {
+				continue
+			}
+			switch r.State() {
+			case request.StateApproved:
+				hasApprovedRequest = true
+			case request.StateWaiting:
+				hasWaitingRequest = true
+			}
+			if hasApprovedRequest && hasWaitingRequest {
+				break
 			}
 		}
 
-		res[itm] = s
+		if hasPublicVersion && !latest.Refs().Has(version.Public) {
+			s = s.Wrap(item.StatusChanged)
+		}
+		if hasWaitingRequest {
+			s = s.Wrap(item.StatusReview)
+		}
+		res[itemId] = s
 	}
 	return res, nil
 }
@@ -232,6 +251,10 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
+func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, op *usecase.Operator) (time.Time, error) {
+	return i.repos.Item.LastModifiedByModel(ctx, model)
+}
+
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (item.Versioned, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
@@ -315,6 +338,76 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		}
 
 		return i.repos.Item.Remove(ctx, itemID)
+	})
+}
+
+func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
+		items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		// check all items were found
+		if len(items) != len(itemIDs) {
+			return nil, interfaces.ErrItemMissing
+		}
+
+		// check all items on the same models
+		s := lo.CountBy(items, func(itm item.Versioned) bool {
+			return itm.Value().Model() == items[0].Value().Model()
+		})
+		if s != len(items) {
+			return nil, interfaces.ErrItemsShouldBeOnSameModel
+		}
+
+		m, err := i.repos.Model.FindByID(ctx, items[0].Value().Model())
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, m.Project())
+		if err != nil {
+			return nil, err
+		}
+
+		sch, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		if !operator.IsMaintainingWorkspace(prj.Workspace()) {
+			return nil, interfaces.ErrInvalidOperator
+		}
+
+		// remove public ref from the items
+		for _, itm := range items {
+			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, nil); err != nil {
+				return nil, err
+			}
+		}
+
+		for _, itm := range items {
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: prj.Workspace(),
+				Type:      event.ItemUnpublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: sch,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
+		return items, nil
 	})
 }
 

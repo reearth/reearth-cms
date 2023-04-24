@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -348,6 +349,9 @@ func TestRequest_FindByProject(t *testing.T) {
 }
 
 func TestRequest_Approve(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
 	// TODO: add error cases
 	prj := project.New().NewID().MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
@@ -396,6 +400,6 @@ func TestRequest_Approve(t *testing.T) {
 	itemUC := NewItem(db, nil)
 	itm, err := itemUC.FindByID(ctx, i.ID(), op)
 	assert.NoError(t, err)
-	expected := version.MustBeValue(itm.Version(), nil, version.NewRefs(version.Public, version.Latest), i)
+	expected := version.MustBeValue(itm.Version(), nil, version.NewRefs(version.Public, version.Latest), now, i)
 	assert.Equal(t, expected, itm)
 }

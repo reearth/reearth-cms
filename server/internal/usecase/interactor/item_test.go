@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -112,6 +113,59 @@ func TestItem_FindByID(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got.Value())
+		})
+	}
+}
+
+func TestItem_FindByIDs(t *testing.T) {
+	sid := id.NewSchemaID()
+
+	tests := []struct {
+		name    string
+		seeds   item.List
+		arg     id.ItemIDList
+		want    item.VersionedList
+		wantErr error
+	}{
+		{
+			name:    "0 count in empty db",
+			seeds:   item.List{},
+			arg:     []id.ItemID{},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name: "0 count with item for another workspaces",
+			seeds: item.List{
+				item.New().NewID().Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild(),
+			},
+			arg:     []id.ItemID{},
+			want:    nil,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+
+			for _, i := range tc.seeds {
+				err := db.Item.Save(ctx, i)
+				assert.NoError(t, err)
+			}
+			itemUC := NewItem(db, nil)
+
+			got, err := itemUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -255,6 +309,9 @@ func TestItem_FindBySchema(t *testing.T) {
 }
 
 func TestItem_FindAllVersionsByID(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
 	i1 := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
@@ -278,7 +335,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), i1),
+		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
 	}, res)
 
 	// second version
@@ -288,8 +345,8 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	res, err = itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(res[0].Version(), nil, nil, i1),
-		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), i1),
+		version.NewValue(res[0].Version(), nil, nil, now, i1),
+		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), now, i1),
 	}, res)
 
 	// not found
@@ -562,8 +619,40 @@ func TestItem_Create(t *testing.T) {
 		WritableProjects: []id.ProjectID{s.Project()},
 	}
 
-	// ok
+	// invalid operator
 	item, err := itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID().Ref(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, &usecase.Operator{})
+	assert.Equal(t, interfaces.ErrInvalidOperator, err)
+	assert.Nil(t, item)
+
+	// operation denied
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
+		SchemaID: s.ID(),
+		ModelID:  m.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID().Ref(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, &usecase.Operator{
+		User: id.NewUserID().Ref(),
+	})
+	assert.Equal(t, interfaces.ErrOperationDenied, err)
+	assert.Nil(t, item)
+
+	// ok
+	item, err = itemUC.Create(ctx, interfaces.CreateItemParam{
 		SchemaID: s.ID(),
 		ModelID:  m.ID(),
 		Fields: []interfaces.ItemFieldParam{
@@ -693,6 +782,20 @@ func TestItem_Update(t *testing.T) {
 	assert.Equal(t, item.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("xxx").AsMultiple(), it.Value().Field(sf.ID()).Value())
 
+	// invalid operator
+	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
+		ItemID: i.ID(),
+		Fields: []interfaces.ItemFieldParam{
+			{
+				Field: sf.ID().Ref(),
+				Type:  value.TypeText,
+				Value: "xxx",
+			},
+		},
+	}, &usecase.Operator{})
+	assert.Equal(t, interfaces.ErrInvalidOperator, err)
+	assert.Nil(t, item)
+
 	// ok with key
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
@@ -817,7 +920,12 @@ func TestItem_Delete(t *testing.T) {
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
+	id2 := id.NewItemID()
+	id3 := id.NewItemID()
+	id4 := id.NewItemID()
 	i1 := item.New().ID(id1).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(id2).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().ID(id3).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -836,6 +944,26 @@ func TestItem_Delete(t *testing.T) {
 	err = itemUC.Delete(ctx, id1, op)
 	assert.NoError(t, err)
 
+	// invalid operator
+	err = db.Item.Save(ctx, i2)
+	assert.NoError(t, err)
+	err = itemUC.Delete(ctx, id2, &usecase.Operator{})
+	assert.Equal(t, interfaces.ErrInvalidOperator, err)
+
+	// operation denied
+	err = db.Item.Save(ctx, i3)
+	assert.NoError(t, err)
+	err = itemUC.Delete(ctx, id3, &usecase.Operator{
+		User: lo.ToPtr(u.ID()),
+	})
+	assert.Equal(t, interfaces.ErrOperationDenied, err)
+
+	// not found
+	err = itemUC.Delete(ctx, id4, &usecase.Operator{
+		User: lo.ToPtr(u.ID()),
+	})
+	assert.Equal(t, rerror.ErrNotFound, err)
+
 	_, err = itemUC.FindByID(ctx, id1, op)
 	assert.Error(t, err)
 
@@ -843,4 +971,79 @@ func TestItem_Delete(t *testing.T) {
 	wantErr := rerror.ErrNotFound
 	err = itemUC.Delete(ctx, id.NewItemID(), op)
 	assert.Equal(t, wantErr, err)
+}
+
+func TestWorkFlow(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
+	wid := id.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(wid).MustBuild()
+	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).MustBuild()
+	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
+	ri, _ := request.NewItem(i.ID())
+	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
+	req1 := request.New().
+		NewID().
+		Workspace(wid).
+		Project(prj.ID()).
+		Reviewers(id.UserIDList{u.ID()}).
+		CreatedBy(id.NewUserID()).
+		Thread(id.NewThreadID()).
+		Items(request.ItemList{ri}).
+		Title("foo").
+		MustBuild()
+	op := &usecase.Operator{
+		User:             lo.ToPtr(u.ID()),
+		OwningWorkspaces: id.WorkspaceIDList{wid},
+	}
+	ctx := context.Background()
+
+	db := memory.New()
+	err := db.Project.Save(ctx, prj)
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s)
+	assert.NoError(t, err)
+	err = db.Model.Save(ctx, m)
+	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i)
+	assert.NoError(t, err)
+
+	itemUC := NewItem(db, nil)
+
+	status, err := itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusDraft}, status)
+
+	err = db.Request.Save(ctx, req1)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusReview}, status)
+
+	requestUC := NewRequest(db, nil)
+	_, err = requestUC.Approve(ctx, req1.ID(), op)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
+
+	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
+		User:               lo.ToPtr(u.ID()),
+		ReadableWorkspaces: id.WorkspaceIDList{wid},
+	})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusDraft}, status)
 }

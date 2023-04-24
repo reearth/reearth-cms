@@ -2,6 +2,7 @@ package request
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -86,4 +87,23 @@ func TestRequest_SetState1(t *testing.T) {
 	req2.SetState(StateApproved)
 	assert.Equal(t, StateApproved, req2.State())
 	assert.NotNil(t, req2.ApprovedAt())
+}
+
+func TestRequest_CreatedAt(t *testing.T) {
+	rId := id.NewRequestID()
+	r := &Request{
+		id: rId,
+	}
+
+	assert.Equal(t, rId.Timestamp(), r.CreatedAt())
+}
+
+func TestRequest_UpdatedAt(t *testing.T) {
+	time := time.Now()
+	r := &Request{
+		id: id.NewRequestID(),
+	}
+	r.SetUpdatedAt(time)
+
+	assert.Equal(t, time, r.UpdatedAt())
 }

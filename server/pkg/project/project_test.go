@@ -82,6 +82,16 @@ func TestProject_UpdateName(t *testing.T) {
 	assert.Equal(t, "foo", p.Name())
 }
 
+func TestProject_Publication(t *testing.T) {
+	p := &Project{}
+	pp := &Publication{
+		scope:       PublicationScopePublic,
+		assetPublic: true,
+	}
+	p.SetPublication(pp)
+	assert.Equal(t, pp, p.Publication())
+}
+
 func TestProject_UpdateDescription(t *testing.T) {
 	p := &Project{}
 	p.UpdateDescription("aaa")

@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -61,28 +62,28 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 	return NewItem(itv, s, assets, c.assetUrlResolver), nil
 }
 
-func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], error) {
+func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], *schema.Schema, error) {
 	pr, err := c.checkProject(ctx, prj)
 	if err != nil {
-		return ListResult[Item]{}, err
+		return ListResult[Item]{}, nil, err
 	}
 
 	m, err := c.usecases.Model.FindByKey(ctx, pr.ID(), model, nil)
 	if err != nil {
-		return ListResult[Item]{}, err
+		return ListResult[Item]{}, nil, err
 	}
 	if !m.Public() {
-		return ListResult[Item]{}, rerror.ErrNotFound
+		return ListResult[Item]{}, nil, rerror.ErrNotFound
 	}
 
 	s, err := c.usecases.Schema.FindByID(ctx, m.Schema(), nil)
 	if err != nil {
-		return ListResult[Item]{}, err
+		return ListResult[Item]{}, nil, err
 	}
 
 	items, pi, err := c.usecases.Item.FindPublicByModel(ctx, m.ID(), p.Pagination, nil)
 	if err != nil {
-		return ListResult[Item]{}, err
+		return ListResult[Item]{}, nil, err
 	}
 
 	var assets asset.List
@@ -92,12 +93,12 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		})
 		assets, err = c.usecases.Asset.FindByIDs(ctx, assetIDs, nil)
 		if err != nil {
-			return ListResult[Item]{}, err
+			return ListResult[Item]{}, nil, err
 		}
 	}
 
 	res := NewListResult(util.Map(items.Unwrap(), func(i *item.Item) Item {
 		return NewItem(i, s, assets, c.assetUrlResolver)
 	}), pi, p.Pagination)
-	return res, nil
+	return res, s, nil
 }

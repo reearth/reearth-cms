@@ -15,16 +15,9 @@ import (
 
 type AssetFilterType string
 
-const (
-	AssetFilterDate AssetFilterType = "DATE"
-	AssetFilterSize AssetFilterType = "SIZE"
-	AssetFilterName AssetFilterType = "NAME"
-)
-
 type CreateAssetParam struct {
 	ProjectID         idx.ID[id.Project]
 	File              *file.File
-	URL               string
 	SkipDecompression bool
 }
 
@@ -54,4 +47,5 @@ type Asset interface {
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
+	DecompressByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 }

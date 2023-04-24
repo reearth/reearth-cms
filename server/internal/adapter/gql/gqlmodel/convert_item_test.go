@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -129,7 +130,7 @@ func TestToVersionedItem(t *testing.T) {
 	fs := []*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple())}
 	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(pId).Fields(fs).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()
-	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), i)
+	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), time.Time{}, i)
 	tests := []struct {
 		name string
 		args *version.Value[*item.Item]
@@ -185,6 +186,7 @@ func TestToItemQuery(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			tc := tc
 			t.Parallel()
 			got := ToItemQuery(tc.input)
 			assert.Equal(t, tc.want, got)

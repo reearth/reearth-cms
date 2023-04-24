@@ -123,5 +123,5 @@ func (d *IntegrationDocument) Model() (*integration.Integration, error) {
 type IntegrationConsumer = mongox.SliceFuncConsumer[*IntegrationDocument, *integration.Integration]
 
 func NewIntegrationConsumer() *IntegrationConsumer {
-	return NewComsumer[*IntegrationDocument, *integration.Integration]()
+	return NewConsumer[*IntegrationDocument, *integration.Integration]()
 }

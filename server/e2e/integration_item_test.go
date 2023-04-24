@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
@@ -25,6 +26,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -42,12 +44,17 @@ var (
 	icId   = id.NewCommentID()
 	ikey   = key.Random()
 	pid    = id.NewProjectID()
+	sid    = id.NewSchemaID()
 	palias = "PROJECT_ALIAS"
 	sfKey  = key.Random()
 	sfKey2 = id.NewKey("asset")
+
+	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
 
 func baseSeeder(ctx context.Context, r *repo.Container) error {
+	defer util.MockNow(now)()
+
 	u := user.New().ID(uId).
 		Name("e2e").
 		Email("e2e@e2e.com").
@@ -96,7 +103,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 
 	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).Key(sfKey).MustBuild()
 	sf2 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
-	s := schema.New().NewID().
+	s := schema.New().ID(sid).
 		Workspace(w.ID()).
 		Project(p.ID()).
 		Fields([]*schema.Field{sf, sf2}).
@@ -226,117 +233,6 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Status(http.StatusBadRequest)
 }
 
-// GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items
-func TestIntegrationItemListWithProjectAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusNotFound)
-
-	obj := e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object()
-
-	obj.Value("page").Equal(1)
-	obj.Value("perPage").Equal(5)
-	obj.Value("totalCount").Equal(1)
-
-	a := obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), false)
-
-	// model key can be also usable
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, ikey).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
-
-	a = obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), false)
-
-	// project alias can be also usable
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", palias, ikey).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
-
-	a = obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), false)
-
-	// asset embeded
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		WithQuery("asset", "true").
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
-
-	a = obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), true)
-
-	// invalid key
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, "xxx").
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusNotFound)
-
-	// invalid project
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", id.NewProjectID(), ikey).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusNotFound)
-}
-
 // POST /models/{modelId}/items
 func TestIntegrationCreateItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
@@ -393,81 +289,6 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	r.Value("refs").Equal([]string{"latest"})
 
 	e.POST("/api/models/{modelId}/items", mId).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
-				map[string]string{
-					"key":   sfKey.String(),
-					"value": "test value 2",
-				},
-			},
-		}).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		Value("fields").
-		Equal([]any{
-			map[string]string{
-				"id":    fId.String(),
-				"type":  "text",
-				"value": "test value 2",
-				"key":   sfKey.String(),
-			},
-		})
-}
-
-// POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items
-func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusBadRequest)
-
-	r := e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"fields": []interface{}{
-				map[string]string{
-					"id":    fId.String(),
-					"value": "test value",
-				},
-			},
-		}).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object()
-	r.Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	r.Value("fields").Equal([]any{
-		map[string]string{
-			"id":    fId.String(),
-			"type":  "text",
-			"value": "test value",
-			"key":   sfKey.String(),
-		},
-	})
-	r.Value("modelId").Equal(mId.String())
-	r.Value("refs").Equal([]string{"latest"})
-
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{

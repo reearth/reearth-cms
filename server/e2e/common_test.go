@@ -60,7 +60,7 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container, 
 	t.Helper()
 
 	if testing.Short() {
-		t.SkipNow()
+		t.Skip("skipping test in short mode.")
 	}
 
 	ctx := context.Background()

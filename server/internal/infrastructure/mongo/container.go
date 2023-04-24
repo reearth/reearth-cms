@@ -84,6 +84,14 @@ func createIndexes(ctx context.Context, c *mongox.Collection, keys, uniqueKeys [
 	return err
 }
 
+func createIndexes2(ctx context.Context, c *mongox.Collection, inputs ...mongox.Index) error {
+	res, err := c.Indexes2(ctx, inputs...)
+	if err == nil {
+		logIndexResult(c.Client().Name(), res)
+	}
+	return err
+}
+
 func logIndexResult(name string, r mongox.IndexResult) {
 	d := r.DeletedNames()
 	u := r.UpdatedNames()

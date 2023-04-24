@@ -30,9 +30,11 @@ Auto: 自動
 Service Language: 利用言語
 This will change the UI language: UIの言語設定を変更します。
 Language: 言語
+Unzip: ''
 Asset Type: アセットの種類
 Created Time: 作成日時
 Created By: 作成者
+Linked to: ''
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
@@ -50,13 +52,13 @@ Decompressed: 解凍完了
 Failed: 失敗
 Decompressing: 解凍中
 Skipped: スキップ
+Pending: ''
 File: ファイル
 Size: サイズ
 Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
 ID: ''
-Linked to: ''
 Deselect: 選択解除
 Delete: 削除
 Upload Asset: アセットをアップロード
@@ -103,8 +105,9 @@ Role: ロール
 API key: APIキー
 Account: アカウント
 unique: ユニーク
-New Request: 新規リクエスト
 Add to Request: 既存のリクエストに追加
+Unpublish: 非公開
+New Request: 新規リクエスト
 Please input field!: フィールドを入力してください。
 Title: タイトル
 State: ステータス
@@ -155,7 +158,6 @@ Code Example: ''
 your model id here: ''
 Update: アップデート
 Publish: 公開
-Unpublish: 非公開
 Decompress: 圧縮
 This is your webhook name: Webhookの名前です
 Please input the name of the webhook!: Webhookの名前を入力してください
@@ -250,6 +252,8 @@ Failed to delete user.: ユーザーの削除に失敗しました。
 Successfully deleted user!: ユーザーの削除に成功しました。
 Failed to update asset.: アセットの更新に失敗しました。
 Asset was successfully updated!: アセットの更新に成功しました。
+Failed to decompress asset.: ''
+Asset is being decompressed!: ''
 Failed to add one or more assets.: アセットの追加に失敗しました。
 Successfully added one or more assets!: アセットの追加に成功しました。
 Successfully added asset!: アセットの追加に成功しました。
@@ -278,6 +282,8 @@ Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
 Successfully updated Request!: リクエストの更新に成功しました。
+Failed to unpublish items.: ''
+Successfully unpublished items!: ''
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to delete model.: モデルの削除に失敗しました。

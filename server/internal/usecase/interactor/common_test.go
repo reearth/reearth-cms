@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
@@ -19,6 +20,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -61,6 +63,15 @@ func TestCommon_createEvent(t *testing.T) {
 	assert.NoError(t, err)
 	expectedEv := event.New[any]().ID(ev.ID()).Timestamp(now).Type(event.AssetCreate).Operator(operator.OperatorFromUser(uID)).Object(a).MustBuild()
 	assert.Equal(t, expectedEv, ev)
+
+	ev, err = createEvent(ctx, db, gw, Event{
+		Workspace: ws.ID(),
+		Type:      event.Type(event.AssetCreate),
+		Object:    a,
+		Operator:  operator.Operator{},
+	})
+	assert.ErrorIs(t, err, event.ErrInvalidID)
+	assert.Nil(t, ev)
 }
 
 func TestCommon_webhook(t *testing.T) {
@@ -110,4 +121,21 @@ func TestCommon_webhook(t *testing.T) {
 	}.Payload()).Times(1).Return(nil)
 	err = webhook(ctx, db, gw, Event{Workspace: ws.ID()}, ev)
 	assert.NoError(t, err)
+}
+
+func TestNew(t *testing.T) {
+	uc := New(nil, nil, nil, nil, ContainerConfig{})
+	assert.NotNil(t, uc)
+	assert.Equal(t, interfaces.Container{
+		Asset:       NewAsset(nil, nil),
+		Workspace:   accountinteractor.NewWorkspace(nil),
+		User:        accountinteractor.NewUser(nil, nil, "", ""),
+		Item:        NewItem(nil, nil),
+		Project:     NewProject(nil, nil),
+		Request:     NewRequest(nil, nil),
+		Model:       NewModel(nil, nil),
+		Schema:      NewSchema(nil, nil),
+		Integration: NewIntegration(nil, nil),
+		Thread:      NewThread(nil, nil),
+	}, uc)
 }

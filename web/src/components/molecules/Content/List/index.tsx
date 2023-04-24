@@ -44,6 +44,7 @@ export type Props = {
     pageSize: number,
     sorter?: { type?: ItemSortType; direction?: SortDirection },
   ) => void;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onCollapse?: (collapse: boolean) => void;
@@ -80,6 +81,7 @@ const ContentListMolecule: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  onUnpublish,
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
@@ -131,6 +133,7 @@ const ContentListMolecule: React.FC<Props> = ({
             loading={itemsDataLoading}
             selectedItem={selectedItem}
             selection={selection}
+            onUnpublish={onUnpublish}
             onSearchTerm={onSearchTerm}
             onContentTableChange={onContentTableChange}
             setSelection={setSelection}

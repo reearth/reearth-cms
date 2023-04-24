@@ -37,7 +37,7 @@ type ItemFieldDocument struct {
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
 
 func NewItemConsumer() *ItemConsumer {
-	return NewComsumer[*ItemDocument, *item.Item]()
+	return NewConsumer[*ItemDocument, *item.Item]()
 }
 
 type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDocument], *version.Value[*item.Item]]

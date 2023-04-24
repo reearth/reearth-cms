@@ -5,13 +5,11 @@ import {
 } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { Asset as GQLAsset, Comment as GQLComment } from "@reearth-cms/gql/graphql-client-api";
 
-import { fileName } from "./utils";
-
 export const convertAsset = (asset: GQLAsset | undefined): Asset | undefined => {
   if (!asset) return;
   return {
     id: asset.id,
-    fileName: fileName(asset.url),
+    fileName: asset.fileName,
     createdAt: asset.createdAt.toString(),
     createdBy: asset.createdBy?.name ?? "",
     createdByType: asset.createdByType,

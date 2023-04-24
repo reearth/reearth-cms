@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
@@ -19,7 +20,10 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 		File:      gqlmodel.FromFile(input.File),
 	}
 	if input.URL != nil {
-		params.URL = *input.URL
+		params.File, err = file.FromURL(*input.URL)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if input.SkipDecompression != nil {
 		params.SkipDecompression = *input.SkipDecompression
@@ -67,4 +71,19 @@ func (r *mutationResolver) DeleteAsset(ctx context.Context, input gqlmodel.Delet
 	}
 
 	return &gqlmodel.DeleteAssetPayload{AssetID: gqlmodel.IDFrom(res)}, nil
+}
+
+func (r *mutationResolver) DecompressAsset(ctx context.Context, input gqlmodel.DecompressAssetInput) (*gqlmodel.DecompressAssetPayload, error) {
+	aid, err := gqlmodel.ToID[id.Asset](input.AssetID)
+	if err != nil {
+		return nil, err
+	}
+
+	uc := usecases(ctx).Asset
+	res, err2 := uc.DecompressByID(ctx, aid, getOperator(ctx))
+	if err2 != nil {
+		return nil, err2
+	}
+
+	return &gqlmodel.DecompressAssetPayload{Asset: gqlmodel.ToAsset(res, uc.GetURL)}, nil
 }

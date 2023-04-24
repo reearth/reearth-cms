@@ -30,6 +30,7 @@ func TestToAsset(t *testing.T) {
 		PreviewType:   ToPreviewType(&pti),
 		UUID:          uuid,
 		URL:           "xxx",
+		FileName:      "aaa.jpg",
 		ThreadID:      ID(thid.String()),
 		Size:          1000,
 	}
