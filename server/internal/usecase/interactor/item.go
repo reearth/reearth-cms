@@ -333,11 +333,13 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 			return err
 		}
 
+		pid := itm.Value().Project()
+
 		if !operator.CanUpdate(itm.Value()) {
 			return interfaces.ErrOperationDenied
 		}
 
-		return i.repos.Item.Remove(ctx, itemID)
+		return i.repos.Item.Archive(ctx, itemID, pid, false)
 	})
 }
 
