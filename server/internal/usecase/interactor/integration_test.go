@@ -47,7 +47,7 @@ func testSuite() testData {
 	iId2 := id.NewIntegrationID()
 	i1 := integration.New().ID(iId1).Name("i1").Developer(uId).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
 	i2 := integration.New().ID(iId2).Name("i2").Developer(uId).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
-	i3 := integration.New().ID(iId2).Name("i3").Developer(id.NewUserID()).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
+	i3 := integration.New().ID(iId2).Name("i3").Developer(accountdomain.NewUserID()).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
 	return testData{
 		Now:  now,
 		Op:   op,
@@ -158,8 +158,8 @@ func TestIntegration_Create(t *testing.T) {
 func TestIntegration_Update(t *testing.T) {
 	ts := testSuite()
 
-	wid := id.NewWorkspaceID()
-	uId := id.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID()
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	type args struct {
@@ -196,9 +196,11 @@ func TestIntegration_Update(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:     "invalid operator",
-			operator: &usecase.Operator{},
-			seeds:    []*integration.Integration{ts.I1},
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds: []*integration.Integration{ts.I1},
 			args: args{
 				id: ts.IId1,
 				params: interfaces.UpdateIntegrationParam{
@@ -213,8 +215,10 @@ func TestIntegration_Update(t *testing.T) {
 		{
 			name: "operation denied",
 			operator: &usecase.Operator{
-				User:               lo.ToPtr(u.ID()),
-				ReadableWorkspaces: []id.WorkspaceID{wid},
+				AcOperator: &accountusecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+				},
 			},
 			seeds: []*integration.Integration{ts.I1},
 			args: args{
@@ -265,8 +269,8 @@ func TestIntegration_Update(t *testing.T) {
 func TestIntegration_Delete(t *testing.T) {
 	ts := testSuite()
 
-	wid := id.NewWorkspaceID()
-	uId := id.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID()
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	tests := []struct {
@@ -284,17 +288,21 @@ func TestIntegration_Delete(t *testing.T) {
 			wantErr:  nil,
 		},
 		{
-			name:     "invalid operator",
-			operator: &usecase.Operator{},
-			seeds:    []*integration.Integration{ts.I1, ts.I2},
-			args:     ts.IId1,
-			wantErr:  interfaces.ErrInvalidOperator,
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds:   []*integration.Integration{ts.I1, ts.I2},
+			args:    ts.IId1,
+			wantErr: interfaces.ErrInvalidOperator,
 		},
 		{
 			name: "operation denied",
 			operator: &usecase.Operator{
-				User:               lo.ToPtr(u.ID()),
-				ReadableWorkspaces: []id.WorkspaceID{wid},
+				AcOperator: &accountusecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+				},
 			},
 			seeds:   []*integration.Integration{ts.I1, ts.I2},
 			args:    ts.IId1,
@@ -351,12 +359,14 @@ func TestIntegration_FindByIDs(t *testing.T) {
 			wantErr:  nil,
 		},
 		{
-			name:     "test",
-			operator: &usecase.Operator{},
-			seeds:    []*integration.Integration{ts.I1},
-			args:     []integration.ID{ts.IId1},
-			want:     nil,
-			wantErr:  interfaces.ErrInvalidOperator,
+			name: "test",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds:   []*integration.Integration{ts.I1},
+			args:    []integration.ID{ts.IId1},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
 		},
 	}
 	for _, tt := range tests {
@@ -409,11 +419,13 @@ func TestIntegration_FindByMe(t *testing.T) {
 			wantErr:  nil,
 		},
 		{
-			name:     "invalid operator",
-			operator: &usecase.Operator{},
-			seeds:    []*integration.Integration{ts.I1, ts.I3},
-			want:     nil,
-			wantErr:  interfaces.ErrInvalidOperator,
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds:   []*integration.Integration{ts.I1, ts.I3},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
 		},
 	}
 	for _, tt := range tests {
@@ -451,8 +463,8 @@ func TestIntegration_FindByMe(t *testing.T) {
 func TestIntegration_CreateWebhook(t *testing.T) {
 	ts := testSuite()
 
-	wid := id.NewWorkspaceID()
-	uId := id.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID()
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	type args struct {
@@ -484,9 +496,11 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:     "invalid operator",
-			operator: &usecase.Operator{},
-			seeds:    []*integration.Integration{ts.I1},
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds: []*integration.Integration{ts.I1},
 			args: args{
 				id: ts.IId1,
 				params: interfaces.CreateWebhookParam{
@@ -502,8 +516,10 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 		{
 			name: "operation denied",
 			operator: &usecase.Operator{
-				User:               lo.ToPtr(u.ID()),
-				ReadableWorkspaces: []id.WorkspaceID{wid},
+				AcOperator: &accountusecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+				},
 			},
 			seeds: []*integration.Integration{ts.I1},
 			args: args{
@@ -549,8 +565,8 @@ func TestIntegration_CreateWebhook(t *testing.T) {
 func TestIntegration_UpdateWebhook(t *testing.T) {
 	ts := testSuite()
 
-	wid := id.NewWorkspaceID()
-	uId := id.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID()
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	wId := id.NewWebhookID()
@@ -587,9 +603,11 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:     "invalid operator",
-			operator: &usecase.Operator{},
-			seeds:    []*integration.Integration{ts.I2},
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds: []*integration.Integration{ts.I2},
 			args: args{
 				iId: ts.IId2,
 				wId: wId,
@@ -607,8 +625,10 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 		{
 			name: "operation denied",
 			operator: &usecase.Operator{
-				User:               lo.ToPtr(u.ID()),
-				ReadableWorkspaces: []id.WorkspaceID{wid},
+				AcOperator: &accountusecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+				},
 			},
 			seeds: []*integration.Integration{ts.I2},
 			args: args{
@@ -688,8 +708,8 @@ func TestIntegration_UpdateWebhook(t *testing.T) {
 func TestIntegration_DeleteWebhook(t *testing.T) {
 	ts := testSuite()
 
-	wid := id.NewWorkspaceID()
-	uId := id.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID()
 	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
 
 	wId := id.NewWebhookID()
@@ -725,9 +745,11 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:     "invalid operator",
-			operator: &usecase.Operator{},
-			seeds:    []*integration.Integration{ts.I2},
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds: []*integration.Integration{ts.I2},
 			args: args{
 				iId: ts.IId2,
 				wId: wId,
@@ -744,8 +766,10 @@ func TestIntegration_DeleteWebhook(t *testing.T) {
 		{
 			name: "operation denied",
 			operator: &usecase.Operator{
-				User:               lo.ToPtr(u.ID()),
-				ReadableWorkspaces: []id.WorkspaceID{wid},
+				AcOperator: &accountusecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+				},
 			},
 			seeds: []*integration.Integration{ts.I2},
 			args: args{

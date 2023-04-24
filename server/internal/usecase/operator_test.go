@@ -13,21 +13,23 @@ import (
 )
 
 func TestOperator_Workspaces(t *testing.T) {
-	u := id.NewUserID()
-	w1, w2, w3, w4 := accountdomain.NewWorkspaceID(), accountdomain.NewWorkspaceID(), id.NewWorkspaceID(), id.NewWorkspaceID()
+	u := accountdomain.NewUserID()
+	w1, w2, w3, w4 := accountdomain.NewWorkspaceID(), accountdomain.NewWorkspaceID(), accountdomain.NewWorkspaceID(), accountdomain.NewWorkspaceID()
 	op := Operator{
-		User:                   &u,
-		Integration:            nil,
-		ReadableWorkspaces:     id.WorkspaceIDList{w1},
-		WritableWorkspaces:     id.WorkspaceIDList{w2},
-		MaintainableWorkspaces: id.WorkspaceIDList{w3},
-		OwningWorkspaces:       id.WorkspaceIDList{w4},
+		AcOperator: &accountusecase.Operator{
+			User:                   &u,
+			ReadableWorkspaces:     id.WorkspaceIDList{w1},
+			WritableWorkspaces:     id.WorkspaceIDList{w2},
+			MaintainableWorkspaces: id.WorkspaceIDList{w3},
+			OwningWorkspaces:       id.WorkspaceIDList{w4},
+		},
+		Integration: nil,
 	}
 
-	assert.Equal(t, op.Workspaces(workspace.RoleReader), []id.WorkspaceID{w1})
-	assert.Equal(t, op.Workspaces(workspace.RoleWriter), []id.WorkspaceID{w2})
-	assert.Equal(t, op.Workspaces(workspace.RoleMaintainer), []id.WorkspaceID{w3})
-	assert.Equal(t, op.Workspaces(workspace.RoleOwner), []id.WorkspaceID{w4})
+	assert.Equal(t, op.Workspaces(workspace.RoleReader), []accountdomain.WorkspaceID{w1})
+	assert.Equal(t, op.Workspaces(workspace.RoleWriter), []accountdomain.WorkspaceID{w2})
+	assert.Equal(t, op.Workspaces(workspace.RoleMaintainer), []accountdomain.WorkspaceID{w3})
+	assert.Equal(t, op.Workspaces(workspace.RoleOwner), []accountdomain.WorkspaceID{w4})
 	assert.Nil(t, op.Workspaces(""))
 	assert.Nil(t, (*Operator)(nil).Workspaces(""))
 
@@ -40,36 +42,38 @@ func TestOperator_Workspaces(t *testing.T) {
 	assert.True(t, op.IsReadableWorkspace(w2))
 	assert.True(t, op.IsReadableWorkspace(w3))
 	assert.True(t, op.IsReadableWorkspace(w4))
-	assert.False(t, op.IsReadableWorkspace(id.NewWorkspaceID()))
+	assert.False(t, op.IsReadableWorkspace(accountdomain.NewWorkspaceID()))
 
 	assert.False(t, op.IsWritableWorkspace(w1))
 	assert.True(t, op.IsWritableWorkspace(w2))
 	assert.True(t, op.IsWritableWorkspace(w3))
 	assert.True(t, op.IsWritableWorkspace(w4))
-	assert.False(t, op.IsWritableWorkspace(id.NewWorkspaceID()))
+	assert.False(t, op.IsWritableWorkspace(accountdomain.NewWorkspaceID()))
 
 	assert.False(t, op.IsMaintainingWorkspace(w1))
 	assert.False(t, op.IsMaintainingWorkspace(w2))
 	assert.True(t, op.IsMaintainingWorkspace(w3))
 	assert.True(t, op.IsMaintainingWorkspace(w4))
-	assert.False(t, op.IsMaintainingWorkspace(id.NewWorkspaceID()))
+	assert.False(t, op.IsMaintainingWorkspace(accountdomain.NewWorkspaceID()))
 
 	assert.False(t, op.IsOwningWorkspace(w1))
 	assert.False(t, op.IsOwningWorkspace(w2))
 	assert.False(t, op.IsOwningWorkspace(w3))
 	assert.True(t, op.IsOwningWorkspace(w4))
-	assert.False(t, op.IsOwningWorkspace(id.NewWorkspaceID()))
+	assert.False(t, op.IsOwningWorkspace(accountdomain.NewWorkspaceID()))
 
-	w5 := id.NewWorkspaceID()
+	w5 := accountdomain.NewWorkspaceID()
 	op.AddNewWorkspace(w5)
-	assert.Equal(t, user.WorkspaceIDList{w4, w5}, op.OwningWorkspaces)
+	assert.Equal(t, user.WorkspaceIDList{w4, w5}, op.AcOperator.OwningWorkspaces)
 }
 
 func TestOperator_Projects(t *testing.T) {
-	u := id.NewUserID()
+	u := accountdomain.NewUserID()
 	p1, p2, p3, p4 := id.NewProjectID(), id.NewProjectID(), id.NewProjectID(), id.NewProjectID()
 	op := Operator{
-		User:                 &u,
+		AcOperator: &accountusecase.Operator{
+			User: &u,
+		},
 		Integration:          nil,
 		ReadableProjects:     id.ProjectIDList{p1},
 		WritableProjects:     id.ProjectIDList{p2},
@@ -119,7 +123,7 @@ func TestOperator_Projects(t *testing.T) {
 }
 
 func TestOperator_Operator(t *testing.T) {
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	op := Operator{
 		Integration: nil,
 		AcOperator: &accountusecase.Operator{
@@ -151,7 +155,8 @@ func TestOperator_Operator(t *testing.T) {
 	assert.False(t, eOp.Machine())
 
 	op = Operator{
-		Machine: true,
+		AcOperator: &accountusecase.Operator{},
+		Machine:    true,
 	}
 
 	eOp = op.Operator()
@@ -162,12 +167,12 @@ func TestOperator_Operator(t *testing.T) {
 }
 
 type ownable struct {
-	U *id.UserID
+	U *accountdomain.UserID
 	I *id.IntegrationID
 	P id.ProjectID
 }
 
-func (o ownable) User() *id.UserID {
+func (o ownable) User() *accountdomain.UserID {
 	return o.U
 }
 func (o ownable) Integration() *id.IntegrationID {
@@ -178,10 +183,12 @@ func (o ownable) Project() id.ProjectID {
 }
 
 func TestOperator_Checks(t *testing.T) {
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	pId := id.NewProjectID()
 	op := Operator{
-		User:             &uId,
+		AcOperator: &accountusecase.Operator{
+			User: &uId,
+		},
 		Integration:      nil,
 		WritableProjects: project.IDList{pId},
 	}

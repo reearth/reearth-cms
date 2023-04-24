@@ -159,7 +159,7 @@ func TestItem_FindByIDs(t *testing.T) {
 			}
 			itemUC := NewItem(db, nil)
 
-			got, err := itemUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
+			got, err := itemUC.FindByIDs(ctx, tc.arg, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -630,7 +630,7 @@ func TestItem_Create(t *testing.T) {
 				Value: "xxx",
 			},
 		},
-	}, &usecase.Operator{})
+	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 	assert.Nil(t, item)
 
@@ -646,7 +646,8 @@ func TestItem_Create(t *testing.T) {
 			},
 		},
 	}, &usecase.Operator{
-		User: id.NewUserID().Ref(),
+		AcOperator: &accountusecase.Operator{
+			User: accountdomain.NewUserID().Ref()},
 	})
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
 	assert.Nil(t, item)
@@ -792,7 +793,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx",
 			},
 		},
-	}, &usecase.Operator{})
+	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 	assert.Nil(t, item)
 
@@ -947,20 +948,24 @@ func TestItem_Delete(t *testing.T) {
 	// invalid operator
 	err = db.Item.Save(ctx, i2)
 	assert.NoError(t, err)
-	err = itemUC.Delete(ctx, id2, &usecase.Operator{})
+	err = itemUC.Delete(ctx, id2, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 
 	// operation denied
 	err = db.Item.Save(ctx, i3)
 	assert.NoError(t, err)
 	err = itemUC.Delete(ctx, id3, &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 	})
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
 
 	// not found
 	err = itemUC.Delete(ctx, id4, &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 	})
 	assert.Equal(t, rerror.ErrNotFound, err)
 
@@ -977,9 +982,9 @@ func TestWorkFlow(t *testing.T) {
 	now := util.Now()
 	defer util.MockNow(now)()
 
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	prj := project.New().NewID().Workspace(wid).MustBuild()
-	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).MustBuild()
+	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
 	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
 	ri, _ := request.NewItem(i.ID())
@@ -988,15 +993,17 @@ func TestWorkFlow(t *testing.T) {
 		NewID().
 		Workspace(wid).
 		Project(prj.ID()).
-		Reviewers(id.UserIDList{u.ID()}).
-		CreatedBy(id.NewUserID()).
+		Reviewers(accountdomain.UserIDList{u.ID()}).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{ri}).
 		Title("foo").
 		MustBuild()
 	op := &usecase.Operator{
-		User:             lo.ToPtr(u.ID()),
-		OwningWorkspaces: id.WorkspaceIDList{wid},
+		AcOperator: &accountusecase.Operator{
+			User:             lo.ToPtr(u.ID()),
+			OwningWorkspaces: id.WorkspaceIDList{wid},
+		},
 	}
 	ctx := context.Background()
 
@@ -1032,12 +1039,14 @@ func TestWorkFlow(t *testing.T) {
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 
 	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
-		User:               lo.ToPtr(u.ID()),
-		ReadableWorkspaces: id.WorkspaceIDList{wid},
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: id.WorkspaceIDList{wid},
+		},
 	})
 	assert.Equal(t, err, interfaces.ErrInvalidOperator)
 
-	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{})
+	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, err, interfaces.ErrInvalidOperator)
 
 	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, op)

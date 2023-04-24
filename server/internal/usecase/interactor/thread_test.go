@@ -194,7 +194,7 @@ func TestThread_FindByIDs(t *testing.T) {
 			}
 			threadUC := NewThread(db, nil)
 
-			got, err := threadUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
+			got, err := threadUC.FindByIDs(ctx, tc.arg, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

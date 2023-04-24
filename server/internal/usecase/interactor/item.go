@@ -342,7 +342,7 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 }
 
 func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {

@@ -176,8 +176,10 @@ func TestAsset_DecompressByID(t *testing.T) {
 			name:  "No user or integration",
 			seeds: []*asset.Asset{},
 			args: args{
-				id:       id.NewAssetID(),
-				operator: &usecase.Operator{},
+				id: id.NewAssetID(),
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrInvalidOperator,
@@ -188,8 +190,10 @@ func TestAsset_DecompressByID(t *testing.T) {
 			args: args{
 				id: a1.ID(),
 				operator: &usecase.Operator{
-					User:               lo.ToPtr(u1.ID()),
-					ReadableWorkspaces: []id.WorkspaceID{ws1.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               lo.ToPtr(u1.ID()),
+						ReadableWorkspaces: []accountdomain.WorkspaceID{ws1.ID()},
+					},
 				},
 			},
 			want:    nil,
@@ -201,9 +205,11 @@ func TestAsset_DecompressByID(t *testing.T) {
 			args: args{
 				id: asset.NewID(),
 				operator: &usecase.Operator{
-					User:             lo.ToPtr(u1.ID()),
-					OwningProjects:   []id.ProjectID{pid1},
-					OwningWorkspaces: []id.WorkspaceID{ws1.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:             lo.ToPtr(u1.ID()),
+						OwningWorkspaces: []accountdomain.WorkspaceID{ws1.ID()},
+					},
+					OwningProjects: []id.ProjectID{pid1},
 				},
 			},
 			want:    nil,
@@ -431,7 +437,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 			}
 			assetUC := NewAsset(db, nil)
 
-			got, err := assetUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
+			got, err := assetUC.FindByIDs(ctx, tc.arg, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -575,6 +581,7 @@ func TestAsset_FindByProject(t *testing.T) {
 func TestAsset_Create(t *testing.T) {
 	mocktime := time.Now()
 	ws := workspace.New().NewID().MustBuild()
+	ws2 := workspace.New().NewID().MustBuild()
 
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(ws.ID()).UpdatedAt(mocktime).MustBuild()
@@ -702,7 +709,9 @@ func TestAsset_Create(t *testing.T) {
 					ProjectID: p1.ID(),
 					File:      nil,
 				},
-				operator: &usecase.Operator{},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			want:     nil,
 			wantFile: nil,
@@ -721,8 +730,10 @@ func TestAsset_Create(t *testing.T) {
 					},
 				},
 				operator: &usecase.Operator{
-					User:               lo.ToPtr(u.ID()),
-					WritableWorkspaces: []id.WorkspaceID{ws.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               lo.ToPtr(u.ID()),
+						WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+					},
 				},
 			},
 			want:     nil,
@@ -742,8 +753,10 @@ func TestAsset_Create(t *testing.T) {
 					},
 				},
 				operator: &usecase.Operator{
-					User:               lo.ToPtr(u.ID()),
-					WritableWorkspaces: []id.WorkspaceID{ws2.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               lo.ToPtr(u.ID()),
+						WritableWorkspaces: []accountdomain.WorkspaceID{ws2.ID()},
+					},
 				},
 			},
 			want:     nil,
@@ -860,7 +873,9 @@ func TestAsset_Update(t *testing.T) {
 					AssetID:     aid1,
 					PreviewType: &pti,
 				},
-				operator: &usecase.Operator{},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrInvalidOperator,
@@ -874,8 +889,10 @@ func TestAsset_Update(t *testing.T) {
 					PreviewType: &pti,
 				},
 				operator: &usecase.Operator{
-					User:               &uid,
-					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               &uid,
+						ReadableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+					},
 				},
 			},
 			want:    nil,
@@ -988,8 +1005,10 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		wantErr         error
 	}{
 		{
-			name:     "invalid operator",
-			operator: &usecase.Operator{},
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
 			prepareFileFunc: func() afero.Fs {
 				return mockFs()
 			},
@@ -1010,8 +1029,10 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		{
 			name: "operation denied",
 			operator: &usecase.Operator{
-				User:               &uid,
-				ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+				AcOperator: &accountusecase.Operator{
+					User:               &uid,
+					ReadableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+				},
 			},
 			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
 			seedFiles: map[asset.ID]*asset.File{
@@ -1186,8 +1207,10 @@ func TestAsset_Delete(t *testing.T) {
 			name:       "invalid operator",
 			seedsAsset: []*asset.Asset{a1, a2},
 			args: args{
-				id:       id.NewAssetID(),
-				operator: &usecase.Operator{},
+				id: id.NewAssetID(),
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrInvalidOperator,
@@ -1199,8 +1222,10 @@ func TestAsset_Delete(t *testing.T) {
 			args: args{
 				id: aid1,
 				operator: &usecase.Operator{
-					User:               &uid,
-					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               &uid,
+						ReadableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+					},
 				},
 			},
 			want:    nil,
