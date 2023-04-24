@@ -218,7 +218,7 @@ const ContentForm: React.FC<Props> = ({
                 rules={[
                   {
                     required: field.required,
-                    message: t("Please input field!") as string,
+                    message: t("Please input field!"),
                   },
                 ]}
                 name={field.id}
@@ -241,7 +241,7 @@ const ContentForm: React.FC<Props> = ({
                 rules={[
                   {
                     required: field.required,
-                    message: t("Please input field!") as string,
+                    message: t("Please input field!"),
                   },
                 ]}
                 name={field.id}
@@ -262,7 +262,7 @@ const ContentForm: React.FC<Props> = ({
                 rules={[
                   {
                     required: field.required,
-                    message: t("Please input field!") as string,
+                    message: t("Please input field!"),
                   },
                 ]}
                 name={field.id}
@@ -289,7 +289,7 @@ const ContentForm: React.FC<Props> = ({
                 rules={[
                   {
                     required: field.required,
-                    message: t("Please input field!") as string,
+                    message: t("Please input field!"),
                   },
                 ]}
                 name={field.id}
@@ -379,7 +379,7 @@ const ContentForm: React.FC<Props> = ({
                 rules={[
                   {
                     required: field.required,
-                    message: t("Please input field!") as string,
+                    message: t("Please input field!"),
                   },
                   {
                     message: "URL is not valid",
@@ -416,7 +416,7 @@ const ContentForm: React.FC<Props> = ({
                 rules={[
                   {
                     required: field.required,
-                    message: t("Please input field!") as string,
+                    message: t("Please input field!"),
                   },
                 ]}
                 name={field.id}
