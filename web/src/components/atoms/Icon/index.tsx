@@ -37,7 +37,6 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
         src={src}
         color={color}
         style={style}
-        alt={alt}
         size={sizeStr}
         onClick={onClick}
       />
@@ -57,7 +56,7 @@ const StyledImg = styled.img<{ size?: string }>`
 `;
 
 const SVG: React.FC<
-  Pick<ComponentProps<typeof ReactSVG>, "className" | "src" | "onClick" | "alt" | "style">
+  Pick<ComponentProps<typeof ReactSVG>, "className" | "src" | "onClick" | "style">
 > = props => {
   return <ReactSVG {...props} wrapper="span" />;
 };

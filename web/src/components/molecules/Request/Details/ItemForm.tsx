@@ -79,6 +79,7 @@ const RequestItemForm: React.FC<Props> = ({
         {schema?.fields.map((field: any) =>
           field.type === "TextArea" ? (
             <Form.Item
+              key={field.id}
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
@@ -101,6 +102,7 @@ const RequestItemForm: React.FC<Props> = ({
             </Form.Item>
           ) : field.type === "MarkdownText" ? (
             <Form.Item
+              key={field.id}
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
@@ -116,6 +118,7 @@ const RequestItemForm: React.FC<Props> = ({
             </Form.Item>
           ) : field.type === "Integer" ? (
             <Form.Item
+              key={field.id}
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
@@ -138,6 +141,7 @@ const RequestItemForm: React.FC<Props> = ({
             </Form.Item>
           ) : field.type === "Asset" ? (
             <Form.Item
+              key={field.id}
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
@@ -167,6 +171,7 @@ const RequestItemForm: React.FC<Props> = ({
                 />
               ) : (
                 <AssetItem
+                  key={field.id}
                   disabled={true}
                   assetList={assetList}
                   fileList={fileList}
@@ -193,6 +198,7 @@ const RequestItemForm: React.FC<Props> = ({
             </Form.Item>
           ) : field.type === "Select" ? (
             <Form.Item
+              key={field.id}
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
@@ -210,6 +216,7 @@ const RequestItemForm: React.FC<Props> = ({
             </Form.Item>
           ) : field.type === "URL" ? (
             <Form.Item
+              key={field.id}
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
@@ -230,6 +237,7 @@ const RequestItemForm: React.FC<Props> = ({
             </Form.Item>
           ) : (
             <Form.Item
+              key={field.id}
               extra={field.description}
               name={field.id}
               label={<FieldTitle title={field.title} isUnique={field.unique} />}>
