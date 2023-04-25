@@ -1,5 +1,8 @@
 import type { Preview } from "@storybook/react";
 
+import "antd/dist/antd.css";
+import "../src/index.css";
+
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
