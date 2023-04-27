@@ -83,11 +83,18 @@ export const GET_ASSET_ITEM = gql`
 `;
 
 export const CREATE_ASSET = gql`
-  mutation CreateAsset($projectId: ID!, $file: Upload, $url: String, $skipDecompression: Boolean) {
+  mutation CreateAsset(
+    $projectId: ID!
+    $file: Upload
+    $token: String
+    $url: String
+    $skipDecompression: Boolean
+  ) {
     createAsset(
       input: {
         projectId: $projectId
         file: $file
+        token: $token
         url: $url
         skipDecompression: $skipDecompression
       }
@@ -123,6 +130,15 @@ export const DECOMPRESS_ASSET = gql`
       asset {
         ...assetFragment
       }
+    }
+  }
+`;
+
+export const CREATE_ASSET_UPLOAD = gql`
+  mutation CreateAssetUpload($projectId: ID!, $filename: String!) {
+    createAssetUpload(input: { projectId: $projectId, filename: $filename }) {
+      url
+      token
     }
   }
 `;

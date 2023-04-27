@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -122,6 +123,14 @@ func (f *fileRepo) DeleteAsset(_ context.Context, fileUUID string, fn string) er
 func (f *fileRepo) GetURL(a *asset.Asset) string {
 	fileUUID := a.UUID()
 	return f.urlBase.JoinPath(assetDir, fileUUID[:2], fileUUID[2:], url.PathEscape(a.FileName())).String()
+}
+
+func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename string, expiresAt time.Time) (string, string, error) {
+	return "", "", gateway.ErrUnsupportedOperation
+}
+
+func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
+	return nil, gateway.ErrUnsupportedOperation
 }
 
 // helpers

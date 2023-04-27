@@ -25,6 +25,9 @@ func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.Creat
 			return nil, err
 		}
 	}
+	if input.Token != nil {
+		params.Token = *input.Token
+	}
 	if input.SkipDecompression != nil {
 		params.SkipDecompression = *input.SkipDecompression
 	}
@@ -86,4 +89,22 @@ func (r *mutationResolver) DecompressAsset(ctx context.Context, input gqlmodel.D
 	}
 
 	return &gqlmodel.DecompressAssetPayload{Asset: gqlmodel.ToAsset(res, uc.GetURL)}, nil
+}
+
+func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel.CreateAssetUploadInput) (*gqlmodel.CreateAssetUploadPayload, error) {
+	pid, err := gqlmodel.ToID[id.Project](input.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	uploadURL, uuid, err := usecases(ctx).Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
+		ProjectID: pid,
+		Filename:  input.Filename,
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	return &gqlmodel.CreateAssetUploadPayload{
+		URL:   uploadURL,
+		Token: uuid,
+	}, nil
 }
