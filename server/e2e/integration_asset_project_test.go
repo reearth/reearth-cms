@@ -60,7 +60,7 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		ValueEqual("projectId", pid).
 		ValueEqual("totalSize", 1000).
 		ValueEqual("previewType", "unknown").
-		ValueEqual("createdAt", aid.Timestamp().UTC().Format("2006-01-02T15:04:05.000Z")).
+		ValueEqual("createdAt", aid.Timestamp().UTC().Format(time.RFC3339Nano)).
 		ValueEqual("updatedAt", time.Time{}.Format("2006-01-02T15:04:05Z"))
 }
 
