@@ -149,8 +149,9 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename string, ex
 		return "", "", err
 	}
 	opt := &storage.SignedURLOptions{
-		Method:  http.MethodPut,
-		Expires: expiresAt,
+		Method:      http.MethodPut,
+		Expires:     expiresAt,
+		ContentType: "application/octet-stream",
 	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {

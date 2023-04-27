@@ -155,6 +155,9 @@ export default () => {
                 await fetch(url, {
                   method: "PUT",
                   body: file.originFileObj,
+                  headers: {
+                    "content-type": "application/octet-stream",
+                  },
                 });
               }
               const result = await createAssetMutation({
