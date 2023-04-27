@@ -153,6 +153,7 @@ export type CreateAssetUploadInput = {
 
 export type CreateAssetUploadPayload = {
   __typename?: 'CreateAssetUploadPayload';
+  contentType: Scalars['String'];
   token: Scalars['String'];
   url: Scalars['String'];
 };
@@ -1613,7 +1614,7 @@ export type CreateAssetUploadMutationVariables = Exact<{
 }>;
 
 
-export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string } | null };
+export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType: string } | null };
 
 export type AddCommentMutationVariables = Exact<{
   threadId: Scalars['ID'];
@@ -2720,6 +2721,7 @@ export const CreateAssetUploadDocument = gql`
   createAssetUpload(input: {projectId: $projectId, filename: $filename}) {
     url
     token
+    contentType
   }
 }
     `;

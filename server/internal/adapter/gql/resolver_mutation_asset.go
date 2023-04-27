@@ -96,7 +96,7 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 	if err != nil {
 		return nil, err
 	}
-	uploadURL, uuid, err := usecases(ctx).Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
+	uploadURL, uuid, contentType, err := usecases(ctx).Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
 		ProjectID: pid,
 		Filename:  input.Filename,
 	}, getOperator(ctx))
@@ -104,7 +104,8 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 	return &gqlmodel.CreateAssetUploadPayload{
-		URL:   uploadURL,
-		Token: uuid,
+		URL:         uploadURL,
+		Token:       uuid,
+		ContentType: contentType,
 	}, nil
 }
