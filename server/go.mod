@@ -20,10 +20,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/labstack/echo/v4 v4.9.1
-	github.com/ravilushqa/otelgqlgen v0.9.0
-	github.com/reearth/reearthx v0.0.0-20230424025048-6dbbe40aad26
-	github.com/samber/lo v1.28.2
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/ravilushqa/otelgqlgen v0.11.0
 	github.com/reearth/reearthx v0.0.0-20230424025048-6dbbe40aad26
