@@ -412,6 +412,11 @@ github.com/posener/complete v1.2.2-0.20190308074557-af07aa5181b3/go.mod h1:6gapU
 github.com/posener/complete v1.2.3 h1:NP0eAhjcjImqslEwo/1hq7gpajME0fTLTezBKDqfXqo=
 github.com/posener/complete v1.2.3/go.mod h1:WZIdtGGp+qx0sLrYKtIRAruyNpv6hFCicSgv7Sy7s/s=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
+github.com/ravilushqa/otelgqlgen v0.9.0 h1:NgbrU9OHPKB/X6Ja618+SqPNls05M3T8aV1fkUiR9ow=
+github.com/ravilushqa/otelgqlgen v0.9.0/go.mod h1:TqSvbt/7E23CHOOgL6G+42kCbhvxUpT/21tMsarq4Hk=
+github.com/reearth/reearthx v0.0.0-20230424025048-6dbbe40aad26 h1:HeQgP+KffES5HRyubN4xzQC7ftXMoWzZN//MBJIUTVw=
+github.com/reearth/reearthx v0.0.0-20230424025048-6dbbe40aad26/go.mod h1:AsJomXOp70gxN3lq8amcJ1Erd6gl7dwCj4P2K5ih4DM=
+github.com/robertkrimen/godocdown v0.0.0-20130622164427-0bfa04905481/go.mod h1:C9WhFzY47SzYBIvzFqSvHIR6ROgDo4TtdTuRaOMjF/s=
 github.com/ravilushqa/otelgqlgen v0.11.0 h1:4BWet8Utf1DdSnV6/ySzoXV1JqPb/6JvdXcjkDu1hps=
 github.com/ravilushqa/otelgqlgen v0.11.0/go.mod h1:fQUw671L7n+NqWO/C4sEOTkgB/LFwcZu0QJTbiQnEi0=
 github.com/reearth/reearthx v0.0.0-20230424025048-6dbbe40aad26 h1:HeQgP+KffES5HRyubN4xzQC7ftXMoWzZN//MBJIUTVw=

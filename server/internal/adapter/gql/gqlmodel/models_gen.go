@@ -127,11 +127,22 @@ type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file"`
 	URL               *string         `json:"url"`
+	Token             *string         `json:"token"`
 	SkipDecompression *bool           `json:"skipDecompression"`
 }
 
 type CreateAssetPayload struct {
 	Asset *Asset `json:"asset"`
+}
+
+type CreateAssetUploadInput struct {
+	ProjectID ID     `json:"projectId"`
+	Filename  string `json:"filename"`
+}
+
+type CreateAssetUploadPayload struct {
+	URL   string `json:"url"`
+	Token string `json:"token"`
 }
 
 type CreateFieldInput struct {
