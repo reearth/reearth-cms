@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"mime"
 	"path"
 	"time"
 
@@ -225,30 +226,31 @@ func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *us
 	)
 }
 
-func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUploadParam, op *usecase.Operator) (string, string, error) {
+func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUploadParam, op *usecase.Operator) (string, string, string, error) {
 	if op.User == nil && op.Integration == nil {
-		return "", "", interfaces.ErrInvalidOperator
+		return "", "", "", interfaces.ErrInvalidOperator
 	}
 	if inp.Filename == "" {
-		return "", "", interfaces.ErrFileNotIncluded
+		return "", "", "", interfaces.ErrFileNotIncluded
 	}
 	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	if !op.IsWritableWorkspace(prj.Workspace()) {
-		return "", "", interfaces.ErrOperationDenied
+		return "", "", "", interfaces.ErrOperationDenied
 	}
 
 	const week = 7 * 24 * time.Hour
 	expiresAt := time.Now().Add(1 * week)
 
-	uploadURL, uuid, err := i.gateways.File.IssueUploadAssetLink(ctx, inp.Filename, expiresAt)
+	contentType := mime.TypeByExtension(path.Ext(inp.Filename))
+	uploadURL, uuid, err := i.gateways.File.IssueUploadAssetLink(ctx, inp.Filename, contentType, expiresAt)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
-		return "", "", nil
+		return "", "", "", nil
 	}
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	u := asset.NewUpload().
 		UUID(uuid).
@@ -257,9 +259,9 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		ExpiresAt(expiresAt).
 		Build()
 	if err := i.repos.AssetUpload.Save(ctx, u); err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
-	return uploadURL, uuid, nil
+	return uploadURL, uuid, contentType, nil
 }
 
 func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {
