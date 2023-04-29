@@ -137,7 +137,7 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return getURL(f.base, a.UUID(), a.FileName())
 }
 
-func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename string, expiresAt time.Time) (string, string, error) {
+func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentType string, expiresAt time.Time) (string, string, error) {
 	uuid := newUUID()
 
 	p := getGCSObjectPath(uuid, filename)
@@ -151,7 +151,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename string, ex
 	opt := &storage.SignedURLOptions{
 		Method:      http.MethodPut,
 		Expires:     expiresAt,
-		ContentType: "application/octet-stream",
+		ContentType: contentType,
 	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {

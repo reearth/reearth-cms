@@ -92,6 +92,7 @@ type DecompressAssetPayload {
 type CreateAssetUploadPayload {
   url: String!
   token: String!
+  contentType: String!
 }
 
 type AssetConnection {

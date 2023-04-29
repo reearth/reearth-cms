@@ -141,8 +141,9 @@ type CreateAssetUploadInput struct {
 }
 
 type CreateAssetUploadPayload struct {
-	URL   string `json:"url"`
-	Token string `json:"token"`
+	URL         string `json:"url"`
+	Token       string `json:"token"`
+	ContentType string `json:"contentType"`
 }
 
 type CreateFieldInput struct {
