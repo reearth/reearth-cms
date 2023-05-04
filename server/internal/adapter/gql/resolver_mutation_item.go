@@ -34,7 +34,7 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 		return nil, err
 	}
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res.Value(), s),
+		Item: gqlmodel.ToItem(res, s),
 	}, nil
 }
 
@@ -45,8 +45,9 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 		return nil, err
 	}
 	res, err := usecases(ctx).Item.Update(ctx, interfaces.UpdateItemParam{
-		ItemID: iid,
-		Fields: util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
+		ItemID:  iid,
+		Fields:  util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
+		Version: input.Version,
 	}, op)
 	if err != nil {
 		return nil, err
@@ -56,7 +57,7 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 		return nil, err
 	}
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res.Value(), s),
+		Item: gqlmodel.ToItem(res, s),
 	}, nil
 }
 
@@ -88,6 +89,6 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 		return nil, err
 	}
 	return &gqlmodel.UnpublishItemPayload{
-		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t.Value(), s) }),
+		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s) }),
 	}, nil
 }

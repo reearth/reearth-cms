@@ -269,6 +269,9 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		if itm.Version().String() != param.Version {
+			return nil, interfaces.ErrItemChanged
+		}
 		itv := itm.Value()
 		if !operator.CanUpdate(itv) {
 			return nil, interfaces.ErrOperationDenied

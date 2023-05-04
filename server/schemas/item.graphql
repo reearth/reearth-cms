@@ -17,6 +17,7 @@ type Item implements Node {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
+  version: String!
 }
 
 type ItemField {
@@ -56,6 +57,7 @@ input CreateItemInput {
 input UpdateItemInput {
   itemId: ID!
   fields: [ItemFieldInput!]!
+  version: String!
 }
 
 input DeleteItemInput {

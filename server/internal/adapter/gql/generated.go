@@ -239,6 +239,7 @@ type ComplexityRoot struct {
 		UpdatedAt     func(childComplexity int) int
 		User          func(childComplexity int) int
 		UserID        func(childComplexity int) int
+		Version       func(childComplexity int) int
 	}
 
 	ItemConnection struct {
@@ -1429,6 +1430,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.UserID(childComplexity), true
+
+	case "Item.version":
+		if e.complexity.Item.Version == nil {
+			break
+		}
+
+		return e.complexity.Item.Version(childComplexity), true
 
 	case "ItemConnection.edges":
 		if e.complexity.ItemConnection.Edges == nil {
@@ -4495,6 +4503,7 @@ extend type Mutation {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
+  version: String!
 }
 
 type ItemField {
@@ -4534,6 +4543,7 @@ input CreateItemInput {
 input UpdateItemInput {
   itemId: ID!
   fields: [ItemFieldInput!]!
+  version: String!
 }
 
 input DeleteItemInput {
@@ -10374,6 +10384,50 @@ func (ec *executionContext) fieldContext_Item_updatedAt(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_version(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_version(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Version, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ItemConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ItemConnection_edges(ctx, field)
 	if err != nil {
@@ -10499,6 +10553,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "version":
+				return ec.fieldContext_Item_version(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -10720,6 +10776,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "version":
+				return ec.fieldContext_Item_version(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -10931,6 +10989,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "version":
+				return ec.fieldContext_Item_version(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -20796,6 +20856,8 @@ func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "version":
+				return ec.fieldContext_Item_version(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -21391,6 +21453,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "version":
+				return ec.fieldContext_Item_version(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -27159,7 +27223,7 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"itemId", "fields"}
+	fieldsInOrder := [...]string{"itemId", "fields", "version"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27179,6 +27243,14 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
 			it.Fields, err = ec.unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "version":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
+			it.Version, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -29310,6 +29382,13 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 		case "updatedAt":
 
 			out.Values[i] = ec._Item_updatedAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "version":
+
+			out.Values[i] = ec._Item_version(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
