@@ -355,7 +355,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			})
 
 			a.UpdateArchiveExtractionStatus(s)
-			a.UpdatePreviewType(detectPreviewType(files))
+			if previewType := detectPreviewType(files); previewType != nil {
+				a.UpdatePreviewType(previewType)
+			}
 
 			f := asset.FoldFiles(assetFiles, srcfile)
 
