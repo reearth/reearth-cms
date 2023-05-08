@@ -23,7 +23,7 @@ var (
 	ErrFieldValueExist                = rerror.NewE(i18n.T("field value exist"))
 	ErrItemsShouldBeOnSameModel       = rerror.NewE(i18n.T("items should be on the same model"))
 	ErrItemMissing                    = rerror.NewE(i18n.T("one or more items not found"))
-	ErrItemChanged              error = rerror.NewE(i18n.T("item has been changed, please reload the latest version"))
+	ErrItemChanged              error = rerror.NewE(i18n.T("item has been changed"))
 )
 
 type ItemFieldParam struct {
