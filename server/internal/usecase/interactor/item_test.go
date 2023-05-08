@@ -753,7 +753,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx",
 			},
 		},
-		Version: vi.Version().String(),
+		Version: lo.ToPtr(vi.Version().String()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
@@ -789,7 +789,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "yyy",
 			},
 		},
-		Version: vi.Version().String(),
+		Version: lo.ToPtr(vi.Version().String()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
@@ -811,7 +811,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "abcabcabcabc", // too long
 			},
 		},
-		Version: vi.Version().String(),
+		Version: lo.ToPtr(vi.Version().String()),
 	}, op)
 	assert.ErrorContains(t, err, "it sholud be shorter than 10")
 	assert.Nil(t, item)
@@ -827,7 +827,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx", // duplicated
 			},
 		},
-		Version: vi.Version().String(),
+		Version: lo.ToPtr(vi.Version().String()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
@@ -844,7 +844,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx",
 			},
 		},
-		Version: vi3.Version().String(),
+		Version: lo.ToPtr(vi3.Version().String()),
 	}, op)
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
 	vi2, _ := itemUC.FindByID(ctx, i2.ID(), op)
@@ -859,7 +859,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx", // duplicated
 			},
 		},
-		Version: vi2.Version().String(),
+		Version: lo.ToPtr(vi2.Version().String()),
 	}, op)
 	assert.Equal(t, interfaces.ErrDuplicatedItemValue, err)
 	assert.Nil(t, item)
@@ -888,7 +888,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "",
 			},
 		},
-		Version: vi.Version().String(),
+		Version: lo.ToPtr(vi.Version().String()),
 	}, op)
 	assert.ErrorIs(t, err, schema.ErrValueRequired)
 	assert.Nil(t, item)
@@ -906,7 +906,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "a",
 			},
 		},
-		Version: vi.Version().String(),
+		Version: lo.ToPtr(vi.Version().String()),
 	}, op)
 	assert.Equal(t, wantErr, err)
 	assert.Nil(t, item)

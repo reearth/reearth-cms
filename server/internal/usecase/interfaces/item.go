@@ -42,7 +42,7 @@ type CreateItemParam struct {
 type UpdateItemParam struct {
 	ItemID  item.ID
 	Fields  []ItemFieldParam
-	Version string
+	Version *string
 }
 
 type Item interface {

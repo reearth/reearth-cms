@@ -4543,7 +4543,7 @@ input CreateItemInput {
 input UpdateItemInput {
   itemId: ID!
   fields: [ItemFieldInput!]!
-  version: String!
+  version: String
 }
 
 input DeleteItemInput {
@@ -27250,7 +27250,7 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
-			it.Version, err = ec.unmarshalNString2string(ctx, v)
+			it.Version, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

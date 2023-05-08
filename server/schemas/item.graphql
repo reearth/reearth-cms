@@ -57,7 +57,7 @@ input CreateItemInput {
 input UpdateItemInput {
   itemId: ID!
   fields: [ItemFieldInput!]!
-  version: String!
+  version: String
 }
 
 input DeleteItemInput {
