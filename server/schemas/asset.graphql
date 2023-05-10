@@ -51,7 +51,13 @@ input CreateAssetInput {
   projectId: ID!
   file: Upload
   url: String
+  token: String
   skipDecompression: Boolean
+}
+
+input CreateAssetUploadInput {
+  projectId: ID!
+  filename: String!
 }
 
 input UpdateAssetInput {
@@ -81,6 +87,12 @@ type DeleteAssetPayload {
 
 type DecompressAssetPayload {
   asset: Asset!
+}
+
+type CreateAssetUploadPayload {
+  url: String!
+  token: String!
+  contentType: String!
 }
 
 type AssetConnection {
@@ -116,4 +128,5 @@ extend type Mutation {
   updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
   decompressAsset(input: DecompressAssetInput!): DecompressAssetPayload
+  createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }

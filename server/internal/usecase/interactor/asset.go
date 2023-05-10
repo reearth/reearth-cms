@@ -2,7 +2,11 @@ package interactor
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"mime"
 	"path"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -10,9 +14,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
@@ -69,7 +75,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, interfaces.ErrInvalidOperator
 	}
 
-	if inp.File == nil {
+	if inp.File == nil && inp.Token == "" {
 		return nil, nil, interfaces.ErrFileNotIncluded
 	}
 
@@ -82,16 +88,36 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		return nil, nil, interfaces.ErrOperationDenied
 	}
 
-	uuid, size, err := i.gateways.File.UploadAsset(ctx, inp.File)
-	if err != nil {
-		return nil, nil, err
+	var uuid string
+	var file *file.File
+	if inp.File != nil {
+		var size int64
+		file = inp.File
+		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
+		if err != nil {
+			return nil, nil, err
+		}
+		file.Size = size
 	}
-	inp.File.Size = size
 
 	return Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
+			if inp.Token != "" {
+				uuid = inp.Token
+				u, err := i.repos.AssetUpload.FindByID(ctx, uuid)
+				if err != nil {
+					return nil, nil, err
+				}
+				if u.Expired(time.Now()) {
+					return nil, nil, rerror.ErrInternalBy(fmt.Errorf("expired upload token: %s", uuid))
+				}
+				file, err = i.gateways.File.UploadedAsset(ctx, u)
+				if err != nil {
+					return nil, nil, err
+				}
+			}
 			th, err := thread.New().NewID().Workspace(prj.Workspace()).Build()
 			if err != nil {
 				return nil, nil, err
@@ -108,9 +134,9 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
-				FileName(path.Base(inp.File.Name)).
-				Size(uint64(inp.File.Size)).
-				Type(asset.PreviewTypeFromContentType(inp.File.ContentType)).
+				FileName(path.Base(file.Name)).
+				Size(uint64(file.Size)).
+				Type(asset.PreviewTypeFromContentType(file.ContentType)).
 				UUID(uuid).
 				Thread(th.ID()).
 				ArchiveExtractionStatus(es)
@@ -128,9 +154,9 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			}
 
 			f := asset.NewFile().
-				Name(inp.File.Name).
-				Path(inp.File.Name).
-				Size(uint64(inp.File.Size)).
+				Name(file.Name).
+				Path(file.Name).
+				Size(uint64(file.Size)).
 				GuessContentType().
 				Build()
 
@@ -198,6 +224,44 @@ func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *us
 			return a, nil
 		},
 	)
+}
+
+func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUploadParam, op *usecase.Operator) (string, string, string, error) {
+	if op.User == nil && op.Integration == nil {
+		return "", "", "", interfaces.ErrInvalidOperator
+	}
+	if inp.Filename == "" {
+		return "", "", "", interfaces.ErrFileNotIncluded
+	}
+	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
+	if err != nil {
+		return "", "", "", err
+	}
+	if !op.IsWritableWorkspace(prj.Workspace()) {
+		return "", "", "", interfaces.ErrOperationDenied
+	}
+
+	const week = 7 * 24 * time.Hour
+	expiresAt := time.Now().Add(1 * week)
+
+	contentType := mime.TypeByExtension(path.Ext(inp.Filename))
+	uploadURL, uuid, err := i.gateways.File.IssueUploadAssetLink(ctx, inp.Filename, contentType, expiresAt)
+	if errors.Is(err, gateway.ErrUnsupportedOperation) {
+		return "", "", "", nil
+	}
+	if err != nil {
+		return "", "", "", err
+	}
+	u := asset.NewUpload().
+		UUID(uuid).
+		Project(prj.ID()).
+		FileName(inp.Filename).
+		ExpiresAt(expiresAt).
+		Build()
+	if err := i.repos.AssetUpload.Save(ctx, u); err != nil {
+		return "", "", "", err
+	}
+	return uploadURL, uuid, contentType, nil
 }
 
 func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {
@@ -291,7 +355,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			})
 
 			a.UpdateArchiveExtractionStatus(s)
-			a.UpdatePreviewType(detectPreviewType(files))
+			if previewType := detectPreviewType(files); previewType != nil {
+				a.UpdatePreviewType(previewType)
+			}
 
 			f := asset.FoldFiles(assetFiles, srcfile)
 

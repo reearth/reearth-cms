@@ -41,9 +41,9 @@ const ResizableProTable: React.FC<Props> = ({
       setResizableColumns(newColumns);
     };
 
-  const mergeColumns: ProColumns<any, "text">[] = resizableColumns?.map((col, index) => ({
+  const mergeColumns: ProColumns<any, "text">[] = resizableColumns?.map((col, index): any => ({
     ...col,
-    onHeaderCell: column => ({
+    onHeaderCell: (column: ProColumns<any, "text">) => ({
       minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
       width: (column as ProColumns<any, "text">).width,
       onResize: handleResize(index),
