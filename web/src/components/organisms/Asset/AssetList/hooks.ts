@@ -150,13 +150,13 @@ export default () => {
                 handleUploadModalCancel();
                 return undefined;
               }
-              const { url, token } = createAssetUploadResult.data.createAssetUpload;
+              const { url, token, contentType } = createAssetUploadResult.data.createAssetUpload;
               if (url !== "") {
                 await fetch(url, {
                   method: "PUT",
-                  body: file.originFileObj,
+                  body: file as any,
                   headers: {
-                    "content-type": "application/octet-stream",
+                    "content-type": contentType,
                   },
                 });
               }

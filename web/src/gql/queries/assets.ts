@@ -139,6 +139,7 @@ export const CREATE_ASSET_UPLOAD = gql`
     createAssetUpload(input: { projectId: $projectId, filename: $filename }) {
       url
       token
+      contentType
     }
   }
 `;

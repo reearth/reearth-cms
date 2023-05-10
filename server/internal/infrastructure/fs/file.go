@@ -125,7 +125,7 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return f.urlBase.JoinPath(assetDir, fileUUID[:2], fileUUID[2:], url.PathEscape(a.FileName())).String()
 }
 
-func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename string, expiresAt time.Time) (string, string, error) {
+func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentType string, expiresAt time.Time) (string, string, error) {
 	return "", "", gateway.ErrUnsupportedOperation
 }
 
