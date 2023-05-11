@@ -37,9 +37,9 @@ func TestModel_FindByID(t *testing.T) {
 			id       id.ModelID
 			operator *usecase.Operator
 		}
-		want        *model.Model
+		want         *model.Model
 		mockModelErr bool
-		wantErr     error
+		wantErr      error
 	}{
 		{
 			name:  "find 1 of 2",
