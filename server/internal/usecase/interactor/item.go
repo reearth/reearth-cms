@@ -269,7 +269,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		if !param.Version.IsZero() && itm.Version() != *param.Version {
+		if param.Version != nil && !param.Version.IsZero() && itm.Version() != *param.Version {
 			return nil, interfaces.ErrItemConflicted
 		}
 		itv := itm.Value()

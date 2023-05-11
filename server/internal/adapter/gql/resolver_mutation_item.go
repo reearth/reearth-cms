@@ -46,15 +46,16 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 	if err != nil {
 		return nil, err
 	}
-	var u uuid.UUID
+
 	var v version.Version
 	if input.Version != nil {
-		u, err = uuid.Parse(*input.Version)
+		u, err := uuid.Parse(*input.Version)
 		if err != nil {
 			return nil, err
 		}
 		v = version.Version(u)
 	}
+
 	res, err := usecases(ctx).Item.Update(ctx, interfaces.UpdateItemParam{
 		ItemID:  iid,
 		Fields:  util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
