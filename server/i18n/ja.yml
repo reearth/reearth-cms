@@ -106,3 +106,4 @@ user already joined: ユーザーはすでに参加しています。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。
 workspace id is required: ワークスペースIDは必須です。
+item has been changed before you change it: このアイテムを保存する前に他のユーザーによってアイテムが変更されています。
