@@ -370,6 +370,7 @@ type Item struct {
 	Assets        []*Asset     `json:"assets"`
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
+	Version       string       `json:"version"`
 }
 
 func (Item) IsNode()        {}
@@ -850,8 +851,9 @@ type UpdateIntegrationOfWorkspaceInput struct {
 }
 
 type UpdateItemInput struct {
-	ItemID ID                `json:"itemId"`
-	Fields []*ItemFieldInput `json:"fields"`
+	ItemID  ID                `json:"itemId"`
+	Fields  []*ItemFieldInput `json:"fields"`
+	Version *string           `json:"version"`
 }
 
 type UpdateMeInput struct {

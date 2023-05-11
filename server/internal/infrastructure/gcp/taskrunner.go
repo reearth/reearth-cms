@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
+	taskspb "cloud.google.com/go/cloudtasks/apiv2/cloudtaskspb"
 	"cloud.google.com/go/pubsub"
 	"github.com/googleapis/gax-go/v2"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -14,7 +15,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
-	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
