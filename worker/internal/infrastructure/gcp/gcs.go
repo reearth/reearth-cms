@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"path"
+	"strconv"
 
 	"cloud.google.com/go/storage"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
@@ -34,9 +36,9 @@ func NewFile(bucketName string, cacheControl string) (gateway.File, error) {
 	}, nil
 }
 
-func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser, int64, error) {
+func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser, int64, int64, error) {
 	if path == "" {
-		return nil, 0, rerror.ErrNotFound
+		return nil, 0, 0, rerror.ErrNotFound
 	}
 	objectName := getGCSObjectNameFromURL(gcsAssetBasePath, path)
 	return f.readAll(ctx, objectName)
@@ -61,27 +63,50 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 	return writer, nil
 }
 
-func (f *fileRepo) readAll(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, error) {
+func (f *fileRepo) WriteProceeded(ctx context.Context, path string, proceeded int64) error {
+	objectName := getGCSObjectNameFromURL(gcsAssetBasePath, path)
+	bucket, err := f.getBucket(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	obj := bucket.Object(objectName)
+	_, err = obj.Update(ctx, storage.ObjectAttrsToUpdate{
+		Metadata: map[string]string{
+			"proceeded": strconv.FormatInt(proceeded, 10),
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("update attr: %w", err)
+	}
+	return nil
+}
+
+func (f *fileRepo) readAll(ctx context.Context, objectName string) (gateway.ReadAtCloser, int64, int64, error) {
 	if objectName == "" {
-		return nil, 0, rerror.ErrNotFound
+		return nil, 0, 0, rerror.ErrNotFound
 	}
 
 	bucket, err := f.getBucket(ctx)
 	if err != nil {
 		log.Errorf("gcs: read bucket err: %+v\n", err)
-		return nil, 0, rerror.ErrInternalBy(err)
+		return nil, 0, 0, rerror.ErrInternalBy(err)
 	}
 
 	obj := bucket.Object(objectName)
 	r, err := obj.NewReader(ctx)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
+	attrs, err := obj.Attrs(ctx)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+	proceeded, _ := strconv.ParseInt(attrs.Metadata["proceeded"], 10, 64)
 
 	// read all data on memory
 	objectData, err := io.ReadAll(r)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	reader := bytes.NewReader(objectData)
@@ -89,7 +114,7 @@ func (f *fileRepo) readAll(ctx context.Context, objectName string) (gateway.Read
 		*reader,
 	}
 
-	return &bufReader, int64(len(objectData)), nil
+	return &bufReader, int64(len(objectData)), proceeded, nil
 }
 
 func (f *fileRepo) getBucket(ctx context.Context) (*storage.BucketHandle, error) {
