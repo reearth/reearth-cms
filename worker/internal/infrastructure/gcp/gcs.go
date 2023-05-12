@@ -57,7 +57,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 
 	name = path.Join(gcsAssetBasePath, name)
 
-	object := bucket.Object(name)
+	object := bucket.Retryer(storage.WithPolicy(storage.RetryAlways)).Object(name)
 	writer := object.NewWriter(ctx)
 	writer.ObjectAttrs.CacheControl = f.cacheControl
 	return writer, nil
