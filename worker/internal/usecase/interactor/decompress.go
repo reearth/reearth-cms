@@ -20,7 +20,7 @@ func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) err
 		return err
 	}
 	if err != nil {
-		log.Errorf("failed to decompress asset, Asset=%s, Path=%s", assetID, assetPath)
+		log.Errorf("failed to decompress asset, Asset=%s, Path=%s, Error=%s", assetID, assetPath, err)
 		return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusFailed))
 	}
 	return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusDone))
@@ -55,7 +55,7 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 	}
 
 	progressFunc := func(ctx context.Context, proceeded int64) error {
-		if proceeded%5000 != 0 {
+		if proceeded%1000 != 0 {
 			return nil
 		}
 		return u.gateways.File.WriteProceeded(ctx, assetPath, proceeded)
