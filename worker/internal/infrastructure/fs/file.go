@@ -33,23 +33,23 @@ func NewFile(fs afero.Fs, urlBase string) (gateway.File, error) {
 }
 
 // Read implements gateway.File
-func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser, int64, error) {
+func (f *fileRepo) Read(ctx context.Context, path string) (gateway.ReadAtCloser, int64, int64, error) {
 	if path == "" {
-		return nil, 0, rerror.ErrNotFound
+		return nil, 0, 0, rerror.ErrNotFound
 	}
 
 	file, err := f.fs.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, 0, rerror.ErrNotFound
+			return nil, 0, 0, rerror.ErrNotFound
 		}
-		return nil, 0, rerror.ErrInternalBy(err)
+		return nil, 0, 0, rerror.ErrInternalBy(err)
 	}
 	fileInfo, err := file.Stat()
 	if err != nil {
-		return nil, 0, rerror.ErrInternalBy(err)
+		return nil, 0, 0, rerror.ErrInternalBy(err)
 	}
-	return file, fileInfo.Size(), nil
+	return file, fileInfo.Size(), 0, nil
 }
 
 // Upload implements gateway.File
@@ -71,4 +71,8 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 		return nil, rerror.ErrInternalBy(err)
 	}
 	return dest, nil
+}
+
+func (f *fileRepo) WriteProceeded(ctx context.Context, path string, proceeded int64) error {
+	return nil
 }
