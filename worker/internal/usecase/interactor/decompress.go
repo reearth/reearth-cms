@@ -15,6 +15,10 @@ import (
 
 func (u *Usecase) Decompress(ctx context.Context, assetID, assetPath string) error {
 	err := u.decompress(ctx, assetID, assetPath)
+	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+		log.Errorf("timeout decompress asset, Asset=%s, Path=%s", assetID, assetPath)
+		return err
+	}
 	if err != nil {
 		log.Errorf("failed to decompress asset, Asset=%s, Path=%s", assetID, assetPath)
 		return u.gateways.CMS.NotifyAssetDecompressed(ctx, assetID, lo.ToPtr(asset.ArchiveExtractionStatusFailed))
@@ -26,7 +30,7 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 	ext := strings.TrimPrefix(path.Ext(assetPath), ".")
 	base := strings.TrimPrefix(strings.TrimSuffix(assetPath, "."+ext), "/")
 
-	compressedFile, size, err := u.gateways.File.Read(ctx, assetPath)
+	compressedFile, size, proceeded, err := u.gateways.File.Read(ctx, assetPath)
 	if err != nil {
 		log.Errorf("failed to load archive file from storage, Asset=%s, Path=%s, Err=%s", assetID, assetPath, err.Error())
 		return err
@@ -50,7 +54,14 @@ func (u *Usecase) decompress(ctx context.Context, assetID, assetPath string) err
 		return err
 	}
 
-	if err = de.Decompress(); err != nil {
+	progressFunc := func(ctx context.Context, proceeded int64) error {
+		if proceeded%5000 != 0 {
+			return nil
+		}
+		return u.gateways.File.WriteProceeded(ctx, assetPath, proceeded)
+	}
+
+	if err := de.Decompress(ctx, proceeded, progressFunc); err != nil {
 		return err
 	}
 
