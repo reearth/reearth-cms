@@ -34,7 +34,7 @@ func NotifyHandler() echo.HandlerFunc {
 			log.Errorf("failed to update files: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
 			return err
 		}
-		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=$s", input.AssetID, input.Type, input.Status)
+		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
 		return c.JSON(http.StatusOK, "OK")
 	}
 }
