@@ -192,7 +192,7 @@ func TestItem_FindByIDs(t *testing.T) {
 		//},
 	}
 
-	init := Connect(t)
+	init := mongotest.Connect(t)
 
 	for _, tc := range tests {
 		tc := tc
