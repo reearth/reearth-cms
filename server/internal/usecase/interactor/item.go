@@ -344,7 +344,7 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 			return err
 		}
 		if !a {
-			return i.repos.Item.Archive(ctx, itemID, pid, false)
+			return i.repos.Item.Archive(ctx, itemID, pid, true)
 		}
 		return nil
 	})

@@ -33,6 +33,12 @@ type ItemFieldDocument struct {
 	Value     any           `bson:"value,omitempty"`       // compat
 }
 
+type ItemMetaDocument struct {
+	ID       string
+	Project  string
+	Archived bool `bson:"archived,omitempty"`
+}
+
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
 
 func NewItemConsumer() *ItemConsumer {

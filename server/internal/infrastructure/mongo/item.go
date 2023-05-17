@@ -15,6 +15,8 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -276,7 +278,18 @@ func (r *Item) find(ctx context.Context, filter any, ref *version.Ref) (item.Ver
 	if err := r.client.Find(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
 		return nil, err
 	}
-	return c.Result, nil
+
+	ml, err := r.findMeta(ctx, nil, lo.ToPtr(c.Result[0].Value().Project()))
+	if err != nil {
+		return nil, err
+	}
+	res := util.Filter(c.Result, func(versioned item.Versioned) bool {
+		_, b := lo.Find(ml, func(document mongodoc.ItemMetaDocument) bool {
+			return versioned.Value().ID().String() == document.ID && document.Archived
+		})
+		return !b
+	})
+	return res, nil
 }
 
 func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.Versioned, error) {
@@ -285,6 +298,23 @@ func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.
 		return nil, err
 	}
 	return c.Result[0], nil
+}
+
+func (r *Item) findMeta(ctx context.Context, ids id.ItemIDList, pid *id.ProjectID) ([]mongodoc.ItemMetaDocument, error) {
+	filter := bson.M{}
+	if len(ids) > 0 {
+		filter["id"] = bson.M{
+			"$in": ids.Strings(),
+		}
+	}
+	if pid != nil {
+		filter["project"] = pid.String()
+	}
+	c := mongox.SliceConsumer[mongodoc.ItemMetaDocument]{}
+	if err := r.client.FindMeta(ctx, filter, &c); err != nil {
+		return nil, err
+	}
+	return c.Result, nil
 }
 
 func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {

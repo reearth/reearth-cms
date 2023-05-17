@@ -30,22 +30,10 @@ func (c *Collection) Client() *mongox.Collection {
 }
 
 func (c *Collection) FindOne(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
-	// if err := c.FindMeta(ctx, filter, consumer); err != nil {
-	// 	return err
-	// }
-
-	// r := consumer
-
 	return c.client.FindOne(ctx, apply(q, filter), consumer)
 }
 
 func (c *Collection) Find(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
-	// if err := c.FindMeta(ctx, filter, consumer); err != nil {
-	// 	return err
-	// }
-
-	// r := consumer
-
 	return c.client.Find(ctx, apply(q, filter), consumer)
 }
 
