@@ -339,7 +339,14 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 			return interfaces.ErrOperationDenied
 		}
 
-		return i.repos.Item.Archive(ctx, itemID, pid, false)
+		a, err := i.repos.Item.IsArchived(ctx, itemID)
+		if err != nil {
+			return err
+		}
+		if !a {
+			return i.repos.Item.Archive(ctx, itemID, pid, false)
+		}
+		return nil
 	})
 }
 
