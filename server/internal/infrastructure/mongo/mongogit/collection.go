@@ -30,10 +30,22 @@ func (c *Collection) Client() *mongox.Collection {
 }
 
 func (c *Collection) FindOne(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
+	// if err := c.FindMeta(ctx, filter, consumer); err != nil {
+	// 	return err
+	// }
+
+	// r := consumer
+
 	return c.client.FindOne(ctx, apply(q, filter), consumer)
 }
 
 func (c *Collection) Find(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
+	// if err := c.FindMeta(ctx, filter, consumer); err != nil {
+	// 	return err
+	// }
+
+	// r := consumer
+
 	return c.client.Find(ctx, apply(q, filter), consumer)
 }
 
@@ -148,6 +160,20 @@ func (c *Collection) ArchiveOne(ctx context.Context, filter bson.M, archived boo
 	}, filter), options.Replace().SetUpsert(true))
 	if err != nil {
 		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func (c *Collection) FindMeta(ctx context.Context, filter any, cons mongox.Consumer) error {
+	q := mongox.And(filter, "", bson.M{
+		metaKey: true,
+	})
+
+	if err := c.client.Find(ctx, q, cons); err != nil {
+		if errors.Is(rerror.ErrNotFound, err) || err == io.EOF {
+			return nil
+		}
+		return err
 	}
 	return nil
 }
