@@ -938,6 +938,8 @@ func TestItem_Delete(t *testing.T) {
 	itemUC.ignoreEvent = true
 	err = itemUC.Delete(ctx, id1, op)
 	assert.NoError(t, err)
+	_, err = itemUC.FindByID(ctx, id1, op)
+	assert.Error(t, err)
 
 	// invalid operator
 	err = db.Item.Save(ctx, i2)
@@ -958,9 +960,6 @@ func TestItem_Delete(t *testing.T) {
 		User: lo.ToPtr(u.ID()),
 	})
 	assert.Equal(t, rerror.ErrNotFound, err)
-
-	_, err = itemUC.FindByID(ctx, id1, op)
-	assert.Error(t, err)
 
 	// mock item error
 	wantErr := rerror.ErrNotFound

@@ -270,12 +270,14 @@ func (r *Item) paginate(ctx context.Context, filter bson.M, ref *version.Ref, so
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
-
-	ml, err := r.findMeta(ctx, nil, lo.ToPtr(c.Result[0].Value().Project()))
-	if err != nil {
-		return nil, nil, err
+	if len(c.Result) > 0 {
+		ml, err := r.findMeta(ctx, nil, lo.ToPtr(c.Result[0].Value().Project()))
+		if err != nil {
+			return nil, nil, err
+		}
+		return filterArchived(ml, c.Result), pageInfo, nil
 	}
-	return filterArchived(ml, c.Result), pageInfo, nil
+	return c.Result, pageInfo, nil
 }
 
 func (r *Item) find(ctx context.Context, filter any, ref *version.Ref) (item.VersionedList, error) {
@@ -284,12 +286,14 @@ func (r *Item) find(ctx context.Context, filter any, ref *version.Ref) (item.Ver
 		return nil, err
 	}
 
-	ml, err := r.findMeta(ctx, nil, lo.ToPtr(c.Result[0].Value().Project()))
-	if err != nil {
-		return nil, err
+	if len(c.Result) > 0 {
+		ml, err := r.findMeta(ctx, nil, lo.ToPtr(c.Result[0].Value().Project()))
+		if err != nil {
+			return nil, err
+		}
+		return filterArchived(ml, c.Result), nil
 	}
-
-	return filterArchived(ml, c.Result), nil
+	return c.Result, nil
 }
 
 func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.Versioned, error) {
@@ -303,11 +307,11 @@ func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.
 	if err != nil {
 		return nil, err
 	}
-	var res item.Versioned
-	if ml == nil || !(iid.String() == ml[0].ID && ml[0].Archived) {
-		res = c.Result[0]
+	res := filterArchived(ml, c.Result)
+	if len(res) > 0 {
+		return res[0], nil
 	}
-	return res, nil
+	return nil, rerror.ErrNotFound
 }
 
 func (r *Item) findMeta(ctx context.Context, ids id.ItemIDList, pid *id.ProjectID) ([]mongodoc.ItemMetaDocument, error) {
