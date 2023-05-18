@@ -401,6 +401,7 @@ export type Item = Node & {
   updatedAt: Scalars['DateTime'];
   user?: Maybe<User>;
   userId?: Maybe<Scalars['ID']>;
+  version: Scalars['String'];
 };
 
 export type ItemConnection = {
@@ -1361,6 +1362,7 @@ export type UpdateIntegrationOfWorkspaceInput = {
 export type UpdateItemInput = {
   fields: Array<ItemFieldInput>;
   itemId: Scalars['ID'];
+  version: Scalars['String'];
 };
 
 export type UpdateMeInput = {
@@ -1727,7 +1729,7 @@ export type GetItemQueryVariables = Exact<{
 }>;
 
 
-export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null };
+export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null };
 
 export type SearchItemQueryVariables = Exact<{
   query: ItemQuery;
@@ -1757,6 +1759,7 @@ export type DeleteItemMutation = { __typename?: 'Mutation', deleteItem?: { __typ
 export type UpdateItemMutationVariables = Exact<{
   itemId: Scalars['ID'];
   fields: Array<ItemFieldInput> | ItemFieldInput;
+  version: Scalars['String'];
 }>;
 
 
@@ -3237,6 +3240,7 @@ export const GetItemDocument = gql`
       createdAt
       updatedAt
       status
+      version
       assets {
         id
         url
@@ -3426,8 +3430,8 @@ export type DeleteItemMutationHookResult = ReturnType<typeof useDeleteItemMutati
 export type DeleteItemMutationResult = Apollo.MutationResult<DeleteItemMutation>;
 export type DeleteItemMutationOptions = Apollo.BaseMutationOptions<DeleteItemMutation, DeleteItemMutationVariables>;
 export const UpdateItemDocument = gql`
-    mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!) {
-  updateItem(input: {itemId: $itemId, fields: $fields}) {
+    mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $version: String!) {
+  updateItem(input: {itemId: $itemId, fields: $fields, version: $version}) {
     item {
       id
       schemaId
@@ -3457,6 +3461,7 @@ export type UpdateItemMutationFn = Apollo.MutationFunction<UpdateItemMutation, U
  *   variables: {
  *      itemId: // value for 'itemId'
  *      fields: // value for 'fields'
+ *      version: // value for 'version'
  *   },
  * });
  */
