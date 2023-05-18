@@ -297,7 +297,17 @@ func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.
 	if err := r.client.FindOne(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
 		return nil, err
 	}
-	return c.Result[0], nil
+
+	iid := c.Result[0].Value().ID()
+	ml, err := r.findMeta(ctx, id.ItemIDList{iid}, nil)
+	if err != nil {
+		return nil, err
+	}
+	var res item.Versioned
+	if !(iid.String() == ml[0].ID && ml[0].Archived) {
+		res = c.Result[0]
+	}
+	return res, nil
 }
 
 func (r *Item) findMeta(ctx context.Context, ids id.ItemIDList, pid *id.ProjectID) ([]mongodoc.ItemMetaDocument, error) {
