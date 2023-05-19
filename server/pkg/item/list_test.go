@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -141,4 +142,44 @@ func TestVersionedList_Unwrap(t *testing.T) {
 	}
 
 	assert.Equal(t, List{i}, vl.Unwrap())
+}
+
+func TestVersionedList_IDs(t *testing.T) {
+	id1 := id.NewItemID()
+	id2 := id.NewItemID()
+	id3 := id.NewItemID()
+	id4 := id.NewItemID()
+	i1 := New().ID(id1).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		MustBuild()
+	i2 := New().ID(id2).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		MustBuild()
+	i3 := New().ID(id3).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		MustBuild()
+	i4 := New().ID(id4).
+		Schema(id.NewSchemaID()).
+		Model(id.NewModelID()).
+		Project(id.NewProjectID()).
+		Thread(id.NewThreadID()).
+		MustBuild()
+	v := version.New()
+	vl := VersionedList{
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), util.Now(), i1),
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), util.Now(), i2),
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), util.Now(), i3),
+		version.MustBeValue(v, nil, version.NewRefs(version.Latest), util.Now(), i4),
+	}
+	assert.Equal(t, id.ItemIDList{id1, id2, id3, id4}, vl.IDs())
+	assert.Nil(t, new(VersionedList).IDs())
 }
