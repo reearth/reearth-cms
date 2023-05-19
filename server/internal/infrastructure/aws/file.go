@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -33,6 +34,7 @@ type fileRepo struct {
 	baseURL      *url.URL
 	cacheControl string
 	s3Client     *s3.S3
+	s3Downloader *s3manager.Downloader
 }
 
 func NewFile(bucketName, accessKeyID, secretAccessKey, baseURL, cacheControl string) (gateway.File, error) {
@@ -57,17 +59,23 @@ func NewFile(bucketName, accessKeyID, secretAccessKey, baseURL, cacheControl str
 	})
 
 	s3Client := s3.New(awsSession)
+	s3Downloader := s3manager.NewDownloader(awsSession)
 
 	return &fileRepo{
 		bucketName:   bucketName,
 		baseURL:      u,
 		cacheControl: cacheControl,
 		s3Client:     s3Client,
+		s3Downloader: s3Downloader,
 	}, nil
 }
 
 func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadCloser, error) {
-	panic("not implemented")
+	p := getS3ObjectPath(u, fn)
+	if p == "" {
+		return nil, rerror.ErrNotFound
+	}
+	return f.read(ctx, p)
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
@@ -147,6 +155,23 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 		Size:        *obj.ContentLength,
 		ContentType: *obj.ContentType,
 	}, nil
+}
+
+func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
+	if filename == "" {
+		return nil, rerror.ErrNotFound
+	}
+
+	buf := aws.NewWriteAtBuffer([]byte{})
+	_, err := f.s3Downloader.DownloadWithContext(ctx, buf, &s3.GetObjectInput{
+		Bucket: aws.String(f.bucketName),
+		Key:    aws.String(filename),
+	})
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	return ioutil.NopCloser(bytes.NewReader(buf.Bytes())), nil
 }
 
 func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) (int64, error) {
