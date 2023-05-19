@@ -8,6 +8,7 @@ require (
 	cloud.google.com/go/storage v1.30.1
 	github.com/99designs/gqlgen v0.17.31
 	github.com/avast/retry-go/v4 v4.3.4
+	github.com/aws/aws-sdk-go v1.44.265
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/deepmap/oapi-codegen v1.12.4
 	github.com/gavv/httpexpect/v2 v2.4.1
@@ -78,6 +79,7 @@ require (
 	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/invopop/yaml v0.2.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/opts v1.2.3 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect

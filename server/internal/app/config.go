@@ -30,6 +30,7 @@ type Config struct {
 	SendGrid     SendGridConfig
 	SignupSecret string
 	GCS          GCSConfig
+	S3           S3Config
 	Task         gcp.TaskConfig
 	AssetBaseURL string
 	Web          WebConfig
@@ -85,6 +86,13 @@ type SMTPConfig struct {
 type GCSConfig struct {
 	BucketName              string
 	PublicationCacheControl string
+}
+
+type S3Config struct {
+	BucketName              string
+	PublicationCacheControl string
+	AccessKeyID             string
+	SecretAccessKey         string
 }
 
 type AuthM2MConfig struct {
