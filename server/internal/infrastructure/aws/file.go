@@ -97,7 +97,11 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 }
 
 func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
-	panic("not implemented")
+	p := getS3ObjectPath(u, fn)
+	if p == "" {
+		return gateway.ErrInvalidFile
+	}
+	return f.delete(ctx, p)
 }
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
@@ -155,7 +159,7 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 		return 0, err
 	}
 	body := bytes.NewReader(ba)
-	
+
 	f.s3Client.PutObjectRequest(&s3.PutObjectInput{
 		Bucket:       aws.String(f.bucketName),
 		CacheControl: aws.String(f.cacheControl),
@@ -174,6 +178,20 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 	}
 
 	return *result.ContentLength, nil
+}
+
+func (f *fileRepo) delete(ctx context.Context, filename string) error {
+	if filename == "" {
+		return gateway.ErrInvalidFile
+	}
+	_, err := f.s3Client.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(f.bucketName),
+		Key:    aws.String(filename),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func getS3ObjectPath(uuid, objectName string) string {
