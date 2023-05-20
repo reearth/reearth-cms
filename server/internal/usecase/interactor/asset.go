@@ -227,7 +227,7 @@ func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *us
 }
 
 func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUploadParam, op *usecase.Operator) (string, string, string, error) {
-	if op.User == nil && op.Integration == nil {
+	if op.AcOperator.User == nil && op.Integration == nil {
 		return "", "", "", interfaces.ErrInvalidOperator
 	}
 	if inp.Filename == "" {
