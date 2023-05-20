@@ -32,11 +32,11 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 	c := &repo.Container{
 		Asset:       NewAsset(client),
 		AssetFile:   NewAssetFile(client),
-		User:        accountmongo.NewUser(client),
+		AssetUpload: NewAssetUpload(client),
+				User:        accountmongo.NewUser(client),
 		Workspace:   accountmongo.NewWorkspace(client),
 		Transaction: client.Transaction(),
 		Lock:        lock,
-		Project:     NewProject(client),
 		Request:     NewRequest(client),
 		Item:        NewItem(client),
 		Model:       NewModel(client),
@@ -65,12 +65,10 @@ func Init(r *repo.Container) error {
 
 	return util.Try(
 		r.Asset.(*Asset).Init,
-		r.Project.(*ProjectRepo).Init,
-		r.Item.(*Item).Init,
+		r.AssetUpload.(*AssetUpload).Init,
 		r.Model.(*Model).Init,
 		r.Request.(*Request).Init,
 		r.Schema.(*Schema).Init,
-		r.Thread.(*ThreadRepo).Init,
 		r.Integration.(*Integration).Init,
 		r.Event.(*Event).Init,
 	)

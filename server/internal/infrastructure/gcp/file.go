@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -133,6 +135,47 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 
 func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return getURL(f.base, a.UUID(), a.FileName())
+}
+
+func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentType string, expiresAt time.Time) (string, string, error) {
+	uuid := newUUID()
+
+	p := getGCSObjectPath(uuid, filename)
+	if p == "" {
+		return "", "", gateway.ErrInvalidFile
+	}
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	opt := &storage.SignedURLOptions{
+		Method:      http.MethodPut,
+		Expires:     expiresAt,
+		ContentType: contentType,
+	}
+	uploadURL, err := bucket.SignedURL(p, opt)
+	if err != nil {
+		return "", "", err
+	}
+	return uploadURL, uuid, nil
+}
+
+func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
+	p := getGCSObjectPath(u.UUID(), u.FileName())
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		return nil, err
+	}
+	attrs, err := bucket.Object(p).Attrs(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &file.File{
+		Content:     nil,
+		Name:        u.FileName(),
+		Size:        attrs.Size,
+		ContentType: attrs.ContentType,
+	}, nil
 }
 
 func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {

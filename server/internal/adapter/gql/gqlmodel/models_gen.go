@@ -127,11 +127,23 @@ type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file"`
 	URL               *string         `json:"url"`
+	Token             *string         `json:"token"`
 	SkipDecompression *bool           `json:"skipDecompression"`
 }
 
 type CreateAssetPayload struct {
 	Asset *Asset `json:"asset"`
+}
+
+type CreateAssetUploadInput struct {
+	ProjectID ID     `json:"projectId"`
+	Filename  string `json:"filename"`
+}
+
+type CreateAssetUploadPayload struct {
+	URL         string `json:"url"`
+	Token       string `json:"token"`
+	ContentType string `json:"contentType"`
 }
 
 type CreateFieldInput struct {
@@ -358,6 +370,7 @@ type Item struct {
 	Assets        []*Asset     `json:"assets"`
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
+	Version       string       `json:"version"`
 }
 
 func (Item) IsNode()        {}
@@ -838,8 +851,9 @@ type UpdateIntegrationOfWorkspaceInput struct {
 }
 
 type UpdateItemInput struct {
-	ItemID ID                `json:"itemId"`
-	Fields []*ItemFieldInput `json:"fields"`
+	ItemID  ID                `json:"itemId"`
+	Fields  []*ItemFieldInput `json:"fields"`
+	Version *string           `json:"version"`
 }
 
 type UpdateMeInput struct {

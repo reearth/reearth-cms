@@ -2,6 +2,7 @@ package decompressor
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"os"
 	"path/filepath"
@@ -73,7 +74,9 @@ func TestDecompressor_Decompress(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	assert.NoError(t, uz.Decompress())
+	assert.NoError(t, uz.Decompress(context.TODO(), 0, func(ctx context.Context, i int64) error {
+		return nil
+	}))
 	for k, v := range files {
 		assert.Equal(t, expectedFiles[k], v.Bytes())
 	}
@@ -95,7 +98,9 @@ func TestDecompressor_Decompress(t *testing.T) {
 		return files[name], nil
 	})
 	require.NoError(t, err)
-	assert.NoError(t, uz2.Decompress())
+	assert.NoError(t, uz2.Decompress(context.TODO(), 0, func(ctx context.Context, i int64) error {
+		return nil
+	}))
 	for k, v := range files {
 		assert.Equal(t, expectedFiles[k], v.Bytes())
 	}
@@ -133,6 +138,8 @@ func TestDecompressor_DecompressFile(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	err = d.Decompress()
+	err = d.Decompress(context.TODO(), 0, func(ctx context.Context, i int64) error {
+		return nil
+	})
 	assert.NoError(t, err)
 }

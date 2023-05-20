@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -127,8 +128,8 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 	defer util.MockNow(now)()
 	ctx := context.Background()
 	iid1, iid2 := item.NewID(), item.NewID()
-	i1 := item.New().ID(iid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().ID(iid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(iid1).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).Timestamp(util.Now()).MustBuild()
+	i2 := item.New().ID(iid2).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).Timestamp(util.Now().Add(time.Second)).MustBuild()
 	r := NewItem()
 	_ = r.Save(ctx, i1)
 
@@ -145,7 +146,6 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
 		version.MustBeValue(v[1].Version(), nil, version.NewRefs(version.Latest), now, i2),
 	}, v)
-
 	r = r.Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{},
 		Writable: []id.ProjectID{},

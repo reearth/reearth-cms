@@ -13,6 +13,7 @@ import {
   SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
   useGetAssetsItemsQuery,
+  useCreateAssetUploadMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -70,6 +71,7 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
 
   const [createAssetMutation] = useCreateAssetMutation();
+  const [createAssetUploadMutation] = useCreateAssetUploadMutation();
 
   const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection } | undefined>(
     {
@@ -134,10 +136,35 @@ export default () => {
         const results = (
           await Promise.all(
             files.map(async file => {
+              const createAssetUploadResult = await createAssetUploadMutation({
+                variables: {
+                  projectId,
+                  filename: file.name,
+                },
+              });
+              if (
+                createAssetUploadResult.errors ||
+                !createAssetUploadResult.data?.createAssetUpload
+              ) {
+                Notification.error({ message: t("Failed to add one or more assets.") });
+                handleUploadModalCancel();
+                return undefined;
+              }
+              const { url, token, contentType } = createAssetUploadResult.data.createAssetUpload;
+              if (url !== "") {
+                await fetch(url, {
+                  method: "PUT",
+                  body: file as any,
+                  headers: {
+                    "content-type": contentType,
+                  },
+                });
+              }
               const result = await createAssetMutation({
                 variables: {
                   projectId,
-                  file,
+                  token,
+                  file: url === "" ? file : null,
                   skipDecompression: !!file.skipDecompression,
                 },
               });
@@ -158,7 +185,15 @@ export default () => {
         handleUploadModalCancel();
         return results;
       })(),
-    [projectId, handleUploadModalCancel, createAssetMutation, t, refetch, refetchAssetsItems],
+    [
+      projectId,
+      handleUploadModalCancel,
+      createAssetMutation,
+      createAssetUploadMutation,
+      t,
+      refetch,
+      refetchAssetsItems,
+    ],
   );
 
   const handleAssetCreateFromUrl = useCallback(
@@ -169,7 +204,7 @@ export default () => {
         const result = await createAssetMutation({
           variables: {
             projectId,
-            file: null,
+            token: null,
             url,
             skipDecompression: !autoUnzip,
           },

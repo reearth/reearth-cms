@@ -754,7 +754,6 @@ func TestItem_Update(t *testing.T) {
 	lo.Must0(db.Item.Save(ctx, i3))
 	itemUC := NewItem(db, nil)
 	itemUC.ignoreEvent = true
-
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User: uId,
@@ -762,6 +761,7 @@ func TestItem_Update(t *testing.T) {
 		ReadableProjects: []id.ProjectID{s.Project()},
 		WritableProjects: []id.ProjectID{s.Project()},
 	}
+	vi, _ := itemUC.FindByID(ctx, i.ID(), op)
 
 	// ok
 	item, err := itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -773,6 +773,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx",
 			},
 		},
+		Version: lo.ToPtr(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
@@ -796,6 +797,7 @@ func TestItem_Update(t *testing.T) {
 	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 	assert.Nil(t, item)
+	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
 
 	// ok with key
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -807,6 +809,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "yyy",
 			},
 		},
+		Version: lo.ToPtr(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
@@ -816,6 +819,7 @@ func TestItem_Update(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, item.Value(), it.Value())
 	assert.Equal(t, value.TypeText.Value("yyy").AsMultiple(), it.Value().Field(sf.ID()).Value())
+	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
 
 	// validate fails
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -827,9 +831,11 @@ func TestItem_Update(t *testing.T) {
 				Value: "abcabcabcabc", // too long
 			},
 		},
+		Version: lo.ToPtr(vi.Version()),
 	}, op)
 	assert.ErrorContains(t, err, "it sholud be shorter than 10")
 	assert.Nil(t, item)
+	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
 
 	// update same item is not a duplicate
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -841,10 +847,12 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx", // duplicated
 			},
 		},
+		Version: lo.ToPtr(vi.Version()),
 	}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, i.ID(), item.Value().ID())
 	assert.Equal(t, s.ID(), item.Value().Schema())
+	vi3, _ := itemUC.FindByID(ctx, i3.ID(), op)
 
 	// update no permission
 	_, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -856,8 +864,10 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx",
 			},
 		},
+		Version: lo.ToPtr(vi3.Version()),
 	}, op)
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
+	vi2, _ := itemUC.FindByID(ctx, i2.ID(), op)
 
 	// duplicate
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
@@ -869,6 +879,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx", // duplicated
 			},
 		},
+		Version: lo.ToPtr(vi2.Version()),
 	}, op)
 	assert.Equal(t, interfaces.ErrDuplicatedItemValue, err)
 	assert.Nil(t, item)
@@ -886,6 +897,8 @@ func TestItem_Update(t *testing.T) {
 	s.RemoveField(sf.ID())
 	s.AddField(sf)
 	lo.Must0(db.Schema.Save(ctx, s))
+	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
+
 	item, err = itemUC.Update(ctx, interfaces.UpdateItemParam{
 		ItemID: i.ID(),
 		Fields: []interfaces.ItemFieldParam{
@@ -895,9 +908,11 @@ func TestItem_Update(t *testing.T) {
 				Value: "",
 			},
 		},
+		Version: lo.ToPtr(vi.Version()),
 	}, op)
 	assert.ErrorIs(t, err, schema.ErrValueRequired)
 	assert.Nil(t, item)
+	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
 
 	// mock item error
 	wantErr := errors.New("test")
@@ -911,6 +926,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "a",
 			},
 		},
+		Version: lo.ToPtr(vi.Version()),
 	}, op)
 	assert.Equal(t, wantErr, err)
 	assert.Nil(t, item)
