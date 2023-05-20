@@ -136,6 +136,21 @@ func TestDeleteWorkspace(t *testing.T) {
 
 	_, err = r.Workspace.FindByID(context.Background(), wId)
 	assert.Equal(t, rerror.ErrNotFound, err)
+
+	query = fmt.Sprintf(`mutation { deleteWorkspace(input: {workspaceId: "%s"}){ workspaceId }}`, accountdomain.NewWorkspaceID())
+	request = GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err = json.Marshal(request)
+	assert.Nil(t, err)
+
+	o = e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
+
+	o.Value("errors").Array().First().Object().Value("message").Equal("operation denied")
 }
 
 func TestUpdateWorkspace(t *testing.T) {
@@ -163,6 +178,21 @@ func TestUpdateWorkspace(t *testing.T) {
 	w, err = r.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.Equal(t, "updated", w.Name())
+
+	query = fmt.Sprintf(`mutation { updateWorkspace(input: {workspaceId: "%s",name: "%s"}){ workspace{ id name } }}`, accountdomain.NewWorkspaceID(), "updated")
+	request = GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err = json.Marshal(request)
+	if err != nil {
+		assert.Nil(t, err)
+	}
+	o = e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
+	o.Value("errors").Array().First().Object().Value("message").Equal("not found")
 }
 
 func TestAddUsersToWorkspace(t *testing.T) {
@@ -190,6 +220,21 @@ func TestAddUsersToWorkspace(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, w.Members().HasUser(uId2))
 	assert.Equal(t, w.Members().User(uId2).Role, workspace.RoleReader)
+
+	query = fmt.Sprintf(`mutation { addUsersToWorkspace(input: {workspaceId: "%s", users: [{userId: "%s", role: READER}]}){ workspace{ id } }}`, wId, uId2)
+	request = GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err = json.Marshal(request)
+	if err != nil {
+		assert.Nil(t, err)
+	}
+	e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+		Value("errors").Array().First().Object().Value("message").Equal("user already joined")
 }
 
 func TestRemoveUserFromWorkspace(t *testing.T) {
@@ -216,6 +261,13 @@ func TestRemoveUserFromWorkspace(t *testing.T) {
 	w, err = r.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.False(t, w.Members().HasUser(uId3))
+
+	o := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
+	o.Value("errors").Array().First().Object().Value("message").Equal("target user does not exist in the workspace")
 }
 
 func TestUpdateMemberOfWorkspace(t *testing.T) {
@@ -241,6 +293,21 @@ func TestUpdateMemberOfWorkspace(t *testing.T) {
 	w, err = r.Workspace.FindByID(context.Background(), wId2)
 	assert.Nil(t, err)
 	assert.Equal(t, w.Members().User(uId3).Role, workspace.RoleMaintainer)
+
+	query = fmt.Sprintf(`mutation { updateUserOfWorkspace(input: {workspaceId: "%s", userId: "%s", role: MAINTAINER}){ workspace{ id } }}`, accountdomain.NewWorkspaceID(), uId3)
+	request = GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err = json.Marshal(request)
+	if err != nil {
+		assert.Nil(t, err)
+	}
+	o := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
+	o.Value("errors").Array().First().Object().Value("message").Equal("operation denied")
 }
 
 func TestAddIntegrationToWorkspace(t *testing.T) {
@@ -268,6 +335,13 @@ func TestAddIntegrationToWorkspace(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, w.Members().HasIntegration(iId2))
 	assert.Equal(t, w.Members().Integration(iId2).Role, workspace.RoleReader)
+
+	e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+		Value("errors").Array().First().Object().Value("message").Equal("user already joined")
 }
 
 func TestRemoveIntegrationFromWorkspace(t *testing.T) {
@@ -294,6 +368,13 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 	w, err = r.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.False(t, w.Members().HasIntegration(iId1))
+
+	e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+		Value("errors").Array().First().Object().Value("message").Equal("target user does not exist in the workspace")
 }
 
 func TestUpdateIntegrationOfWorkspace(t *testing.T) {
@@ -319,4 +400,19 @@ func TestUpdateIntegrationOfWorkspace(t *testing.T) {
 	w, err = r.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
 	assert.Equal(t, w.Members().Integration(iId3).Role, workspace.RoleMaintainer)
+
+	query = fmt.Sprintf(`mutation { updateIntegrationOfWorkspace(input: {workspaceId: "%s", integrationId: "%s", role: MAINTAINER}){ workspace{ id } }}`, wId, iId2)
+	request = GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err = json.Marshal(request)
+	if err != nil {
+		assert.Nil(t, err)
+	}
+	e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+		Value("errors").Array().First().Object().Value("message").Equal("target user does not exist in the workspace")
 }

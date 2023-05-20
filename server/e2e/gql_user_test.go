@@ -199,6 +199,21 @@ func TestSearchUser(t *testing.T) {
 	o.Value("id").String().Equal(uId1.String())
 	o.Value("name").String().Equal("e2e")
 	o.Value("email").String().Equal("e2e@e2e.com")
+
+	query = fmt.Sprintf(` { searchUser(nameOrEmail: "%s"){ id name email } }`, "notfound")
+	request = GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err = json.Marshal(request)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+		Value("data").Object().Value("searchUser").Null()
 }
 
 func TestNode(t *testing.T) {
