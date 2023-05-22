@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/url"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -79,7 +80,28 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadC
 }
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
-	panic("not implemented")
+	p := getS3ObjectPath(u, "")
+	var fileEntries []gateway.FileEntry
+	err := f.s3Client.ListObjectsV2PagesWithContext(ctx, &s3.ListObjectsV2Input{
+		Bucket: aws.String(f.bucketName),
+		Prefix: aws.String(p),
+	}, func(page *s3.ListObjectsV2Output, lastPage bool) bool {
+		for _, obj := range page.Contents {
+			fe := gateway.FileEntry{
+				Name: strings.TrimPrefix(*obj.Key, p),
+				Size: *obj.Size,
+			}
+			fileEntries = append(fileEntries, fe)
+		}
+		return true
+	})
+	if err != nil {
+		return nil, rerror.ErrInternalBy(err)
+	}
+	if len(fileEntries) == 0 {
+		return nil, gateway.ErrFileNotFound
+	}
+	return fileEntries, nil
 }
 
 func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, int64, error) {
