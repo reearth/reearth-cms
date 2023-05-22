@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"path"
 	"strings"
@@ -193,7 +192,7 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	return ioutil.NopCloser(bytes.NewReader(buf.Bytes())), nil
+	return io.NopCloser(bytes.NewReader(buf.Bytes())), nil
 }
 
 func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) (int64, error) {
@@ -201,7 +200,7 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 		return 0, gateway.ErrInvalidFile
 	}
 
-	ba, err := ioutil.ReadAll(content)
+	ba, err := io.ReadAll(content)
 	if err != nil {
 		return 0, err
 	}
