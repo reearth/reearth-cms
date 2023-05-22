@@ -98,6 +98,8 @@ func TestUc(t *testing.T) {
 	assert.Equal(t, &uc{}, Usecase())
 	assert.Equal(t, &uc{readableWorkspaces: workspaces}, (&uc{}).WithReadableWorkspaces(workspaces...))
 	assert.Equal(t, &uc{writableWorkspaces: workspaces}, (&uc{}).WithWritableWorkspaces(workspaces...))
+	assert.Equal(t, &uc{maintainableWorkspaces: workspaces}, (&uc{}).WithMaintainableWorkspaces(workspaces...))
+	assert.Equal(t, &uc{ownableWorkspaces: workspaces}, (&uc{}).WithOwnableWorkspaces(workspaces...))
 	assert.Equal(t, &uc{tx: true}, (&uc{}).Transaction())
 }
 
