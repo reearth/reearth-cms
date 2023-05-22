@@ -50,7 +50,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}
-	} else if conf.S3.BucketName != "" {
+	} else if conf.S3.BucketName != "" && conf.S3.AccessKeyID != "" && conf.S3.SecretAccessKey != "" {
 		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
 		fileRepo, err = aws.NewFile(conf.S3.BucketName, conf.S3.AccessKeyID, conf.S3.SecretAccessKey, conf.AssetBaseURL, conf.S3.PublicationCacheControl)
 		if err != nil {
