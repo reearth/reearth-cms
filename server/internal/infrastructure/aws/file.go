@@ -37,13 +37,15 @@ type fileRepo struct {
 	s3Downloader *s3manager.Downloader
 }
 
-func NewFile(bucketName, accessKeyID, secretAccessKey, region, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, rerror.NewE(i18n.T("bucket name is empty"))
 	}
 
 	var u *url.URL
-	baseURL := fmt.Sprintf("https://%s.s3.amazonaws.com/", bucketName)
+	if baseURL == "" {
+		baseURL = fmt.Sprintf("https://%s.s3.amazonaws.com/", bucketName)
+	}
 
 	var err error
 	u, _ = url.Parse(baseURL)
