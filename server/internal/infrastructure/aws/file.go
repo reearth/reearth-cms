@@ -249,10 +249,6 @@ func getS3ObjectPath(uuid, objectName string) string {
 	return path.Join(s3AssetBasePath, uuid[:2], uuid[2:], objectName)
 }
 
-func (f *fileRepo) bucket() string {
-	return f.bucketName
-}
-
 func newUUID() string {
 	return uuid.New().String()
 }
