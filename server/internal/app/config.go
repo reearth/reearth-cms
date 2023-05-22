@@ -93,6 +93,7 @@ type S3Config struct {
 	PublicationCacheControl string
 	AccessKeyID             string
 	SecretAccessKey         string
+	Region                  string
 }
 
 type AuthM2MConfig struct {
