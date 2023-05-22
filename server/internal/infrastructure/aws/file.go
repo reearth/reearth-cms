@@ -14,7 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -34,12 +33,19 @@ type fileRepo struct {
 	baseURL      *url.URL
 	cacheControl string
 	s3Client     *s3.S3
-	s3Downloader *s3manager.Downloader
 }
 
 func NewFile(bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, rerror.NewE(i18n.T("bucket name is empty"))
+	}
+
+	if secretAccessKey == "" || accessKeyID == "" {
+		return nil, rerror.NewE(i18n.T("no credentials provided"))
+	}
+
+	if region == "" {
+		return nil, rerror.NewE(i18n.T("region is empty"))
 	}
 
 	var u *url.URL
@@ -59,14 +65,12 @@ func NewFile(bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheCon
 	})
 
 	s3Client := s3.New(awsSession)
-	s3Downloader := s3manager.NewDownloader(awsSession)
 
 	return &fileRepo{
 		bucketName:   bucketName,
 		baseURL:      u,
 		cacheControl: cacheControl,
 		s3Client:     s3Client,
-		s3Downloader: s3Downloader,
 	}, nil
 }
 
@@ -112,16 +116,15 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 	}
 
 	fileUUID := newUUID()
-
 	p := getS3ObjectPath(fileUUID, file.Name)
 	if p == "" {
 		return "", 0, gateway.ErrInvalidFile
 	}
-
 	size, err := f.upload(ctx, p, file.Content)
 	if err != nil {
 		return "", 0, err
 	}
+
 	return fileUUID, size, nil
 }
 
@@ -161,7 +164,6 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentTy
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
 	p := getS3ObjectPath(u.UUID(), u.FileName())
-
 	obj, err := f.s3Client.HeadObjectWithContext(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(p),
@@ -183,8 +185,7 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 		return nil, rerror.ErrNotFound
 	}
 
-	buf := aws.NewWriteAtBuffer([]byte{})
-	_, err := f.s3Downloader.DownloadWithContext(ctx, buf, &s3.GetObjectInput{
+	resp, err := f.s3Client.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(filename),
 	})
@@ -192,7 +193,7 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	return io.NopCloser(bytes.NewReader(buf.Bytes())), nil
+	return resp.Body, nil
 }
 
 func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reader) (int64, error) {
@@ -230,6 +231,7 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	if filename == "" {
 		return gateway.ErrInvalidFile
 	}
+
 	_, err := f.s3Client.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(filename),
@@ -237,6 +239,7 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

@@ -11,9 +11,12 @@ import (
 )
 
 func TestFile_GetURL(t *testing.T) {
-	bucketname := "asset.cms.test"
+	bucket := "asset.cms.test"
 	host := "https://localhost:8080"
-	r, err := NewFile(bucketname, "", "", "",  host, "")
+	accessKeyID:= "accessKeyID"
+	secretAccessKey:="secretAccessKey"
+	region:= "us-east-1"
+	r, err := NewFile(bucket, accessKeyID, secretAccessKey, region,  host, "")
 	assert.NoError(t, err)
 
 	u := newUUID()
