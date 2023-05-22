@@ -241,7 +241,7 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 }
 
 func getS3ObjectPath(uuid, objectName string) string {
-	if uuid == "" || !IsValidUUID(uuid) {
+	if uuid == "" || !isValidUUID(uuid) {
 		return ""
 	}
 
@@ -252,7 +252,7 @@ func newUUID() string {
 	return uuid.New().String()
 }
 
-func IsValidUUID(u string) bool {
+func isValidUUID(u string) bool {
 	_, err := uuid.Parse(u)
 	return err == nil
 }

@@ -46,8 +46,8 @@ func TestFile_GetS3ObjectPath(t *testing.T) {
 
 func TestFile_IsValidUUID(t *testing.T) {
 	u := newUUID()
-	assert.Equal(t, true, IsValidUUID(u))
+	assert.Equal(t, true, isValidUUID(u))
 
 	u1 := "xxxxxx"
-	assert.Equal(t, false, IsValidUUID(u1))
+	assert.Equal(t, false, isValidUUID(u1))
 }
