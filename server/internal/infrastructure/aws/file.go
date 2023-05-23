@@ -10,17 +10,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
 const (
@@ -32,7 +32,7 @@ type fileRepo struct {
 	bucketName   string
 	baseURL      *url.URL
 	cacheControl string
-	s3Client     *s3.S3
+	s3Client     *s3.Client
 }
 
 func NewFile(bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheControl string) (gateway.File, error) {
@@ -59,18 +59,19 @@ func NewFile(bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheCon
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
 
-	awsSession, _ := session.NewSession(&aws.Config{
-		Region:      aws.String(region),
-		Credentials: credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
-	})
-
-	s3Client := s3.New(awsSession)
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(region),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, "")),
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	return &fileRepo{
 		bucketName:   bucketName,
 		baseURL:      u,
 		cacheControl: cacheControl,
-		s3Client:     s3Client,
+		s3Client:     s3.NewFromConfig(cfg),
 	}, nil
 }
 
@@ -85,25 +86,29 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string) (io.ReadC
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
 	p := getS3ObjectPath(u, "")
 	var fileEntries []gateway.FileEntry
-	err := f.s3Client.ListObjectsV2PagesWithContext(ctx, &s3.ListObjectsV2Input{
+	paginator := s3.NewListObjectsV2Paginator(f.s3Client, &s3.ListObjectsV2Input{
 		Bucket: aws.String(f.bucketName),
 		Prefix: aws.String(p),
-	}, func(page *s3.ListObjectsV2Output, lastPage bool) bool {
-		for _, obj := range page.Contents {
+	})
+
+	for paginator.HasMorePages() {
+		output, err := paginator.NextPage(ctx)
+		if err != nil {
+			return nil, rerror.ErrInternalBy(err)
+		}
+		for _, obj := range output.Contents {
 			fe := gateway.FileEntry{
-				Name: strings.TrimPrefix(*obj.Key, p),
-				Size: *obj.Size,
+				Name: strings.TrimPrefix(lo.FromPtr(obj.Key), p),
+				Size: obj.Size,
 			}
 			fileEntries = append(fileEntries, fe)
 		}
-		return true
-	})
-	if err != nil {
-		return nil, rerror.ErrInternalBy(err)
 	}
+
 	if len(fileEntries) == 0 {
 		return nil, gateway.ErrFileNotFound
 	}
+
 	return fileEntries, nil
 }
 
@@ -122,7 +127,7 @@ func (f *fileRepo) UploadAsset(ctx context.Context, file *file.File) (string, in
 	}
 	size, err := f.upload(ctx, p, file.Content)
 	if err != nil {
-		return "", 0, err
+		return "", 0, rerror.ErrInternalBy(err)
 	}
 
 	return fileUUID, size, nil
@@ -142,29 +147,31 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentType string, expiresAt time.Time) (string, string, error) {
 	uuid := newUUID()
-
 	p := getS3ObjectPath(uuid, filename)
 	if p == "" {
 		return "", "", gateway.ErrInvalidFile
 	}
 
-	req, _ := f.s3Client.PutObjectRequest(&s3.PutObjectInput{
+	presignClient := s3.NewPresignClient(f.s3Client)
+	uploadURL, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
 		Bucket:       aws.String(f.bucketName),
 		CacheControl: aws.String(f.cacheControl),
 		Key:          aws.String(p),
 		ContentType:  aws.String(contentType),
+	}, func(options *s3.PresignOptions) {
+		options.Expires = time.Minute * 15
 	})
-
-	uploadURL, err := req.Presign(15 * time.Minute)
 	if err != nil {
-		return "", "", err
+		return "", "", rerror.ErrInternalBy(err)
 	}
-	return uploadURL, uuid, nil
+
+	return uploadURL.URL, uuid, nil
 }
+
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
 	p := getS3ObjectPath(u.UUID(), u.FileName())
-	obj, err := f.s3Client.HeadObjectWithContext(ctx, &s3.HeadObjectInput{
+	obj, err := f.s3Client.HeadObject(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(p),
 	})
@@ -172,12 +179,13 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 		return nil, err
 	}
 
-	return &file.File{
+	file := &file.File{
 		Content:     nil,
 		Name:        u.FileName(),
-		Size:        *obj.ContentLength,
-		ContentType: *obj.ContentType,
-	}, nil
+		Size:        obj.ContentLength,
+		ContentType: lo.FromPtr(obj.ContentType),
+	}
+	return file, nil
 }
 
 func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, error) {
@@ -185,7 +193,7 @@ func (f *fileRepo) read(ctx context.Context, filename string) (io.ReadCloser, er
 		return nil, rerror.ErrNotFound
 	}
 
-	resp, err := f.s3Client.GetObjectWithContext(ctx, &s3.GetObjectInput{
+	resp, err := f.s3Client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(filename),
 	})
@@ -203,28 +211,30 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 
 	ba, err := io.ReadAll(content)
 	if err != nil {
-		return 0, err
+		return 0, rerror.ErrInternalBy(err)
 	}
 	body := bytes.NewReader(ba)
 
-	f.s3Client.PutObjectRequest(&s3.PutObjectInput{
+	_, err = f.s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:       aws.String(f.bucketName),
 		CacheControl: aws.String(f.cacheControl),
 		Key:          aws.String(filename),
 		Body:         body,
 	})
+	if err != nil {
+		return 0, gateway.ErrFailedToUploadFile
+	}
 
-	result, err := f.s3Client.HeadObject(&s3.HeadObjectInput{
+	result, err := f.s3Client.HeadObject(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(filename),
 	})
 
 	if err != nil {
-		log.Errorf("s3: upload err: %+v\n", err)
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	return *result.ContentLength, nil
+	return result.ContentLength, nil
 }
 
 func (f *fileRepo) delete(ctx context.Context, filename string) error {
@@ -232,12 +242,12 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 		return gateway.ErrInvalidFile
 	}
 
-	_, err := f.s3Client.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
+	_, err := f.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(filename),
 	})
 	if err != nil {
-		return err
+		return rerror.ErrInternalBy(err)
 	}
 
 	return nil
