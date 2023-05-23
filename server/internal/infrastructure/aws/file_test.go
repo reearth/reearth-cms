@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"context"
 	"net/url"
 	"path"
 	"testing"
@@ -13,10 +14,7 @@ import (
 func TestFile_GetURL(t *testing.T) {
 	bucket := "asset.cms.test"
 	host := "https://localhost:8080"
-	accessKeyID:= "accessKeyID"
-	secretAccessKey:="secretAccessKey"
-	region:= "us-east-1"
-	r, err := NewFile(bucket, accessKeyID, secretAccessKey, region,  host, "")
+	r, err := NewFile(context.TODO(), bucket, "", "", "",  host, "")
 	assert.NoError(t, err)
 
 	u := newUUID()
