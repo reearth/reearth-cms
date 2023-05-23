@@ -13,7 +13,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -37,7 +36,7 @@ type fileRepo struct {
 	s3Client     *s3.Client
 }
 
-func NewFile(ctx context.Context, bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheControl string) (gateway.File, error) {
+func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
@@ -53,10 +52,7 @@ func NewFile(ctx context.Context, bucketName, accessKeyID, secretAccessKey, regi
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
 
-	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion(region),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, "")),
-	)
+	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -91,9 +91,6 @@ type GCSConfig struct {
 type S3Config struct {
 	BucketName              string
 	PublicationCacheControl string
-	AccessKeyID             string
-	SecretAccessKey         string
-	Region                  string
 }
 
 type AuthM2MConfig struct {

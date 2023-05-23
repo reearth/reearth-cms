@@ -12,9 +12,10 @@ import (
 )
 
 func TestFile_GetURL(t *testing.T) {
+	ctx := context.TODO()
 	bucket := "asset.cms.test"
 	host := "https://localhost:8080"
-	r, err := NewFile(context.TODO(), bucket, "", "", "",  host, "")
+	r, err := NewFile(ctx, bucket, host, "")
 	assert.NoError(t, err)
 
 	u := newUUID()
