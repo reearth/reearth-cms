@@ -21,7 +21,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/ravilushqa/otelgqlgen v0.12.0
-	github.com/reearth/reearthx v0.0.0-20230424025048-6dbbe40aad26
+	github.com/reearth/reearthx v0.0.0-20230523151823-2fa5ab4d8c53
 	github.com/samber/lo v1.38.1
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/spf13/afero v1.9.5
