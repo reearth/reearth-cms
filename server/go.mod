@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/storage v1.30.1
 	github.com/99designs/gqlgen v0.17.31
 	github.com/avast/retry-go/v4 v4.3.4
-	github.com/aws/aws-sdk-go v1.44.265
+	github.com/aws/aws-sdk-go-v2 v1.18.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.25
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.24
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.33.1
@@ -57,7 +57,6 @@ require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/auth0/go-jwt-middleware/v2 v2.1.0 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.18.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.10 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.3 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.33 // indirect
