@@ -68,6 +68,7 @@ invalid value: 無効な値です。
 invalid values: 無効な値です。
 invalid workspace name: 無効なワークスペース名です。
 item field required: このフィールドは必須項目です。
+item has been changed before you change it: このアイテムを保存する前に他のユーザーによってアイテムが変更されています。
 items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
 max must be larger then min: 最大値は最小値より大きい必要があります。
@@ -106,4 +107,3 @@ user already joined: ユーザーはすでに参加しています。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。
 workspace id is required: ワークスペースIDは必須です。
-item has been changed before you change it: このアイテムを保存する前に他のユーザーによってアイテムが変更されています。
