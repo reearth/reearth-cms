@@ -3,6 +3,7 @@ package aws
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -24,8 +25,9 @@ import (
 )
 
 const (
-	s3AssetBasePath string = "assets"
-	fileSizeLimit   int64  = 10 * 1024 * 1024 * 1024 // 10GB
+	s3AssetBasePath string        = "assets"
+	fileSizeLimit   int64         = 10 * 1024 * 1024 * 1024 // 10GB
+	expires         time.Duration = time.Minute * 15
 )
 
 type fileRepo struct {
@@ -35,17 +37,9 @@ type fileRepo struct {
 	s3Client     *s3.Client
 }
 
-func NewFile(bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheControl string) (gateway.File, error) {
+func NewFile(ctx context.Context, bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
-		return nil, rerror.NewE(i18n.T("bucket name is empty"))
-	}
-
-	if secretAccessKey == "" || accessKeyID == "" {
-		return nil, rerror.NewE(i18n.T("no credentials provided"))
-	}
-
-	if region == "" {
-		return nil, rerror.NewE(i18n.T("region is empty"))
+		return nil, errors.New("bucket name is empty")
 	}
 
 	var u *url.URL
@@ -59,7 +53,7 @@ func NewFile(bucketName, accessKeyID, secretAccessKey, region, baseURL, cacheCon
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
 
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
+	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithRegion(region),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, "")),
 	)
@@ -159,7 +153,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentTy
 		Key:          aws.String(p),
 		ContentType:  aws.String(contentType),
 	}, func(options *s3.PresignOptions) {
-		options.Expires = time.Minute * 15
+		options.Expires = expires
 	})
 	if err != nil {
 		return "", "", rerror.ErrInternalBy(err)
@@ -167,7 +161,6 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentTy
 
 	return uploadURL.URL, uuid, nil
 }
-
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
 	p := getS3ObjectPath(u.UUID(), u.FileName())
