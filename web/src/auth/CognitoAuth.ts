@@ -1,26 +1,52 @@
+import { Auth } from "@aws-amplify/auth";
+import { useState, useEffect } from "react";
+
 import AuthHook from "./AuthHook";
 
 export const useCognitoAuth = (): AuthHook => {
-  // Implementation goes here. This is a simplified placeholder.
-  // Replace with actual Cognito logic using AWS Amplify or similar.
+  const [user, setUser] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const user = null; // fetch from Cognito
-  const isAuthenticated = false; // fetch from Cognito
-  const error = null; // fetch from Cognito
-  const isLoading = false; // fetch from Cognito
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const cognitoUser = await Auth.currentAuthenticatedUser();
+        setUser(cognitoUser);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(JSON.stringify(err));
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkUser();
+  }, []);
 
   const getAccessToken = async () => {
-    // fetch from Cognito
-    return "";
+    const session = await Auth.currentSession();
+    return session.getIdToken().getJwtToken();
   };
 
   const login = () => {
-    // perform Cognito login
+    Auth.federatedSignIn();
   };
 
-  const logout = () => {
-    // perform Cognito logout
+  const logout = async () => {
+    try {
+      await Auth.signOut();
+      setUser(null);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(JSON.stringify(err));
+      }
+    }
   };
 
-  return { user, isAuthenticated, isLoading, error, getAccessToken, login, logout };
+  return { user, isAuthenticated: !!user, isLoading, error, getAccessToken, login, logout };
 };

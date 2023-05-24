@@ -1,5 +1,4 @@
 import { Auth0Provider } from "@auth0/auth0-react";
-// import { CognitoProvider } from "aws-amplify-react"; // or whatever Cognito provider you are using
 import React, { createContext, ReactNode } from "react";
 
 import { useAuth0Auth } from "./Auth0Auth";
@@ -41,14 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   if (authProvider === "cognito") {
-    // ... Put your Cognito config here
-
-    return (
-      <></>
-      //   <CognitoProvider>
-      //     <CognitoWrapper>{children}</CognitoWrapper>
-      //   </CognitoProvider>
-    );
+    // No specific provider needed for Cognito/AWS Amplify
+    return <CognitoWrapper>{children}</CognitoWrapper>;
   }
 
   return <>{children}</>; // or some default fallback
