@@ -15,6 +15,7 @@ interface ImportMetaEnv {
   readonly REEARTH_CMS_AUTH0_DOMAIN: string;
   readonly REEARTH_CMS_AUTH0_AUDIENCE: string;
   readonly REEARTH_CMS_AUTH0_CLIENT_ID: string;
+  readonly REEARTH_CMS_AUTH_PROVIDER: string;
 }
 
 interface ImportMeta {
