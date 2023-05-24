@@ -74,7 +74,14 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		conf.Task.GCSHost = conf.Host
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
-			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
+			log.Fatalln(fmt.Sprintf("task runner: gcp init error: %+v", err))
+		}
+		gateways.TaskRunner = taskRunner
+	} else if conf.AWSTask.AWSRegion != "" || conf.AWSTask.QueueName != "" {
+		conf.AWSTask.S3Host = conf.Host
+		taskRunner, err := aws.NewTaskRunner(ctx, &conf.AWSTask)
+		if err != nil {
+			log.Fatalln(fmt.Sprintf("task runner: aws init error: %+v", err))
 		}
 		gateways.TaskRunner = taskRunner
 	} else {
