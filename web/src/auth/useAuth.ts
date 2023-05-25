@@ -19,7 +19,7 @@ export function useCleanUrl() {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    if (isLoading) return; // ensure that Auth0 can detect errors
+    if (isLoading) return;
 
     const params = new URLSearchParams(window.location.search);
 

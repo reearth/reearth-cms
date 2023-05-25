@@ -6,12 +6,12 @@ import loadConfig from "./config";
 
 import "antd/dist/antd.css";
 import "./index.css";
-import "./aws-config";
 
 (async function () {
   try {
     await loadConfig();
   } finally {
+    await import("./aws-config");
     const element = document.getElementById("root");
     if (element) {
       const root = ReactDOM.createRoot(element);
