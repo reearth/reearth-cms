@@ -12,9 +12,6 @@ import cesium from "vite-plugin-cesium";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  define: {
-    global: {},
-  },
   server: {
     port: 3000,
     open: true,
