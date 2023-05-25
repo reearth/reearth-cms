@@ -30,6 +30,17 @@ type fileRepo struct {
 	s3Uploader   *s3manager.Uploader
 }
 
+type writeCloser struct {
+	io.Writer
+}
+
+func (wc *writeCloser) Close() error {
+	if closer, ok := wc.Writer.(io.Closer); ok {
+		return closer.Close()
+	}
+	return nil
+}
+
 func NewFile(bucketName, region, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
@@ -94,7 +105,6 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 	}
 
 	pr, pw := io.Pipe()
-	uploadErrCh := make(chan error, 1)
 
 	go func() {
 		defer pw.Close()
@@ -108,26 +118,13 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 			ContentType: aws.String("application/octet-stream"), // Set the content type accordingly
 		}
 
-		_, err := f.s3Uploader.UploadWithContext(ctx, params)
+		_, err := f.s3Uploader.UploadWithContext(context.TODO(), params)
 		if err != nil {
 			log.Errorf("aws: upload object err: %v\n", err)
-			uploadErrCh <- err
-		} else {
-			uploadErrCh <- nil
 		}
 	}()
 
-	go func() {
-		// Wait for the upload to complete or encounter an error
-		err := <-uploadErrCh
-
-		// If there was an error during upload, close the pipe with an error
-		if err != nil {
-			pw.CloseWithError(rerror.ErrInternalBy(err))
-		}
-	}()
-
-	return pw, nil
+	return &writeCloser{Writer: pw}, nil
 }
 
 func (f *fileRepo) WriteProceeded(ctx context.Context, filePath string, proceeded int64) error {
