@@ -69,7 +69,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	// Auth0
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 
-	// CloudTasks
+	// Task Runner
 	if conf.Task.GCPProject != "" && conf.Task.GCPRegion != "" || conf.Task.QueueName != "" {
 		conf.Task.GCSHost = conf.Host
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
@@ -77,6 +77,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 			log.Fatalln(fmt.Sprintf("task runner: gcp init error: %+v", err))
 		}
 		gateways.TaskRunner = taskRunner
+		log.Info("task runner: GCP is used")
 	} else if conf.AWSTask.AWSRegion != "" || conf.AWSTask.QueueName != "" {
 		conf.AWSTask.S3Host = conf.Host
 		taskRunner, err := aws.NewTaskRunner(ctx, &conf.AWSTask)
@@ -84,8 +85,9 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 			log.Fatalln(fmt.Sprintf("task runner: aws init error: %+v", err))
 		}
 		gateways.TaskRunner = taskRunner
+		log.Info("task runner: AWS is used")
 	} else {
-		log.Infof("task runner: not used")
+		log.Info("task runner: not used")
 	}
 
 	return repos, gateways
