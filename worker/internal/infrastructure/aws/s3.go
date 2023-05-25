@@ -26,16 +26,31 @@ const (
 type fileRepo struct {
 	bucketName   string
 	cacheControl string
+	s3Client     *s3.S3
+	s3Uploader   *s3manager.Uploader
 }
 
-func NewFile(bucketName string, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName, region, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
 
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(region),
+	})
+	if err != nil {
+		log.Errorf("aws: failed to create session: %v\n", err)
+		return nil, rerror.ErrInternalBy(err)
+	}
+
+	s3Client := s3.New(sess)
+	s3Uploader := s3manager.NewUploaderWithClient(s3Client)
+
 	return &fileRepo{
 		bucketName:   bucketName,
 		cacheControl: cacheControl,
+		s3Client:     s3Client,
+		s3Uploader:   s3Uploader,
 	}, nil
 }
 
@@ -46,21 +61,12 @@ func (f *fileRepo) Read(ctx context.Context, filePath string) (gateway.ReadAtClo
 
 	objectKey := getS3ObjectKeyFromURL(s3AssetBasePath, filePath)
 
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"),
-	})
-	if err != nil {
-		log.Errorf("aws: failed to create session: %v\n", err)
-		return nil, 0, 0, rerror.ErrInternalBy(err)
-	}
-
-	s3Client := s3.New(sess)
 	params := &s3.GetObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(objectKey),
 	}
 
-	resp, err := s3Client.GetObject(params)
+	resp, err := f.s3Client.GetObjectWithContext(ctx, params)
 	if err != nil {
 		log.Errorf("aws: read object err: %+v\n", err)
 		return nil, 0, 0, rerror.ErrInternalBy(err)
@@ -87,18 +93,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 		return nil, gateway.ErrInvalidFile
 	}
 
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"), // Replace with your desired AWS region
-	})
-	if err != nil {
-		log.Errorf("aws: failed to create session: %v\n", err)
-		return nil, rerror.ErrInternalBy(err)
-	}
-
-	uploader := s3manager.NewUploader(sess)
-
 	pr, pw := io.Pipe()
-
 	uploadErrCh := make(chan error, 1)
 
 	go func() {
@@ -113,7 +108,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 			ContentType: aws.String("application/octet-stream"), // Set the content type accordingly
 		}
 
-		_, err := uploader.UploadWithContext(ctx, params)
+		_, err := f.s3Uploader.UploadWithContext(ctx, params)
 		if err != nil {
 			log.Errorf("aws: upload object err: %v\n", err)
 			uploadErrCh <- err
@@ -135,22 +130,12 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 	return pw, nil
 }
 
-
 func (f *fileRepo) WriteProceeded(ctx context.Context, filePath string, proceeded int64) error {
 	if filePath == "" {
 		return rerror.ErrNotFound
 	}
 
 	objectKey := getS3ObjectKeyFromURL(s3AssetBasePath, filePath)
-
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"),
-	})
-	if err != nil {
-		return rerror.ErrInternalBy(err)
-	}
-
-	s3Client := s3.New(sess)
 
 	params := &s3.CopyObjectInput{
 		Bucket:     aws.String(f.bucketName),
@@ -161,7 +146,7 @@ func (f *fileRepo) WriteProceeded(ctx context.Context, filePath string, proceede
 		},
 	}
 
-	_, err = s3Client.CopyObject(params)
+	_, err := f.s3Client.CopyObjectWithContext(ctx, params)
 	if err != nil {
 		return fmt.Errorf("copy object: %w", err)
 	}
