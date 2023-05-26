@@ -29,17 +29,6 @@ type fileRepo struct {
 	s3Uploader   *manager.Uploader
 }
 
-type writeCloser struct {
-	io.Writer
-}
-
-func (wc *writeCloser) Close() error {
-	if closer, ok := wc.Writer.(io.Closer); ok {
-		return closer.Close()
-	}
-	return nil
-}
-
 func NewFile(ctx context.Context, bucketName, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
