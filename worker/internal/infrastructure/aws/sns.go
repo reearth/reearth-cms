@@ -22,9 +22,7 @@ func NewSNS(topicArn string) *SNS {
 }
 
 func (s *SNS) NotifyAssetDecompressed(ctx context.Context, assetID string, status *asset.ArchiveExtractionStatus) error {
-	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion("us-east-1"),
-	)
+	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return err
 	}

@@ -40,14 +40,12 @@ func (wc *writeCloser) Close() error {
 	return nil
 }
 
-func NewFile(ctx context.Context, bucketName, region, cacheControl string) (gateway.File, error) {
+func NewFile(ctx context.Context, bucketName, cacheControl string) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
 
-	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion(region),
-	)
+	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.Errorf("aws: failed to create config: %v\n", err)
 		return nil, rerror.ErrInternalBy(err)

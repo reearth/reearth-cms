@@ -20,7 +20,6 @@ type Config struct {
 	PubSub     PubSubConfig
 	SNS        SNSConfig
 	GCP        GCPConfig `envconfig:"GCP"`
-	AWS        AWSConfig `envconfig:"AWS"`
 	DB         string
 }
 
@@ -38,10 +37,6 @@ type S3Config struct {
 
 type GCPConfig struct {
 	Project string
-}
-
-type AWSConfig struct {
-	Region string
 }
 
 type PubSubConfig struct {
