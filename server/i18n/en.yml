@@ -68,6 +68,7 @@ invalid value: ""
 invalid values: ""
 invalid workspace name: ""
 item field required: ""
+item has been changed before you change it: item has been changed before you change it, please reload the latest version
 items cannot be empty: ""
 items should be on the same model: ""
 max must be larger then min: ""
@@ -106,4 +107,3 @@ user already joined: ""
 uuid is required: ""
 value is required: ""
 workspace id is required: ""
-item has been changed before you change it: item has been changed before you change it, please reload the latest version
