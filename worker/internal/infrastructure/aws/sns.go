@@ -12,23 +12,25 @@ import (
 )
 
 type SNS struct {
+	snsClient *sns.Client
 	topicArn string
 }
 
-func NewSNS(topicArn string) *SNS {
-	return &SNS{
-		topicArn: topicArn,
-	}
-}
-
-func (s *SNS) NotifyAssetDecompressed(ctx context.Context, assetID string, status *asset.ArchiveExtractionStatus) error {
+func NewSNS(ctx context.Context, topicArn string) (*SNS, error) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	snsClient := sns.NewFromConfig(cfg)
 
+	return &SNS{
+		snsClient: snsClient,
+		topicArn: topicArn,
+	}, nil
+}
+
+func (s *SNS) NotifyAssetDecompressed(ctx context.Context, assetID string, status *asset.ArchiveExtractionStatus) error {
 	message := map[string]string{
 		"type":    "assetDecompressed",
 		"assetId": assetID,
@@ -45,7 +47,7 @@ func (s *SNS) NotifyAssetDecompressed(ctx context.Context, assetID string, statu
 		TopicArn: aws.String(s.topicArn),
 	}
 
-	_, err = snsClient.Publish(ctx, publishInput)
+	_, err = s.snsClient.Publish(ctx, publishInput)
 	if err != nil {
 		return err
 	}

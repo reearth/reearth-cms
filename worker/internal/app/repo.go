@@ -25,7 +25,14 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) *gatewa
 		gateways.File = fileRepo
 	} else if conf.S3.BucketName != "" {
 		log.Infof("file: S3 storage is used: %s\n", conf.S3.BucketName)
-		gateways.CMS = aws.NewSNS(conf.SNS.TopicARN)
+		var err error
+		gateways.CMS, err = aws.NewSNS(ctx, conf.SNS.TopicARN)
+		if err != nil {
+			if debug {
+				log.Warnf("file: failed to init S3 storage: %s\n", err.Error())
+				err = nil
+			}
+		}
 		fileRepo, err := aws.NewFile(ctx, conf.S3.BucketName, conf.S3.PublicationCacheControl)
 		if err != nil {
 			if debug {
