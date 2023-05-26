@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sns"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/reearth/reearth-cms/worker/pkg/asset"
 	"github.com/reearth/reearthx/log"
 )
@@ -22,16 +22,14 @@ func NewSNS(topicArn string) *SNS {
 }
 
 func (s *SNS) NotifyAssetDecompressed(ctx context.Context, assetID string, status *asset.ArchiveExtractionStatus) error {
-	sess, err := session.NewSession(
-		&aws.Config{
-			Region: aws.String("us-east-1"),
-		},
+	cfg, err := config.LoadDefaultConfig(ctx,
+		config.WithRegion("us-east-1"),
 	)
 	if err != nil {
 		return err
 	}
 
-	snsClient := sns.New(sess)
+	snsClient := sns.NewFromConfig(cfg)
 
 	message := map[string]string{
 		"type":    "assetDecompressed",
@@ -49,7 +47,7 @@ func (s *SNS) NotifyAssetDecompressed(ctx context.Context, assetID string, statu
 		TopicArn: aws.String(s.topicArn),
 	}
 
-	_, err = snsClient.Publish(publishInput)
+	_, err = snsClient.Publish(ctx, publishInput)
 	if err != nil {
 		return err
 	}

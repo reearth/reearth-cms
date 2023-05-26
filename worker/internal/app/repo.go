@@ -9,7 +9,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func initReposAndGateways(_ context.Context, conf *Config, debug bool) *gateway.Container {
+func initReposAndGateways(ctx context.Context, conf *Config, debug bool) *gateway.Container {
 	gateways := &gateway.Container{}
 
 	if conf.GCS.BucketName != "" {
@@ -26,7 +26,7 @@ func initReposAndGateways(_ context.Context, conf *Config, debug bool) *gateway.
 	} else if conf.S3.BucketName != "" {
 		log.Infof("file: S3 storage is used: %s\n", conf.S3.BucketName)
 		gateways.CMS = aws.NewSNS(conf.SNS.TopicARN)
-		fileRepo, err := aws.NewFile(conf.S3.BucketName, conf.AWS.Region, conf.S3.PublicationCacheControl)
+		fileRepo, err := aws.NewFile(ctx, conf.S3.BucketName, conf.AWS.Region, conf.S3.PublicationCacheControl)
 		if err != nil {
 			if debug {
 				log.Warnf("file: failed to init S3 storage: %s\n", err.Error())
