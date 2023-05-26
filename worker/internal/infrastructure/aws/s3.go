@@ -98,7 +98,7 @@ func (f *fileRepo) Read(ctx context.Context, filePath string) (gateway.ReadAtClo
 	return &bufReader, int64(len(objectData)), proceeded, nil
 }
 
-func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, error) {
+func (f *fileRepo) Upload(_ context.Context, name string) (io.WriteCloser, error) {
 	if name == "" {
 		return nil, gateway.ErrInvalidFile
 	}
@@ -108,6 +108,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 	go func() {
 		defer pw.Close()
 
+		uploadCtx := context.Background()
 		key := path.Join(s3AssetBasePath, name)
 
 		params := &s3.PutObjectInput{
@@ -118,7 +119,7 @@ func (f *fileRepo) Upload(ctx context.Context, name string) (io.WriteCloser, err
 			Metadata:     make(map[string]string),
 		}
 
-		_, err := f.s3Uploader.Upload(context.TODO(), params)
+		_, err := f.s3Uploader.Upload(uploadCtx, params)
 		if err != nil {
 			log.Errorf("aws: upload object err: %v\n", err)
 		}
