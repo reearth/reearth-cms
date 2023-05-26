@@ -146,23 +146,3 @@ func getS3ObjectKeyFromURL(assetBasePath, assetPath string) string {
 
 	return path.Join(assetBasePath, assetPath)
 }
-
-type buffer struct {
-	b bytes.Reader
-}
-
-func (b *buffer) Close() error {
-	return nil
-}
-
-func (b *buffer) ReadAt(buf []byte, offset int64) (int, error) {
-	return b.b.ReadAt(buf, offset)
-}
-
-type s3Writer struct {
-	io.Writer
-}
-
-func (sw *s3Writer) Close() error {
-	return nil
-}
