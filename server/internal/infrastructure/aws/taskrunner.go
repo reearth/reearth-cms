@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/url"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -19,14 +18,14 @@ import (
 )
 
 type TaskRunner struct {
-	conf      *TaskConfig
-	queueURL  string
+	queueARN  string
+	topicARN  string
 	sqsClient *sqs.Client
 	snsClient *sns.Client
 }
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
-	if conf.AWSRegion == "" || conf.QueueName == "" {
+	if conf.QueueARN == "" || conf.TopicARN == "" {
 		return nil, errors.New("Missing configuration")
 	}
 
@@ -34,19 +33,13 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 	if err != nil {
 		return nil, err
 	}
-	cfg.Region = conf.AWSRegion
 
 	sqsClient := sqs.NewFromConfig(cfg)
 	snsClient := sns.NewFromConfig(cfg)
 
-	queueURL, err := getSQSQueueURL(ctx, sqsClient, conf.QueueName)
-	if err != nil {
-		return nil, err
-	}
-
 	return &TaskRunner{
-		conf:      conf,
-		queueURL:  queueURL,
+		queueARN:  conf.QueueARN,
+		topicARN:  conf.TopicARN,
 		sqsClient: sqsClient,
 		snsClient: snsClient,
 	}, nil
@@ -76,7 +69,7 @@ func (t *TaskRunner) runSQS(ctx context.Context, p task.Payload) error {
 
 	_, err = t.sqsClient.SendMessage(ctx, &sqs.SendMessageInput{
 		MessageBody:            aws.String(string(bPayload)),
-		QueueUrl:               aws.String(t.queueURL),
+		QueueUrl:               aws.String(t.queueARN),
 		MessageGroupId:         aws.String("reearth-cms"),
 		MessageDeduplicationId: aws.String(fmt.Sprintf("%s-%s", p.CompressAsset.AssetID, p.DecompressAsset.AssetID)),
 	})
@@ -93,13 +86,8 @@ func (t *TaskRunner) runSNS(ctx context.Context, p task.Payload) error {
 		return nil
 	}
 
-	u, err := url.Parse(t.conf.S3Host)
-	if err != nil {
-		return fmt.Errorf("failed to parse S3 host as a URL: %w", err)
-	}
-
 	var urlFn asset.URLResolver = func(a *asset.Asset) string {
-		return getURL(u.Hostname(), a.UUID(), a.FileName())
+		return getURL(s3AssetBasePath, a.UUID(), a.FileName())
 	}
 
 	data, err := marshalWebhookData(p.Webhook, urlFn)
@@ -109,7 +97,7 @@ func (t *TaskRunner) runSNS(ctx context.Context, p task.Payload) error {
 
 	_, err = t.snsClient.Publish(ctx, &sns.PublishInput{
 		Message:  aws.String(string(data)),
-		TopicArn: aws.String(t.conf.TopicARN),
+		TopicArn: aws.String(t.topicARN),
 	})
 	if err != nil {
 		return rerror.ErrInternalBy(err)
@@ -117,20 +105,4 @@ func (t *TaskRunner) runSNS(ctx context.Context, p task.Payload) error {
 	log.Infof("webhook request has been sent: body %#v", p.Webhook.Payload().Webhook)
 
 	return nil
-}
-
-// Close is the function to close the AWS clients. It should be called when done using the TaskRunner.
-func (t *TaskRunner) Close() error {
-	return nil // No specific cleanup needed for the AWS SDK v2
-}
-
-// getSQSQueueURL retrieves the SQS queue URL based on the provided queue name.
-func getSQSQueueURL(ctx context.Context, sqsClient *sqs.Client, queueName string) (string, error) {
-	resp, err := sqsClient.GetQueueUrl(ctx, &sqs.GetQueueUrlInput{
-		QueueName: aws.String(queueName),
-	})
-	if err != nil {
-		return "", err
-	}
-	return *resp.QueueUrl, nil
 }
