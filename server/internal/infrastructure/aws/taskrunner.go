@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -71,7 +70,7 @@ func (t *TaskRunner) runSQS(ctx context.Context, p task.Payload) error {
 		MessageBody:            aws.String(string(bPayload)),
 		QueueUrl:               aws.String(t.queueURL),
 		MessageGroupId:         aws.String("reearth-cms"),
-		MessageDeduplicationId: aws.String(fmt.Sprintf("%s-%s", p.CompressAsset.AssetID, p.DecompressAsset.AssetID)),
+		MessageDeduplicationId: aws.String(p.DecompressAsset.AssetID),
 	})
 	if err != nil {
 		return rerror.ErrInternalBy(err)
