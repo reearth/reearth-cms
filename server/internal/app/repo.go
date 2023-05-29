@@ -78,7 +78,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		}
 		gateways.TaskRunner = taskRunner
 		log.Info("task runner: GCP is used")
-	} else if conf.AWSTask.QueueARN != "" || conf.AWSTask.TopicARN != "" {
+	} else if conf.AWSTask.QueueURL != "" || conf.AWSTask.TopicARN != "" {
 		taskRunner, err := aws.NewTaskRunner(ctx, &conf.AWSTask)
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("task runner: aws init error: %+v", err))

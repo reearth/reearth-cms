@@ -18,14 +18,14 @@ import (
 )
 
 type TaskRunner struct {
-	queueARN  string
+	queueURL  string
 	topicARN  string
 	sqsClient *sqs.Client
 	snsClient *sns.Client
 }
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
-	if conf.QueueARN == "" || conf.TopicARN == "" {
+	if conf.QueueURL == "" || conf.TopicARN == "" {
 		return nil, errors.New("Missing configuration")
 	}
 
@@ -38,7 +38,7 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 	snsClient := sns.NewFromConfig(cfg)
 
 	return &TaskRunner{
-		queueARN:  conf.QueueARN,
+		queueURL:  conf.QueueURL,
 		topicARN:  conf.TopicARN,
 		sqsClient: sqsClient,
 		snsClient: snsClient,
@@ -69,7 +69,7 @@ func (t *TaskRunner) runSQS(ctx context.Context, p task.Payload) error {
 
 	_, err = t.sqsClient.SendMessage(ctx, &sqs.SendMessageInput{
 		MessageBody:            aws.String(string(bPayload)),
-		QueueUrl:               aws.String(t.queueARN),
+		QueueUrl:               aws.String(t.queueURL),
 		MessageGroupId:         aws.String("reearth-cms"),
 		MessageDeduplicationId: aws.String(fmt.Sprintf("%s-%s", p.CompressAsset.AssetID, p.DecompressAsset.AssetID)),
 	})

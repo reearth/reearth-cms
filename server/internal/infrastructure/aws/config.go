@@ -1,6 +1,6 @@
 package aws
 
 type TaskConfig struct {
-	QueueARN  string
+	QueueURL  string
 	TopicARN  string
 }
