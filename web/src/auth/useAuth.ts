@@ -1,41 +1,25 @@
-import { useAuth0 } from "@auth0/auth0-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+
+import { AuthContext } from "./AuthProvider";
 
 export const errorKey = "reeartherror";
 
-export default function useAuth() {
-  const {
-    user,
-    isAuthenticated,
-    error,
-    isLoading,
-    loginWithRedirect,
-    logout,
-    getAccessTokenSilently,
-  } = useAuth0();
+export const useAuth = () => {
+  const auth = useContext(AuthContext);
 
-  return {
-    user,
-    isAuthenticated: !!window.REEARTH_E2E_ACCESS_TOKEN || (isAuthenticated && !error),
-    isLoading,
-    error: error?.message,
-    getAccessToken: () => getAccessTokenSilently(),
-    login: () => loginWithRedirect(),
-    logout: () =>
-      logout({
-        returnTo: error
-          ? `${window.location.origin}?${errorKey}=${encodeURIComponent(error?.message)}`
-          : window.location.origin,
-      }),
-  };
-}
+  if (!auth) {
+    throw new Error("No auth provider configured");
+  }
+
+  return auth;
+};
 
 export function useCleanUrl() {
-  const { isAuthenticated, isLoading } = useAuth0();
+  const { isAuthenticated, isLoading } = useAuth();
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    if (isLoading) return; // ensure that Auth0 can detect errors
+    if (isLoading) return;
 
     const params = new URLSearchParams(window.location.search);
 
