@@ -140,12 +140,7 @@ func FoldFiles(files []*File, parent *File) *File {
 			}
 			parentDir = dir
 		}
-		dirs[parentDir].AppendChild(&File{
-			name:        names,
-			size:        files[i].Size(),
-			contentType: files[i].ContentType(),
-			path:        files[i].Path(),
-		})
+		dirs[parentDir].AppendChild(files[i])
 	}
 	return &folded
 }
