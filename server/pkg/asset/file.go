@@ -106,6 +106,8 @@ func (f *File) RootPath(uuid string) string {
 	return path.Join(uuid[:2], uuid[2:], f.path)
 }
 
+// FoldFiles organizes files into directories and returns the files as children of the parent directory.
+// The parent directory refers to a zip file located in the root directory and is treated as the root directory.
 func FoldFiles(files []*File, parent *File) *File {
 	files = slices.Clone(files)
 	slices.SortFunc(files, func(a, b *File) bool {
