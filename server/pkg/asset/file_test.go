@@ -151,6 +151,31 @@ func Test_FoldFiles(t *testing.T) {
 			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
 		),
 	)
+
+	assert.Equal(t,
+		&File{
+			name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip",
+			children: []*File{
+				{name: "hello", path: "/hello", contentType: "", children: []*File{
+					{name: "a.txt", path: "/hello/a.txt", size: 10, contentType: "text/plain"},
+				}},
+				{name: "hello_a", path: "/hello_a", children: []*File{
+					{name: "b.txt", path: "/hello_a/b.txt", size: 10, contentType: "text/plain"},
+					{name: "c", path: "/hello_a/c", children: []*File{
+						{name: "d.txt", path: "/hello_a/c/d.txt", size: 20, contentType: "text/plain"},
+					}},
+				}},
+			},
+		},
+		FoldFiles(
+			[]*File{
+				{name: "a.txt", path: "/hello/a.txt", size: 10, contentType: "text/plain"},
+				{name: "b.txt", path: "/hello_a/b.txt", size: 10, contentType: "text/plain"},
+				{name: "d.txt", path: "/hello_a/c/d.txt", size: 20, contentType: "text/plain"},
+			},
+			&File{name: "hello.zip", path: "/hello.zip", size: 100, contentType: "application/zip"},
+		),
+	)
 }
 
 func Test_File_RootPath(t *testing.T) {
