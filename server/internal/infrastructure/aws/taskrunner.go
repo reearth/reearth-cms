@@ -47,12 +47,12 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 // Run implements gateway.TaskRunner
 func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
-		return t.runSQS(ctx, p)
+		return t.runTaskReq(ctx, p)
 	}
-	return t.runSNS(ctx, p)
+	return t.runWebhookReq(ctx, p)
 }
 
-func (t *TaskRunner) runSQS(ctx context.Context, p task.Payload) error {
+func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset == nil {
 		return nil
 	}
@@ -66,21 +66,20 @@ func (t *TaskRunner) runSQS(ctx context.Context, p task.Payload) error {
 		return err
 	}
 
-	_, err = t.sqsClient.SendMessage(ctx, &sqs.SendMessageInput{
-		MessageBody:            aws.String(string(bPayload)),
-		QueueUrl:               aws.String(t.queueURL),
-		MessageGroupId:         aws.String("reearth-cms"),
-		MessageDeduplicationId: aws.String(p.DecompressAsset.AssetID),
+	_, err = t.snsClient.Publish(ctx, &sns.PublishInput{
+		Message:  aws.String(string(bPayload)),
+		TopicArn: aws.String(t.topicARN),
 	})
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
+
 	log.Infof("task request has been sent: body %#v", p.DecompressAsset.Payload().DecompressAsset)
 
 	return nil
 }
 
-func (t *TaskRunner) runSNS(ctx context.Context, p task.Payload) error {
+func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
 		return nil
 	}
