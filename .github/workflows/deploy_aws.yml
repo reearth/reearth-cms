@@ -1,6 +1,7 @@
 name: deploy-test
 on:
-  workflow_dispatch:
+  pull_request:
+    branches: [main]
     
 env:
   #  @TODO
