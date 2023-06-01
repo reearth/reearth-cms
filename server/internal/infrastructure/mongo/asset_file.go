@@ -61,7 +61,7 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 		if err := r.assetFilesClient.Find(ctx, bson.M{
 			"assetid": id.String(),
 		}, &afc, options.Find().SetSort(bson.D{
-			{"page", 1},
+			{Key: "page", Value: 1},
 		})); err != nil {
 			return nil, err
 		}
