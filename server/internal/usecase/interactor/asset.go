@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -265,6 +266,11 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 }
 
 func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {
+	if i.gateways.TaskRunner == nil {
+		log.Infof("asset: decompression of asset %s was skipped because task runner is not configured", a.ID())
+		return nil
+	}
+
 	taskPayload := task.DecompressAssetPayload{
 		AssetID: a.ID().String(),
 		Path:    f.RootPath(a.UUID()),
