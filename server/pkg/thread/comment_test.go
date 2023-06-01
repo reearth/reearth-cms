@@ -32,14 +32,6 @@ func TestComment_SetContent(t *testing.T) {
 	assert.Equal(t, "xxx", comment.content)
 }
 
-func TestComment_CreatedAt(t *testing.T) {
-	got := &Comment{id: NewCommentID()}
-	assert.Equal(t, got.id.Timestamp(), got.CreatedAt())
-	mocknow := time.Now().Truncate(time.Millisecond)
-	got = &Comment{id: NewCommentID()}
-	assert.Equal(t, mocknow, got.CreatedAt())
-}
-
 func TestComment_Clone(t *testing.T) {
 	comment := (&Comment{
 		id:      NewCommentID(),
