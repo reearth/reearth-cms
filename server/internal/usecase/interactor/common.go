@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -72,6 +73,7 @@ func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, e
 
 func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, e Event, ev *event.Event[any]) error {
 	if g == nil || g.TaskRunner == nil {
+		log.Infof("asset: webhook was not sent because task runner is not configured")
 		return nil
 	}
 

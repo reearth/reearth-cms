@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import { Provider as Auth0Provider } from "@reearth-cms/auth";
+import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
 import Asset from "@reearth-cms/components/organisms/Asset/Asset";
@@ -26,7 +26,7 @@ import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 function App() {
   return (
-    <Auth0Provider>
+    <AuthProvider>
       <GqlProvider>
         <I18nProvider>
           <Router>
@@ -91,7 +91,7 @@ function App() {
           </Router>
         </I18nProvider>
       </GqlProvider>
-    </Auth0Provider>
+    </AuthProvider>
   );
 }
 

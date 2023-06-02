@@ -64,6 +64,7 @@ func Init(r *repo.Container) error {
 
 	return util.Try(
 		r.Asset.(*Asset).Init,
+		r.AssetFile.(*AssetFile).Init,
 		r.AssetUpload.(*AssetUpload).Init,
 		r.Workspace.(*Workspace).Init,
 		r.User.(*User).Init,
