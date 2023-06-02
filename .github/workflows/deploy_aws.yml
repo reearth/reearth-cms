@@ -3,21 +3,33 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  #  @TODO
-  # server
-  IMAGE: reearth/reearth-cms:nightly
-  IMAGE_NAME: us.gcr.io/${{ secrets.AWS_PROJECT_ID }}/reearth-cms:nightly
-  #  IMAGE_AWS: ${{ secrets.AWS_PROJECT_ID }}.dkr.ecr.${{AWS_REGION}}.amazonaws.com/reearth-cms-test-server:latest
-  IMAGE_AWS: reearth-cms-test-server:latest
-  #  AWS_REPO_URI: ${{secrets.AWS_PROJECT_ID}}.dkr.ecr.$AWS_REGION.amazonaws.com/reearth-cms-test-server
-  # worker
-  WORKER_IMAGE: reearth/reearth-cms-worker:nightly
-  WORKER_IMAGE_NAME: ${{ secrets.AWS_PROJECT_ID }}.dkr.ecr.us-east-1.amazonaws.com/reearth-cms-test-server:nightly
-  WORKER_IMAGE_AWS: us.gcr.io/reearth-oss/reearth-cms-worker:nightly
-  AWS_REGION: us-east-1
-  AWS_DEST: ""
+#  @TODO
+#  # server
+#  IMAGE: reearth/reearth-cms:nightly
+#  IMAGE_NAME: us.gcr.io/${{ secrets.AWS_PROJECT_ID }}/reearth-cms:nightly
+#  #  IMAGE_AWS: ${{ secrets.AWS_PROJECT_ID }}.dkr.ecr.${{AWS_REGION}}.amazonaws.com/reearth-cms-test-server:latest
+#  IMAGE_AWS: reearth-cms-test-server:latest
+#  #  AWS_REPO_URI: ${{secrets.AWS_PROJECT_ID}}.dkr.ecr.$AWS_REGION.amazonaws.com/reearth-cms-test-server
+#  # worker
+#  WORKER_IMAGE: reearth/reearth-cms-worker:nightly
+#  WORKER_IMAGE_NAME: ${{ secrets.AWS_PROJECT_ID }}.dkr.ecr.us-east-1.amazonaws.com/reearth-cms-test-server:nightly
+#  WORKER_IMAGE_AWS: us.gcr.io/reearth-oss/reearth-cms-worker:nightly
+#  AWS_REGION: us-east-1
+#  AWS_DEST: ""
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run script
+        run: |
+          echo "Hello, GitHub Actions!"
+          # Add your custom script or commands here
+
   #  deploy_web:
   #    name: Deploy web to test env
   #    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
@@ -46,27 +58,27 @@ jobs:
   #      - name: Deploy
   #        run: gsutil -m -h "Cache-Control:no-store" rsync -x "^reearth_config\\.json$" -dr reearth-cms-web/ $GCS_DEST
 
-  deploy_server:
-    name: Deploy server to AWS env
-    runs-on: ubuntu-latest
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
-    steps:
-      - name: Configure AWS credentials
-        uses: aaws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: $AWS_REGION
-
-      - name: Log in to AWS ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: docker pull, push to ECR
-        run: |
-          docker pull $IMAGE
-          docker tag $IMAGE ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
-          docker push ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
+#  deploy_server:
+#    name: Deploy server to AWS env
+#    runs-on: ubuntu-latest
+#    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+#    steps:
+#      - name: Configure AWS credentials
+#        uses: aaws-actions/configure-aws-credentials@v2
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: $AWS_REGION
+#
+#      - name: Log in to AWS ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v1
+#
+#      - name: docker pull, push to ECR
+#        run: |
+#          docker pull $IMAGE
+#          docker tag $IMAGE ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
+#          docker push ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
 
 
 #      AWS_ACCESS_KEY
