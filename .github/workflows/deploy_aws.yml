@@ -15,15 +15,10 @@ env:
   WORKER_IMAGE_NAME: ${{ secrets.AWS_PROJECT_ID }}.dkr.ecr.us-east-1.amazonaws.com/reearth-cms-test-server:nightly
   WORKER_IMAGE_AWS: us.gcr.io/reearth-oss/reearth-cms-worker:nightly
   AWS_REGION: us-east-1
-  AWS_DEST: ""
+#  AWS_DEST: ""
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
   #  deploy_web:
   #    name: Deploy web to test env
   #    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
@@ -55,7 +50,6 @@ jobs:
   deploy_server:
     name: Deploy server to AWS env
     runs-on: ubuntu-latest
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
     steps:
       - name: Configure AWS credentials
         uses: aaws-actions/configure-aws-credentials@v2
