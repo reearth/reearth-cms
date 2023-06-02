@@ -365,13 +365,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				a.UpdatePreviewType(previewType)
 			}
 
-			f := asset.FoldFiles(assetFiles, srcfile)
-
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
 
-			if err := i.repos.AssetFile.Save(ctx, a.ID(), f); err != nil {
+			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
 				return nil, err
 			}
 
