@@ -202,10 +202,11 @@ func (c Auth0Config) AuthConfigForWeb() *AuthConfig {
 
 func (a AuthConfig) JWTProvider() appx.JWTProvider {
 	return appx.JWTProvider{
-		ISS: a.ISS,
-		AUD: a.AUD,
-		ALG: a.ALG,
-		TTL: a.TTL,
+		ISS:     a.ISS,
+		AUD:     a.AUD,
+		ALG:     a.ALG,
+		TTL:     a.TTL,
+		JWKSURI: a.JWKSURI,
 	}
 }
 
