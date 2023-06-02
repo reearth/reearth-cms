@@ -103,11 +103,12 @@ type S3Config struct {
 }
 
 type AuthM2MConfig struct {
-	ISS   string
-	AUD   []string
-	ALG   *string
-	TTL   *int
-	Email string
+	ISS     string
+	AUD     []string
+	ALG     *string
+	TTL     *int
+	Email   string
+	JWKSURI *string
 }
 
 func (c Config) Auths() (res AuthConfigs) {
@@ -220,10 +221,11 @@ func (a AuthM2MConfig) JWTProvider() []appx.JWTProvider {
 	}
 
 	return []appx.JWTProvider{{
-		ISS: domain,
-		AUD: a.AUD,
-		ALG: a.ALG,
-		TTL: a.TTL,
+		ISS:     domain,
+		AUD:     a.AUD,
+		ALG:     a.ALG,
+		TTL:     a.TTL,
+		JWKSURI: a.JWKSURI,
 	}}
 }
 
