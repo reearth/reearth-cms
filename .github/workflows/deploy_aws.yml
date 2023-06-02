@@ -9,7 +9,7 @@ env:
   IMAGE_AWS: reearth-cms-test-server:latest
   # worker
   WORKER_IMAGE: reearth/reearth-cms-worker:nightly
-  WORKER_IMAGE_AWS: reearth-cms-test-worker:nightly
+  WORKER_IMAGE_AWS: reearth-cms-test-worker:latest
 #  AWS_DEST: ""
 
 jobs:
