@@ -26,4 +26,5 @@ type Asset interface {
 type AssetFile interface {
 	FindByID(context.Context, id.AssetID) (*asset.File, error)
 	Save(context.Context, id.AssetID, *asset.File) error
+	SaveFlat(context.Context, id.AssetID, *asset.File, []*asset.File) error
 }
