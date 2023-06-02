@@ -1,7 +1,7 @@
 name: deploy-aws
 on:
   pull_request:
-    workflows: [ server-build, ci-web, worker-build ]
+    workflows: [ server-build ]
     types: [ completed ]
     branches: [ main ]
 env:
