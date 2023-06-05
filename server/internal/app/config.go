@@ -38,11 +38,13 @@ type Config struct {
 	// auth
 	Auth          AuthConfigs
 	Auth0         Auth0Config
+	Cognito       CognitoConfig
 	Auth_ISS      string
 	Auth_AUD      string
 	Auth_ALG      *string
 	Auth_TTL      *int
 	Auth_ClientID *string
+	Auth_JWKSURI  *string
 	// auth for m2m
 	AuthM2M AuthM2MConfig
 }
@@ -53,6 +55,7 @@ type AuthConfig struct {
 	ALG      *string
 	TTL      *int
 	ClientID *string
+	JWKSURI  *string
 }
 
 type GraphQLConfig struct {
@@ -67,6 +70,12 @@ type Auth0Config struct {
 	ClientID     string
 	ClientSecret string
 	WebClientID  string
+}
+
+type CognitoConfig struct {
+	UserPoolID string
+	Region     string
+	ClientID   string
 }
 
 type SendGridConfig struct {
@@ -94,14 +103,19 @@ type S3Config struct {
 }
 
 type AuthM2MConfig struct {
-	ISS   string
-	AUD   []string
-	ALG   *string
-	TTL   *int
-	Email string
+	ISS     string
+	AUD     []string
+	ALG     *string
+	TTL     *int
+	Email   string
+	JWKSURI *string
 }
 
 func (c Config) Auths() (res AuthConfigs) {
+	if cc := c.Cognito.Configs(); cc != nil {
+		return cc
+	}
+
 	if ac := c.Auth0.AuthConfig(); ac != nil {
 		res = append(res, *ac)
 	}
@@ -116,6 +130,7 @@ func (c Config) Auths() (res AuthConfigs) {
 			ALG:      c.Auth_ALG,
 			TTL:      c.Auth_TTL,
 			ClientID: c.Auth_ClientID,
+			JWKSURI:  c.Auth_JWKSURI,
 		})
 	}
 
@@ -188,10 +203,11 @@ func (c Auth0Config) AuthConfigForWeb() *AuthConfig {
 
 func (a AuthConfig) JWTProvider() appx.JWTProvider {
 	return appx.JWTProvider{
-		ISS: a.ISS,
-		AUD: a.AUD,
-		ALG: a.ALG,
-		TTL: a.TTL,
+		ISS:     a.ISS,
+		AUD:     a.AUD,
+		ALG:     a.ALG,
+		TTL:     a.TTL,
+		JWKSURI: a.JWKSURI,
 	}
 }
 
@@ -205,11 +221,27 @@ func (a AuthM2MConfig) JWTProvider() []appx.JWTProvider {
 	}
 
 	return []appx.JWTProvider{{
-		ISS: domain,
-		AUD: a.AUD,
-		ALG: a.ALG,
-		TTL: a.TTL,
+		ISS:     domain,
+		AUD:     a.AUD,
+		ALG:     a.ALG,
+		TTL:     a.TTL,
+		JWKSURI: a.JWKSURI,
 	}}
+}
+
+// Cognito
+func (c CognitoConfig) Configs() AuthConfigs {
+	if c.UserPoolID == "" || c.Region == "" || c.ClientID == "" {
+		return nil
+	}
+	return AuthConfigs{
+		AuthConfig{
+			ISS:      fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", c.Region, c.UserPoolID),
+			AUD:      []string{c.ClientID},
+			ClientID: &c.ClientID,
+			JWKSURI:  lo.ToPtr(fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", c.Region, c.UserPoolID)),
+		},
+	}
 }
 
 // Decode is a custom decoder for AuthConfigs
