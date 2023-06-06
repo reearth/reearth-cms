@@ -28,6 +28,10 @@ jobs:
       - name: Install Amplify CLI
         run: |
           npm install -g @aws-amplify/cli
+      - name: Checkout Amplify Environment
+        run: |
+          cd web
+          amplify env checkout test
       - name: Push to Amplify
         run: |
           cd web
