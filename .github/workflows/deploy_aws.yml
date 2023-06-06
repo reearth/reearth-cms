@@ -16,6 +16,9 @@ jobs:
   deploy_web:
     name: Deploy web to test env
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
     steps:
       - name: get latest web artifact
         uses: dawidd6/action-download-artifact@v2.24.0
