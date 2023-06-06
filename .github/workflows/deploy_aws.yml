@@ -37,7 +37,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Amplify Init
-        run: amplify init --app d1ukrt9ym0lmjm> --envName test --yes
+        run: amplify init --app d1ukrt9ym0lmjm --envName test --yes
 
       - name: Amplify Push
         run: amplify push --env test --yes
