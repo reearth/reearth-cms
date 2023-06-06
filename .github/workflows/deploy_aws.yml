@@ -21,7 +21,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2.24.0
         with:
           github_token: ${{ secrets.GPT }}
-          workflow: ci_web_aws.yml
+          workflow: ci_web.yml
           workflow_conclusion: success
           branch: main
           name: reearth-cms-web
@@ -29,8 +29,6 @@ jobs:
           search_artifacts: true
       - name: Extract
         run: tar -xvf reearth-cms-web.tar.gz
-      - name: Rename directory
-        run: mv reearth-cms-web web
       - name: Install Amplify CLI
         run: npm install -g @aws-amplify/cli
       - name: Configure AWS credentials
@@ -41,7 +39,7 @@ jobs:
           aws-region: us-east-1
       - name: Amplify Push
         run: |
-          cd web
+          cd reearth-cms-web
           amplify push --yes
 
 
