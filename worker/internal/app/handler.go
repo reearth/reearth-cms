@@ -22,12 +22,14 @@ func NewHandler(c *rhttp.Controller) *Handler {
 
 func (h Handler) DecompressHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		switch c.Request().Header.Get("X-Amz-Sns-Message-Type") {
-		case string(rhttp.SubscriptionConfirmation):
-			return h.subscriptionConfirmationHandler(c)
-		case string(rhttp.Notification):
-			return h.notificationHandler(c)
-		default:
+		header := c.Request().Header.Get("X-Amz-Sns-Message-Type")
+		if header != "" {
+			if header == string(rhttp.SubscriptionConfirmation) {
+				return h.subscriptionConfirmationHandler(c)
+			} else {
+				return h.notificationHandler(c)
+			}
+		} else {
 			return h.defaultHandler(c)
 		}
 	}
