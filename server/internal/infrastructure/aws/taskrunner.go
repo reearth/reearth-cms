@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
-	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/task"
@@ -17,14 +16,13 @@ import (
 )
 
 type TaskRunner struct {
-	queueURL  string
-	topicARN  string
-	sqsClient *sqs.Client
-	snsClient *sns.Client
+	topicARN   string
+	webhookARN string
+	snsClient  *sns.Client
 }
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
-	if conf.QueueURL == "" || conf.TopicARN == "" {
+	if conf.WebhookARN == "" || conf.TopicARN == "" {
 		return nil, errors.New("Missing configuration")
 	}
 
@@ -33,14 +31,12 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 		return nil, err
 	}
 
-	sqsClient := sqs.NewFromConfig(cfg)
 	snsClient := sns.NewFromConfig(cfg)
 
 	return &TaskRunner{
-		queueURL:  conf.QueueURL,
-		topicARN:  conf.TopicARN,
-		sqsClient: sqsClient,
-		snsClient: snsClient,
+		webhookARN: conf.WebhookARN,
+		topicARN:   conf.TopicARN,
+		snsClient:  snsClient,
 	}, nil
 }
 
@@ -95,7 +91,7 @@ func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 
 	_, err = t.snsClient.Publish(ctx, &sns.PublishInput{
 		Message:  aws.String(string(data)),
-		TopicArn: aws.String(t.topicARN),
+		TopicArn: aws.String(t.webhookARN),
 	})
 	if err != nil {
 		return rerror.ErrInternalBy(err)
