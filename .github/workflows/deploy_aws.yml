@@ -41,7 +41,7 @@ jobs:
           aws-region: us-east-1
       - name: Amplify Push
         run: |
-          cd web
+          cd reearth-cms-web
           amplify push --yes
 
 
