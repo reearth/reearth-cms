@@ -28,10 +28,9 @@ jobs:
       - name: Install Amplify CLI
         run: |
           npm install -g @aws-amplify/cli
-      - name: Checkout Amplify Environment
+      - name: Set Amplify Environment
         run: |
-          cd web
-          amplify env checkout test
+          echo "AWS_AMPLIFY_ENVIRONMENT=test"
       - name: Push to Amplify
         run: |
           cd web
