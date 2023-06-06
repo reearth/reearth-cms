@@ -17,30 +17,21 @@ jobs:
     name: Deploy web to test env
     runs-on: ubuntu-latest
     steps:
-      - name: get latest web artifact
-        uses: dawidd6/action-download-artifact@v2.24.0
-        with:
-          github_token: ${{ secrets.GPT }}
-          workflow: ci_web.yml
-          workflow_conclusion: success
-          branch: main
-          name: reearth-cms-web
-          check_artifacts: true
-          search_artifacts: true
-      - name: Extract
-        run: tar -xvf reearth-cms-web.tar.gz
-      - name: Install Amplify CLI
-        run: npm install -g @aws-amplify/cli
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - name: Amplify Push
+      - name: Install Amplify CLI
         run: |
-          cd reearth-cms-web
-          amplify push --yes
+          npm install -g @aws-amplify/cli
+      - name: Push to Amplify
+        run: |
+          cd web
+          amplify push
 
 
 
