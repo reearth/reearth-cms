@@ -61,7 +61,7 @@ func notificationHandler(c echo.Context) error {
 
 func defaultHandler(c echo.Context) error {
 	var input rhttp.NotifyInput
-	var b msgBody
+	var b pubsubBody
 	if err := c.Bind(&b); err != nil {
 		if err := c.Bind(&input); err != nil {
 			return err
@@ -85,14 +85,13 @@ func defaultHandler(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-
-type msgBody struct {
+type pubsubBody struct {
 	Message struct {
 		Data string `json:"data"`
 	} `json:"message"`
 }
 
-func (b msgBody) Data() ([]byte, error) {
+func (b pubsubBody) Data() ([]byte, error) {
 	if b.Message.Data == "" {
 		return nil, nil
 	}
