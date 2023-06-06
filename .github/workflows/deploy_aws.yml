@@ -30,6 +30,7 @@ jobs:
           npm install -g @aws-amplify/cli
       - name: Initialize Amplify
         run: |
+          cd web
           amplify init --amplify '{"envName":"test"}'
       - name: Push to Amplify
         run: |
