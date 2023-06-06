@@ -28,6 +28,8 @@ jobs:
       - name: Install Amplify CLI
         run: |
           npm install -g @aws-amplify/cli
+      - name: List files
+        run: ls -la
       - name: Initialize Amplify
         run: |
           cd web
