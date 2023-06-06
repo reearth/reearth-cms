@@ -32,22 +32,18 @@ jobs:
           search_artifacts: true
       - name: Extract
         run: tar -xvf reearth-cms-web.tar.gz
-
       - name: Install Amplify CLI
         run: npm install -g @aws-amplify/cli
-
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v2
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: us-east-1
-
       - name: Configure AWS credentials
-        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
       - name: Amplify Push
-        run: amplify push --yes
+        run: |
+          cd web
+          amplify push --yes
 
   deploy_server:
     name: Deploy server to AWS
