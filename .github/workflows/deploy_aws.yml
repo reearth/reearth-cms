@@ -16,9 +16,6 @@ jobs:
   deploy_web:
     name: Deploy web to test env
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     steps:
       - name: get latest web artifact
         uses: dawidd6/action-download-artifact@v2.24.0
@@ -30,6 +27,8 @@ jobs:
           name: reearth-cms-web
           check_artifacts: true
           search_artifacts: true
+      - name: Extract
+        run: tar -xvf reearth-cms-web.tar.gz
       - name: Install Amplify CLI
         run: npm install -g @aws-amplify/cli
       - name: Configure AWS credentials
@@ -42,6 +41,7 @@ jobs:
         run: |
           cd web
           amplify push --yes
+
 
   deploy_server:
     name: Deploy server to AWS
