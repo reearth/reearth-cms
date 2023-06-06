@@ -29,6 +29,8 @@ jobs:
           search_artifacts: true
       - name: Extract
         run: tar -xvf reearth-cms-web.tar.gz
+      - name: List directory contents
+        run: ls -la
       - name: Install Amplify CLI
         run: npm install -g @aws-amplify/cli
       - name: Configure AWS credentials
