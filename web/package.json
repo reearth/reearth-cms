@@ -12,6 +12,7 @@
   "scripts": {
     "start": "yarn && vite",
     "build": "tsc && vite build",
+    "serve": "vite preview",
     "build:preview": "run-s build build-storybook",
     "preview": "vite preview",
     "test": "vitest",
