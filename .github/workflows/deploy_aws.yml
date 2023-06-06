@@ -39,7 +39,7 @@ jobs:
       - name: Push to Amplify
         run: |
           cd web
-          amplify push --appId d1ukrt9ym0lmjm --envName test --yes
+          amplify publish --appId d1ukrt9ym0lmjm --envName test --yes
 
 
 
