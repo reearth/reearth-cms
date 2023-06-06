@@ -31,7 +31,7 @@ jobs:
       - name: Push to Amplify
         run: |
           cd web
-          amplify push
+          amplify push --yes
 
 
 
