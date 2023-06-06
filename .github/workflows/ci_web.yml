@@ -60,5 +60,5 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
         with:
           name: reearth-cms-web
-          path: reearth-cms-web.tar.gz
+          path: web/reearth-cms-web.tar.gz
           if-no-files-found: error

@@ -35,11 +35,11 @@ jobs:
       - name: Initialize Amplify
         run: |
           cd web
-          amplify init --amplify '{"envName":"test"}'
+          amplify init --appId d1ukrt9ym0lmjm --envName test --yes
       - name: Push to Amplify
         run: |
           cd web
-          amplify push --yes
+          amplify push --appId d1ukrt9ym0lmjm --envName test --yes
 
 
 
