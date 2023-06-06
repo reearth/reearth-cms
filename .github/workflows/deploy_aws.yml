@@ -25,9 +25,17 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
       - name: Install Amplify CLI
         run: |
-          npm install -g @aws-amplify/cli
+          yarn global add @aws-amplify/cli
+      - name: Install dependencies
+        run: |
+          cd web
+          yarn install
       - name: List files
         run: ls -la
       - name: List web files
@@ -36,7 +44,7 @@ jobs:
         run: |
           cd web
           amplify init --appId d1ukrt9ym0lmjm --envName test --yes
-      - name: Push to Amplify
+      - name: Build and Deploy to Amplify
         run: |
           cd web
           amplify publish --appId d1ukrt9ym0lmjm --envName test --yes
