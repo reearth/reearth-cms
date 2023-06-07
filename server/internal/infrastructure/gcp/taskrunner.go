@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"path"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	taskspb "cloud.google.com/go/cloudtasks/apiv2/cloudtaskspb"
@@ -15,6 +16,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	"google.golang.org/api/cloudbuild/v1"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -52,7 +54,7 @@ func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, e
 // Run implements gateway.TaskRunner
 func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
-		return t.runCloudTask(ctx, p)
+		return t.runCloudBuild(ctx, p)
 	}
 	return t.runPubSub(ctx, p)
 }
@@ -78,6 +80,59 @@ func (t *TaskRunner) runCloudTask(ctx context.Context, p task.Payload) error {
 	}
 	log.Infof("task request has been sent: body %#v", p.DecompressAsset.Payload().DecompressAsset)
 
+	return nil
+}
+
+func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
+	if p.DecompressAsset == nil {
+		return nil
+	}
+
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	src, err := url.JoinPath("gs://"+t.conf.GCSBucket, "assets", p.DecompressAsset.Path)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	dest, err := url.JoinPath("gs://"+t.conf.GCSBucket, "assets", path.Dir(p.DecompressAsset.Path))
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	project := t.conf.GCPProject
+	region := t.conf.GCPRegion
+
+	build := &cloudbuild.Build{
+		Timeout: "86400s", // 1 day
+		Steps: []*cloudbuild.BuildStep{
+			{
+				Name: fmt.Sprintf("us.gcr.io/%s/reearth-cms-decompressor", project),
+				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=gml", src, dest},
+				Env: []string{
+					"GOOGLE_CLOUD_PROJECT=" + project,
+					"REEARTH_CMS_DECOMPRESSOR_TOPIC=" + "decompress",
+					"REEARTH_CMS_DECOMPRESSOR_ASSET_ID=" + p.DecompressAsset.AssetID,
+				},
+			},
+		},
+		Options: &cloudbuild.BuildOptions{
+			MachineType: "E2_HIGHCPU_8",
+		},
+	}
+
+	if region != "" {
+		call := cb.Projects.Locations.Builds.Create(path.Join("projects", project, "locations", region), build)
+		_, err = call.Do()
+	} else {
+		call := cb.Projects.Builds.Create(project, build)
+		_, err = call.Do()
+	}
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
 	return nil
 }
 

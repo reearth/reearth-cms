@@ -72,6 +72,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	// CloudTasks
 	if conf.Task.GCPProject != "" && conf.Task.GCPRegion != "" || conf.Task.QueueName != "" {
 		conf.Task.GCSHost = conf.Host
+		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))

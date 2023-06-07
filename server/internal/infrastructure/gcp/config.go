@@ -10,6 +10,7 @@ type TaskConfig struct {
 	Topic         string
 	GCSHost       string
 	Timeout       int64 `default:"1800"` // second
+	GCSBucket     string
 }
 
 func (c *TaskConfig) buildQueueUrl() (string, error) {
