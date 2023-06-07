@@ -3,7 +3,6 @@ package app
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -29,12 +28,12 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 			} else {
 				var req rhttp.NotificationRequest
 				if err := req.Bind(c.Request()); err != nil {
-					return fmt.Errorf("request binding: %w", err)
+					return err
 				}
 
 				var input rhttp.DecompressInput
 				if err := json.Unmarshal([]byte(req.Message), &input); err != nil {
-					return fmt.Errorf("Failed to parse JSON: %v", err)
+					return err
 				}
 				log.Infof("decompression start: Asset=%s, Path=%s", input.AssetID, input.Path)
 
@@ -74,12 +73,12 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 			} else {
 				var req rhttp.NotificationRequest
 				if err := req.Bind(c.Request()); err != nil {
-					return fmt.Errorf("request binding: %w", err)
+					return err
 				}
 
 				var w webhook.Webhook
 				if err := json.Unmarshal([]byte(req.Message), &w); err != nil {
-					return fmt.Errorf("Failed to parse JSON: %v", err)
+					return err
 				}
 
 				if err := h.Controller.WebhookController.Webhook(c.Request().Context(), &w); err != nil {
@@ -118,7 +117,7 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 func (h Handler) subscriptionConfirmationHandler(c echo.Context) error {
 	var req rhttp.SubscriptionConfirmationRequest
 	if err := req.Bind(c.Request()); err != nil {
-		return fmt.Errorf("request binding: %w", err)
+		return err
 	}
 	log.Infof("SubscribeURL: %#v", req.SubscribeURL)
 
