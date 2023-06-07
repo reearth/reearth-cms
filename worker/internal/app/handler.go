@@ -133,7 +133,6 @@ func (h Handler) webhookDefaultHandler(c echo.Context) error {
 
 	log.Info("webhook has been sent: %#v", w)
 	return c.NoContent(http.StatusOK)
-
 }
 
 func (h Handler) subscriptionConfirmationHandler(c echo.Context) error {
