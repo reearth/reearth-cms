@@ -1,99 +1,105 @@
-name: deploy-test
+name: deploy-aws
 on:
-  workflow_dispatch:
-    
+  pull_request:
+    branches: [ main ]
 env:
-  #  @TODO
   # server
   IMAGE: reearth/reearth-cms:nightly
-  IMAGE_NAME: us.gcr.io/${{ secrets.AWS_PROJECT_ID }}/reearth-cms:nightly
-#  IMAGE_AWS: ${{ secrets.AWS_PROJECT_ID }}.dkr.ecr.${{AWS_REGION}}.amazonaws.com/reearth-cms-test-server:latest
   IMAGE_AWS: reearth-cms-test-server:latest
-  #  AWS_REPO_URI: ${{secrets.AWS_PROJECT_ID}}.dkr.ecr.$AWS_REGION.amazonaws.com/reearth-cms-test-server
   # worker
   WORKER_IMAGE: reearth/reearth-cms-worker:nightly
-  WORKER_IMAGE_NAME: ${{ secrets.AWS_PROJECT_ID }}.dkr.ecr.us-east-1.amazonaws.com/reearth-cms-test-server:nightly
-  WORKER_IMAGE_AWS: us.gcr.io/reearth-oss/reearth-cms-worker:nightly
-  AWS_REGION: us-east-1
-  AWS_DEST: ""
+  WORKER_IMAGE_AWS: reearth-cms-test-worker:latest
 
 jobs:
-  #  deploy_web:
-  #    name: Deploy web to test env
-  #    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #      - name: get latest web artifact
-  #        uses: dawidd6/action-download-artifact@v2.24.0
-  #        with:
-  #          github_token: ${{ secrets.GPT }}
-  #          workflow: ci_web.yml
-  #          workflow_conclusion: success
-  #          branch: main
-  #          name: reearth-cms-web
-  #          check_artifacts: true
-  #          search_artifacts: true
-  #      - name: Extract
-  #        run: tar -xvf reearth-cms-web.tar.gz
-  #      - name: Set AWS credentials
-  #        uses: aws-actions/configure-aws-credentials@v1
-  #        with:
-  #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #          aws-region: $AWS_REGION
-  #      - name: Set up Cloud SDK
-  #        uses: google-github-actions/setup-gcloud@v0
-  #      - name: Deploy
-  #        run: gsutil -m -h "Cache-Control:no-store" rsync -x "^reearth_config\\.json$" -dr reearth-cms-web/ $GCS_DEST
-
-  deploy_server:
-    name: Deploy server to test env
+  deploy_web:
+    name: Deploy web to AWS
     runs-on: ubuntu-latest
-    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'server-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
+    defaults:
+      run:
+        working-directory: web
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - name: Configure AWS credentials
-        uses: aaws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: $AWS_REGION
+          aws-region: us-east-1
+      - name: Install Amplify CLI
+        run: yarn global add @aws-amplify/cli
+      - name: Install dependencies
+        run: yarn install
+      - name: Lint
+        run: yarn run lint
+      - name: Test
+        run: yarn run coverage
+      - name: Send coverage report
+        uses: codecov/codecov-action@v1
+        with:
+          flags: web
+      - name: Check translations
+        run: yarn i18n --fail-on-update
+      - name: Initialize Amplify
+        run: amplify init --appId AWS_AMPLIFY_APP_ID --envName test --yes
+      - name: Build and Deploy to Amplify
+        run: amplify publish --appId AWS_AMPLIFY_APP_ID --envName test --yes
+
+
+
+  deploy_server:
+    name: Deploy server to AWS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Log in to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-        
+
       - name: docker pull, push to ECR
         run: |
           docker pull $IMAGE
           docker tag $IMAGE ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
           docker push ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
 
+  deploy_worker:
+    name: Deploy worker to AWS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-#      AWS_ACCESS_KEY
-#      ACCESS_SECRET
-#      PROJECT_PROJECT_ID
+      - name: Log in to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-#  deploy_worker:
-#    name: Deploy worker to test env
-#    runs-on: ubuntu-latest
-#    if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'worker-build' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
-#    steps:
-#      - uses: google-github-actions/auth@v0
-#        with:
-#          credentials_json: ${{ secrets.AWS_SA_KEY }}
-#      - name: Set up Cloud SDK
-#        uses: google-github-actions/setup-gcloud@v0
-#      - name: Configure docker
-#        run: gcloud auth configure-docker --quiet
-#      - name: docker push
-#        run: |
-#          docker pull $WORKER_IMAGE
-#          docker tag $WORKER_IMAGE $WORKER_IMAGE_AWS
-#          docker push $WORKER_IMAGE_AWS
-#      - name: Deploy to Cloud Run
-#        run: |
-#          gcloud run deploy reearth-cms-worker \
-#            --image $WORKER_IMAGE_AWS \
-#            --region $AWS_REGION \
-#            --platform managed \
-#            --quiet
+      - name: docker pull, push to ECR
+        run: |
+          docker pull $WORKER_IMAGE
+          docker tag $WORKER_IMAGE ${{ steps.login-ecr.outputs.registry }}/$WORKER_IMAGE_AWS
+          docker push ${{ steps.login-ecr.outputs.registry }}/$WORKER_IMAGE_AWS
