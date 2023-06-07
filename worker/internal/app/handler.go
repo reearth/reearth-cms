@@ -11,6 +11,10 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
+const (
+	SNSMessageHeader = "X-Amz-Sns-Message-Type"
+)
+
 type Handler struct {
 	Controller *rhttp.Controller
 }
@@ -21,13 +25,15 @@ func NewHandler(c *rhttp.Controller) *Handler {
 
 func (h Handler) DecompressHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		header := c.Request().Header.Get("X-Amz-Sns-Message-Type")
+		header := c.Request().Header.Get(SNSMessageHeader)
+		// AWS
 		if header != "" {
 			if header == string(rhttp.SubscriptionConfirmation) {
 				return h.subscriptionConfirmationHandler(c)
 			} else {
 				return h.decompressNotificationHandler(c)
 			}
+		// GCP
 		} else {
 			return h.decompressDefaultHandler(c)
 		}
@@ -74,13 +80,15 @@ func (h Handler) decompressDefaultHandler(c echo.Context) error {
 
 func (h Handler) WebhookHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		header := c.Request().Header.Get("X-Amz-Sns-Message-Type")
+		header := c.Request().Header.Get(SNSMessageHeader)
+		// AWS
 		if header != "" {
 			if header == string(rhttp.SubscriptionConfirmation) {
 				return h.subscriptionConfirmationHandler(c)
 			} else {
 				return h.webhookNotificationHandler(c)
 			}
+		// GCP
 		} else {
 			return h.webhookDefaultHandler(c)
 		}
