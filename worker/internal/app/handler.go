@@ -12,7 +12,9 @@ import (
 )
 
 const (
-	SNSMessageHeader = "X-Amz-Sns-Message-Type"
+	MessageHeader            = "X-Amz-Sns-Message-Type"
+	SubscriptionConfirmation = "SubscriptionConfirmation"
+	Notification             = "Notification"
 )
 
 type Handler struct {
@@ -25,15 +27,13 @@ func NewHandler(c *rhttp.Controller) *Handler {
 
 func (h Handler) DecompressHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		header := c.Request().Header.Get(SNSMessageHeader)
-		// AWS
+		header := c.Request().Header.Get(MessageHeader)
 		if header != "" {
-			if header == string(rhttp.SubscriptionConfirmation) {
+			if header == string(SubscriptionConfirmation) {
 				return h.subscriptionConfirmationHandler(c)
 			} else {
 				return h.decompressNotificationHandler(c)
 			}
-		// GCP
 		} else {
 			return h.decompressDefaultHandler(c)
 		}
@@ -41,7 +41,7 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 }
 
 func (h Handler) decompressNotificationHandler(c echo.Context) error {
-	var req rhttp.NotificationRequest
+	var req NotificationRequest
 	if err := req.Bind(c.Request()); err != nil {
 		return err
 	}
@@ -80,15 +80,13 @@ func (h Handler) decompressDefaultHandler(c echo.Context) error {
 
 func (h Handler) WebhookHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		header := c.Request().Header.Get(SNSMessageHeader)
-		// AWS
+		header := c.Request().Header.Get(MessageHeader)
 		if header != "" {
-			if header == string(rhttp.SubscriptionConfirmation) {
+			if header == string(SubscriptionConfirmation) {
 				return h.subscriptionConfirmationHandler(c)
 			} else {
 				return h.webhookNotificationHandler(c)
 			}
-		// GCP
 		} else {
 			return h.webhookDefaultHandler(c)
 		}
@@ -96,7 +94,7 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 }
 
 func (h Handler) webhookNotificationHandler(c echo.Context) error {
-	var req rhttp.NotificationRequest
+	var req NotificationRequest
 	if err := req.Bind(c.Request()); err != nil {
 		return err
 	}
@@ -139,7 +137,7 @@ func (h Handler) webhookDefaultHandler(c echo.Context) error {
 }
 
 func (h Handler) subscriptionConfirmationHandler(c echo.Context) error {
-	var req rhttp.SubscriptionConfirmationRequest
+	var req SubscriptionConfirmationRequest
 	if err := req.Bind(c.Request()); err != nil {
 		return err
 	}
@@ -160,4 +158,20 @@ func (b msgBody) Data() ([]byte, error) {
 	}
 
 	return base64.StdEncoding.DecodeString(b.Message.Data)
+}
+
+type SubscriptionConfirmationRequest struct {
+	SubscribeURL string
+}
+
+type NotificationRequest struct {
+	Message string
+}
+
+func (s *SubscriptionConfirmationRequest) Bind(r *http.Request) error {
+	return json.NewDecoder(r.Body).Decode(s)
+}
+
+func (n *NotificationRequest) Bind(r *http.Request) error {
+	return json.NewDecoder(r.Body).Decode(n)
 }
