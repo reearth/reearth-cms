@@ -1,7 +1,7 @@
 name: deploy-aws
 on:
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+
 env:
   # server
   IMAGE: reearth/reearth-cms:nightly
@@ -56,9 +56,9 @@ jobs:
       - name: Check translations
         run: yarn i18n --fail-on-update
       - name: Initialize Amplify
-        run: amplify init --appId AWS_AMPLIFY_APP_ID --envName test --yes
+        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
       - name: Build and Deploy to Amplify
-        run: amplify publish --appId AWS_AMPLIFY_APP_ID --envName test --yes
+        run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
 
 
 
