@@ -26,42 +26,50 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 			if header == string(rhttp.SubscriptionConfirmation) {
 				return h.subscriptionConfirmationHandler(c)
 			} else {
-				var req rhttp.NotificationRequest
-				if err := req.Bind(c.Request()); err != nil {
-					return err
-				}
-
-				var input rhttp.DecompressInput
-				if err := json.Unmarshal([]byte(req.Message), &input); err != nil {
-					return err
-				}
-				log.Infof("decompression start: Asset=%s, Path=%s", input.AssetID, input.Path)
-
-				if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
-					log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
-					return err
-				}
-				log.Infof("successfully decompressed: Asset=%s, Path=%s", input.AssetID, input.Path)
-
-				return c.NoContent(http.StatusOK)
+				return h.decompressNotificationHandler(c)
 			}
 		} else {
-			var input rhttp.DecompressInput
-			if err := c.Bind(&input); err != nil {
-				log.Errorf("failed to decompress: err=%s", err.Error())
-				return err
-			}
-			log.Infof("decompression start: Asset=%s, Path=%s", input.AssetID, input.Path)
-
-			if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
-				log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
-				return err
-			}
-			log.Infof("successfully decompressed: Asset=%s, Path=%s", input.AssetID, input.Path)
-
-			return c.NoContent(http.StatusOK)
+			return h.decompressDefaultHandler(c)
 		}
 	}
+}
+
+func (h Handler) decompressNotificationHandler(c echo.Context) error {
+	var req rhttp.NotificationRequest
+	if err := req.Bind(c.Request()); err != nil {
+		return err
+	}
+
+	var input rhttp.DecompressInput
+	if err := json.Unmarshal([]byte(req.Message), &input); err != nil {
+		return err
+	}
+	log.Infof("decompression start: Asset=%s, Path=%s", input.AssetID, input.Path)
+
+	if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
+		log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
+		return err
+	}
+	log.Infof("successfully decompressed: Asset=%s, Path=%s", input.AssetID, input.Path)
+
+	return c.NoContent(http.StatusOK)
+}
+
+func (h Handler) decompressDefaultHandler(c echo.Context) error {
+	var input rhttp.DecompressInput
+	if err := c.Bind(&input); err != nil {
+		log.Errorf("failed to decompress: err=%s", err.Error())
+		return err
+	}
+	log.Infof("decompression start: Asset=%s, Path=%s", input.AssetID, input.Path)
+
+	if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
+		log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
+		return err
+	}
+	log.Infof("successfully decompressed: Asset=%s, Path=%s", input.AssetID, input.Path)
+
+	return c.NoContent(http.StatusOK)
 }
 
 func (h Handler) WebhookHandler() echo.HandlerFunc {
@@ -71,47 +79,55 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 			if header == string(rhttp.SubscriptionConfirmation) {
 				return h.subscriptionConfirmationHandler(c)
 			} else {
-				var req rhttp.NotificationRequest
-				if err := req.Bind(c.Request()); err != nil {
-					return err
-				}
-
-				var w webhook.Webhook
-				if err := json.Unmarshal([]byte(req.Message), &w); err != nil {
-					return err
-				}
-
-				if err := h.Controller.WebhookController.Webhook(c.Request().Context(), &w); err != nil {
-					log.Errorf("failed to send webhook. webhook: %#v err:%s", w, err.Error())
-					return err
-				}
-
-				log.Info("webhook has been sent: %#v", w)
-				return c.NoContent(http.StatusOK)
+				return h.webhookNotificationHandler(c)
 			}
 		} else {
-			var msg msgBody
-			var w webhook.Webhook
-			if err := c.Bind(&msg); err != nil {
-				if err := c.Bind(&w); err != nil {
-					return err
-				}
-			} else if data, err := msg.Data(); err != nil {
-				return err
-			} else if err := json.Unmarshal(data, &w); err != nil {
-				return err
-			}
-
-			if err := h.Controller.WebhookController.Webhook(c.Request().Context(), &w); err != nil {
-				log.Errorf("failed to send webhook. webhook: %#v err:%s", w, err.Error())
-				return err
-			}
-
-			log.Info("webhook has been sent: %#v", w)
-			return c.NoContent(http.StatusOK)
+			return h.webhookDefaultHandler(c)
 		}
-
 	}
+}
+
+func (h Handler) webhookNotificationHandler(c echo.Context) error {
+	var req rhttp.NotificationRequest
+	if err := req.Bind(c.Request()); err != nil {
+		return err
+	}
+
+	var w webhook.Webhook
+	if err := json.Unmarshal([]byte(req.Message), &w); err != nil {
+		return err
+	}
+
+	if err := h.Controller.WebhookController.Webhook(c.Request().Context(), &w); err != nil {
+		log.Errorf("failed to send webhook. webhook: %#v err:%s", w, err.Error())
+		return err
+	}
+
+	log.Info("webhook has been sent: %#v", w)
+	return c.NoContent(http.StatusOK)
+}
+
+func (h Handler) webhookDefaultHandler(c echo.Context) error {
+	var msg msgBody
+	var w webhook.Webhook
+	if err := c.Bind(&msg); err != nil {
+		if err := c.Bind(&w); err != nil {
+			return err
+		}
+	} else if data, err := msg.Data(); err != nil {
+		return err
+	} else if err := json.Unmarshal(data, &w); err != nil {
+		return err
+	}
+
+	if err := h.Controller.WebhookController.Webhook(c.Request().Context(), &w); err != nil {
+		log.Errorf("failed to send webhook. webhook: %#v err:%s", w, err.Error())
+		return err
+	}
+
+	log.Info("webhook has been sent: %#v", w)
+	return c.NoContent(http.StatusOK)
+
 }
 
 func (h Handler) subscriptionConfirmationHandler(c echo.Context) error {
