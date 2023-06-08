@@ -4,7 +4,7 @@ node_modules
 /.idea/
 /.vscode/launch.json
 
-.env*
+.env
 
 /web/.env*
 /web/coverage
@@ -15,4 +15,4 @@ node_modules
 /server/data
 /server/web
 
-/worker/.env*
+/worker/.env
