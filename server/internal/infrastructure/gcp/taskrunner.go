@@ -16,9 +16,8 @@ import (
 )
 
 type TaskRunner struct {
-	conf      *TaskConfig
-	queuePath string
-	pubsub    *pubsub.Client
+	conf   *TaskConfig
+	pubsub *pubsub.Client
 }
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
