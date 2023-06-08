@@ -3,7 +3,6 @@ package app
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -12,12 +11,18 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
+const (
+	MessageHeader            = "X-Amz-Sns-Message-Type"
+	SubscriptionConfirmation = "SubscriptionConfirmation"
+	Notification             = "Notification"
+)
+
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		switch c.Request().Header.Get("X-Amz-Sns-Message-Type") {
-		case string(rhttp.SubscriptionConfirmation):
+		switch c.Request().Header.Get(MessageHeader) {
+		case string(SubscriptionConfirmation):
 			return subscriptionConfirmationHandler(c)
-		case string(rhttp.Notification):
+		case string(Notification):
 			return notificationHandler(c)
 		default:
 			return defaultHandler(c)
@@ -26,9 +31,9 @@ func NotifyHandler() echo.HandlerFunc {
 }
 
 func subscriptionConfirmationHandler(c echo.Context) error {
-	var req rhttp.SubscriptionConfirmationRequest
+	var req SubscriptionConfirmationRequest
 	if err := req.Bind(c.Request()); err != nil {
-		return fmt.Errorf("request binding: %w", err)
+		return err
 	}
 	log.Infof("SubscribeURL: %#v", req.SubscribeURL)
 
@@ -36,14 +41,14 @@ func subscriptionConfirmationHandler(c echo.Context) error {
 }
 
 func notificationHandler(c echo.Context) error {
-	var req rhttp.NotificationRequest
+	var req NotificationRequest
 	if err := req.Bind(c.Request()); err != nil {
-		return fmt.Errorf("request binding: %w", err)
+		return err
 	}
 
 	var input rhttp.NotifyInput
 	if err := json.Unmarshal([]byte(req.Message), &input); err != nil {
-		return fmt.Errorf("Failed to parse JSON: %v", err)
+		return err
 	}
 
 	ctx := c.Request().Context()
@@ -97,4 +102,20 @@ func (b pubsubBody) Data() ([]byte, error) {
 	}
 
 	return base64.StdEncoding.DecodeString(b.Message.Data)
+}
+
+type SubscriptionConfirmationRequest struct {
+	SubscribeURL string
+}
+
+type NotificationRequest struct {
+	Message string
+}
+
+func (s *SubscriptionConfirmationRequest) Bind(r *http.Request) error {
+	return json.NewDecoder(r.Body).Decode(s)
+}
+
+func (n *NotificationRequest) Bind(r *http.Request) error {
+	return json.NewDecoder(r.Body).Decode(n)
 }
