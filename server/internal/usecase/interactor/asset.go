@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"mime"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -127,9 +128,18 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
-			es := lo.ToPtr(asset.ArchiveExtractionStatusPending)
-			if inp.SkipDecompression {
-				es = lo.ToPtr(asset.ArchiveExtractionStatusSkipped)
+			needDecompress := false
+			if ext := strings.ToLower(path.Ext(file.Name)); ext == ".zip" || ext == ".7z" {
+				needDecompress = true
+			}
+
+			es := lo.ToPtr(asset.ArchiveExtractionStatusDone)
+			if needDecompress {
+				if inp.SkipDecompression {
+					es = lo.ToPtr(asset.ArchiveExtractionStatusSkipped)
+				} else {
+					es = lo.ToPtr(asset.ArchiveExtractionStatusPending)
+				}
 			}
 
 			ab := asset.New().
@@ -169,7 +179,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
-			if !inp.SkipDecompression {
+			if needDecompress && !inp.SkipDecompression {
 				if err := i.triggerDecompressEvent(ctx, a, f); err != nil {
 					return nil, nil, err
 				}
