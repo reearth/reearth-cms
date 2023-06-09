@@ -19,21 +19,21 @@ jobs:
         working-directory: web
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2     
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: lts/*
+          node-version: lts/*       
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "::set-output name=dir::$(yarn cache dir)"     
       - uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-yarn-                 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -42,18 +42,15 @@ jobs:
           aws-region: us-east-1
       - name: Install Amplify CLI
         run: yarn global add @aws-amplify/cli
-      - name: Install dependencies
-        run: yarn install
-      - name: Lint
-        run: yarn run lint
-      - name: Test
-        run: yarn run coverage
-      - name: Send coverage report
-        uses: codecov/codecov-action@v1
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
         with:
-          flags: web
-      - name: Check translations
-        run: yarn i18n --fail-on-update
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: ci_web.yml
+          workflow_conclusion: success
+          event: push
+      - name: Extract artifact
+        run: tar -xf web.tar.gz
       - name: Initialize Amplify
         run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
       - name: Build and Deploy to Amplify
