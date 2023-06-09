@@ -1,7 +1,7 @@
 name: deploy-aws
 on:
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+
 env:
   # server
   IMAGE: reearth/reearth-cms:nightly
@@ -9,11 +9,10 @@ env:
   # worker
   WORKER_IMAGE: reearth/reearth-cms-worker:nightly
   WORKER_IMAGE_AWS: reearth-cms-test-worker:latest
-#  AWS_DEST: ""
 
 jobs:
   deploy_web:
-    name: Deploy web to test env
+    name: Deploy web to AWS
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,20 +27,19 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-        
       - uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-        
+            ${{ runner.os }}-yarn-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1      
+          aws-region: us-east-1
       - name: Install Amplify CLI
         run: yarn global add @aws-amplify/cli
       - name: Install dependencies
@@ -57,9 +55,9 @@ jobs:
       - name: Check translations
         run: yarn i18n --fail-on-update
       - name: Initialize Amplify
-        run: amplify init --appId d1ukrt9ym0lmjm --envName test --yes
+        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
       - name: Build and Deploy to Amplify
-        run: amplify publish --appId d1ukrt9ym0lmjm --envName test --yes
+        run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
 
 
 
