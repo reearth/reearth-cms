@@ -33,4 +33,8 @@ func main() {
 	if err := pubsub.NotifyAssetDecompressed(ctx, assetID, &status); err != nil {
 		log.Fatal("failed to notify asset decompressed: ", err)
 	}
+
+	if status == asset.ArchiveExtractionStatusFailed {
+		os.Exit(1)
+	}
 }
