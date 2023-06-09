@@ -70,7 +70,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 
 	// CloudTasks
-	if conf.Task.GCPProject != "" && conf.Task.GCPRegion != "" {
+	if conf.Task.GCPProject != "" {
 		conf.Task.GCSHost = conf.Host
 		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
