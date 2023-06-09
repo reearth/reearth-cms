@@ -62,6 +62,11 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	project := t.conf.GCPProject
 	region := t.conf.GCPRegion
 
+	machineType := ""
+	if v := t.conf.DecompressorMachineType; v != "default" {
+		machineType = v
+	}
+
 	build := &cloudbuild.Build{
 		Timeout: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
@@ -76,7 +81,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 			},
 		},
 		Options: &cloudbuild.BuildOptions{
-			MachineType: "E2_HIGHCPU_8",
+			MachineType: machineType,
 		},
 	}
 
