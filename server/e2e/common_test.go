@@ -78,7 +78,7 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container, 
 			File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "https://example.com")),
 		},
 		AcGateways: &accountgateway.Container{
-			Mailer: mailer.New(&mailer.Config{}),
+			Mailer: mailer.New(ctx, &mailer.Config{}),
 		},
 	})
 
@@ -153,7 +153,7 @@ func StartGQLServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Containe
 			File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "https://example.com")),
 		},
 		AcGateways: &accountgateway.Container{
-			Mailer: mailer.New(&mailer.Config{}),
+			Mailer: mailer.New(ctx, &mailer.Config{}),
 		},
 		Debug: true,
 	})
