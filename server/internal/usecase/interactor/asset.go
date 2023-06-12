@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"mime"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -18,6 +19,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -126,9 +128,18 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
-			es := lo.ToPtr(asset.ArchiveExtractionStatusPending)
-			if inp.SkipDecompression {
-				es = lo.ToPtr(asset.ArchiveExtractionStatusSkipped)
+			needDecompress := false
+			if ext := strings.ToLower(path.Ext(file.Name)); ext == ".zip" || ext == ".7z" {
+				needDecompress = true
+			}
+
+			es := lo.ToPtr(asset.ArchiveExtractionStatusDone)
+			if needDecompress {
+				if inp.SkipDecompression {
+					es = lo.ToPtr(asset.ArchiveExtractionStatusSkipped)
+				} else {
+					es = lo.ToPtr(asset.ArchiveExtractionStatusPending)
+				}
 			}
 
 			ab := asset.New().
@@ -168,7 +179,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
-			if !inp.SkipDecompression {
+			if needDecompress && !inp.SkipDecompression {
 				if err := i.triggerDecompressEvent(ctx, a, f); err != nil {
 					return nil, nil, err
 				}
@@ -265,6 +276,11 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 }
 
 func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {
+	if i.gateways.TaskRunner == nil {
+		log.Infof("asset: decompression of asset %s was skipped because task runner is not configured", a.ID())
+		return nil
+	}
+
 	taskPayload := task.DecompressAssetPayload{
 		AssetID: a.ID().String(),
 		Path:    f.RootPath(a.UUID()),
@@ -359,13 +375,11 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				a.UpdatePreviewType(previewType)
 			}
 
-			f := asset.FoldFiles(assetFiles, srcfile)
-
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
 				return nil, err
 			}
 
-			if err := i.repos.AssetFile.Save(ctx, a.ID(), f); err != nil {
+			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
 				return nil, err
 			}
 

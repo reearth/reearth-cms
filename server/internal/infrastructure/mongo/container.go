@@ -66,6 +66,7 @@ func Init(r *repo.Container) error {
 
 	return util.Try(
 		r.Asset.(*Asset).Init,
+		r.AssetFile.(*AssetFile).Init,
 		r.AssetUpload.(*AssetUpload).Init,
 		r.User.(*accountmongo.User).Init,
 		r.Workspace.(*accountmongo.Workspace).Init,

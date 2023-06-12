@@ -597,8 +597,14 @@ func TestAsset_Create(t *testing.T) {
 
 	buf := bytes.NewBufferString("Hello")
 	buf2 := bytes.NewBufferString("Hello")
+	buf3 := bytes.NewBufferString("Hello")
+	buf4 := bytes.NewBufferString("Hello")
+	buf5 := bytes.NewBufferString("Hello")
 	af := asset.NewFile().Name("aaa.txt").Size(uint64(buf.Len())).Path("aaa.txt").ContentType("text/plain; charset=utf-8").Build()
 	af2 := asset.NewFile().Name("aaa.txt").Size(uint64(buf2.Len())).Path("aaa.txt").ContentType("text/plain; charset=utf-8").Build()
+	af3 := asset.NewFile().Name("aaa.zip").Size(uint64(buf3.Len())).Path("aaa.zip").ContentType("application/zip").Build()
+	af4 := asset.NewFile().Name("aaa.zip").Size(uint64(buf4.Len())).Path("aaa.zip").ContentType("application/zip").Build()
+	af5 := asset.NewFile().Name("AAA.ZIP").Size(uint64(buf5.Len())).Path("AAA.ZIP").ContentType("application/zip").Build()
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
@@ -635,7 +641,7 @@ func TestAsset_Create(t *testing.T) {
 				Type(asset.PreviewTypeUnknown.Ref()).
 				Thread(id.NewThreadID()).
 				NewUUID().
-				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress)).
+				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusDone)).
 				MustBuild(),
 			wantFile: af,
 			wantErr:  nil,
@@ -664,9 +670,94 @@ func TestAsset_Create(t *testing.T) {
 				Type(asset.PreviewTypeUnknown.Ref()).
 				Thread(id.NewThreadID()).
 				NewUUID().
-				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusSkipped)).
+				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusDone)).
 				MustBuild(),
 			wantFile: af2,
+			wantErr:  nil,
+		},
+		{
+			name:  "CreateZip",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: p1.ID(),
+					File: &file.File{
+						Name:    "aaa.zip",
+						Content: io.NopCloser(buf3),
+						Size:    int64(buf3.Len()),
+					},
+				},
+				operator: op,
+			},
+			want: asset.New().
+				NewID().
+				Project(p1.ID()).
+				CreatedByUser(u.ID()).
+				FileName("aaa.zip").
+				Size(uint64(buf3.Len())).
+				Type(asset.PreviewTypeUnknown.Ref()).
+				Thread(id.NewThreadID()).
+				NewUUID().
+				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress)).
+				MustBuild(),
+			wantFile: af3,
+			wantErr:  nil,
+		},
+		{
+			name:  "CreateZip skip decompress",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: p1.ID(),
+					File: &file.File{
+						Name:    "aaa.zip",
+						Content: io.NopCloser(buf4),
+						Size:    int64(buf4.Len()),
+					},
+					SkipDecompression: true,
+				},
+				operator: op,
+			},
+			want: asset.New().
+				NewID().
+				Project(p1.ID()).
+				CreatedByUser(u.ID()).
+				FileName("aaa.zip").
+				Size(uint64(buf4.Len())).
+				Type(asset.PreviewTypeUnknown.Ref()).
+				Thread(id.NewThreadID()).
+				NewUUID().
+				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusSkipped)).
+				MustBuild(),
+			wantFile: af4,
+			wantErr:  nil,
+		},
+		{
+			name:  "CreateZipUpper",
+			seeds: []*asset.Asset{},
+			args: args{
+				cpp: interfaces.CreateAssetParam{
+					ProjectID: p1.ID(),
+					File: &file.File{
+						Name:    "AAA.ZIP",
+						Content: io.NopCloser(buf5),
+						Size:    int64(buf5.Len()),
+					},
+				},
+				operator: op,
+			},
+			want: asset.New().
+				NewID().
+				Project(p1.ID()).
+				CreatedByUser(u.ID()).
+				FileName("AAA.ZIP").
+				Size(uint64(buf5.Len())).
+				Type(asset.PreviewTypeUnknown.Ref()).
+				Thread(id.NewThreadID()).
+				NewUUID().
+				ArchiveExtractionStatus(lo.ToPtr(asset.ArchiveExtractionStatusInProgress)).
+				MustBuild(),
+			wantFile: af5,
 			wantErr:  nil,
 		},
 		{

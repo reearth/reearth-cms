@@ -114,3 +114,8 @@ func (b *Builder) ArchiveExtractionStatus(s *ArchiveExtractionStatus) *Builder {
 	b.a.archiveExtractionStatus = s
 	return b
 }
+
+func (b *Builder) FlatFiles(flatFiles bool) *Builder {
+	b.a.flatFiles = flatFiles
+	return b
+}

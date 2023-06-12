@@ -19,6 +19,7 @@ type Asset struct {
 	uuid                    string
 	thread                  ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
+	flatFiles               bool
 }
 
 type URLResolver = func(*Asset) string
@@ -98,9 +99,14 @@ func (a *Asset) Clone() *Asset {
 		uuid:                    a.uuid,
 		thread:                  a.thread.Clone(),
 		archiveExtractionStatus: a.archiveExtractionStatus,
+		flatFiles:               a.flatFiles,
 	}
 }
 
 func (a *Asset) Thread() ThreadID {
 	return a.thread
+}
+
+func (a *Asset) FlatFiles() bool {
+	return a.flatFiles
 }

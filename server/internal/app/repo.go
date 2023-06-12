@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
@@ -51,16 +52,22 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	}
 	// File
 	var fileRepo gateway.File
-	if conf.GCS.BucketName == "" {
-		log.Infoln("file: local storage is used")
-		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
-		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
-	} else {
+	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
 		fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}
+	} else if conf.S3.BucketName != "" {
+		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
+		fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl)
+		if err != nil {
+			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
+		}
+	} else {
+		log.Infoln("file: local storage is used")
+		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
+		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
 	}
 	if err != nil {
 		log.Fatalln(fmt.Sprintf("file: init error: %+v", err))
@@ -72,8 +79,9 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	gateways.Authenticator = auth
 
 	// CloudTasks
-	if conf.Task.GCPProject != "" && conf.Task.GCPRegion != "" || conf.Task.QueueName != "" {
+	if conf.Task.GCPProject != "" {
 		conf.Task.GCSHost = conf.Host
+		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))

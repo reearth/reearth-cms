@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -78,6 +79,7 @@ func createEvent(ctx context.Context, r *repo.Container, g *gateway.Container, e
 
 func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, e Event, ev *event.Event[any]) error {
 	if g == nil || g.TaskRunner == nil {
+		log.Infof("asset: webhook was not sent because task runner is not configured")
 		return nil
 	}
 
