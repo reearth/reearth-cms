@@ -9,6 +9,8 @@ on:
       - .github/workflows/pr_title.yml
       - .github/workflows/stage.yml
       - .github/workflows/release.yml
+      - .github/workflows/decompressor_build.yml
+      - .github/workflows/worker_build.yml
   pull_request:
     paths:
       - worker/**

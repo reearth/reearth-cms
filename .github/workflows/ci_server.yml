@@ -10,6 +10,7 @@ on:
       - .github/workflows/pr_title.yml
       - .github/workflows/stage.yml
       - .github/workflows/release.yml
+      - .github/workflows/server_build.yml
   pull_request:
     paths:
       - server/**
