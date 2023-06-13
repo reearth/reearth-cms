@@ -73,7 +73,6 @@ items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
 max must be larger then min: 最大値は最小値より大きい必要があります。
 missing fields: フィールドが不足しています。
-missing required config: 必須項目が設定されていません。
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
 not found: 見つかりませんでした。
 not implemented: 未実装です。
