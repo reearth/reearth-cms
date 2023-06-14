@@ -15,6 +15,8 @@ jobs:
   deploy_web:
     name: Deploy web to AWS
     runs-on: ubuntu-latest
+    default:
+      working-directory: ./reearth-cms-web
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -42,10 +44,8 @@ jobs:
         run: tar -xf reearth-cms-web.tar.gz
       - name: Pull Amplify project
         run: amplify pull --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
-        working-directory: ./reearth-cms-web
       - name: Build and Deploy to Amplify
         run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
-        working-directory: ./reearth-cms-web
 
   deploy_server:
     name: Deploy server to AWS
