@@ -38,15 +38,11 @@ jobs:
           branch: main
           name: reearth-cms-web     
       - name: Deploy to S3
-        uses: aws-actions/s3-sync@v0
-        with:
-          source_dir: dist
-          bucket: cms-amplify-frontend-test
+        run: |
+          aws s3 sync ./dist s3://cms-amplify-frontend-test --delete --exclude "reearth_config.json"
       - name: Invalidate CloudFront Distribution
-        uses: aws-actions/cloudfront-invalidation-action@v1
-        with:
-          distribution: E3MU1E25ERGR2X
-          paths: '/*'
+        run: |
+          aws cloudfront create-invalidation --distribution-id E3MU1E25ERGR2X --paths "/*"
 
   deploy_server:
     name: Deploy server to AWS
