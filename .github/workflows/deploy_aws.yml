@@ -40,10 +40,10 @@ jobs:
         run: ls -la
       - name: Extract artifact
         run: tar -xf reearth-cms-web.tar.gz   
-      - name: Initialize Amplify
-        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
+      - name: Checkout Amplify Environment
+        run: amplify env checkout test
       - name: Build and Deploy to Amplify
-        run: amplify push --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
+        run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
 
   deploy_server:
     name: Deploy server to AWS
