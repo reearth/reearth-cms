@@ -39,11 +39,14 @@ jobs:
       - name: List files in current directory
         run: ls -la
       - name: Extract artifact
-        run: tar -xf reearth-cms-web.tar.gz   
-      - name: Checkout Amplify Environment
-        run: amplify env checkout test
+        run: tar -xf reearth-cms-web.tar.gz
+      - name: Change to web directory
+        run: cd web
+      - name: Pull Amplify project
+        run: amplify pull --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
       - name: Build and Deploy to Amplify
-        run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
+        run: amplify push --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
+
 
   deploy_server:
     name: Deploy server to AWS
