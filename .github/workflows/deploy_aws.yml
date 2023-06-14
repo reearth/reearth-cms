@@ -41,7 +41,7 @@ jobs:
       - name: Extract artifact
         run: tar -xf reearth-cms-web.tar.gz
       - name: Change to web directory
-        run: cd web
+        run: cd reearth-cms-web
       - name: Pull Amplify project
         run: amplify pull --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
       - name: Build and Deploy to Amplify
