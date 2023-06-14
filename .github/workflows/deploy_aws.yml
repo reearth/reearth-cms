@@ -35,7 +35,9 @@ jobs:
           branch: main
           name: reearth-cms-web   
       - name: Extract artifact
-        run: tar -xf reearth-cms-web.tar.gz    
+        run: tar -xf reearth-cms-web.tar.gz
+      - name: List files in current directory
+        run: ls -la    
       - name: Deploy to S3
         run: |
           aws s3 sync ./reearth-cms-web s3://cms-amplify-frontend-test --delete --exclude "reearth_config.json"
