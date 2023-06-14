@@ -15,9 +15,6 @@ jobs:
   deploy_web:
     name: Deploy web to AWS
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -39,7 +36,7 @@ jobs:
           name: reearth-cms-web     
       - name: Deploy to S3
         run: |
-          aws s3 sync ./dist s3://cms-amplify-frontend-test --delete --exclude "reearth_config.json"
+          aws s3 sync ./reearth-cms-web s3://cms-amplify-frontend-test --delete --exclude "reearth_config.json"
       - name: Invalidate CloudFront Distribution
         run: |
           aws cloudfront create-invalidation --distribution-id E3MU1E25ERGR2X --paths "/*"
