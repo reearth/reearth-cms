@@ -20,11 +20,11 @@ jobs:
         working-directory: web
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2      
+        uses: actions/checkout@v2
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: lts/*        
+          node-version: lts/*
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -34,7 +34,7 @@ jobs:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-         
+            ${{ runner.os }}-yarn-            
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -49,12 +49,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_web.yml
           workflow_conclusion: success
-          event: push
-          name: reearth-cms-web    
+          branch: main
+          name: reearth-cms-web     
       - name: Extract artifact
-        run: tar -xf reearth-cms-web.tar.gz
+        run: tar -xf reearth-cms-web.tar.gz   
       - name: Initialize Amplify
-        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes  
+        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
       - name: Build and Deploy to Amplify
         run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
 
