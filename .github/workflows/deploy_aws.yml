@@ -1,6 +1,7 @@
 name: deploy-aws
 on:
-  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
 
 env:
   # server
