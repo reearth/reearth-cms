@@ -1,11 +1,9 @@
 import { PropsWithChildren } from "react";
 
-import { useAuthenticationRequired } from "./hooks";
+import { useAuthenticationRequired } from "./useAuth";
 
-export { default as Provider } from "./provider";
-export { default as useAuth, useCleanUrl, useAuthenticationRequired } from "./hooks";
-
-export { withAuthenticationRequired } from "@auth0/auth0-react";
+export { AuthProvider } from "./AuthProvider";
+export { useAuth } from "./useAuth";
 
 export function AuthenticationRequiredPage({
   children,

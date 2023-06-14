@@ -10,6 +10,7 @@ on:
       - .github/workflows/pr_title.yml
       - .github/workflows/stage.yml
       - .github/workflows/release.yml
+      - .github/workflows/server_build.yml
   pull_request:
     paths:
       - server/**
@@ -47,7 +48,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.49
+          version: v1.52
           working-directory: server
           args: --config=../.golangci.yml
       - name: test

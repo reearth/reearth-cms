@@ -384,3 +384,9 @@ func TestWebhookBuilder_NewID(t *testing.T) {
 		})
 	}
 }
+
+func TestWebhookBuilder_Secret(t *testing.T) {
+	b := NewWebhookBuilder()
+	b.Secret("xyz")
+	assert.Equal(t, "xyz", b.w.secret)
+}

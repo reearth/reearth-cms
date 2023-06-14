@@ -10,11 +10,12 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToItem(i *item.Item, s *schema.Schema) *Item {
-	if i == nil {
+func ToItem(vi item.Versioned, s *schema.Schema) *Item {
+	if vi == nil || vi.Value() == nil {
 		return nil
 	}
 
+	i := vi.Value()
 	return &Item{
 		ID:            IDFrom(i.ID()),
 		ProjectID:     IDFrom(i.Project()),
@@ -37,6 +38,7 @@ func ToItem(i *item.Item, s *schema.Schema) *Item {
 				Value:         v,
 			}
 		}),
+		Version: vi.Version().String(),
 	}
 }
 
@@ -55,7 +57,7 @@ func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema) *VersionedI
 		Version: v.Version().String(),
 		Parents: parents,
 		Refs:    refs,
-		Value:   ToItem(v.Value(), s),
+		Value:   ToItem(v, s),
 	}
 }
 

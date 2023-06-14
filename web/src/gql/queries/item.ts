@@ -41,6 +41,7 @@ export const GET_ITEM_NODE = gql`
         createdAt
         updatedAt
         status
+        version
         assets {
           id
           url
@@ -124,8 +125,8 @@ export const DELETE_ITEM = gql`
 `;
 
 export const UPDATE_ITEM = gql`
-  mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!) {
-    updateItem(input: { itemId: $itemId, fields: $fields }) {
+  mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $version: String!) {
+    updateItem(input: { itemId: $itemId, fields: $fields, version: $version }) {
       item {
         id
         schemaId

@@ -9,10 +9,13 @@ import (
 )
 
 func TestNewField(t *testing.T) {
-	f := id.NewFieldID()
-	assert.Nil(t, NewField(f, nil))
+	fId := id.NewFieldID()
+	assert.Nil(t, NewField(fId, nil))
+	f := NewField(fId, value.TypeBool.Value(true).AsMultiple())
 	assert.Equal(t, &Field{
-		field: f,
+		field: fId,
 		value: value.TypeBool.Value(true).AsMultiple(),
-	}, NewField(f, value.TypeBool.Value(true).AsMultiple()))
+	}, f)
+
+	assert.Equal(t, value.TypeBool, f.Type())
 }

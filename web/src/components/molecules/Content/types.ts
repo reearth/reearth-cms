@@ -10,6 +10,7 @@ export type ItemField = {
 
 export type Item = {
   id: string;
+  version: string;
   schemaId: string;
   fields: ItemField[] | undefined | null;
   threadId: string;

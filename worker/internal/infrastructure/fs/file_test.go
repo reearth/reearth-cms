@@ -30,7 +30,7 @@ func mockFs() afero.Fs {
 func Test_fileRepo_Read(t *testing.T) {
 	f, _ := NewFile(mockFs(), "")
 
-	r, size, err := f.Read(context.Background(), "assets/aaa.txt")
+	r, size, _, err := f.Read(context.Background(), "assets/aaa.txt")
 	assert.NoError(t, err)
 	assert.True(t, size > 0)
 	buf := make([]byte, len([]byte("aaa")))

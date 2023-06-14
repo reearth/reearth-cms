@@ -231,5 +231,5 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 type SchemaConsumer = mongox.SliceFuncConsumer[*SchemaDocument, *schema.Schema]
 
 func NewSchemaConsumer() *SchemaConsumer {
-	return NewComsumer[*SchemaDocument, *schema.Schema]()
+	return NewConsumer[*SchemaDocument, *schema.Schema]()
 }
