@@ -15,7 +15,12 @@ jobs:
   deploy_web:
     name: Deploy web to AWS
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -26,24 +31,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_web.yml
-          workflow_conclusion: success
-          branch: main
-          name: reearth-cms-web   
-      - name: Extract artifact
-        run: tar -xf reearth-cms-web.tar.gz
-      - name: List files in current directory
-        run: ls -la    
-      - name: Deploy to S3
-        run: |
-          aws s3 sync ./reearth-cms-web s3://cms-amplify-frontend-test --delete --exclude "reearth_config.json"
-      - name: Invalidate CloudFront Distribution
-        run: |
-          aws cloudfront create-invalidation --distribution-id E3MU1E25ERGR2X --paths "/*"
+      - name: Install
+        run: yarn install
+      - name: Install Amplify CLI
+        run: yarn global add @aws-amplify/cli
+      - name: Pull Amplify project
+        run: amplify pull --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
+      - name: Build and Deploy to Amplify
+        run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
 
   deploy_server:
     name: Deploy server to AWS
