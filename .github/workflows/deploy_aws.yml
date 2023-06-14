@@ -18,10 +18,12 @@ jobs:
       run:
         working-directory: web
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: lts/*         
+          node-version: lts/* 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -29,7 +31,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Install Amplify CLI
-        run: yarn global add @aws-amplify/cli
+        run: yarn global add @aws-amplify/cli  
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -37,11 +39,11 @@ jobs:
           workflow: ci_web.yml
           workflow_conclusion: success
           branch: main
-          name: reearth-cms-web     
+          name: reearth-cms-web        
       - name: Extract artifact
         run: tar -xf reearth-cms-web.tar.gz   
       - name: Initialize Amplify
-        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
+        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes  
       - name: Build and Deploy to Amplify
         run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
 
