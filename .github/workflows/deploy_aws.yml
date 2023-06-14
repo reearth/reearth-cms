@@ -31,8 +31,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - name: Install
-        run: yarn install
       - name: Install Amplify CLI
         run: yarn global add @aws-amplify/cli
       - name: Pull Amplify project
