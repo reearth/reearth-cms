@@ -38,8 +38,8 @@ jobs:
       #     name: reearth-cms-web
       - name: List files in current directory
         run: ls -la
-      - name: Extract artifact
-        run: tar -xf reearth-cms-web.tar.gz
+      # - name: Extract artifact
+      #   run: tar -xf reearth-cms-web.tar.gz
       - name: Check package.json file
         run: ls -la ./reearth-cms-web/
       - name: Pull Amplify project
