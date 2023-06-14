@@ -3,10 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        - yarn
+        - echo "Skipping prebuild phase."
     build:
       commands:
-        - yarn build
+        - echo "Skipping build phase."
   artifacts:
     baseDirectory: dist
     files:
