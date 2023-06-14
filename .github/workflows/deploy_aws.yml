@@ -15,8 +15,9 @@ jobs:
   deploy_web:
     name: Deploy web to AWS
     runs-on: ubuntu-latest
-    default:
-      working-directory: ./reearth-cms-web
+    defaults:
+      run:
+        working-directory: ./reearth-cms-web
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v3
