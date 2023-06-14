@@ -43,7 +43,7 @@ jobs:
       - name: Initialize Amplify
         run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
       - name: Build and Deploy to Amplify
-        run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
+        run: amplify push --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
 
   deploy_server:
     name: Deploy server to AWS
