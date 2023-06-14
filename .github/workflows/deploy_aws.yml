@@ -34,11 +34,7 @@ jobs:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-  
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*         
+            ${{ runner.os }}-yarn-         
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
