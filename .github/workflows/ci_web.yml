@@ -51,14 +51,14 @@ jobs:
           flags: web
       - name: Check translations
         run: yarn i18n --fail-on-update
-      - name: Build
-        run: yarn build
-      - name: Pack
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
-        run: mv dist reearth-cms-web && tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
-      - uses: actions/upload-artifact@v3
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
-        with:
-          name: reearth-cms-web
-          path: web/reearth-cms-web.tar.gz
-          if-no-files-found: error
+      # - name: Build
+      #   run: yarn build
+      # - name: Pack
+      #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
+      #   run: mv dist reearth-cms-web && tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
+      # - uses: actions/upload-artifact@v3
+      #   if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release'
+      #   with:
+      #     name: reearth-cms-web
+      #     path: web/reearth-cms-web.tar.gz
+      #     if-no-files-found: error
