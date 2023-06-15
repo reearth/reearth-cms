@@ -5,8 +5,6 @@ frontend:
       commands:
         - yarn
     build:
-      commands:
-        - yarn build
   artifacts:
     baseDirectory: dist
     files:

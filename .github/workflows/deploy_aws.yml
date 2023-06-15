@@ -33,6 +33,8 @@ jobs:
           aws-region: us-east-1
       - name: Install
         run: yarn install
+      - name: Build
+        run: yarn build
       - name: Install Amplify CLI
         run: yarn global add @aws-amplify/cli
       - name: Pull Amplify project
