@@ -6,7 +6,7 @@ frontend:
         - yarn
     build:
   artifacts:
-    baseDirectory: dist
+    baseDirectory: reearth-cms-web
     files:
       - '**/*'
   cache:
