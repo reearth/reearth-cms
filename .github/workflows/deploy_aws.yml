@@ -27,10 +27,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Install Amplify CLI
-        run: yarn global add @aws-amplify/cli   
-      - name: Initialize Amplify
-        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
-        working-directory: ./web
+        run: yarn global add @aws-amplify/cli
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -40,7 +37,11 @@ jobs:
           branch: main
           name: reearth-cms-web     
       - name: Extract artifact
-        run: tar -xf reearth-cms-web.tar.gz
+        run: tar -xf reearth-cms-web.tar.gz  
+      - name: check directory
+        run: ls -a 
+      - name: Initialize Amplify
+        run: amplify init --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
       - name: Build and Deploy to Amplify
         run: amplify publish --appId ${{ secrets.AWS_AMPLIFY_APP_ID }} --envName test --yes
 
