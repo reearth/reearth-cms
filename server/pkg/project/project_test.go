@@ -91,11 +91,22 @@ func TestProject_Publication(t *testing.T) {
 	assert.Equal(t, pp, p.Publication())
 }
 
-func TestProject_UpdatePreApproved(t *testing.T) {
+func TestProject_PreApproved(t *testing.T) {
+	p1 := &Project{
+		preApproved: true,
+	}
+	assert.True(t, p1.PreApproved())
+	p2 := &Project{
+		preApproved: false,
+	}
+	assert.False(t, p2.PreApproved())
+}
+
+func TestProject_SetPreApproved(t *testing.T) {
 	p := &Project{}
-	p.UpdatePreApproved(true)
+	p.SetPreApproved(true)
 	assert.True(t, p.PreApproved())
-	p.UpdatePreApproved(false)
+	p.SetPreApproved(false)
 	assert.False(t, p.PreApproved())
 }
 

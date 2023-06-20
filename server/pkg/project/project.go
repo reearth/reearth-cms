@@ -98,7 +98,7 @@ func (p *Project) PreApproved() bool {
 	return p.preApproved
 }
 
-func (p *Project) UpdatePreApproved(preApproved bool) {
+func (p *Project) SetPreApproved(preApproved bool) {
 	p.preApproved = preApproved
 }
 
