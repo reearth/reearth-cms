@@ -16,6 +16,7 @@ type CreateProjectParam struct {
 	Name        *string
 	Description *string
 	Alias       *string
+	PreApproved *bool
 }
 
 type UpdateProjectParam struct {
@@ -24,6 +25,7 @@ type UpdateProjectParam struct {
 	Description *string
 	Alias       *string
 	Publication *UpdateProjectPublicationParam
+	PreApproved *bool
 }
 
 type UpdateProjectPublicationParam struct {

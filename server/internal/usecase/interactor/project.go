@@ -50,6 +50,9 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 			if p.Description != nil {
 				pb = pb.Description(*p.Description)
 			}
+			if p.PreApproved != nil {
+				pb = pb.PreApproved(*p.PreApproved)
+			}
 			if p.Alias != nil {
 				proj2, _ := i.repos.Project.FindByPublicName(ctx, *p.Alias)
 				if proj2 != nil {
@@ -85,6 +88,10 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 
 			if p.Description != nil {
 				proj.UpdateDescription(*p.Description)
+			}
+
+			if p.PreApproved != nil {
+				proj.SetPreApproved(*p.PreApproved)
 			}
 
 			if p.Alias != nil {

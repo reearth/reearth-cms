@@ -19,6 +19,7 @@ type CreateModelParam struct {
 	Description *string
 	Key         *string
 	Public      *bool
+	PreApproved *bool
 }
 
 type UpdateModelParam struct {
@@ -27,6 +28,7 @@ type UpdateModelParam struct {
 	Description *string
 	Key         *string
 	Public      *bool
+	PreApproved *bool
 }
 
 var (

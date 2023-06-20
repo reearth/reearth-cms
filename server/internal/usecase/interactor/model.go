@@ -89,6 +89,9 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 			if param.Public != nil {
 				mb = mb.Public(*param.Public)
 			}
+			if param.PreApproved != nil {
+				mb = mb.PreApproved(*param.PreApproved)
+			}
 			if param.Key != nil {
 				mb = mb.Key(key.New(*param.Key))
 			} else {
@@ -133,6 +136,9 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 			}
 			if param.Public != nil {
 				m.SetPublic(*param.Public)
+			}
+			if param.PreApproved != nil {
+				m.SetPreApproved(*param.PreApproved)
 			}
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {
