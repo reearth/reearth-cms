@@ -21,6 +21,7 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.Cre
 		Name:        input.Name,
 		Description: input.Description,
 		Alias:       input.Alias,
+		PreApproved: input.PreApproved,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -53,6 +54,7 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		Description: input.Description,
 		Alias:       input.Alias,
 		Publication: pub,
+		PreApproved: input.PreApproved,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

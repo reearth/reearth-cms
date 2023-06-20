@@ -24,6 +24,7 @@ type Project implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   publication: ProjectPublication
+  preApproved: Boolean
 }
 
 # Inputs
@@ -32,6 +33,7 @@ input CreateProjectInput {
   name: String
   description: String
   alias: String
+  preApproved: Boolean
 }
 
 input UpdateProjectPublicationInput {
@@ -45,6 +47,7 @@ input UpdateProjectInput {
   description: String
   alias: String
   publication: UpdateProjectPublicationInput
+  preApproved: Boolean
 }
 
 input DeleteProjectInput {
