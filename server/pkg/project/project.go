@@ -24,6 +24,7 @@ type Project struct {
 	imageURL    *url.URL
 	updatedAt   time.Time
 	publication *Publication
+	preApproved bool
 }
 
 func (p *Project) ID() ID {
@@ -93,6 +94,14 @@ func (p *Project) UpdateDescription(description string) {
 	p.description = description
 }
 
+func (p *Project) PreApproved() bool {
+	return p.preApproved
+}
+
+func (p *Project) UpdatePreApproved(preApproved bool) {
+	p.preApproved = preApproved
+}
+
 func (p *Project) UpdateAlias(alias string) error {
 	if CheckAliasPattern(alias) {
 		p.alias = alias
@@ -119,6 +128,7 @@ func (p *Project) Clone() *Project {
 		alias:       p.alias,
 		imageURL:    util.CopyURL(p.imageURL),
 		updatedAt:   p.updatedAt,
+		preApproved: p.preApproved,
 		publication: p.publication.Clone(),
 	}
 }

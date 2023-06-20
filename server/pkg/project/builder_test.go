@@ -99,6 +99,14 @@ func TestBuilder_Publication(t *testing.T) {
 	}, res)
 }
 
+func TestBuilder_PreApproved(t *testing.T) {
+	var tb = New().NewID()
+	res := tb.PreApproved(true)
+	assert.Equal(t, &Builder{
+		p: &Project{id: tb.p.id, preApproved: true},
+	}, res)
+}
+
 func TestBuilder_Build(t *testing.T) {
 	d := time.Date(1900, 1, 1, 00, 00, 0, 1, time.UTC)
 	i, _ := url.Parse("ttt://xxx.aa/")
@@ -112,6 +120,7 @@ func TestBuilder_Build(t *testing.T) {
 		updatedAt         time.Time
 		imageURL          *url.URL
 		team              WorkspaceID
+		preApproved       bool
 	}
 
 	tests := []struct {
@@ -130,6 +139,7 @@ func TestBuilder_Build(t *testing.T) {
 				updatedAt:   d,
 				imageURL:    i,
 				team:        tid,
+				preApproved: true,
 			},
 			expected: &Project{
 				id:          pid,
@@ -139,6 +149,7 @@ func TestBuilder_Build(t *testing.T) {
 				updatedAt:   d,
 				imageURL:    i,
 				workspaceID: tid,
+				preApproved: true,
 			},
 		},
 		{
@@ -179,6 +190,7 @@ func TestBuilder_Build(t *testing.T) {
 				Alias(tt.args.alias).
 				UpdatedAt(tt.args.updatedAt).
 				Description(tt.args.description).
+				PreApproved(tt.args.preApproved).
 				Build()
 
 			if tt.err == nil {

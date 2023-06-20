@@ -84,3 +84,8 @@ func (b *Builder) Publication(publication *Publication) *Builder {
 	b.p.publication = publication
 	return b
 }
+
+func (b *Builder) PreApproved(preApproved bool) *Builder {
+	b.p.preApproved = preApproved
+	return b
+}
