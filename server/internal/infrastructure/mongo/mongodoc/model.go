@@ -17,6 +17,7 @@ type ModelDocument struct {
 	Public      bool
 	Project     string
 	Schema      string
+	PreApproved bool
 	UpdatedAt   time.Time
 }
 
@@ -30,6 +31,7 @@ func NewModel(model *model.Model) (*ModelDocument, string) {
 		Public:      model.Public(),
 		Project:     model.Project().String(),
 		Schema:      model.Schema().String(),
+		PreApproved: model.PreApproved(),
 		UpdatedAt:   model.UpdatedAt(),
 	}, mId
 }
@@ -57,6 +59,7 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 		Public(d.Public).
 		Project(pId).
 		Schema(sId).
+		PreApproved(d.PreApproved).
 		Build()
 }
 
