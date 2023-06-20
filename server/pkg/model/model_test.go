@@ -30,6 +30,7 @@ func TestModel_Clone(t *testing.T) {
 				description: "d1",
 				key:         key.New("123456"),
 				public:      false,
+				preApproved: false,
 				updatedAt:   now,
 			},
 		},
@@ -57,6 +58,7 @@ func TestModel_Clone(t *testing.T) {
 			assert.NotSame(t, tt.model.description, c.description)
 			assert.NotSame(t, tt.model.key, c.key)
 			assert.NotSame(t, tt.model.public, c.public)
+			assert.NotSame(t, tt.model.preApproved, c.preApproved)
 			assert.NotSame(t, tt.model.updatedAt, c.updatedAt)
 		})
 	}
@@ -238,6 +240,25 @@ func TestModel_Public(t *testing.T) {
 			assert.Equal(t, tt.want, tt.model.Public())
 		})
 	}
+}
+
+func TestModel_PreApproved(t *testing.T) {
+	p1 := Model{
+		preApproved: true,
+	}
+	assert.True(t, p1.PreApproved())
+	p2 := Model{
+		preApproved: false,
+	}
+	assert.False(t, p2.PreApproved())
+}
+
+func TestModel_SetPreApproved(t *testing.T) {
+	p := &Model{}
+	p.SetPreApproved(true)
+	assert.True(t, p.PreApproved())
+	p.SetPreApproved(false)
+	assert.False(t, p.PreApproved())
 }
 
 func TestModel_Schema(t *testing.T) {

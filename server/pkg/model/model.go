@@ -23,6 +23,7 @@ type Model struct {
 	description string
 	key         key.Key
 	public      bool
+	preApproved bool
 	updatedAt   time.Time
 }
 
@@ -77,6 +78,14 @@ func (p *Model) SetPublic(public bool) {
 	p.public = public
 }
 
+func (p *Model) PreApproved() bool {
+	return p.preApproved
+}
+
+func (p *Model) SetPreApproved(preApproved bool) {
+	p.preApproved = preApproved
+}
+
 func (p *Model) UpdatedAt() time.Time {
 	if p.updatedAt.IsZero() {
 		return p.id.Timestamp()
@@ -105,6 +114,7 @@ func (p *Model) Clone() *Model {
 		description: p.description,
 		key:         p.Key(),
 		public:      p.public,
+		preApproved: p.preApproved,
 		updatedAt:   p.updatedAt,
 	}
 }

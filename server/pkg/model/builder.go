@@ -85,6 +85,11 @@ func (b *Builder) Public(public bool) *Builder {
 	return b
 }
 
+func (b *Builder) PreApproved(preApproved bool) *Builder {
+	b.model.preApproved = preApproved
+	return b
+}
+
 func (b *Builder) UpdatedAt(updatedAt time.Time) *Builder {
 	b.model.updatedAt = updatedAt
 	return b
