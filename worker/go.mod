@@ -20,7 +20,7 @@ require (
 	github.com/samber/lo v1.28.2
 	github.com/spf13/afero v1.9.2
 	github.com/stretchr/testify v1.8.1
-	go.mongodb.org/mongo-driver v1.11.0
+	go.mongodb.org/mongo-driver v1.11.7
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.36.1
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.37.0
 	golang.org/x/net v0.1.0
