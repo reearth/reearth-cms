@@ -1389,6 +1389,10 @@ func (r *mockRunner) Run(context.Context, task.Payload) error {
 	return nil
 }
 
+func (r *mockRunner) Retry(context.Context, string) error {
+	return nil
+}
+
 func Test_detectPreviewType(t *testing.T) {
 	tests := []struct {
 		name  string

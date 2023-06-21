@@ -474,3 +474,7 @@ func (i *Asset) event(ctx context.Context, e Event) error {
 	_, err := createEvent(ctx, i.repos, i.gateways, e)
 	return err
 }
+
+func (i *Asset) RetryTask(ctx context.Context, id string) error {
+	return i.gateways.TaskRunner.Retry(ctx, id)
+}

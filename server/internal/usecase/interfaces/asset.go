@@ -55,4 +55,5 @@ type Asset interface {
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
 	DecompressByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (string, string, string, error)
+	RetryTask(context.Context, string) error
 }
