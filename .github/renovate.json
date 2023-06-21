@@ -4,13 +4,41 @@
     ":semanticCommits",
     ":semanticCommitScopeDisabled",
     ":maintainLockFilesWeekly",
-    ":enableVulnerabilityAlertsWithLabel(security)"
+    ":enableVulnerabilityAlertsWithLabel(security)",
+    ":semanticCommitTypeAll(chore)"
   ],
+  "lockFileMaintenance": false,
+  "rangeStrategy": "bump",
+  "separateMajorMinor": false,
   "postUpdateOptions": [
     "gomodTidy",
     "gomodUpdateImportPaths"
   ],
   "packageRules": [
+    {
+      "enabledManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "cesium"
+      ],
+      "groupName": "cesium",
+      "schedule": ["before 3:00 am on the 4th day of the month"]
+    },
+    {
+      "enabledManagers": [
+        "npm"
+      ],
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "excludePackageNames": [
+        "cesium"
+      ],
+      "groupName": "all dependencies",
+      "groupSlug": "all",
+      "schedule": ["before 3:00 am on the 4th day of the month"]
+    },
     {
       "enabledManagers": [
         "gomod"
