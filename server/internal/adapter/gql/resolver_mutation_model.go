@@ -20,7 +20,7 @@ func (r *mutationResolver) CreateModel(ctx context.Context, input gqlmodel.Creat
 		Description: input.Description,
 		Key:         input.Key,
 		Public:      nil,
-		PreApproved: input.PreApproved,
+		SkipRequest: input.SkipRequest,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (r *mutationResolver) UpdateModel(ctx context.Context, input gqlmodel.Updat
 		Description: input.Description,
 		Key:         input.Key,
 		Public:      lo.ToPtr(input.Public),
-		PreApproved: input.PreApproved,
+		SkipRequest: input.SkipRequest,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

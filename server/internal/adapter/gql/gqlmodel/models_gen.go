@@ -176,7 +176,7 @@ type CreateModelInput struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
-	PreApproved *bool   `json:"preApproved,omitempty"`
+	SkipRequest *bool   `json:"skipRequest,omitempty"`
 }
 
 type CreateProjectInput struct {
@@ -184,7 +184,7 @@ type CreateProjectInput struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Alias       *string `json:"alias,omitempty"`
-	PreApproved *bool   `json:"preApproved,omitempty"`
+	SkipRequest *bool   `json:"skipRequest,omitempty"`
 }
 
 type CreateRequestInput struct {
@@ -450,7 +450,7 @@ type Model struct {
 	Project     *Project  `json:"project"`
 	Schema      *Schema   `json:"schema"`
 	Public      bool      `json:"public"`
-	PreApproved *bool     `json:"preApproved,omitempty"`
+	SkipRequest *bool     `json:"skipRequest,omitempty"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
@@ -499,7 +499,7 @@ type Project struct {
 	CreatedAt   time.Time           `json:"createdAt"`
 	UpdatedAt   time.Time           `json:"updatedAt"`
 	Publication *ProjectPublication `json:"publication,omitempty"`
-	PreApproved *bool               `json:"preApproved,omitempty"`
+	SkipRequest *bool               `json:"skipRequest,omitempty"`
 }
 
 func (Project) IsNode()        {}
@@ -883,7 +883,7 @@ type UpdateModelInput struct {
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
 	Public      bool    `json:"public"`
-	PreApproved *bool   `json:"preApproved,omitempty"`
+	SkipRequest *bool   `json:"skipRequest,omitempty"`
 }
 
 type UpdateProjectInput struct {
@@ -892,7 +892,7 @@ type UpdateProjectInput struct {
 	Description *string                        `json:"description,omitempty"`
 	Alias       *string                        `json:"alias,omitempty"`
 	Publication *UpdateProjectPublicationInput `json:"publication,omitempty"`
-	PreApproved *bool                          `json:"preApproved,omitempty"`
+	SkipRequest *bool                          `json:"skipRequest,omitempty"`
 }
 
 type UpdateProjectPublicationInput struct {

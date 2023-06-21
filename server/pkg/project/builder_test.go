@@ -99,11 +99,11 @@ func TestBuilder_Publication(t *testing.T) {
 	}, res)
 }
 
-func TestBuilder_PreApproved(t *testing.T) {
+func TestBuilder_SkipRequest(t *testing.T) {
 	var tb = New().NewID()
-	res := tb.PreApproved(true)
+	res := tb.SkipRequest(true)
 	assert.Equal(t, &Builder{
-		p: &Project{id: tb.p.id, preApproved: true},
+		p: &Project{id: tb.p.id, skipRequest: true},
 	}, res)
 }
 
@@ -120,7 +120,7 @@ func TestBuilder_Build(t *testing.T) {
 		updatedAt         time.Time
 		imageURL          *url.URL
 		team              WorkspaceID
-		preApproved       bool
+		skipRequest       bool
 	}
 
 	tests := []struct {
@@ -139,7 +139,7 @@ func TestBuilder_Build(t *testing.T) {
 				updatedAt:   d,
 				imageURL:    i,
 				team:        tid,
-				preApproved: true,
+				skipRequest: true,
 			},
 			expected: &Project{
 				id:          pid,
@@ -149,7 +149,7 @@ func TestBuilder_Build(t *testing.T) {
 				updatedAt:   d,
 				imageURL:    i,
 				workspaceID: tid,
-				preApproved: true,
+				skipRequest: true,
 			},
 		},
 		{
@@ -190,7 +190,7 @@ func TestBuilder_Build(t *testing.T) {
 				Alias(tt.args.alias).
 				UpdatedAt(tt.args.updatedAt).
 				Description(tt.args.description).
-				PreApproved(tt.args.preApproved).
+				SkipRequest(tt.args.skipRequest).
 				Build()
 
 			if tt.err == nil {

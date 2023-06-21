@@ -279,7 +279,7 @@ func TestProject_Create(t *testing.T) {
 					Name:        lo.ToPtr("P001"),
 					Description: lo.ToPtr("D001"),
 					Alias:       lo.ToPtr("Test001"),
-					PreApproved: lo.ToPtr(true),
+					SkipRequest: lo.ToPtr(true),
 				},
 				operator: op,
 			},
@@ -289,7 +289,7 @@ func TestProject_Create(t *testing.T) {
 				Alias("Test001").
 				Description("D001").
 				Workspace(wid).
-				PreApproved(true).
+				SkipRequest(true).
 				MustBuild(),
 			wantErr: nil,
 		},
@@ -334,7 +334,7 @@ func TestProject_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Alias(), got.Alias())
 			assert.Equal(t, tc.want.Description(), got.Description())
 			assert.Equal(t, tc.want.Workspace(), got.Workspace())
-			assert.Equal(t, tc.want.PreApproved(), got.PreApproved())
+			assert.Equal(t, tc.want.SkipRequest(), got.SkipRequest())
 
 			dbGot, err := db.Project.FindByID(ctx, got.ID())
 			assert.NoError(t, err)
@@ -342,7 +342,7 @@ func TestProject_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Alias(), dbGot.Alias())
 			assert.Equal(t, tc.want.Description(), dbGot.Description())
 			assert.Equal(t, tc.want.Workspace(), dbGot.Workspace())
-			assert.Equal(t, tc.want.PreApproved(), dbGot.PreApproved())
+			assert.Equal(t, tc.want.SkipRequest(), dbGot.SkipRequest())
 
 		})
 	}

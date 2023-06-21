@@ -288,12 +288,12 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Key         func(childComplexity int) int
 		Name        func(childComplexity int) int
-		PreApproved func(childComplexity int) int
 		Project     func(childComplexity int) int
 		ProjectID   func(childComplexity int) int
 		Public      func(childComplexity int) int
 		Schema      func(childComplexity int) int
 		SchemaID    func(childComplexity int) int
+		SkipRequest func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 	}
 
@@ -375,8 +375,8 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
-		PreApproved func(childComplexity int) int
 		Publication func(childComplexity int) int
+		SkipRequest func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 		Workspace   func(childComplexity int) int
 		WorkspaceID func(childComplexity int) int
@@ -1629,13 +1629,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Model.Name(childComplexity), true
 
-	case "Model.preApproved":
-		if e.complexity.Model.PreApproved == nil {
-			break
-		}
-
-		return e.complexity.Model.PreApproved(childComplexity), true
-
 	case "Model.project":
 		if e.complexity.Model.Project == nil {
 			break
@@ -1670,6 +1663,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Model.SchemaID(childComplexity), true
+
+	case "Model.skipRequest":
+		if e.complexity.Model.SkipRequest == nil {
+			break
+		}
+
+		return e.complexity.Model.SkipRequest(childComplexity), true
 
 	case "Model.updatedAt":
 		if e.complexity.Model.UpdatedAt == nil {
@@ -2342,19 +2342,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Project.Name(childComplexity), true
 
-	case "Project.preApproved":
-		if e.complexity.Project.PreApproved == nil {
-			break
-		}
-
-		return e.complexity.Project.PreApproved(childComplexity), true
-
 	case "Project.publication":
 		if e.complexity.Project.Publication == nil {
 			break
 		}
 
 		return e.complexity.Project.Publication(childComplexity), true
+
+	case "Project.skipRequest":
+		if e.complexity.Project.SkipRequest == nil {
+			break
+		}
+
+		return e.complexity.Project.SkipRequest(childComplexity), true
 
 	case "Project.updatedAt":
 		if e.complexity.Project.UpdatedAt == nil {
@@ -4014,7 +4014,7 @@ type Project implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   publication: ProjectPublication
-  preApproved: Boolean
+  skipRequest: Boolean
 }
 
 # Inputs
@@ -4023,7 +4023,7 @@ input CreateProjectInput {
   name: String
   description: String
   alias: String
-  preApproved: Boolean
+  skipRequest: Boolean
 }
 
 input UpdateProjectPublicationInput {
@@ -4037,7 +4037,7 @@ input UpdateProjectInput {
   description: String
   alias: String
   publication: UpdateProjectPublicationInput
-  preApproved: Boolean
+  skipRequest: Boolean
 }
 
 input DeleteProjectInput {
@@ -4086,7 +4086,7 @@ extend type Mutation {
   project: Project!
   schema: Schema!
   public: Boolean!
-  preApproved: Boolean
+  skipRequest: Boolean
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -4097,7 +4097,7 @@ input CreateModelInput {
   name: String
   description: String
   key: String
-  preApproved: Boolean
+  skipRequest: Boolean
 }
 
 input UpdateModelInput {
@@ -4106,7 +4106,7 @@ input UpdateModelInput {
   description: String
   key: String
   public: Boolean!
-  preApproved: Boolean
+  skipRequest: Boolean
 }
 
 input DeleteModelInput {
@@ -6091,8 +6091,8 @@ func (ec *executionContext) fieldContext_Asset_project(ctx context.Context, fiel
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Project_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Project_skipRequest(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -10017,8 +10017,8 @@ func (ec *executionContext) fieldContext_Item_model(ctx context.Context, field g
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Model_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Model_skipRequest(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -10131,8 +10131,8 @@ func (ec *executionContext) fieldContext_Item_project(ctx context.Context, field
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Project_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Project_skipRequest(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -11917,8 +11917,8 @@ func (ec *executionContext) fieldContext_Model_project(ctx context.Context, fiel
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Project_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Project_skipRequest(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -12024,8 +12024,8 @@ func (ec *executionContext) fieldContext_Model_public(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Model_preApproved(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Model_preApproved(ctx, field)
+func (ec *executionContext) _Model_skipRequest(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Model_skipRequest(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12038,7 +12038,7 @@ func (ec *executionContext) _Model_preApproved(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PreApproved, nil
+		return obj.SkipRequest, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12052,7 +12052,7 @@ func (ec *executionContext) _Model_preApproved(ctx context.Context, field graphq
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Model_preApproved(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Model_skipRequest(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Model",
 		Field:      field,
@@ -12260,8 +12260,8 @@ func (ec *executionContext) fieldContext_ModelConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Model_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Model_skipRequest(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -12469,8 +12469,8 @@ func (ec *executionContext) fieldContext_ModelEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Model_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Model_skipRequest(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -12539,8 +12539,8 @@ func (ec *executionContext) fieldContext_ModelPayload_model(ctx context.Context,
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Model_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Model_skipRequest(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -15716,8 +15716,8 @@ func (ec *executionContext) fieldContext_Project_publication(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Project_preApproved(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Project_preApproved(ctx, field)
+func (ec *executionContext) _Project_skipRequest(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Project_skipRequest(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15730,7 +15730,7 @@ func (ec *executionContext) _Project_preApproved(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PreApproved, nil
+		return obj.SkipRequest, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15744,7 +15744,7 @@ func (ec *executionContext) _Project_preApproved(ctx context.Context, field grap
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Project_preApproved(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Project_skipRequest(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Project",
 		Field:      field,
@@ -15952,8 +15952,8 @@ func (ec *executionContext) fieldContext_ProjectConnection_nodes(ctx context.Con
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Project_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Project_skipRequest(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -16157,8 +16157,8 @@ func (ec *executionContext) fieldContext_ProjectEdge_node(ctx context.Context, f
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Project_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Project_skipRequest(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -16223,8 +16223,8 @@ func (ec *executionContext) fieldContext_ProjectPayload_project(ctx context.Cont
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Project_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Project_skipRequest(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -18287,8 +18287,8 @@ func (ec *executionContext) fieldContext_Request_project(ctx context.Context, fi
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Project_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Project_skipRequest(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -19185,8 +19185,8 @@ func (ec *executionContext) fieldContext_Schema_project(ctx context.Context, fie
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Project_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Project_skipRequest(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -19339,8 +19339,8 @@ func (ec *executionContext) fieldContext_SchemaField_model(ctx context.Context, 
 				return ec.fieldContext_Model_schema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
-			case "preApproved":
-				return ec.fieldContext_Model_preApproved(ctx, field)
+			case "skipRequest":
+				return ec.fieldContext_Model_skipRequest(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
@@ -25247,7 +25247,7 @@ func (ec *executionContext) unmarshalInputCreateModelInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "name", "description", "key", "preApproved"}
+	fieldsInOrder := [...]string{"projectId", "name", "description", "key", "skipRequest"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25290,15 +25290,15 @@ func (ec *executionContext) unmarshalInputCreateModelInput(ctx context.Context, 
 				return it, err
 			}
 			it.Key = data
-		case "preApproved":
+		case "skipRequest":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preApproved"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipRequest"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.PreApproved = data
+			it.SkipRequest = data
 		}
 	}
 
@@ -25312,7 +25312,7 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name", "description", "alias", "preApproved"}
+	fieldsInOrder := [...]string{"workspaceId", "name", "description", "alias", "skipRequest"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25355,15 +25355,15 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Alias = data
-		case "preApproved":
+		case "skipRequest":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preApproved"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipRequest"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.PreApproved = data
+			it.SkipRequest = data
 		}
 	}
 
@@ -27629,7 +27629,7 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "name", "description", "key", "public", "preApproved"}
+	fieldsInOrder := [...]string{"modelId", "name", "description", "key", "public", "skipRequest"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27681,15 +27681,15 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 				return it, err
 			}
 			it.Public = data
-		case "preApproved":
+		case "skipRequest":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preApproved"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipRequest"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.PreApproved = data
+			it.SkipRequest = data
 		}
 	}
 
@@ -27703,7 +27703,7 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "publication", "preApproved"}
+	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "publication", "skipRequest"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27755,15 +27755,15 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Publication = data
-		case "preApproved":
+		case "skipRequest":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preApproved"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipRequest"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.PreApproved = data
+			it.SkipRequest = data
 		}
 	}
 
@@ -30166,9 +30166,9 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "preApproved":
+		case "skipRequest":
 
-			out.Values[i] = ec._Model_preApproved(ctx, field, obj)
+			out.Values[i] = ec._Model_skipRequest(ctx, field, obj)
 
 		case "createdAt":
 
@@ -30733,9 +30733,9 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Project_publication(ctx, field, obj)
 
-		case "preApproved":
+		case "skipRequest":
 
-			out.Values[i] = ec._Project_preApproved(ctx, field, obj)
+			out.Values[i] = ec._Project_skipRequest(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

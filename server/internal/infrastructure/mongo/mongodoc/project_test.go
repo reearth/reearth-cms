@@ -31,7 +31,7 @@ func TestNewProject(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Publication(pp).
-				PreApproved(true).
+				SkipRequest(true).
 				MustBuild(),
 			want: &ProjectDocument{
 				ID:          pId.String(),
@@ -45,7 +45,7 @@ func TestNewProject(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				PreApproved: true,
+				SkipRequest: true,
 			},
 			pDocId: pId.String(),
 		},
@@ -119,7 +119,7 @@ func TestProjectDocument_Model(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				PreApproved: true,
+				SkipRequest: true,
 			},
 			want: project.New().
 				ID(pId).
@@ -130,7 +130,7 @@ func TestProjectDocument_Model(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Publication(pp).
-				PreApproved(true).
+				SkipRequest(true).
 				MustBuild(),
 			wantErr: false,
 		},
@@ -148,7 +148,7 @@ func TestProjectDocument_Model(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				PreApproved: true,
+				SkipRequest: true,
 			},
 			want: project.New().
 				ID(pId).
@@ -159,7 +159,7 @@ func TestProjectDocument_Model(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Publication(pp).
-				PreApproved(true).
+				SkipRequest(true).
 				MustBuild(),
 			wantErr: false,
 		},
@@ -177,7 +177,7 @@ func TestProjectDocument_Model(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				PreApproved: true,
+				SkipRequest: true,
 			},
 			want:    nil,
 			wantErr: true,
@@ -196,7 +196,7 @@ func TestProjectDocument_Model(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				PreApproved: true,
+				SkipRequest: true,
 			},
 			want:    nil,
 			wantErr: true,

@@ -23,7 +23,7 @@ type Model struct {
 	description string
 	key         key.Key
 	public      bool
-	preApproved bool
+	skipRequest bool
 	updatedAt   time.Time
 }
 
@@ -78,12 +78,12 @@ func (p *Model) SetPublic(public bool) {
 	p.public = public
 }
 
-func (p *Model) PreApproved() bool {
-	return p.preApproved
+func (p *Model) SkipRequest() bool {
+	return p.skipRequest
 }
 
-func (p *Model) SetPreApproved(preApproved bool) {
-	p.preApproved = preApproved
+func (p *Model) SetSkipRequest(skipRequest bool) {
+	p.skipRequest = skipRequest
 }
 
 func (p *Model) UpdatedAt() time.Time {
@@ -114,7 +114,7 @@ func (p *Model) Clone() *Model {
 		description: p.description,
 		key:         p.Key(),
 		public:      p.public,
-		preApproved: p.preApproved,
+		skipRequest: p.skipRequest,
 		updatedAt:   p.updatedAt,
 	}
 }

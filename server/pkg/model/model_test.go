@@ -30,7 +30,7 @@ func TestModel_Clone(t *testing.T) {
 				description: "d1",
 				key:         key.New("123456"),
 				public:      false,
-				preApproved: false,
+				skipRequest: false,
 				updatedAt:   now,
 			},
 		},
@@ -58,7 +58,7 @@ func TestModel_Clone(t *testing.T) {
 			assert.NotSame(t, tt.model.description, c.description)
 			assert.NotSame(t, tt.model.key, c.key)
 			assert.NotSame(t, tt.model.public, c.public)
-			assert.NotSame(t, tt.model.preApproved, c.preApproved)
+			assert.NotSame(t, tt.model.skipRequest, c.skipRequest)
 			assert.NotSame(t, tt.model.updatedAt, c.updatedAt)
 		})
 	}
@@ -242,23 +242,23 @@ func TestModel_Public(t *testing.T) {
 	}
 }
 
-func TestModel_PreApproved(t *testing.T) {
+func TestModel_SkipRequest(t *testing.T) {
 	p1 := Model{
-		preApproved: true,
+		skipRequest: true,
 	}
-	assert.True(t, p1.PreApproved())
+	assert.True(t, p1.SkipRequest())
 	p2 := Model{
-		preApproved: false,
+		skipRequest: false,
 	}
-	assert.False(t, p2.PreApproved())
+	assert.False(t, p2.SkipRequest())
 }
 
-func TestModel_SetPreApproved(t *testing.T) {
+func TestModel_SetSkipRequest(t *testing.T) {
 	p := &Model{}
-	p.SetPreApproved(true)
-	assert.True(t, p.PreApproved())
-	p.SetPreApproved(false)
-	assert.False(t, p.PreApproved())
+	p.SetSkipRequest(true)
+	assert.True(t, p.SkipRequest())
+	p.SetSkipRequest(false)
+	assert.False(t, p.SkipRequest())
 }
 
 func TestModel_Schema(t *testing.T) {

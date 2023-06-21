@@ -91,23 +91,23 @@ func TestProject_Publication(t *testing.T) {
 	assert.Equal(t, pp, p.Publication())
 }
 
-func TestProject_PreApproved(t *testing.T) {
+func TestProject_SkipRequest(t *testing.T) {
 	p1 := &Project{
-		preApproved: true,
+		skipRequest: true,
 	}
-	assert.True(t, p1.PreApproved())
+	assert.True(t, p1.SkipRequest())
 	p2 := &Project{
-		preApproved: false,
+		skipRequest: false,
 	}
-	assert.False(t, p2.PreApproved())
+	assert.False(t, p2.SkipRequest())
 }
 
-func TestProject_SetPreApproved(t *testing.T) {
+func TestProject_SetSkipRequest(t *testing.T) {
 	p := &Project{}
-	p.SetPreApproved(true)
-	assert.True(t, p.PreApproved())
-	p.SetPreApproved(false)
-	assert.False(t, p.PreApproved())
+	p.SetSkipRequest(true)
+	assert.True(t, p.SkipRequest())
+	p.SetSkipRequest(false)
+	assert.False(t, p.SkipRequest())
 }
 
 func TestProject_UpdateDescription(t *testing.T) {

@@ -85,7 +85,7 @@ func (b *Builder) Publication(publication *Publication) *Builder {
 	return b
 }
 
-func (b *Builder) PreApproved(preApproved bool) *Builder {
-	b.p.preApproved = preApproved
+func (b *Builder) SkipRequest(skipRequest bool) *Builder {
+	b.p.skipRequest = skipRequest
 	return b
 }

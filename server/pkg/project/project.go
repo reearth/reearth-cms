@@ -24,7 +24,7 @@ type Project struct {
 	imageURL    *url.URL
 	updatedAt   time.Time
 	publication *Publication
-	preApproved bool
+	skipRequest bool
 }
 
 func (p *Project) ID() ID {
@@ -94,12 +94,12 @@ func (p *Project) UpdateDescription(description string) {
 	p.description = description
 }
 
-func (p *Project) PreApproved() bool {
-	return p.preApproved
+func (p *Project) SkipRequest() bool {
+	return p.skipRequest
 }
 
-func (p *Project) SetPreApproved(preApproved bool) {
-	p.preApproved = preApproved
+func (p *Project) SetSkipRequest(skipRequest bool) {
+	p.skipRequest = skipRequest
 }
 
 func (p *Project) UpdateAlias(alias string) error {
@@ -128,7 +128,7 @@ func (p *Project) Clone() *Project {
 		alias:       p.alias,
 		imageURL:    util.CopyURL(p.imageURL),
 		updatedAt:   p.updatedAt,
-		preApproved: p.preApproved,
+		skipRequest: p.skipRequest,
 		publication: p.publication.Clone(),
 	}
 }

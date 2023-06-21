@@ -18,7 +18,7 @@ type ProjectDocument struct {
 	ImageURL    string
 	Workspace   string
 	Publication *ProjectPublicationDocument
-	PreApproved bool
+	SkipRequest bool
 }
 
 type ProjectPublicationDocument struct {
@@ -43,7 +43,7 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 		ImageURL:    imageURL,
 		Workspace:   project.Workspace().String(),
 		Publication: NewProjectPublication(project.Publication()),
-		PreApproved: project.PreApproved(),
+		SkipRequest: project.SkipRequest(),
 	}, pid
 }
 
@@ -84,7 +84,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Publication(d.Publication.Model()).
-		PreApproved(d.PreApproved).
+		SkipRequest(d.SkipRequest).
 		Build()
 }
 

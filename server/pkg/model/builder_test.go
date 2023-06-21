@@ -60,7 +60,7 @@ func TestBuilder_Build(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					updatedAt:   now,
 				},
 				k: key.New("T123456"),
@@ -73,7 +73,7 @@ func TestBuilder_Build(t *testing.T) {
 				description: "m1 desc",
 				key:         key.New("T123456"),
 				public:      false,
-				preApproved: false,
+				skipRequest: false,
 				updatedAt:   now,
 			},
 			wantErr: nil,
@@ -89,7 +89,7 @@ func TestBuilder_Build(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					// updatedAt:   now,
 				},
 				k: key.New("T123456"),
@@ -102,7 +102,7 @@ func TestBuilder_Build(t *testing.T) {
 				description: "m1 desc",
 				key:         key.New("T123456"),
 				public:      false,
-				preApproved: false,
+				skipRequest: false,
 				updatedAt:   mId.Timestamp(),
 			},
 			wantErr: nil,
@@ -118,7 +118,7 @@ func TestBuilder_Build(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					updatedAt:   now,
 				},
 				k: key.New("T123456"),
@@ -137,7 +137,7 @@ func TestBuilder_Build(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					updatedAt:   now,
 				},
 				k: key.New("T123456"),
@@ -156,7 +156,7 @@ func TestBuilder_Build(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					updatedAt:   now,
 				},
 				// k: key.New("T123456"),
@@ -213,7 +213,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					updatedAt:   now,
 				},
 				k: key.New("T123456"),
@@ -226,7 +226,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				description: "m1 desc",
 				key:         key.New("T123456"),
 				public:      false,
-				preApproved: false,
+				skipRequest: false,
 				updatedAt:   now,
 			},
 			wantErr: nil,
@@ -254,7 +254,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				description: "m1 desc",
 				key:         key.New("T123456"),
 				public:      false,
-				preApproved: false,
+				skipRequest: false,
 				updatedAt:   mId.Timestamp(),
 			},
 			wantErr: nil,
@@ -270,7 +270,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					updatedAt:   now,
 				},
 				k: key.New("T123456"),
@@ -289,7 +289,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					updatedAt:   now,
 				},
 				k: key.New("T123456"),
@@ -308,7 +308,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					description: "m1 desc",
 					key:         key.New("T123456"),
 					public:      false,
-					preApproved: false,
+					skipRequest: false,
 					updatedAt:   now,
 				},
 				// k: key.New("T123456"),
@@ -493,18 +493,18 @@ func TestBuilder_Public(t *testing.T) {
 	}
 }
 
-func TestBuilder_PreApproved(t *testing.T) {
+func TestBuilder_SkipRequest(t *testing.T) {
 	b1 := &Builder{
 		model: &Model{},
 		k:     key.Key{},
 	}
 	want1 := &Builder{
 		model: &Model{
-			preApproved: true,
+			skipRequest: true,
 		},
 		k: key.Key{},
 	}
-	assert.Equal(t, want1, b1.PreApproved(true))
+	assert.Equal(t, want1, b1.SkipRequest(true))
 
 	b2 := &Builder{
 		model: &Model{},
@@ -512,11 +512,11 @@ func TestBuilder_PreApproved(t *testing.T) {
 	}
 	want2 := &Builder{
 		model: &Model{
-			preApproved: true,
+			skipRequest: true,
 		},
 		k: key.Key{},
 	}
-	assert.Equal(t, want2, b2.PreApproved(true))
+	assert.Equal(t, want2, b2.SkipRequest(true))
 }
 
 func TestBuilder_Key(t *testing.T) {

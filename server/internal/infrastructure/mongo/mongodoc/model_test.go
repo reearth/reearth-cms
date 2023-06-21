@@ -30,7 +30,7 @@ func TestModelDocument_Model(t *testing.T) {
 				Public:      true,
 				Project:     pId.String(),
 				Schema:      sId.String(),
-				PreApproved: true,
+				SkipRequest: true,
 				UpdatedAt:   now,
 			},
 			want: model.New().ID(mId).
@@ -41,7 +41,7 @@ func TestModelDocument_Model(t *testing.T) {
 				Project(pId).
 				Schema(sId).
 				UpdatedAt(now).
-				PreApproved(true).
+				SkipRequest(true).
 				MustBuild(),
 			wantErr: false,
 		},
@@ -55,7 +55,7 @@ func TestModelDocument_Model(t *testing.T) {
 				Public:      true,
 				Project:     pId.String(),
 				Schema:      sId.String(),
-				PreApproved: true,
+				SkipRequest: true,
 				UpdatedAt:   now,
 			},
 			want:    nil,
@@ -71,7 +71,7 @@ func TestModelDocument_Model(t *testing.T) {
 				Public:      true,
 				Project:     "abc",
 				Schema:      sId.String(),
-				PreApproved: true,
+				SkipRequest: true,
 				UpdatedAt:   now,
 			},
 			want:    nil,
@@ -87,7 +87,7 @@ func TestModelDocument_Model(t *testing.T) {
 				Public:      true,
 				Project:     pId.String(),
 				Schema:      "abc",
-				PreApproved: true,
+				SkipRequest: true,
 				UpdatedAt:   now,
 			},
 			want:    nil,
@@ -128,7 +128,7 @@ func TestNewModel(t *testing.T) {
 				Project(pId).
 				Schema(sId).
 				UpdatedAt(now).
-				PreApproved(true).
+				SkipRequest(true).
 				MustBuild(),
 			want: &ModelDocument{
 				ID:          mId.String(),
@@ -138,7 +138,7 @@ func TestNewModel(t *testing.T) {
 				Public:      true,
 				Project:     pId.String(),
 				Schema:      sId.String(),
-				PreApproved: true,
+				SkipRequest: true,
 				UpdatedAt:   now,
 			},
 			wantId: mId.String(),

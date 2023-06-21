@@ -85,8 +85,8 @@ func (b *Builder) Public(public bool) *Builder {
 	return b
 }
 
-func (b *Builder) PreApproved(preApproved bool) *Builder {
-	b.model.preApproved = preApproved
+func (b *Builder) SkipRequest(skipRequest bool) *Builder {
+	b.model.skipRequest = skipRequest
 	return b
 }
 
