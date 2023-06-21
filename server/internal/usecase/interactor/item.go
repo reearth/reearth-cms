@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -304,6 +305,17 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		itv.UpdateFields(fields)
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
+		}
+
+		if len(prj.SkipRoles()) > 0 {
+			canPublish := lo.Contains(prj.SkipRoles(), user.RoleMaintainer) && operator.IsMaintainingProject(prj.ID()) ||
+				lo.Contains(prj.SkipRoles(), user.RoleOwner) && operator.IsOwningProject(prj.ID()) ||
+				lo.Contains(prj.SkipRoles(), user.RoleWriter) && operator.IsWritableProject(prj.ID())
+			if canPublish {
+				if err := i.repos.Item.UpdateRef(ctx, itv.ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+					return nil, err
+				}
+			}
 		}
 
 		if err := i.event(ctx, Event{

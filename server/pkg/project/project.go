@@ -130,6 +130,7 @@ func (p *Project) Clone() *Project {
 		imageURL:    util.CopyURL(p.imageURL),
 		updatedAt:   p.updatedAt,
 		publication: p.publication.Clone(),
+		skipRoles:   p.skipRoles,
 	}
 }
 
