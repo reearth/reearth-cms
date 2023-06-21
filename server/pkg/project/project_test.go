@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -103,6 +104,13 @@ func TestProject_UpdateTeam(t *testing.T) {
 	assert.NotNil(t, p.Workspace())
 }
 
+func TestProject_SetSkipRoles(t *testing.T) {
+	p := &Project{}
+	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
+	p.SetSkipRoles(r)
+	assert.Equal(t, p.SkipRoles(), r)
+}
+
 func TestProject_UpdateAlias(t *testing.T) {
 	tests := []struct {
 		name, a  string
@@ -140,7 +148,8 @@ func TestProject_UpdateAlias(t *testing.T) {
 
 func TestProject_Clone(t *testing.T) {
 	pub := &Publication{}
-	p := New().NewID().Name("a").Publication(pub).MustBuild()
+	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
+	p := New().NewID().Name("a").Publication(pub).SkipRoles(r).MustBuild()
 
 	got := p.Clone()
 	assert.Equal(t, p, got)

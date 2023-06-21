@@ -3,6 +3,8 @@ package project
 import (
 	"net/url"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
 type Builder struct {
@@ -82,5 +84,10 @@ func (b *Builder) Workspace(team WorkspaceID) *Builder {
 
 func (b *Builder) Publication(publication *Publication) *Builder {
 	b.p.publication = publication
+	return b
+}
+
+func (b *Builder) SkipRoles(skipRoles []user.Role) *Builder {
+	b.p.skipRoles = skipRoles
 	return b
 }

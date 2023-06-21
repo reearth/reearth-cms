@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
@@ -24,6 +25,7 @@ type Project struct {
 	imageURL    *url.URL
 	updatedAt   time.Time
 	publication *Publication
+	skipRoles   []user.Role
 }
 
 func (p *Project) ID() ID {
@@ -67,6 +69,10 @@ func (p *Project) Publication() *Publication {
 	return p.publication
 }
 
+func (p *Project) SkipRoles() []user.Role {
+	return p.skipRoles
+}
+
 func (p *Project) SetUpdatedAt(updatedAt time.Time) {
 	p.updatedAt = updatedAt
 }
@@ -91,6 +97,10 @@ func (p *Project) UpdateName(name string) {
 
 func (p *Project) UpdateDescription(description string) {
 	p.description = description
+}
+
+func (p *Project) SetSkipRoles(sr []user.Role) {
+	p.skipRoles = sr
 }
 
 func (p *Project) UpdateAlias(alias string) error {
@@ -120,6 +130,7 @@ func (p *Project) Clone() *Project {
 		imageURL:    util.CopyURL(p.imageURL),
 		updatedAt:   p.updatedAt,
 		publication: p.publication.Clone(),
+		skipRoles:   p.skipRoles,
 	}
 }
 
