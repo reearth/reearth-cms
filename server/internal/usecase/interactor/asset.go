@@ -475,6 +475,6 @@ func (i *Asset) event(ctx context.Context, e Event) error {
 	return err
 }
 
-func (i *Asset) RetryTask(ctx context.Context, id string) error {
+func (i *Asset) RetryDecompression(ctx context.Context, id string) error {
 	return i.gateways.TaskRunner.Retry(ctx, id)
 }

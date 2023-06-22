@@ -31,7 +31,7 @@ func NewTaskController(uc interfaces.Asset) *TaskController {
 
 func (tc *TaskController) Notify(ctx context.Context, input NotifyInput) error {
 	if input.Task != nil {
-		return tc.usecase.RetryTask(ctx, input.Task.TaskID)
+		return tc.usecase.RetryDecompression(ctx, input.Task.TaskID)
 	}
 
 	aID, err := id.AssetIDFrom(input.AssetID)
