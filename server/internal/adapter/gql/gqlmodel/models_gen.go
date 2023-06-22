@@ -179,11 +179,11 @@ type CreateModelInput struct {
 }
 
 type CreateProjectInput struct {
-	WorkspaceID ID      `json:"workspaceId"`
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Alias       *string `json:"alias,omitempty"`
-	SkipRoles   []Role  `json:"skipRoles,omitempty"`
+	WorkspaceID      ID      `json:"workspaceId"`
+	Name             *string `json:"name,omitempty"`
+	Description      *string `json:"description,omitempty"`
+	Alias            *string `json:"alias,omitempty"`
+	SkipRequestRoles []Role  `json:"skipRequestRoles,omitempty"`
 }
 
 type CreateRequestInput struct {
@@ -488,16 +488,16 @@ type Pagination struct {
 }
 
 type Project struct {
-	ID          ID                  `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Alias       string              `json:"alias"`
-	WorkspaceID ID                  `json:"workspaceId"`
-	Workspace   *Workspace          `json:"workspace,omitempty"`
-	CreatedAt   time.Time           `json:"createdAt"`
-	UpdatedAt   time.Time           `json:"updatedAt"`
-	Publication *ProjectPublication `json:"publication,omitempty"`
-	SkipRoles   []Role              `json:"skipRoles,omitempty"`
+	ID               ID                  `json:"id"`
+	Name             string              `json:"name"`
+	Description      string              `json:"description"`
+	Alias            string              `json:"alias"`
+	WorkspaceID      ID                  `json:"workspaceId"`
+	Workspace        *Workspace          `json:"workspace,omitempty"`
+	CreatedAt        time.Time           `json:"createdAt"`
+	UpdatedAt        time.Time           `json:"updatedAt"`
+	Publication      *ProjectPublication `json:"publication,omitempty"`
+	SkipRequestRoles []Role              `json:"skipRequestRoles,omitempty"`
 }
 
 func (Project) IsNode()        {}
@@ -884,12 +884,12 @@ type UpdateModelInput struct {
 }
 
 type UpdateProjectInput struct {
-	ProjectID   ID                             `json:"projectId"`
-	Name        *string                        `json:"name,omitempty"`
-	Description *string                        `json:"description,omitempty"`
-	Alias       *string                        `json:"alias,omitempty"`
-	Publication *UpdateProjectPublicationInput `json:"publication,omitempty"`
-	SkipRoles   []Role                         `json:"skipRoles,omitempty"`
+	ProjectID        ID                             `json:"projectId"`
+	Name             *string                        `json:"name,omitempty"`
+	Description      *string                        `json:"description,omitempty"`
+	Alias            *string                        `json:"alias,omitempty"`
+	Publication      *UpdateProjectPublicationInput `json:"publication,omitempty"`
+	SkipRequestRoles []Role                         `json:"skipRequestRoles,omitempty"`
 }
 
 type UpdateProjectPublicationInput struct {

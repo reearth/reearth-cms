@@ -87,7 +87,7 @@ func (b *Builder) Publication(publication *Publication) *Builder {
 	return b
 }
 
-func (b *Builder) SkipRoles(skipRoles []user.Role) *Builder {
-	b.p.skipRoles = skipRoles
+func (b *Builder) SkipRequestRoles(skipRequestRoles []user.Role) *Builder {
+	b.p.skipRequestRoles = skipRequestRoles
 	return b
 }

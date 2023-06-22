@@ -100,12 +100,12 @@ func TestBuilder_Publication(t *testing.T) {
 	}, res)
 }
 
-func TestBuilder_SkipRoles(t *testing.T) {
+func TestBuilder_SkipRequestRoles(t *testing.T) {
 	var tb = New().NewID()
 	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
-	res := tb.SkipRoles(r)
+	res := tb.SkipRequestRoles(r)
 	assert.Equal(t, &Builder{
-		p: &Project{id: tb.p.id, skipRoles: r},
+		p: &Project{id: tb.p.id, skipRequestRoles: r},
 	}, res)
 }
 

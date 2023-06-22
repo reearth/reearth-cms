@@ -13,20 +13,20 @@ import (
 )
 
 type CreateProjectParam struct {
-	WorkspaceID id.WorkspaceID
-	Name        *string
-	Description *string
-	Alias       *string
-	SkipRoles   []user.Role
+	WorkspaceID      id.WorkspaceID
+	Name             *string
+	Description      *string
+	Alias            *string
+	SkipRequestRoles []user.Role
 }
 
 type UpdateProjectParam struct {
-	ID          id.ProjectID
-	Name        *string
-	Description *string
-	Alias       *string
-	Publication *UpdateProjectPublicationParam
-	SkipRoles   []user.Role
+	ID               id.ProjectID
+	Name             *string
+	Description      *string
+	Alias            *string
+	Publication      *UpdateProjectPublicationParam
+	SkipRequestRoles []user.Role
 }
 
 type UpdateProjectPublicationParam struct {

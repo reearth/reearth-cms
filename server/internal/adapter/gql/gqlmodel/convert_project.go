@@ -12,15 +12,15 @@ func ToProject(p *project.Project) *Project {
 	}
 
 	return &Project{
-		ID:          IDFrom(p.ID()),
-		WorkspaceID: IDFrom(p.Workspace()),
-		CreatedAt:   p.CreatedAt(),
-		Alias:       p.Alias(),
-		Name:        p.Name(),
-		Description: p.Description(),
-		UpdatedAt:   p.UpdatedAt(),
-		Publication: ToProjectPublication(p.Publication()),
-		SkipRoles:   lo.Map(p.SkipRoles(), func(r user.Role, _ int) Role { return Role(r) }),
+		ID:               IDFrom(p.ID()),
+		WorkspaceID:      IDFrom(p.Workspace()),
+		CreatedAt:        p.CreatedAt(),
+		Alias:            p.Alias(),
+		Name:             p.Name(),
+		Description:      p.Description(),
+		UpdatedAt:        p.UpdatedAt(),
+		Publication:      ToProjectPublication(p.Publication()),
+		SkipRequestRoles: lo.Map(p.SkipRequestRoles(), func(r user.Role, _ int) Role { return Role(r) }),
 	}
 }
 

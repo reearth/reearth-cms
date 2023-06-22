@@ -58,8 +58,8 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 
 				pb = pb.Alias(*p.Alias)
 			}
-			if p.SkipRoles != nil {
-				pb = pb.SkipRoles(p.SkipRoles)
+			if p.SkipRequestRoles != nil {
+				pb = pb.SkipRequestRoles(p.SkipRequestRoles)
 			}
 
 			proj, err := pb.Build()
@@ -116,8 +116,8 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 				proj.SetPublication(pub)
 			}
 
-			if p.SkipRoles != nil {
-				proj.SetSkipRoles(p.SkipRoles)
+			if p.SkipRequestRoles != nil {
+				proj.SetSkipRequestRoles(p.SkipRequestRoles)
 			}
 
 			if err := i.repos.Project.Save(ctx, proj); err != nil {
