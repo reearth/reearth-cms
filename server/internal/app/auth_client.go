@@ -164,7 +164,7 @@ func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			ctx := c.Request().Context()
 			if ai, ok := ctx.Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
-				if email != "" && (ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email) {
+				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
 					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 				}
 				op, err := generateMachineOperator(ctx)
