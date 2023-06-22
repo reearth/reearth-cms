@@ -6,18 +6,20 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/mongox"
 )
 
 type ProjectDocument struct {
-	ID          string
-	UpdatedAt   time.Time
-	Name        string
-	Description string
-	Alias       string
-	ImageURL    string
-	Workspace   string
-	Publication *ProjectPublicationDocument
+	ID               string
+	UpdatedAt        time.Time
+	Name             string
+	Description      string
+	Alias            string
+	ImageURL         string
+	Workspace        string
+	Publication      *ProjectPublicationDocument
+	SkipRequestRoles []user.Role
 }
 
 type ProjectPublicationDocument struct {
@@ -34,14 +36,15 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 	}
 
 	return &ProjectDocument{
-		ID:          pid,
-		UpdatedAt:   project.UpdatedAt(),
-		Name:        project.Name(),
-		Description: project.Description(),
-		Alias:       project.Alias(),
-		ImageURL:    imageURL,
-		Workspace:   project.Workspace().String(),
-		Publication: NewProjectPublication(project.Publication()),
+		ID:               pid,
+		UpdatedAt:        project.UpdatedAt(),
+		Name:             project.Name(),
+		Description:      project.Description(),
+		Alias:            project.Alias(),
+		ImageURL:         imageURL,
+		Workspace:        project.Workspace().String(),
+		Publication:      NewProjectPublication(project.Publication()),
+		SkipRequestRoles: project.SkipRequestRoles(),
 	}, pid
 }
 
@@ -82,6 +85,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Publication(d.Publication.Model()).
+		SkipRequestRoles(d.SkipRequestRoles).
 		Build()
 }
 

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,6 +15,7 @@ func TestNewProject(t *testing.T) {
 	now := time.Now()
 	pp := project.NewPublication(project.PublicationScopePublic, true)
 	pId, wId := project.NewID(), project.NewWorkspaceID()
+	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
 	tests := []struct {
 		name   string
 		args   *project.Project
@@ -31,6 +33,7 @@ func TestNewProject(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Publication(pp).
+				SkipRequestRoles(r).
 				MustBuild(),
 			want: &ProjectDocument{
 				ID:          pId.String(),
@@ -44,6 +47,7 @@ func TestNewProject(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
+				SkipRequestRoles: r,
 			},
 			pDocId: pId.String(),
 		},
@@ -96,6 +100,7 @@ func TestProjectDocument_Model(t *testing.T) {
 	now := time.Now()
 	pId, wId := project.NewID(), project.NewWorkspaceID()
 	pp := project.NewPublication(project.PublicationScopePublic, true)
+	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
 
 	tests := []struct {
 		name    string
@@ -117,6 +122,7 @@ func TestProjectDocument_Model(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
+				SkipRequestRoles: r,
 			},
 			want: project.New().
 				ID(pId).
@@ -127,6 +133,7 @@ func TestProjectDocument_Model(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Publication(pp).
+				SkipRequestRoles(r).
 				MustBuild(),
 			wantErr: false,
 		},
