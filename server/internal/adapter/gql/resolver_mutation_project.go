@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/samber/lo"
 )
 
@@ -21,6 +22,7 @@ func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.Cre
 		Name:        input.Name,
 		Description: input.Description,
 		Alias:       input.Alias,
+		SkipRoles:  lo.Map(input.SkipRoles, func(r gqlmodel.Role, _ int) user.Role { return user.Role(r) }),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -53,6 +55,7 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		Description: input.Description,
 		Alias:       input.Alias,
 		Publication: pub,
+		SkipRoles:   lo.Map(input.SkipRoles, func(r gqlmodel.Role, _ int) user.Role { return user.Role(r) }),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

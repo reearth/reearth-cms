@@ -2,6 +2,8 @@ package gqlmodel
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/samber/lo"
 )
 
 func ToProject(p *project.Project) *Project {
@@ -18,6 +20,7 @@ func ToProject(p *project.Project) *Project {
 		Description: p.Description(),
 		UpdatedAt:   p.UpdatedAt(),
 		Publication: ToProjectPublication(p.Publication()),
+		SkipRoles:   lo.Map(p.SkipRoles(), func(r user.Role, _ int) Role { return Role(r) }),
 	}
 }
 

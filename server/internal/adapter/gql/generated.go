@@ -375,6 +375,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Publication func(childComplexity int) int
+		SkipRoles   func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 		Workspace   func(childComplexity int) int
 		WorkspaceID func(childComplexity int) int
@@ -2340,6 +2341,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Project.Publication(childComplexity), true
 
+	case "Project.skipRoles":
+		if e.complexity.Project.SkipRoles == nil {
+			break
+		}
+
+		return e.complexity.Project.SkipRoles(childComplexity), true
+
 	case "Project.updatedAt":
 		if e.complexity.Project.UpdatedAt == nil {
 			break
@@ -3998,6 +4006,7 @@ type Project implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   publication: ProjectPublication
+  skipRoles: [Role!]
 }
 
 # Inputs
@@ -4006,6 +4015,7 @@ input CreateProjectInput {
   name: String
   description: String
   alias: String
+  skipRoles: [Role!]
 }
 
 input UpdateProjectPublicationInput {
@@ -4019,6 +4029,7 @@ input UpdateProjectInput {
   description: String
   alias: String
   publication: UpdateProjectPublicationInput
+  skipRoles: [Role!]
 }
 
 input DeleteProjectInput {
@@ -6069,6 +6080,8 @@ func (ec *executionContext) fieldContext_Asset_project(ctx context.Context, fiel
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
+			case "skipRoles":
+				return ec.fieldContext_Project_skipRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -10105,6 +10118,8 @@ func (ec *executionContext) fieldContext_Item_project(ctx context.Context, field
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
+			case "skipRoles":
+				return ec.fieldContext_Project_skipRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -11889,6 +11904,8 @@ func (ec *executionContext) fieldContext_Model_project(ctx context.Context, fiel
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
+			case "skipRoles":
+				return ec.fieldContext_Project_skipRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -15639,6 +15656,47 @@ func (ec *executionContext) fieldContext_Project_publication(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Project_skipRoles(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Project_skipRoles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SkipRoles, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.Role)
+	fc.Result = res
+	return ec.marshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Project_skipRoles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Project",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Role does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProjectAliasAvailability_alias(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ProjectAliasAvailability) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProjectAliasAvailability_alias(ctx, field)
 	if err != nil {
@@ -15834,6 +15892,8 @@ func (ec *executionContext) fieldContext_ProjectConnection_nodes(ctx context.Con
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
+			case "skipRoles":
+				return ec.fieldContext_Project_skipRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -16037,6 +16097,8 @@ func (ec *executionContext) fieldContext_ProjectEdge_node(ctx context.Context, f
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
+			case "skipRoles":
+				return ec.fieldContext_Project_skipRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -16101,6 +16163,8 @@ func (ec *executionContext) fieldContext_ProjectPayload_project(ctx context.Cont
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
+			case "skipRoles":
+				return ec.fieldContext_Project_skipRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -18163,6 +18227,8 @@ func (ec *executionContext) fieldContext_Request_project(ctx context.Context, fi
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
+			case "skipRoles":
+				return ec.fieldContext_Project_skipRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -19059,6 +19125,8 @@ func (ec *executionContext) fieldContext_Schema_project(ctx context.Context, fie
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
+			case "skipRoles":
+				return ec.fieldContext_Project_skipRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -24614,18 +24682,20 @@ func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("threadId"))
-			it.ThreadID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ThreadID = data
 		case "content":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
-			it.Content, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Content = data
 		}
 	}
 
@@ -24650,26 +24720,29 @@ func (ec *executionContext) unmarshalInputAddIntegrationToWorkspaceInput(ctx con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		case "integrationId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IntegrationID = data
 		case "role":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
+			data, err := ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Role = data
 		}
 	}
 
@@ -24694,18 +24767,20 @@ func (ec *executionContext) unmarshalInputAddUsersToWorkspaceInput(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		case "users":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInputᚄ(ctx, v)
+			data, err := ec.unmarshalNMemberInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMemberInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Users = data
 		}
 	}
 
@@ -24730,10 +24805,11 @@ func (ec *executionContext) unmarshalInputApproveRequestInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestId"))
-			it.RequestID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RequestID = data
 		}
 	}
 
@@ -24758,18 +24834,20 @@ func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sortBy"))
-			it.SortBy, err = ec.unmarshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx, v)
+			data, err := ec.unmarshalNAssetSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SortBy = data
 		case "direction":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			it.Direction, err = ec.unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, v)
+			data, err := ec.unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Direction = data
 		}
 	}
 
@@ -24794,42 +24872,47 @@ func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProjectID = data
 		case "file":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
-			it.File, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			data, err := ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.File = data
 		case "url":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
-			it.URL, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.URL = data
 		case "token":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
-			it.Token, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Token = data
 		case "skipDecompression":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipDecompression"))
-			it.SkipDecompression, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SkipDecompression = data
 		}
 	}
 
@@ -24854,18 +24937,20 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProjectID = data
 		case "filename":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filename"))
-			it.Filename, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Filename = data
 		}
 	}
 
@@ -24890,66 +24975,74 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ModelID = data
 		case "type":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, v)
+			data, err := ec.unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Type = data
 		case "title":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Title = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "key":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			it.Key, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Key = data
 		case "multiple":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiple"))
-			it.Multiple, err = ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Multiple = data
 		case "unique":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unique"))
-			it.Unique, err = ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Unique = data
 		case "required":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
-			it.Required, err = ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Required = data
 		case "typeProperty":
 			var err error
 
@@ -25000,34 +25093,38 @@ func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "logoUrl":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logoUrl"))
-			it.LogoURL, err = ec.unmarshalNURL2netᚋurlᚐURL(ctx, v)
+			data, err := ec.unmarshalNURL2netᚋurlᚐURL(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.LogoURL = data
 		case "type":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNIntegrationType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationType(ctx, v)
+			data, err := ec.unmarshalNIntegrationType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Type = data
 		}
 	}
 
@@ -25052,26 +25149,29 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schemaId"))
-			it.SchemaID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SchemaID = data
 		case "modelId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ModelID = data
 		case "fields":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
-			it.Fields, err = ec.unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx, v)
+			data, err := ec.unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Fields = data
 		}
 	}
 
@@ -25096,34 +25196,38 @@ func (ec *executionContext) unmarshalInputCreateModelInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProjectID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "key":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			it.Key, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Key = data
 		}
 	}
 
@@ -25137,7 +25241,7 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name", "description", "alias"}
+	fieldsInOrder := [...]string{"workspaceId", "name", "description", "alias", "skipRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25148,34 +25252,47 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "alias":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alias"))
-			it.Alias, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Alias = data
+		case "skipRoles":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipRoles"))
+			data, err := ec.unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SkipRoles = data
 		}
 	}
 
@@ -25200,50 +25317,56 @@ func (ec *executionContext) unmarshalInputCreateRequestInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProjectID = data
 		case "title":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Title = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "state":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("state"))
-			it.State, err = ec.unmarshalORequestState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, v)
+			data, err := ec.unmarshalORequestState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.State = data
 		case "reviewersId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reviewersId"))
-			it.ReviewersID, err = ec.unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ReviewersID = data
 		case "items":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("items"))
-			it.Items, err = ec.unmarshalNRequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx, v)
+			data, err := ec.unmarshalNRequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Items = data
 		}
 	}
 
@@ -25268,10 +25391,11 @@ func (ec *executionContext) unmarshalInputCreateThreadInput(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		}
 	}
 
@@ -25296,50 +25420,56 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IntegrationID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "url":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
-			it.URL, err = ec.unmarshalNURL2netᚋurlᚐURL(ctx, v)
+			data, err := ec.unmarshalNURL2netᚋurlᚐURL(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.URL = data
 		case "active":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Active = data
 		case "trigger":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trigger"))
-			it.Trigger, err = ec.unmarshalNWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx, v)
+			data, err := ec.unmarshalNWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Trigger = data
 		case "secret":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("secret"))
-			it.Secret, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Secret = data
 		}
 	}
 
@@ -25364,10 +25494,11 @@ func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		}
 	}
 
@@ -25392,10 +25523,11 @@ func (ec *executionContext) unmarshalInputDecompressAssetInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetId"))
-			it.AssetID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AssetID = data
 		}
 	}
 
@@ -25420,10 +25552,11 @@ func (ec *executionContext) unmarshalInputDeleteAssetInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetId"))
-			it.AssetID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AssetID = data
 		}
 	}
 
@@ -25448,18 +25581,20 @@ func (ec *executionContext) unmarshalInputDeleteCommentInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("threadId"))
-			it.ThreadID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ThreadID = data
 		case "commentId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("commentId"))
-			it.CommentID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CommentID = data
 		}
 	}
 
@@ -25484,18 +25619,20 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ModelID = data
 		case "fieldId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fieldId"))
-			it.FieldID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.FieldID = data
 		}
 	}
 
@@ -25520,10 +25657,11 @@ func (ec *executionContext) unmarshalInputDeleteIntegrationInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IntegrationID = data
 		}
 	}
 
@@ -25548,10 +25686,11 @@ func (ec *executionContext) unmarshalInputDeleteItemInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
-			it.ItemID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ItemID = data
 		}
 	}
 
@@ -25576,10 +25715,11 @@ func (ec *executionContext) unmarshalInputDeleteMeInput(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UserID = data
 		}
 	}
 
@@ -25604,10 +25744,11 @@ func (ec *executionContext) unmarshalInputDeleteModelInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ModelID = data
 		}
 	}
 
@@ -25632,10 +25773,11 @@ func (ec *executionContext) unmarshalInputDeleteProjectInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProjectID = data
 		}
 	}
 
@@ -25660,18 +25802,20 @@ func (ec *executionContext) unmarshalInputDeleteRequestInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProjectID = data
 		case "requestsId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestsId"))
-			it.RequestsID, err = ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RequestsID = data
 		}
 	}
 
@@ -25696,18 +25840,20 @@ func (ec *executionContext) unmarshalInputDeleteWebhookInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IntegrationID = data
 		case "webhookId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("webhookId"))
-			it.WebhookID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WebhookID = data
 		}
 	}
 
@@ -25732,10 +25878,11 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		}
 	}
 
@@ -25760,26 +25907,29 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schemaFieldId"))
-			it.SchemaFieldID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SchemaFieldID = data
 		case "type":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			it.Type, err = ec.unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, v)
+			data, err := ec.unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Type = data
 		case "value":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			it.Value, err = ec.unmarshalNAny2interface(ctx, v)
+			data, err := ec.unmarshalNAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Value = data
 		}
 	}
 
@@ -25804,26 +25954,29 @@ func (ec *executionContext) unmarshalInputItemQuery(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("project"))
-			it.Project, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Project = data
 		case "schema":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schema"))
-			it.Schema, err = ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Schema = data
 		case "q":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
-			it.Q, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Q = data
 		}
 	}
 
@@ -25848,18 +26001,20 @@ func (ec *executionContext) unmarshalInputItemSort(ctx context.Context, obj inte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sortBy"))
-			it.SortBy, err = ec.unmarshalNItemSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortType(ctx, v)
+			data, err := ec.unmarshalNItemSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SortBy = data
 		case "direction":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			it.Direction, err = ec.unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, v)
+			data, err := ec.unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Direction = data
 		}
 	}
 
@@ -25884,18 +26039,20 @@ func (ec *executionContext) unmarshalInputMemberInput(ctx context.Context, obj i
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UserID = data
 		case "role":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
+			data, err := ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Role = data
 		}
 	}
 
@@ -25920,42 +26077,47 @@ func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-			it.First, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.First = data
 		case "last":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-			it.Last, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Last = data
 		case "offset":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-			it.Offset, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Offset = data
 		case "after":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-			it.After, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, v)
+			data, err := ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.After = data
 		case "before":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-			it.Before, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, v)
+			data, err := ec.unmarshalOCursor2ᚖgithubᚗcomᚋreearthᚋreearthxᚋusecasexᚐCursor(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Before = data
 		}
 	}
 
@@ -25980,18 +26142,20 @@ func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ModelID = data
 		case "status":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			it.Status, err = ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Status = data
 		}
 	}
 
@@ -26016,18 +26180,20 @@ func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ct
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		case "integrationId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IntegrationID = data
 		}
 	}
 
@@ -26052,10 +26218,11 @@ func (ec *executionContext) unmarshalInputRemoveMyAuthInput(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("auth"))
-			it.Auth, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Auth = data
 		}
 	}
 
@@ -26080,18 +26247,20 @@ func (ec *executionContext) unmarshalInputRemoveUserFromWorkspaceInput(ctx conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		case "userId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UserID = data
 		}
 	}
 
@@ -26116,10 +26285,11 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
-			it.ItemID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ItemID = data
 		}
 	}
 
@@ -26144,10 +26314,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldAssetInput(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		}
 	}
 
@@ -26172,10 +26343,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		}
 	}
 
@@ -26200,10 +26372,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		}
 	}
 
@@ -26228,26 +26401,29 @@ func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Co
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		case "min":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("min"))
-			it.Min, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Min = data
 		case "max":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
-			it.Max, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Max = data
 		}
 	}
 
@@ -26272,10 +26448,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ModelID = data
 		}
 	}
 
@@ -26300,18 +26477,20 @@ func (ec *executionContext) unmarshalInputSchemaFieldRichTextInput(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		case "maxLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLength"))
-			it.MaxLength, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxLength = data
 		}
 	}
 
@@ -26336,18 +26515,20 @@ func (ec *executionContext) unmarshalInputSchemaFieldSelectInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
-			it.Values, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Values = data
 		case "defaultValue":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		}
 	}
 
@@ -26372,18 +26553,20 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
-			it.Values, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Values = data
 		case "defaultValue":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		}
 	}
 
@@ -26408,18 +26591,20 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextAreaInput(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		case "maxLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLength"))
-			it.MaxLength, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxLength = data
 		}
 	}
 
@@ -26444,18 +26629,20 @@ func (ec *executionContext) unmarshalInputSchemaFieldTextInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		case "maxLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLength"))
-			it.MaxLength, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxLength = data
 		}
 	}
 
@@ -26812,10 +26999,11 @@ func (ec *executionContext) unmarshalInputSchemaFieldURLInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		}
 	}
 
@@ -26840,18 +27028,20 @@ func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Co
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			it.DefaultValue, err = ec.unmarshalOAny2interface(ctx, v)
+			data, err := ec.unmarshalOAny2interface(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DefaultValue = data
 		case "maxLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLength"))
-			it.MaxLength, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxLength = data
 		}
 	}
 
@@ -26876,18 +27066,20 @@ func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj interfac
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			it.Key, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Key = data
 		case "reverted":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reverted"))
-			it.Reverted, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Reverted = data
 		}
 	}
 
@@ -26912,10 +27104,11 @@ func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
-			it.ItemID, err = ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ItemID = data
 		}
 	}
 
@@ -26940,18 +27133,20 @@ func (ec *executionContext) unmarshalInputUpdateAssetInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ID = data
 		case "previewType":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("previewType"))
-			it.PreviewType, err = ec.unmarshalOPreviewType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPreviewType(ctx, v)
+			data, err := ec.unmarshalOPreviewType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPreviewType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.PreviewType = data
 		}
 	}
 
@@ -26976,26 +27171,29 @@ func (ec *executionContext) unmarshalInputUpdateCommentInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("threadId"))
-			it.ThreadID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ThreadID = data
 		case "commentId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("commentId"))
-			it.CommentID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CommentID = data
 		case "content":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
-			it.Content, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Content = data
 		}
 	}
 
@@ -27020,74 +27218,83 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ModelID = data
 		case "fieldId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fieldId"))
-			it.FieldID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.FieldID = data
 		case "title":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Title = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "order":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
-			it.Order, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Order = data
 		case "key":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			it.Key, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Key = data
 		case "required":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
-			it.Required, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Required = data
 		case "unique":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unique"))
-			it.Unique, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Unique = data
 		case "multiple":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiple"))
-			it.Multiple, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Multiple = data
 		case "typeProperty":
 			var err error
 
@@ -27138,34 +27345,38 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IntegrationID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "logoUrl":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logoUrl"))
-			it.LogoURL, err = ec.unmarshalOURL2ᚖnetᚋurlᚐURL(ctx, v)
+			data, err := ec.unmarshalOURL2ᚖnetᚋurlᚐURL(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.LogoURL = data
 		}
 	}
 
@@ -27190,26 +27401,29 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationOfWorkspaceInput(ctx 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		case "integrationId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IntegrationID = data
 		case "role":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
+			data, err := ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Role = data
 		}
 	}
 
@@ -27234,26 +27448,29 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
-			it.ItemID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ItemID = data
 		case "fields":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fields"))
-			it.Fields, err = ec.unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx, v)
+			data, err := ec.unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Fields = data
 		case "version":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
-			it.Version, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Version = data
 		}
 	}
 
@@ -27278,50 +27495,56 @@ func (ec *executionContext) unmarshalInputUpdateMeInput(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "email":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Email = data
 		case "lang":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lang"))
-			it.Lang, err = ec.unmarshalOLang2ᚖgolangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx, v)
+			data, err := ec.unmarshalOLang2ᚖgolangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Lang = data
 		case "theme":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("theme"))
-			it.Theme, err = ec.unmarshalOTheme2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx, v)
+			data, err := ec.unmarshalOTheme2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Theme = data
 		case "password":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Password = data
 		case "passwordConfirmation":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("passwordConfirmation"))
-			it.PasswordConfirmation, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.PasswordConfirmation = data
 		}
 	}
 
@@ -27346,42 +27569,47 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			it.ModelID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ModelID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "key":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			it.Key, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Key = data
 		case "public":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("public"))
-			it.Public, err = ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Public = data
 		}
 	}
 
@@ -27395,7 +27623,7 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "publication"}
+	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "publication", "skipRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27406,42 +27634,56 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-			it.ProjectID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProjectID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "alias":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alias"))
-			it.Alias, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Alias = data
 		case "publication":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publication"))
-			it.Publication, err = ec.unmarshalOUpdateProjectPublicationInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectPublicationInput(ctx, v)
+			data, err := ec.unmarshalOUpdateProjectPublicationInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateProjectPublicationInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Publication = data
+		case "skipRoles":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipRoles"))
+			data, err := ec.unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SkipRoles = data
 		}
 	}
 
@@ -27466,18 +27708,20 @@ func (ec *executionContext) unmarshalInputUpdateProjectPublicationInput(ctx cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scope"))
-			it.Scope, err = ec.unmarshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx, v)
+			data, err := ec.unmarshalOProjectPublicationScope2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectPublicationScope(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Scope = data
 		case "assetPublic":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("assetPublic"))
-			it.AssetPublic, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AssetPublic = data
 		}
 	}
 
@@ -27502,50 +27746,56 @@ func (ec *executionContext) unmarshalInputUpdateRequestInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestId"))
-			it.RequestID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RequestID = data
 		case "title":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Title = data
 		case "description":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Description = data
 		case "state":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("state"))
-			it.State, err = ec.unmarshalORequestState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, v)
+			data, err := ec.unmarshalORequestState2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestState(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.State = data
 		case "reviewersId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reviewersId"))
-			it.ReviewersID, err = ec.unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ReviewersID = data
 		case "items":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("items"))
-			it.Items, err = ec.unmarshalORequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx, v)
+			data, err := ec.unmarshalORequestItemInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRequestItemInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Items = data
 		}
 	}
 
@@ -27570,26 +27820,29 @@ func (ec *executionContext) unmarshalInputUpdateUserOfWorkspaceInput(ctx context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		case "userId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UserID = data
 		case "role":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
+			data, err := ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Role = data
 		}
 	}
 
@@ -27614,58 +27867,65 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			it.IntegrationID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IntegrationID = data
 		case "webhookId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("webhookId"))
-			it.WebhookID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WebhookID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "url":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
-			it.URL, err = ec.unmarshalOURL2ᚖnetᚋurlᚐURL(ctx, v)
+			data, err := ec.unmarshalOURL2ᚖnetᚋurlᚐURL(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.URL = data
 		case "active":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Active = data
 		case "trigger":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trigger"))
-			it.Trigger, err = ec.unmarshalOWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx, v)
+			data, err := ec.unmarshalOWebhookTriggerInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWebhookTriggerInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Trigger = data
 		case "secret":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("secret"))
-			it.Secret, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Secret = data
 		}
 	}
 
@@ -27690,18 +27950,20 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workspaceId"))
-			it.WorkspaceID, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.WorkspaceID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		}
 	}
 
@@ -27726,66 +27988,74 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemCreate"))
-			it.OnItemCreate, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OnItemCreate = data
 		case "onItemUpdate":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemUpdate"))
-			it.OnItemUpdate, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OnItemUpdate = data
 		case "onItemDelete":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemDelete"))
-			it.OnItemDelete, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OnItemDelete = data
 		case "onItemPublish":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemPublish"))
-			it.OnItemPublish, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OnItemPublish = data
 		case "onItemUnPublish":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onItemUnPublish"))
-			it.OnItemUnPublish, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OnItemUnPublish = data
 		case "onAssetUpload":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetUpload"))
-			it.OnAssetUpload, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OnAssetUpload = data
 		case "onAssetDecompress":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetDecompress"))
-			it.OnAssetDecompress, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OnAssetDecompress = data
 		case "onAssetDelete":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onAssetDelete"))
-			it.OnAssetDelete, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OnAssetDelete = data
 		}
 	}
 
@@ -30378,6 +30648,10 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 		case "publication":
 
 			out.Values[i] = ec._Project_publication(ctx, field, obj)
+
+		case "skipRoles":
+
+			out.Values[i] = ec._Project_skipRoles(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -35787,6 +36061,73 @@ func (ec *executionContext) marshalORequestState2ᚖgithubᚗcomᚋreearthᚋree
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx context.Context, v interface{}) ([]gqlmodel.Role, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]gqlmodel.Role, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Role) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldAssetInput, error) {
