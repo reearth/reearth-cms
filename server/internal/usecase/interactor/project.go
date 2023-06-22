@@ -58,6 +58,9 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 
 				pb = pb.Alias(*p.Alias)
 			}
+			if p.SkipRoles != nil {
+				pb = pb.SkipRoles(p.SkipRoles)
+			}
 
 			proj, err := pb.Build()
 			if err != nil {
@@ -111,6 +114,10 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 					pub.SetAssetPublic(*p.Publication.AssetPublic)
 				}
 				proj.SetPublication(pub)
+			}
+
+			if p.SkipRoles != nil {
+				proj.SetSkipRoles(p.SkipRoles)
 			}
 
 			if err := i.repos.Project.Save(ctx, proj); err != nil {
