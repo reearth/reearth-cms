@@ -1,68 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
-    ":semanticCommits",
-    ":semanticCommitScopeDisabled",
-    ":maintainLockFilesWeekly",
-    ":enableVulnerabilityAlertsWithLabel(security)",
-    ":semanticCommitTypeAll(chore)"
-  ],
-  "rangeStrategy": "bump",
-  "lockFileMaintenance": false,
-  "separateMajorMinor": false,
-  "postUpdateOptions": [
-    "gomodTidy",
-    "gomodUpdateImportPaths"
-  ],
-  "packageRules": [
-    {
-      "matchManagers": ["npm"],
-      "matchPackageNames": ["cesium"],
-      "groupName": "cesium",
-      "groupSlug": "cesium",
-      "schedule": ["before 3:00 am on the 4th day of the month"]
-    },
-    {
-      "matchManagers": ["npm"],
-      "excludePackageNames": ["cesium"],
-      "groupName": "npm dependencies",
-      "groupSlug": "npm",
-      "schedule": ["before 3:00 am on the 4th day of the month"]
-    },
-    {
-      "matchManagers": ["gomod"],
-      "groupName": "go dependencies",
-      "groupSlug": "gomod",
-      "schedule": [
-        "before 3:00 am on the 4th day of the month"
-      ]
-    },
-    {
-      "matchManagers": ["dockerfile", "docker-compose"],
-      "groupName": "docker dependencies",
-      "groupSlug": "docker",
-      "schedule": [
-        "before 3:00 am on the 4th day of the month"
-      ]
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "groupName": "github actions dependencies",
-      "groupSlug": "github-actions",
-      "semanticCommitType": "ci",
-      "schedule": [
-        "before 3:00 am on the 4th day of the month"
-      ]
-    },
-    {
-      "matchManagers": ["terraform", "terraform-version"],
-      "groupName": "Terraform dependencies",
-      "groupSlug": "terraform",
-      "semanticCommitType": "ci",
-      "schedule": [
-        "before 3am on the first day of the month"
-      ]
-    }
+    "github>reearth/renovate-config"
   ]
 }
