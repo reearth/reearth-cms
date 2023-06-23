@@ -32,6 +32,7 @@
     },
     {
       "enabledManagers": ["gomod"],
+      "matchPackagePatterns": ["*"],
       "groupName": "go dependencies",
       "groupSlug": "gomod",
       "schedule": [
@@ -40,6 +41,7 @@
     },
     {
       "enabledManagers": ["dockerfile", "docker-compose"],
+      "matchPackagePatterns": ["*"],
       "groupName": "docker dependencies",
       "groupSlug": "docker",
       "schedule": [
@@ -48,6 +50,7 @@
     },
     {
       "enabledManagers": ["github-actions"],
+      "matchPackagePatterns": ["*"],
       "groupName": "github actions dependencies",
       "groupSlug": "github-actions",
       "semanticCommitType": "ci",
@@ -57,6 +60,7 @@
     },
     {
       "matchManagers": ["terraform", "terraform-version"],
+      "matchPackagePatterns": ["*"],
       "groupName": "Terraform dependencies",
       "groupSlug": "terraform",
       "semanticCommitType": "ci",
