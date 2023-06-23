@@ -1,4 +1,5 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base",
     ":semanticCommits",
@@ -13,14 +14,29 @@
   ],
   "packageRules": [
     {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions dependencies",
+      "schedule": ["before 3am on the first day of the month"]
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "groupName": "Docker dependencies",
+      "schedule": ["before 3am on the first day of the month"]
+    },
+    {
+      "matchManagers": ["terraform", "terraform-version"],
+      "groupName": "Terraform dependencies",
+      "schedule": ["before 3am on the first day of the month"]
+    },
+    {
       "matchPaths": [
         "server/**"
       ],
       "matchPackagePatterns": [
         "*"
       ],
-      "groupName": "all dependencies of server",
-      "groupSlug": "server",
+      "groupName": "server",
+      "groupSlug": "server dependencies",
       "schedule": ["before 3:00 am on the 4th day of the month"]
     },
     {
@@ -30,8 +46,19 @@
       "matchPackagePatterns": [
         "*"
       ],
-      "groupName": "all dependencies of web",
-      "groupSlug": "web",
+      "groupName": "web",
+      "groupSlug": "web dependencies",
+      "schedule": ["before 3:00 am on the 4th day of the month"]
+    },
+    {
+      "matchPaths": [
+        "worker/**"
+      ],
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "groupName": "worker",
+      "groupSlug": "worker dependencies",
       "schedule": ["before 3:00 am on the 4th day of the month"]
     }
   ]
