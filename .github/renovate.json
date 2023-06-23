@@ -17,22 +17,21 @@
   ],
   "packageRules": [
     {
-      "enabledManagers": ["npm"],
+      "matchManagers": ["npm"],
       "matchPackageNames": ["cesium"],
       "groupName": "cesium",
       "groupSlug": "cesium",
       "schedule": ["before 3:00 am on the 4th day of the month"]
     },
     {
-      "enabledManagers": ["npm"],
+      "matchManagers": ["npm"],
       "excludePackageNames": ["cesium"],
       "groupName": "npm dependencies",
       "groupSlug": "npm",
       "schedule": ["before 3:00 am on the 4th day of the month"]
     },
     {
-      "enabledManagers": ["gomod"],
-      "matchPackagePatterns": ["*"],
+      "matchManagers": ["gomod"],
       "groupName": "go dependencies",
       "groupSlug": "gomod",
       "schedule": [
@@ -40,8 +39,7 @@
       ]
     },
     {
-      "enabledManagers": ["dockerfile", "docker-compose"],
-      "matchPackagePatterns": ["*"],
+      "matchManagers": ["dockerfile", "docker-compose"],
       "groupName": "docker dependencies",
       "groupSlug": "docker",
       "schedule": [
@@ -49,8 +47,7 @@
       ]
     },
     {
-      "enabledManagers": ["github-actions"],
-      "matchPackagePatterns": ["*"],
+      "matchManagers": ["github-actions"],
       "groupName": "github actions dependencies",
       "groupSlug": "github-actions",
       "semanticCommitType": "ci",
@@ -60,7 +57,6 @@
     },
     {
       "matchManagers": ["terraform", "terraform-version"],
-      "matchPackagePatterns": ["*"],
       "groupName": "Terraform dependencies",
       "groupSlug": "terraform",
       "semanticCommitType": "ci",
