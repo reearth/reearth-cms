@@ -8,58 +8,61 @@
     ":enableVulnerabilityAlertsWithLabel(security)",
     ":semanticCommitTypeAll(chore)"
   ],
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": false,
+  "separateMajorMinor": false,
   "postUpdateOptions": [
     "gomodTidy",
     "gomodUpdateImportPaths"
   ],
   "packageRules": [
     {
-      "matchManagers": ["github-actions"],
-      "groupName": "GitHub Actions dependencies",
-      "schedule": ["before 3am on the first day of the month"]
+      "enabledManagers": ["npm"],
+      "matchPackageNames": ["cesium"],
+      "groupName": "cesium",
+      "groupSlug": "cesium",
+      "schedule": ["before 3:00 am on the 4th day of the month"]
     },
     {
-      "matchManagers": ["dockerfile"],
-      "groupName": "Docker dependencies",
-      "schedule": ["before 3am on the first day of the month"]
+      "enabledManagers": ["npm"],
+      "excludePackageNames": ["cesium"],
+      "groupName": "npm dependencies",
+      "groupSlug": "npm",
+      "schedule": ["before 3:00 am on the 4th day of the month"]
+    },
+    {
+      "enabledManagers": ["gomod"],
+      "groupName": "go dependencies",
+      "groupSlug": "gomod",
+      "schedule": [
+        "before 3:00 am on the 4th day of the month"
+      ]
+    },
+    {
+      "enabledManagers": ["dockerfile", "docker-compose"],
+      "groupName": "docker dependencies",
+      "groupSlug": "docker",
+      "schedule": [
+        "before 3:00 am on the 4th day of the month"
+      ]
+    },
+    {
+      "enabledManagers": ["github-actions"],
+      "groupName": "github actions dependencies",
+      "groupSlug": "github-actions",
+      "semanticCommitType": "ci",
+      "schedule": [
+        "before 3:00 am on the 4th day of the month"
+      ]
     },
     {
       "matchManagers": ["terraform", "terraform-version"],
       "groupName": "Terraform dependencies",
-      "schedule": ["before 3am on the first day of the month"]
-    },
-    {
-      "matchPaths": [
-        "server/**"
-      ],
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "groupName": "server",
-      "groupSlug": "server dependencies",
-      "schedule": ["before 3:00 am on the 4th day of the month"]
-    },
-    {
-      "matchPaths": [
-        "web/**"
-      ],
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "groupName": "web",
-      "groupSlug": "web dependencies",
-      "schedule": ["before 3:00 am on the 4th day of the month"]
-    },
-    {
-      "matchPaths": [
-        "worker/**"
-      ],
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "groupName": "worker",
-      "groupSlug": "worker dependencies",
-      "schedule": ["before 3:00 am on the 4th day of the month"]
+      "groupSlug": "terraform",
+      "semanticCommitType": "ci",
+      "schedule": [
+        "before 3am on the first day of the month"
+      ]
     }
   ]
 }
