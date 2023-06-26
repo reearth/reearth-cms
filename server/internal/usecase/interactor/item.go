@@ -12,6 +12,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -247,6 +249,28 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		if len(prj.SkipRequestRoles()) > 0 && slices.Contains(prj.SkipRequestRoles(), operator.RoleByProject(prj.ID())) {
+
+			if err := i.repos.Item.UpdateRef(ctx, vi.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    vi,
+				WebhookObject: item.ItemModelSchema{
+					Item:   vi.Value(),
+					Model:  m,
+					Schema: s,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
 		return vi, nil
 	})
 }
@@ -319,6 +343,28 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Operator: operator.Operator(),
 		}); err != nil {
 			return nil, err
+		}
+
+		if len(prj.SkipRequestRoles()) > 0 && slices.Contains(prj.SkipRequestRoles(), operator.RoleByProject(prj.ID())) {
+
+			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: s,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
 		}
 
 		return itm, nil
@@ -484,4 +530,9 @@ func (i Item) event(ctx context.Context, e Event) error {
 
 	_, err := createEvent(ctx, i.repos, i.gateways, e)
 	return err
+}
+
+func (i Item) publishItems(ctx context.Context, itm item.Versioned, prj *project.Project, wks id.WorkspaceID, m *model.Model, sch *schema.Schema) error {
+
+	return nil
 }
