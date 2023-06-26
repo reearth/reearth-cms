@@ -8,6 +8,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/mongox"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type ProjectDocument struct {
@@ -19,7 +21,7 @@ type ProjectDocument struct {
 	ImageURL         string
 	Workspace        string
 	Publication      *ProjectPublicationDocument
-	SkipRequestRoles []user.Role
+	SkipRequestRoles []string
 }
 
 type ProjectPublicationDocument struct {
@@ -34,6 +36,9 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 	if u := project.ImageURL(); u != nil {
 		imageURL = u.String()
 	}
+	roles := lo.Map(project.SkipRequestRoles(), func(role user.Role, _ int) string {
+		return string(role)
+	})
 
 	return &ProjectDocument{
 		ID:               pid,
@@ -44,7 +49,7 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 		ImageURL:         imageURL,
 		Workspace:        project.Workspace().String(),
 		Publication:      NewProjectPublication(project.Publication()),
-		SkipRequestRoles: project.SkipRequestRoles(),
+		SkipRequestRoles: roles,
 	}, pid
 }
 
@@ -76,6 +81,11 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		}
 	}
 
+	roles := util.Map(d.SkipRequestRoles, func(item string) user.Role {
+		role, _ := user.RoleFromString(item)
+		return role
+	})
+
 	return project.New().
 		ID(pid).
 		UpdatedAt(d.UpdatedAt).
@@ -85,7 +95,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Publication(d.Publication.Model()).
-		SkipRequestRoles(d.SkipRequestRoles).
+		SkipRequestRoles(roles).
 		Build()
 }
 
