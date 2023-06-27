@@ -8,8 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/mongox"
-	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 type ProjectDocument struct {
@@ -36,9 +34,6 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 	if u := project.ImageURL(); u != nil {
 		imageURL = u.String()
 	}
-	roles := lo.Map(project.SkipRequestRoles(), func(role user.Role, _ int) string {
-		return string(role)
-	})
 
 	return &ProjectDocument{
 		ID:               pid,
@@ -49,7 +44,7 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 		ImageURL:         imageURL,
 		Workspace:        project.Workspace().String(),
 		Publication:      NewProjectPublication(project.Publication()),
-		SkipRequestRoles: roles,
+		SkipRequestRoles: fromSkipRoles(project.SkipRequestRoles()),
 	}, pid
 }
 
@@ -81,11 +76,6 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		}
 	}
 
-	roles := util.Map(d.SkipRequestRoles, func(item string) user.Role {
-		role, _ := user.RoleFromString(item)
-		return role
-	})
-
 	return project.New().
 		ID(pid).
 		UpdatedAt(d.UpdatedAt).
@@ -95,7 +85,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Publication(d.Publication.Model()).
-		SkipRequestRoles(roles).
+		SkipRequestRoles(toSkipRoles(d.SkipRequestRoles)).
 		Build()
 }
 
@@ -110,4 +100,21 @@ type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Proje
 
 func NewProjectConsumer() *ProjectConsumer {
 	return NewConsumer[*ProjectDocument, *project.Project]()
+}
+
+func toSkipRoles(s []string) []user.Role {
+	var roles []user.Role
+	for _, role := range s {
+		r, _ := user.RoleFromString(role)
+		roles = append(roles, r)
+	}
+	return roles
+}
+
+func fromSkipRoles(s []user.Role) []string {
+	var roles []string
+	for _, role := range s {
+		roles = append(roles, string(role))
+	}
+	return roles
 }

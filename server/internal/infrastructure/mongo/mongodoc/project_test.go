@@ -47,9 +47,7 @@ func TestNewProject(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				SkipRequestRoles: lo.Map(r, func(role user.Role, _ int) string {
-					return string(role)
-				}),
+				SkipRequestRoles: fromSkipRoles(r),
 			},
 			pDocId: pId.String(),
 		},
@@ -124,9 +122,7 @@ func TestProjectDocument_Model(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				SkipRequestRoles: lo.Map(r, func(role user.Role, _ int) string {
-					return string(role)
-				}),
+				SkipRequestRoles: fromSkipRoles(r),
 			},
 			want: project.New().
 				ID(pId).
