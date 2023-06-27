@@ -19,7 +19,7 @@ type ProjectDocument struct {
 	ImageURL         string
 	Workspace        string
 	Publication      *ProjectPublicationDocument
-	SkipRequestRoles []user.Role
+	SkipRequestRoles []string
 }
 
 type ProjectPublicationDocument struct {
@@ -44,7 +44,7 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 		ImageURL:         imageURL,
 		Workspace:        project.Workspace().String(),
 		Publication:      NewProjectPublication(project.Publication()),
-		SkipRequestRoles: project.SkipRequestRoles(),
+		SkipRequestRoles: fromSkipRoles(project.SkipRequestRoles()),
 	}, pid
 }
 
@@ -85,7 +85,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Publication(d.Publication.Model()).
-		SkipRequestRoles(d.SkipRequestRoles).
+		SkipRequestRoles(toSkipRoles(d.SkipRequestRoles)).
 		Build()
 }
 
@@ -100,4 +100,21 @@ type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Proje
 
 func NewProjectConsumer() *ProjectConsumer {
 	return NewConsumer[*ProjectDocument, *project.Project]()
+}
+
+func toSkipRoles(s []string) []user.Role {
+	var roles []user.Role
+	for _, role := range s {
+		r, _ := user.RoleFromString(role)
+		roles = append(roles, r)
+	}
+	return roles
+}
+
+func fromSkipRoles(s []user.Role) []string {
+	var roles []string
+	for _, role := range s {
+		roles = append(roles, string(role))
+	}
+	return roles
 }
