@@ -109,6 +109,9 @@ func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.F
 	if err := r.assetFilesClient.RemoveAll(ctx, bson.M{"assetid": id.String()}); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
+	if len(files) == 0 {
+		return nil
+	}
 	filesDoc := mongodoc.NewFiles(id, files)
 	writeModels := make([]mongo.WriteModel, 0, len(filesDoc))
 	for _, pageDoc := range filesDoc {
