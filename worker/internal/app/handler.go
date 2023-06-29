@@ -21,9 +21,8 @@ func NewHandler(c *rhttp.Controller) *Handler {
 
 func (h Handler) DecompressHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		header := c.Request().Header.Get("X-Amz-Sns-Message-Type")
 		var input rhttp.DecompressInput
-		if header == "Notification" {
+		if c.Request().Header.Get("X-Amz-Sns-Message-Type") == "Notification" {
 			var req struct {
 				Message string
 			}
@@ -51,9 +50,8 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 
 func (h Handler) WebhookHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		header := c.Request().Header.Get("X-Amz-Sns-Message-Type")
 		var w webhook.Webhook
-		if header == "Notification" {
+		if c.Request().Header.Get("X-Amz-Sns-Message-Type") == "Notification" {
 			var req struct {
 				Message string
 			}
