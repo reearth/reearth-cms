@@ -14,9 +14,8 @@ import (
 
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		header := c.Request().Header.Get("X-Amz-Sns-Message-Type")
 		var input rhttp.NotifyInput
-		if header == "Notification" {
+		if c.Request().Header.Get("X-Amz-Sns-Message-Type") == "Notification" {
 			var req struct {
 				Message string
 			}
@@ -32,33 +31,23 @@ func NotifyHandler() echo.HandlerFunc {
 				if err := c.Bind(&input); err != nil {
 					return err
 				}
+			}
+	
+			if b.Message.Attributes.BuildID != "" {
+				input = rhttp.NotifyInput{
+					Type:    "assetDecompressTaskNotify",
+					AssetID: "-",
+					Status:  new(asset.ArchiveExtractionStatus),
+					Task: &rhttp.NotifyInputTask{
+						TaskID: b.Message.Attributes.BuildID,
+						Status: b.Message.Attributes.Status,
+					},
+				}
 			} else if data, err := b.Data(); err != nil {
 				return err
 			} else if err := json.Unmarshal(data, &input); err != nil {
 				return err
 			}
-		}
-		var b pubsubBody
-		if err := c.Bind(&b); err != nil {
-			if err := c.Bind(&input); err != nil {
-				return err
-			}
-		}
-
-		if b.Message.Attributes.BuildID != "" {
-			input = rhttp.NotifyInput{
-				Type:    "assetDecompressTaskNotify",
-				AssetID: "-",
-				Status:  new(asset.ArchiveExtractionStatus),
-				Task: &rhttp.NotifyInputTask{
-					TaskID: b.Message.Attributes.BuildID,
-					Status: b.Message.Attributes.Status,
-				},
-			}
-		} else if data, err := b.Data(); err != nil {
-			return err
-		} else if err := json.Unmarshal(data, &input); err != nil {
-			return err
 		}
 
 		ctx := c.Request().Context()
