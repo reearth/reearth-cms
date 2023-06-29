@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	rhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -37,6 +38,29 @@ func NotifyHandler() echo.HandlerFunc {
 				return err
 			}
 		}
+		var b pubsubBody
+		if err := c.Bind(&b); err != nil {
+			if err := c.Bind(&input); err != nil {
+				return err
+			}
+		}
+
+		if b.Message.Attributes.BuildID != "" {
+			input = rhttp.NotifyInput{
+				Type:    "assetDecompressTaskNotify",
+				AssetID: "-",
+				Status:  new(asset.ArchiveExtractionStatus),
+				Task: &rhttp.NotifyInputTask{
+					TaskID: b.Message.Attributes.BuildID,
+					Status: b.Message.Attributes.Status,
+				},
+			}
+		} else if data, err := b.Data(); err != nil {
+			return err
+		} else if err := json.Unmarshal(data, &input); err != nil {
+			return err
+		}
+
 		ctx := c.Request().Context()
 
 		log.Infof("notified and updating files begin: assetID=%s type=%s status=%s", input.AssetID, input.Type, input.Status)
@@ -53,6 +77,10 @@ func NotifyHandler() echo.HandlerFunc {
 
 type pubsubBody struct {
 	Message struct {
+		Attributes struct {
+			BuildID string `json:"buildId"`
+			Status  string `json:"status"`
+		} `json:"attributes"`
 		Data string `json:"data"`
 	} `json:"message"`
 }
