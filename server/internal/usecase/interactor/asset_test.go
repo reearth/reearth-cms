@@ -1131,6 +1131,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				return afero.NewMemMapFs()
 			},
 			assetID: assetID1,
+			status:  lo.ToPtr(asset.ArchiveExtractionStatusFailed),
 			want:    nil,
 			wantErr: gateway.ErrFileNotFound,
 		},

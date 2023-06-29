@@ -333,6 +333,28 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, interfaces.ErrInvalidOperator
 	}
 
+	a, err := i.repos.Asset.FindByID(ctx, aid)
+	if err != nil {
+		return nil, err
+	}
+	if !op.CanUpdate(a) {
+		return nil, interfaces.ErrOperationDenied
+	}
+	if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
+		return a, nil
+	}
+	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
+	if err != nil {
+		return nil, err
+	}
+	assetFiles := lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
+		return asset.NewFile().
+			Name(path.Base(f.Name)).
+			Path(f.Name).
+			GuessContentType().
+			Build()
+	})
+
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
@@ -347,26 +369,15 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, err
 			}
 
-			if a.ArchiveExtractionStatus().String() == asset.ArchiveExtractionStatusDone.String() || a.ArchiveExtractionStatus().String() == asset.ArchiveExtractionStatusFailed.String() {
-				return a, nil
-			}
-
 			if !op.CanUpdate(a) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
-			if err != nil {
-				return nil, err
+			if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
+				return a, nil
 			}
 
-			assetFiles := lo.Filter(lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
-				return asset.NewFile().
-					Name(path.Base(f.Name)).
-					Path(f.Name).
-					GuessContentType().
-					Build()
-			}), func(f *asset.File, _ int) bool {
+			assetFiles := lo.Filter(assetFiles, func(f *asset.File, _ int) bool {
 				return srcfile.Path() != f.Path()
 			})
 
@@ -413,6 +424,13 @@ func detectPreviewType(files []gateway.FileEntry) *asset.PreviewType {
 		}
 	}
 	return nil
+}
+
+func shouldSkipUpdate(from, to *asset.ArchiveExtractionStatus) bool {
+	if from.String() == asset.ArchiveExtractionStatusDone.String() {
+		return true
+	}
+	return from.String() == to.String()
 }
 
 func (i *Asset) Delete(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (result id.AssetID, err error) {
