@@ -48,6 +48,10 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	return t.runWebhookReq(ctx, p)
 }
 
+func (t *TaskRunner) Retry(ctx context.Context, id string) error {
+	panic("not implemented")
+}
+
 func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset == nil {
 		return nil
@@ -73,10 +77,6 @@ func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {
 	log.Infof("task request has been sent: body %#v", p.DecompressAsset.Payload().DecompressAsset)
 
 	return nil
-}
-
-func (t *TaskRunner) Retry(ctx context.Context, id string) error {
-	panic("not implemented")
 }
 
 func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
