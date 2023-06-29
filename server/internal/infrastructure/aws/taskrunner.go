@@ -48,6 +48,10 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	return t.runWebhookReq(ctx, p)
 }
 
+func (t *TaskRunner) Retry(ctx context.Context, id string) error {
+	panic("not implemented")
+}
+
 func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset == nil {
 		return nil
