@@ -75,6 +75,10 @@ func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {
 	return nil
 }
 
+func (t *TaskRunner) Retry(ctx context.Context, id string) error {
+	panic("not implemented")
+}
+
 func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 	if p.Webhook == nil {
 		return nil
