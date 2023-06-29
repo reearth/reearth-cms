@@ -24,8 +24,10 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 		header := c.Request().Header.Get("X-Amz-Sns-Message-Type")
 		var input rhttp.DecompressInput
 		if header == "Notification" {
-			var req NotificationRequest
-			if err := req.Bind(c.Request()); err != nil {
+			var req struct {
+				Message string
+			}
+			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
 				return err
 			}
 			if err := json.Unmarshal([]byte(req.Message), &input); err != nil {
@@ -43,7 +45,6 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 			return err
 		}
 		log.Infof("successfully decompressed: Asset=%s, Path=%s", input.AssetID, input.Path)
-
 		return c.NoContent(http.StatusOK)
 	}
 }
@@ -53,8 +54,10 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 		header := c.Request().Header.Get("X-Amz-Sns-Message-Type")
 		var w webhook.Webhook
 		if header == "Notification" {
-			var req NotificationRequest
-			if err := req.Bind(c.Request()); err != nil {
+			var req struct {
+				Message string
+			}
+			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
 				return err
 			}
 			if err := json.Unmarshal([]byte(req.Message), &w); err != nil {
@@ -95,12 +98,4 @@ func (b msgBody) Data() ([]byte, error) {
 	}
 
 	return base64.StdEncoding.DecodeString(b.Message.Data)
-}
-
-type NotificationRequest struct {
-	Message string
-}
-
-func (n *NotificationRequest) Bind(r *http.Request) error {
-	return json.NewDecoder(r.Body).Decode(n)
 }
