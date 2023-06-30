@@ -24,7 +24,7 @@ type Project implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   publication: ProjectPublication
-  skipRequestRoles: [Role!]
+  requestRoles: [Role!]
 }
 
 # Inputs
@@ -33,7 +33,7 @@ input CreateProjectInput {
   name: String
   description: String
   alias: String
-  skipRequestRoles: [Role!]
+  requestRoles: [Role!]
 }
 
 input UpdateProjectPublicationInput {
@@ -47,7 +47,7 @@ input UpdateProjectInput {
   description: String
   alias: String
   publication: UpdateProjectPublicationInput
-  skipRequestRoles: [Role!]
+  requestRoles: [Role!]
 }
 
 input DeleteProjectInput {

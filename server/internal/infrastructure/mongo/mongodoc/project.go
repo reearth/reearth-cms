@@ -11,15 +11,15 @@ import (
 )
 
 type ProjectDocument struct {
-	ID               string
-	UpdatedAt        time.Time
-	Name             string
-	Description      string
-	Alias            string
-	ImageURL         string
-	Workspace        string
-	Publication      *ProjectPublicationDocument
-	SkipRequestRoles []string
+	ID           string
+	UpdatedAt    time.Time
+	Name         string
+	Description  string
+	Alias        string
+	ImageURL     string
+	Workspace    string
+	Publication  *ProjectPublicationDocument
+	RequestRoles []string
 }
 
 type ProjectPublicationDocument struct {
@@ -36,15 +36,15 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 	}
 
 	return &ProjectDocument{
-		ID:               pid,
-		UpdatedAt:        project.UpdatedAt(),
-		Name:             project.Name(),
-		Description:      project.Description(),
-		Alias:            project.Alias(),
-		ImageURL:         imageURL,
-		Workspace:        project.Workspace().String(),
-		Publication:      NewProjectPublication(project.Publication()),
-		SkipRequestRoles: fromSkipRoles(project.SkipRequestRoles()),
+		ID:           pid,
+		UpdatedAt:    project.UpdatedAt(),
+		Name:         project.Name(),
+		Description:  project.Description(),
+		Alias:        project.Alias(),
+		ImageURL:     imageURL,
+		Workspace:    project.Workspace().String(),
+		Publication:  NewProjectPublication(project.Publication()),
+		RequestRoles: fromSkipRoles(project.RequestRoles()),
 	}, pid
 }
 
@@ -85,7 +85,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Publication(d.Publication.Model()).
-		SkipRequestRoles(toSkipRoles(d.SkipRequestRoles)).
+		RequestRoles(toSkipRoles(d.RequestRoles)).
 		Build()
 }
 
