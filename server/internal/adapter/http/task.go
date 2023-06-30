@@ -17,6 +17,12 @@ type NotifyInput struct {
 	Type    string                         `json:"type"`
 	AssetID string                         `json:"assetId"`
 	Status  *asset.ArchiveExtractionStatus `json:"status"`
+	Task    *NotifyInputTask               `json:"-"`
+}
+
+type NotifyInputTask struct {
+	TaskID string
+	Status string
 }
 
 func NewTaskController(uc interfaces.Asset) *TaskController {
@@ -24,6 +30,10 @@ func NewTaskController(uc interfaces.Asset) *TaskController {
 }
 
 func (tc *TaskController) Notify(ctx context.Context, input NotifyInput) error {
+	if input.Task != nil && input.Task.Status == "EXPIRED" {
+		return tc.usecase.RetryDecompression(ctx, input.Task.TaskID)
+	}
+
 	aID, err := id.AssetIDFrom(input.AssetID)
 	if err != nil {
 		return err
