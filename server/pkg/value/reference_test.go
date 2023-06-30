@@ -66,3 +66,42 @@ func Test_propertyReference_Validate(t *testing.T) {
 	a := id.NewItemID()
 	assert.True(t, (&propertyReference{}).Validate(a))
 }
+
+func Test_propertyReference_Equal(t *testing.T) {
+	pr := &propertyReference{}
+	iid1 := id.NewItemID()
+	iid2, _ := id.ItemIDFrom(iid1.String())
+	assert.True(t, pr.Equal(iid1, iid2))
+}
+
+func TestValue_ValueReference(t *testing.T) {
+	var v *Value
+	var iid id.ItemID
+	got, ok := v.ValueReference()
+	assert.Equal(t, iid, got)
+	assert.Equal(t, false, ok)
+
+	iid = id.NewItemID()
+	v = &Value{
+		v: iid,
+	}
+	got, ok = v.ValueReference()
+	assert.Equal(t, iid, got)
+	assert.Equal(t, true, ok)
+}
+
+func TestMultiple_ValuesReference(t *testing.T) {
+	var m *Multiple
+	got, ok := m.ValuesReference()
+	var expected []Reference
+	assert.Equal(t, expected, got)
+	assert.Equal(t, false, ok)
+
+	iid1 := id.NewItemID()
+	iid2 := id.NewItemID()
+	iid3 := id.NewItemID()
+	m = NewMultiple(TypeReference, []any{iid1, iid2, iid3})
+	expected = []Reference{iid1, iid2, iid3}
+	got, _ = m.ValuesReference()
+	assert.Equal(t, expected, got)
+}
