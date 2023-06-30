@@ -73,3 +73,49 @@ func Test_propertyURL_Validate(t *testing.T) {
 	v := lo.Must(url.Parse("https://example.com"))
 	assert.True(t, (&propertyURL{}).Validate(v))
 }
+
+func Test_propertyURL_Equal(t *testing.T) {
+	pu := &propertyURL{}
+	u1, _ := url.Parse("https://example.com")
+	u2, _ := url.Parse("https://example.com")
+	assert.True(t, pu.Equal(u1, u2))
+}
+
+func TestMultiple_ValuesURL(t *testing.T) {
+	var v *Value
+	got, ok := v.ValueURL()
+	var u *url.URL
+	assert.Equal(t, u, got)
+	assert.Equal(t, false, ok)
+
+	v = &Value{
+		v: 0,
+	}
+	got, ok = v.ValueURL()
+	assert.Equal(t, u, got)
+	assert.Equal(t, false, ok)
+
+	u, _ = url.Parse("https://example.com")
+	v = &Value{
+		v: u,
+	}
+	got, ok = v.ValueURL()
+	assert.Equal(t, u, got)
+	assert.Equal(t, true, ok)
+}
+
+func TestValue_ValueURL(t *testing.T) {
+	var m *Multiple
+	got, ok := m.ValuesURL()
+	var expected []URL
+	assert.Equal(t, expected, got)
+	assert.Equal(t, false, ok)
+
+	u1, _ := url.Parse("https://example1.com")
+	u2, _ := url.Parse("https://example2.com")
+	u3, _ := url.Parse("https://example3.com")
+	m = NewMultiple(TypeURL, []any{u1, u2, u3})
+	expected = []URL{u1, u2, u3}
+	got, _ = m.ValuesURL()
+	assert.Equal(t, expected, got)
+}
