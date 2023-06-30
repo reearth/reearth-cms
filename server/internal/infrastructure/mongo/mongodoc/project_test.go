@@ -47,7 +47,7 @@ func TestNewProject(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				RequestRoles: fromSkipRoles(r),
+				RequestRoles: fromRequestRoles(r),
 			},
 			pDocId: pId.String(),
 		},
@@ -122,7 +122,7 @@ func TestProjectDocument_Model(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				RequestRoles: fromSkipRoles(r),
+				RequestRoles: fromRequestRoles(r),
 			},
 			want: project.New().
 				ID(pId).
