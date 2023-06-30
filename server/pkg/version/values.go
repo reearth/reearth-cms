@@ -100,6 +100,7 @@ func (v *Values[V]) Add(value V, parent *VersionOrRef) {
 		return
 	}
 
+	t := util.Now()
 	p := lo.FromPtrOr(parent, Latest.OrVersion())
 	vv := v.get(p)
 	if vv != nil {
@@ -108,9 +109,9 @@ func (v *Values[V]) Add(value V, parent *VersionOrRef) {
 			vv.DeleteRefs(r)
 			refs = NewRefs(r)
 		})
-		vv = NewValue(New(), NewVersions(vv.Version()), refs, value)
+		vv = NewValue(New(), NewVersions(vv.Version()), refs, t, value)
 	} else if v.IsEmpty() {
-		vv = NewValue(New(), nil, NewRefs(Latest), value)
+		vv = NewValue(New(), nil, NewRefs(Latest), t, value)
 	}
 	if vv != nil {
 		v.inner = append(v.inner, vv)

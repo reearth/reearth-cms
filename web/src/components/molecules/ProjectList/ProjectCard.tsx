@@ -66,6 +66,9 @@ const ProjectStyledCard = styled(Card)`
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
   }
+  .ant-card-meta-description {
+    word-break: break-all;
+  }
 `;
 
 export default ProjectCard;

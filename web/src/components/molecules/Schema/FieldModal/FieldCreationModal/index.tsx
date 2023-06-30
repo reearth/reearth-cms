@@ -65,7 +65,6 @@ export type Props = {
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onNavigateToAsset: (asset: Asset) => void;
 };
 
 const initialValues: FormValues = {
@@ -105,7 +104,6 @@ const FieldCreationModal: React.FC<Props> = ({
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
-  onNavigateToAsset,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -331,7 +329,6 @@ const FieldCreationModal: React.FC<Props> = ({
               onAssetsReload={onAssetsReload}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
-              onNavigateToAsset={onNavigateToAsset}
             />
           </TabPane>
         </Tabs>

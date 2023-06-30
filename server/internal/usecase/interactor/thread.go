@@ -27,7 +27,7 @@ func (i *Thread) FindByID(ctx context.Context, aid id.ThreadID, op *usecase.Oper
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func() (*thread.Thread, error) {
+		func(ctx context.Context) (*thread.Thread, error) {
 			return i.repos.Thread.FindByID(ctx, aid)
 		},
 	)
@@ -41,7 +41,7 @@ func (i *Thread) CreateThread(ctx context.Context, wid id.WorkspaceID, op *useca
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(wid).Transaction(),
-		func() (*thread.Thread, error) {
+		func(ctx context.Context) (*thread.Thread, error) {
 			thread, err := thread.New().NewID().Workspace(wid).Build()
 			if err != nil {
 				return nil, err
@@ -63,7 +63,7 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content strin
 	return Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func() (*thread.Thread, *thread.Comment, error) {
+		func(ctx context.Context) (*thread.Thread, *thread.Comment, error) {
 			th, err := i.repos.Thread.FindByID(ctx, thid)
 			if err != nil {
 				return nil, nil, err
@@ -94,7 +94,7 @@ func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.Com
 	return Run2(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func() (*thread.Thread, *thread.Comment, error) {
+		func(ctx context.Context) (*thread.Thread, *thread.Comment, error) {
 			th, err := i.repos.Thread.FindByID(ctx, thid)
 			if err != nil {
 				return nil, nil, err
@@ -124,7 +124,7 @@ func (i *Thread) DeleteComment(ctx context.Context, thid id.ThreadID, cid id.Com
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
-		func() (*thread.Thread, error) {
+		func(ctx context.Context) (*thread.Thread, error) {
 			th, err := i.repos.Thread.FindByID(ctx, thid)
 			if err != nil {
 				return nil, err

@@ -24,7 +24,6 @@ type Input struct {
 	fileName                string
 	size                    uint64
 	previewType             *PreviewType
-	file                    *File
 	uuid                    string
 	thread                  ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
@@ -37,7 +36,6 @@ func TestBuilder_Build(t *testing.T) {
 	iid := NewIntegrationID()
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	f := File{}
 	var size uint64 = 15
 
 	tests := Tests{
@@ -51,7 +49,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -64,7 +61,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -78,7 +74,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -93,7 +88,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -108,7 +102,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -124,7 +117,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    0,
 				previewType:             lo.ToPtr(PreviewTypeImage),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -140,26 +132,11 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  ThreadID{},
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
 			},
 			err: ErrNoThread,
-		},
-		{
-			name: "fail: no file",
-			input: Input{
-				id:            aid,
-				project:       pid,
-				createdByUser: uid,
-				fileName:      "hoge",
-				size:          size,
-				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-				thread:        thid,
-			},
-			err: ErrNoFile,
 		},
 		{
 			name: "fail: no uuid",
@@ -170,7 +147,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:      "hoge",
 				size:          size,
 				previewType:   PreviewTypeFromRef(lo.ToPtr(PreviewTypeImage.String())),
-				file:          &f,
 				thread:        thid,
 			},
 			err: ErrNoUUID,
@@ -184,7 +160,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -197,7 +172,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -212,7 +186,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             lo.ToPtr(PreviewTypeImage),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -225,7 +198,6 @@ func TestBuilder_Build(t *testing.T) {
 				fileName:                "hoge",
 				size:                    size,
 				previewType:             PreviewTypeFromRef(lo.ToPtr("image")),
-				file:                    &f,
 				uuid:                    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:                  thid,
 				archiveExtractionStatus: lo.ToPtr(ArchiveExtractionStatusPending),
@@ -242,7 +214,6 @@ func TestBuilder_Build(t *testing.T) {
 				FileName(tt.input.fileName).
 				Size(tt.input.size).
 				Type(tt.input.previewType).
-				File(tt.input.file).
 				UUID(tt.input.uuid).
 				Thread(tt.input.thread).
 				ArchiveExtractionStatus(tt.input.archiveExtractionStatus)
@@ -269,7 +240,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 	uid := NewUserID()
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
-	f := File{}
 	var size uint64 = 15
 
 	tests := Tests{
@@ -283,7 +253,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 				fileName:      "hoge",
 				size:          size,
 				previewType:   PreviewTypeFromRef(lo.ToPtr("image")),
-				file:          &f,
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid,
 			},
@@ -295,7 +264,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 				fileName:    "hoge",
 				size:        size,
 				previewType: PreviewTypeFromRef(lo.ToPtr("image")),
-				file:        &f,
 				uuid:        "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:      thid,
 			},
@@ -310,7 +278,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 				fileName:      "hoge",
 				size:          size,
 				previewType:   PreviewTypeFromRef(lo.ToPtr("image")),
-				file:          &f,
 				uuid:          "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 				thread:        thid,
 			},
@@ -332,7 +299,6 @@ func TestBuilder_MustBuild(t *testing.T) {
 					FileName(tt.input.fileName).
 					Type(tt.input.previewType).
 					Size(tt.input.size).
-					File(tt.input.file).
 					UUID(tt.input.uuid).
 					Thread(tt.input.thread).
 					MustBuild()
@@ -350,6 +316,6 @@ func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
 	uid := NewUserID()
 	var size uint64 = 15
-	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID()).NewUUID().File(NewFile().Build()).MustBuild()
+	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID()).NewUUID().MustBuild()
 	assert.False(t, a.id.IsNil())
 }

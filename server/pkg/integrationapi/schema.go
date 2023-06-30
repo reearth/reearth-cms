@@ -1,6 +1,8 @@
 package integrationapi
 
 import (
+	"time"
+
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -14,22 +16,26 @@ type ItemModelSchema struct {
 	Schema Schema `json:"schema"`
 }
 
-func NewItemModelSchema(i item.ItemModelSchema) ItemModelSchema {
+func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
 	return ItemModelSchema{
-		Item:   NewItem(i.Item, i.Schema),
-		Model:  NewModel(i.Model),
+		Item:   NewItem(i.Item, i.Schema, assets),
+		Model:  NewModel(i.Model, time.Time{}),
 		Schema: NewSchema(i.Schema),
 	}
 }
 
-func NewModel(m *model.Model) Model {
+func NewModel(m *model.Model, lastModified time.Time) Model {
 	return Model{
-		Id:        m.ID().Ref(),
-		Key:       util.ToPtrIfNotEmpty(m.Key().String()),
-		ProjectId: m.Project().Ref(),
-		SchemaId:  m.Schema().Ref(),
-		CreatedAt: lo.ToPtr(m.ID().Timestamp()),
-		UpdatedAt: lo.ToPtr(m.UpdatedAt()),
+		Id:           m.ID().Ref(),
+		Key:          util.ToPtrIfNotEmpty(m.Key().String()),
+		Name:         util.ToPtrIfNotEmpty(m.Name()),
+		Description:  util.ToPtrIfNotEmpty(m.Description()),
+		Public:       util.ToPtrIfNotEmpty(m.Public()),
+		ProjectId:    m.Project().Ref(),
+		SchemaId:     m.Schema().Ref(),
+		CreatedAt:    lo.ToPtr(m.ID().Timestamp()),
+		UpdatedAt:    lo.ToPtr(m.UpdatedAt()),
+		LastModified: util.ToPtrIfNotEmpty(lastModified),
 	}
 }
 

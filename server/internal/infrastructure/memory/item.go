@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory/memorygit"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -96,7 +97,7 @@ func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *ver
 		return true
 	})
 
-	return res.Sort(nil), nil, nil
+	return res, nil, nil
 }
 
 func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -114,7 +115,7 @@ func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.R
 		return true
 	})
 
-	return res.Sort(nil), nil, nil
+	return res, nil, nil
 }
 
 func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref) (item.VersionedList, error) {
@@ -122,7 +123,7 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 		return nil, r.err
 	}
 
-	return item.VersionedList(r.data.LoadAll(list, ref.OrLatest().OrVersion())).Sort(nil), nil
+	return r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), nil
 }
 
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
@@ -135,6 +136,35 @@ func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.Versio
 	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
 		return r.f.CanRead(i.Value().Project())
 	}), nil
+}
+
+func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	res := r.data.LoadAll(ids, nil)
+	sortItems(res)
+	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
+		return r.f.CanRead(i.Value().Project())
+	}), nil
+}
+
+func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {
+	if r.err != nil {
+		return time.Time{}, r.err
+	}
+
+	res := r.data.Find(func(k item.ID, v *version.Values[*item.Item]) bool {
+		itv := v.Get(version.Latest.OrVersion())
+		it := itv.Value()
+		return it.Model() == modelID
+	})
+
+	if res == nil {
+		return time.Time{}, rerror.ErrNotFound
+	}
+	return res.Latest().Time(), nil
 }
 
 func (r *Item) Save(_ context.Context, t *item.Item) error {

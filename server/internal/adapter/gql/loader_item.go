@@ -49,7 +49,7 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
 			return s.ID() == sIds[m.Value().ID()]
 		})
-		return gqlmodel.ToItem(m.Value(), s)
+		return gqlmodel.ToItem(m, s)
 	}), nil
 }
 
@@ -129,7 +129,7 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, sor
 	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
 	nodes := make([]*gqlmodel.Item, 0, len(res))
 	for _, i := range res {
-		itm := gqlmodel.ToItem(i.Value(), s)
+		itm := gqlmodel.ToItem(i, s)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),
@@ -172,7 +172,7 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p
 		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
 			return s.ID() == sIds[i.Value().ID()]
 		})
-		itm := gqlmodel.ToItem(i.Value(), s)
+		itm := gqlmodel.ToItem(i, s)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),
@@ -211,7 +211,7 @@ func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort 
 		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
 			return s.ID() == sIds[i.Value().ID()]
 		})
-		itm := gqlmodel.ToItem(i.Value(), s)
+		itm := gqlmodel.ToItem(i, s)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),

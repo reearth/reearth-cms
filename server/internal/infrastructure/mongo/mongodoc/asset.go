@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type AssetDocument struct {
@@ -18,24 +19,31 @@ type AssetDocument struct {
 	FileName                string
 	Size                    uint64
 	PreviewType             string
-	File                    *File
 	UUID                    string
 	Thread                  string
 	ArchiveExtractionStatus string
+	FlatFiles               bool
 }
 
-type File struct {
+type AssetAndFileDocument struct {
+	ID        string
+	File      *AssetFileDocument
+	FlatFiles bool
+}
+
+type AssetFileDocument struct {
 	Name        string
 	Size        uint64
 	ContentType string
 	Path        string
-	Children    []*File
+	Children    []*AssetFileDocument
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
+type AssetAndFileConsumer = mongox.SliceConsumer[*AssetAndFileDocument]
 
 func NewAssetConsumer() *AssetConsumer {
-	return NewComsumer[*AssetDocument, *asset.Asset]()
+	return NewConsumer[*AssetDocument, *asset.Asset]()
 }
 
 func NewAsset(a *asset.Asset) (*AssetDocument, string) {
@@ -49,11 +57,6 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 	archiveExtractionStatus := ""
 	if s := a.ArchiveExtractionStatus(); s != nil {
 		archiveExtractionStatus = s.String()
-	}
-
-	var file *asset.File
-	if f := a.File(); f != nil {
-		file = f
 	}
 
 	var uid, iid *string
@@ -73,10 +76,10 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		FileName:                a.FileName(),
 		Size:                    a.Size(),
 		PreviewType:             previewType,
-		File:                    ToFile(file),
 		UUID:                    a.UUID(),
 		Thread:                  a.Thread().String(),
 		ArchiveExtractionStatus: archiveExtractionStatus,
+		FlatFiles:               a.FlatFiles(),
 	}, aid
 
 	return ad, id
@@ -103,10 +106,10 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		FileName(d.FileName).
 		Size(d.Size).
 		Type(asset.PreviewTypeFromRef(lo.ToPtr(d.PreviewType))).
-		File(FromFile(d.File)).
 		UUID(d.UUID).
 		Thread(thid).
-		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus)))
+		ArchiveExtractionStatus(asset.ArchiveExtractionStatusFromRef(lo.ToPtr(d.ArchiveExtractionStatus))).
+		FlatFiles(d.FlatFiles)
 
 	if d.User != nil {
 		uid, err := id.UserIDFrom(*d.User)
@@ -127,19 +130,19 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	return ab.Build()
 }
 
-func ToFile(f *asset.File) *File {
+func NewFile(f *asset.File) *AssetFileDocument {
 	if f == nil {
 		return nil
 	}
 
-	c := []*File{}
-	if f.Children() != nil && len(f.Children()) > 0 {
+	c := []*AssetFileDocument{}
+	if len(f.Children()) > 0 {
 		for _, v := range f.Children() {
-			c = append(c, ToFile(v))
+			c = append(c, NewFile(v))
 		}
 	}
 
-	return &File{
+	return &AssetFileDocument{
 		Name:        f.Name(),
 		Size:        f.Size(),
 		ContentType: f.ContentType(),
@@ -148,7 +151,7 @@ func ToFile(f *asset.File) *File {
 	}
 }
 
-func FromFile(f *File) *asset.File {
+func (f *AssetFileDocument) Model() *asset.File {
 	if f == nil {
 		return nil
 	}
@@ -156,7 +159,8 @@ func FromFile(f *File) *asset.File {
 	var c []*asset.File
 	if f.Children != nil && len(f.Children) > 0 {
 		for _, v := range f.Children {
-			c = append(c, FromFile(v))
+			f := v.Model()
+			c = append(c, f)
 		}
 	}
 
@@ -169,4 +173,64 @@ func FromFile(f *File) *asset.File {
 		Build()
 
 	return af
+}
+
+type AssetFilesDocument []*AssetFilesPageDocument
+
+func (d AssetFilesDocument) totalFiles() int {
+	size := 0
+	for _, page := range d {
+		size += len(page.Files)
+	}
+	return size
+}
+
+func (d AssetFilesDocument) Model() []*asset.File {
+	files := make([]*asset.File, 0, d.totalFiles())
+	for _, page := range d {
+		files = append(files, lo.Map(page.Files, func(f *AssetFileDocument, _ int) *asset.File {
+			return f.Model()
+		})...)
+	}
+	return files
+}
+
+type AssetFilesPageDocument struct {
+	AssetID string
+	Page    int
+	Files   []*AssetFileDocument
+}
+
+const assetFilesPageSize = 1000
+
+func NewFiles(assetID id.AssetID, fs []*asset.File) AssetFilesDocument {
+	pageCount := (len(fs) + assetFilesPageSize - 1) / assetFilesPageSize
+	pages := make([]*AssetFilesPageDocument, 0, pageCount)
+	for i := 0; i < pageCount; i++ {
+		offset := i * assetFilesPageSize
+		chunk := fs[offset:]
+		if len(chunk) > assetFilesPageSize {
+			chunk = chunk[:assetFilesPageSize]
+		}
+		pages = append(pages, &AssetFilesPageDocument{
+			AssetID: assetID.String(),
+			Page:    i,
+			Files: lo.Map(chunk, func(f *asset.File, _ int) *AssetFileDocument {
+				return NewFile(f)
+			}),
+		})
+	}
+	return pages
+}
+
+type AssetFilesConsumer struct {
+	c mongox.SliceConsumer[*AssetFilesPageDocument]
+}
+
+func (a *AssetFilesConsumer) Consume(raw bson.Raw) error {
+	return a.c.Consume(raw)
+}
+
+func (a *AssetFilesConsumer) Result() AssetFilesDocument {
+	return a.c.Result
 }

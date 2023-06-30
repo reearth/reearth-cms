@@ -22,6 +22,7 @@ type ItemDocument struct {
 	Timestamp   time.Time
 	User        *string
 	Integration *string
+	Assets      []string `bson:"assets,omitempty"`
 }
 
 type ItemFieldDocument struct {
@@ -35,7 +36,7 @@ type ItemFieldDocument struct {
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
 
 func NewItemConsumer() *ItemConsumer {
-	return NewComsumer[*ItemDocument, *item.Item]()
+	return NewConsumer[*ItemDocument, *item.Item]()
 }
 
 type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDocument], *version.Value[*item.Item]]
@@ -74,6 +75,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		Timestamp:   i.Timestamp(),
 		User:        i.User().StringRef(),
 		Integration: i.Integration().StringRef(),
+		Assets:      i.AssetIDs().Strings(),
 	}, itmId
 }
 

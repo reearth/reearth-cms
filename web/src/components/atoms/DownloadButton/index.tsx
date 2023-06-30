@@ -24,17 +24,8 @@ export type AssetFile = {
 
 export type Asset = {
   id: string;
-  createdAt: string;
-  createdBy: string;
-  createdByType: string;
-  file: AssetFile;
   fileName: string;
-  previewType?: PreviewType;
-  projectId: string;
-  size: number;
   url: string;
-  threadId: string;
-  comments: Comment[];
 };
 
 export type Comment = {

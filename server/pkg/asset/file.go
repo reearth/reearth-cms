@@ -17,6 +17,9 @@ type File struct {
 }
 
 func (f *File) Name() string {
+	if f == nil {
+		return ""
+	}
 	return f.name
 }
 
@@ -25,14 +28,23 @@ func (f *File) SetName(n string) {
 }
 
 func (f *File) Size() uint64 {
+	if f == nil {
+		return 0
+	}
 	return f.size
 }
 
 func (f *File) ContentType() string {
+	if f == nil {
+		return ""
+	}
 	return f.contentType
 }
 
 func (f *File) Path() string {
+	if f == nil {
+		return ""
+	}
 	return f.path
 }
 
@@ -44,10 +56,13 @@ func (f *File) Children() []*File {
 }
 
 func (f *File) IsDir() bool {
-	return f.children != nil
+	return f != nil && f.children != nil
 }
 
 func (f *File) AppendChild(c *File) {
+	if f == nil {
+		return
+	}
 	f.children = append(f.children, c)
 }
 
@@ -71,6 +86,9 @@ func (f *File) Clone() *File {
 }
 
 func (f *File) Files() (res []*File) {
+	if f == nil {
+		return nil
+	}
 	if len(f.children) > 0 {
 		for _, c := range f.children {
 			res = append(res, c.Files()...)
@@ -81,58 +99,50 @@ func (f *File) Files() (res []*File) {
 	return
 }
 
-// TODO:improve perfomance later
+func (f *File) RootPath(uuid string) string {
+	if f == nil {
+		return ""
+	}
+	return path.Join(uuid[:2], uuid[2:], f.path)
+}
+
+// FoldFiles organizes files into directories and returns the files as children of the parent directory.
+// The parent directory refers to a zip file located in the root directory and is treated as the root directory.
 func FoldFiles(files []*File, parent *File) *File {
 	files = slices.Clone(files)
 	slices.SortFunc(files, func(a, b *File) bool {
 		return strings.Compare(a.Path(), b.Path()) < 0
 	})
 
-	var skipIndexes []int
-	for i := range files {
-		if slices.Contains(skipIndexes, i) {
-			continue
-		}
+	folded := *parent
+	folded.children = nil
 
-		// parent: /a/b
-		// file: /a/b/c/d.txt
-		// diff: c
-		parentDir := strings.TrimPrefix(parent.Path(), "/")
-		fileDir := strings.TrimPrefix(path.Dir(files[i].Path()), "/")
-		diff := strings.TrimPrefix(strings.TrimPrefix(fileDir, parentDir), "/")
-
-		var parents []string
-		if diff != "" {
-			parents = strings.Split(diff, "/")
-		}
-
-		if len(parents) == 0 {
-			parent.AppendChild(files[i])
-			continue
-		}
-		if !parent.IsDir() {
-			// when parent is root
-			parentDir = path.Dir(parent.Path())
-		}
-
-		dir := NewFile().Name(parents[0]).Dir().Path(path.Join(parentDir, parents[0])).Build()
-
-		var childrenFiles []*File
-		lo.ForEach(files, func(file *File, j int) {
-			// a file whose path contains parent's path is folded under its parent
-			if strings.HasPrefix(file.Path(), dir.Path()) {
-				childrenFiles = append(childrenFiles, file)
-				_, index, _ := lo.FindIndexOf(files, func(f *File) bool {
-					return f == file
-				})
-				// a file which is folded here will be skipped above for loop
-				skipIndexes = append(skipIndexes, index)
-			}
-		})
-
-		foldedDir := FoldFiles(childrenFiles, dir)
-		parent.AppendChild(foldedDir)
+	const rootDir = "/"
+	dirs := map[string]*File{
+		rootDir: &folded,
 	}
+	for i := range files {
+		parentDir := rootDir
+		names := strings.TrimPrefix(files[i].Path(), "/")
+		for {
+			name, rest, found := strings.Cut(names, "/")
+			if !found {
+				break
+			}
+			names = rest
 
-	return parent
+			dir := path.Join(parentDir, name)
+			if _, ok := dirs[dir]; !ok {
+				d := &File{
+					name: name,
+					path: dir,
+				}
+				dirs[parentDir].AppendChild(d)
+				dirs[dir] = d
+			}
+			parentDir = dir
+		}
+		dirs[parentDir].AppendChild(files[i])
+	}
+	return &folded
 }

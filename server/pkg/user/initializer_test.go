@@ -3,6 +3,7 @@ package user
 import (
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,18 +16,19 @@ func TestInit(t *testing.T) {
 	}
 	tests := []struct {
 		Name, Email, Username string
-		Sub                   Auth
+		Sub                   *Auth
 		UID                   *ID
 		TID                   *WorkspaceID
 		ExpectedUser          *User
 		ExpectedWorkspace     *Workspace
+		Password              *string
 		Err                   error
 	}{
 		{
 			Name:     "Success create user",
 			Email:    "xx@yy.zz",
 			Username: "nnn",
-			Sub: Auth{
+			Sub: &Auth{
 				Provider: "###",
 				Sub:      "###",
 			},
@@ -48,10 +50,77 @@ func TestInit(t *testing.T) {
 			Err: nil,
 		},
 		{
+			Name:     "Success create user with password",
+			Email:    "xx@yy.zz",
+			Username: "nnn",
+			Sub: &Auth{
+				Provider: "###",
+				Sub:      "###",
+			},
+			UID:      &uid,
+			TID:      &tid,
+			Password: lo.ToPtr("Pass123!@#"),
+			ExpectedUser: New().
+				ID(uid).
+				Email("xx@yy.zz").
+				Name("nnn").
+				Workspace(tid).
+				PasswordPlainText("Pass123!@#").
+				Auths([]Auth{expectedSub}).
+				MustBuild(),
+			ExpectedWorkspace: NewWorkspace().
+				ID(tid).
+				Name("nnn").
+				Members(map[ID]Member{uid: {Role: RoleOwner}}).
+				Personal(true).
+				MustBuild(),
+			Err: nil,
+		},
+		{
+			Name:     "Success create user with password",
+			Email:    "xx@yy.zz",
+			Username: "nnn",
+			Sub: &Auth{
+				Provider: "###",
+				Sub:      "###",
+			},
+			UID:               &uid,
+			TID:               &tid,
+			Password:          lo.ToPtr("pass"),
+			ExpectedUser:      nil,
+			ExpectedWorkspace: nil,
+			Err:               ErrPasswordLength,
+		},
+		{
+			Name:     "Success create user without sub",
+			Email:    "xx@yy.zz",
+			Username: "nnn",
+			Sub:      nil,
+			UID:      &uid,
+			TID:      &tid,
+			ExpectedUser: New().
+				ID(uid).
+				Email("xx@yy.zz").
+				Name("nnn").
+				Workspace(tid).
+				Auths([]Auth{{
+					Provider: "reearth",
+					Sub:      "reearth|" + uid.String(),
+				}}).
+				MustBuild(),
+			ExpectedWorkspace: NewWorkspace().
+				ID(tid).
+				Name("nnn").
+				Members(map[ID]Member{uid: {Role: RoleOwner}}).
+				Personal(true).
+				MustBuild(),
+			Err: nil,
+		},
+		{
 			Name:     "Success nil workspace id",
 			Email:    "xx@yy.zz",
 			Username: "nnn",
-			Sub: Auth{
+			Sub: &Auth{
 				Provider: "###",
 				Sub:      "###",
 			},
@@ -76,7 +145,7 @@ func TestInit(t *testing.T) {
 			Name:     "Success nil id",
 			Email:    "xx@yy.zz",
 			Username: "nnn",
-			Sub: Auth{
+			Sub: &Auth{
 				Provider: "###",
 				Sub:      "###",
 			},
@@ -105,9 +174,10 @@ func TestInit(t *testing.T) {
 			user, workspace, err := Init(InitParams{
 				Email:       tt.Email,
 				Name:        tt.Username,
-				Sub:         &tt.Sub,
+				Sub:         tt.Sub,
 				UserID:      tt.UID,
 				WorkspaceID: tt.TID,
+				Password:    tt.Password,
 			})
 			if tt.Err == nil {
 				assert.Equal(t, tt.ExpectedUser.Email(), user.Email())

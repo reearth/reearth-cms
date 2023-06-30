@@ -15,6 +15,11 @@ type Props = {
   itemIds: string[];
   visible: boolean;
   onLinkItemRequestModalCancel: () => void;
+  requestModalLoading: boolean;
+  requestModalTotalCount: number;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  onRequestTableChange: (page: number, pageSize: number) => void;
   linkedRequest?: Request;
   requestList: Request[];
   onChange?: (value: Request, itemIds: string[]) => void;
@@ -25,14 +30,21 @@ const LinkItemRequestModal: React.FC<Props> = ({
   visible,
   onLinkItemRequestModalCancel,
   requestList,
+  onRequestTableChange,
+  requestModalLoading,
+  requestModalTotalCount,
+  requestModalPage,
+  requestModalPageSize,
   onChange,
 }) => {
   const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const t = useT();
 
   const pagination: TablePaginationConfig = {
-    pageSize: 5,
-    showSizeChanger: false,
+    showSizeChanger: true,
+    current: requestModalPage,
+    total: requestModalTotalCount,
+    pageSize: requestModalPageSize,
   };
 
   const submit = () => {
@@ -108,7 +120,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       title={t("Add to Request")}
       centered
       onOk={submit}
@@ -127,6 +139,10 @@ const LinkItemRequestModal: React.FC<Props> = ({
         options={false}
         pagination={pagination}
         tableStyle={{ overflowX: "scroll" }}
+        loading={requestModalLoading}
+        onChange={pagination => {
+          onRequestTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
+        }}
       />
     </Modal>
   );

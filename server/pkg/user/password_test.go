@@ -19,6 +19,10 @@ func TestBcryptPasswordEncoder(t *testing.T) {
 	ok, err = (&BcryptPasswordEncoder{}).Verify("abcd", got)
 	assert.NoError(t, err)
 	assert.False(t, ok)
+
+	ok, err = (&BcryptPasswordEncoder{}).Verify("abcd", nil)
+	assert.Error(t, err)
+	assert.False(t, ok)
 }
 
 func TestMockPasswordEncoder(t *testing.T) {

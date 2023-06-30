@@ -15,6 +15,14 @@ func TestFieldBool_Type(t *testing.T) {
 	assert.Equal(t, value.TypeBool, (&FieldBool{}).Type())
 }
 
+func TestFieldBool_TypeProperty(t *testing.T) {
+	f := FieldBool{}
+	assert.Equal(t, &TypeProperty{
+		t:    f.Type(),
+		bool: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldBool_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldBool)(nil).Clone())
 	assert.Equal(t, &FieldBool{}, (&FieldBool{}).Clone())

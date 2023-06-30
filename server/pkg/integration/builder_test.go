@@ -2,6 +2,7 @@ package integration
 
 import (
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -506,4 +507,12 @@ func TestBuilder_UpdatedAt(t *testing.T) {
 			assert.Equalf(t, tt.want, b.UpdatedAt(tt.args.updatedAt), "UpdatedAt(%v)", tt.args.updatedAt)
 		})
 	}
+}
+
+func TestBuilder_GenerateToken(t *testing.T) {
+	b := New()
+	b.GenerateToken()
+	assert.NotNil(t, b.i.token)
+	assert.True(t, strings.HasPrefix(b.i.token, "secret_"))
+	assert.Equal(t, 50, len(b.i.token))
 }

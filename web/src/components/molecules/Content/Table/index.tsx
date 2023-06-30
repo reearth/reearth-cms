@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Key, useMemo } from "react";
+import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -37,6 +38,11 @@ export type Props = {
   searchTerm: string;
   page: number;
   pageSize: number;
+  requestModalLoading: boolean;
+  requestModalTotalCount: number;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onContentTableChange: (
     page: number,
@@ -47,6 +53,7 @@ export type Props = {
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onItemEdit: (itemId: string) => void;
   onItemDelete: (itemIds: string[]) => Promise<void>;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
@@ -68,14 +75,20 @@ const ContentTable: React.FC<Props> = ({
   pageSize,
   requests,
   addItemToRequestModalShown,
+  onRequestTableChange,
+  requestModalLoading,
+  requestModalTotalCount,
+  requestModalPage,
+  requestModalPageSize,
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onUnpublish,
   onSearchTerm,
   onContentTableChange,
   onItemSelect,
   setSelection,
-  onItemEdit,
+  // onItemEdit,
   onItemDelete,
   onItemsReload,
 }) => {
@@ -84,11 +97,9 @@ const ContentTable: React.FC<Props> = ({
     () => [
       {
         render: (_, contentField) => (
-          <Button
-            type="link"
-            icon={<Icon icon="edit" />}
-            onClick={() => onItemEdit(contentField.id)}
-          />
+          <Link to={`details/${contentField.id}`}>
+            <Icon icon="edit" />
+          </Link>
         ),
         width: 48,
         minWidth: 48,
@@ -167,7 +178,7 @@ const ContentTable: React.FC<Props> = ({
         minWidth: 148,
       },
     ],
-    [t, onItemEdit, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
+    [t, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
   );
 
   const rowSelection: TableRowSelection = {
@@ -185,6 +196,9 @@ const ContentTable: React.FC<Props> = ({
       <Space size={16}>
         <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
           <Icon icon="plus" /> {t("Add to Request")}
+        </PrimaryButton>
+        <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
+          <Icon icon="eyeInvisible" /> {t("Unpublish")}
         </PrimaryButton>
         <PrimaryButton onClick={props.onCleanSelected}>
           <Icon icon="clear" /> {t("Deselect")}
@@ -254,6 +268,11 @@ const ContentTable: React.FC<Props> = ({
           visible={addItemToRequestModalShown}
           linkedRequest={undefined}
           requestList={requests}
+          onRequestTableChange={onRequestTableChange}
+          requestModalLoading={requestModalLoading}
+          requestModalTotalCount={requestModalTotalCount}
+          requestModalPage={requestModalPage}
+          requestModalPageSize={requestModalPageSize}
         />
       )}
     </>

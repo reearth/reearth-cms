@@ -32,7 +32,6 @@ const ProjectSchema: React.FC = () => {
     handleAssetCreateFromUrl,
     handleSearchTerm,
     handleAssetsReload,
-    handleNavigateToAsset,
     totalCount,
     page,
     pageSize,
@@ -100,7 +99,6 @@ const ProjectSchema: React.FC = () => {
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onNavigateToAsset={handleNavigateToAsset}
         />
       )}
       {selectedType && (
@@ -131,7 +129,6 @@ const ProjectSchema: React.FC = () => {
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onNavigateToAsset={handleNavigateToAsset}
         />
       )}
     </>

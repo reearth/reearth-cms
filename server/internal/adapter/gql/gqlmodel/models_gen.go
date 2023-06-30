@@ -64,14 +64,13 @@ type Asset struct {
 	CreatedByType           OperatorType             `json:"createdByType"`
 	CreatedByID             ID                       `json:"createdById"`
 	Items                   []*AssetItem             `json:"items"`
-	FileName                string                   `json:"fileName"`
 	Size                    int64                    `json:"size"`
 	PreviewType             *PreviewType             `json:"previewType"`
-	File                    *AssetFile               `json:"file"`
 	UUID                    string                   `json:"uuid"`
 	Thread                  *Thread                  `json:"thread"`
 	ThreadID                ID                       `json:"threadId"`
 	URL                     string                   `json:"url"`
+	FileName                string                   `json:"fileName"`
 	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus"`
 }
 
@@ -128,11 +127,23 @@ type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file"`
 	URL               *string         `json:"url"`
+	Token             *string         `json:"token"`
 	SkipDecompression *bool           `json:"skipDecompression"`
 }
 
 type CreateAssetPayload struct {
 	Asset *Asset `json:"asset"`
+}
+
+type CreateAssetUploadInput struct {
+	ProjectID ID     `json:"projectId"`
+	Filename  string `json:"filename"`
+}
+
+type CreateAssetUploadPayload struct {
+	URL         string `json:"url"`
+	Token       string `json:"token"`
+	ContentType string `json:"contentType"`
 }
 
 type CreateFieldInput struct {
@@ -202,6 +213,14 @@ type CreateWorkspaceInput struct {
 
 type CreateWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
+}
+
+type DecompressAssetInput struct {
+	AssetID ID `json:"assetId"`
+}
+
+type DecompressAssetPayload struct {
+	Asset *Asset `json:"asset"`
 }
 
 type DeleteAssetInput struct {
@@ -348,8 +367,10 @@ type Item struct {
 	Project       *Project     `json:"project"`
 	Thread        *Thread      `json:"thread"`
 	Fields        []*ItemField `json:"fields"`
+	Assets        []*Asset     `json:"assets"`
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
+	Version       string       `json:"version"`
 }
 
 func (Item) IsNode()        {}
@@ -780,6 +801,14 @@ type ThreadPayload struct {
 	Thread *Thread `json:"thread"`
 }
 
+type UnpublishItemInput struct {
+	ItemID []ID `json:"itemId"`
+}
+
+type UnpublishItemPayload struct {
+	Items []*Item `json:"items"`
+}
+
 type UpdateAssetInput struct {
 	ID          ID           `json:"id"`
 	PreviewType *PreviewType `json:"previewType"`
@@ -822,8 +851,9 @@ type UpdateIntegrationOfWorkspaceInput struct {
 }
 
 type UpdateItemInput struct {
-	ItemID ID                `json:"itemId"`
-	Fields []*ItemFieldInput `json:"fields"`
+	ItemID  ID                `json:"itemId"`
+	Fields  []*ItemFieldInput `json:"fields"`
+	Version *string           `json:"version"`
 }
 
 type UpdateMeInput struct {

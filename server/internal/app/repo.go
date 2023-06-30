@@ -6,12 +6,14 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/mongox"
 	"github.com/spf13/afero"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -35,23 +37,29 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
-	repos, err := mongorepo.New(ctx, client, databaseName)
+	repos, err := mongorepo.New(ctx, client, databaseName, mongox.IsTransactionAvailable(conf.DB))
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
 
 	// File
 	var fileRepo gateway.File
-	if conf.GCS.BucketName == "" {
-		log.Infoln("file: local storage is used")
-		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
-		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
-	} else {
+	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
 		fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl)
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}
+	} else if conf.S3.BucketName != "" {
+		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
+		fileRepo, err = aws.NewFile(ctx, conf.S3.BucketName, conf.AssetBaseURL, conf.S3.PublicationCacheControl)
+		if err != nil {
+			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
+		}
+	} else {
+		log.Infoln("file: local storage is used")
+		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
+		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
 	}
 	if err != nil {
 		log.Fatalln(fmt.Sprintf("file: init error: %+v", err))
@@ -62,8 +70,9 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 
 	// CloudTasks
-	if conf.Task.GCPProject != "" && conf.Task.GCPRegion != "" || conf.Task.QueueName != "" {
+	if conf.Task.GCPProject != "" {
 		conf.Task.GCSHost = conf.Host
+		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))

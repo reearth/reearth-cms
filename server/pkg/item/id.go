@@ -6,10 +6,13 @@ type ID = id.ItemID
 type ProjectID = id.ProjectID
 type SchemaID = id.SchemaID
 type FieldID = id.FieldID
+type FieldIDList = id.FieldIDList
 type ModelID = id.ModelID
 type ThreadID = id.ThreadID
 type UserID = id.UserID
 type IntegrationID = id.IntegrationID
+type AssetID = id.AssetID
+type AssetIDList = id.AssetIDList
 
 var NewID = id.NewItemID
 var NewThreadID = id.NewThreadID

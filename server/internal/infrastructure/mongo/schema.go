@@ -18,7 +18,7 @@ var (
 )
 
 type Schema struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 	f      repo.WorkspaceFilter
 }
 

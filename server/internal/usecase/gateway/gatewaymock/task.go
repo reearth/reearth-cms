@@ -35,6 +35,20 @@ func (m *MockTaskRunner) EXPECT() *MockTaskRunnerMockRecorder {
 	return m.recorder
 }
 
+// Retry mocks base method.
+func (m *MockTaskRunner) Retry(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Retry", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Retry indicates an expected call of Retry.
+func (mr *MockTaskRunnerMockRecorder) Retry(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Retry", reflect.TypeOf((*MockTaskRunner)(nil).Retry), arg0, arg1)
+}
+
 // Run mocks base method.
 func (m *MockTaskRunner) Run(arg0 context.Context, arg1 task.Payload) error {
 	m.ctrl.T.Helper()

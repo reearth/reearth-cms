@@ -111,5 +111,5 @@ func NewWorkspaces(workspaces []*user.Workspace) ([]*WorkspaceDocument, []string
 type WorkspaceConsumer = mongox.SliceFuncConsumer[*WorkspaceDocument, *user.Workspace]
 
 func NewWorkspaceConsumer() *WorkspaceConsumer {
-	return NewComsumer[*WorkspaceDocument, *user.Workspace]()
+	return NewConsumer[*WorkspaceDocument, *user.Workspace]()
 }

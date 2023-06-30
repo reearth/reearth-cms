@@ -5,6 +5,7 @@ import { assetFileFragment, threadFragment, integrationFragment } from "@reearth
 export const assetFragment = gql`
   fragment assetFragment on Asset {
     id
+    fileName
     projectId
     createdAt
     createdBy {
@@ -17,28 +18,8 @@ export const assetFragment = gql`
         ...integrationFragment
       }
     }
-    createdByType
-    fileName
     size
     previewType
-    file @include(if: $withFiles) {
-      ...assetFileFragment
-      children {
-        ...assetFileFragment
-        children {
-          ...assetFileFragment
-          children {
-            ...assetFileFragment
-            children {
-              ...assetFileFragment
-              children {
-                ...assetFileFragment
-              }
-            }
-          }
-        }
-      }
-    }
     uuid
     url
     thread {

@@ -24,6 +24,7 @@ type Event[T any] struct {
 	timestamp time.Time
 	operator  operator.Operator
 	ty        Type
+	prj       *Project
 	object    T
 }
 
@@ -43,6 +44,10 @@ func (e *Event[T]) Operator() operator.Operator {
 	return e.operator
 }
 
+func (e *Event[T]) Project() *Project {
+	return e.prj.Clone()
+}
+
 func (e *Event[T]) Object() any {
 	return e.object
 }
@@ -56,6 +61,22 @@ func (e *Event[T]) Clone() *Event[T] {
 		timestamp: e.timestamp,
 		operator:  e.operator,
 		ty:        e.ty,
+		prj:       e.prj.Clone(),
 		object:    e.object,
+	}
+}
+
+type Project struct {
+	ID    string
+	Alias string
+}
+
+func (p *Project) Clone() *Project {
+	if p == nil {
+		return nil
+	}
+	return &Project{
+		ID:    p.ID,
+		Alias: p.Alias,
 	}
 }

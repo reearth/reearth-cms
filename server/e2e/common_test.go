@@ -35,7 +35,7 @@ func StartServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Se
 	var repos *repo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
-		repos = lo.Must(mongo.NewWithDB(ctx, db))
+		repos = lo.Must(mongo.NewWithDB(ctx, db, false))
 	} else {
 		repos = memory.New()
 	}
@@ -52,7 +52,7 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container) 
 	t.Helper()
 
 	if testing.Short() {
-		t.SkipNow()
+		t.Skip("skipping test in short mode.")
 	}
 
 	ctx := context.Background()

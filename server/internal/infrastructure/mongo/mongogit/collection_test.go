@@ -3,6 +3,7 @@ package mongogit
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/pkg/version"
@@ -13,6 +14,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -110,11 +112,15 @@ func TestCollection_Find(t *testing.T) {
 	consumer0 := &mongox.SliceConsumer[Document[d]]{}
 	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, version.All(), consumer0))
 	assert.Equal(t, []Document[d]{
-		{Data: d{A: "b"}, Meta: Meta{Version: vx}},
+		{Data: d{A: "b"}, Meta: Meta{
+			ObjectID: consumer0.Result[0].Meta.ObjectID,
+			Version:  vx,
+		}},
 		{Data: d{A: "b", B: "c"}, Meta: Meta{
-			Version: vy,
-			Parents: []version.Version{vx},
-			Refs:    []version.Ref{"latest", "aaa"},
+			ObjectID: consumer0.Result[1].Meta.ObjectID,
+			Version:  vy,
+			Parents:  []version.Version{vx},
+			Refs:     []version.Ref{"latest", "aaa"},
 		}},
 	}, consumer0.Result)
 
@@ -256,6 +262,71 @@ func TestCollection_Paginate(t *testing.T) {
 	assert.Equal(t, []d{{ID: "a", A: "b"}, {ID: "b", A: "a"}}, consumer.Result)
 }
 
+func TestCollection_Timestamp(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Client()
+	vx, vy := version.New(), version.New()
+	t1 := time.Date(2023, time.April, 1, 0, 0, 0, 0, time.Local).UTC()
+	t2 := time.Date(2023, time.April, 2, 0, 0, 0, 0, time.Local).UTC()
+	t3 := time.Date(2023, time.April, 3, 0, 0, 0, 0, time.Local).UTC()
+
+	_, _ = c.InsertMany(ctx, []any{
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "b",
+			},
+			Meta: Meta{
+				ObjectID: primitive.NewObjectIDFromTimestamp(t1),
+				Version:  vx,
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "b",
+				"b": "c",
+			},
+			Meta: Meta{
+				ObjectID: primitive.NewObjectIDFromTimestamp(t2),
+				Version:  vy,
+				Parents:  []version.Version{vx},
+				Refs:     []version.Ref{"latest", "aaa"},
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "d",
+				"b": "a",
+			},
+			Meta: Meta{
+				ObjectID: primitive.NewObjectIDFromTimestamp(t3),
+				Version:  vy,
+				Refs:     []version.Ref{"latest"},
+			},
+		},
+	})
+
+	// all
+	res, err := col.Timestamp(ctx, bson.M{"a": "b"}, version.All())
+	assert.NoError(t, err)
+	assert.Equal(t, t2, res)
+
+	// version
+	res, err = col.Timestamp(ctx, bson.M{"a": "b"}, version.Eq(vx.OrRef()))
+	assert.NoError(t, err)
+	assert.Equal(t, t1, res)
+
+	// ref
+	res, err = col.Timestamp(ctx, bson.M{"a": "b"}, version.Eq(version.Latest.OrVersion()))
+	assert.NoError(t, err)
+	assert.Equal(t, t2, res)
+
+	// not found
+	res, err = col.Timestamp(ctx, bson.M{"a": "c"}, version.Eq(version.Latest.OrVersion()))
+	assert.Equal(t, rerror.ErrNotFound, err)
+	assert.Empty(t, res)
+}
+
 func TestCollection_SaveOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
@@ -274,8 +345,9 @@ func TestCollection_SaveOne(t *testing.T) {
 	meta1 := Meta{}
 	assert.NoError(t, cur.Decode(&meta1))
 	assert.Equal(t, Meta{
-		Version: meta1.Version,
-		Refs:    []version.Ref{version.Latest},
+		ObjectID: meta1.ObjectID,
+		Version:  meta1.Version,
+		Refs:     []version.Ref{version.Latest},
 	}, meta1)
 	assert.NoError(t, cur.Decode(&data))
 	assert.Equal(t, Data{ID: "x", A: "aaa"}, data)
@@ -287,9 +359,10 @@ func TestCollection_SaveOne(t *testing.T) {
 	meta2 := Meta{}
 	assert.NoError(t, cur.Decode(&meta2))
 	assert.Equal(t, Meta{
-		Version: meta2.Version,
-		Parents: []version.Version{meta1.Version},
-		Refs:    []version.Ref{version.Latest},
+		ObjectID: meta2.ObjectID,
+		Version:  meta2.Version,
+		Parents:  []version.Version{meta1.Version},
+		Refs:     []version.Ref{version.Latest},
 	}, meta2)
 	data2 := Data{}
 	assert.NoError(t, cur.Decode(&data2))
@@ -299,8 +372,9 @@ func TestCollection_SaveOne(t *testing.T) {
 	meta3 := Meta{}
 	assert.NoError(t, cur.Decode(&meta3))
 	assert.Equal(t, Meta{
-		Version: meta1.Version,
-		Refs:    []version.Ref{}, // latest ref should be deleted
+		ObjectID: meta3.ObjectID,
+		Version:  meta1.Version,
+		Refs:     []version.Ref{}, // latest ref should be deleted
 	}, meta3)
 	data3 := Data{}
 	assert.NoError(t, cur.Decode(&data3))
@@ -314,9 +388,10 @@ func TestCollection_SaveOne(t *testing.T) {
 	meta4 := Meta{}
 	assert.NoError(t, cur.Decode(&meta4))
 	assert.Equal(t, Meta{
-		Version: meta4.Version,
-		Parents: []version.Version{meta1.Version},
-		Refs:    []version.Ref{"test"},
+		ObjectID: meta4.ObjectID,
+		Version:  meta4.Version,
+		Parents:  []version.Version{meta1.Version},
+		Refs:     []version.Ref{"test"},
 	}, meta4)
 	data4 := Data{}
 	assert.NoError(t, cur.Decode(&data4))
@@ -326,8 +401,9 @@ func TestCollection_SaveOne(t *testing.T) {
 	meta5 := Meta{}
 	assert.NoError(t, cur.Decode(&meta5))
 	assert.Equal(t, Meta{
-		Version: meta1.Version,
-		Refs:    []version.Ref{}, // test ref should be deleted
+		ObjectID: meta5.ObjectID,
+		Version:  meta1.Version,
+		Refs:     []version.Ref{}, // test ref should be deleted
 	}, meta5)
 	data5 := Data{}
 	assert.NoError(t, cur.Decode(&data5))
@@ -355,25 +431,26 @@ func TestCollection_UpdateRef(t *testing.T) {
 	assert.NoError(t, col.UpdateRef(ctx, "y", "foo", nil))
 	got := c.FindOne(ctx, bson.M{"id": "y", versionKey: v3})
 	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, Meta{Version: v3, Refs: []version.Ref{}}, meta)
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v3, Refs: []version.Ref{}}, meta)
+	assert.NoError(t, col.UpdateRef(ctx, "y", "bar", nil)) // non-existent ref
 
 	// attach foo ref
 	assert.NoError(t, col.UpdateRef(ctx, "x", "foo", v1.OrRef().Ref()))
 	got = c.FindOne(ctx, bson.M{"id": "x", versionKey: v1})
 	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, Meta{Version: v1, Refs: []version.Ref{"foo"}}, meta)
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v1, Refs: []version.Ref{"foo"}}, meta)
 
 	// move foo ref
 	assert.NoError(t, col.UpdateRef(ctx, "x", "foo", v2.OrRef().Ref()))
 	got = c.FindOne(ctx, bson.M{"id": "x", versionKey: v1})
 	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, Meta{Version: v1, Refs: []version.Ref{}}, meta)
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v1, Refs: []version.Ref{}}, meta)
 	got = c.FindOne(ctx, bson.M{"id": "x", versionKey: v2})
 	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, Meta{Version: v2, Refs: []version.Ref{"foo"}}, meta)
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v2, Refs: []version.Ref{"foo"}}, meta)
 	got = c.FindOne(ctx, bson.M{"id": "y", versionKey: v3})
 	assert.NoError(t, got.Decode(&meta))
-	assert.Equal(t, Meta{Version: v3, Refs: []version.Ref{}}, meta)
+	assert.Equal(t, Meta{ObjectID: meta.ObjectID, Version: v3, Refs: []version.Ref{}}, meta)
 }
 
 func TestCollection_IsArchived(t *testing.T) {
@@ -503,15 +580,20 @@ func TestCollection_Meta(t *testing.T) {
 
 	got, err := col.meta(ctx, "x", v1.OrRef().Ref())
 	assert.NoError(t, err)
-	assert.Equal(t, &Meta{Version: v1}, got)
+	assert.Equal(t, &Meta{
+		ObjectID: got.ObjectID,
+		Version:  v1,
+	}, got)
 
 	got, err = col.meta(ctx, "x", version.Latest.OrVersion().Ref())
 	assert.NoError(t, err)
 	assert.Equal(t, &Meta{
-		Version: v2,
-		Parents: []version.Version{v1},
-		Refs:    []version.Ref{"latest"},
+		ObjectID: got.ObjectID,
+		Version:  v2,
+		Parents:  []version.Version{v1},
+		Refs:     []version.Ref{"latest"},
 	}, got)
+	assert.Equal(t, got.ObjectID.Timestamp(), got.Timestamp())
 
 	got, err = col.meta(ctx, "x", v3.OrRef().Ref())
 	assert.Same(t, rerror.ErrNotFound, err)

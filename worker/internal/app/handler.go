@@ -39,7 +39,7 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 
 func (h Handler) WebhookHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var msg pubsubBody
+		var msg msgBody
 		var w webhook.Webhook
 		if err := c.Bind(&msg); err != nil {
 			if err := c.Bind(&w); err != nil {
@@ -61,13 +61,13 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 	}
 }
 
-type pubsubBody struct {
+type msgBody struct {
 	Message struct {
 		Data string `json:"data"`
 	} `json:"message"`
 }
 
-func (b pubsubBody) Data() ([]byte, error) {
+func (b msgBody) Data() ([]byte, error) {
 	if b.Message.Data == "" {
 		return nil, nil
 	}

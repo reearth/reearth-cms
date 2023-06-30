@@ -25,7 +25,6 @@ func TestFile_GetURL(t *testing.T) {
 		FileName(n).
 		UUID(u).
 		Thread(id.NewThreadID()).
-		File(asset.NewFile().Build()).
 		MustBuild()
 
 	expected, err := url.JoinPath(host, gcsAssetBasePath, u[:2], u[2:], n)

@@ -1,5 +1,6 @@
 Comment already exist in this thread: コメントはすでにこのスレッドに存在します。
 Comment does not exist in this thread: コメントはこのスレッドに存在しません。
+File is missing: ファイルがありません
 already locked: 既にロック済みです。
 already published: 既に公開済みです。
 archived: アーカイブ済み
@@ -27,7 +28,6 @@ failed to update user: ユーザー情報の更新に失敗しました。
 failed to upload file: ファイルのアップロードに失敗しました。
 field not found: ファイルが見つかりませんでした。
 field value exist: フィールドの値はすでに存在します。
-file is required: ファイルは必須です。
 file not found: ファイルが見つかりませんでした。
 file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
@@ -68,10 +68,11 @@ invalid value: 無効な値です。
 invalid values: 無効な値です。
 invalid workspace name: 無効なワークスペース名です。
 item field required: このフィールドは必須項目です。
+item has been changed before you change it: このアイテムを保存する前に他のユーザーによってアイテムが変更されています。
 items cannot be empty: アイテムは空にできません。
+items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
 max must be larger then min: 最大値は最小値より大きい必要があります。
 missing fields: フィールドが不足しています。
-missing required config: 必須項目が設定されていません。
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
 not found: 見つかりませんでした。
 not implemented: 未実装です。
@@ -79,6 +80,7 @@ not implemented yet: 未実装です。
 not locked: ロックされていません。
 not verified user: 未認証のユーザーです。
 nothing is updated: アップデートされた項目はありません。
+one or more items not found: 対象のアイテムが見つかりませんでした。
 only requests with status waiting can be approved: レビュー待ちのリクエストのみ承認可能です。
 only reviewers can approve: レビュワーのみ承認可能です。
 operation denied: 操作が拒否されました。
@@ -98,6 +100,7 @@ thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。
 unauthorized: 未認証
 unsupported entity: サポートされていないエンティティ
+unsupported operation: サポートされていない処理です。
 user already exists: ユーザーはすでに存在します。
 user already joined: ユーザーはすでに参加しています。
 uuid is required: UUIDは必須です。

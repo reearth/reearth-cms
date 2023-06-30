@@ -18,9 +18,10 @@ import {
   ItemSortType as GQLItemSortType,
   useSearchItemQuery,
   Asset as GQLAsset,
-  useGetAssetsByIdQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+
+import { fileName } from "./utils";
 
 export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
 export type SortDirection = "ASC" | "DESC";
@@ -32,9 +33,15 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
+    handleUnpublish,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleRequestTableChange,
+    loading: requestModalLoading,
+    totalCount: requestModalTotalCount,
+    page: requestModalPage,
+    pageSize: requestModalPageSize,
   } = useContentHooks();
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,15 +60,6 @@ export default () => {
     type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
     direction: direction ? (direction as SortDirection) : "DESC",
   });
-  const [assetListIds, setAssetListIds] = useState<string[] | undefined>([]);
-
-  const { data: assetList, loading: loadingAssets } = useGetAssetsByIdQuery({
-    variables: {
-      id: assetListIds as string[],
-      withFiles: false,
-    },
-    skip: !assetListIds,
-  });
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
@@ -73,11 +71,7 @@ export default () => {
     setSearchTerm(searchTermParam ?? "");
   }, [pageParam, pageSizeParam, sortType, direction, searchTermParam]);
 
-  const {
-    data,
-    refetch,
-    loading: loadingItems,
-  } = useSearchItemQuery({
+  const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
       query: {
@@ -92,33 +86,6 @@ export default () => {
     },
     skip: !currentModel?.schema.id,
   });
-
-  useEffect(() => {
-    setAssetListIds(
-      data?.searchItem.nodes
-        .reduce((arr: string[], item) => {
-          return [
-            ...arr,
-            ...(item?.fields.reduce(
-              (prevField: string[], field) =>
-                field.type === "Asset"
-                  ? Array.isArray(field.value)
-                    ? [
-                        ...prevField,
-                        ...field.value.reduce(
-                          (prevVal: string[], val: string) => [...prevVal, val],
-                          [],
-                        ),
-                      ]
-                    : [...prevField, field.value]
-                  : [...prevField],
-              [],
-            ) ?? [...arr]),
-          ];
-        }, [])
-        .filter(val => !!val),
-    );
-  }, [data]);
 
   const handleItemsReload = useCallback(() => {
     refetch();
@@ -147,16 +114,17 @@ export default () => {
                       field.type === "Asset"
                         ? Array.isArray(field.value)
                           ? field.value
-                              .map(
-                                value =>
-                                  (assetList?.nodes as GQLAsset[])?.find(
-                                    asset => asset?.id === value,
-                                  )?.fileName,
+                              .map(value =>
+                                fileName(
+                                  (item?.assets as GQLAsset[])?.find(asset => asset?.id === value)
+                                    ?.url,
+                                ),
                               )
                               .join(", ")
-                          : (assetList?.nodes as GQLAsset[])?.find(
-                              asset => asset?.id === field.value,
-                            )?.fileName
+                          : fileName(
+                              (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)
+                                ?.url,
+                            )
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -172,7 +140,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [assetList, data?.searchItem.nodes]);
+  }, [data?.searchItem.nodes]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
@@ -299,7 +267,7 @@ export default () => {
 
   return {
     currentModel,
-    loading: loadingAssets || loadingItems,
+    loading,
     contentTableFields,
     contentTableColumns,
     collapsedModelMenu,
@@ -313,6 +281,12 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    handleRequestTableChange,
+    requestModalLoading,
+    requestModalTotalCount,
+    requestModalPage,
+    requestModalPageSize,
+    handleUnpublish,
     handleBulkAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,

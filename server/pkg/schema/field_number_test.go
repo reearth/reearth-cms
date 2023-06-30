@@ -24,6 +24,14 @@ func TestFieldNumber_Type(t *testing.T) {
 	assert.Equal(t, value.TypeNumber, (&FieldNumber{}).Type())
 }
 
+func TestFieldNumber_TypeProperty(t *testing.T) {
+	f := FieldNumber{}
+	assert.Equal(t, &TypeProperty{
+		t:      f.Type(),
+		number: &f,
+	}, (&f).TypeProperty())
+}
+
 func TestFieldNumber_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldNumber)(nil).Clone())
 	assert.Equal(t, &FieldNumber{

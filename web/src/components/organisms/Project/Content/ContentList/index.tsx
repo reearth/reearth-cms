@@ -24,7 +24,13 @@ const ContentList: React.FC = () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    handleRequestTableChange,
+    requestModalLoading,
+    requestModalTotalCount,
+    requestModalPage,
+    requestModalPageSize,
     handleBulkAddItemToRequest: handleAddItemToRequest,
+    handleUnpublish,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
@@ -71,6 +77,11 @@ const ContentList: React.FC = () => {
       contentTableColumns={contentTableColumns}
       selection={selection}
       requests={requests}
+      onRequestTableChange={handleRequestTableChange}
+      requestModalLoading={requestModalLoading}
+      requestModalTotalCount={requestModalTotalCount}
+      requestModalPage={requestModalPage}
+      requestModalPageSize={requestModalPageSize}
       modelsMenu={
         <ModelsMenu
           title={t("Content")}
@@ -82,6 +93,7 @@ const ContentList: React.FC = () => {
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
       onItemEdit={handleNavigateToItemEditForm}
+      onUnpublish={handleUnpublish}
       onItemDelete={handleItemDelete}
       onItemAdd={handleNavigateToItemForm}
       onAddItemToRequestModalClose={handleAddItemToRequestModalClose}

@@ -11,6 +11,8 @@ import (
 
 type Container struct {
 	Asset       Asset
+	AssetFile   AssetFile
+	AssetUpload AssetUpload
 	Lock        Lock
 	User        User
 	Workspace   Workspace
@@ -35,6 +37,8 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 	}
 	return &Container{
 		Asset:       c.Asset.Filtered(project),
+		AssetFile:   c.AssetFile,
+		AssetUpload: c.AssetUpload,
 		Lock:        c.Lock,
 		Transaction: c.Transaction,
 		Workspace:   c.Workspace,

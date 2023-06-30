@@ -8,7 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
-// GET|/assets/{assetId}
+// GET /assets/{assetId}
 func TestIntegrationGetAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
@@ -26,20 +26,20 @@ func TestIntegrationGetAssetAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	obj := e.GET("/api/assets/{assetId}", aid).
+	e.GET("/api/assets/{assetId}", aid).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
-	obj.Value("id").Equal(aid.String())
-	obj.Value("projectId").Equal(pid)
-	obj.Value("name").Equal("aaa.jpg")
-	obj.Value("contentType").Equal("image/jpg")
-	obj.Value("totalSize").Equal(1000)
+		Object().
+		ValueEqual("id", aid.String()).
+		ValueEqual("projectId", pid).
+		ValueEqual("name", "aaa.jpg").
+		ValueEqual("contentType", "image/jpg").
+		ValueEqual("totalSize", 1000)
 }
 
-// DELETE|/assets/{assetId}
+// DELETE /assets/{assetId}
 func TestIntegrationDeleteAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
@@ -52,25 +52,25 @@ func TestIntegrationDeleteAssetAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	obj := e.GET("/api/assets/{assetId}", aid).
+	e.GET("/api/assets/{assetId}", aid).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object()
-	obj.Value("id").Equal(aid.String())
-	obj.Value("projectId").Equal(pid)
-	obj.Value("name").Equal("aaa.jpg")
-	obj.Value("contentType").Equal("image/jpg")
-	obj.Value("totalSize").Equal(1000)
+		Object().
+		ValueEqual("id", aid.String()).
+		ValueEqual("projectId", pid).
+		ValueEqual("name", "aaa.jpg").
+		ValueEqual("contentType", "image/jpg").
+		ValueEqual("totalSize", 1000)
 
 	e.DELETE("/api/assets/{assetId}", aid).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().Keys().
-		Contains("id")
+		Object().
+		ValueEqual("id", aid.String())
 
 	e.GET("/api/assets/{assetId}", aid).
 		WithHeader("authorization", "Bearer "+secret).

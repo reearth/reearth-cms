@@ -16,18 +16,19 @@ var (
 
 func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) {
 	// note: version (v) is not used currently
-
 	switch o := obj.(type) {
 	case *event.Event[any]:
 		res, err = NewEvent(o, v, urlResolver)
 	case *asset.Asset:
-		res, err = NewAsset(o, urlResolver(o))
+		res = NewAsset(o, nil, urlResolver(o), true)
+	case *asset.File:
+		res = ToAssetFile(o, true)
 	case *item.Item:
-		res = NewItem(o, nil)
+		res = NewItem(o, nil, nil)
 	case item.Versioned:
-		res = NewVersionedItem(o, nil)
+		res = NewVersionedItem(o, nil, nil)
 	case item.ItemModelSchema:
-		res = NewItemModelSchema(o)
+		res = NewItemModelSchema(o, nil)
 	// TODO: add later
 	// case *schema.Schema:
 	// case *project.Project:
