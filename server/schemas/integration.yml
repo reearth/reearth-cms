@@ -940,6 +940,19 @@ components:
         value: {}
         key:
           type: string
+    versionedItemWithOldValue:
+      allOf:
+        - $ref: '#/components/schemas/versionedItem'
+        - type: object
+          properties:
+            fields:
+              type: array
+              items:
+                allOf:
+                  - $ref: '#/components/schemas/field'
+                  - type: object
+                    properties:
+                      oldValue: {}
     refOrVersion:
       type: object
       properties:
