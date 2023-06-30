@@ -30,9 +30,6 @@ func (b *Builder) Build() (*Asset, error) {
 	if b.a.size == 0 {
 		return nil, ErrZeroSize
 	}
-	if b.a.file == nil {
-		return nil, ErrNoFile
-	}
 	if b.a.uuid == "" {
 		return nil, ErrNoUUID
 	}
@@ -97,11 +94,6 @@ func (b *Builder) Type(t *PreviewType) *Builder {
 	return b
 }
 
-func (b *Builder) File(file *File) *Builder {
-	b.a.file = file
-	return b
-}
-
 func (b *Builder) UUID(uuid string) *Builder {
 	b.a.uuid = uuid
 	return b
@@ -119,5 +111,10 @@ func (b *Builder) Thread(th ThreadID) *Builder {
 
 func (b *Builder) ArchiveExtractionStatus(s *ArchiveExtractionStatus) *Builder {
 	b.a.archiveExtractionStatus = s
+	return b
+}
+
+func (b *Builder) FlatFiles(flatFiles bool) *Builder {
+	b.a.flatFiles = flatFiles
 	return b
 }

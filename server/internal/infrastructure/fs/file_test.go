@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -60,7 +61,7 @@ func TestFile_GetAssetFiles(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []gateway.FileEntry{
 		{Name: "xxx.txt", Size: 5},
-		{Name: "yyy/hello.txt", Size: 6},
+		{Name: path.Join("yyy", "hello.txt"), Size: 6},
 	}, files)
 }
 
@@ -69,7 +70,7 @@ func TestFile_UploadAsset(t *testing.T) {
 	f, _ := NewFile(fs, "https://example.com/assets")
 
 	u, _, err := f.UploadAsset(context.Background(), &file.File{
-		Path:    "aaa.txt",
+		Name:    "aaa.txt",
 		Content: io.NopCloser(strings.NewReader("aaa")),
 	})
 	p := getFSObjectPath(u, "aaa.txt")
@@ -131,7 +132,6 @@ func TestFile_GetURL(t *testing.T) {
 		Size(1000).FileName(n).
 		UUID(u).
 		Thread(id.NewThreadID()).
-		File(asset.NewFile().Build()).
 		MustBuild()
 
 	expected, err := url.JoinPath(host, assetDir, u[:2], u[2:], url.PathEscape(n))
@@ -143,7 +143,7 @@ func TestFile_GetURL(t *testing.T) {
 func TestFile_GetFSObjectPath(t *testing.T) {
 	u := newUUID()
 	n := "xxx.yyy"
-	assert.Equal(t, path.Join(assetDir, u[:2], u[2:], "xxx.yyy"), getFSObjectPath(u, n))
+	assert.Equal(t, filepath.Join(assetDir, u[:2], u[2:], "xxx.yyy"), getFSObjectPath(u, n))
 
 	u1 := ""
 	n1 := ""
@@ -160,10 +160,10 @@ func TestFile_IsValidUUID(t *testing.T) {
 
 func mockFs() afero.Fs {
 	files := map[string]string{
-		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/xxx.txt":       "hello",
-		"assets/51/30c89f-8f67-4766-b127-49ee6796d464/yyy/hello.txt": "hello!",
-		"plugins/aaa~1.0.0/foo.js":                                   "bar",
-		"published/s.json":                                           "{}",
+		filepath.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464", "xxx.txt"):          "hello",
+		filepath.Join("assets", "51", "30c89f-8f67-4766-b127-49ee6796d464", "yyy", "hello.txt"): "hello!",
+		filepath.Join("plugins", "aaa~1.0.0", "foo.js"):                                         "bar",
+		filepath.Join("published", "s.json"):                                                    "{}",
 	}
 
 	fs := afero.NewMemMapFs()

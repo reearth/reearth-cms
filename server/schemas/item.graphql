@@ -14,8 +14,10 @@ type Item implements Node {
   project: Project!
   thread: Thread!
   fields: [ItemField!]!
+  assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
+  version: String!
 }
 
 type ItemField {
@@ -55,10 +57,15 @@ input CreateItemInput {
 input UpdateItemInput {
   itemId: ID!
   fields: [ItemFieldInput!]!
+  version: String
 }
 
 input DeleteItemInput {
   itemId: ID!
+}
+
+input UnpublishItemInput {
+  itemId: [ID!]!
 }
 
 # Payloads
@@ -68,6 +75,10 @@ type ItemPayload {
 
 type DeleteItemPayload {
   itemId: ID!
+}
+
+type UnpublishItemPayload {
+  items: [Item!]!
 }
 
 type ItemConnection {
@@ -101,11 +112,16 @@ input ItemQuery {
 extend type Query {
   items(schemaId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
-  searchItem(query: ItemQuery!, sort: ItemSort, pagination: Pagination): ItemConnection!
+  searchItem(
+    query: ItemQuery!
+    sort: ItemSort
+    pagination: Pagination
+  ): ItemConnection!
 }
 
 extend type Mutation {
   createItem(input: CreateItemInput!): ItemPayload
   updateItem(input: UpdateItemInput!): ItemPayload
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
+  unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
 }

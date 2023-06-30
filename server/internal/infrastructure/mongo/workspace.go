@@ -17,7 +17,7 @@ var (
 )
 
 type Workspace struct {
-	client *mongox.ClientCollection
+	client *mongox.Collection
 }
 
 func NewWorkspace(client *mongox.Client) repo.Workspace {

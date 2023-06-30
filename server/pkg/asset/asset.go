@@ -1,7 +1,6 @@
 package asset
 
 import (
-	"path"
 	"time"
 
 	"github.com/reearth/reearthx/util"
@@ -16,10 +15,10 @@ type Asset struct {
 	fileName                string
 	size                    uint64
 	previewType             *PreviewType
-	file                    *File
 	uuid                    string
 	thread                  ThreadID
 	archiveExtractionStatus *ArchiveExtractionStatus
+	flatFiles               bool
 }
 
 type URLResolver = func(*Asset) string
@@ -63,10 +62,6 @@ func (a *Asset) PreviewType() *PreviewType {
 	return a.previewType
 }
 
-func (a *Asset) File() *File {
-	return a.file
-}
-
 func (a *Asset) UUID() string {
 	return a.uuid
 }
@@ -76,10 +71,6 @@ func (a *Asset) ArchiveExtractionStatus() *ArchiveExtractionStatus {
 		return nil
 	}
 	return a.archiveExtractionStatus
-}
-
-func (a *Asset) RootPath() string {
-	return path.Join(a.uuid[:2], a.uuid[2:], a.file.path)
 }
 
 func (a *Asset) UpdatePreviewType(p *PreviewType) {
@@ -104,10 +95,10 @@ func (a *Asset) Clone() *Asset {
 		fileName:                a.fileName,
 		size:                    a.size,
 		previewType:             a.previewType,
-		file:                    a.file.Clone(),
 		uuid:                    a.uuid,
 		thread:                  a.thread.Clone(),
 		archiveExtractionStatus: a.archiveExtractionStatus,
+		flatFiles:               a.flatFiles,
 	}
 }
 
@@ -115,6 +106,6 @@ func (a *Asset) Thread() ThreadID {
 	return a.thread
 }
 
-func (a *Asset) SetFile(f *File) {
-	a.file = f
+func (a *Asset) FlatFiles() bool {
+	return a.flatFiles
 }

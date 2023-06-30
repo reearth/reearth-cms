@@ -41,6 +41,11 @@ export const GET_ITEM_NODE = gql`
         createdAt
         updatedAt
         status
+        version
+        assets {
+          id
+          url
+        }
         user {
           name
         }
@@ -69,6 +74,10 @@ export const SEARCH_ITEM = gql`
         createdAt
         updatedAt
         status
+        assets {
+          id
+          url
+        }
         user {
           name
         }
@@ -116,8 +125,8 @@ export const DELETE_ITEM = gql`
 `;
 
 export const UPDATE_ITEM = gql`
-  mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!) {
-    updateItem(input: { itemId: $itemId, fields: $fields }) {
+  mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $version: String!) {
+    updateItem(input: { itemId: $itemId, fields: $fields, version: $version }) {
       item {
         id
         schemaId
@@ -126,6 +135,16 @@ export const UPDATE_ITEM = gql`
           type
           schemaFieldId
         }
+      }
+    }
+  }
+`;
+
+export const UNPUBLISH_ITEM = gql`
+  mutation UnpublishItem($itemId: [ID!]!) {
+    unpublishItem(input: { itemId: $itemId }) {
+      items {
+        id
       }
     }
   }

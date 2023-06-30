@@ -5,23 +5,31 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewAsset(a *asset.Asset, url string) (*Asset, error) {
+func NewAsset(a *asset.Asset, f *asset.File, url string, all bool) *Asset {
 	if a == nil {
-		return nil, nil
+		return nil
+	}
+
+	var ct, n *string
+	if fct := f.ContentType(); fct != "" {
+		ct = lo.ToPtr(fct)
+	}
+	if fn := f.Name(); fn != "" {
+		n = lo.ToPtr(fn)
 	}
 
 	return &Asset{
-		Id:                      a.ID().Ref(),
-		ContentType:             lo.ToPtr(a.File().ContentType()),
-		CreatedAt:               lo.ToPtr(a.CreatedAt()),
-		Name:                    lo.ToPtr(a.File().Name()),
+		Id:                      a.ID(),
+		ContentType:             ct,
+		CreatedAt:               a.CreatedAt(),
+		Name:                    n,
 		PreviewType:             ToPreviewType(a.PreviewType()),
-		ProjectId:               a.Project().Ref(),
+		ProjectId:               a.Project(),
 		TotalSize:               lo.ToPtr(float32(a.Size())),
-		Url:                     lo.ToPtr(url),
-		File:                    lo.ToPtr(ToAssetFile(a.File())),
+		Url:                     url,
+		File:                    ToAssetFile(f, all),
 		ArchiveExtractionStatus: ToAssetArchiveExtractionStatus(a.ArchiveExtractionStatus()),
-	}, nil
+	}
 }
 
 func ToAssetArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *AssetArchiveExtractionStatus {
@@ -44,19 +52,31 @@ func ToAssetArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *AssetArch
 	return lo.ToPtr(AssetArchiveExtractionStatus(ss))
 }
 
-func ToAssetFile(f *asset.File) File {
+func ToAssetFile(f *asset.File, all bool) *File {
 	if f == nil {
-		return File{}
+		return nil
 	}
 
-	children := lo.Map(f.Children(), func(c *asset.File, _ int) File { return ToAssetFile(c) })
+	var children *[]File
+	if all {
+		children = lo.ToPtr(lo.FilterMap(f.Children(), func(c *asset.File, _ int) (File, bool) {
+			f := ToAssetFile(c, true)
+			if f == nil {
+				return File{}, false
+			}
+			return *f, true
+		}))
+		if *children != nil && len(*children) == 0 {
+			children = nil
+		}
+	}
 
-	return File{
+	return &File{
 		Name:        lo.ToPtr(f.Name()),
 		ContentType: lo.ToPtr(f.ContentType()),
 		Size:        lo.ToPtr(float32(f.Size())),
 		Path:        lo.ToPtr(f.Path()),
-		Children:    lo.ToPtr(children),
+		Children:    children,
 	}
 }
 

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -43,7 +44,6 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
-  onNavigateToAsset: (asset: Asset) => void;
   disabled?: boolean;
 };
 
@@ -70,7 +70,6 @@ const AssetItem: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onChange,
-  onNavigateToAsset,
   disabled,
 }) => {
   const t = useT();
@@ -78,6 +77,8 @@ const AssetItem: React.FC<Props> = ({
     asset,
     loading,
     visible,
+    workspaceId,
+    projectId,
     handleClick,
     handleLinkAssetModalCancel,
     displayUploadModal,
@@ -117,26 +118,40 @@ const AssetItem: React.FC<Props> = ({
 
   return (
     <AssetWrapper>
-      {asset ? (
+      {value ? (
         <>
           <AssetDetailsWrapper>
-            <AssetButton disabled={disabled} onClick={handleClick}>
+            <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
-                <div style={{ marginTop: 8, overflow: "hidden" }}>{asset.fileName}</div>
+                <div style={{ marginTop: 8, overflow: "hidden" }}>{asset?.fileName ?? value}</div>
               </div>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
-              <AssetLinkedName type="link" onClick={() => onNavigateToAsset(asset)}>
-                {asset?.fileName}
-              </AssetLinkedName>
+              <Link
+                to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
+                target="_blank">
+                <AssetLinkedName enabled={!!asset} type="link">
+                  {asset?.fileName ?? value + " (removed)"}
+                </AssetLinkedName>
+              </Link>
             </Tooltip>
           </AssetDetailsWrapper>
-          <AssetLink
-            type="link"
-            icon={<Icon icon="arrowSquareOut" size={20} />}
-            onClick={() => onNavigateToAsset(asset)}
-          />
+          <Space />
+          {asset && (
+            <Link
+              to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
+              target="_blank">
+              <AssetLink type="link" icon={<Icon icon="arrowSquareOut" size={20} />} />
+            </Link>
+          )}
+          {value && (
+            <AssetLink
+              type="link"
+              icon={<Icon icon={"unlinkSolid"} size={16} />}
+              onClick={() => onChange?.("")}
+            />
+          )}
         </>
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
@@ -175,16 +190,21 @@ const AssetItem: React.FC<Props> = ({
   );
 };
 
-const AssetButton = styled(Button)`
+const AssetButton = styled(Button)<{ enabled?: boolean }>`
   width: 100px;
   height: 100px;
-  border: 1px dashed #d9d9d9;
+  border: 1px dashed;
+  border-color: ${({ enabled }) => (enabled ? "#d9d9d9" : "#00000040")};
+  color: ${({ enabled }) => (enabled ? "#000000D9" : "#00000040")};
+`;
+
+const Space = styled.div`
+  flex: 1;
 `;
 
 const AssetWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
 `;
 
@@ -198,8 +218,9 @@ const AssetLink = styled(Button)`
   }
 `;
 
-const AssetLinkedName = styled(Button)`
+const AssetLinkedName = styled(Button)<{ enabled?: boolean }>`
   color: #1890ff;
+  color: ${({ enabled }) => (enabled ? "#1890ff" : "#00000040")};
   margin-left: 12px;
   span {
     text-align: start;

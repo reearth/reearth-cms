@@ -5,6 +5,7 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
   if (!GQLItem) return;
   return {
     id: GQLItem.id,
+    version: GQLItem.version,
     fields: GQLItem.fields.map(field => ({
       schemaFieldId: field.schemaFieldId,
       type: field.type,

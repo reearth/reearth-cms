@@ -30,9 +30,15 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
+    handleUnpublish,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleRequestTableChange,
+    loading,
+    totalCount,
+    page,
+    pageSize,
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
@@ -94,7 +100,7 @@ export default () => {
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
-    refetchQueries: ["SearchItem"],
+    refetchQueries: ["SearchItem", "GetItem"],
   });
 
   const handleItemUpdate = useCallback(
@@ -106,6 +112,7 @@ export default () => {
         variables: {
           itemId: data.itemId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
+          version: currentItem?.version ?? "",
         },
       });
       if (item.errors || !item.data?.updateItem) {
@@ -115,7 +122,7 @@ export default () => {
 
       Notification.success({ message: t("Successfully updated Item!") });
     },
-    [updateItem, t],
+    [updateItem, currentItem, t],
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
@@ -239,6 +246,12 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    handleRequestTableChange,
+    requestModalLoading: loading,
+    requestModalTotalCount: totalCount,
+    requestModalPage: page,
+    requestModalPageSize: pageSize,
+    handleUnpublish,
     handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,

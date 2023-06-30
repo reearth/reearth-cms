@@ -106,19 +106,14 @@ func TestVerification_IsExpired(t *testing.T) {
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	tim2 := time.Now().Add(time.Hour * 24)
 
-	type fields struct {
-		verified   bool
-		code       string
-		expiration time.Time
-	}
 	tests := []struct {
-		name   string
-		fields fields
-		want   bool
+		name         string
+		verification *Verification
+		want         bool
 	}{
 		{
 			name: "should be expired",
-			fields: fields{
+			verification: &Verification{
 				verified:   false,
 				code:       "xxx",
 				expiration: tim,
@@ -127,24 +122,24 @@ func TestVerification_IsExpired(t *testing.T) {
 		},
 		{
 			name: "shouldn't be expired",
-			fields: fields{
+			verification: &Verification{
 				verified:   false,
 				code:       "xxx",
 				expiration: tim2,
 			},
 			want: false,
 		},
+		{
+			name:         "nil",
+			verification: nil,
+			want:         true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			v := &Verification{
-				verified:   tc.fields.verified,
-				code:       tc.fields.code,
-				expiration: tc.fields.expiration,
-			}
-			assert.Equal(tt, tc.want, v.IsExpired())
+			assert.Equal(tt, tc.want, tc.verification.IsExpired())
 		})
 	}
 }
@@ -212,4 +207,13 @@ func Test_generateCode(t *testing.T) {
 	str := generateCode()
 	_, err := uuid.Parse(str)
 	assert.NoError(t, err)
+}
+
+func TestVerificationFrom(t *testing.T) {
+	c, e, b := "xyz", time.Now(), true
+	assert.Equal(t, &Verification{
+		verified:   b,
+		code:       c,
+		expiration: e,
+	}, VerificationFrom(c, e, b))
 }

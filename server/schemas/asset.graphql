@@ -7,14 +7,13 @@ type Asset implements Node {
   createdByType: OperatorType!
   createdById: ID!
   items: [AssetItem!]
-  fileName: String!
   size: FileSize!
   previewType: PreviewType
-  file: AssetFile!
   uuid: String!
   thread: Thread
   threadId: ID!
   url: String!
+  fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
 type AssetItem {
@@ -52,7 +51,13 @@ input CreateAssetInput {
   projectId: ID!
   file: Upload
   url: String
+  token: String
   skipDecompression: Boolean
+}
+
+input CreateAssetUploadInput {
+  projectId: ID!
+  filename: String!
 }
 
 input UpdateAssetInput {
@@ -61,6 +66,10 @@ input UpdateAssetInput {
 }
 
 input DeleteAssetInput {
+  assetId: ID!
+}
+
+input DecompressAssetInput {
   assetId: ID!
 }
 
@@ -74,6 +83,16 @@ type UpdateAssetPayload {
 
 type DeleteAssetPayload {
   assetId: ID!
+}
+
+type DecompressAssetPayload {
+  asset: Asset!
+}
+
+type CreateAssetUploadPayload {
+  url: String!
+  token: String!
+  contentType: String!
 }
 
 type AssetConnection {
@@ -100,7 +119,7 @@ input AssetSort {
 }
 
 extend type Query {
-  asset(assetId: ID!): Asset!
+  assetFile(assetId: ID!): AssetFile!
   assets(projectId: ID!, keyword: String, sort: AssetSort, pagination: Pagination): AssetConnection!
 }
 
@@ -108,4 +127,6 @@ extend type Mutation {
   createAsset(input: CreateAssetInput!): CreateAssetPayload
   updateAsset(input: UpdateAssetInput!): UpdateAssetPayload
   deleteAsset(input: DeleteAssetInput!): DeleteAssetPayload
+  decompressAsset(input: DecompressAssetInput!): DecompressAssetPayload
+  createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }

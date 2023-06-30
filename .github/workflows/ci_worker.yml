@@ -9,6 +9,8 @@ on:
       - .github/workflows/pr_title.yml
       - .github/workflows/stage.yml
       - .github/workflows/release.yml
+      - .github/workflows/decompressor_build.yml
+      - .github/workflows/worker_build.yml
   pull_request:
     paths:
       - worker/**
@@ -26,7 +28,7 @@ jobs:
         working-directory: worker
     services:
       mongo:
-        image: mongo:4.4-focal
+        image: mongo:5-focal
         ports:
           - 27017:27017
     steps:

@@ -33,12 +33,18 @@ export type Props = {
   searchTerm: string;
   page: number;
   pageSize: number;
+  requestModalLoading: boolean;
+  requestModalTotalCount: number;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onContentTableChange: (
     page: number,
     pageSize: number,
     sorter?: { type?: ItemSortType; direction?: SortDirection },
   ) => void;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onCollapse?: (collapse: boolean) => void;
@@ -70,6 +76,12 @@ const ContentListMolecule: React.FC<Props> = ({
   pageSize,
   requests,
   addItemToRequestModalShown,
+  onRequestTableChange,
+  requestModalLoading,
+  requestModalTotalCount,
+  requestModalPage,
+  requestModalPageSize,
+  onUnpublish,
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
@@ -121,6 +133,7 @@ const ContentListMolecule: React.FC<Props> = ({
             loading={itemsDataLoading}
             selectedItem={selectedItem}
             selection={selection}
+            onUnpublish={onUnpublish}
             onSearchTerm={onSearchTerm}
             onContentTableChange={onContentTableChange}
             setSelection={setSelection}
@@ -135,6 +148,11 @@ const ContentListMolecule: React.FC<Props> = ({
             onAddItemToRequest={onAddItemToRequest}
             onAddItemToRequestModalClose={onAddItemToRequestModalClose}
             onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
+            onRequestTableChange={onRequestTableChange}
+            requestModalLoading={requestModalLoading}
+            requestModalTotalCount={requestModalTotalCount}
+            requestModalPage={requestModalPage}
+            requestModalPageSize={requestModalPageSize}
           />
         </Content>
       }

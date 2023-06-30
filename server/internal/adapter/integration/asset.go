@@ -4,16 +4,20 @@ import (
 	"context"
 	"errors"
 
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
+
+var ErrFileIsMissing = rerror.NewE(i18n.T("File is missing"))
 
 func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error) {
 	op := adapter.Operator(ctx)
@@ -42,10 +46,8 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	}
 
 	itemList, err := util.TryMap(assets, func(a *asset.Asset) (integrationapi.Asset, error) {
-		aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-		if err != nil {
-			return integrationapi.Asset{}, err
-		}
+		aurl := uc.Asset.GetURL(a)
+		aa := integrationapi.NewAsset(a, nil, aurl, true)
 		return *aa, nil
 	})
 	if err != nil {
@@ -65,31 +67,52 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	op := adapter.Operator(ctx)
 
 	var f *file.File
+	skipDecompression := false
 	var err error
 	if request.MultipartBody != nil {
-		f, err = file.FromMultipart(request.MultipartBody, "file")
+		var inp integrationapi.AssetCreateMultipartBody
+		if err := runtime.BindMultipart(&inp, *request.MultipartBody); err != nil {
+			return AssetCreate400Response{}, err
+		}
+		if inp.File == nil {
+			return AssetCreate400Response{}, ErrFileIsMissing
+		}
+		fc, err := inp.File.Reader()
 		if err != nil {
 			return AssetCreate400Response{}, err
 		}
+		f = &file.File{
+			Content: fc,
+			Name:    inp.File.Filename(),
+			Size:    inp.File.FileSize(),
+			// ContentType: inp.File.ContentType(),
+			ContentType: "",
+		}
+		skipDecompression = lo.FromPtrOr(inp.SkipDecompression, false)
 	}
 
-	var url string
-	skipDecompression := false
 	if request.JSONBody != nil {
-		url = *request.JSONBody.Url
-		if request.JSONBody.SkipDecompression != nil {
-			skipDecompression = *request.JSONBody.SkipDecompression
+		if request.JSONBody.Url == nil {
+			return AssetCreate400Response{}, ErrFileIsMissing
 		}
+		f, err = file.FromURL(*request.JSONBody.Url)
+		if err != nil {
+			return AssetCreate400Response{}, err
+		}
+		skipDecompression = lo.FromPtrOr(request.JSONBody.SkipDecompression, false)
+	}
+
+	if f == nil {
+		return AssetCreate400Response{}, ErrFileIsMissing
 	}
 
 	cp := interfaces.CreateAssetParam{
 		ProjectID:         request.ProjectId,
 		File:              f,
-		URL:               url,
 		SkipDecompression: skipDecompression,
 	}
 
-	a, err := uc.Asset.Create(ctx, cp, op)
+	a, af, err := uc.Asset.Create(ctx, cp, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return AssetCreate404Response{}, err
@@ -97,11 +120,8 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 		return AssetCreate400Response{}, err
 	}
 
-	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-	if err != nil {
-		return AssetCreate400Response{}, err
-	}
-
+	aurl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, af, aurl, true)
 	return AssetCreate200JSONResponse(*aa), nil
 }
 
@@ -133,10 +153,12 @@ func (s Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (As
 		return AssetGet400Response{}, err
 	}
 
-	aa, err := integrationapi.NewAsset(a, uc.Asset.GetURL(a))
-	if err != nil {
+	f, err := uc.Asset.FindFileByID(ctx, request.AssetId, op)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return AssetGet400Response{}, err
 	}
 
+	aurl := uc.Asset.GetURL(a)
+	aa := integrationapi.NewAsset(a, f, aurl, true)
 	return AssetGet200JSONResponse(*aa), nil
 }

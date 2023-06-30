@@ -4,9 +4,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
-import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
 import { PreviewType } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewTypeSelect";
+import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -16,8 +16,10 @@ export type Props = {
   isModalVisible: boolean;
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
+  decompressing: boolean;
   commentsPanel?: JSX.Element;
   onAssetItemSelect: (item: AssetItem) => void;
+  onAssetDecompress: (assetId: string) => void;
   onTypeChange: (
     value: PreviewType,
     option: DefaultOptionType | DefaultOptionType[],
@@ -35,8 +37,10 @@ const AssetWrapper: React.FC<Props> = ({
   isModalVisible,
   viewerType,
   displayUnzipFileList,
+  decompressing,
   commentsPanel,
   onAssetItemSelect,
+  onAssetDecompress,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -61,6 +65,8 @@ const AssetWrapper: React.FC<Props> = ({
             isModalVisible={isModalVisible}
             viewerType={viewerType}
             displayUnzipFileList={displayUnzipFileList}
+            decompressing={decompressing}
+            onAssetDecompress={onAssetDecompress}
             onAssetItemSelect={onAssetItemSelect}
             onTypeChange={onTypeChange}
             onModalCancel={onModalCancel}

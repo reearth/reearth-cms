@@ -11,11 +11,13 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -341,18 +343,21 @@ func TestRequest_FindByProject(t *testing.T) {
 }
 
 func TestRequest_Approve(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)()
+
 	// TODO: add error cases
-	pid := id.NewProjectID()
-	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(pid).MustBuild()
+	prj := project.New().NewID().MustBuild()
+	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
-	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
 	item, _ := request.NewItem(i.ID())
 	wid := id.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	req1 := request.New().
 		NewID().
 		Workspace(wid).
-		Project(pid).
+		Project(prj.ID()).
 		Reviewers(id.UserIDList{u.ID()}).
 		CreatedBy(id.NewUserID()).
 		Thread(id.NewThreadID()).
@@ -369,7 +374,9 @@ func TestRequest_Approve(t *testing.T) {
 	// if tc.mockRequestErr {
 	//	memory.SetRequestError(db.Request, tc.wantErr)
 	// }
-	err := db.Request.Save(ctx, req1)
+	err := db.Project.Save(ctx, prj)
+	assert.NoError(t, err)
+	err = db.Request.Save(ctx, req1)
 	assert.NoError(t, err)
 	err = db.Schema.Save(ctx, s)
 	assert.NoError(t, err)
@@ -385,6 +392,6 @@ func TestRequest_Approve(t *testing.T) {
 	itemUC := NewItem(db, nil)
 	itm, err := itemUC.FindByID(ctx, i.ID(), op)
 	assert.NoError(t, err)
-	expected := version.MustBeValue(itm.Version(), nil, version.NewRefs(version.Public, version.Latest), i)
+	expected := version.MustBeValue(itm.Version(), nil, version.NewRefs(version.Public, version.Latest), now, i)
 	assert.Equal(t, expected, itm)
 }

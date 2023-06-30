@@ -13,6 +13,7 @@ import {
   SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
   useGetAssetsItemsQuery,
+  useCreateAssetUploadMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -70,6 +71,7 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
 
   const [createAssetMutation] = useCreateAssetMutation();
+  const [createAssetUploadMutation] = useCreateAssetUploadMutation();
 
   const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection } | undefined>(
     {
@@ -97,7 +99,6 @@ export default () => {
         ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
         : undefined,
       keyword: searchTerm,
-      withFiles: false,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
@@ -118,7 +119,6 @@ export default () => {
   });
 
   const isRefetching = networkStatus === 3;
-  const [selectedAssets, selectAsset] = useState<Asset[]>([]);
 
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
@@ -136,12 +136,36 @@ export default () => {
         const results = (
           await Promise.all(
             files.map(async file => {
+              const createAssetUploadResult = await createAssetUploadMutation({
+                variables: {
+                  projectId,
+                  filename: file.name,
+                },
+              });
+              if (
+                createAssetUploadResult.errors ||
+                !createAssetUploadResult.data?.createAssetUpload
+              ) {
+                Notification.error({ message: t("Failed to add one or more assets.") });
+                handleUploadModalCancel();
+                return undefined;
+              }
+              const { url, token, contentType } = createAssetUploadResult.data.createAssetUpload;
+              if (url !== "") {
+                await fetch(url, {
+                  method: "PUT",
+                  body: file as any,
+                  headers: {
+                    "content-type": contentType,
+                  },
+                });
+              }
               const result = await createAssetMutation({
                 variables: {
                   projectId,
-                  file,
+                  token,
+                  file: url === "" ? file : null,
                   skipDecompression: !!file.skipDecompression,
-                  withFiles: false,
                 },
               });
               if (result.errors || !result.data?.createAsset) {
@@ -161,7 +185,15 @@ export default () => {
         handleUploadModalCancel();
         return results;
       })(),
-    [projectId, handleUploadModalCancel, createAssetMutation, t, refetch, refetchAssetsItems],
+    [
+      projectId,
+      handleUploadModalCancel,
+      createAssetMutation,
+      createAssetUploadMutation,
+      t,
+      refetch,
+      refetchAssetsItems,
+    ],
   );
 
   const handleAssetCreateFromUrl = useCallback(
@@ -172,9 +204,8 @@ export default () => {
         const result = await createAssetMutation({
           variables: {
             projectId,
-            file: null,
+            token: null,
             url,
-            withFiles: false,
             skipDecompression: !autoUnzip,
           },
         });
@@ -203,7 +234,6 @@ export default () => {
           assetIds.map(async assetId => {
             const result = await deleteAssetMutation({
               variables: { assetId },
-              refetchQueries: ["GetAssets, GetAssetsItems"],
             });
             if (result.errors) {
               Notification.error({ message: t("Failed to delete one or more assets.") });
@@ -211,11 +241,13 @@ export default () => {
           }),
         );
         if (results) {
+          await refetch();
+          refetchAssetsItems();
           Notification.success({ message: t("One or more assets were successfully deleted!") });
-          selectAsset([]);
+          setSelection({ selectedRowKeys: [] });
         }
       })(),
-    [t, deleteAssetMutation, projectId],
+    [t, deleteAssetMutation, refetch, refetchAssetsItems, projectId],
   );
 
   const handleSearchTerm = useCallback(
@@ -245,20 +277,13 @@ export default () => {
         .map(asset => asset as GQLAsset)
         .map(convertAsset)
         .filter(asset => !!asset) as Asset[]) ?? [];
-    setAssetList(assets);
-  }, [data?.assets.nodes]);
-
-  useEffect(() => {
-    if (assetList.length > 0) {
-      setAssetList(
-        assetList.map(asset => ({
-          ...asset,
-          items:
-            assetsItems?.assets.nodes.find(assetItem => assetItem?.id === asset.id)?.items ?? [],
-        })),
-      );
-    }
-  }, [assetList, assetsItems?.assets.nodes, setAssetList]);
+    setAssetList(
+      assets.map(asset => ({
+        ...asset,
+        items: assetsItems?.assets.nodes.find(assetItem => assetItem?.id === asset.id)?.items ?? [],
+      })),
+    );
+  }, [data?.assets.nodes, assetsItems?.assets.nodes, setAssetList]);
 
   const handleAssetSelect = useCallback(
     (id: string) => {
@@ -319,7 +344,6 @@ export default () => {
     fileList,
     uploading,
     isLoading: loading ?? isRefetching,
-    selectedAssets,
     uploadModalVisibility,
     loading,
     uploadUrl,

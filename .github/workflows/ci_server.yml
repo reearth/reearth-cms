@@ -10,6 +10,7 @@ on:
       - .github/workflows/pr_title.yml
       - .github/workflows/stage.yml
       - .github/workflows/release.yml
+      - .github/workflows/server_build.yml
   pull_request:
     paths:
       - server/**
@@ -28,7 +29,7 @@ jobs:
         working-directory: server
     services:
       mongo:
-        image: mongo:4.4-focal
+        image: mongo:5-focal
         ports:
           - 27017:27017
     steps:
@@ -47,7 +48,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.49
+          version: v1.52
           working-directory: server
           args: --config=../.golangci.yml
       - name: test

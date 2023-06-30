@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -11,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -36,15 +38,17 @@ func TestToItem(t *testing.T) {
 		User(uid).
 		Integration(nid).
 		MustBuild()
+	v := version.New()
 
+	vi := version.MustBeValue(v, nil, version.NewRefs(version.Latest), util.Now(), i)
 	tests := []struct {
 		name  string
-		input *item.Item
+		input item.Versioned
 		want  *Item
 	}{
 		{
 			name:  "should return a gql model item",
-			input: i,
+			input: vi,
 			want: &Item{
 				ID:            IDFrom(iid),
 				ProjectID:     IDFrom(pid),
@@ -62,6 +66,7 @@ func TestToItem(t *testing.T) {
 						Value:         true,
 					},
 				},
+				Version: v.String(),
 			},
 		},
 		{
@@ -128,7 +133,7 @@ func TestToVersionedItem(t *testing.T) {
 	fs := []*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple())}
 	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(pId).Fields(fs).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()
-	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), i)
+	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), time.Time{}, i)
 	tests := []struct {
 		name string
 		args *version.Value[*item.Item]
@@ -141,7 +146,7 @@ func TestToVersionedItem(t *testing.T) {
 				Version: vv.Version().String(),
 				Parents: []string{vy.String()},
 				Refs:    []string{ref},
-				Value:   ToItem(vv.Value(), s),
+				Value:   ToItem(&vv, s),
 			},
 		},
 		{
@@ -182,7 +187,9 @@ func TestToItemQuery(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			tc := tc
 			t.Parallel()
 			got := ToItemQuery(tc.input)
 			assert.Equal(t, tc.want, got)

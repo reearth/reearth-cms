@@ -20,6 +20,7 @@ type ReadAtCloser interface {
 }
 
 type File interface {
-	Read(ctx context.Context, path string) (ReadAtCloser, int64, error)
+	Read(ctx context.Context, path string) (ReadAtCloser, int64, int64, error)
+	WriteProceeded(ctx context.Context, path string, proceeded int64) error
 	Upload(ctx context.Context, name string) (io.WriteCloser, error)
 }

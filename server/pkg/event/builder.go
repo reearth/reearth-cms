@@ -46,6 +46,11 @@ func (b *Builder[T]) Type(t Type) *Builder[T] {
 	return b
 }
 
+func (b *Builder[T]) Project(prj *Project) *Builder[T] {
+	b.i.prj = prj.Clone()
+	return b
+}
+
 func (b *Builder[T]) Operator(o operator.Operator) *Builder[T] {
 	b.i.operator = o
 	return b

@@ -10,7 +10,7 @@ import {
   ProjectPublicationScope,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useProject, useUserId } from "@reearth-cms/state";
+import { useWorkspace, useProject, useUserId, useWorkspaceId } from "@reearth-cms/state";
 import { splitPathname } from "@reearth-cms/utils/path";
 
 export default () => {
@@ -22,6 +22,7 @@ export default () => {
 
   const [, setCurrentUserId] = useUserId();
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
+  const [, setCurrentWorkspaceId] = useWorkspaceId();
   const [currentProject, setCurrentProject] = useProject();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -50,8 +51,9 @@ export default () => {
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
     setCurrentWorkspace(data.me?.myWorkspace);
+    setCurrentWorkspaceId(data.me?.myWorkspace?.id);
     navigate(`/workspace/${data.me?.myWorkspace?.id}`);
-  }, [data, navigate, setCurrentWorkspace, currentWorkspace, workspaceId]);
+  }, [data, navigate, setCurrentWorkspace, setCurrentWorkspaceId, currentWorkspace, workspaceId]);
 
   useEffect(() => {
     if (workspace?.id && workspace.id !== currentWorkspace?.id) {
@@ -59,8 +61,9 @@ export default () => {
         personal,
         ...workspace,
       });
+      setCurrentWorkspaceId(workspace.id);
     }
-  }, [currentWorkspace, workspace, personal, setCurrentWorkspace]);
+  }, [currentWorkspace, workspace, personal, setCurrentWorkspace, setCurrentWorkspaceId]);
 
   const [createWorkspaceMutation] = useCreateWorkspaceMutation();
   const handleWorkspaceCreate = useCallback(
@@ -108,7 +111,7 @@ export default () => {
         });
       }
     } else {
-      setCurrentProject();
+      setCurrentProject(undefined);
     }
   }, [projectId, projectData?.node, setCurrentProject]);
 

@@ -4,9 +4,9 @@ import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
 import {
@@ -16,12 +16,14 @@ import {
 import SideBarCard from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/sideBarCard";
 import UnzipFileList from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList";
 import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/viewerNotSupported";
+import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import {
   GeoViewer,
   Geo3dViewer,
   SvgViewer,
   ImageViewer,
+  GltfViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { useT } from "@reearth-cms/i18n";
@@ -36,7 +38,9 @@ type Props = {
   isModalVisible: boolean;
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
+  decompressing: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
+  onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
   onTypeChange: (
     value: PreviewType,
@@ -54,7 +58,9 @@ const AssetMolecule: React.FC<Props> = ({
   isModalVisible,
   viewerType,
   displayUnzipFileList,
+  decompressing,
   onAssetItemSelect,
+  onAssetDecompress,
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
@@ -81,7 +87,8 @@ const AssetMolecule: React.FC<Props> = ({
         return <ImageViewer url={assetUrl} />;
       case viewerType === "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
-      case viewerType === "model_3d": // TODO: add viewer
+      case viewerType === "model_3d":
+        return <GltfViewer url={assetUrl} onGetViewer={getViewer} />;
       case viewerType === "unknown":
       default:
         return <ViewerNotSupported />;
@@ -106,11 +113,33 @@ const AssetMolecule: React.FC<Props> = ({
           }>
           {renderPreview()}
         </Card>
-        {displayUnzipFileList && (
+        {displayUnzipFileList && asset.file && (
           <Card
-            title={asset.fileName}
+            title={
+              <>
+                {asset.fileName}{" "}
+                <CopyIcon
+                  icon="copy"
+                  onClick={() => {
+                    navigator.clipboard.writeText(asset.url);
+                  }}
+                />
+              </>
+            }
             toolbar={
-              <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+              <>
+                <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
+                {asset.archiveExtractionStatus === "SKIPPED" && (
+                  <UnzipButton
+                    onClick={() => {
+                      onAssetDecompress(asset.id);
+                    }}
+                    loading={decompressing}
+                    icon={<Icon icon="unzip" />}>
+                    {t("Unzip")}
+                  </UnzipButton>
+                )}
+              </>
             }>
             <UnzipFileList
               file={asset.file}
@@ -147,6 +176,17 @@ const AssetMolecule: React.FC<Props> = ({
     </BodyContainer>
   );
 };
+
+const CopyIcon = styled(Icon)<{ selected?: boolean }>`
+  margin-left: 16px;
+  &:active {
+    color: #096dd9;
+  }
+`;
+
+const UnzipButton = styled(Button)`
+  margin-left: 24px;
+`;
 
 const BodyContainer = styled.div`
   display: flex;

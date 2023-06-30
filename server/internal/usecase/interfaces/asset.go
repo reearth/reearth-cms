@@ -15,22 +15,21 @@ import (
 
 type AssetFilterType string
 
-const (
-	AssetFilterDate AssetFilterType = "DATE"
-	AssetFilterSize AssetFilterType = "SIZE"
-	AssetFilterName AssetFilterType = "NAME"
-)
-
 type CreateAssetParam struct {
 	ProjectID         idx.ID[id.Project]
 	File              *file.File
-	URL               string
+	Token             string
 	SkipDecompression bool
 }
 
 type UpdateAssetParam struct {
 	AssetID     idx.ID[id.Asset]
 	PreviewType *asset.PreviewType
+}
+
+type CreateAssetUploadParam struct {
+	ProjectID idx.ID[id.Project]
+	Filename  string
 }
 
 var (
@@ -48,9 +47,13 @@ type Asset interface {
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
 	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
+	FindFileByID(context.Context, id.AssetID, *usecase.Operator) (*asset.File, error)
 	GetURL(*asset.Asset) string
-	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, error)
+	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, *asset.File, error)
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
+	DecompressByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (string, string, string, error)
+	RetryDecompression(context.Context, string) error
 }

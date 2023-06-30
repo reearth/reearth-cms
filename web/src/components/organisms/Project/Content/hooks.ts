@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -7,7 +7,8 @@ import {
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
   Request as GQLRequest,
-  useGetRequestsQuery,
+  useGetModalRequestsQuery,
+  useUnpublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
@@ -19,21 +20,32 @@ export default () => {
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
 
-  const { data: requestData } = useGetRequestsQuery({
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
+  useEffect(() => {
+    setPage(+page);
+    setPageSize(+pageSize);
+  }, [setPage, setPageSize, page, pageSize]);
+
+  const { data, loading } = useGetModalRequestsQuery({
+    fetchPolicy: "no-cache",
     variables: {
       projectId: currentProject?.id ?? "",
-      pagination: { first: 100 },
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: { key: "createdAt", reverted: true },
+      state: ["WAITING"] as GQLRequestState[],
     },
     skip: !currentProject?.id,
   });
 
   const requests: Request[] = useMemo(
     () =>
-      (requestData?.requests.nodes
+      (data?.requests.nodes
         .map(request => request as GQLRequest)
         .map(convertRequest)
-        .filter(request => !!request && request.state === "WAITING") as Request[]) ?? [],
-    [requestData?.requests.nodes],
+        .filter(request => !!request) as Request[]) ?? [],
+    [data?.requests.nodes],
   );
 
   const [updateRequest] = useUpdateRequestMutation();
@@ -62,15 +74,41 @@ export default () => {
     [updateRequest, t],
   );
 
+  const [unpublishItem] = useUnpublishItemMutation();
+
+  const handleUnpublish = useCallback(
+    async (itemIds: string[]) => {
+      const item = await unpublishItem({
+        variables: {
+          itemId: itemIds,
+        },
+        refetchQueries: ["SearchItem", "GetItem"],
+      });
+      if (item.errors || !item.data?.unpublishItem) {
+        Notification.error({ message: t("Failed to unpublish items.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully unpublished items!") });
+    },
+    [unpublishItem, t],
+  );
+
   const handleAddItemToRequestModalClose = useCallback(
     () => setAddItemToRequestModalShown(false),
     [],
   );
 
-  const handleAddItemToRequestModalOpen = useCallback(
-    () => setAddItemToRequestModalShown(true),
-    [],
-  );
+  const handleAddItemToRequestModalOpen = useCallback(() => {
+    setPage(1);
+    setPageSize(10);
+    setAddItemToRequestModalShown(true);
+  }, []);
+
+  const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  }, []);
 
   return {
     currentWorkspace,
@@ -78,8 +116,14 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
+    handleUnpublish,
+    handleRequestTableChange,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    loading,
+    totalCount: data?.requests.totalCount ?? 0,
+    page,
+    pageSize,
   };
 };
