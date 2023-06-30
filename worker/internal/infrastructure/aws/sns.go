@@ -13,7 +13,7 @@ import (
 
 type SNS struct {
 	snsClient *sns.Client
-	topicArn string
+	topicArn  string
 }
 
 func NewSNS(ctx context.Context, topicArn string) (*SNS, error) {
@@ -26,7 +26,7 @@ func NewSNS(ctx context.Context, topicArn string) (*SNS, error) {
 
 	return &SNS{
 		snsClient: snsClient,
-		topicArn: topicArn,
+		topicArn:  topicArn,
 	}, nil
 }
 
