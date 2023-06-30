@@ -104,11 +104,11 @@ func TestProject_UpdateTeam(t *testing.T) {
 	assert.NotNil(t, p.Workspace())
 }
 
-func TestProject_SetSkipRequestRoles(t *testing.T) {
+func TestProject_SetRequestRoles(t *testing.T) {
 	p := &Project{}
 	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
-	p.SetSkipRequestRoles(r)
-	assert.Equal(t, p.SkipRequestRoles(), r)
+	p.SetRequestRoles(r)
+	assert.Equal(t, p.RequestRoles(), r)
 }
 
 func TestProject_UpdateAlias(t *testing.T) {
@@ -149,7 +149,7 @@ func TestProject_UpdateAlias(t *testing.T) {
 func TestProject_Clone(t *testing.T) {
 	pub := &Publication{}
 	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
-	p := New().NewID().Name("a").Publication(pub).SkipRequestRoles(r).MustBuild()
+	p := New().NewID().Name("a").Publication(pub).RequestRoles(r).MustBuild()
 
 	got := p.Clone()
 	assert.Equal(t, p, got)

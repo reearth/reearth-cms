@@ -369,16 +369,16 @@ type ComplexityRoot struct {
 	}
 
 	Project struct {
-		Alias            func(childComplexity int) int
-		CreatedAt        func(childComplexity int) int
-		Description      func(childComplexity int) int
-		ID               func(childComplexity int) int
-		Name             func(childComplexity int) int
-		Publication      func(childComplexity int) int
-		SkipRequestRoles func(childComplexity int) int
-		UpdatedAt        func(childComplexity int) int
-		Workspace        func(childComplexity int) int
-		WorkspaceID      func(childComplexity int) int
+		Alias        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Description  func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Name         func(childComplexity int) int
+		Publication  func(childComplexity int) int
+		RequestRoles func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
+		Workspace    func(childComplexity int) int
+		WorkspaceID  func(childComplexity int) int
 	}
 
 	ProjectAliasAvailability struct {
@@ -2341,12 +2341,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Project.Publication(childComplexity), true
 
-	case "Project.skipRequestRoles":
-		if e.complexity.Project.SkipRequestRoles == nil {
+	case "Project.requestRoles":
+		if e.complexity.Project.RequestRoles == nil {
 			break
 		}
 
-		return e.complexity.Project.SkipRequestRoles(childComplexity), true
+		return e.complexity.Project.RequestRoles(childComplexity), true
 
 	case "Project.updatedAt":
 		if e.complexity.Project.UpdatedAt == nil {
@@ -4006,7 +4006,7 @@ type Project implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   publication: ProjectPublication
-  skipRequestRoles: [Role!]
+  requestRoles: [Role!]
 }
 
 # Inputs
@@ -4015,7 +4015,7 @@ input CreateProjectInput {
   name: String
   description: String
   alias: String
-  skipRequestRoles: [Role!]
+  requestRoles: [Role!]
 }
 
 input UpdateProjectPublicationInput {
@@ -4029,7 +4029,7 @@ input UpdateProjectInput {
   description: String
   alias: String
   publication: UpdateProjectPublicationInput
-  skipRequestRoles: [Role!]
+  requestRoles: [Role!]
 }
 
 input DeleteProjectInput {
@@ -6080,8 +6080,8 @@ func (ec *executionContext) fieldContext_Asset_project(ctx context.Context, fiel
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "skipRequestRoles":
-				return ec.fieldContext_Project_skipRequestRoles(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -10118,8 +10118,8 @@ func (ec *executionContext) fieldContext_Item_project(ctx context.Context, field
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "skipRequestRoles":
-				return ec.fieldContext_Project_skipRequestRoles(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -11904,8 +11904,8 @@ func (ec *executionContext) fieldContext_Model_project(ctx context.Context, fiel
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "skipRequestRoles":
-				return ec.fieldContext_Project_skipRequestRoles(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -15656,8 +15656,8 @@ func (ec *executionContext) fieldContext_Project_publication(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Project_skipRequestRoles(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Project_skipRequestRoles(ctx, field)
+func (ec *executionContext) _Project_requestRoles(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Project) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Project_requestRoles(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15670,7 +15670,7 @@ func (ec *executionContext) _Project_skipRequestRoles(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SkipRequestRoles, nil
+		return obj.RequestRoles, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15684,7 +15684,7 @@ func (ec *executionContext) _Project_skipRequestRoles(ctx context.Context, field
 	return ec.marshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Project_skipRequestRoles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Project_requestRoles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Project",
 		Field:      field,
@@ -15892,8 +15892,8 @@ func (ec *executionContext) fieldContext_ProjectConnection_nodes(ctx context.Con
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "skipRequestRoles":
-				return ec.fieldContext_Project_skipRequestRoles(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -16097,8 +16097,8 @@ func (ec *executionContext) fieldContext_ProjectEdge_node(ctx context.Context, f
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "skipRequestRoles":
-				return ec.fieldContext_Project_skipRequestRoles(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -16163,8 +16163,8 @@ func (ec *executionContext) fieldContext_ProjectPayload_project(ctx context.Cont
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "skipRequestRoles":
-				return ec.fieldContext_Project_skipRequestRoles(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -18227,8 +18227,8 @@ func (ec *executionContext) fieldContext_Request_project(ctx context.Context, fi
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "skipRequestRoles":
-				return ec.fieldContext_Project_skipRequestRoles(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -19125,8 +19125,8 @@ func (ec *executionContext) fieldContext_Schema_project(ctx context.Context, fie
 				return ec.fieldContext_Project_updatedAt(ctx, field)
 			case "publication":
 				return ec.fieldContext_Project_publication(ctx, field)
-			case "skipRequestRoles":
-				return ec.fieldContext_Project_skipRequestRoles(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
@@ -25241,7 +25241,7 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name", "description", "alias", "skipRequestRoles"}
+	fieldsInOrder := [...]string{"workspaceId", "name", "description", "alias", "requestRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25284,15 +25284,15 @@ func (ec *executionContext) unmarshalInputCreateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Alias = data
-		case "skipRequestRoles":
+		case "requestRoles":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipRequestRoles"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestRoles"))
 			data, err := ec.unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.SkipRequestRoles = data
+			it.RequestRoles = data
 		}
 	}
 
@@ -27623,7 +27623,7 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "publication", "skipRequestRoles"}
+	fieldsInOrder := [...]string{"projectId", "name", "description", "alias", "publication", "requestRoles"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27675,15 +27675,15 @@ func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context
 				return it, err
 			}
 			it.Publication = data
-		case "skipRequestRoles":
+		case "requestRoles":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skipRequestRoles"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestRoles"))
 			data, err := ec.unmarshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRoleᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.SkipRequestRoles = data
+			it.RequestRoles = data
 		}
 	}
 
@@ -30649,9 +30649,9 @@ func (ec *executionContext) _Project(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Project_publication(ctx, field, obj)
 
-		case "skipRequestRoles":
+		case "requestRoles":
 
-			out.Values[i] = ec._Project_skipRequestRoles(ctx, field, obj)
+			out.Values[i] = ec._Project_requestRoles(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

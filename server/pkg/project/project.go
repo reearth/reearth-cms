@@ -17,15 +17,15 @@ var (
 )
 
 type Project struct {
-	id               ID
-	workspaceID      WorkspaceID
-	name             string
-	description      string
-	alias            string
-	imageURL         *url.URL
-	updatedAt        time.Time
-	publication      *Publication
-	skipRequestRoles []user.Role
+	id           ID
+	workspaceID  WorkspaceID
+	name         string
+	description  string
+	alias        string
+	imageURL     *url.URL
+	updatedAt    time.Time
+	publication  *Publication
+	requestRoles []user.Role
 }
 
 func (p *Project) ID() ID {
@@ -69,8 +69,8 @@ func (p *Project) Publication() *Publication {
 	return p.publication
 }
 
-func (p *Project) SkipRequestRoles() []user.Role {
-	return p.skipRequestRoles
+func (p *Project) RequestRoles() []user.Role {
+	return p.requestRoles
 }
 
 func (p *Project) SetUpdatedAt(updatedAt time.Time) {
@@ -99,8 +99,8 @@ func (p *Project) UpdateDescription(description string) {
 	p.description = description
 }
 
-func (p *Project) SetSkipRequestRoles(sr []user.Role) {
-	p.skipRequestRoles = sr
+func (p *Project) SetRequestRoles(sr []user.Role) {
+	p.requestRoles = sr
 }
 
 func (p *Project) UpdateAlias(alias string) error {
@@ -122,15 +122,15 @@ func (p *Project) Clone() *Project {
 	}
 
 	return &Project{
-		id:               p.id.Clone(),
-		workspaceID:      p.workspaceID.Clone(),
-		name:             p.name,
-		description:      p.description,
-		alias:            p.alias,
-		imageURL:         util.CopyURL(p.imageURL),
-		updatedAt:        p.updatedAt,
-		publication:      p.publication.Clone(),
-		skipRequestRoles: p.skipRequestRoles,
+		id:           p.id.Clone(),
+		workspaceID:  p.workspaceID.Clone(),
+		name:         p.name,
+		description:  p.description,
+		alias:        p.alias,
+		imageURL:     util.CopyURL(p.imageURL),
+		updatedAt:    p.updatedAt,
+		publication:  p.publication.Clone(),
+		requestRoles: p.requestRoles,
 	}
 }
 

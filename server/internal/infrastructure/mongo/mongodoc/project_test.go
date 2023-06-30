@@ -33,7 +33,7 @@ func TestNewProject(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Publication(pp).
-				SkipRequestRoles(r).
+				RequestRoles(r).
 				MustBuild(),
 			want: &ProjectDocument{
 				ID:          pId.String(),
@@ -47,7 +47,7 @@ func TestNewProject(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				SkipRequestRoles: fromSkipRoles(r),
+				RequestRoles: fromSkipRoles(r),
 			},
 			pDocId: pId.String(),
 		},
@@ -122,7 +122,7 @@ func TestProjectDocument_Model(t *testing.T) {
 					AssetPublic: true,
 					Scope:       "public",
 				},
-				SkipRequestRoles: fromSkipRoles(r),
+				RequestRoles: fromSkipRoles(r),
 			},
 			want: project.New().
 				ID(pId).
@@ -133,7 +133,7 @@ func TestProjectDocument_Model(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Publication(pp).
-				SkipRequestRoles(r).
+				RequestRoles(r).
 				MustBuild(),
 			wantErr: false,
 		},

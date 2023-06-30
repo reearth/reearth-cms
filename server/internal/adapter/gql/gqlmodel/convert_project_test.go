@@ -15,21 +15,21 @@ func TestConvertProject_ToProject(t *testing.T) {
 	wid := id.NewWorkspaceID()
 	r := []user.Role{user.RoleOwner}
 	pid := id.NewProjectID()
-	p := project.New().ID(pid).Workspace(wid).SkipRequestRoles(r).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
+	p := project.New().ID(pid).Workspace(wid).RequestRoles(r).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
 	want := &Project{
-		ID: 			 IDFrom(pid), 
-		Name: 			 p.Name(),
-		Description: 	 p.Description(),
-		Alias : 		 p.Alias(),
-		WorkspaceID : 	 IDFrom(wid),
-		Workspace : 	 nil,
-		CreatedAt : 	p.CreatedAt(),
-		UpdatedAt: 		p.UpdatedAt(),
-		Publication : 	nil,
-		SkipRequestRoles:	[]Role{Role(r[0])},
+		ID:           IDFrom(pid),
+		Name:         p.Name(),
+		Description:  p.Description(),
+		Alias:        p.Alias(),
+		WorkspaceID:  IDFrom(wid),
+		Workspace:    nil,
+		CreatedAt:    p.CreatedAt(),
+		UpdatedAt:    p.UpdatedAt(),
+		Publication:  nil,
+		RequestRoles: []Role{Role(r[0])},
 	}
 	assert.Equal(t, want, ToProject(p))
-	
+
 	var p2 *project.Project
 	assert.Nil(t, ToProject(p2))
 }
