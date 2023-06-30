@@ -44,7 +44,7 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 		ImageURL:     imageURL,
 		Workspace:    project.Workspace().String(),
 		Publication:  NewProjectPublication(project.Publication()),
-		RequestRoles: fromSkipRoles(project.RequestRoles()),
+		RequestRoles: fromRequestRoles(project.RequestRoles()),
 	}, pid
 }
 
@@ -85,7 +85,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Publication(d.Publication.Model()).
-		RequestRoles(toSkipRoles(d.RequestRoles)).
+		RequestRoles(toRequestRoles(d.RequestRoles)).
 		Build()
 }
 
@@ -102,7 +102,7 @@ func NewProjectConsumer() *ProjectConsumer {
 	return NewConsumer[*ProjectDocument, *project.Project]()
 }
 
-func toSkipRoles(s []string) []user.Role {
+func toRequestRoles(s []string) []user.Role {
 	var roles []user.Role
 	for _, role := range s {
 		r, _ := user.RoleFromString(role)
@@ -111,7 +111,7 @@ func toSkipRoles(s []string) []user.Role {
 	return roles
 }
 
-func fromSkipRoles(s []user.Role) []string {
+func fromRequestRoles(s []user.Role) []string {
 	var roles []string
 	for _, role := range s {
 		roles = append(roles, string(role))
