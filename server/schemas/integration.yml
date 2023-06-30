@@ -265,7 +265,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/versionedItem'
+                $ref: '#/components/schemas/versionedItemWithOldValue'
         '400':
           description: Invalid request parameter value
         '401':
