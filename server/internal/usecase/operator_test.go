@@ -190,9 +190,9 @@ func TestOperator_RoleByProject(t *testing.T) {
 	pid := id.NewProjectID()
 	uid := id.NewUserID()
 	operator := &Operator{
-		User:             &uid,
-		Integration:      nil,
-		OwningProjects: project.IDList{pid},	
+		User:           &uid,
+		Integration:    nil,
+		OwningProjects: project.IDList{pid},
 	}
 	role := operator.RoleByProject(pid)
 	expectedRole := user.RoleOwner
@@ -202,9 +202,9 @@ func TestOperator_RoleByProject(t *testing.T) {
 	pid2 := id.NewProjectID()
 	uid2 := id.NewUserID()
 	operator2 := &Operator{
-		User:             &uid2,
-		Integration:      nil,
-		MaintainableProjects: project.IDList{pid2},	
+		User:                 &uid2,
+		Integration:          nil,
+		MaintainableProjects: project.IDList{pid2},
 	}
 	role2 := operator2.RoleByProject(pid2)
 	expectedRole2 := user.RoleMaintainer
@@ -216,7 +216,7 @@ func TestOperator_RoleByProject(t *testing.T) {
 	operator3 := &Operator{
 		User:             &uid3,
 		Integration:      nil,
-		WritableProjects: project.IDList{pid3},	
+		WritableProjects: project.IDList{pid3},
 	}
 	role3 := operator3.RoleByProject(pid3)
 	expectedRole3 := user.RoleWriter
@@ -228,7 +228,7 @@ func TestOperator_RoleByProject(t *testing.T) {
 	operator4 := &Operator{
 		User:             &uid4,
 		Integration:      nil,
-		ReadableProjects: project.IDList{pid4},	
+		ReadableProjects: project.IDList{pid4},
 	}
 	role4 := operator4.RoleByProject(pid4)
 	expectedRole4 := user.RoleReader
