@@ -12,8 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/model"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
@@ -249,7 +247,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if len(prj.RequestRoles()) > 0 && slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+		if len(prj.RequestRoles()) > 0 && !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
 
 			if err := i.repos.Item.UpdateRef(ctx, vi.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
 				return nil, err
@@ -345,7 +343,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		if len(prj.RequestRoles()) > 0 && slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+		if len(prj.RequestRoles()) > 0 && !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
 
 			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
 				return nil, err
@@ -530,9 +528,4 @@ func (i Item) event(ctx context.Context, e Event) error {
 
 	_, err := createEvent(ctx, i.repos, i.gateways, e)
 	return err
-}
-
-func (i Item) publishItems(ctx context.Context, itm item.Versioned, prj *project.Project, wks id.WorkspaceID, m *model.Model, sch *schema.Schema) error {
-
-	return nil
 }
