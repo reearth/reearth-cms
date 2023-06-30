@@ -219,7 +219,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		}),
 	}
 
-	i, err = uc.Item.Update(ctx, up, op)
+	u, err := uc.Item.Update(ctx, up, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemUpdate400Response{}, err
@@ -227,12 +227,12 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate400Response{}, err
 	}
 
-	assets, err := getAssetsFromItems(ctx, item.VersionedList{i}, request.Body.Asset)
+	assets, err := getAssetsFromItems(ctx, item.VersionedList{u}, request.Body.Asset)
 	if err != nil {
 		return ItemUpdate500Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItemWithOldValue(i, ss, assetContext(ctx, assets, request.Body.Asset))), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItemWithPreviousValue(u, i, ss, assetContext(ctx, assets, request.Body.Asset))), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {

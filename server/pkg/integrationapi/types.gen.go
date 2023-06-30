@@ -186,6 +186,15 @@ type Field struct {
 	Value *interface{} `json:"value,omitempty"`
 }
 
+// FieldWithPreviousValue defines model for fieldWithPreviousValue.
+type FieldWithPreviousValue struct {
+	Id       *id.FieldID  `json:"id,omitempty"`
+	Key      *string      `json:"key,omitempty"`
+	OldValue *interface{} `json:"oldValue,omitempty"`
+	Type     *ValueType   `json:"type,omitempty"`
+	Value    *interface{} `json:"value,omitempty"`
+}
+
 // File defines model for file.
 type File struct {
 	Children    *[]File  `json:"children,omitempty"`
@@ -202,6 +211,15 @@ type Item struct {
 	Id        *id.ItemID `json:"id,omitempty"`
 	ModelId   *string    `json:"modelId,omitempty"`
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// ItemWithPreviousValue defines model for itemWithPreviousValue.
+type ItemWithPreviousValue struct {
+	CreatedAt *time.Time                `json:"createdAt,omitempty"`
+	Fields    *[]FieldWithPreviousValue `json:"fields,omitempty"`
+	Id        *id.ItemID                `json:"id,omitempty"`
+	ModelId   *string                   `json:"modelId,omitempty"`
+	UpdatedAt *time.Time                `json:"updatedAt,omitempty"`
 }
 
 // Model defines model for model.
@@ -265,22 +283,16 @@ type VersionedItem struct {
 	Version   *openapi_types.UUID   `json:"version,omitempty"`
 }
 
-// VersionedItemWithOldValue defines model for versionedItemWithOldValue.
-type VersionedItemWithOldValue struct {
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	Fields    *[]struct {
-		Id       *id.FieldID  `json:"id,omitempty"`
-		Key      *string      `json:"key,omitempty"`
-		OldValue *interface{} `json:"oldValue,omitempty"`
-		Type     *ValueType   `json:"type,omitempty"`
-		Value    *interface{} `json:"value,omitempty"`
-	} `json:"fields,omitempty"`
-	Id        *id.ItemID            `json:"id,omitempty"`
-	ModelId   *string               `json:"modelId,omitempty"`
-	Parents   *[]openapi_types.UUID `json:"parents,omitempty"`
-	Refs      *[]string             `json:"refs,omitempty"`
-	UpdatedAt *time.Time            `json:"updatedAt,omitempty"`
-	Version   *openapi_types.UUID   `json:"version,omitempty"`
+// VersionedItemWithPreviousValue defines model for versionedItemWithPreviousValue.
+type VersionedItemWithPreviousValue struct {
+	CreatedAt *time.Time                `json:"createdAt,omitempty"`
+	Fields    *[]FieldWithPreviousValue `json:"fields,omitempty"`
+	Id        *id.ItemID                `json:"id,omitempty"`
+	ModelId   *string                   `json:"modelId,omitempty"`
+	Parents   *[]openapi_types.UUID     `json:"parents,omitempty"`
+	Refs      *[]string                 `json:"refs,omitempty"`
+	UpdatedAt *time.Time                `json:"updatedAt,omitempty"`
+	Version   *openapi_types.UUID       `json:"version,omitempty"`
 }
 
 // AssetIdParam defines model for assetIdParam.

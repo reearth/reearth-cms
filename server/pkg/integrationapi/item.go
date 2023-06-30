@@ -60,7 +60,7 @@ func NewItem(i *item.Item, s *schema.Schema, assets *AssetContext) Item {
 }
 
 
-func NewVersionedItemWithOldValue(ver item.Versioned ,original item.Versioned, s *schema.Schema, assets *AssetContext) VersionedItemWithOldValue {
+func NewVersionedItemWithPreviousValue(ver item.Versioned ,original item.Versioned, s *schema.Schema, assets *AssetContext) VersionedItemWithPreviousValue {
 	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
 		return types.UUID(v)
 	})
@@ -68,8 +68,8 @@ func NewVersionedItemWithOldValue(ver item.Versioned ,original item.Versioned, s
 		return string(r)
 	})
 
-	ii := NewItemWithOldValue(ver.Value(), original.Value(), s, assets)
-	return VersionedItemWithOldValue{
+	ii := NewItemWithPreviousValue(ver.Value(), original.Value(), s, assets)
+	return VersionedItemWithPreviousValue{
 		Id:        ii.Id,
 		CreatedAt: ii.CreatedAt,
 		UpdatedAt: ii.UpdatedAt,
@@ -81,14 +81,14 @@ func NewVersionedItemWithOldValue(ver item.Versioned ,original item.Versioned, s
 	}
 }
 
-func NewItemWithOldValue(i *item.Item, o *item.Item, s *schema.Schema, assets *AssetContext) Item {
-	fs := lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (Field, bool) {
+func NewItemWithPreviousValue(i *item.Item, o *item.Item, s *schema.Schema, assets *AssetContext) ItemWithPreviousValue {
+	fs := lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (FieldWithPreviousValue, bool) {
 		if s == nil {
-			return Field{}, false
+			return FieldWithPreviousValue{}, false
 		}
 		sf := s.Field(f.FieldID())
 		if sf == nil {
-			return Field{}, false
+			return FieldWithPreviousValue{}, false
 		}
 		ii, _ := lo.Find(o.Fields(), func(field *item.Field) bool {
 			fmt.Println(field.FieldID().Ref());
@@ -96,22 +96,16 @@ func NewItemWithOldValue(i *item.Item, o *item.Item, s *schema.Schema, assets *A
 			return field.FieldID() == f.FieldID()
 		})
 
-		fmt.Println("-------------");
-		fmt.Println(ii);
-		fmt.Println("-------------");
-
-		// fmt.Print(lo.ToPtr(ToValues(ii.Value(), sf.Multiple(), assets)));
-
-		return Field{
+		return FieldWithPreviousValue{
 			Id:    f.FieldID().Ref(),
 			Type:  lo.ToPtr(ToValueType(f.Type())),
 			Value: lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
-			oldValue: lo.ToPtr(ToValues(ii.Value(), sf.Multiple(), assets)),
+			OldValue: lo.ToPtr(ToValues(ii.Value(), sf.Multiple(), assets)),
 			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
 		}, true
 	})
 
-	return Item{
+	return ItemWithPreviousValue{
 		Id:        i.ID().Ref(),
 		ModelId:   i.Model().Ref().StringRef(),
 		Fields:    &fs,

@@ -265,7 +265,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/versionedItemWithOldValue'
+                $ref: '#/components/schemas/versionedItemWithPreviousValue'
         '400':
           description: Invalid request parameter value
         '401':
@@ -899,6 +899,24 @@ components:
         updatedAt:
           type: string
           format: date-time
+    itemWithPreviousValue:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ItemID
+          type: string
+        modelId:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/fieldWithPreviousValue'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     versionedItem:
       type: object
       properties:
@@ -940,19 +958,48 @@ components:
         value: {}
         key:
           type: string
-    versionedItemWithOldValue:
-      allOf:
-        - $ref: '#/components/schemas/versionedItem'
-        - type: object
-          properties:
-            fields:
-              type: array
-              items:
-                allOf:
-                  - $ref: '#/components/schemas/field'
-                  - type: object
-                    properties:
-                      oldValue: {}
+    fieldWithPreviousValue:
+      type: object
+      properties:
+        id:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          $ref: '#/components/schemas/valueType'
+        value: {}
+        oldValue: {}
+        key:
+          type: string
+    versionedItemWithPreviousValue:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ItemID
+          type: string
+        modelId:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/fieldWithPreviousValue'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: string
+          format: uuid
+        parents:
+          type: array
+          items:
+            type: string
+            format: uuid
+        refs:
+          type: array
+          items:
+            type: string
     refOrVersion:
       type: object
       properties:
