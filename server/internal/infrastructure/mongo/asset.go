@@ -18,7 +18,12 @@ import (
 )
 
 var (
-	assetIndexes       = []string{"project,!createdat,!id"}
+	assetIndexes = []string{
+		"project,!createdat,!id",
+		"project,createdat,id",
+		"project,!size,!id",
+		"project,size,id",
+	}
 	assetUniqueIndexes = []string{"id"}
 )
 
