@@ -1,6 +1,8 @@
 package integrationapi
 
 import (
+	"fmt"
+
 	"github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -44,6 +46,67 @@ func NewItem(i *item.Item, s *schema.Schema, assets *AssetContext) Item {
 			Id:    f.FieldID().Ref(),
 			Type:  lo.ToPtr(ToValueType(f.Type())),
 			Value: lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
+			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
+		}, true
+	})
+
+	return Item{
+		Id:        i.ID().Ref(),
+		ModelId:   i.Model().Ref().StringRef(),
+		Fields:    &fs,
+		CreatedAt: lo.ToPtr(i.ID().Timestamp()),
+		UpdatedAt: lo.ToPtr(i.Timestamp()),
+	}
+}
+
+
+func NewVersionedItemWithOldValue(ver item.Versioned ,original item.Versioned, s *schema.Schema, assets *AssetContext) VersionedItemWithOldValue {
+	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
+		return types.UUID(v)
+	})
+	rs := lo.Map(ver.Refs().Values(), func(r version.Ref, _ int) string {
+		return string(r)
+	})
+
+	ii := NewItemWithOldValue(ver.Value(), original.Value(), s, assets)
+	return VersionedItemWithOldValue{
+		Id:        ii.Id,
+		CreatedAt: ii.CreatedAt,
+		UpdatedAt: ii.UpdatedAt,
+		Fields:    ii.Fields,
+		ModelId:   ii.ModelId,
+		Parents:   &ps,
+		Refs:      &rs,
+		Version:   lo.ToPtr(types.UUID(ver.Version())),
+	}
+}
+
+func NewItemWithOldValue(i *item.Item, o *item.Item, s *schema.Schema, assets *AssetContext) Item {
+	fs := lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (Field, bool) {
+		if s == nil {
+			return Field{}, false
+		}
+		sf := s.Field(f.FieldID())
+		if sf == nil {
+			return Field{}, false
+		}
+		ii, _ := lo.Find(o.Fields(), func(field *item.Field) bool {
+			fmt.Println(field.FieldID().Ref());
+			fmt.Println( f.FieldID().Ref());
+			return field.FieldID() == f.FieldID()
+		})
+
+		fmt.Println("-------------");
+		fmt.Println(ii);
+		fmt.Println("-------------");
+
+		// fmt.Print(lo.ToPtr(ToValues(ii.Value(), sf.Multiple(), assets)));
+
+		return Field{
+			Id:    f.FieldID().Ref(),
+			Type:  lo.ToPtr(ToValueType(f.Type())),
+			Value: lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
+			oldValue: lo.ToPtr(ToValues(ii.Value(), sf.Multiple(), assets)),
 			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
 		}, true
 	})

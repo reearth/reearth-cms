@@ -232,7 +232,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate500Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset))), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItemWithOldValue(i, ss, assetContext(ctx, assets, request.Body.Asset))), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
