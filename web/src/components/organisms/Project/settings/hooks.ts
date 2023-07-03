@@ -21,7 +21,7 @@ export default ({ projectId }: Params) => {
 
   const workspaceId = currentWorkspace?.id;
 
-  const { data } = useGetProjectsQuery({
+  const { data, loading } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
     skip: !workspaceId,
   });
@@ -51,13 +51,13 @@ export default ({ projectId }: Params) => {
   });
 
   const handleProjectUpdate = useCallback(
-    async (data: { name?: string; description: string }) => {
-      if (!projectId || !data.name) return;
+    async (name?: string, description?: string) => {
+      if (!projectId || !name) return;
       const project = await updateProjectMutation({
         variables: {
           projectId,
-          name: data.name,
-          description: data.description,
+          name: name,
+          description: description,
         },
       });
       if (project.errors || !project.data?.updateProject) {
@@ -95,6 +95,7 @@ export default ({ projectId }: Params) => {
 
   return {
     project,
+    loading,
     projectId,
     currentWorkspace,
     handleProjectUpdate,
