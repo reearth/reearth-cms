@@ -276,6 +276,9 @@ const FieldCreationModal: React.FC<Props> = ({
                       if (!values || values.length < 1) {
                         return Promise.reject(new Error("At least 1 option"));
                       }
+                      if (values.some((value: string) => value.length === 0)) {
+                        return Promise.reject(new Error("Empty values are not allowed"));
+                      }
                     },
                   },
                 ]}>
