@@ -2,6 +2,7 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import DangerZone from "@reearth-cms/components/molecules/ProjectSettings/DangerZone";
 import ProjectGeneralForm from "@reearth-cms/components/molecules/ProjectSettings/GeneralForm";
+import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
 import { useT } from "@reearth-cms/i18n";
 
 import { Project } from "../Workspace/types";
@@ -19,6 +20,9 @@ const ProjectSettings: React.FC<Props> = ({ project, onProjectDelete, onProjectU
     <InnerContent title={`${t("Project Settings")} / ${project?.name}`}>
       <ContentSection title={t("General")}>
         <ProjectGeneralForm project={project} onProjectUpdate={onProjectUpdate} />
+      </ContentSection>
+      <ContentSection title={t("Request")}>
+        <ProjectRequestOptions project={project} onProjectUpdate={onProjectUpdate} />
       </ContentSection>
       <DangerZone onProjectDelete={onProjectDelete} />
     </InnerContent>
