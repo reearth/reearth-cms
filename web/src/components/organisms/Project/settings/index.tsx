@@ -8,7 +8,13 @@ import useHooks from "./hooks";
 const ProjectSettings: React.FC = () => {
   const { projectId } = useParams();
 
-  const { project, loading, handleProjectDelete, handleProjectUpdate } = useHooks({
+  const {
+    project,
+    loading,
+    handleProjectDelete,
+    handleProjectUpdate,
+    handleProjectRequestRolesUpdate,
+  } = useHooks({
     projectId,
   });
 
@@ -19,6 +25,7 @@ const ProjectSettings: React.FC = () => {
       project={project}
       onProjectDelete={handleProjectDelete}
       onProjectUpdate={handleProjectUpdate}
+      onProjectRequestRolesUpdate={handleProjectRequestRolesUpdate}
     />
   );
 };

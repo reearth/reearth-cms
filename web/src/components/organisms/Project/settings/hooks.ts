@@ -2,10 +2,12 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { RequestRoles } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
+  Role as GQLRole,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -38,6 +40,7 @@ export default ({ projectId }: Params) => {
             name: rawProject.name,
             description: rawProject.description,
             alias: rawProject.alias,
+            requestRoles: rawProject.requestRoles?.map(role => role.toLowerCase() as RequestRoles),
           }
         : undefined,
     [rawProject],
@@ -65,6 +68,24 @@ export default ({ projectId }: Params) => {
         return;
       }
       Notification.success({ message: t("Successfully updated project!") });
+    },
+    [projectId, updateProjectMutation, t],
+  );
+
+  const handleProjectRequestRolesUpdate = useCallback(
+    async (requestRoles?: RequestRoles[] | null | undefined) => {
+      if (!projectId || !requestRoles) return;
+      const project = await updateProjectMutation({
+        variables: {
+          projectId,
+          requestRoles: requestRoles.map(role => role.toUpperCase()) as GQLRole[],
+        },
+      });
+      if (project.errors || !project.data?.updateProject) {
+        Notification.error({ message: t("Failed to update request roles.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated request roles!") });
     },
     [projectId, updateProjectMutation, t],
   );
@@ -99,6 +120,7 @@ export default ({ projectId }: Params) => {
     projectId,
     currentWorkspace,
     handleProjectUpdate,
+    handleProjectRequestRolesUpdate,
     handleProjectDelete,
     assetModalOpened,
     toggleAssetModal,

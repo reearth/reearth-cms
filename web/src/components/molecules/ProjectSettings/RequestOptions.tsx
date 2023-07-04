@@ -1,39 +1,51 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project } from "../Workspace/types";
+import { Project, RequestRoles } from "../Workspace/types";
 
 export type RequestOptionsData = {
   id: string;
   role: string;
-  request: JSX.Element;
-  needRequest: boolean;
-  key?: string;
+  needRequest: JSX.Element;
 };
 
 export type Props = {
   project?: Project;
-  onProjectUpdate: (name?: string | undefined, description?: string | undefined) => Promise<void>;
+  onProjectRequestRolesUpdate: (role?: RequestRoles[] | null) => Promise<void>;
 };
 
-const ProjectRequestOptions: React.FC<Props> = () => {
+const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRolesUpdate }) => {
+  const [requestRoles, setRequestRoles] = useState<RequestRoles[] | null | undefined>([]);
   const t = useT();
+
+  useEffect(() => {
+    setRequestRoles(project?.requestRoles);
+  }, [project?.requestRoles]);
+
+  const saveDisabled = useMemo(() => {
+    if (!requestRoles || !project?.requestRoles) return false;
+    if (requestRoles.length !== project?.requestRoles.length) return false;
+    const sortedArray1 = requestRoles.slice().sort();
+    const sortedArray2 = project?.requestRoles.slice().sort();
+
+    return sortedArray1.every((element, index) => element === sortedArray2[index]);
+  }, [project?.requestRoles, requestRoles]);
 
   const columns: TableColumnsType<RequestOptionsData> = [
     {
       title: t("Role"),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "role",
+      key: "role",
     },
     {
       title: t("Need request"),
-      dataIndex: "public",
-      key: "public",
+      dataIndex: "needRequest",
+      key: "needRequest",
       align: "right",
     },
   ];
@@ -41,16 +53,93 @@ const ProjectRequestOptions: React.FC<Props> = () => {
   const dataSource: RequestOptionsData[] | undefined = useMemo(() => {
     const columns = [
       {
-        id: "assets",
-        role: "admin",
-        key: "admin",
-        needRequest: false,
-        request: <Switch />,
+        id: "OWNER",
+        key: "OWNER",
+        role: "Owner",
+        needRequest: (
+          <Switch
+            checked={requestRoles?.includes("owner")}
+            onChange={(value: boolean) => {
+              if (!Array.isArray(requestRoles)) {
+                setRequestRoles([]);
+              }
+              if (value) {
+                setRequestRoles(roles => [...(roles as RequestRoles[]), "owner"]);
+              } else {
+                setRequestRoles(requestRoles?.filter(role => role !== "owner"));
+              }
+            }}
+          />
+        ),
+      },
+      {
+        id: "MAINTAINER",
+        key: "MAINTAINER",
+        role: "Maintainer",
+        needRequest: (
+          <Switch
+            checked={requestRoles?.includes("maintainer")}
+            onChange={(value: boolean) => {
+              if (!Array.isArray(requestRoles)) {
+                setRequestRoles([]);
+              }
+              if (value) {
+                setRequestRoles(roles => [...(roles as RequestRoles[]), "maintainer"]);
+              } else {
+                setRequestRoles(requestRoles?.filter(role => role !== "maintainer"));
+              }
+            }}
+          />
+        ),
+      },
+      {
+        id: "WRITER",
+        key: "WRITER",
+        role: "Writer",
+        needRequest: (
+          <Switch
+            checked={requestRoles?.includes("writer")}
+            onChange={(value: boolean) => {
+              if (!Array.isArray(requestRoles)) {
+                setRequestRoles([]);
+              }
+              if (value) {
+                setRequestRoles(roles => [...(roles as RequestRoles[]), "writer"]);
+              } else {
+                setRequestRoles(requestRoles?.filter(role => role !== "writer"));
+              }
+            }}
+          />
+        ),
+      },
+      {
+        id: "READER",
+        key: "READER",
+        role: "Reader",
+        needRequest: (
+          <Switch
+            checked={requestRoles?.includes("reader")}
+            onChange={(value: boolean) => {
+              if (!Array.isArray(requestRoles)) {
+                setRequestRoles([]);
+              }
+              if (value) {
+                setRequestRoles(roles => [...(roles as RequestRoles[]), "reader"]);
+              } else {
+                setRequestRoles(requestRoles?.filter(role => role !== "reader"));
+              }
+            }}
+          />
+        ),
       },
     ];
 
     return columns;
-  }, []);
+  }, [requestRoles]);
+
+  const handleRequestRoleChange = useCallback(() => {
+    onProjectRequestRolesUpdate(requestRoles);
+  }, [onProjectRequestRolesUpdate, requestRoles]);
 
   return (
     <>
@@ -60,7 +149,11 @@ const ProjectRequestOptions: React.FC<Props> = () => {
       <TableWrapper>
         <Table dataSource={dataSource} columns={columns} pagination={false} />
       </TableWrapper>
-      <Button type="primary" htmlType="submit">
+      <Button
+        type="primary"
+        disabled={saveDisabled}
+        htmlType="submit"
+        onClick={handleRequestRoleChange}>
         {t("Save changes")}
       </Button>
     </>

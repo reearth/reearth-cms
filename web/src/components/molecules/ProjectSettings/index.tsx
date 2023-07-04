@@ -5,15 +5,21 @@ import ProjectGeneralForm from "@reearth-cms/components/molecules/ProjectSetting
 import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project } from "../Workspace/types";
+import { Project, RequestRoles } from "../Workspace/types";
 
 export type Props = {
   project?: Project;
   onProjectUpdate: (name?: string | undefined, description?: string | undefined) => Promise<void>;
+  onProjectRequestRolesUpdate: (role?: RequestRoles[] | null) => Promise<void>;
   onProjectDelete: () => Promise<void>;
 };
 
-const ProjectSettings: React.FC<Props> = ({ project, onProjectDelete, onProjectUpdate }) => {
+const ProjectSettings: React.FC<Props> = ({
+  project,
+  onProjectDelete,
+  onProjectUpdate,
+  onProjectRequestRolesUpdate,
+}) => {
   const t = useT();
 
   return (
@@ -22,7 +28,10 @@ const ProjectSettings: React.FC<Props> = ({ project, onProjectDelete, onProjectU
         <ProjectGeneralForm project={project} onProjectUpdate={onProjectUpdate} />
       </ContentSection>
       <ContentSection title={t("Request")}>
-        <ProjectRequestOptions project={project} onProjectUpdate={onProjectUpdate} />
+        <ProjectRequestOptions
+          project={project}
+          onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
+        />
       </ContentSection>
       <DangerZone onProjectDelete={onProjectDelete} />
     </InnerContent>

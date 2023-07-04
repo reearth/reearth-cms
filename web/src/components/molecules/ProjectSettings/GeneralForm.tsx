@@ -16,7 +16,6 @@ export type Props = {
 const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate }) => {
   const [form] = Form.useForm();
   const t = useT();
-  console.log(project);
 
   const handleSubmit = useCallback(() => {
     form
