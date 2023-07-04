@@ -247,6 +247,28 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		if len(prj.RequestRoles()) > 0 && !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+
+			if err := i.repos.Item.UpdateRef(ctx, vi.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    vi,
+				WebhookObject: item.ItemModelSchema{
+					Item:   vi.Value(),
+					Model:  m,
+					Schema: s,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
 		return vi, nil
 	})
 }
@@ -319,6 +341,28 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Operator: operator.Operator(),
 		}); err != nil {
 			return nil, err
+		}
+
+		if len(prj.RequestRoles()) > 0 && !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+
+			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: s,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
 		}
 
 		return itm, nil
