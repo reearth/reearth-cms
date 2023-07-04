@@ -38,6 +38,7 @@ export interface FormValues {
 
 export interface Props {
   open?: boolean;
+  fieldUpdateLoading: boolean;
   selectedType: FieldType;
   selectedField?: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
@@ -82,6 +83,7 @@ const initialValues: FormValues = {
 
 const FieldUpdateModal: React.FC<Props> = ({
   open,
+  fieldUpdateLoading,
   onClose,
   onSubmit,
   handleFieldKeyUnique,
@@ -227,9 +229,10 @@ const FieldUpdateModal: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      visible={open}
+      open={open}
       onCancel={() => onClose?.(true)}
       onOk={handleSubmit}
+      confirmLoading={fieldUpdateLoading}
       okButtonProps={{ disabled: buttonDisabled }}
       afterClose={handleModalReset}>
       <Form
