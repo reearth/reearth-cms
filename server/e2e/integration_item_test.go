@@ -390,10 +390,11 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"value": aid.String(),
 			},
 			map[string]string{
-				"id":    fId.String(),
-				"type":  "text",
-				"value": "test value 2",
-				"key":   sfKey.String(),
+				"id":       fId.String(),
+				"type":     "text",
+				"value":    "test value 2",
+				"oldValue": "test value",
+				"key":      sfKey.String(),
 			},
 		})
 }
