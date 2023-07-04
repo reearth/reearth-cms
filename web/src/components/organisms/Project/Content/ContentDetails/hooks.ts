@@ -170,7 +170,7 @@ export default () => {
     );
   }, [currentWorkspace]);
 
-  const [createRequestMutation] = useCreateRequestMutation({
+  const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
     refetchQueries: ["GetRequests"],
   });
 
@@ -236,6 +236,7 @@ export default () => {
   return {
     requests,
     itemId,
+    requestCreationLoading,
     currentModel,
     currentItem,
     initialFormValues,

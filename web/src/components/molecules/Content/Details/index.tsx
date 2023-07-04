@@ -22,6 +22,7 @@ export type Props = {
   initialFormValues: { [key: string]: any };
   itemId?: string;
   loading: boolean;
+  requestCreationLoading: boolean;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -84,6 +85,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   initialFormValues,
   itemId,
   loading,
+  requestCreationLoading,
   assetList,
   fileList,
   loadingAssets,
@@ -140,6 +142,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       center={
         <ContentForm
           requests={requests}
+          requestCreationLoading={requestCreationLoading}
           onRequestTableChange={onRequestTableChange}
           requestModalLoading={requestModalLoading}
           requestModalTotalCount={requestModalTotalCount}

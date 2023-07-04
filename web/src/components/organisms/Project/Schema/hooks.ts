@@ -48,11 +48,11 @@ export default () => {
     [currentModel],
   );
 
-  const [createNewField] = useCreateFieldMutation({
+  const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
     refetchQueries: ["GetModels"],
   });
 
-  const [updateField] = useUpdateFieldMutation({
+  const [updateField, { loading: fieldUpdateLoading }] = useUpdateFieldMutation({
     refetchQueries: ["GetModels"],
   });
 
@@ -201,6 +201,8 @@ export default () => {
     currentModel,
     selectedType,
     collapsed,
+    fieldCreationLoading,
+    fieldUpdateLoading,
     collapse,
     handleModelSelect,
     handleFieldCreationModalClose,

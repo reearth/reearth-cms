@@ -21,6 +21,7 @@ export type FormValues = {
 
 export type Props = {
   open?: boolean;
+  requestCreationLoading: boolean;
   itemId: string;
   workspaceUserMembers: Member[];
   onClose?: (refetch?: boolean) => void;
@@ -41,6 +42,7 @@ const initialValues: FormValues = {
 
 const RequestCreationModal: React.FC<Props> = ({
   open,
+  requestCreationLoading,
   itemId,
   workspaceUserMembers,
   onClose,
@@ -74,7 +76,12 @@ const RequestCreationModal: React.FC<Props> = ({
     onClose?.(true);
   }, [onClose]);
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit} title={t("New Request")}>
+    <Modal
+      open={open}
+      onCancel={handleClose}
+      onOk={handleSubmit}
+      confirmLoading={requestCreationLoading}
+      title={t("New Request")}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="title"
