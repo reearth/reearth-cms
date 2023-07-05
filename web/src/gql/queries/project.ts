@@ -29,6 +29,7 @@ export const GET_PROJECTS = gql`
           scope
           assetPublic
         }
+        requestRoles
       }
     }
   }
@@ -82,6 +83,7 @@ export const UPDATE_PROJECT = gql`
     $description: String
     $alias: String
     $publication: UpdateProjectPublicationInput
+    $requestRoles: [Role!]
   ) {
     updateProject(
       input: {
@@ -90,6 +92,7 @@ export const UPDATE_PROJECT = gql`
         description: $description
         alias: $alias
         publication: $publication
+        requestRoles: $requestRoles
       }
     ) {
       project {
@@ -101,6 +104,7 @@ export const UPDATE_PROJECT = gql`
           scope
           assetPublic
         }
+        requestRoles
       }
     }
   }
