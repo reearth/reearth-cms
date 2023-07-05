@@ -97,7 +97,6 @@ func NewItemWithPreviousValue(i *item.Item, o *item.Item, s *schema.Schema, asse
 			Value: lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
 			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
 		}
-
 		if ii != nil {
 			res.OldValue = lo.ToPtr(ToValues(ii.Value(), sf.Multiple(), assets))
 		}
