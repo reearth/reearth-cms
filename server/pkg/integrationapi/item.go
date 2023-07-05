@@ -1,8 +1,6 @@
 package integrationapi
 
 import (
-	"fmt"
-
 	"github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -59,8 +57,7 @@ func NewItem(i *item.Item, s *schema.Schema, assets *AssetContext) Item {
 	}
 }
 
-
-func NewVersionedItemWithPreviousValue(ver item.Versioned ,original item.Versioned, s *schema.Schema, assets *AssetContext) VersionedItemWithPreviousValue {
+func NewVersionedItemWithPreviousValue(ver item.Versioned, original item.Versioned, s *schema.Schema, assets *AssetContext) VersionedItemWithPreviousValue {
 	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
 		return types.UUID(v)
 	})
@@ -91,18 +88,20 @@ func NewItemWithPreviousValue(i *item.Item, o *item.Item, s *schema.Schema, asse
 			return FieldWithPreviousValue{}, false
 		}
 		ii, _ := lo.Find(o.Fields(), func(field *item.Field) bool {
-			fmt.Println(field.FieldID().Ref());
-			fmt.Println( f.FieldID().Ref());
-			return field.FieldID() == f.FieldID()
+			return field.FieldID() == f.FieldID() && !field.Value().Equal(f.Value())
 		})
 
-		return FieldWithPreviousValue{
+		res := FieldWithPreviousValue{
 			Id:    f.FieldID().Ref(),
 			Type:  lo.ToPtr(ToValueType(f.Type())),
 			Value: lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
-			OldValue: lo.ToPtr(ToValues(ii.Value(), sf.Multiple(), assets)),
 			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
-		}, true
+		}
+
+		if ii != nil {
+			res.OldValue = lo.ToPtr(ToValues(ii.Value(), sf.Multiple(), assets))
+		}
+		return res, true
 	})
 
 	return ItemWithPreviousValue{
