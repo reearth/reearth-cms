@@ -128,6 +128,21 @@ func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Pro
 	return nil, rerror.ErrNotFound
 }
 
+func (r *Project) FindByPublicAPIToken(ctx context.Context, token string) (*project.Project, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
+		return v.Publication().Token() == token && r.f.CanRead(v.Workspace())
+	})
+
+	if p != nil {
+		return p, nil
+	}
+	return nil, rerror.ErrNotFound
+}
+
 func (r *Project) CountByWorkspace(_ context.Context, workspace id.WorkspaceID) (c int, err error) {
 	if r.err != nil {
 		return 0, r.err

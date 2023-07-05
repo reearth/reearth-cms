@@ -891,3 +891,69 @@ func Test_projectRepo_Save(t *testing.T) {
 		})
 	}
 }
+
+func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
+	tid1 := id.NewWorkspaceID()
+	id1 := id.NewProjectID()
+	now := time.Now().Truncate(time.Millisecond).UTC()
+	pub := project.NewPublication(project.PublicationScopeLimited, false)
+	p1 := project.New().ID(id1).Workspace(tid1).Publication(pub).UpdatedAt(now).MustBuild()
+	tests := []struct {
+		name    string
+		seeds   project.List
+		arg     string
+		want    *project.Project
+		wantErr error
+	}{
+		{
+			name:    "Not found in empty db",
+			seeds:   project.List{},
+			arg:     pub.Token(),
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: project.List{
+				p1,
+			},
+			arg:     "xxx",
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: project.List{
+				p1,
+			},
+			arg:     pub.Token(),
+			want:    p1,
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewProject(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p)
+				assert.NoError(t, err)
+			}
+
+			got, err := r.FindByPublicAPIToken(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}

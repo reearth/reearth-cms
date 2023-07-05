@@ -134,25 +134,21 @@ func PublicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			// TODO: support limit publication scope
 
-			// req := c.Request()
-			// ctx := req.Context()
-			// if token := req.Header.Get("Reearth-Token"); token != "" {
-			// 	ws, err := cfg.Repos.Project.FindByPublicAPIToken(ctx, token)
-			// 	if err != nil {
-			// 		if errors.Is(err, rerror.ErrNotFound) {
-			// 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
-			// 		}
-			// 		return err
-			// 	}
+			req := c.Request()
+			ctx := req.Context()
+			if token := strings.TrimPrefix(req.Header.Get("authorization"), "Bearer "); token != "" {
+				_, err := cfg.Repos.Project.FindByPublicAPIToken(ctx, token)
+				if err != nil {
+					if errors.Is(err, rerror.ErrNotFound) {
+						return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
+					}
+					return err
+				}
 
-			// 	if !ws.IsPublic() {
-			// 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token"})
-			// 	}
-
-			// 	c.SetRequest(req.WithContext(adapter.AttachOperator(ctx, &usecase.Operator{
-			// 		PublicAPIProject: ws.ID(),
-			// 	})))
-			// }
+				c.SetRequest(req.WithContext(adapter.AttachOperator(ctx, &usecase.Operator{
+					PublicAPIToken: token,
+				})))
+			}
 
 			return next(c)
 		}

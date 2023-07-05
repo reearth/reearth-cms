@@ -21,6 +21,7 @@ type Operator struct {
 	WritableProjects       project.IDList
 	OwningProjects         project.IDList
 	MaintainableProjects   project.IDList
+	PublicAPIToken         string
 }
 
 type Ownable interface {

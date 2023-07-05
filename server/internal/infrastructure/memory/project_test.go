@@ -938,3 +938,82 @@ func TestProjectRepo_Save(t *testing.T) {
 		})
 	}
 }
+
+func TestProject_FindByPublicAPIToken(t *testing.T) {
+	mocknow := time.Now().Truncate(time.Millisecond).UTC()
+	tid1 := id.NewWorkspaceID()
+	id1 := id.NewProjectID()
+	pub := project.NewPublication(project.PublicationScopeLimited, false)
+	p1 := project.New().
+		ID(id1).
+		Workspace(tid1).
+		UpdatedAt(mocknow).
+		Publication(pub).
+		MustBuild()
+
+	tests := []struct {
+		name    string
+		seeds   project.List
+		arg     string
+		want    *project.Project
+		wantErr error
+		mockErr bool
+	}{
+		{
+			name:    "Not found in empty db",
+			seeds:   project.List{},
+			arg:     "xyz123",
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Not found",
+			seeds: project.List{
+				p1,
+			},
+			arg:     "",
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "Found 1",
+			seeds: project.List{
+				p1,
+			},
+			arg:     pub.Token(),
+			want:    p1,
+			wantErr: nil,
+		},
+		{
+			name:    "must mock error",
+			wantErr: errors.New("test"),
+			mockErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := NewProject()
+			if tc.mockErr {
+				SetProjectError(r, tc.wantErr)
+			}
+			defer MockProjectNow(r, mocknow)()
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p.Clone())
+				assert.NoError(t, err)
+			}
+
+			got, err := r.FindByPublicAPIToken(ctx, tc.arg)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
