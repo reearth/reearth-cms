@@ -10,13 +10,13 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.71
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.36.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.20.13
-	github.com/bodgit/sevenzip v1.4.2
+	github.com/bodgit/sevenzip v1.4.3
 	github.com/jarcoal/httpmock v1.3.0
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/labstack/echo/v4 v4.10.2
-	github.com/reearth/reearthx v0.0.0-20230531092445-3bdc26691898
+	github.com/reearth/reearthx v0.0.0-20230629030550-b8c5785d95e2
 	github.com/samber/lo v1.38.1
 	github.com/spf13/afero v1.9.5
 	github.com/stretchr/testify v1.8.4

@@ -67,6 +67,7 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapp
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.40.0/go.mod h1:lz6DEePTxmjvYMtusOoS3qDAErC0STi/wmvqJucKY28=
 github.com/HdrHistogram/hdrhistogram-go v1.1.2 h1:5IcZpTvzydCQeHzK4Ef/D5rrSqwxob0t8PQPMybUNFM=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
+github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpHMqeKTCYkitsPqHNxTmd4SNR5r94FGM8=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=
 github.com/agnivade/levenshtein v1.1.1/go.mod h1:veldBMzWxcCG2ZvUTKD2kJNRdCk5hVbJomOvKkmgYbo=
 github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=
@@ -431,8 +432,8 @@ github.com/posener/complete v1.2.3/go.mod h1:WZIdtGGp+qx0sLrYKtIRAruyNpv6hFCicSg
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/ravilushqa/otelgqlgen v0.13.1 h1:V+zFE75iDd2/CSzy5kKnb+Fi09SsE5535wv9U2nUEFE=
 github.com/ravilushqa/otelgqlgen v0.13.1/go.mod h1:ZIyWykK2paCuNi9k8gk5edcNSwDJuxZaW90vZXpafxw=
-github.com/reearth/reearthx v0.0.0-20230531092445-3bdc26691898 h1:M9m03h+EBR33vxIfBnen5kavaIRRu7gXFkwqHqHU0l4=
-github.com/reearth/reearthx v0.0.0-20230531092445-3bdc26691898/go.mod h1:Rh7MJPKq43f+HZ/PwjZ5vEbGPpllNFvUrxn9sBn2b+s=
+github.com/reearth/reearthx v0.0.0-20230629030550-b8c5785d95e2 h1:hVSBdiK+0/1WsTkANFncN0hq/xa4xJZ7Sl75Dxwr5Cw=
+github.com/reearth/reearthx v0.0.0-20230629030550-b8c5785d95e2/go.mod h1:O4zFr6ks8jDKfgy9NBpZKp31jpmAPnfOtMQK9B6xX54=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/russross/blackfriday/v2 v2.1.0 h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
