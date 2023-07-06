@@ -37,6 +37,7 @@ export type FormValues = {
 
 export type Props = {
   open?: boolean;
+  fieldCreationLoading: boolean;
   selectedType: FieldType;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
@@ -80,6 +81,7 @@ const initialValues: FormValues = {
 
 const FieldCreationModal: React.FC<Props> = ({
   open,
+  fieldCreationLoading,
   selectedType,
   onClose,
   onSubmit,
@@ -209,9 +211,10 @@ const FieldCreationModal: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      visible={open}
+      open={open}
       onCancel={() => onClose?.(true)}
       onOk={handleSubmit}
+      confirmLoading={fieldCreationLoading}
       okButtonProps={{ disabled: buttonDisabled }}
       afterClose={handleModalReset}>
       <Form
@@ -275,6 +278,9 @@ const FieldCreationModal: React.FC<Props> = ({
                     validator: async (_, values) => {
                       if (!values || values.length < 1) {
                         return Promise.reject(new Error("At least 1 option"));
+                      }
+                      if (values.some((value: string) => value.length === 0)) {
+                        return Promise.reject(new Error("Empty values are not allowed"));
                       }
                     },
                   },
