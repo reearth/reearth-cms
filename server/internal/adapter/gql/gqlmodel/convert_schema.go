@@ -186,6 +186,7 @@ func valueString(dv *value.Multiple, multiple bool) any {
 }
 
 var ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
+var ErrEmptyOptions = rerror.NewE(i18n.T("Options could not be empty!"))
 
 func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
 	if tp == nil {
@@ -274,12 +275,16 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
+		res := schema.NewSelect(x.Values)
+		if len(res.Values()) == 0 {
+			return nil, nil, ErrEmptyOptions
+		}
 		if multiple {
 			dv = value.NewMultiple(value.TypeSelect, unpackArray(x.DefaultValue))
 		} else {
 			dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue).AsMultiple()
 		}
-		tpRes = schema.NewSelect(x.Values).TypeProperty()
+		tpRes = res.TypeProperty()
 	case SchemaFieldTypeInteger:
 		x := tp.Integer
 		if x == nil {
