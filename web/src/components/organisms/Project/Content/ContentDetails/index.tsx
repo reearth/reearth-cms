@@ -17,6 +17,7 @@ const ContentDetails: React.FC = () => {
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
+    requestCreationLoading,
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
@@ -67,6 +68,7 @@ const ContentDetails: React.FC = () => {
   return (
     <ContentDetailsMolecule
       requests={requests}
+      requestCreationLoading={requestCreationLoading}
       onRequestTableChange={handleRequestTableChange}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}

@@ -81,3 +81,40 @@ func Test_propertyString_Validate(t *testing.T) {
 	assert.True(t, (&propertyString{}).Validate("a"))
 	assert.False(t, (&propertyString{}).Validate(1))
 }
+
+func Test_propertyString_Equal(t *testing.T) {
+	ps := &propertyString{}
+	assert.True(t, ps.Equal("xxx", "xxx"))
+}
+
+func TestValue_ValueString(t *testing.T) {
+	var v *Value
+	got, ok := v.ValueString()
+	assert.Equal(t, "", got)
+	assert.Equal(t, false, ok)
+
+	v = &Value{
+		v: "xxx",
+	}
+	got, ok = v.ValueString()
+	assert.Equal(t, "xxx", got)
+	assert.Equal(t, true, ok)
+	v = &Value{
+		v: 0,
+	}
+	got, ok = v.ValueString()
+	assert.Equal(t, "", got)
+	assert.Equal(t, false, ok)
+}
+
+func TestMultiple_ValuesString(t *testing.T) {
+	var m *Multiple
+	got, ok := m.ValuesString()
+	var expected []String
+	assert.Equal(t, expected, got)
+	assert.Equal(t, false, ok)
+	m = NewMultiple(TypeText, []any{"a", "b", "c"})
+	expected = []String{"a", "b", "c"}
+	got, _ = m.ValuesString()
+	assert.Equal(t, expected, got)
+}
