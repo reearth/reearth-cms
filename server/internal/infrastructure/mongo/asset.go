@@ -18,7 +18,12 @@ import (
 )
 
 var (
-	assetIndexes       = []string{"project", "!createdat,!id"}
+	assetIndexes = []string{
+		"project,!createdat,!id",
+		"project,createdat,id",
+		"project,!size,!id",
+		"project,size,id",
+	}
 	assetUniqueIndexes = []string{"id"}
 )
 
@@ -79,7 +84,7 @@ func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo
 		"project": id.String(),
 	}
 
-	if uFilter.Keyword != nil {
+	if uFilter.Keyword != nil && *uFilter.Keyword != "" {
 		filter = mongox.And(filter, "", bson.M{
 			"filename": bson.M{
 				"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
