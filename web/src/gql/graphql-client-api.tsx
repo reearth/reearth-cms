@@ -1362,7 +1362,7 @@ export type UpdateIntegrationOfWorkspaceInput = {
 export type UpdateItemInput = {
   fields: Array<ItemFieldInput>;
   itemId: Scalars['ID'];
-  version: Scalars['String'];
+  version?: InputMaybe<Scalars['String']>;
 };
 
 export type UpdateMeInput = {
