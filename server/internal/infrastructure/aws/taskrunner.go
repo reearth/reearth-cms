@@ -100,7 +100,7 @@ func (t *TaskRunner) runWebhookReq(ctx context.Context, p task.Payload) error {
 	if err != nil {
 		return rerror.ErrInternalBy(err)
 	}
-	log.Infof("webhook request has been sent: body %#v", p.Webhook.Payload().Webhook)
+	log.Infofc(ctx, "webhook request has been sent: body %#v", p.Webhook.Payload().Webhook)
 
 	return nil
 }
