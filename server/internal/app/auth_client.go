@@ -274,7 +274,7 @@ func operatorProjects(ctx context.Context, cfg *ServerConfig, w workspace.Worksp
 		}
 		cur = pi.EndCursor
 	}
-	return rp, wp, op, mp, nil
+	return rp, wp, mp, op, nil
 }
 
 func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *integration.Integration, lang string) (*usecase.Operator, error) {

@@ -1161,6 +1161,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 				return afero.NewMemMapFs()
 			},
 			assetID: assetID1,
+			status:  lo.ToPtr(asset.ArchiveExtractionStatusFailed),
 			want:    nil,
 			wantErr: gateway.ErrFileNotFound,
 		},
@@ -1422,6 +1423,10 @@ func NewMockRunner() gateway.TaskRunner {
 }
 
 func (r *mockRunner) Run(context.Context, task.Payload) error {
+	return nil
+}
+
+func (r *mockRunner) Retry(context.Context, string) error {
 	return nil
 }
 

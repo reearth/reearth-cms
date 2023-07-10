@@ -316,10 +316,10 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 		{
 			name: "select",
 			argsInp: &SchemaFieldTypePropertyInput{
-				Select: &SchemaFieldSelectInput{DefaultValue: nil},
+				Select: &SchemaFieldSelectInput{Values: []string{""}},
 			},
 			argsT:  SchemaFieldTypeSelect,
-			wantTp: schema.NewSelect(nil).TypeProperty(),
+			wantError: ErrEmptyOptions,
 		},
 	}
 
