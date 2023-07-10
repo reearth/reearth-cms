@@ -49,7 +49,7 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 }
 
 func (t *TaskRunner) Retry(ctx context.Context, id string) error {
-	panic("not implemented")
+	return errors.New("not implemented")
 }
 
 func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {
