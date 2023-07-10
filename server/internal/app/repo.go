@@ -75,19 +75,11 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
-			log.Fatalln(fmt.Sprintf("task runner: gcp init error: %+v", err))
+			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
 		}
 		gateways.TaskRunner = taskRunner
-		log.Info("task runner: GCP is used")
-	} else if conf.AWSTask.TopicARN != "" || conf.AWSTask.WebhookARN != "" {
-		taskRunner, err := aws.NewTaskRunner(ctx, &conf.AWSTask)
-		if err != nil {
-			log.Fatalln(fmt.Sprintf("task runner: aws init error: %+v", err))
-		}
-		gateways.TaskRunner = taskRunner
-		log.Info("task runner: AWS is used")
 	} else {
-		log.Info("task runner: not used")
+		log.Infof("task runner: not used")
 	}
 
 	return repos, gateways

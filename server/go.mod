@@ -3,6 +3,7 @@ module github.com/reearth/reearth-cms/server
 go 1.19
 
 require (
+	cloud.google.com/go/cloudtasks v1.10.1
 	cloud.google.com/go/pubsub v1.30.1
 	cloud.google.com/go/storage v1.30.1
 	github.com/99designs/gqlgen v0.17.31
@@ -10,13 +11,13 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.18.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.25
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.33.1
-	github.com/aws/aws-sdk-go-v2/service/sns v1.20.11
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/deepmap/oapi-codegen v1.12.4
 	github.com/gavv/httpexpect/v2 v2.4.1
 	github.com/getkin/kin-openapi v0.116.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
+	github.com/googleapis/gax-go/v2 v2.10.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
 	github.com/jarcoal/httpmock v1.3.0
 	github.com/joho/godotenv v1.5.1
@@ -39,6 +40,7 @@ require (
 	golang.org/x/net v0.10.0
 	golang.org/x/text v0.9.0
 	google.golang.org/api v0.125.0
+	google.golang.org/protobuf v1.30.0
 )
 
 require (
@@ -86,7 +88,6 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/s2a-go v0.1.4 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
-	github.com/googleapis/gax-go/v2 v2.10.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -153,7 +154,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/grpc v1.55.0 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
