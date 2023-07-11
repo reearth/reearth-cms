@@ -42,10 +42,9 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 		}
 
 		if err := h.Controller.DecompressController.Decompress(c.Request().Context(), input); err != nil {
-			log.Errorf("failed to decompress. input: %#v err: %s", input, err.Error())
+			log.Errorf("failed to decompress. input: %#v err:%s", input, err.Error())
 			return err
 		}
-
 		log.Infof("successfully decompressed: Asset=%s, Path=%s", input.AssetID, input.Path)
 		return c.NoContent(http.StatusOK)
 	}
@@ -118,10 +117,10 @@ func parsePubSubWebhookMessage(c echo.Context, body io.Reader) (webhook.Webhook,
 	var w webhook.Webhook
 
 	if err := c.Bind(&msg); err != nil {
-		return w, err
-	}
-
-	if data, err := msg.Data(); err != nil {
+		if err := c.Bind(&w); err != nil {
+			return w, err
+		}
+	} else if data, err := msg.Data(); err != nil {
 		return w, err
 	} else if err := json.Unmarshal(data, &w); err != nil {
 		return w, err
