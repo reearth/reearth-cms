@@ -9,6 +9,7 @@ import (
 	rhttp "github.com/reearth/reearth-cms/worker/internal/adapter/http"
 	"github.com/reearth/reearth-cms/worker/pkg/webhook"
 	"github.com/reearth/reearthx/log"
+	sns "github.com/robbiet480/go.sns"
 )
 
 type Handler struct {
@@ -23,13 +24,14 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input rhttp.DecompressInput
 		if c.Request().Header.Get("X-Amz-Sns-Message-Type") == "Notification" {
-			var req struct {
-				Message string
-			}
-			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
+			var payload sns.Payload
+			if err := json.NewDecoder(c.Request().Body).Decode(&payload); err != nil {
 				return err
 			}
-			if err := json.Unmarshal([]byte(req.Message), &input); err != nil {
+			if err := json.Unmarshal([]byte(payload.Message), &input); err != nil {
+				return err
+			}
+			if err := payload.VerifyPayload(); err != nil {
 				return err
 			}
 		} else {
