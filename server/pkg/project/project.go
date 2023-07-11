@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -100,7 +101,7 @@ func (p *Project) UpdateDescription(description string) {
 }
 
 func (p *Project) SetRequestRoles(sr []user.Role) {
-	p.requestRoles = sr
+	p.requestRoles = slices.Clone(sr)
 }
 
 func (p *Project) UpdateAlias(alias string) error {

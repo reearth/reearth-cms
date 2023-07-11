@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/user"
+	"golang.org/x/exp/slices"
 )
 
 type Builder struct {
@@ -88,6 +89,6 @@ func (b *Builder) Publication(publication *Publication) *Builder {
 }
 
 func (b *Builder) RequestRoles(requestRoles []user.Role) *Builder {
-	b.p.requestRoles = requestRoles
+	b.p.requestRoles = slices.Clone(requestRoles)
 	return b
 }
