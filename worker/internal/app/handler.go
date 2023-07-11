@@ -92,6 +92,37 @@ func (h Handler) isGCP(r *http.Request) bool {
 	return false
 }
 
+func parseSNSDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
+	var payload sns.Payload
+	var input rhttp.DecompressInput
+	
+	if err := json.NewDecoder(body).Decode(&payload); err != nil {
+		return input, err
+	}
+	
+	if err := json.Unmarshal([]byte(payload.Message), &input); err != nil {
+		return input, err
+	}
+	
+	// Validates payload's signature
+	if err := payload.VerifyPayload(); err != nil {
+		return input, err
+	}
+	
+	return input, nil
+}
+
+func parsePubSubDecompressMessage(c echo.Context, body io.Reader) (rhttp.DecompressInput, error) {
+	var input rhttp.DecompressInput
+	
+	if err := c.Bind(&input); err != nil {
+		log.Errorf("failed to decompress: err=%s", err.Error())
+		return input, err
+	}
+	
+	return input, nil
+}
+
 func parseSNSWebhookMessage(body io.Reader) (webhook.Webhook, error) {
 	var payload sns.Payload
 	var w webhook.Webhook
@@ -127,37 +158,6 @@ func parsePubSubWebhookMessage(c echo.Context, body io.Reader) (webhook.Webhook,
 	}
 
 	return w, nil
-}
-
-func parseSNSDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
-	var payload sns.Payload
-	var input rhttp.DecompressInput
-
-	if err := json.NewDecoder(body).Decode(&payload); err != nil {
-		return input, err
-	}
-
-	if err := json.Unmarshal([]byte(payload.Message), &input); err != nil {
-		return input, err
-	}
-
-	// Validates payload's signature
-	if err := payload.VerifyPayload(); err != nil {
-		return input, err
-	}
-
-	return input, nil
-}
-
-func parsePubSubDecompressMessage(c echo.Context, body io.Reader) (rhttp.DecompressInput, error) {
-	var input rhttp.DecompressInput
-
-	if err := c.Bind(&input); err != nil {
-		log.Errorf("failed to decompress: err=%s", err.Error())
-		return input, err
-	}
-
-	return input, nil
 }
 
 type msgBody struct {
