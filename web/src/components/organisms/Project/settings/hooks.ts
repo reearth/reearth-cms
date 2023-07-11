@@ -7,7 +7,7 @@ import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
-  // Role as GQLRole,
+  Role as GQLRole,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -40,7 +40,7 @@ export default ({ projectId }: Params) => {
             name: rawProject.name,
             description: rawProject.description,
             alias: rawProject.alias,
-            // requestRoles: rawProject.requestRoles?.map(role => role.toLowerCase() as RequestRoles),
+            requestRoles: rawProject.requestRoles?.map(role => role.toLowerCase() as RequestRoles),
           }
         : undefined,
     [rawProject],
@@ -78,7 +78,7 @@ export default ({ projectId }: Params) => {
       const project = await updateProjectMutation({
         variables: {
           projectId,
-          // requestRoles: requestRoles.map(role => role.toUpperCase()) as GQLRole[],
+          requestRoles: requestRoles.map(role => role.toUpperCase()) as GQLRole[],
         },
       });
       if (project.errors || !project.data?.updateProject) {
