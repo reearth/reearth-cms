@@ -31,6 +31,7 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 			if err := json.Unmarshal([]byte(payload.Message), &input); err != nil {
 				return err
 			}
+			// Validates payload's signature
 			if err := payload.VerifyPayload(); err != nil {
 				return err
 			}
@@ -54,13 +55,15 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var w webhook.Webhook
 		if c.Request().Header.Get("X-Amz-Sns-Message-Type") == "Notification" {
-			var req struct {
-				Message string
-			}
-			if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
+			var payload sns.Payload
+			if err := json.NewDecoder(c.Request().Body).Decode(&payload); err != nil {
 				return err
 			}
-			if err := json.Unmarshal([]byte(req.Message), &w); err != nil {
+			if err := json.Unmarshal([]byte(payload.Message), &w); err != nil {
+				return err
+			}
+			// Validates payload's signature
+			if err := payload.VerifyPayload(); err != nil {
 				return err
 			}
 		} else {
