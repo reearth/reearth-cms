@@ -45,6 +45,8 @@ const ProjectSchema: React.FC = () => {
     currentModel,
     selectedType,
     collapsed,
+    fieldCreationLoading,
+    fieldUpdateLoading,
     collapse,
     handleModelSelect,
     handleFieldCreationModalClose,
@@ -76,6 +78,7 @@ const ProjectSchema: React.FC = () => {
         <FieldCreationModal
           selectedType={selectedType}
           open={fieldCreationModalShown}
+          fieldCreationLoading={fieldCreationLoading}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldCreationModalClose}
           onSubmit={handleFieldCreate}
@@ -103,6 +106,7 @@ const ProjectSchema: React.FC = () => {
       )}
       {selectedType && (
         <FieldUpdateModal
+          fieldUpdateLoading={fieldUpdateLoading}
           selectedType={selectedType}
           open={fieldUpdateModalShown}
           selectedField={selectedField}

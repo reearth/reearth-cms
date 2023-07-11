@@ -28,6 +28,32 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 			want2: true,
 		},
 		{
+			name: "int",
+			args: []any{
+				int8(5), int32(5), int16(5), int64(5), "5", json.Number("5"), lo.ToPtr(int8(5)),
+				lo.ToPtr(int8(5)), lo.ToPtr(int32(5)), lo.ToPtr(int16(5)), lo.ToPtr(int64(5)), lo.ToPtr("5"),
+				uint8(5), uint(5), uint32(5), uint16(5), uint64(5), lo.ToPtr(uint8(5)), uintptr(5), lo.ToPtr(uint32(5)), lo.ToPtr(uint16(5)), lo.ToPtr(uint64(5)), lo.ToPtr(uint(5)), lo.ToPtr(uintptr(5)),
+			},
+			want1: 5.0,
+			want2: true,
+		},
+		{
+			name: "bool false",
+			args: []any{
+				false, lo.ToPtr(false),
+			},
+			want1: 0.0,
+			want2: true,
+		},
+		{
+			name: "bool true",
+			args: []any{
+				true, lo.ToPtr(true),
+			},
+			want1: 1.0,
+			want2: true,
+		},
+		{
 			name:  "positive",
 			args:  []any{1.12, "1.12", json.Number("1.12"), lo.ToPtr(1.12), lo.ToPtr("1.12"), lo.ToPtr(json.Number("1.12"))},
 			want1: 1.12,
@@ -59,7 +85,7 @@ func Test_propertyNumber_ToValue(t *testing.T) {
 		},
 		{
 			name:  "time",
-			args:  []any{now},
+			args:  []any{now, lo.ToPtr(now)},
 			want1: float64(now.Unix()),
 			want2: true,
 		},
@@ -108,4 +134,36 @@ func Test_propertyNumber_IsEmpty(t *testing.T) {
 func Test_propertyNumber_Validate(t *testing.T) {
 	assert.True(t, (&propertyNumber{}).Validate(float64(1)))
 	assert.False(t, (&propertyNumber{}).Validate("a"))
+}
+
+func TestValue_ValueNumber(t *testing.T) {
+	var v *Value
+	got, ok := v.ValueNumber()
+	assert.Equal(t, 0.0, got)
+	assert.Equal(t, false, ok)
+
+	v = &Value{
+		v: 5.0,
+	}
+	got, ok = v.ValueNumber()
+	assert.Equal(t, 5.0, got)
+	assert.Equal(t, true, ok)
+	v = &Value{
+		v: "a",
+	}
+	got, ok = v.ValueNumber()
+	assert.Equal(t, 0.0, got)
+	assert.Equal(t, false, ok)
+}
+
+func TestMultiple_ValuesNumber(t *testing.T) {
+	var m *Multiple
+	got, ok := m.ValuesNumber()
+	var expected []Number
+	assert.Equal(t, expected, got)
+	assert.Equal(t, false, ok)
+	m = NewMultiple(TypeNumber, []any{5.0, 6.0, 7.0})
+	expected = []Number{5.0, 6.0, 7.0}
+	got, _ = m.ValuesNumber()
+	assert.Equal(t, expected, got)
 }
