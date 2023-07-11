@@ -2,7 +2,7 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import DangerZone from "@reearth-cms/components/molecules/ProjectSettings/DangerZone";
 import ProjectGeneralForm from "@reearth-cms/components/molecules/ProjectSettings/GeneralForm";
-// import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
+import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
 import { useT } from "@reearth-cms/i18n";
 
 import { Project, RequestRoles } from "../Workspace/types";
@@ -18,7 +18,7 @@ const ProjectSettings: React.FC<Props> = ({
   project,
   onProjectDelete,
   onProjectUpdate,
-  // onProjectRequestRolesUpdate,
+  onProjectRequestRolesUpdate,
 }) => {
   const t = useT();
 
@@ -27,12 +27,12 @@ const ProjectSettings: React.FC<Props> = ({
       <ContentSection title={t("General")}>
         <ProjectGeneralForm project={project} onProjectUpdate={onProjectUpdate} />
       </ContentSection>
-      {/* <ContentSection title={t("Request")}>
+      <ContentSection title={t("Request")}>
         <ProjectRequestOptions
           project={project}
           onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         />
-      </ContentSection> */}
+      </ContentSection>
       <DangerZone onProjectDelete={onProjectDelete} />
     </InnerContent>
   );
