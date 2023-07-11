@@ -6,24 +6,27 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 type CreateProjectParam struct {
-	WorkspaceID id.WorkspaceID
-	Name        *string
-	Description *string
-	Alias       *string
+	WorkspaceID  id.WorkspaceID
+	Name         *string
+	Description  *string
+	Alias        *string
+	RequestRoles []user.Role
 }
 
 type UpdateProjectParam struct {
-	ID          id.ProjectID
-	Name        *string
-	Description *string
-	Alias       *string
-	Publication *UpdateProjectPublicationParam
+	ID           id.ProjectID
+	Name         *string
+	Description  *string
+	Alias        *string
+	Publication  *UpdateProjectPublicationParam
+	RequestRoles []user.Role
 }
 
 type UpdateProjectPublicationParam struct {
