@@ -10,6 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.18.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.27
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.36.0
+	github.com/aws/aws-sdk-go-v2/service/sns v1.20.13
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/deepmap/oapi-codegen v1.13.0
 	github.com/gavv/httpexpect/v2 v2.4.1
