@@ -247,7 +247,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if len(prj.RequestRoles()) > 0 && !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
 			if err := i.repos.Item.UpdateRef(ctx, vi.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
 				return nil, err
 			}
@@ -342,7 +342,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		if len(prj.RequestRoles()) > 0 && !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
 			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
 				return nil, err
 			}
