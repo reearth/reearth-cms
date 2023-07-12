@@ -79,7 +79,7 @@ func (t *TaskRunner) runTaskReq(ctx context.Context, p task.Payload) error {
 		return rerror.ErrInternalBy(err)
 	}
 
-	log.Infof("task request has been sent: body %#v", p.DecompressAsset.Payload().DecompressAsset)
+	log.Infofc(ctx, "task request has been sent: body %#v", p.DecompressAsset.Payload().DecompressAsset)
 
 	return nil
 }
