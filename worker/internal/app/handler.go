@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 	rhttp "github.com/reearth/reearth-cms/worker/internal/adapter/http"
@@ -31,7 +30,7 @@ func (h Handler) DecompressHandler() echo.HandlerFunc {
 		if h.isAWS(c.Request()) {
 			input, err = parseSNSDecompressMessage(c.Request().Body)
 		} else if h.isGCP(c.Request()) {
-			input, err = parsePubSubDecompressMessage(c.Request().Body)
+			input, err = parsePubSubDecompressMessage(c, c.Request().Body)
 		} else {
 			err = errors.New("unsupported request source")
 		}
@@ -58,7 +57,7 @@ func (h Handler) WebhookHandler() echo.HandlerFunc {
 		if h.isAWS(c.Request()) {
 			webhook, err = parseSNSWebhookMessage(c.Request().Body)
 		} else if h.isGCP(c.Request()) {
-			webhook, err = parsePubSubWebhookMessage(c.Request().Body)
+			webhook, err = parsePubSubWebhookMessage(c, c.Request().Body)
 		} else {
 			err = errors.New("unsupported request source")
 		}
@@ -83,13 +82,8 @@ func (h Handler) isAWS(r *http.Request) bool {
 }
 
 func (h Handler) isGCP(r *http.Request) bool {
-	// TODO: need to find a better way to detect GCP requests
-	for headerName := range r.Header {
-		if strings.HasPrefix(strings.ToLower(headerName), "x-goog-") {
-			return true
-		}
-	}
-	return false
+	// TODO: need to find a way to detect GCP requests
+	return true
 }
 
 func parseSNSDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
@@ -112,10 +106,10 @@ func parseSNSDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
 	return input, nil
 }
 
-func parsePubSubDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
+func parsePubSubDecompressMessage(c echo.Context, body io.Reader) (rhttp.DecompressInput, error) {
 	var input rhttp.DecompressInput
 
-	if err := json.NewDecoder(body).Decode(&input); err != nil {
+	if err := c.Bind(&input); err != nil {
 		log.Errorf("failed to decompress: err=%s", err.Error())
 		return input, err
 	}
@@ -143,12 +137,12 @@ func parseSNSWebhookMessage(body io.Reader) (webhook.Webhook, error) {
 	return w, nil
 }
 
-func parsePubSubWebhookMessage(body io.Reader) (webhook.Webhook, error) {
+func parsePubSubWebhookMessage(c echo.Context, body io.Reader) (webhook.Webhook, error) {
 	var msg msgBody
 	var w webhook.Webhook
 
-	if err := json.NewDecoder(body).Decode(&msg); err != nil {
-		if err := json.NewDecoder(body).Decode(&w); err != nil {
+	if err := c.Bind(&msg); err != nil {
+		if err := c.Bind(&w); err != nil {
 			return w, err
 		}
 	} else if data, err := msg.Data(); err != nil {
