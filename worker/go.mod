@@ -15,16 +15,16 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/labstack/echo/v4 v4.9.1
-	github.com/reearth/reearthx v0.0.0-20221109022045-dd54f4626639
+	github.com/labstack/echo/v4 v4.10.2
+	github.com/reearth/reearthx v0.0.0-20230712023029-a4a80621d9e1
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
-	github.com/samber/lo v1.28.2
-	github.com/spf13/afero v1.9.2
-	github.com/stretchr/testify v1.8.1
-	go.mongodb.org/mongo-driver v1.11.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.36.1
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.37.0
-	golang.org/x/net v0.1.0
+	github.com/samber/lo v1.38.1
+	github.com/spf13/afero v1.9.5
+	github.com/stretchr/testify v1.8.4
+	go.mongodb.org/mongo-driver v1.12.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.42.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.42.0
+	golang.org/x/net v0.12.0
 )
 
 require (
