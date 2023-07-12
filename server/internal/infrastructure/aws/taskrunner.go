@@ -21,6 +21,11 @@ type TaskRunner struct {
 	snsClient  *sns.Client
 }
 
+type TaskConfig struct {
+	TopicARN   string
+	WebhookARN string
+}
+
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {
 	if conf.WebhookARN == "" || conf.TopicARN == "" {
 		return nil, errors.New("Missing configuration")
