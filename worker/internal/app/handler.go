@@ -95,31 +95,31 @@ func (h Handler) isGCP(r *http.Request) bool {
 func parseSNSDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
 	var payload sns.Payload
 	var input rhttp.DecompressInput
-	
+
 	if err := json.NewDecoder(body).Decode(&payload); err != nil {
 		return input, err
 	}
-	
+
 	if err := json.Unmarshal([]byte(payload.Message), &input); err != nil {
 		return input, err
 	}
-	
+
 	// Validates payload's signature
 	if err := payload.VerifyPayload(); err != nil {
 		return input, err
 	}
-	
+
 	return input, nil
 }
 
 func parsePubSubDecompressMessage(body io.Reader) (rhttp.DecompressInput, error) {
 	var input rhttp.DecompressInput
-	
+
 	if err := json.NewDecoder(body).Decode(&input); err != nil {
 		log.Errorf("failed to decompress: err=%s", err.Error())
 		return input, err
 	}
-	
+
 	return input, nil
 }
 

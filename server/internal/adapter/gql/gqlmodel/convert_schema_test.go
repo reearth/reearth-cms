@@ -317,7 +317,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				Select: &SchemaFieldSelectInput{Values: []string{""}},
 			},
-			argsT:  SchemaFieldTypeSelect,
+			argsT:     SchemaFieldTypeSelect,
 			wantError: ErrEmptyOptions,
 		},
 	}

@@ -58,7 +58,7 @@ func Start(debug bool, version string) {
 		Config:   conf,
 		Debug:    debug,
 		Gateways: gateways,
-	}, handler).Run()
+	}, handler).Run(ctx)
 }
 
 type WebServer struct {
@@ -96,8 +96,8 @@ func NewServer(ctx context.Context, cfg *ServerConfig, handler *Handler) *WebSer
 	return w
 }
 
-func (w *WebServer) Run() {
-	defer log.Infoln("Server shutdown")
+func (w *WebServer) Run(ctx context.Context) {
+	defer log.Infoc(ctx, "Server shutdown")
 
 	debugLog := ""
 	if w.appServer.Debug {
@@ -107,7 +107,7 @@ func (w *WebServer) Run() {
 
 	go func() {
 		err := w.appServer.StartH2CServer(w.address, &http2.Server{})
-		log.Fatalln(err.Error())
+		log.Fatalc(ctx, err.Error())
 	}()
 
 	quit := make(chan os.Signal, 1)
