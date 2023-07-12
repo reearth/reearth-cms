@@ -85,7 +85,7 @@ func (h Handler) isAWS(r *http.Request) bool {
 func (h Handler) isGCP(r *http.Request) bool {
 	// TODO: need to find a better way to detect GCP requests
 	for headerName := range r.Header {
-		if strings.HasPrefix(headerName, "X-GOOG-") {
+		if strings.HasPrefix(strings.ToLower(headerName), "x-goog-") {
 			return true
 		}
 	}
