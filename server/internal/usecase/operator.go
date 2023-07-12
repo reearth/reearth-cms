@@ -166,3 +166,19 @@ func (o *Operator) Owns(obj Ownable) bool {
 	return (o.User != nil && obj.User() != nil && *o.User == *obj.User()) ||
 		(o.Integration != nil && obj.Integration() != nil && *o.Integration == *obj.Integration())
 }
+
+func (o *Operator) RoleByProject(pid id.ProjectID) user.Role {
+	if o.IsOwningProject(pid) {
+		return user.RoleOwner
+	}
+	if o.IsMaintainingProject(pid) {
+		return user.RoleMaintainer
+	}
+	if o.IsWritableProject(pid) {
+		return user.RoleWriter
+	}
+	if o.IsReadableProject(pid) {
+		return user.RoleReader
+	}
+	return ""
+}
