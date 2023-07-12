@@ -57,12 +57,12 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
 		}
 	} else {
-		log.Infoln("file: local storage is used")
+		log.Infoc(ctx, "file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
 		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
 	}
 	if err != nil {
-		log.Fatalln(fmt.Sprintf("file: init error: %+v", err))
+		log.Fatalc(ctx, fmt.Sprintf("file: init error: %+v", err))
 	}
 	gateways.File = fileRepo
 
@@ -75,7 +75,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
-			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
+			log.Fatalc(ctx, fmt.Sprintf("task runner: init error: %+v", err))
 		}
 		gateways.TaskRunner = taskRunner
 	} else {
