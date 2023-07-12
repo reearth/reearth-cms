@@ -3,6 +3,9 @@ package project
 import (
 	"net/url"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/user"
+	"golang.org/x/exp/slices"
 )
 
 type Builder struct {
@@ -82,5 +85,10 @@ func (b *Builder) Workspace(team WorkspaceID) *Builder {
 
 func (b *Builder) Publication(publication *Publication) *Builder {
 	b.p.publication = publication
+	return b
+}
+
+func (b *Builder) RequestRoles(requestRoles []user.Role) *Builder {
+	b.p.requestRoles = slices.Clone(requestRoles)
 	return b
 }

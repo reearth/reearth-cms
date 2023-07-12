@@ -96,7 +96,8 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	}
 
 	build := &cloudbuild.Build{
-		Timeout: "86400s", // 1 day
+		Timeout:  "86400s", // 1 day
+		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
 			{
 				Name: t.conf.DecompressorImage,
