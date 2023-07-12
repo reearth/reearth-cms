@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -24,7 +23,7 @@ func NotifyHandler() echo.HandlerFunc {
 		if isAWS(c.Request()) {
 			input, err = parseSNSMessage(c.Request().Body)
 		} else if isGCP(c.Request()) {
-			input, err = parsePubSubMessage(c.Request().Body)
+			input, err = parsePubSubMessage(c, c.Request().Body)
 		} else {
 			err = errors.New("unsupported request source")
 		}
@@ -53,13 +52,8 @@ func isAWS(r *http.Request) bool {
 }
 
 func isGCP(r *http.Request) bool {
-	// TODO: need to find a better way to detect GCP requests
-	for headerName := range r.Header {
-		if strings.HasPrefix(strings.ToLower(headerName), "x-goog-") {
-			return true
-		}
-	}
-	return false
+	// TODO: need to find a way to detect GCP requests
+	return true
 }
 
 func parseSNSMessage(body io.Reader) (rhttp.NotifyInput, error) {
@@ -82,12 +76,11 @@ func parseSNSMessage(body io.Reader) (rhttp.NotifyInput, error) {
 	return input, nil
 }
 
-func parsePubSubMessage(body io.Reader) (rhttp.NotifyInput, error) {
-	var b pubsubBody
+func parsePubSubMessage(c echo.Context, body io.Reader) (rhttp.NotifyInput, error) {
 	var input rhttp.NotifyInput
-
-	if err := json.NewDecoder(body).Decode(&b); err != nil {
-		if err := json.NewDecoder(body).Decode(&input); err != nil {
+	var b pubsubBody
+	if err := c.Bind(&b); err != nil {
+		if err := c.Bind(&input); err != nil {
 			return input, err
 		}
 	}
