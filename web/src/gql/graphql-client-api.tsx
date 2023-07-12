@@ -194,6 +194,7 @@ export type CreateProjectInput = {
   alias?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  requestRoles?: InputMaybe<Array<Role>>;
   workspaceId: Scalars['ID'];
 };
 
@@ -856,6 +857,7 @@ export type Project = Node & {
   id: Scalars['ID'];
   name: Scalars['String'];
   publication?: Maybe<ProjectPublication>;
+  requestRoles?: Maybe<Array<Role>>;
   updatedAt: Scalars['DateTime'];
   workspace?: Maybe<Workspace>;
   workspaceId: Scalars['ID'];
@@ -1398,6 +1400,7 @@ export type UpdateProjectInput = {
   name?: InputMaybe<Scalars['String']>;
   projectId: Scalars['ID'];
   publication?: InputMaybe<UpdateProjectPublicationInput>;
+  requestRoles?: InputMaybe<Array<Role>>;
 };
 
 export type UpdateProjectPublicationInput = {
@@ -1829,7 +1832,7 @@ export type GetProjectsQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | null> } };
+export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | null> } };
 
 export type CheckProjectAliasQueryVariables = Exact<{
   alias: Scalars['String'];
@@ -1861,10 +1864,11 @@ export type UpdateProjectMutationVariables = Exact<{
   description?: InputMaybe<Scalars['String']>;
   alias?: InputMaybe<Scalars['String']>;
   publication?: InputMaybe<UpdateProjectPublicationInput>;
+  requestRoles?: InputMaybe<Array<Role> | Role>;
 }>;
 
 
-export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
+export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
 
 export type GetRequestsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -3804,6 +3808,7 @@ export const GetProjectsDocument = gql`
         scope
         assetPublic
       }
+      requestRoles
     }
   }
 }
@@ -3954,9 +3959,9 @@ export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProject
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
 export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
 export const UpdateProjectDocument = gql`
-    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $publication: UpdateProjectPublicationInput) {
+    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $publication: UpdateProjectPublicationInput, $requestRoles: [Role!]) {
   updateProject(
-    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, publication: $publication}
+    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, publication: $publication, requestRoles: $requestRoles}
   ) {
     project {
       id
@@ -3967,6 +3972,7 @@ export const UpdateProjectDocument = gql`
         scope
         assetPublic
       }
+      requestRoles
     }
   }
 }
@@ -3991,6 +3997,7 @@ export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutat
  *      description: // value for 'description'
  *      alias: // value for 'alias'
  *      publication: // value for 'publication'
+ *      requestRoles: // value for 'requestRoles'
  *   },
  * });
  */
