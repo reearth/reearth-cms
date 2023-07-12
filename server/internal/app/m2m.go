@@ -3,38 +3,34 @@ package app
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	rhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearthx/log"
+	sns "github.com/robbiet480/go.sns"
 )
 
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input rhttp.NotifyInput
-		var b pubsubBody
-		if err := c.Bind(&b); err != nil {
-			if err := c.Bind(&input); err != nil {
-				return err
-			}
+		var err error
+
+		if isAWS(c.Request()) {
+			input, err = parseSNSMessage(c.Request().Body)
+		} else if isGCP(c.Request()) {
+			input, err = parsePubSubMessage(c.Request().Body)
+		} else {
+			err = errors.New("unsupported request source")
 		}
 
-		if b.Message.Attributes.BuildID != "" {
-			input = rhttp.NotifyInput{
-				Type:    "assetDecompressTaskNotify",
-				AssetID: "-",
-				Status:  new(asset.ArchiveExtractionStatus),
-				Task: &rhttp.NotifyInputTask{
-					TaskID: b.Message.Attributes.BuildID,
-					Status: b.Message.Attributes.Status,
-				},
-			}
-		} else if data, err := b.Data(); err != nil {
-			return err
-		} else if err := json.Unmarshal(data, &input); err != nil {
+		if err != nil {
+			log.Errorf("failed to parse request body: %s", err.Error())
 			return err
 		}
 
@@ -50,6 +46,69 @@ func NotifyHandler() echo.HandlerFunc {
 		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
 		return c.JSON(http.StatusOK, "OK")
 	}
+}
+
+func isAWS(r *http.Request) bool {
+	return r.Header.Get("X-Amz-Sns-Message-Type") == "Notification"
+}
+
+func isGCP(r *http.Request) bool {
+	// TODO: need to find a better way to detect GCP requests
+	for headerName := range r.Header {
+		if strings.HasPrefix(strings.ToLower(headerName), "x-goog-") {
+			return true
+		}
+	}
+	return false
+}
+
+func parseSNSMessage(body io.Reader) (rhttp.NotifyInput, error) {
+	var payload sns.Payload
+	var input rhttp.NotifyInput
+
+	if err := json.NewDecoder(body).Decode(&payload); err != nil {
+		return input, err
+	}
+
+	if err := json.Unmarshal([]byte(payload.Message), &input); err != nil {
+		return input, err
+	}
+
+	// Validates payload's signature
+	if err := payload.VerifyPayload(); err != nil {
+		return input, err
+	}
+
+	return input, nil
+}
+
+func parsePubSubMessage(body io.Reader) (rhttp.NotifyInput, error) {
+	var b pubsubBody
+	var input rhttp.NotifyInput
+
+	if err := json.NewDecoder(body).Decode(&b); err != nil {
+		if err := json.NewDecoder(body).Decode(&input); err != nil {
+			return input, err
+		}
+	}
+
+	if b.Message.Attributes.BuildID != "" {
+		input = rhttp.NotifyInput{
+			Type:    "assetDecompressTaskNotify",
+			AssetID: "-",
+			Status:  new(asset.ArchiveExtractionStatus),
+			Task: &rhttp.NotifyInputTask{
+				TaskID: b.Message.Attributes.BuildID,
+				Status: b.Message.Attributes.Status,
+			},
+		}
+	} else if data, err := b.Data(); err != nil {
+		return input, err
+	} else if err := json.Unmarshal(data, &input); err != nil {
+		return input, err
+	}
+
+	return input, nil
 }
 
 type pubsubBody struct {
