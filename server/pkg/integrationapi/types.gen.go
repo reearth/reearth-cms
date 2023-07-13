@@ -195,9 +195,9 @@ type Field struct {
 
 // FieldChange defines model for fieldChange.
 type FieldChange struct {
-	CurrentValue  *interface{}     `json:"currentValue,omitempty"`
+	CurrentValue  interface{}     `json:"currentValue,omitempty"`
 	Id            *id.FieldID      `json:"id,omitempty"`
-	PreviousValue *interface{}     `json:"previousValue,omitempty"`
+	PreviousValue interface{}     `json:"previousValue,omitempty"`
 	Type          *FieldChangeType `json:"type,omitempty"`
 }
 

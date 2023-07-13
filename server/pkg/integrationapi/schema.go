@@ -83,16 +83,17 @@ func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
 	var changes []FieldChange
 
 	for i := range n {
-		fieldID := n[i].FieldID()
+		if n[i] != nil && o[i] != nil && n[i].Value().Equal(o[i].Value()) {
+			continue
+		}
 
-		var previousValue interface{} = n[i].Value()
-		var currentValue interface{} = o[i].Value()
+		fieldID := n[i].FieldID()
 
 		change := FieldChange{
 			Id:             &fieldID,
 			Type:           NewFieldChangeType("update"),
-			PreviousValue:  &previousValue,
-			CurrentValue:   &currentValue,
+			PreviousValue:  ToValues(n[i].Value(), false, nil),
+			CurrentValue:   ToValues(o[i].Value(), false, nil),
 		}
 
 		changes = append(changes, change)
