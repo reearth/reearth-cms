@@ -80,11 +80,9 @@ func NewFieldChangeType(value string) *FieldChangeType {
 }
 
 func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
-	// Create maps to store fields based on their IDs
 	nFields := make(map[string]*item.Field)
 	oFields := make(map[string]*item.Field)
 
-	// Populate the maps with fields from the new and old items
 	for _, field := range n {
 		if field != nil {
 			nFields[field.FieldID().String()] = field
@@ -98,7 +96,6 @@ func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
 
 	var changes []FieldChange
 
-	// Iterate over the fields in the new item
 	for fieldID, newField := range nFields {
 		oldField, exists := oFields[fieldID]
 
@@ -130,7 +127,6 @@ func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
 		}
 	}
 
-	// Iterate over the fields in the new item to find added fields
 	for fieldID, _ := range nFields {
 		_, exists := oFields[fieldID]
 		if !exists {
