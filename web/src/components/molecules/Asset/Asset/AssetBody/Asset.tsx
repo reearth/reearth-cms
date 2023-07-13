@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -95,11 +95,28 @@ const AssetMolecule: React.FC<Props> = ({
     }
   }, [assetFileExt, assetUrl, svgRender, viewerType]);
 
+  const showCopyIcon = useMemo(
+    () => asset.previewType === "IMAGE" || asset.previewType === "IMAGE_SVG",
+    [asset.previewType],
+  );
+
   return (
     <BodyContainer>
       <BodyWrapper>
         <Card
-          title={asset.fileName}
+          title={
+            <>
+              {asset.fileName}{" "}
+              {showCopyIcon && (
+                <CopyIcon
+                  icon="copy"
+                  onClick={() => {
+                    navigator.clipboard.writeText(asset.url);
+                  }}
+                />
+              )}
+            </>
+          }
           toolbar={
             <PreviewToolbar
               url={assetUrl}
