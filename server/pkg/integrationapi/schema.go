@@ -80,23 +80,70 @@ func NewFieldChangeType(value string) *FieldChangeType {
 }
 
 func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
+	// Create maps to store fields based on their IDs
+	nFields := make(map[string]*item.Field)
+	oFields := make(map[string]*item.Field)
+
+	// Populate the maps with fields from the new and old items
+	for _, field := range n {
+		if field != nil {
+			nFields[field.FieldID().String()] = field
+		}
+	}
+	for _, field := range o {
+		if field != nil {
+			oFields[field.FieldID().String()] = field
+		}
+	}
+
 	var changes []FieldChange
 
-	for i := range n {
-		if n[i] != nil && o[i] != nil && n[i].Value().Equal(o[i].Value()) {
+	// Iterate over the fields in the new item
+	for fieldID, newField := range nFields {
+		oldField, exists := oFields[fieldID]
+
+		if exists && newField.Value().Equal(oldField.Value()) {
 			continue
 		}
-
-		fieldID := n[i].FieldID()
-
+		fieldIDPtr := newField.FieldID();
 		change := FieldChange{
-			Id:             &fieldID,
+			Id:             &fieldIDPtr,
 			Type:           NewFieldChangeType("update"),
-			PreviousValue:  ToValues(n[i].Value(), false, nil),
-			CurrentValue:   ToValues(o[i].Value(), false, nil),
+			PreviousValue:  ToValues(newField.Value(), false, nil),
+			CurrentValue:   ToValues(oldField.Value(), false, nil),
 		}
 
 		changes = append(changes, change)
+	}
+
+	for fieldID, _ := range oFields {
+		_, exists := nFields[fieldID]
+		if !exists {
+			fieldIDPtr := oFields[fieldID].FieldID();
+			change := FieldChange{
+				Id:           &fieldIDPtr,
+				Type:         NewFieldChangeType("add"),
+				CurrentValue: ToValues(oFields[fieldID].Value(), false, nil),
+			}
+
+			changes = append(changes, change)
+		}
+	}
+
+	// Iterate over the fields in the new item to find added fields
+	for fieldID, _ := range nFields {
+		_, exists := oFields[fieldID]
+		if !exists {
+			fieldIDPtr := nFields[fieldID].FieldID()
+			change := FieldChange{
+				Id:             &fieldIDPtr,
+				Type:           NewFieldChangeType("delete"),
+				PreviousValue:  nil,
+				CurrentValue:   ToValues(nFields[fieldID].Value(), false, nil),
+			}
+
+			changes = append(changes, change)
+		}
 	}
 
 	return changes
