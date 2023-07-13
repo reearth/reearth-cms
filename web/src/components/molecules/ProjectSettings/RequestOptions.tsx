@@ -129,6 +129,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
                 setRequestRoles(requestRoles?.filter(role => role !== "reader"));
               }
             }}
+            disabled={true}
           />
         ),
       },
