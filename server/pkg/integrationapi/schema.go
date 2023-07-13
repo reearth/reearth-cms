@@ -16,6 +16,13 @@ type ItemModelSchema struct {
 	Schema Schema `json:"schema"`
 }
 
+type ItemModelSchemaItemChange struct {
+	Item   Item   `json:"item"`
+	Model  Model  `json:"model"`
+	Schema Schema `json:"schema"`
+	ItemChange []FieldChange   `json:"fieldschange"`
+}
+
 func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
 	return ItemModelSchema{
 		Item:   NewItem(i.Item, i.Schema, assets),
@@ -23,6 +30,16 @@ func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelS
 		Schema: NewSchema(i.Schema),
 	}
 }
+
+func NewItemModelSchemaItemChange(i item.ItemModelSchemaItemChange, assets *AssetContext) ItemModelSchemaItemChange {
+	return ItemModelSchemaItemChange{
+		Item:   NewItem(i.Item, i.Schema, assets),
+		Model:  NewModel(i.Model, time.Time{}),
+		Schema: NewSchema(i.Schema),
+		ItemChange: NewItemChange(i.OldFields, i.NewFields),
+	}
+}
+
 
 func NewModel(m *model.Model, lastModified time.Time) Model {
 	return Model{
@@ -55,4 +72,31 @@ func NewSchema(i *schema.Schema) Schema {
 		Fields:    &fs,
 		CreatedAt: lo.ToPtr(i.ID().Timestamp()),
 	}
+}
+
+func NewFieldChangeType(value string) *FieldChangeType {
+	ft := FieldChangeType(value)
+	return &ft
+}
+
+func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
+	var changes []FieldChange
+
+	for i := range n {
+		fieldID := n[i].FieldID()
+
+		var previousValue interface{} = n[i].Value()
+		var currentValue interface{} = o[i].Value()
+
+		change := FieldChange{
+			Id:             &fieldID,
+			Type:           NewFieldChangeType("update"),
+			PreviousValue:  &previousValue,
+			CurrentValue:   &currentValue,
+		}
+
+		changes = append(changes, change)
+	}
+
+	return changes
 }

@@ -940,6 +940,17 @@ components:
         value: {}
         key:
           type: string
+    fieldChange:
+      type: object
+      properties:
+        id:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          type: string
+          enum: [add, update, delete]
+        previousValue: {}
+        currentValue: {}
     refOrVersion:
       type: object
       properties:
