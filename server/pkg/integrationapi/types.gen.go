@@ -48,13 +48,6 @@ const (
 	User        CommentAuthorType = "user"
 )
 
-// Defines values for FieldChangeType.
-const (
-	Add    FieldChangeType = "add"
-	Delete FieldChangeType = "delete"
-	Update FieldChangeType = "update"
-)
-
 // Defines values for RefOrVersionRef.
 const (
 	RefOrVersionRefLatest RefOrVersionRef = "latest"
@@ -192,17 +185,6 @@ type Field struct {
 	Type  *ValueType   `json:"type,omitempty"`
 	Value *interface{} `json:"value,omitempty"`
 }
-
-// FieldChange defines model for fieldChange.
-type FieldChange struct {
-	CurrentValue  interface{}     `json:"currentValue,omitempty"`
-	Id            *id.FieldID      `json:"id,omitempty"`
-	PreviousValue interface{}     `json:"previousValue,omitempty"`
-	Type          *FieldChangeType `json:"type,omitempty"`
-}
-
-// FieldChangeType defines model for FieldChange.Type.
-type FieldChangeType string
 
 // File defines model for file.
 type File struct {

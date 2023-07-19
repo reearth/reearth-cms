@@ -20,7 +20,7 @@ type ItemModelSchemaItemChange struct {
 	Item   Item   `json:"item"`
 	Model  Model  `json:"model"`
 	Schema Schema `json:"schema"`
-	ItemChange []FieldChange   `json:"fieldschange"`
+	ItemChange []item.FieldChange   `json:"fieldschange"`
 }
 
 func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
@@ -36,7 +36,7 @@ func NewItemModelSchemaItemChange(i item.ItemModelSchemaItemChange, assets *Asse
 		Item:   NewItem(i.Item, i.Schema, assets),
 		Model:  NewModel(i.Model, time.Time{}),
 		Schema: NewSchema(i.Schema),
-		ItemChange: NewItemChange(i.OldFields, i.NewFields),
+		ItemChange: item.NewItemChange(i.OldFields, i.NewFields),
 	}
 }
 
@@ -72,75 +72,4 @@ func NewSchema(i *schema.Schema) Schema {
 		Fields:    &fs,
 		CreatedAt: lo.ToPtr(i.ID().Timestamp()),
 	}
-}
-
-func NewFieldChangeType(value string) *FieldChangeType {
-	ft := FieldChangeType(value)
-	return &ft
-}
-
-func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
-	nFields := make(map[string]*item.Field)
-	oFields := make(map[string]*item.Field)
-
-	for _, field := range n {
-		if field != nil {
-			nFields[field.FieldID().String()] = field
-		}
-	}
-	for _, field := range o {
-		if field != nil {
-			oFields[field.FieldID().String()] = field
-		}
-	}
-
-	var changes []FieldChange
-
-	for fieldID, newField := range nFields {
-		oldField, exists := oFields[fieldID]
-
-		if exists && newField.Value().Equal(oldField.Value()) {
-			continue
-		}
-		fieldIDPtr := newField.FieldID();
-		change := FieldChange{
-			Id:             &fieldIDPtr,
-			Type:           NewFieldChangeType("update"),
-			PreviousValue:  ToValues(newField.Value(), false, nil),
-			CurrentValue:   ToValues(oldField.Value(), false, nil),
-		}
-
-		changes = append(changes, change)
-	}
-
-	for fieldID, _ := range oFields {
-		_, exists := nFields[fieldID]
-		if !exists {
-			fieldIDPtr := oFields[fieldID].FieldID();
-			change := FieldChange{
-				Id:           &fieldIDPtr,
-				Type:         NewFieldChangeType("add"),
-				CurrentValue: ToValues(oFields[fieldID].Value(), false, nil),
-			}
-
-			changes = append(changes, change)
-		}
-	}
-
-	for fieldID, _ := range nFields {
-		_, exists := oFields[fieldID]
-		if !exists {
-			fieldIDPtr := nFields[fieldID].FieldID()
-			change := FieldChange{
-				Id:             &fieldIDPtr,
-				Type:           NewFieldChangeType("delete"),
-				PreviousValue:  nil,
-				CurrentValue:   ToValues(nFields[fieldID].Value(), false, nil),
-			}
-
-			changes = append(changes, change)
-		}
-	}
-
-	return changes
 }
