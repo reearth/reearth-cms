@@ -57,12 +57,12 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
 		}
 	} else {
-		log.Infoln("file: local storage is used")
+		log.Infoc(ctx, "file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
 		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
 	}
 	if err != nil {
-		log.Fatalln(fmt.Sprintf("file: init error: %+v", err))
+		log.Fatalc(ctx, fmt.Sprintf("file: init error: %+v", err))
 	}
 	gateways.File = fileRepo
 
@@ -75,11 +75,19 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
-			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
+			log.Fatalc(ctx, fmt.Sprintf("task runner: gcp init error: %+v", err))
 		}
 		gateways.TaskRunner = taskRunner
+		log.Infofc(ctx, "task runner: GCP is used")
+	} else if conf.AWSTask.TopicARN != "" || conf.AWSTask.WebhookARN != "" {
+		taskRunner, err := aws.NewTaskRunner(ctx, &conf.AWSTask)
+		if err != nil {
+			log.Fatalc(ctx, fmt.Sprintf("task runner: aws init error: %+v", err))
+		}
+		gateways.TaskRunner = taskRunner
+		log.Infofc(ctx, "task runner: AWS is used")
 	} else {
-		log.Infof("task runner: not used")
+		log.Infofc(ctx, "task runner: not used")
 	}
 
 	return repos, gateways
