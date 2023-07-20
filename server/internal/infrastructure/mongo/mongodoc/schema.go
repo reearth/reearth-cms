@@ -196,7 +196,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 				return nil, err
 			}
 			d, b := schema.ReferenceDirectionFrom(tpd.Reference.Direction)
-			if b != false {
+			if b == false {
 				return nil, errors.New("invalid reference direction")
 			}
 			tp = schema.NewReference(mid, d.ToPtr()).TypeProperty()
