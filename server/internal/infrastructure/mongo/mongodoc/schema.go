@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
+	"gopkg.in/errgo.v2/errors"
 )
 
 type SchemaDocument struct {
@@ -63,6 +64,7 @@ type FieldIntegerPropertyDocument struct {
 
 type FieldReferencePropertyDocument struct {
 	Model string
+	Direction string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -193,7 +195,11 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			if err != nil {
 				return nil, err
 			}
-			tp = schema.NewReference(mid).TypeProperty()
+			d, b := schema.ReferenceDirectionFrom(tpd.Reference.Direction)
+			if b != false {
+				return nil, errors.New("invalid reference direction")
+			}
+			tp = schema.NewReference(mid, d.ToPtr()).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
 		}
