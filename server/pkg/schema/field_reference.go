@@ -7,12 +7,14 @@ import (
 )
 
 type FieldReference struct {
-	modelID id.ModelID
+	modelID   id.ModelID
+	direction *ReferenceDirection
 }
 
-func NewReference(id id.ModelID) *FieldReference {
+func NewReference(id id.ModelID, direction *ReferenceDirection) *FieldReference {
 	return &FieldReference{
-		modelID: id,
+		modelID:   id,
+		direction: direction,
 	}
 }
 
@@ -27,6 +29,10 @@ func (f *FieldReference) Model() model.ID {
 	return f.modelID
 }
 
+func (f *FieldReference) Direction() *ReferenceDirection {
+	return f.direction
+}
+
 func (f *FieldReference) Type() value.Type {
 	return value.TypeReference
 }
@@ -36,7 +42,8 @@ func (f *FieldReference) Clone() *FieldReference {
 		return nil
 	}
 	return &FieldReference{
-		modelID: f.modelID,
+		modelID:   f.modelID,
+		direction: f.direction,
 	}
 }
 
