@@ -13,6 +13,11 @@ enum SchemaFieldType {
   URL
 }
 
+enum ReferenceDirection {
+  ONE_WAY
+  TWO_WAY
+}
+
 type SchemaField {
   id: ID!
   modelId: ID!
@@ -97,6 +102,7 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  direction: ReferenceDirection
 }
 
 type SchemaFieldURL {
@@ -155,6 +161,7 @@ input SchemaFieldIntegerInput {
 
 input SchemaFieldReferenceInput {
   modelId: ID!
+  direction: ReferenceDirection
 }
 
 input SchemaFieldURLInput {

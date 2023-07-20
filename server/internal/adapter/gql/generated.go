@@ -526,7 +526,8 @@ type ComplexityRoot struct {
 	}
 
 	SchemaFieldReference struct {
-		ModelID func(childComplexity int) int
+		Direction func(childComplexity int) int
+		ModelID   func(childComplexity int) int
 	}
 
 	SchemaFieldRichText struct {
@@ -3022,6 +3023,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldMarkdown.MaxLength(childComplexity), true
 
+	case "SchemaFieldReference.direction":
+		if e.complexity.SchemaFieldReference.Direction == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldReference.Direction(childComplexity), true
+
 	case "SchemaFieldReference.modelId":
 		if e.complexity.SchemaFieldReference.ModelID == nil {
 			break
@@ -4317,6 +4325,11 @@ extend type Mutation {
   URL
 }
 
+enum ReferenceDirection {
+  ONE_WAY
+  TWO_WAY
+}
+
 type SchemaField {
   id: ID!
   modelId: ID!
@@ -4401,6 +4414,7 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  direction: ReferenceDirection
 }
 
 type SchemaFieldURL {
@@ -4459,6 +4473,7 @@ input SchemaFieldIntegerInput {
 
 input SchemaFieldReferenceInput {
   modelId: ID!
+  direction: ReferenceDirection
 }
 
 input SchemaFieldURLInput {
@@ -20174,6 +20189,47 @@ func (ec *executionContext) fieldContext_SchemaFieldReference_modelId(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldReference_direction(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldReference_direction(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Direction, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ReferenceDirection)
+	fc.Result = res
+	return ec.marshalOReferenceDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐReferenceDirection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldReference_direction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldReference",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ReferenceDirection does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldRichText_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldRichText) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldRichText_defaultValue(ctx, field)
 	if err != nil {
@@ -26474,7 +26530,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId"}
+	fieldsInOrder := [...]string{"modelId", "direction"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26490,6 +26546,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 				return it, err
 			}
 			it.ModelID = data
+		case "direction":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalOReferenceDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐReferenceDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
 		}
 	}
 
@@ -32762,6 +32827,8 @@ func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "direction":
+			out.Values[i] = ec._SchemaFieldReference_direction(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -36988,6 +37055,22 @@ func (ec *executionContext) marshalOPublishModelPayload2ᚖgithubᚗcomᚋreeart
 		return graphql.Null
 	}
 	return ec._PublishModelPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOReferenceDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐReferenceDirection(ctx context.Context, v interface{}) (*gqlmodel.ReferenceDirection, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.ReferenceDirection)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOReferenceDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐReferenceDirection(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ReferenceDirection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalORemoveMemberFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMemberFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveMemberFromWorkspacePayload) graphql.Marshaler {
