@@ -11,14 +11,14 @@ const (
 
 
 type FieldChange struct {
-	Id *FieldID
-	CurrentValue any
-	PreviousValue any
+	ID *FieldID
+	CurrentValue []interface{}
+	PreviousValue []interface{}
 	Type FieldChangeType
 }
 
 
-func NewItemChange(n []*Field, o []*Field) []FieldChange {
+func CompareFields(n []*Field, o []*Field) []FieldChange {
 	nFields := make(map[string]*Field)
 	oFields := make(map[string]*Field)
 
@@ -43,7 +43,7 @@ func NewItemChange(n []*Field, o []*Field) []FieldChange {
 		}
 		fieldIDPtr := newField.FieldID();
 		change := FieldChange{
-			Id:             &fieldIDPtr,
+			ID:             &fieldIDPtr,
 			Type:           Update,
 			PreviousValue: newField.value.Interface(),
 			CurrentValue:   oldField.value.Interface(),
@@ -57,7 +57,7 @@ func NewItemChange(n []*Field, o []*Field) []FieldChange {
 		if !exists {
 			fieldIDPtr := oFields[fieldID].FieldID();
 			change := FieldChange{
-				Id:           &fieldIDPtr,
+				ID:           &fieldIDPtr,
 				Type:         Add,
 				CurrentValue: oFields[fieldID].value.Interface(),
 			}
@@ -71,7 +71,7 @@ func NewItemChange(n []*Field, o []*Field) []FieldChange {
 		if !exists {
 			fieldIDPtr := nFields[fieldID].FieldID()
 			change := FieldChange{
-				Id:             &fieldIDPtr,
+				ID:             &fieldIDPtr,
 				Type:           Delete,
 				PreviousValue:  nil,
 				CurrentValue:   nFields[fieldID].value.Interface(),
