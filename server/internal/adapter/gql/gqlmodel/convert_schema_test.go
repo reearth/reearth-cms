@@ -124,6 +124,51 @@ func TestToSchemaField(t *testing.T) {
 	}
 }
 
+func TestConvertSchema_FromReferenceDirection(t *testing.T) {
+	var d1 ReferenceDirection = ReferenceDirectionOneWay
+	want1 := schema.ReferenceDirectionOneWay
+	got1 := FromReferenceDirection(&d1)
+	assert.Equal(t, &want1, got1)
+
+	var d2 ReferenceDirection = ReferenceDirectionTwoWay
+	want2 := schema.ReferenceDirectionTwoWay
+	got2 := FromReferenceDirection(&d2)
+	assert.Equal(t, &want2, got2)
+
+	var d3 *ReferenceDirection = nil
+	want3 := (*schema.ReferenceDirection)(nil)
+	got3 := FromReferenceDirection(d3)
+	assert.Equal(t, want3, got3)
+
+	var d4 ReferenceDirection = "test"
+	want4 := (*schema.ReferenceDirection)(nil)
+	got4 := FromReferenceDirection(&d4)
+	assert.Equal(t, want4, got4)
+}
+
+func TestConvertSchema_ToReferenceDirection(t *testing.T) {
+	var d1 schema.ReferenceDirection = schema.ReferenceDirectionOneWay
+	want1 := ReferenceDirectionOneWay
+	got1 := ToReferenceDirection(&d1)
+	assert.Equal(t, &want1, got1)
+
+	var d2 schema.ReferenceDirection = schema.ReferenceDirectionTwoWay
+	want2 := ReferenceDirectionTwoWay
+	got2 := ToReferenceDirection(&d2)
+	assert.Equal(t, &want2, got2)
+
+	var d3 *schema.ReferenceDirection = nil
+	want3 := (*ReferenceDirection)(nil)
+	got3 := ToReferenceDirection(d3)
+	assert.Equal(t, want3, got3)
+
+	var d4 schema.ReferenceDirection = "test"
+	want4 := (*ReferenceDirection)(nil)
+	got4 := ToReferenceDirection(&d4)
+	assert.Equal(t, want4, got4)
+}
+
+
 func TestToSchemaFieldTypeProperty(t *testing.T) {
 	mid := id.NewModelID()
 	d := schema.ReferenceDirectionOneWay.ToPtr()
