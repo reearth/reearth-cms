@@ -17,7 +17,7 @@ func TestNewReference(t *testing.T) {
 func TestFieldReference_Direction(t *testing.T) {
 	d := ReferenceDirectionOneWay
 	r := &FieldReference{modelID: id.NewModelID(), direction: &d}
-	assert.Equal(t, r.direction, d)
+	assert.Equal(t, r.direction, d.ToPtr())
 }
 
 func TestFieldReference_Type(t *testing.T) {
