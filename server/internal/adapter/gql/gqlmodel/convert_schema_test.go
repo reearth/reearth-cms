@@ -126,6 +126,7 @@ func TestToSchemaField(t *testing.T) {
 
 func TestToSchemaFieldTypeProperty(t *testing.T) {
 	mid := id.NewModelID()
+	d := schema.ReferenceDirectionOneWay.ToPtr()
 
 	type args struct {
 		tp *schema.TypeProperty
@@ -173,7 +174,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "reference",
-			args: args{tp: schema.NewReference(mid).TypeProperty()},
+			args: args{tp: schema.NewReference(mid, d).TypeProperty()},
 			want: &SchemaFieldReference{ModelID: IDFrom(mid)},
 		},
 		{
@@ -214,6 +215,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 
 func TestFromSchemaFieldTypeProperty(t *testing.T) {
 	mid := id.NewModelID()
+	d := schema.ReferenceDirectionOneWay.ToPtr()
 
 	tests := []struct {
 		name      string
@@ -283,10 +285,11 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsInp: &SchemaFieldTypePropertyInput{
 				Reference: &SchemaFieldReferenceInput{
 					ModelID: ID(mid.String()),
+					Direction: ToReferenceDirection(d),
 				},
 			},
 			argsT:  SchemaFieldTypeReference,
-			wantTp: schema.NewReference(mid).TypeProperty(),
+			wantTp: schema.NewReference(mid, d).TypeProperty(),
 		},
 		{
 			name: "asset",
