@@ -168,7 +168,6 @@ func TestConvertSchema_ToReferenceDirection(t *testing.T) {
 	assert.Equal(t, want4, got4)
 }
 
-
 func TestToSchemaFieldTypeProperty(t *testing.T) {
 	mid := id.NewModelID()
 	d := schema.ReferenceDirectionOneWay.ToPtr()
@@ -329,7 +328,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			name: "reference",
 			argsInp: &SchemaFieldTypePropertyInput{
 				Reference: &SchemaFieldReferenceInput{
-					ModelID: ID(mid.String()),
+					ModelID:   ID(mid.String()),
 					Direction: ToReferenceDirection(d),
 				},
 			},

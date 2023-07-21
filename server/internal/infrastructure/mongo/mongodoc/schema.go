@@ -63,7 +63,7 @@ type FieldIntegerPropertyDocument struct {
 }
 
 type FieldReferencePropertyDocument struct {
-	Model string
+	Model     string
 	Direction string
 }
 
