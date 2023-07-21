@@ -11,7 +11,7 @@ const (
 
 
 type FieldChange struct {
-	ID *FieldID
+	ID *FieldID `json:"id"`
 	CurrentValue []interface{}
 	PreviousValue []interface{}
 	Type FieldChangeType
