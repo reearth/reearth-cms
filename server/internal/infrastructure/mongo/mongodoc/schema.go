@@ -1,6 +1,7 @@
 package mongodoc
 
 import (
+	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -9,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
-	"gopkg.in/errgo.v2/errors"
 )
 
 type SchemaDocument struct {
