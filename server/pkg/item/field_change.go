@@ -1,5 +1,7 @@
 package item
 
+import "github.com/reearth/reearth-cms/server/pkg/value"
+
 
 type FieldChangeType string
 
@@ -12,8 +14,8 @@ const (
 
 type FieldChange struct {
 	ID *FieldID `json:"id"`
-	CurrentValue []interface{}
-	PreviousValue []interface{}
+	CurrentValue *value.Multiple
+	PreviousValue *value.Multiple
 	Type FieldChangeType
 }
 
@@ -45,8 +47,8 @@ func CompareFields(n []*Field, o []*Field) []FieldChange {
 			change := FieldChange{
 				ID:             &fieldIDPtr,
 				Type:           Update,
-				PreviousValue: oldField.value.Interface(),
-				CurrentValue:   newField.value.Interface(),
+				PreviousValue: oldField.value,
+				CurrentValue:   newField.value,
 			}
 
 			changes = append(changes, change)
@@ -60,7 +62,7 @@ func CompareFields(n []*Field, o []*Field) []FieldChange {
 			change := FieldChange{
 				ID:           &fieldIDPtr,
 				Type:         Delete,
-				PreviousValue: oFields[fieldID].value.Interface(),
+				PreviousValue: oFields[fieldID].value,
 				CurrentValue:   nil,
 			}
 
@@ -76,7 +78,7 @@ func CompareFields(n []*Field, o []*Field) []FieldChange {
 				ID:             &fieldIDPtr,
 				Type:           Add,
 				PreviousValue:  nil,
-				CurrentValue:   nFields[fieldID].value.Interface(),
+				CurrentValue:   nFields[fieldID].value,
 			}
 
 			changes = append(changes, change)
