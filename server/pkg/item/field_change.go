@@ -37,19 +37,20 @@ func CompareFields(n []*Field, o []*Field) []FieldChange {
 
 	for fieldID, newField := range nFields {
 		oldField, exists := oFields[fieldID]
-
 		if exists && newField.Value().Equal(oldField.Value()) {
 			continue
 		}
-		fieldIDPtr := newField.FieldID();
-		change := FieldChange{
-			ID:             &fieldIDPtr,
-			Type:           Update,
-			PreviousValue: newField.value.Interface(),
-			CurrentValue:   oldField.value.Interface(),
-		}
+		if exists {
+			fieldIDPtr := newField.FieldID();
+			change := FieldChange{
+				ID:             &fieldIDPtr,
+				Type:           Update,
+				PreviousValue: oldField.value.Interface(),
+				CurrentValue:   newField.value.Interface(),
+			}
 
-		changes = append(changes, change)
+			changes = append(changes, change)
+		}
 	}
 
 	for fieldID := range oFields {
@@ -58,8 +59,9 @@ func CompareFields(n []*Field, o []*Field) []FieldChange {
 			fieldIDPtr := oFields[fieldID].FieldID();
 			change := FieldChange{
 				ID:           &fieldIDPtr,
-				Type:         Add,
-				CurrentValue: oFields[fieldID].value.Interface(),
+				Type:         Delete,
+				PreviousValue: oFields[fieldID].value.Interface(),
+				CurrentValue:   nil,
 			}
 
 			changes = append(changes, change)
@@ -72,14 +74,14 @@ func CompareFields(n []*Field, o []*Field) []FieldChange {
 			fieldIDPtr := nFields[fieldID].FieldID()
 			change := FieldChange{
 				ID:             &fieldIDPtr,
-				Type:           Delete,
+				Type:           Add,
 				PreviousValue:  nil,
 				CurrentValue:   nFields[fieldID].value.Interface(),
 			}
 
 			changes = append(changes, change)
 		}
-	}
+	}	
 
 	return changes
 }

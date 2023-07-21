@@ -36,7 +36,7 @@ func NewItemModelSchemaItemChange(i item.ItemModelSchemaItemChange, assets *Asse
 		Item:   NewItem(i.Item, i.Schema, assets),
 		Model:  NewModel(i.Model, time.Time{}),
 		Schema: NewSchema(i.Schema),
-		ItemChange: item.CompareFields(i.OldFields, i.NewFields),
+		ItemChange: item.CompareFields(i.NewFields, i.OldFields),
 	}
 }
 
