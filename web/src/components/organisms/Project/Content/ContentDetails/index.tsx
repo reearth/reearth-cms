@@ -86,6 +86,7 @@ const ContentDetails: React.FC = () => {
           />
         ) : undefined
       }
+      item={currentItem}
       itemId={itemId}
       model={currentModel}
       initialFormValues={initialFormValues}
