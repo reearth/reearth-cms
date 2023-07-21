@@ -24,7 +24,7 @@ func TestCompareFields(t *testing.T) {
 		want []FieldChange
 	}{
 		{
-			name: "NoChanges",
+			name: "no change",
 			args: args{
 				n: []*Field{
 					NewField(fId, value.TypeText.Value("value1").AsMultiple()),
@@ -38,7 +38,7 @@ func TestCompareFields(t *testing.T) {
 			want: nil, // No changes expected
 		},
 			{
-			name: "AddField",
+			name: "add",
 			args: args{
 				n: []*Field{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
@@ -58,7 +58,7 @@ func TestCompareFields(t *testing.T) {
 			},
 		},
 		{
-			name: "UpdateField",
+			name: "update",
 			args: args{
 				n: []*Field{
 					NewField(fId, value.New(value.TypeText, "value2").AsMultiple()),
@@ -79,7 +79,7 @@ func TestCompareFields(t *testing.T) {
 			},
 		},
 		{
-			name: "DeleteField",
+			name: "delete",
 			args: args{
 				n: []*Field{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
@@ -99,7 +99,7 @@ func TestCompareFields(t *testing.T) {
 			},
 		},
 		{
-			name: "MultipleChanges",
+			name: "multiple changes",
 			args: args{
 				n: []*Field{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
