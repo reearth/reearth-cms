@@ -186,7 +186,8 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Reference: func(f *schema.FieldReference) {
 			res = &SchemaFieldReference{
-				ModelID: IDFrom(f.Model()),
+				ModelID:   IDFrom(f.Model()),
+				Direction: ToReferenceDirection(f.Direction()),
 			}
 		},
 		URL: func(f *schema.FieldURL) {
