@@ -14,6 +14,7 @@ type ItemModelSchema struct {
 	Item   Item   `json:"item"`
 	Model  Model  `json:"model"`
 	Schema Schema `json:"schema"`
+	ItemChange []FieldChange   `json:"itemChange,omitempty"`
 }
 
 type FieldChange struct {
@@ -35,18 +36,9 @@ func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelS
 		Item:   NewItem(i.Item, i.Schema, assets),
 		Model:  NewModel(i.Model, time.Time{}),
 		Schema: NewSchema(i.Schema),
-	}
-}
-
-func NewItemModelSchemaItemChange(i item.ItemModelSchemaItemChange, assets *AssetContext) ItemModelSchemaItemChange {
-	return ItemModelSchemaItemChange{
-		Item:   NewItem(i.Item, i.Schema, assets),
-		Model:  NewModel(i.Model, time.Time{}),
-		Schema: NewSchema(i.Schema),
 		ItemChange: NewItemChange(i.NewFields, i.OldFields),
 	}
 }
-
 
 func NewModel(m *model.Model, lastModified time.Time) Model {
 	return Model{
@@ -83,18 +75,15 @@ func NewSchema(i *schema.Schema) Schema {
 
 func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
 	comparedFields := item.CompareFields(n, o)
-	transformedChanges := make([]FieldChange, len(comparedFields))
+	var transformedChanges []FieldChange
 
-	for i, change := range comparedFields {
-		current := change.CurrentValue.Interface()
-		previous := change.PreviousValue.Interface()
-
-		transformedChanges[i] = FieldChange{
+	for _, change := range comparedFields {
+		transformedChanges = append(transformedChanges,FieldChange{
 			ID:             change.ID,
-			CurrentValue:   current,
-			PreviousValue:  previous,
+			CurrentValue:   change.CurrentValue.Interface(),
+			PreviousValue:  change.PreviousValue.Interface(),
 			Type:           change.Type,
-		}
+		})
 	}
 
 	return transformedChanges

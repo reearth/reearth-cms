@@ -337,7 +337,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Workspace: s.Workspace(),
 			Type:      event.ItemUpdate,
 			Object:    itm,
-			WebhookObject: item.ItemModelSchemaItemChange{
+			WebhookObject: item.ItemModelSchema{
 				Item:        itv,
 				NewFields:  newFields,
 				OldFields:  oldFields,
@@ -359,7 +359,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Workspace: s.Workspace(),
 				Type:      event.ItemPublish,
 				Object:    itm,
-				WebhookObject: item.ItemModelSchemaItemChange{
+				WebhookObject: item.ItemModelSchema{
 					Item:        itm.Value(),
 					NewFields:  newFields,
 					OldFields:  oldFields,

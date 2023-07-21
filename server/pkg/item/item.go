@@ -127,12 +127,6 @@ type ItemModelSchema struct {
 	Item   *Item
 	Model  *model.Model
 	Schema *schema.Schema
-}
-
-type ItemModelSchemaItemChange struct {
-	Item   *Item
-	Model  *model.Model
-	Schema *schema.Schema
 	OldFields []*Field
 	NewFields []*Field
 }
