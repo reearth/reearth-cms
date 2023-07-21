@@ -57,6 +57,12 @@ func TestReferenceDirection_ReferenceDirectionFrom(t *testing.T) {
 	}
 }
 
+func TestReferenceDirection_String(t *testing.T) {
+	s := "one_way"
+	d := ReferenceDirectionOneWay
+	assert.Equal(t, s, d.String())
+}
+
 func TestReferenceDirection_ToPtr(t *testing.T) {
 	s := ReferenceDirectionOneWay
 	assert.Equal(t, &s, s.ToPtr())

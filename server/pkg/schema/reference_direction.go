@@ -21,6 +21,10 @@ func ReferenceDirectionFrom(p string) (ReferenceDirection, bool) {
 	}
 }
 
+func (d ReferenceDirection) String() string {
+	return string(d)
+}
+
 func (d ReferenceDirection) ToPtr() *ReferenceDirection {
 	return &d
 }
