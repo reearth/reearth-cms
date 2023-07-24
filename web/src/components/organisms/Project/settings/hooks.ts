@@ -2,10 +2,12 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { RequestRoles } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
+  Role as GQLRole,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -21,7 +23,7 @@ export default ({ projectId }: Params) => {
 
   const workspaceId = currentWorkspace?.id;
 
-  const { data } = useGetProjectsQuery({
+  const { data, loading } = useGetProjectsQuery({
     variables: { workspaceId: workspaceId ?? "", pagination: { first: 100 } },
     skip: !workspaceId,
   });
@@ -38,6 +40,7 @@ export default ({ projectId }: Params) => {
             name: rawProject.name,
             description: rawProject.description,
             alias: rawProject.alias,
+            requestRoles: rawProject.requestRoles?.map(role => role.toLowerCase() as RequestRoles),
           }
         : undefined,
     [rawProject],
@@ -51,13 +54,13 @@ export default ({ projectId }: Params) => {
   });
 
   const handleProjectUpdate = useCallback(
-    async (data: { name?: string; description: string }) => {
-      if (!projectId || !data.name) return;
+    async (name?: string, description?: string) => {
+      if (!projectId || !name) return;
       const project = await updateProjectMutation({
         variables: {
           projectId,
-          name: data.name,
-          description: data.description,
+          name: name,
+          description: description,
         },
       });
       if (project.errors || !project.data?.updateProject) {
@@ -65,6 +68,24 @@ export default ({ projectId }: Params) => {
         return;
       }
       Notification.success({ message: t("Successfully updated project!") });
+    },
+    [projectId, updateProjectMutation, t],
+  );
+
+  const handleProjectRequestRolesUpdate = useCallback(
+    async (requestRoles?: RequestRoles[] | null | undefined) => {
+      if (!projectId || !requestRoles) return;
+      const project = await updateProjectMutation({
+        variables: {
+          projectId,
+          requestRoles: requestRoles.map(role => role.toUpperCase()) as GQLRole[],
+        },
+      });
+      if (project.errors || !project.data?.updateProject) {
+        Notification.error({ message: t("Failed to update request roles.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated request roles!") });
     },
     [projectId, updateProjectMutation, t],
   );
@@ -95,9 +116,11 @@ export default ({ projectId }: Params) => {
 
   return {
     project,
+    loading,
     projectId,
     currentWorkspace,
     handleProjectUpdate,
+    handleProjectRequestRolesUpdate,
     handleProjectDelete,
     assetModalOpened,
     toggleAssetModal,

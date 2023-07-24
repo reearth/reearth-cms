@@ -1,38 +1,6 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
-    ":semanticCommits",
-    ":semanticCommitScopeDisabled",
-    ":maintainLockFilesWeekly",
-    ":enableVulnerabilityAlertsWithLabel(security)",
-    ":semanticCommitTypeAll(chore)"
-  ],
-  "postUpdateOptions": [
-    "gomodTidy",
-    "gomodUpdateImportPaths"
-  ],
-  "packageRules": [
-    {
-      "matchPaths": [
-        "server/**"
-      ],
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "groupName": "all dependencies of server",
-      "groupSlug": "server",
-      "schedule": ["before 3:00 am on the 4th day of the month"]
-    },
-    {
-      "matchPaths": [
-        "web/**"
-      ],
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "groupName": "all dependencies of web",
-      "groupSlug": "web",
-      "schedule": ["before 3:00 am on the 4th day of the month"]
-    }
+    "github>reearth/renovate-config"
   ]
 }

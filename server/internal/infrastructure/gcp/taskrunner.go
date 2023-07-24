@@ -40,6 +40,34 @@ func (t *TaskRunner) Run(ctx context.Context, p task.Payload) error {
 	return t.runPubSub(ctx, p)
 }
 
+func (t *TaskRunner) Retry(ctx context.Context, id string) error {
+	cb, err := cloudbuild.NewService(ctx)
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	project := t.conf.GCPProject
+	region := t.conf.GCPRegion
+
+	req := &cloudbuild.RetryBuildRequest{
+		Id:        id,
+		ProjectId: project,
+	}
+
+	if region != "" {
+		name := path.Join("projects", project, "locations", region, "builds", id)
+		call := cb.Projects.Locations.Builds.Retry(name, req)
+		_, err = call.Do()
+	} else {
+		call := cb.Projects.Builds.Retry(project, id, req)
+		_, err = call.Do()
+	}
+	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
 func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	if p.DecompressAsset == nil {
 		return nil
@@ -68,7 +96,8 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	}
 
 	build := &cloudbuild.Build{
-		Timeout: "86400s", // 1 day
+		Timeout:  "86400s", // 1 day
+		QueueTtl: "86400s", // 1 day
 		Steps: []*cloudbuild.BuildStep{
 			{
 				Name: t.conf.DecompressorImage,

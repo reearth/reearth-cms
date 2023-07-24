@@ -48,6 +48,7 @@ export interface Props {
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   requestModalShown: boolean;
+  requestCreationLoading: boolean;
   addItemToRequestModalShown: boolean;
   workspaceUserMembers: Member[];
   totalCount: number;
@@ -116,6 +117,7 @@ const ContentForm: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  requestCreationLoading,
   onUnpublish,
   onAssetTableChange,
   onUploadModalCancel,
@@ -442,6 +444,7 @@ const ContentForm: React.FC<Props> = ({
             open={requestModalShown}
             onClose={onModalClose}
             onSubmit={onRequestCreate}
+            requestCreationLoading={requestCreationLoading}
             workspaceUserMembers={workspaceUserMembers}
           />
           <LinkItemRequestModal
