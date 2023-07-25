@@ -40,7 +40,7 @@ export default ({ projectId }: Params) => {
             name: rawProject.name,
             description: rawProject.description,
             alias: rawProject.alias,
-            requestRoles: rawProject.requestRoles?.map(role => role.toUpperCase() as Role),
+            requestRoles: rawProject.requestRoles as Role[],
           }
         : undefined,
     [rawProject],
@@ -78,7 +78,7 @@ export default ({ projectId }: Params) => {
       const project = await updateProjectMutation({
         variables: {
           projectId,
-          requestRoles: requestRoles.map(role => role.toUpperCase()) as GQLRole[],
+          requestRoles: requestRoles as GQLRole[],
         },
       });
       if (project.errors || !project.data?.updateProject) {

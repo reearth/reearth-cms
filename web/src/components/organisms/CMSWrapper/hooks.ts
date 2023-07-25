@@ -109,7 +109,7 @@ export default () => {
           scope: convertScope(project.publication?.scope),
           alias: project.alias,
           assetPublic: project.publication?.assetPublic,
-          requestRoles: project.requestRoles?.map(role => role.toUpperCase()) as Role[],
+          requestRoles: project.requestRoles as Role[],
         });
       }
     } else {
