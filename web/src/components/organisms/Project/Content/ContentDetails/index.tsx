@@ -29,6 +29,7 @@ const ContentDetails: React.FC = () => {
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
     collapseCommentsPanel,
@@ -115,6 +116,7 @@ const ContentDetails: React.FC = () => {
       uploadUrl={uploadUrl}
       uploadType={uploadType}
       onUnpublish={handleUnpublish}
+      onPublish={handlePublish}
       onUploadModalCancel={handleUploadModalCancel}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}

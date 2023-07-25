@@ -78,6 +78,7 @@ export interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
+  onPublish: (itemId: string) => Promise<void>;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -120,6 +121,7 @@ const ContentForm: React.FC<Props> = ({
   requestModalPage,
   requestModalPageSize,
   requestCreationLoading,
+  onPublish,
   onUnpublish,
   onAssetTableChange,
   onUploadModalCancel,
@@ -210,7 +212,7 @@ const ContentForm: React.FC<Props> = ({
                       {t("New Request")}
                     </Button>
                   ) : (
-                    <Button type="primary" onClick={onModalOpen}>
+                    <Button type="primary" onClick={() => onPublish(itemId)}>
                       {t("Publish")}
                     </Button>
                   )}
