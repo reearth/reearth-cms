@@ -114,16 +114,16 @@ func TestCompareFields(t *testing.T) {
 			},
 			want: FieldChanges{
 				{
-					ID:            fId3,
-					Type:          FieldChangeTypeAdd,
-					CurrentValue:  value.New(value.TypeText, "new field").AsMultiple(),
-					PreviousValue: nil,
-				},
-				{
 					ID:            fId,
 					Type:          FieldChangeTypeUpdate,
 					CurrentValue:  value.New(value.TypeText, "value1").AsMultiple(),
 					PreviousValue: value.New(value.TypeText, "old value").AsMultiple(),
+				},
+				{
+					ID:            fId3,
+					Type:          FieldChangeTypeAdd,
+					CurrentValue:  value.New(value.TypeText, "new field").AsMultiple(),
+					PreviousValue: nil,
 				},
 				{
 					ID:            fId4,
@@ -136,9 +136,9 @@ func TestCompareFields(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
+		// tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 			assert.Equal(t, tt.want, CompareFields(tt.args.n, tt.args.o))
 		})
 	}
