@@ -45,13 +45,24 @@ const UnzipFileList: React.FC<Props> = ({
         }
 
         return {
-          title: file.name,
+          title: (
+            <>
+              {file.name}
+              <CopyIcon
+                selected={selectedKeys[0] === key}
+                icon="copy"
+                onClick={() => {
+                  navigator.clipboard.writeText(assetBaseUrl + file.path);
+                }}
+              />
+            </>
+          ),
           key: key,
           children: children,
           file: file,
         };
       }) || [],
-    [],
+    [selectedKeys, assetBaseUrl],
   );
 
   useEffect(() => {
@@ -130,6 +141,14 @@ const ExtractionFailedWrapper = styled.div`
 
 const ExtractionFailedIcon = styled(Icon)`
   margin-bottom: 28px;
+`;
+
+const CopyIcon = styled(Icon)<{ selected?: boolean }>`
+  margin-left: 16px;
+  visibility: ${({ selected }) => (selected ? "visible" : "hidden")};
+  &:active {
+    color: #096dd9;
+  }
 `;
 
 const ExtractionFailedText = styled.p`
