@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -95,11 +95,6 @@ const AssetMolecule: React.FC<Props> = ({
     }
   }, [assetFileExt, assetUrl, svgRender, viewerType]);
 
-  const showCopyIcon = useMemo(() => {
-    const copyableTypes: PreviewType[] = ["IMAGE", "IMAGE_SVG", "GEO", "MODEL_3D", "GEO_3D_TILES"];
-    return asset.previewType && copyableTypes.includes(asset.previewType);
-  }, [asset.previewType]);
-
   return (
     <BodyContainer>
       <BodyWrapper>
@@ -107,14 +102,12 @@ const AssetMolecule: React.FC<Props> = ({
           title={
             <>
               {asset.fileName}{" "}
-              {showCopyIcon && (
-                <CopyIcon
-                  icon="copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(asset.url);
-                  }}
-                />
-              )}
+              <CopyIcon
+                icon="copy"
+                onClick={() => {
+                  navigator.clipboard.writeText(asset.url);
+                }}
+              />
             </>
           }
           toolbar={
@@ -132,17 +125,7 @@ const AssetMolecule: React.FC<Props> = ({
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
-            title={
-              <>
-                {asset.fileName}{" "}
-                <CopyIcon
-                  icon="copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(asset.url);
-                  }}
-                />
-              </>
-            }
+            title={asset.fileName}
             toolbar={
               <>
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
