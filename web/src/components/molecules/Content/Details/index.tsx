@@ -15,6 +15,7 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export type Props = {
+  showRequestAction?: boolean;
   requests: Request[];
   collapsed?: boolean;
   model?: Model;
@@ -78,6 +79,7 @@ export type Props = {
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  showRequestAction,
   requests,
   collapsed,
   model,
@@ -141,6 +143,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       }
       center={
         <ContentForm
+          showRequestAction={showRequestAction}
           requests={requests}
           requestCreationLoading={requestCreationLoading}
           onRequestTableChange={onRequestTableChange}

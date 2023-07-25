@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
@@ -35,6 +35,7 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
+  showRequestAction?: boolean;
   requests: Request[];
   itemId?: string;
   initialFormValues: any;
@@ -94,6 +95,7 @@ export interface Props {
 }
 
 const ContentForm: React.FC<Props> = ({
+  showRequestAction,
   requests,
   itemId,
   model,
@@ -172,18 +174,23 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
-  const items: MenuProps["items"] = [
-    {
-      key: "addToRequest",
-      label: t("Add to Request"),
-      onClick: onAddItemToRequestModalOpen,
-    },
-    {
-      key: "unpublish",
-      label: t("Unpublish"),
-      onClick: () => itemId && onUnpublish([itemId]),
-    },
-  ];
+  const items: MenuProps["items"] = useMemo(() => {
+    const menuItems = [
+      {
+        key: "unpublish",
+        label: t("Unpublish"),
+        onClick: () => itemId && (onUnpublish([itemId]) as any),
+      },
+    ];
+    if (showRequestAction) {
+      menuItems.push({
+        key: "addToRequest",
+        label: t("Add to Request"),
+        onClick: onAddItemToRequestModalOpen,
+      });
+    }
+    return menuItems;
+  }, [itemId, onAddItemToRequestModalOpen, onUnpublish, showRequestAction, t]);
 
   return (
     <>
@@ -198,9 +205,15 @@ const ContentForm: React.FC<Props> = ({
               </Button>
               {itemId && (
                 <>
-                  <Button type="primary" onClick={onModalOpen}>
-                    {t("New Request")}
-                  </Button>
+                  {showRequestAction ? (
+                    <Button type="primary" onClick={onModalOpen}>
+                      {t("New Request")}
+                    </Button>
+                  ) : (
+                    <Button type="primary" onClick={onModalOpen}>
+                      {t("Publish")}
+                    </Button>
+                  )}
                   <Dropdown menu={{ items }} trigger={["click"]}>
                     <Button>
                       <Icon icon="ellipsis" />
