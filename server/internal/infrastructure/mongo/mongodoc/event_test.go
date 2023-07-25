@@ -89,7 +89,6 @@ func TestNewEvent(t *testing.T) {
 			AssetPublic: true,
 			Scope:       "public",
 		},
-		RequestRoles: fromRequestRoles([]user.Role{user.RoleOwner, user.RoleMaintainer, user.RoleWriter, user.RoleReader}),
 	}
 	tests := []struct {
 		name    string
