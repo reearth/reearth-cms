@@ -113,6 +113,9 @@ func (r *mutationResolver) PublishItem(ctx context.Context, input gqlmodel.Publi
 		return nil, err
 	}
 	itm, err := usecases(ctx).Item.PublishOneItem(ctx, iid, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
 	s, err := usecases(ctx).Schema.FindByID(ctx, itm.Value().Schema(), op)
 	if err != nil {
 		return nil, err
