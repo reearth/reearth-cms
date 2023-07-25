@@ -501,6 +501,10 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, interfaces.ErrFieldNotFound
 		}
 
+		// TODO:
+		// update the referenced item's schema
+		// update the referenced item's item
+
 		if !sf.Multiple() {
 			f.Value = []any{f.Value}
 		}

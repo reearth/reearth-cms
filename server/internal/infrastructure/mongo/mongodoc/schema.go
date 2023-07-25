@@ -1,7 +1,6 @@
 package mongodoc
 
 import (
-	"errors"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -129,8 +128,8 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			},
 			Reference: func(fp *schema.FieldReference) {
 				fd.TypeProperty.Reference = &FieldReferencePropertyDocument{
-					Model:     fp.Model().String(),
-					Direction: fp.Direction().String(),
+					Model: fp.Model().String(),
+					// CorrespondingField
 				}
 			},
 			URL: func(fp *schema.FieldURL) {},
@@ -196,11 +195,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			if err != nil {
 				return nil, err
 			}
-			d, valid := schema.ReferenceDirectionFrom(tpd.Reference.Direction)
-			if !valid {
-				return nil, errors.New("invalid reference direction")
-			}
-			tp = schema.NewReference(mid, d.ToPtr()).TypeProperty()
+			tp = schema.NewReference(mid, nil).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
 		}

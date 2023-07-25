@@ -10,13 +10,12 @@ import (
 
 func TestNewReference(t *testing.T) {
 	m := id.NewModelID()
-	d := ReferenceDirectionOneWay
-	assert.Equal(t, &FieldReference{modelID: m, direction: d.ToPtr()}, NewReference(m, d.ToPtr()))
+	assert.Equal(t, &FieldReference{modelID: m, correspondingField: nil}, NewReference(m, nil))
 }
 
-func TestFieldReference_Direction(t *testing.T) {
-	r := &FieldReference{modelID: id.NewModelID(), direction: ReferenceDirectionOneWay.ToPtr()}
-	assert.Equal(t, r.direction, r.Direction())
+func TestFieldReference_CorrespondingField(t *testing.T) {
+	r := &FieldReference{modelID: id.NewModelID(), correspondingField: nil}
+	assert.Equal(t, r.correspondingField, r.CorrespondingField())
 }
 
 func TestFieldReference_Type(t *testing.T) {
@@ -33,9 +32,8 @@ func TestFieldReference_TypeProperty(t *testing.T) {
 
 func TestFieldReference_Clone(t *testing.T) {
 	m := id.NewModelID()
-	d := ReferenceDirectionOneWay
 	assert.Nil(t, (*FieldReference)(nil).Clone())
-	assert.Equal(t, &FieldReference{modelID: m, direction: d.ToPtr()}, (&FieldReference{modelID: m, direction: d.ToPtr()}).Clone())
+	assert.Equal(t, &FieldReference{modelID: m, correspondingField: nil}, (&FieldReference{modelID: m, correspondingField: nil}).Clone())
 }
 
 func TestFieldReference_Validate(t *testing.T) {

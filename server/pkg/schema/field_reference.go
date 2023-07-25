@@ -6,15 +6,25 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-type FieldReference struct {
-	modelID   id.ModelID
-	direction *ReferenceDirection
+type CorrespondingField struct {
+	title        string
+	description  string
+	key          string
+	multiple     bool
+	unique       bool
+	required     bool
+	typeProperty TypeProperty
 }
 
-func NewReference(id id.ModelID, direction *ReferenceDirection) *FieldReference {
+type FieldReference struct {
+	modelID            id.ModelID
+	correspondingField *CorrespondingField
+}
+
+func NewReference(id id.ModelID, correspondingField *CorrespondingField) *FieldReference {
 	return &FieldReference{
-		modelID:   id,
-		direction: direction,
+		modelID:            id,
+		correspondingField: correspondingField,
 	}
 }
 
@@ -29,8 +39,8 @@ func (f *FieldReference) Model() model.ID {
 	return f.modelID
 }
 
-func (f *FieldReference) Direction() *ReferenceDirection {
-	return f.direction
+func (f *FieldReference) CorrespondingField() *CorrespondingField {
+	return f.correspondingField
 }
 
 func (f *FieldReference) Type() value.Type {
@@ -42,8 +52,8 @@ func (f *FieldReference) Clone() *FieldReference {
 		return nil
 	}
 	return &FieldReference{
-		modelID:   f.modelID,
-		direction: f.direction,
+		modelID:            f.modelID,
+		correspondingField: f.correspondingField,
 	}
 }
 

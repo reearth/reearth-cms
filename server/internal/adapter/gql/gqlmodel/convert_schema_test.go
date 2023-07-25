@@ -124,53 +124,8 @@ func TestToSchemaField(t *testing.T) {
 	}
 }
 
-func TestConvertSchema_FromReferenceDirection(t *testing.T) {
-	var d1 ReferenceDirection = ReferenceDirectionOneWay
-	want1 := schema.ReferenceDirectionOneWay
-	got1 := FromReferenceDirection(&d1)
-	assert.Equal(t, &want1, got1)
-
-	var d2 ReferenceDirection = ReferenceDirectionTwoWay
-	want2 := schema.ReferenceDirectionTwoWay
-	got2 := FromReferenceDirection(&d2)
-	assert.Equal(t, &want2, got2)
-
-	var d3 *ReferenceDirection = nil
-	want3 := (*schema.ReferenceDirection)(nil)
-	got3 := FromReferenceDirection(d3)
-	assert.Equal(t, want3, got3)
-
-	var d4 ReferenceDirection = "test"
-	want4 := (*schema.ReferenceDirection)(nil)
-	got4 := FromReferenceDirection(&d4)
-	assert.Equal(t, want4, got4)
-}
-
-func TestConvertSchema_ToReferenceDirection(t *testing.T) {
-	var d1 schema.ReferenceDirection = schema.ReferenceDirectionOneWay
-	want1 := ReferenceDirectionOneWay
-	got1 := ToReferenceDirection(&d1)
-	assert.Equal(t, &want1, got1)
-
-	var d2 schema.ReferenceDirection = schema.ReferenceDirectionTwoWay
-	want2 := ReferenceDirectionTwoWay
-	got2 := ToReferenceDirection(&d2)
-	assert.Equal(t, &want2, got2)
-
-	var d3 *schema.ReferenceDirection = nil
-	want3 := (*ReferenceDirection)(nil)
-	got3 := ToReferenceDirection(d3)
-	assert.Equal(t, want3, got3)
-
-	var d4 schema.ReferenceDirection = "test"
-	want4 := (*ReferenceDirection)(nil)
-	got4 := ToReferenceDirection(&d4)
-	assert.Equal(t, want4, got4)
-}
-
 func TestToSchemaFieldTypeProperty(t *testing.T) {
 	mid := id.NewModelID()
-	d := schema.ReferenceDirectionOneWay.ToPtr()
 
 	type args struct {
 		tp *schema.TypeProperty
@@ -218,8 +173,8 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "reference",
-			args: args{tp: schema.NewReference(mid, d).TypeProperty()},
-			want: &SchemaFieldReference{ModelID: IDFrom(mid), Direction: ToReferenceDirection(d)},
+			args: args{tp: schema.NewReference(mid, nil).TypeProperty()},
+			want: &SchemaFieldReference{ModelID: IDFrom(mid)},
 		},
 		{
 			name: "asset",
@@ -259,7 +214,6 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 
 func TestFromSchemaFieldTypeProperty(t *testing.T) {
 	mid := id.NewModelID()
-	d := schema.ReferenceDirectionOneWay.ToPtr()
 
 	tests := []struct {
 		name      string
@@ -328,12 +282,11 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			name: "reference",
 			argsInp: &SchemaFieldTypePropertyInput{
 				Reference: &SchemaFieldReferenceInput{
-					ModelID:   ID(mid.String()),
-					Direction: ToReferenceDirection(d),
+					ModelID: ID(mid.String()),
 				},
 			},
 			argsT:  SchemaFieldTypeReference,
-			wantTp: schema.NewReference(mid, d).TypeProperty(),
+			wantTp: schema.NewReference(mid, nil).TypeProperty(),
 		},
 		{
 			name: "asset",

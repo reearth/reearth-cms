@@ -423,7 +423,7 @@ func TestTypeProperty_Validate(t *testing.T) {
 		{
 			name: "Reference",
 			args: args{
-				tp:    &TypeProperty{t: value.TypeReference, reference: NewReference(id.NewModelID(), ReferenceDirectionOneWay.ToPtr())},
+				tp:    &TypeProperty{t: value.TypeReference, reference: NewReference(id.NewModelID(), nil)},
 				value: value.TypeReference.Value(id.NewItemID()),
 			},
 			want: nil,

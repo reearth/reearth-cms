@@ -123,6 +123,16 @@ type CommentPayload struct {
 	Comment *Comment `json:"comment"`
 }
 
+type CorrespondingField struct {
+	Title        string                        `json:"title"`
+	Description  *string                       `json:"description,omitempty"`
+	Key          string                        `json:"key"`
+	Multiple     bool                          `json:"multiple"`
+	Unique       bool                          `json:"unique"`
+	Required     bool                          `json:"required"`
+	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
+}
+
 type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file,omitempty"`
@@ -688,15 +698,14 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID   ID                  `json:"modelId"`
-	Direction *ReferenceDirection `json:"direction,omitempty"`
+	ModelID ID `json:"modelId"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID   ID                  `json:"modelId"`
-	Direction *ReferenceDirection `json:"direction,omitempty"`
+	ModelID            ID                  `json:"modelId"`
+	CorrespondingField *CorrespondingField `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
@@ -1423,47 +1432,6 @@ func (e *ProjectPublicationScope) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ProjectPublicationScope) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type ReferenceDirection string
-
-const (
-	ReferenceDirectionOneWay ReferenceDirection = "ONE_WAY"
-	ReferenceDirectionTwoWay ReferenceDirection = "TWO_WAY"
-)
-
-var AllReferenceDirection = []ReferenceDirection{
-	ReferenceDirectionOneWay,
-	ReferenceDirectionTwoWay,
-}
-
-func (e ReferenceDirection) IsValid() bool {
-	switch e {
-	case ReferenceDirectionOneWay, ReferenceDirectionTwoWay:
-		return true
-	}
-	return false
-}
-
-func (e ReferenceDirection) String() string {
-	return string(e)
-}
-
-func (e *ReferenceDirection) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ReferenceDirection(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ReferenceDirection", str)
-	}
-	return nil
-}
-
-func (e ReferenceDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

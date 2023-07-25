@@ -47,42 +47,6 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 	}
 }
 
-func FromReferenceDirection(d *ReferenceDirection) *schema.ReferenceDirection {
-	if d == nil {
-		return nil
-	}
-
-	var d2 schema.ReferenceDirection
-	switch *d {
-	case ReferenceDirectionOneWay:
-		d2 = schema.ReferenceDirectionOneWay
-	case ReferenceDirectionTwoWay:
-		d2 = schema.ReferenceDirectionTwoWay
-	default:
-		return nil
-	}
-
-	return &d2
-}
-
-func ToReferenceDirection(d *schema.ReferenceDirection) *ReferenceDirection {
-	if d == nil {
-		return nil
-	}
-
-	var d2 ReferenceDirection
-	switch *d {
-	case schema.ReferenceDirectionOneWay:
-		d2 = ReferenceDirectionOneWay
-	case schema.ReferenceDirectionTwoWay:
-		d2 = ReferenceDirectionTwoWay
-	default:
-		return nil
-	}
-
-	return &d2
-}
-
 func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, multiple bool) (res SchemaFieldTypeProperty) {
 	tp.Match(schema.TypePropertyMatch{
 		Text: func(f *schema.FieldText) {
@@ -186,8 +150,8 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Reference: func(f *schema.FieldReference) {
 			res = &SchemaFieldReference{
-				ModelID:   IDFrom(f.Model()),
-				Direction: ToReferenceDirection(f.Direction()),
+				ModelID: IDFrom(f.Model()),
+				// CorrespondingField
 			}
 		},
 		URL: func(f *schema.FieldURL) {
@@ -353,8 +317,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if err != nil {
 			return nil, nil, err
 		}
-		d := FromReferenceDirection(x.Direction)
-		tpRes = schema.NewReference(mId, d).TypeProperty()
+		tpRes = schema.NewReference(mId, nil).TypeProperty()
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {

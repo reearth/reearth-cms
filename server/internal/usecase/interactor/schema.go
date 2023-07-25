@@ -48,6 +48,14 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			return nil, schema.ErrInvalidKey
 		}
 
+		// TODO:
+		// if the value is a reference and there is a linkedTo attribute:
+		// 1- create field on source schema
+		// 2- Get the schema by model id
+		// 3- create a new reference field to the destination schema
+		// 4- update the created field on the source schema with the destination schema reference field id
+		// 5- save the source and destination schemas
+
 		f, err := schema.NewField(param.TypeProperty).
 			NewID().
 			Unique(param.Unique).
