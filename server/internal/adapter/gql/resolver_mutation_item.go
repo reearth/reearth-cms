@@ -104,3 +104,21 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s) }),
 	}, nil
 }
+
+func (r *mutationResolver) PublishItem(ctx context.Context, input gqlmodel.PublishItemInput) (*gqlmodel.PublishItemPayload, error) {
+	op := getOperator(ctx)
+
+	iid, err := gqlmodel.ToID[id.Item](input.ItemID)
+	if err != nil {
+		return nil, err
+	}
+	itm, err := usecases(ctx).Item.PublishOneItem(ctx, iid, getOperator(ctx))
+	s, err := usecases(ctx).Schema.FindByID(ctx, itm.Value().Schema(), op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.PublishItemPayload{
+		Item: gqlmodel.ToItem(itm, s),
+	}, nil
+}

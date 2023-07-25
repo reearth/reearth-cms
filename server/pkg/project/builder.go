@@ -26,6 +26,9 @@ func (b *Builder) Build() (*Project, error) {
 	if b.p.updatedAt.IsZero() {
 		b.p.updatedAt = b.p.CreatedAt()
 	}
+	if b.p.requestRoles == nil {
+		b.p.SetRequestRoles([]user.Role{user.RoleOwner, user.RoleMaintainer, user.RoleWriter, user.RoleReader})
+	}
 	return b.p, nil
 }
 
