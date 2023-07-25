@@ -95,10 +95,10 @@ const AssetMolecule: React.FC<Props> = ({
     }
   }, [assetFileExt, assetUrl, svgRender, viewerType]);
 
-  const showCopyIcon = useMemo(
-    () => asset.previewType === "IMAGE" || asset.previewType === "IMAGE_SVG",
-    [asset.previewType],
-  );
+  const showCopyIcon = useMemo(() => {
+    const copyableTypes: PreviewType[] = ["IMAGE", "IMAGE_SVG", "GEO", "MODEL_3D", "GEO_3D_TILES"];
+    return asset.previewType && copyableTypes.includes(asset.previewType);
+  }, [asset.previewType]);
 
   return (
     <BodyContainer>
