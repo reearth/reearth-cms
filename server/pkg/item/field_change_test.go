@@ -15,43 +15,43 @@ func TestCompareFields(t *testing.T) {
 	fId4 := id.NewFieldID()
 
 	type args struct {
-		n []*Field
-		o []*Field
+		n Fields
+		o Fields
 	}
 	tests := []struct {
 		name string
 		args args
-		want []FieldChange
+		want FieldChanges
 	}{
 		{
 			name: "no change",
 			args: args{
-				n: []*Field{
+				n: Fields{
 					NewField(fId, value.TypeText.Value("value1").AsMultiple()),
 					NewField(fId2, value.TypeNumber.Value("value1").AsMultiple()),
 				},
-				o: []*Field{
+				o: Fields{
 					NewField(fId, value.TypeText.Value("value1").AsMultiple()),
 					NewField(fId2, value.TypeNumber.Value("value1").AsMultiple()),
 				},
 			},
-			want: nil, // No changes expected
+			want: FieldChanges{}, // No changes expected
 		},
-			{
+		{
 			name: "add",
 			args: args{
-				n: []*Field{
+				n: Fields{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
 					NewField(fId2, value.New(value.TypeText, "new field").AsMultiple()),
 				},
-				o: []*Field{
+				o: Fields{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
 				},
 			},
-			want: []FieldChange{
+			want: FieldChanges{
 				{
-					ID:            &fId2,
-					Type:          Add,
+					ID:            fId2,
+					Type:          FieldChangeTypeAdd,
 					CurrentValue:  value.New(value.TypeText, "new field").AsMultiple(),
 					PreviousValue: nil,
 				},
@@ -60,19 +60,19 @@ func TestCompareFields(t *testing.T) {
 		{
 			name: "update",
 			args: args{
-				n: []*Field{
+				n: Fields{
 					NewField(fId, value.New(value.TypeText, "value2").AsMultiple()),
 					NewField(fId2, value.New(value.TypeNumber, 42).AsMultiple()),
 				},
-				o: []*Field{
+				o: Fields{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
 					NewField(fId2, value.New(value.TypeNumber, 42).AsMultiple()),
 				},
 			},
-			want: []FieldChange{
+			want: FieldChanges{
 				{
-					ID:            &fId,
-					Type:          Update,
+					ID:            fId,
+					Type:          FieldChangeTypeUpdate,
 					PreviousValue: value.New(value.TypeText, "value1").AsMultiple(),
 					CurrentValue:  value.New(value.TypeText, "value2").AsMultiple(),
 				},
@@ -81,18 +81,18 @@ func TestCompareFields(t *testing.T) {
 		{
 			name: "delete",
 			args: args{
-				n: []*Field{
+				n: Fields{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
 				},
-				o: []*Field{
+				o: Fields{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
 					NewField(fId2, value.New(value.TypeText, "to be deleted").AsMultiple()),
 				},
 			},
-			want: []FieldChange{
+			want: FieldChanges{
 				{
-					ID:            &fId2,
-					Type:          Delete,
+					ID:            fId2,
+					Type:          FieldChangeTypeDelete,
 					CurrentValue:  nil,
 					PreviousValue: value.New(value.TypeText, "to be deleted").AsMultiple(),
 				},
@@ -101,41 +101,44 @@ func TestCompareFields(t *testing.T) {
 		{
 			name: "multiple changes",
 			args: args{
-				n: []*Field{
+				n: Fields{
 					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
 					NewField(fId2, value.New(value.TypeNumber, 42).AsMultiple()),
 					NewField(fId3, value.New(value.TypeText, "new field").AsMultiple()),
 				},
-				o: []*Field{
+				o: Fields{
 					NewField(fId, value.New(value.TypeText, "old value").AsMultiple()),
 					NewField(fId2, value.New(value.TypeNumber, 42).AsMultiple()),
 					NewField(fId4, value.New(value.TypeText, "to be deleted").AsMultiple()),
 				},
 			},
-			want: []FieldChange{
+			want: FieldChanges{
 				{
-					ID:            &fId,
-					Type:          Update,
-					CurrentValue:  value.New(value.TypeText, "value1").AsMultiple(),
-					PreviousValue: value.New(value.TypeText, "old value").AsMultiple(),
-				}, 
-				{
-					ID:            &fId4,
-					Type:          Delete,
-					CurrentValue:  nil,
-					PreviousValue: value.New(value.TypeText, "to be deleted").AsMultiple(),
-				},
-				{
-					ID:            &fId3,
-					Type:          Add,
+					ID:            fId3,
+					Type:          FieldChangeTypeAdd,
 					CurrentValue:  value.New(value.TypeText, "new field").AsMultiple(),
 					PreviousValue: nil,
+				},
+				{
+					ID:            fId,
+					Type:          FieldChangeTypeUpdate,
+					CurrentValue:  value.New(value.TypeText, "value1").AsMultiple(),
+					PreviousValue: value.New(value.TypeText, "old value").AsMultiple(),
+				},
+				{
+					ID:            fId4,
+					Type:          FieldChangeTypeDelete,
+					CurrentValue:  nil,
+					PreviousValue: value.New(value.TypeText, "to be deleted").AsMultiple(),
 				},
 			},
 		},
 	}
+
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			assert.Equal(t, tt.want, CompareFields(tt.args.n, tt.args.o))
 		})
 	}

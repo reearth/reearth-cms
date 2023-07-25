@@ -329,7 +329,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-
 		newFields := itv.Fields()
 
 		if err := i.event(ctx, Event{
@@ -338,11 +337,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Type:      event.ItemUpdate,
 			Object:    itm,
 			WebhookObject: item.ItemModelSchema{
-				Item:        itv,
-				NewFields:  newFields,
-				OldFields:  oldFields,
-				Model:       m,
-				Schema:      s,
+				Item:    itv,
+				Model:   m,
+				Schema:  s,
+				Changes: item.CompareFields(newFields, oldFields),
 			},
 			Operator: operator.Operator(),
 		}); err != nil {
@@ -360,11 +358,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Type:      event.ItemPublish,
 				Object:    itm,
 				WebhookObject: item.ItemModelSchema{
-					Item:        itm.Value(),
-					NewFields:  newFields,
-					OldFields:  oldFields,
-					Model:       m,
-					Schema:      s,
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: s,
+					// publish event doesn't have changes
 				},
 				Operator: operator.Operator(),
 			}); err != nil {

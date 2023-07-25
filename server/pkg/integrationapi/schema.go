@@ -11,32 +11,32 @@ import (
 )
 
 type ItemModelSchema struct {
-	Item   Item   `json:"item"`
-	Model  Model  `json:"model"`
-	Schema Schema `json:"schema"`
-	ItemChange []FieldChange   `json:"itemChange,omitempty"`
+	Item       Item          `json:"item"`
+	Model      Model         `json:"model"`
+	Schema     Schema        `json:"schema"`
+	ItemChange []FieldChange `json:"itemChange,omitempty"`
 }
 
 type FieldChange struct {
-	ID *item.FieldID `json:"id"`
-	CurrentValue any
-	PreviousValue any
-	Type item.FieldChangeType
+	ID            item.FieldID         `json:"id"`
+	Type          item.FieldChangeType `json:"type"`
+	CurrentValue  any                  `json:"currentValue"`
+	PreviousValue any                  `json:"previousValue"`
 }
 
 type ItemModelSchemaItemChange struct {
-	Item   Item   `json:"item"`
-	Model  Model  `json:"model"`
-	Schema Schema `json:"schema"`
-	ItemChange []FieldChange   `json:"fieldschange"`
+	Item    Item          `json:"item"`
+	Model   Model         `json:"model"`
+	Schema  Schema        `json:"schema"`
+	Changes []FieldChange `json:"changes"`
 }
 
 func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
 	return ItemModelSchema{
-		Item:   NewItem(i.Item, i.Schema, assets),
-		Model:  NewModel(i.Model, time.Time{}),
-		Schema: NewSchema(i.Schema),
-		ItemChange: NewItemChange(i.NewFields, i.OldFields),
+		Item:       NewItem(i.Item, i.Schema, assets),
+		Model:      NewModel(i.Model, time.Time{}),
+		Schema:     NewSchema(i.Schema),
+		ItemChange: NewItemFieldChanges(i.Changes),
 	}
 }
 
@@ -73,16 +73,15 @@ func NewSchema(i *schema.Schema) Schema {
 	}
 }
 
-func NewItemChange(n []*item.Field, o []*item.Field) []FieldChange {
-	comparedFields := item.CompareFields(n, o)
-	var transformedChanges []FieldChange
+func NewItemFieldChanges(changes item.FieldChanges) []FieldChange {
+	transformedChanges := make([]FieldChange, 0, len(changes))
 
-	for _, change := range comparedFields {
-		transformedChanges = append(transformedChanges,FieldChange{
-			ID:             change.ID,
-			CurrentValue:   change.CurrentValue.Interface(),
-			PreviousValue:  change.PreviousValue.Interface(),
-			Type:           change.Type,
+	for _, change := range changes {
+		transformedChanges = append(transformedChanges, FieldChange{
+			ID:            change.ID,
+			CurrentValue:  change.CurrentValue.Interface(),
+			PreviousValue: change.PreviousValue.Interface(),
+			Type:          change.Type,
 		})
 	}
 
