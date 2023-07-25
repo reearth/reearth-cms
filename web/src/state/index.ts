@@ -3,6 +3,7 @@ import { atomWithStorage } from "jotai/utils";
 
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Role } from "@reearth-cms/components/molecules/Workspace/types";
 
 export type Workspace = {
   id: string;
@@ -29,6 +30,7 @@ export type Project = {
   alias: string;
   scope?: PublicScope;
   assetPublic?: boolean;
+  requestRoles?: Role[];
 };
 
 const project = atom<Project | undefined>(undefined);
