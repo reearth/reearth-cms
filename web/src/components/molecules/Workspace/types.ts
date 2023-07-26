@@ -5,8 +5,6 @@ export type Project = {
   requestRoles?: Role[] | null;
 };
 
-export type RequestRoles = "writer" | "reader" | "maintainer" | "owner";
-
 export type User = {
   name: string;
 };
