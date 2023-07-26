@@ -20,7 +20,7 @@ func ToProject(p *project.Project) *Project {
 		Description:  p.Description(),
 		UpdatedAt:    p.UpdatedAt(),
 		Publication:  ToProjectPublication(p.Publication()),
-		RequestRoles: lo.Map(p.RequestRoles(), func(r user.Role, _ int) Role { return Role(r) }),
+		RequestRoles: lo.Map(p.RequestRoles(), func(r user.Role, _ int) Role { return ToRole(r) }),
 	}
 }
 

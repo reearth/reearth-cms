@@ -247,27 +247,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
-			if err := i.repos.Item.UpdateRef(ctx, vi.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
-				return nil, err
-			}
-
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: s.Workspace(),
-				Type:      event.ItemPublish,
-				Object:    vi,
-				WebhookObject: item.ItemModelSchema{
-					Item:   vi.Value(),
-					Model:  m,
-					Schema: s,
-				},
-				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
-			}
-		}
-
 		return vi, nil
 	})
 }
@@ -345,28 +324,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Operator: operator.Operator(),
 		}); err != nil {
 			return nil, err
-		}
-
-		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
-			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
-				return nil, err
-			}
-
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: s.Workspace(),
-				Type:      event.ItemPublish,
-				Object:    itm,
-				WebhookObject: item.ItemModelSchema{
-					Item:   itm.Value(),
-					Model:  m,
-					Schema: s,
-					// publish event doesn't have changes
-				},
-				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
-			}
 		}
 
 		return itm, nil
@@ -459,6 +416,56 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 		}
 
 		return items, nil
+	})
+}
+
+func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
+		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		m, err := i.repos.Model.FindByID(ctx, itm.Value().Model())
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, m.Project())
+		if err != nil {
+			return nil, err
+		}
+
+		s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: s,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
+		return itm, nil
 	})
 }
 
