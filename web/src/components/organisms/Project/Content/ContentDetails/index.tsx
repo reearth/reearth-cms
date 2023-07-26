@@ -10,6 +10,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    showRequestAction,
     requests,
     itemId,
     currentModel,
@@ -28,6 +29,7 @@ const ContentDetails: React.FC = () => {
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
     collapseCommentsPanel,
@@ -67,6 +69,7 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      showRequestAction={showRequestAction}
       requests={requests}
       requestCreationLoading={requestCreationLoading}
       onRequestTableChange={handleRequestTableChange}
@@ -113,6 +116,7 @@ const ContentDetails: React.FC = () => {
       uploadUrl={uploadUrl}
       uploadType={uploadType}
       onUnpublish={handleUnpublish}
+      onPublish={handlePublish}
       onUploadModalCancel={handleUploadModalCancel}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}

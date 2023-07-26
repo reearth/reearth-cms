@@ -5,12 +5,12 @@ import ProjectGeneralForm from "@reearth-cms/components/molecules/ProjectSetting
 import ProjectRequestOptions from "@reearth-cms/components/molecules/ProjectSettings/RequestOptions";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project, RequestRoles } from "../Workspace/types";
+import { Project, Role } from "../Workspace/types";
 
 export type Props = {
   project?: Project;
   onProjectUpdate: (name?: string | undefined, description?: string | undefined) => Promise<void>;
-  onProjectRequestRolesUpdate: (role?: RequestRoles[] | null) => Promise<void>;
+  onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
   onProjectDelete: () => Promise<void>;
 };
 
