@@ -3,13 +3,13 @@ package interactor
 import (
 	"context"
 	"errors"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -58,8 +58,10 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 
 				pb = pb.Alias(*p.Alias)
 			}
-			if p.RequestRoles != nil {
+			if len(p.RequestRoles) > 0 {
 				pb = pb.RequestRoles(p.RequestRoles)
+			} else {
+				pb = pb.RequestRoles([]user.Role{user.RoleOwner, user.RoleMaintainer, user.RoleWriter, user.RoleReader})
 			}
 
 			proj, err := pb.Build()

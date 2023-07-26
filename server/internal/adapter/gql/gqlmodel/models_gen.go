@@ -529,6 +529,10 @@ type ProjectPublication struct {
 	AssetPublic bool                    `json:"assetPublic"`
 }
 
+type PublishItemPayload struct {
+	Item *Item `json:"item"`
+}
+
 type PublishModelInput struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
@@ -1014,6 +1018,10 @@ type WorkspaceUserMember struct {
 }
 
 func (WorkspaceUserMember) IsWorkspaceMember() {}
+
+type PublishItemInput struct {
+	ItemID ID `json:"itemId"`
+}
 
 type ArchiveExtractionStatus string
 
