@@ -301,10 +301,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		oldFields := itv.Fields()
+
 		itv.UpdateFields(fields)
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
 		}
+
+		newFields := itv.Fields()
 
 		if err := i.event(ctx, Event{
 			Project:   prj,
@@ -312,9 +316,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Type:      event.ItemUpdate,
 			Object:    itm,
 			WebhookObject: item.ItemModelSchema{
-				Item:   itv,
-				Model:  m,
-				Schema: s,
+				Item:    itv,
+				Model:   m,
+				Schema:  s,
+				Changes: item.CompareFields(newFields, oldFields),
 			},
 			Operator: operator.Operator(),
 		}); err != nil {
