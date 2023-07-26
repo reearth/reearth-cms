@@ -12,6 +12,7 @@ export const GET_PROJECT = gql`
           scope
           assetPublic
         }
+        requestRoles
       }
     }
   }

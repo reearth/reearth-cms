@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { RequestRoles } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
@@ -40,7 +40,7 @@ export default ({ projectId }: Params) => {
             name: rawProject.name,
             description: rawProject.description,
             alias: rawProject.alias,
-            requestRoles: rawProject.requestRoles?.map(role => role.toLowerCase() as RequestRoles),
+            requestRoles: rawProject.requestRoles as Role[],
           }
         : undefined,
     [rawProject],
@@ -73,12 +73,12 @@ export default ({ projectId }: Params) => {
   );
 
   const handleProjectRequestRolesUpdate = useCallback(
-    async (requestRoles?: RequestRoles[] | null | undefined) => {
+    async (requestRoles?: Role[] | null | undefined) => {
       if (!projectId || !requestRoles) return;
       const project = await updateProjectMutation({
         variables: {
           projectId,
-          requestRoles: requestRoles.map(role => role.toUpperCase()) as GQLRole[],
+          requestRoles: requestRoles as GQLRole[],
         },
       });
       if (project.errors || !project.data?.updateProject) {

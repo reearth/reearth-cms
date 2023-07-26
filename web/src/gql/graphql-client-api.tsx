@@ -549,6 +549,7 @@ export type Mutation = {
   deleteRequest?: Maybe<DeleteRequestPayload>;
   deleteWebhook?: Maybe<DeleteWebhookPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
+  publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
@@ -703,6 +704,11 @@ export type MutationDeleteWebhookArgs = {
 
 export type MutationDeleteWorkspaceArgs = {
   input: DeleteWorkspaceInput;
+};
+
+
+export type MutationPublishItemArgs = {
+  input: PublishItemInput;
 };
 
 
@@ -899,6 +905,11 @@ export enum ProjectPublicationScope {
   Private = 'PRIVATE',
   Public = 'PUBLIC'
 }
+
+export type PublishItemPayload = {
+  __typename?: 'PublishItemPayload';
+  item: Item;
+};
 
 export type PublishModelInput = {
   modelId: Scalars['ID'];
@@ -1525,6 +1536,10 @@ export type WorkspaceUserMember = {
   userId: Scalars['ID'];
 };
 
+export type PublishItemInput = {
+  itemId: Scalars['ID'];
+};
+
 export type AssetFragmentFragment = { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null };
 
 export type AssetFileFragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string };
@@ -1775,6 +1790,13 @@ export type UnpublishItemMutationVariables = Exact<{
 
 export type UnpublishItemMutation = { __typename?: 'Mutation', unpublishItem?: { __typename?: 'UnpublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
 
+export type PublishItemMutationVariables = Exact<{
+  itemId: Scalars['ID'];
+}>;
+
+
+export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', item: { __typename?: 'Item', id: string } } | null };
+
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
   pagination?: InputMaybe<Pagination>;
@@ -1824,7 +1846,7 @@ export type GetProjectQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Workspace', id: string } | null };
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'Workspace', id: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];
@@ -3511,6 +3533,41 @@ export function useUnpublishItemMutation(baseOptions?: Apollo.MutationHookOption
 export type UnpublishItemMutationHookResult = ReturnType<typeof useUnpublishItemMutation>;
 export type UnpublishItemMutationResult = Apollo.MutationResult<UnpublishItemMutation>;
 export type UnpublishItemMutationOptions = Apollo.BaseMutationOptions<UnpublishItemMutation, UnpublishItemMutationVariables>;
+export const PublishItemDocument = gql`
+    mutation PublishItem($itemId: ID!) {
+  publishItem(input: {itemId: $itemId}) {
+    item {
+      id
+    }
+  }
+}
+    `;
+export type PublishItemMutationFn = Apollo.MutationFunction<PublishItemMutation, PublishItemMutationVariables>;
+
+/**
+ * __usePublishItemMutation__
+ *
+ * To run a mutation, you first call `usePublishItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishItemMutation, { data, loading, error }] = usePublishItemMutation({
+ *   variables: {
+ *      itemId: // value for 'itemId'
+ *   },
+ * });
+ */
+export function usePublishItemMutation(baseOptions?: Apollo.MutationHookOptions<PublishItemMutation, PublishItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishItemMutation, PublishItemMutationVariables>(PublishItemDocument, options);
+      }
+export type PublishItemMutationHookResult = ReturnType<typeof usePublishItemMutation>;
+export type PublishItemMutationResult = Apollo.MutationResult<PublishItemMutation>;
+export type PublishItemMutationOptions = Apollo.BaseMutationOptions<PublishItemMutation, PublishItemMutationVariables>;
 export const GetModelsDocument = gql`
     query GetModels($projectId: ID!, $pagination: Pagination) {
   models(projectId: $projectId, pagination: $pagination) {
@@ -3764,6 +3821,7 @@ export const GetProjectDocument = gql`
         scope
         assetPublic
       }
+      requestRoles
     }
   }
 }

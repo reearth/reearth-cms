@@ -149,3 +149,13 @@ export const UNPUBLISH_ITEM = gql`
     }
   }
 `;
+
+export const PUBLISH_ITEM = gql`
+  mutation PublishItem($itemId: ID!) {
+    publishItem(input: { itemId: $itemId }) {
+      item {
+        id
+      }
+    }
+  }
+`;

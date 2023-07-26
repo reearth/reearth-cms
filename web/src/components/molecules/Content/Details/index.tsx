@@ -15,6 +15,7 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export type Props = {
+  showRequestAction?: boolean;
   requests: Request[];
   collapsed?: boolean;
   model?: Model;
@@ -42,6 +43,7 @@ export type Props = {
   requestModalPage: number;
   requestModalPageSize: number;
   onUnpublish: (itemIds: string[]) => Promise<void>;
+  onPublish: (itemId: string) => Promise<void>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -78,6 +80,7 @@ export type Props = {
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  showRequestAction,
   requests,
   collapsed,
   model,
@@ -105,6 +108,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  onPublish,
   onUnpublish,
   onCollapse,
   onUploadModalCancel,
@@ -141,6 +145,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       }
       center={
         <ContentForm
+          showRequestAction={showRequestAction}
           requests={requests}
           requestCreationLoading={requestCreationLoading}
           onRequestTableChange={onRequestTableChange}
@@ -163,6 +168,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          onPublish={onPublish}
           onUnpublish={onUnpublish}
           onChange={onChange}
           onUploadModalCancel={onUploadModalCancel}
