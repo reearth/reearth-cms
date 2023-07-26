@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
+import { Role } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
@@ -108,6 +109,7 @@ export default () => {
           scope: convertScope(project.publication?.scope),
           alias: project.alias,
           assetPublic: project.publication?.assetPublic,
+          requestRoles: project.requestRoles as Role[],
         });
       }
     } else {
