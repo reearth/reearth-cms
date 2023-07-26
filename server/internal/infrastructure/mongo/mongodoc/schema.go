@@ -202,7 +202,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		case value.TypeReference:
 			mid, err := id.ModelIDFrom(tpd.Reference.Model)
 			cf := &schema.CorrespondingField{
-				Title:        tpd.Reference.CorrespondingField.Title,
+				Name:         tpd.Reference.CorrespondingField.Title,
 				Description:  tpd.Reference.CorrespondingField.Description,
 				Key:          tpd.Reference.CorrespondingField.Key,
 				Multiple:     tpd.Reference.CorrespondingField.Multiple,

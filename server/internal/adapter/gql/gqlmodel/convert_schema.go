@@ -318,7 +318,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			return nil, nil, err
 		}
 		tpRes = schema.NewReference(mId, &schema.CorrespondingField{
-			Title:       tp.Reference.CorrespondingField.Title,
+			Name:        tp.Reference.CorrespondingField.Title,
 			Description: tp.Reference.CorrespondingField.Description,
 			Key:         tp.Reference.CorrespondingField.Key,
 			Multiple:    tp.Reference.CorrespondingField.Multiple,

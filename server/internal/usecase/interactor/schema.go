@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -57,36 +58,51 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		// 4- update the created field on the source schema with the destination schema reference field id
 		// 5- save the source and destination schemas
 
+		srcField := id.NewFieldID() // add to the referenced field type property
+
+		var cf *schema.Field
+		var cfm *model.Model
+		var cfbID id.FieldID
 		if param.TypeProperty.Type() == value.TypeReference {
+			// add Find By schema function to the model infra
+			//srcModel, err := i.repos.Model.Fi(ctx, param.SchemaId)
+			//if err != nil {
+			//	return nil, err
+			//}
 			param.TypeProperty.Match(schema.TypePropertyMatch{
 				Reference: func(r *schema.FieldReference) {
-					cf := r.CorrespondingField()
+					//cfp := r.CorrespondingField()
 					if cf != nil {
-						m, err := i.repos.Model.FindByID(ctx, r.Model())
-						if err != nil {
+						cfm, err1 := i.repos.Model.FindByID(ctx, r.Model())
+						if err1 != nil {
 							return
 						}
-						p := interfaces.CreateFieldParam{
-							SchemaId:     m.Schema(),
-							Type:         value.TypeReference,
-							Name:         cf.Title,
-							Description:  cf.Description,
-							Key:          cf.Key,
-							Multiple:     cf.Multiple,
-							Unique:       cf.Unique,
-							Required:     cf.Required,
-							TypeProperty: cf.TypeProperty,
-							DefaultValue: nil, // TODO: implement this
+						cfs, err1 := i.repos.Schema.FindByID(ctx, cfm.Schema())
+						if err1 != nil {
+							return
 						}
-						i.CreateField(ctx, p, operator)
+						//cfbID = id.NewFieldID()
+						//cf = schema.NewField(schema.NewReference(srcModel,srcField.Ref()).TypeProperty()).
+						//	ID(cfbID).
+						//	Unique(cfp.Unique).
+						//	Multiple(cfp.Multiple).
+						//	Required(cfp.Required).
+						//	Name(cfpName).
+						//	Description(lo.FromPtr(cfp.Description)).
+						//	Key(key.New(cfp.Key)).Build()
+						cfs.AddField(cf)
 					}
 				},
 			})
 		}
-
-		fieldId := id.NewFieldID() // add to the referenced field type property
-		f, err := schema.NewField(param.TypeProperty).
-			ID(fieldId).
+		var tp *schema.TypeProperty
+		if cf != nil {
+			tp = schema.NewReference(cfm.ID(), cfbID.Ref()).TypeProperty()
+		} else {
+			tp = param.TypeProperty
+		}
+		f, err := schema.NewField(tp).
+			ID(srcField).
 			Unique(param.Unique).
 			Multiple(param.Multiple).
 			Required(param.Required).

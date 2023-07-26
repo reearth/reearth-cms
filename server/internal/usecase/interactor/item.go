@@ -502,8 +502,9 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 		}
 
 		// TODO:
-		// update the referenced item's schema
-		// update the referenced item's item
+		// fetch field value, the value is an item id
+		// fetch referred item
+		// update the item corresponding field with the source item ID
 
 		if !sf.Multiple() {
 			f.Value = []any{f.Value}

@@ -7,7 +7,7 @@ import (
 )
 
 type CorrespondingField struct {
-	Title        string
+	Name         string
 	Description  *string
 	Key          string
 	Multiple     bool
@@ -18,13 +18,14 @@ type CorrespondingField struct {
 
 type FieldReference struct {
 	modelID            id.ModelID
+	referID            *id.FieldID
 	correspondingField *CorrespondingField
 }
 
-func NewReference(id id.ModelID, correspondingField *CorrespondingField) *FieldReference {
+func NewReference(id id.ModelID, cf *id.FieldID) *FieldReference {
 	return &FieldReference{
-		modelID:            id,
-		correspondingField: correspondingField,
+		modelID: id,
+		referID: cf,
 	}
 }
 
@@ -60,7 +61,7 @@ func (f *FieldReference) Clone() *FieldReference {
 func (f *FieldReference) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Reference: func(a value.Reference) {
-			// ok
+			// check if value is item ID
 		},
 		Default: func() {
 			err = ErrInvalidValue
