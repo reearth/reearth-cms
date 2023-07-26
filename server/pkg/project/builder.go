@@ -26,6 +26,7 @@ func (b *Builder) Build() (*Project, error) {
 	if b.p.updatedAt.IsZero() {
 		b.p.updatedAt = b.p.CreatedAt()
 	}
+
 	return b.p, nil
 }
 

@@ -26,7 +26,7 @@ func TestConvertProject_ToProject(t *testing.T) {
 		CreatedAt:    p.CreatedAt(),
 		UpdatedAt:    p.UpdatedAt(),
 		Publication:  nil,
-		RequestRoles: []Role{Role(r[0])},
+		RequestRoles: []Role{RoleOwner},
 	}
 	assert.Equal(t, want, ToProject(p))
 
