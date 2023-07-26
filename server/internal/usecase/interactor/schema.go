@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 )
 
@@ -56,8 +57,36 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		// 4- update the created field on the source schema with the destination schema reference field id
 		// 5- save the source and destination schemas
 
+		if param.TypeProperty.Type() == value.TypeReference {
+			param.TypeProperty.Match(schema.TypePropertyMatch{
+				Reference: func(r *schema.FieldReference) {
+					cf := r.CorrespondingField()
+					if cf != nil {
+						m, err := i.repos.Model.FindByID(ctx, r.Model())
+						if err != nil {
+							return
+						}
+						p := interfaces.CreateFieldParam{
+							SchemaId:     m.Schema(),
+							Type:         value.TypeReference,
+							Name:         cf.Title,
+							Description:  cf.Description,
+							Key:          cf.Key,
+							Multiple:     cf.Multiple,
+							Unique:       cf.Unique,
+							Required:     cf.Required,
+							TypeProperty: cf.TypeProperty,
+							DefaultValue: nil, // TODO: implement this
+						}
+						i.CreateField(ctx, p, operator)
+					}
+				},
+			})
+		}
+
+		fieldId := id.NewFieldID() // add to the referenced field type property
 		f, err := schema.NewField(param.TypeProperty).
-			NewID().
+			ID(fieldId).
 			Unique(param.Unique).
 			Multiple(param.Multiple).
 			Required(param.Required).

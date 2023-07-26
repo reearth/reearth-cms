@@ -22,7 +22,7 @@ type Item struct {
 	thread      ThreadID
 	user        *UserID
 	integration *IntegrationID
-	// reference   ID
+	// correspondingItemId   ID
 }
 
 type Versioned = *version.Value[*Item]

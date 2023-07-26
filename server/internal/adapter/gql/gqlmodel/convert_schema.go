@@ -317,7 +317,14 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if err != nil {
 			return nil, nil, err
 		}
-		tpRes = schema.NewReference(mId, nil).TypeProperty()
+		tpRes = schema.NewReference(mId, &schema.CorrespondingField{
+			Title:       tp.Reference.CorrespondingField.Title,
+			Description: tp.Reference.CorrespondingField.Description,
+			Key:         tp.Reference.CorrespondingField.Key,
+			Multiple:    tp.Reference.CorrespondingField.Multiple,
+			Unique:      tp.Reference.CorrespondingField.Unique,
+			Required:    tp.Reference.CorrespondingField.Required,
+		}).TypeProperty()
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {

@@ -7,13 +7,13 @@ import (
 )
 
 type CorrespondingField struct {
-	title        string
-	description  string
-	key          string
-	multiple     bool
-	unique       bool
-	required     bool
-	typeProperty TypeProperty
+	Title        string
+	Description  *string
+	Key          string
+	Multiple     bool
+	Unique       bool
+	Required     bool
+	TypeProperty *TypeProperty
 }
 
 type FieldReference struct {
