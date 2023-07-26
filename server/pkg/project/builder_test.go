@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -97,6 +98,15 @@ func TestBuilder_Publication(t *testing.T) {
 	res := tb.Publication(p)
 	assert.Equal(t, &Builder{
 		p: &Project{id: tb.p.id, publication: p},
+	}, res)
+}
+
+func TestBuilder_RequestRoles(t *testing.T) {
+	var tb = New().NewID()
+	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
+	res := tb.RequestRoles(r)
+	assert.Equal(t, &Builder{
+		p: &Project{id: tb.p.id, requestRoles: r},
 	}, res)
 }
 

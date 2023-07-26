@@ -2,6 +2,8 @@ package gqlmodel
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/samber/lo"
 )
 
 func ToProject(p *project.Project) *Project {
@@ -10,14 +12,15 @@ func ToProject(p *project.Project) *Project {
 	}
 
 	return &Project{
-		ID:          IDFrom(p.ID()),
-		WorkspaceID: IDFrom(p.Workspace()),
-		CreatedAt:   p.CreatedAt(),
-		Alias:       p.Alias(),
-		Name:        p.Name(),
-		Description: p.Description(),
-		UpdatedAt:   p.UpdatedAt(),
-		Publication: ToProjectPublication(p.Publication()),
+		ID:           IDFrom(p.ID()),
+		WorkspaceID:  IDFrom(p.Workspace()),
+		CreatedAt:    p.CreatedAt(),
+		Alias:        p.Alias(),
+		Name:         p.Name(),
+		Description:  p.Description(),
+		UpdatedAt:    p.UpdatedAt(),
+		Publication:  ToProjectPublication(p.Publication()),
+		RequestRoles: lo.Map(p.RequestRoles(), func(r workspace.Role, _ int) Role { return ToRole(r) }),
 	}
 }
 

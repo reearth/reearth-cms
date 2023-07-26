@@ -301,10 +301,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		oldFields := itv.Fields()
+
 		itv.UpdateFields(fields)
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
 		}
+
+		newFields := itv.Fields()
 
 		if err := i.event(ctx, Event{
 			Project:   prj,
@@ -312,9 +316,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Type:      event.ItemUpdate,
 			Object:    itm,
 			WebhookObject: item.ItemModelSchema{
-				Item:   itv,
-				Model:  m,
-				Schema: s,
+				Item:    itv,
+				Model:   m,
+				Schema:  s,
+				Changes: item.CompareFields(newFields, oldFields),
 			},
 			Operator: operator.Operator(),
 		}); err != nil {
@@ -411,6 +416,56 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 		}
 
 		return items, nil
+	})
+}
+
+func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+	if operator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
+		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		m, err := i.repos.Model.FindByID(ctx, itm.Value().Model())
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, m.Project())
+		if err != nil {
+			return nil, err
+		}
+
+		s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: s,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
+		return itm, nil
 	})
 }
 

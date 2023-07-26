@@ -199,3 +199,60 @@ func TestOperator_Checks(t *testing.T) {
 
 	assert.True(t, op.CanUpdate(obj))
 }
+
+func TestOperator_RoleByProject(t *testing.T) {
+	// Owner
+	pid := id.NewProjectID()
+	uid := id.NewUserID()
+	operator := &Operator{
+		User:           &uid,
+		Integration:    nil,
+		OwningProjects: project.IDList{pid},
+	}
+	role := operator.RoleByProject(pid)
+	expectedRole := workspace.RoleOwner
+	assert.Equal(t, expectedRole, role)
+
+	// Maintainer
+	pid2 := id.NewProjectID()
+	uid2 := id.NewUserID()
+	operator2 := &Operator{
+		User:                 &uid2,
+		Integration:          nil,
+		MaintainableProjects: project.IDList{pid2},
+	}
+	role2 := operator2.RoleByProject(pid2)
+	expectedRole2 := workspace.RoleMaintainer
+	assert.Equal(t, expectedRole2, role2)
+
+	// Writer
+	pid3 := id.NewProjectID()
+	uid3 := id.NewUserID()
+	operator3 := &Operator{
+		User:             &uid3,
+		Integration:      nil,
+		WritableProjects: project.IDList{pid3},
+	}
+	role3 := operator3.RoleByProject(pid3)
+	expectedRole3 := workspace.RoleWriter
+	assert.Equal(t, expectedRole3, role3)
+
+	// Reader
+	pid4 := id.NewProjectID()
+	uid4 := id.NewUserID()
+	operator4 := &Operator{
+		User:             &uid4,
+		Integration:      nil,
+		ReadableProjects: project.IDList{pid4},
+	}
+	role4 := operator4.RoleByProject(pid4)
+	expectedRole4 := workspace.RoleReader
+	assert.Equal(t, expectedRole4, role4)
+
+	// No role
+	pid5 := id.NewProjectID()
+	operator5 := &Operator{}
+	role5 := operator5.RoleByProject(pid5)
+	expectedRole5 := workspace.Role("")
+	assert.Equal(t, expectedRole5, role5)
+}

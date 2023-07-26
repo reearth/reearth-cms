@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -17,14 +19,15 @@ var (
 )
 
 type Project struct {
-	id          ID
-	workspaceID accountdomain.WorkspaceID
-	name        string
-	description string
-	alias       string
-	imageURL    *url.URL
-	updatedAt   time.Time
-	publication *Publication
+	id           ID
+	workspaceID  accountdomain.WorkspaceID
+	name         string
+	description  string
+	alias        string
+	imageURL     *url.URL
+	updatedAt    time.Time
+	publication  *Publication
+	requestRoles []workspace.Role
 }
 
 func (p *Project) ID() ID {
@@ -68,6 +71,10 @@ func (p *Project) Publication() *Publication {
 	return p.publication
 }
 
+func (p *Project) RequestRoles() []workspace.Role {
+	return p.requestRoles
+}
+
 func (p *Project) SetUpdatedAt(updatedAt time.Time) {
 	p.updatedAt = updatedAt
 }
@@ -94,6 +101,10 @@ func (p *Project) UpdateDescription(description string) {
 	p.description = description
 }
 
+func (p *Project) SetRequestRoles(sr []workspace.Role) {
+	p.requestRoles = slices.Clone(sr)
+}
+
 func (p *Project) UpdateAlias(alias string) error {
 	if CheckAliasPattern(alias) {
 		p.alias = alias
@@ -113,14 +124,15 @@ func (p *Project) Clone() *Project {
 	}
 
 	return &Project{
-		id:          p.id.Clone(),
-		workspaceID: p.workspaceID.Clone(),
-		name:        p.name,
-		description: p.description,
-		alias:       p.alias,
-		imageURL:    util.CopyURL(p.imageURL),
-		updatedAt:   p.updatedAt,
-		publication: p.publication.Clone(),
+		id:           p.id.Clone(),
+		workspaceID:  p.workspaceID.Clone(),
+		name:         p.name,
+		description:  p.description,
+		alias:        p.alias,
+		imageURL:     util.CopyURL(p.imageURL),
+		updatedAt:    p.updatedAt,
+		publication:  p.publication.Clone(),
+		requestRoles: p.requestRoles,
 	}
 }
 

@@ -7,18 +7,20 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/mongox"
 )
 
 type ProjectDocument struct {
-	ID          string
-	UpdatedAt   time.Time
-	Name        string
-	Description string
-	Alias       string
-	ImageURL    string
-	Workspace   string
-	Publication *ProjectPublicationDocument
+	ID           string
+	UpdatedAt    time.Time
+	Name         string
+	Description  string
+	Alias        string
+	ImageURL     string
+	Workspace    string
+	Publication  *ProjectPublicationDocument
+	RequestRoles []string
 }
 
 type ProjectPublicationDocument struct {
@@ -35,14 +37,15 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 	}
 
 	return &ProjectDocument{
-		ID:          pid,
-		UpdatedAt:   project.UpdatedAt(),
-		Name:        project.Name(),
-		Description: project.Description(),
-		Alias:       project.Alias(),
-		ImageURL:    imageURL,
-		Workspace:   project.Workspace().String(),
-		Publication: NewProjectPublication(project.Publication()),
+		ID:           pid,
+		UpdatedAt:    project.UpdatedAt(),
+		Name:         project.Name(),
+		Description:  project.Description(),
+		Alias:        project.Alias(),
+		ImageURL:     imageURL,
+		Workspace:    project.Workspace().String(),
+		Publication:  NewProjectPublication(project.Publication()),
+		RequestRoles: fromRequestRoles(project.RequestRoles()),
 	}, pid
 }
 
@@ -83,6 +86,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Workspace(tid).
 		ImageURL(imageURL).
 		Publication(d.Publication.Model()).
+		RequestRoles(toRequestRoles(d.RequestRoles)).
 		Build()
 }
 
@@ -97,4 +101,21 @@ type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Proje
 
 func NewProjectConsumer() *ProjectConsumer {
 	return NewConsumer[*ProjectDocument, *project.Project]()
+}
+
+func toRequestRoles(s []string) []workspace.Role {
+	var roles []workspace.Role
+	for _, role := range s {
+		r, _ := workspace.RoleFromString(role)
+		roles = append(roles, r)
+	}
+	return roles
+}
+
+func fromRequestRoles(s []workspace.Role) []string {
+	var roles []string
+	for _, role := range s {
+		roles = append(roles, string(role))
+	}
+	return roles
 }

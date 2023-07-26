@@ -596,7 +596,8 @@ func TestItem_Search(t *testing.T) {
 }
 
 func TestItem_Create(t *testing.T) {
-	prj := project.New().NewID().MustBuild()
+	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
+	prj := project.New().NewID().RequestRoles(r).MustBuild()
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()

@@ -3,7 +3,6 @@ package interactor
 import (
 	"context"
 	"errors"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -11,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -58,6 +58,11 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 				}
 
 				pb = pb.Alias(*p.Alias)
+			}
+			if len(p.RequestRoles) > 0 {
+				pb = pb.RequestRoles(p.RequestRoles)
+			} else {
+				pb = pb.RequestRoles([]workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer, workspace.RoleWriter, workspace.RoleReader})
 			}
 
 			proj, err := pb.Build()
@@ -112,6 +117,10 @@ func (i *Project) Update(ctx context.Context, p interfaces.UpdateProjectParam, o
 					pub.SetAssetPublic(*p.Publication.AssetPublic)
 				}
 				proj.SetPublication(pub)
+			}
+
+			if p.RequestRoles != nil {
+				proj.SetRequestRoles(p.RequestRoles)
 			}
 
 			if err := i.repos.Project.Save(ctx, proj); err != nil {

@@ -7,24 +7,27 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 type CreateProjectParam struct {
-	WorkspaceID accountdomain.WorkspaceID
-	Name        *string
-	Description *string
-	Alias       *string
+	WorkspaceID  accountdomain.WorkspaceID
+	Name         *string
+	Description  *string
+	Alias        *string
+	RequestRoles []workspace.Role
 }
 
 type UpdateProjectParam struct {
-	ID          id.ProjectID
-	Name        *string
-	Description *string
-	Alias       *string
-	Publication *UpdateProjectPublicationParam
+	ID           id.ProjectID
+	Name         *string
+	Description  *string
+	Alias        *string
+	Publication  *UpdateProjectPublicationParam
+	RequestRoles []workspace.Role
 }
 
 type UpdateProjectPublicationParam struct {

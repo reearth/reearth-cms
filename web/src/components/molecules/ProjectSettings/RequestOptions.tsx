@@ -6,7 +6,7 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
-import { Project, RequestRoles } from "../Workspace/types";
+import { Project, Role } from "../Workspace/types";
 
 export type RequestOptionsData = {
   id: string;
@@ -16,11 +16,11 @@ export type RequestOptionsData = {
 
 export type Props = {
   project?: Project;
-  onProjectRequestRolesUpdate: (role?: RequestRoles[] | null) => Promise<void>;
+  onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
 };
 
 const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRolesUpdate }) => {
-  const [requestRoles, setRequestRoles] = useState<RequestRoles[] | null | undefined>([]);
+  const [requestRoles, setRequestRoles] = useState<Role[] | null | undefined>([]);
   const t = useT();
 
   useEffect(() => {
@@ -58,15 +58,15 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
         role: "Owner",
         needRequest: (
           <Switch
-            checked={requestRoles?.includes("owner")}
+            checked={requestRoles?.includes("OWNER")}
             onChange={(value: boolean) => {
               if (!Array.isArray(requestRoles)) {
                 setRequestRoles([]);
               }
               if (value) {
-                setRequestRoles(roles => [...(roles as RequestRoles[]), "owner"]);
+                setRequestRoles(roles => [...(roles as Role[]), "OWNER"]);
               } else {
-                setRequestRoles(requestRoles?.filter(role => role !== "owner"));
+                setRequestRoles(requestRoles?.filter(role => role !== "OWNER"));
               }
             }}
           />
@@ -78,15 +78,15 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
         role: "Maintainer",
         needRequest: (
           <Switch
-            checked={requestRoles?.includes("maintainer")}
+            checked={requestRoles?.includes("MAINTAINER")}
             onChange={(value: boolean) => {
               if (!Array.isArray(requestRoles)) {
                 setRequestRoles([]);
               }
               if (value) {
-                setRequestRoles(roles => [...(roles as RequestRoles[]), "maintainer"]);
+                setRequestRoles(roles => [...(roles as Role[]), "MAINTAINER"]);
               } else {
-                setRequestRoles(requestRoles?.filter(role => role !== "maintainer"));
+                setRequestRoles(requestRoles?.filter(role => role !== "MAINTAINER"));
               }
             }}
           />
@@ -98,15 +98,15 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
         role: "Writer",
         needRequest: (
           <Switch
-            checked={requestRoles?.includes("writer")}
+            checked={requestRoles?.includes("WRITER")}
             onChange={(value: boolean) => {
               if (!Array.isArray(requestRoles)) {
                 setRequestRoles([]);
               }
               if (value) {
-                setRequestRoles(roles => [...(roles as RequestRoles[]), "writer"]);
+                setRequestRoles(roles => [...(roles as Role[]), "WRITER"]);
               } else {
-                setRequestRoles(requestRoles?.filter(role => role !== "writer"));
+                setRequestRoles(requestRoles?.filter(role => role !== "WRITER"));
               }
             }}
           />
@@ -118,17 +118,18 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
         role: "Reader",
         needRequest: (
           <Switch
-            checked={requestRoles?.includes("reader")}
+            checked={requestRoles?.includes("READER")}
             onChange={(value: boolean) => {
               if (!Array.isArray(requestRoles)) {
                 setRequestRoles([]);
               }
               if (value) {
-                setRequestRoles(roles => [...(roles as RequestRoles[]), "reader"]);
+                setRequestRoles(roles => [...(roles as Role[]), "READER"]);
               } else {
-                setRequestRoles(requestRoles?.filter(role => role !== "reader"));
+                setRequestRoles(requestRoles?.filter(role => role !== "READER"));
               }
             }}
+            disabled={true}
           />
         ),
       },

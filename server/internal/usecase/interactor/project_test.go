@@ -16,6 +16,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 )
@@ -265,6 +266,7 @@ func TestProject_FindByWorkspace(t *testing.T) {
 func TestProject_Create(t *testing.T) {
 	mocktime := time.Now()
 	wid := accountdomain.NewWorkspaceID()
+	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -291,10 +293,11 @@ func TestProject_Create(t *testing.T) {
 			seeds: nil,
 			args: args{
 				cpp: interfaces.CreateProjectParam{
-					WorkspaceID: wid,
-					Name:        lo.ToPtr("P001"),
-					Description: lo.ToPtr("D001"),
-					Alias:       lo.ToPtr("Test001"),
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P001"),
+					Description:  lo.ToPtr("D001"),
+					Alias:        lo.ToPtr("Test001"),
+					RequestRoles: r,
 				},
 				operator: op,
 			},
@@ -304,6 +307,7 @@ func TestProject_Create(t *testing.T) {
 				Alias("Test001").
 				Description("D001").
 				Workspace(wid).
+				RequestRoles(r).
 				MustBuild(),
 			wantErr: nil,
 		},
@@ -312,10 +316,11 @@ func TestProject_Create(t *testing.T) {
 			seeds: nil,
 			args: args{
 				cpp: interfaces.CreateProjectParam{
-					WorkspaceID: wid,
-					Name:        lo.ToPtr("P002"),
-					Description: lo.ToPtr("D002"),
-					Alias:       lo.ToPtr("Test002"),
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P002"),
+					Description:  lo.ToPtr("D002"),
+					Alias:        lo.ToPtr("Test002"),
+					RequestRoles: r,
 				},
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
@@ -352,6 +357,7 @@ func TestProject_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Alias(), got.Alias())
 			assert.Equal(t, tc.want.Description(), got.Description())
 			assert.Equal(t, tc.want.Workspace(), got.Workspace())
+			assert.Equal(t, tc.want.RequestRoles(), got.RequestRoles())
 
 			dbGot, err := db.Project.FindByID(ctx, got.ID())
 			assert.NoError(t, err)
@@ -359,7 +365,7 @@ func TestProject_Create(t *testing.T) {
 			assert.Equal(t, tc.want.Alias(), dbGot.Alias())
 			assert.Equal(t, tc.want.Description(), dbGot.Description())
 			assert.Equal(t, tc.want.Workspace(), dbGot.Workspace())
-
+			assert.Equal(t, tc.want.RequestRoles(), dbGot.RequestRoles())
 		})
 	}
 }
@@ -368,12 +374,14 @@ func TestProject_Update(t *testing.T) {
 	mocktime := time.Now()
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
+	r1 := []workspace.Role{workspace.RoleOwner}
+	r2 := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).RequestRoles(r1).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).Alias("testAlias").UpdatedAt(mocktime).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).RequestRoles(r2).Alias("testAlias").UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -401,10 +409,11 @@ func TestProject_Update(t *testing.T) {
 			seeds: project.List{p1, p2},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
-					ID:          p1.ID(),
-					Name:        lo.ToPtr("test123"),
-					Description: lo.ToPtr("desc321"),
-					Alias:       lo.ToPtr("alias"),
+					ID:           p1.ID(),
+					Name:         lo.ToPtr("test123"),
+					Description:  lo.ToPtr("desc321"),
+					Alias:        lo.ToPtr("alias"),
+					RequestRoles: r1,
 				},
 				operator: op,
 			},
@@ -414,6 +423,7 @@ func TestProject_Update(t *testing.T) {
 				Name("test123").
 				Description("desc321").
 				Alias("alias").
+				RequestRoles(r1).
 				UpdatedAt(mocktime).
 				MustBuild(),
 			wantErr: nil,
@@ -468,7 +478,26 @@ func TestProject_Update(t *testing.T) {
 				Workspace(wid1).
 				UpdatedAt(mocktime).
 				Publication(project.NewPublication(project.PublicationScopePublic, true)).
+				RequestRoles(r1).
 				MustBuild(),
+		},
+		{
+			name:  "update skip roles",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:           p1.ID(),
+					RequestRoles: r2,
+				},
+				operator: op,
+			},
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				RequestRoles(r2).
+				UpdatedAt(mocktime).
+				MustBuild(),
+			wantErr: nil,
 		},
 		{
 			name:           "mock error",
