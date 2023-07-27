@@ -42,7 +42,7 @@ func StartServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Se
 	if useMongo {
 		db := mongotest.Connect(t)(t)
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false))
-		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false))
+		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false))
 	} else {
 		repos = memory.New()
 		accountRepos = accountmemory.New()
@@ -117,7 +117,7 @@ func StartGQLServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder
 	if useMongo {
 		db := mongotest.Connect(t)(t)
 		repos = lo.Must(mongo.New(ctx, db.Client(), db.Name(), false))
-		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false))
+		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false))
 	} else {
 		repos = memory.New()
 		accountRepos = accountmemory.New()

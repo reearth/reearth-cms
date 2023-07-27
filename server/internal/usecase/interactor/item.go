@@ -420,7 +420,7 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 }
 
 func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {

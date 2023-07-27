@@ -203,9 +203,11 @@ func TestOperator_Checks(t *testing.T) {
 func TestOperator_RoleByProject(t *testing.T) {
 	// Owner
 	pid := id.NewProjectID()
-	uid := id.NewUserID()
+	uid := accountdomain.NewUserID()
 	operator := &Operator{
-		User:           &uid,
+		AcOperator: &accountusecase.Operator{
+			User: &uid,
+		},
 		Integration:    nil,
 		OwningProjects: project.IDList{pid},
 	}
@@ -215,9 +217,11 @@ func TestOperator_RoleByProject(t *testing.T) {
 
 	// Maintainer
 	pid2 := id.NewProjectID()
-	uid2 := id.NewUserID()
+	uid2 := accountdomain.NewUserID()
 	operator2 := &Operator{
-		User:                 &uid2,
+		AcOperator: &accountusecase.Operator{
+			User: &uid2,
+		},
 		Integration:          nil,
 		MaintainableProjects: project.IDList{pid2},
 	}
@@ -227,10 +231,11 @@ func TestOperator_RoleByProject(t *testing.T) {
 
 	// Writer
 	pid3 := id.NewProjectID()
-	uid3 := id.NewUserID()
+	uid3 := accountdomain.NewUserID()
 	operator3 := &Operator{
-		User:             &uid3,
-		Integration:      nil,
+		AcOperator: &accountusecase.Operator{
+			User: &uid3,
+		}, Integration: nil,
 		WritableProjects: project.IDList{pid3},
 	}
 	role3 := operator3.RoleByProject(pid3)
@@ -239,9 +244,11 @@ func TestOperator_RoleByProject(t *testing.T) {
 
 	// Reader
 	pid4 := id.NewProjectID()
-	uid4 := id.NewUserID()
+	uid4 := accountdomain.NewUserID()
 	operator4 := &Operator{
-		User:             &uid4,
+		AcOperator: &accountusecase.Operator{
+			User: &uid4,
+		},
 		Integration:      nil,
 		ReadableProjects: project.IDList{pid4},
 	}

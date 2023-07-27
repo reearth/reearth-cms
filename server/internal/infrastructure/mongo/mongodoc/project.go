@@ -106,7 +106,7 @@ func NewProjectConsumer() *ProjectConsumer {
 func toRequestRoles(s []string) []workspace.Role {
 	var roles []workspace.Role
 	for _, role := range s {
-		r, _ := workspace.RoleFromString(role)
+		r, _ := workspace.RoleFrom(role)
 		roles = append(roles, r)
 	}
 	return roles
