@@ -75,8 +75,8 @@ export default () => {
     [currentWorkspace?.members, me?.id],
   );
 
-  const showRequestAction = useMemo(
-    () => currentProject?.requestRoles?.includes(myRole),
+  const showPublishAction = useMemo(
+    () => !currentProject?.requestRoles?.includes(myRole),
     [currentProject?.requestRoles, myRole],
   );
 
@@ -259,7 +259,7 @@ export default () => {
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
   return {
-    showRequestAction,
+    showPublishAction,
     requests,
     itemId,
     requestCreationLoading,
