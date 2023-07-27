@@ -3,7 +3,6 @@ package interactor
 import (
 	"context"
 	"fmt"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"

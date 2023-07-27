@@ -2,10 +2,8 @@ export type Project = {
   id: string;
   name: string;
   description: string;
-  requestRoles?: RequestRoles[] | null;
+  requestRoles?: Role[] | null;
 };
-
-export type RequestRoles = "writer" | "reader" | "maintainer" | "owner";
 
 export type User = {
   name: string;

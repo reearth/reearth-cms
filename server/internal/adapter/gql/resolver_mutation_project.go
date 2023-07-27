@@ -55,7 +55,7 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 		Description:  input.Description,
 		Alias:        input.Alias,
 		Publication:  pub,
-		RequestRoles: lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) user.Role { return user.Role(r) }),
+		RequestRoles: lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) user.Role { return gqlmodel.FromRole(r) }),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
