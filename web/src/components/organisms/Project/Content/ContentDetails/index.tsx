@@ -10,7 +10,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
-    showRequestAction,
+    showPublishAction,
     requests,
     itemId,
     currentModel,
@@ -69,7 +69,7 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
-      showRequestAction={showRequestAction}
+      showPublishAction={showPublishAction}
       requests={requests}
       requestCreationLoading={requestCreationLoading}
       onRequestTableChange={handleRequestTableChange}
