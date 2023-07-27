@@ -3,8 +3,6 @@ package interactor
 import (
 	"context"
 	"fmt"
-	"golang.org/x/exp/slices"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -66,9 +64,6 @@ func (r Request) Create(ctx context.Context, param interfaces.CreateRequestParam
 			return nil, err
 		}
 
-		if !slices.Contains(p.RequestRoles(), operator.RoleByProject(p.ID())) {
-			return nil, repo.ErrOperationDenied
-		}
 		repoItems, err := r.repos.Item.FindByIDs(ctx, param.Items.IDs(), version.Public.Ref())
 		if err != nil {
 			return nil, err
