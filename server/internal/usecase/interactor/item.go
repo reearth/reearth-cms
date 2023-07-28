@@ -424,6 +424,10 @@ func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *us
 			return nil, err
 		}
 
+		if itm.Refs().Has(version.Public) {
+			return nil, interfaces.ErrAlreadyPublished
+		}
+
 		m, err := i.repos.Model.FindByID(ctx, itm.Value().Model())
 		if err != nil {
 			return nil, err
