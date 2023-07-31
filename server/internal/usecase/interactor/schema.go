@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/pkg/model"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -51,7 +52,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		}
 
 		// TODO:
-		// if the value is a reference and there is a linkedTo attribute:
+		// if the value is a reference and there is a correspondingFiled attribute:
 		// 1- create field on source schema
 		// 2- Get the schema by model id
 		// 3- create a new reference field to the destination schema
@@ -64,14 +65,13 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		var cfm *model.Model
 		var cfbID id.FieldID
 		if param.TypeProperty.Type() == value.TypeReference {
-			// add Find By schema function to the model infra
-			//srcModel, err := i.repos.Model.Fi(ctx, param.SchemaId)
-			//if err != nil {
-			//	return nil, err
-			//}
+			srcModel, err := i.repos.Model.FindBySchema(ctx, s.Project() ,param.SchemaId)
+			if err != nil {
+				return nil, err
+			}
 			param.TypeProperty.Match(schema.TypePropertyMatch{
 				Reference: func(r *schema.FieldReference) {
-					//cfp := r.CorrespondingField()
+					cfp := r.CorrespondingField()
 					if cf != nil {
 						cfm, err1 := i.repos.Model.FindByID(ctx, r.Model())
 						if err1 != nil {
@@ -81,23 +81,26 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 						if err1 != nil {
 							return
 						}
-						//cfbID = id.NewFieldID()
-						//cf = schema.NewField(schema.NewReference(srcModel,srcField.Ref()).TypeProperty()).
-						//	ID(cfbID).
-						//	Unique(cfp.Unique).
-						//	Multiple(cfp.Multiple).
-						//	Required(cfp.Required).
-						//	Name(cfpName).
-						//	Description(lo.FromPtr(cfp.Description)).
-						//	Key(key.New(cfp.Key)).Build()
+						cfbID = id.NewFieldID()
+						cf, err = schema.
+							NewField(schema.NewReference(srcModel.ID(),srcField.Ref(), nil).
+							TypeProperty()).
+							ID(cfbID).
+							Unique(cfp.Unique).
+							Multiple(cfp.Multiple).
+							Required(cfp.Required).
+							Name(cfp.Name).
+							Description(lo.FromPtr(cfp.Description)).
+							Key(key.New(cfp.Key)).Build()
 						cfs.AddField(cf)
+						err = i.repos.Schema.Save(ctx, s)
 					}
 				},
 			})
 		}
 		var tp *schema.TypeProperty
 		if cf != nil {
-			tp = schema.NewReference(cfm.ID(), cfbID.Ref()).TypeProperty()
+			tp = schema.NewReference(cfm.ID(), cfbID.Ref(), nil).TypeProperty()
 		} else {
 			tp = param.TypeProperty
 		}

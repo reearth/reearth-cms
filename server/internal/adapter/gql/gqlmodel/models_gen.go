@@ -698,12 +698,14 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID ID `json:"modelId"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	ModelID      ID          `json:"modelId"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
+	DefaultValue       interface{}         `json:"defaultValue,omitempty"`
 	ModelID            ID                  `json:"modelId"`
 	CorrespondingField *CorrespondingField `json:"correspondingField,omitempty"`
 }

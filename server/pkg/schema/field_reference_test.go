@@ -10,7 +10,7 @@ import (
 
 func TestNewReference(t *testing.T) {
 	m := id.NewModelID()
-	assert.Equal(t, &FieldReference{modelID: m, correspondingField: nil}, NewReference(m, nil))
+	assert.Equal(t, &FieldReference{modelID: m, correspondingField: nil}, NewReference(m, nil, nil))
 }
 
 func TestFieldReference_CorrespondingField(t *testing.T) {

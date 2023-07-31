@@ -149,7 +149,16 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 		},
 		Reference: func(f *schema.FieldReference) {
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesReference()
+				} else {
+					v, _ = dv.First().ValueReference()
+				}
+			}
 			res = &SchemaFieldReference{
+				DefaultValue: v,
 				ModelID: IDFrom(f.Model()),
 				// CorrespondingField
 			}
@@ -313,18 +322,29 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeReference, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeReference, x.DefaultValue).AsMultiple()
+		}
 		mId, err := ToID[id.Model](x.ModelID)
 		if err != nil {
 			return nil, nil, err
 		}
-		tpRes = schema.NewReference(mId, &schema.CorrespondingField{
+		fid := id.NewFieldID()
+		nfr1 := schema.NewFieldReference(mId, &fid, nil)
+		cf := &schema.CorrespondingField{
+			ID:          fid,
 			Name:        tp.Reference.CorrespondingField.Title,
 			Description: tp.Reference.CorrespondingField.Description,
 			Key:         tp.Reference.CorrespondingField.Key,
 			Multiple:    tp.Reference.CorrespondingField.Multiple,
 			Unique:      tp.Reference.CorrespondingField.Unique,
 			Required:    tp.Reference.CorrespondingField.Required,
-		}).TypeProperty()
+			TypeProperty: schema.NewTypeProperty(nfr1),
+		}
+		nfr2 := schema.NewFieldReference(mId, &fid, cf)
+		tpRes = schema.NewTypeProperty(nfr2)
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {
