@@ -1,6 +1,9 @@
 package item
 
-import "github.com/reearth/reearth-cms/server/pkg/value"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"golang.org/x/exp/slices"
+)
 
 type FieldChangeType string
 
@@ -14,9 +17,9 @@ type FieldChanges []FieldChange
 
 type FieldChange struct {
 	ID            FieldID
+	Type          FieldChangeType
 	CurrentValue  *value.Multiple
 	PreviousValue *value.Multiple
-	Type          FieldChangeType
 }
 
 func CompareFields(n, o Fields) FieldChanges {
@@ -70,6 +73,10 @@ func CompareFields(n, o Fields) FieldChanges {
 
 		changes = append(changes, change)
 	}
+
+	slices.SortFunc(changes, func(a, b FieldChange) bool {
+		return a.ID.Timestamp().Before(b.ID.Timestamp())
+	})
 
 	return changes
 }
