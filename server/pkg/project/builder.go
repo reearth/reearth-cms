@@ -4,7 +4,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"golang.org/x/exp/slices"
 )
 
@@ -79,7 +80,7 @@ func (b *Builder) ImageURL(imageURL *url.URL) *Builder {
 	return b
 }
 
-func (b *Builder) Workspace(team WorkspaceID) *Builder {
+func (b *Builder) Workspace(team accountdomain.WorkspaceID) *Builder {
 	b.p.workspaceID = team
 	return b
 }
@@ -89,7 +90,7 @@ func (b *Builder) Publication(publication *Publication) *Builder {
 	return b
 }
 
-func (b *Builder) RequestRoles(requestRoles []user.Role) *Builder {
+func (b *Builder) RequestRoles(requestRoles []workspace.Role) *Builder {
 	b.p.requestRoles = slices.Clone(requestRoles)
 	return b
 }

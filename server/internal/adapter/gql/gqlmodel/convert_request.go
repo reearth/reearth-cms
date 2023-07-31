@@ -1,9 +1,9 @@
 package gqlmodel
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 )
 
@@ -39,7 +39,7 @@ func ToRequest(req *request.Request) *Request {
 		WorkspaceID: IDFrom(req.Workspace()),
 		ProjectID:   IDFrom(req.Project()),
 		ThreadID:    IDFrom(req.Thread()),
-		ReviewersID: lo.Map(req.Reviewers(), func(t id.UserID, _ int) ID { return IDFrom(t) }),
+		ReviewersID: lo.Map(req.Reviewers(), func(t accountdomain.UserID, _ int) ID { return IDFrom(t) }),
 		State:       ToRequestState(req.State()),
 		CreatedAt:   req.CreatedAt(),
 		UpdatedAt:   req.UpdatedAt(),

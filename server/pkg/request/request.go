@@ -3,6 +3,7 @@ package request
 import (
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
@@ -18,7 +19,7 @@ var (
 
 type Request struct {
 	id          ID
-	workspace   WorkspaceID
+	workspace   accountdomain.WorkspaceID
 	project     ProjectID
 	items       ItemList
 	title       string
@@ -36,7 +37,7 @@ func (r *Request) ID() ID {
 	return r.id
 }
 
-func (r *Request) Workspace() WorkspaceID {
+func (r *Request) Workspace() accountdomain.WorkspaceID {
 	return r.workspace
 }
 

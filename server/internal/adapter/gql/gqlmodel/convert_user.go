@@ -1,7 +1,9 @@
 package gqlmodel
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+
 	"github.com/reearth/reearthx/util"
 )
 
@@ -50,7 +52,7 @@ func ToTheme(t *Theme) *user.Theme {
 	return &th
 }
 
-func ToWorkspace(t *user.Workspace) *Workspace {
+func ToWorkspace(t *workspace.Workspace) *Workspace {
 	if t == nil {
 		return nil
 	}
@@ -83,29 +85,29 @@ func ToWorkspace(t *user.Workspace) *Workspace {
 	}
 }
 
-func FromRole(r Role) user.Role {
+func FromRole(r Role) workspace.Role {
 	switch r {
 	case RoleReader:
-		return user.RoleReader
+		return workspace.RoleReader
 	case RoleWriter:
-		return user.RoleWriter
+		return workspace.RoleWriter
 	case RoleMaintainer:
-		return user.RoleMaintainer
+		return workspace.RoleMaintainer
 	case RoleOwner:
-		return user.RoleOwner
+		return workspace.RoleOwner
 	}
-	return user.Role("")
+	return workspace.Role("")
 }
 
-func ToRole(r user.Role) Role {
+func ToRole(r workspace.Role) Role {
 	switch r {
-	case user.RoleReader:
+	case workspace.RoleReader:
 		return RoleReader
-	case user.RoleWriter:
+	case workspace.RoleWriter:
 		return RoleWriter
-	case user.RoleMaintainer:
+	case workspace.RoleMaintainer:
 		return RoleMaintainer
-	case user.RoleOwner:
+	case workspace.RoleOwner:
 		return RoleOwner
 	}
 	return Role("")

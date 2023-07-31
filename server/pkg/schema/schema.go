@@ -1,8 +1,8 @@
 package schema
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -10,7 +10,7 @@ import (
 type Schema struct {
 	id        ID
 	project   ProjectID
-	workspace id.WorkspaceID
+	workspace accountdomain.WorkspaceID
 	fields    []*Field
 }
 
@@ -18,7 +18,7 @@ func (s *Schema) ID() ID {
 	return s.id
 }
 
-func (s *Schema) Workspace() id.WorkspaceID {
+func (s *Schema) Workspace() accountdomain.WorkspaceID {
 	return s.workspace
 }
 
@@ -26,7 +26,7 @@ func (s *Schema) Project() ProjectID {
 	return s.project
 }
 
-func (s *Schema) SetWorkspace(workspace id.WorkspaceID) {
+func (s *Schema) SetWorkspace(workspace accountdomain.WorkspaceID) {
 	s.workspace = workspace
 }
 

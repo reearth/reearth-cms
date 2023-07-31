@@ -1,6 +1,7 @@
 package thread
 
 import (
+	"github.com/reearth/reearthx/account/accountdomain"
 	"golang.org/x/exp/slices"
 )
 
@@ -37,7 +38,7 @@ func (b *Builder) ID(id ID) *Builder {
 	return b
 }
 
-func (b *Builder) Workspace(wid WorkspaceID) *Builder {
+func (b *Builder) Workspace(wid accountdomain.WorkspaceID) *Builder {
 	b.th.workspace = wid
 	return b
 }

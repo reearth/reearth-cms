@@ -2,13 +2,13 @@ package gqlmodel
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
-func ToIntegration(i *integration.Integration, uId *id.UserID) *Integration {
+func ToIntegration(i *integration.Integration, uId *accountdomain.UserID) *Integration {
 	if i == nil {
 		return nil
 	}

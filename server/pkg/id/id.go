@@ -1,6 +1,9 @@
 package id
 
-import "github.com/reearth/reearthx/idx"
+import (
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/idx"
+)
 
 type Workspace struct{}
 type User struct{}
@@ -37,12 +40,12 @@ var UserIDFromRef = idx.FromRef[User]
 var AssetIDFromRef = idx.FromRef[Asset]
 var EventIDFromRef = idx.FromRef[Event]
 
-type WorkspaceIDList = idx.List[Workspace]
-type UserIDList = idx.List[User]
+type WorkspaceIDList = idx.List[accountdomain.Workspace]
+type UserIDList = idx.List[accountdomain.User]
 type AssetIDList = idx.List[Asset]
 
-var WorkspaceIDListFrom = idx.ListFrom[Workspace]
-var UserIDListFrom = idx.ListFrom[User]
+var WorkspaceIDListFrom = idx.ListFrom[accountdomain.Workspace]
+var UserIDListFrom = idx.ListFrom[accountdomain.User]
 var AssetIDListFrom = idx.ListFrom[Asset]
 
 type WorkspaceIDSet = idx.Set[Workspace]

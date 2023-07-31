@@ -17,7 +17,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -29,12 +32,14 @@ func TestCommon_createEvent(t *testing.T) {
 	uID := user.NewID()
 	a := asset.New().NewID().Thread(asset.NewThreadID()).
 		Project(project.NewID()).Size(100).CreatedByUser(uID).NewUUID().MustBuild()
-	workspace := user.NewWorkspace().NewID().MustBuild()
+	ws := workspace.New().NewID().MustBuild()
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").
 		Url(lo.Must(url.Parse("https://example.com"))).Active(true).
 		Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
 	integration := integration.New().NewID().Developer(uID).Name("xxx").Webhook([]*integration.Webhook{wh}).MustBuild()
-	lo.Must0(workspace.Members().AddIntegration(integration.ID(), user.RoleOwner, uID))
+	iid, err := accountdomain.IntegrationIDFrom(integration.ID().String())
+	assert.NoError(t, err)
+	lo.Must0(ws.Members().AddIntegration(iid, workspace.RoleOwner, uID))
 
 	db := memory.New()
 	mockCtrl := gomock.NewController(t)
@@ -45,12 +50,12 @@ func TestCommon_createEvent(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	lo.Must0(db.Workspace.Save(ctx, workspace))
+	lo.Must0(db.Workspace.Save(ctx, ws))
 	lo.Must0(db.Integration.Save(ctx, integration))
 	mRunner.EXPECT().Run(ctx, gomock.Any()).Times(1).Return(nil)
 
 	ev, err := createEvent(ctx, db, gw, Event{
-		Workspace: workspace.ID(),
+		Workspace: ws.ID(),
 		Type:      event.Type(event.AssetCreate),
 		Object:    a,
 		Operator:  operator.OperatorFromUser(uID),
@@ -60,7 +65,7 @@ func TestCommon_createEvent(t *testing.T) {
 	assert.Equal(t, expectedEv, ev)
 
 	ev, err = createEvent(ctx, db, gw, Event{
-		Workspace: workspace.ID(),
+		Workspace: ws.ID(),
 		Type:      event.Type(event.AssetCreate),
 		Object:    a,
 		Operator:  operator.Operator{},
@@ -75,13 +80,15 @@ func TestCommon_webhook(t *testing.T) {
 	a := asset.New().NewID().Thread(asset.NewThreadID()).NewUUID().
 		Project(project.NewID()).Size(100).CreatedByUser(uID).
 		MustBuild()
-	workspace := user.NewWorkspace().NewID().MustBuild()
+	ws := workspace.New().NewID().MustBuild()
 	wh := integration.NewWebhookBuilder().NewID().Name("aaa").
 		Url(lo.Must(url.Parse("https://example.com"))).Active(true).
 		Trigger(integration.WebhookTrigger{event.AssetCreate: true}).MustBuild()
 	integration := integration.New().NewID().Developer(uID).Name("xxx").
 		Webhook([]*integration.Webhook{wh}).MustBuild()
-	lo.Must0(workspace.Members().AddIntegration(integration.ID(), user.RoleOwner, uID))
+	iid, err := accountdomain.IntegrationIDFrom(integration.ID().String())
+	assert.NoError(t, err)
+	lo.Must0(ws.Members().AddIntegration(iid, workspace.RoleOwner, uID))
 	ev := event.New[any]().NewID().Timestamp(now).Type(event.AssetCreate).
 		Operator(operator.OperatorFromUser(uID)).Object(a).MustBuild()
 
@@ -95,16 +102,16 @@ func TestCommon_webhook(t *testing.T) {
 
 	ctx := context.Background()
 	// no workspace
-	err := webhook(ctx, db, gw, Event{Workspace: workspace.ID()}, ev)
+	err = webhook(ctx, db, gw, Event{Workspace: ws.ID()}, ev)
 	assert.Error(t, err)
 
-	lo.Must0(db.Workspace.Save(ctx, workspace))
+	lo.Must0(db.Workspace.Save(ctx, ws))
 	// no webhook call since no integrtaion
 	mRunner.EXPECT().Run(ctx, task.WebhookPayload{
 		Webhook: wh,
 		Event:   ev,
 	}.Payload()).Times(0).Return(nil)
-	err = webhook(ctx, db, gw, Event{Workspace: workspace.ID()}, ev)
+	err = webhook(ctx, db, gw, Event{Workspace: ws.ID()}, ev)
 	assert.NoError(t, err)
 
 	lo.Must0(db.Integration.Save(ctx, integration))
@@ -112,17 +119,17 @@ func TestCommon_webhook(t *testing.T) {
 		Webhook: wh,
 		Event:   ev,
 	}.Payload()).Times(1).Return(nil)
-	err = webhook(ctx, db, gw, Event{Workspace: workspace.ID()}, ev)
+	err = webhook(ctx, db, gw, Event{Workspace: ws.ID()}, ev)
 	assert.NoError(t, err)
 }
 
 func TestNew(t *testing.T) {
-	uc := New(nil, nil, ContainerConfig{})
+	uc := New(nil, nil, nil, nil, ContainerConfig{})
 	assert.NotNil(t, uc)
 	assert.Equal(t, interfaces.Container{
 		Asset:       NewAsset(nil, nil),
-		Workspace:   NewWorkspace(nil, nil),
-		User:        NewUser(nil, nil, "", ""),
+		Workspace:   accountinteractor.NewWorkspace(nil),
+		User:        accountinteractor.NewUser(nil, nil, "", ""),
 		Item:        NewItem(nil, nil),
 		Project:     NewProject(nil, nil),
 		Request:     NewRequest(nil, nil),

@@ -14,8 +14,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -25,13 +27,13 @@ import (
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
 	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 
 	req1 := request.New().
 		NewID().
 		Workspace(wid).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("foo").
@@ -40,14 +42,16 @@ func TestRequest_FindByID(t *testing.T) {
 		NewID().
 		Workspace(wid).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 	}
 
 	tests := []struct {
@@ -119,13 +123,13 @@ func TestRequest_FindByID(t *testing.T) {
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
 	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 
 	req1 := request.New().
 		NewID().
 		Workspace(wid).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("foo").
@@ -134,7 +138,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 		NewID().
 		Workspace(wid).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("hoge").
@@ -143,15 +147,16 @@ func TestRequest_FindByIDs(t *testing.T) {
 		NewID().
 		Workspace(wid).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("xxx").
 		MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
-	}
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		}}
 
 	tests := []struct {
 		name  string
@@ -225,22 +230,22 @@ func TestRequest_FindByIDs(t *testing.T) {
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 
 	req1 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		State(request.StateDraft).
@@ -248,8 +253,9 @@ func TestRequest_FindByProject(t *testing.T) {
 		MustBuild()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
-	}
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		}}
 
 	tests := []struct {
 		name  string
@@ -348,25 +354,27 @@ func TestRequest_Approve(t *testing.T) {
 
 	// TODO: add error cases
 	prj := project.New().NewID().MustBuild()
-	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).MustBuild()
+	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
 	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
 	item, _ := request.NewItem(i.ID())
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	req1 := request.New().
 		NewID().
 		Workspace(wid).
 		Project(prj.ID()).
-		Reviewers(id.UserIDList{u.ID()}).
-		CreatedBy(id.NewUserID()).
+		Reviewers(accountdomain.UserIDList{u.ID()}).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	op := &usecase.Operator{
-		User:             lo.ToPtr(u.ID()),
-		OwningWorkspaces: id.WorkspaceIDList{wid},
+		AcOperator: &accountusecase.Operator{
+			User:             lo.ToPtr(u.ID()),
+			OwningWorkspaces: accountdomain.WorkspaceIDList{wid},
+		},
 	}
 	ctx := context.Background()
 
