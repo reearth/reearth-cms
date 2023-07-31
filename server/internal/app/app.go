@@ -62,7 +62,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(
 		appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false),
 	))
-	usecaseMiddleware := UsecaseMiddleware(cfg.Repos, cfg.Gateways, interactor.ContainerConfig{
+	usecaseMiddleware := UsecaseMiddleware(cfg.Repos, cfg.Gateways, cfg.AcRepos, cfg.AcGateways, interactor.ContainerConfig{
 		SignupSecret:    cfg.Config.SignupSecret,
 		AuthSrvUIDomain: cfg.Config.Host_Web,
 	})

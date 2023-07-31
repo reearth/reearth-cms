@@ -20,7 +20,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -32,7 +35,7 @@ import (
 func TestAsset_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
 	id1 := id.NewAssetID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	a1 := asset.New().
 		ID(id1).
 		Project(pid).
@@ -93,7 +96,7 @@ func TestAsset_FindByID(t *testing.T) {
 				asset.New().
 					NewID().
 					Project(id.NewProjectID()).
-					CreatedByUser(id.NewUserID()).
+					CreatedByUser(accountdomain.NewUserID()).
 					Size(1000).
 					Thread(id.NewThreadID()).
 					NewUUID().
@@ -101,7 +104,7 @@ func TestAsset_FindByID(t *testing.T) {
 				asset.New().
 					NewID().
 					Project(id.NewProjectID()).
-					CreatedByUser(id.NewUserID()).
+					CreatedByUser(accountdomain.NewUserID()).
 					Size(1000).
 					Thread(id.NewThreadID()).
 					NewUUID().
@@ -142,10 +145,10 @@ func TestAsset_FindByID(t *testing.T) {
 }
 
 func TestAsset_DecompressByID(t *testing.T) {
-	ws1 := user.NewWorkspace().NewID().MustBuild()
+	ws1 := workspace.New().NewID().MustBuild()
 	pid1 := id.NewProjectID()
 	id1 := id.NewAssetID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	u1 := user.New().ID(uid1).Name("aaa").Email("aaa@bbb.com").Workspace(ws1.ID()).MustBuild()
 	a1 := asset.New().
 		ID(id1).
@@ -173,8 +176,10 @@ func TestAsset_DecompressByID(t *testing.T) {
 			name:  "No user or integration",
 			seeds: []*asset.Asset{},
 			args: args{
-				id:       id.NewAssetID(),
-				operator: &usecase.Operator{},
+				id: id.NewAssetID(),
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrInvalidOperator,
@@ -185,8 +190,10 @@ func TestAsset_DecompressByID(t *testing.T) {
 			args: args{
 				id: a1.ID(),
 				operator: &usecase.Operator{
-					User:               lo.ToPtr(u1.ID()),
-					ReadableWorkspaces: []id.WorkspaceID{ws1.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               lo.ToPtr(u1.ID()),
+						ReadableWorkspaces: []accountdomain.WorkspaceID{ws1.ID()},
+					},
 				},
 			},
 			want:    nil,
@@ -198,9 +205,11 @@ func TestAsset_DecompressByID(t *testing.T) {
 			args: args{
 				id: asset.NewID(),
 				operator: &usecase.Operator{
-					User:             lo.ToPtr(u1.ID()),
-					OwningProjects:   []id.ProjectID{pid1},
-					OwningWorkspaces: []id.WorkspaceID{ws1.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:             lo.ToPtr(u1.ID()),
+						OwningWorkspaces: []accountdomain.WorkspaceID{ws1.ID()},
+					},
+					OwningProjects: []id.ProjectID{pid1},
 				},
 			},
 			want:    nil,
@@ -236,7 +245,7 @@ func TestAsset_DecompressByID(t *testing.T) {
 func TestAsset_FindFileByID(t *testing.T) {
 	pid := id.NewProjectID()
 	id1 := id.NewAssetID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	a1 := asset.New().
 		ID(id1).
 		Project(pid).
@@ -331,7 +340,7 @@ func TestAsset_FindFileByID(t *testing.T) {
 
 func TestAsset_FindByIDs(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	id1 := id.NewAssetID()
 	id2 := id.NewAssetID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
@@ -370,7 +379,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 			name: "0 count with asset for another workspaces",
 			seeds: asset.List{
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			arg:     []id.AssetID{},
 			want:    nil,
@@ -390,9 +399,9 @@ func TestAsset_FindByIDs(t *testing.T) {
 			seeds: asset.List{
 				a1,
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			arg:     []id.AssetID{id1},
 			want:    asset.List{a1},
@@ -404,9 +413,9 @@ func TestAsset_FindByIDs(t *testing.T) {
 				a1,
 				a2,
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			arg:     []id.AssetID{id1, id2},
 			want:    asset.List{a1, a2},
@@ -428,7 +437,7 @@ func TestAsset_FindByIDs(t *testing.T) {
 			}
 			assetUC := NewAsset(db, nil)
 
-			got, err := assetUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
+			got, err := assetUC.FindByIDs(ctx, tc.arg, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -442,12 +451,12 @@ func TestAsset_FindByIDs(t *testing.T) {
 func TestAsset_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 	aid1 := id.NewAssetID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	a1 := asset.New().ID(aid1).Project(pid).NewUUID().
 		CreatedByUser(uid1).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
 	aid2 := id.NewAssetID()
-	uid2 := id.NewUserID()
+	uid2 := accountdomain.NewUserID()
 	a2 := asset.New().ID(aid2).Project(pid).NewUUID().
 		CreatedByUser(uid2).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
@@ -479,7 +488,7 @@ func TestAsset_FindByProject(t *testing.T) {
 			name: "0 count with asset for another projects",
 			seeds: asset.List{
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args: args{
 				pid:      id.NewProjectID(),
@@ -508,9 +517,9 @@ func TestAsset_FindByProject(t *testing.T) {
 			seeds: asset.List{
 				a1,
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args: args{
 				pid: pid,
@@ -528,9 +537,9 @@ func TestAsset_FindByProject(t *testing.T) {
 				a1,
 				a2,
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args: args{
 				pid: pid,
@@ -571,16 +580,19 @@ func TestAsset_FindByProject(t *testing.T) {
 
 func TestAsset_Create(t *testing.T) {
 	mocktime := time.Now()
-	ws := user.NewWorkspace().NewID().MustBuild()
-	ws2 := user.NewWorkspace().NewID().MustBuild()
+	ws := workspace.New().NewID().MustBuild()
+	ws2 := workspace.New().NewID().MustBuild()
 
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(ws.ID()).UpdatedAt(mocktime).MustBuild()
 
 	u := user.New().NewID().Name("aaa").Email("aaa@bbb.com").Workspace(ws.ID()).MustBuild()
-	op := &usecase.Operator{
+	acop := &accountusecase.Operator{
 		User:               lo.ToPtr(u.ID()),
-		WritableWorkspaces: []id.WorkspaceID{ws.ID()},
+		WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+	}
+	op := &usecase.Operator{
+		AcOperator: acop,
 	}
 
 	buf := bytes.NewBufferString("Hello")
@@ -788,7 +800,9 @@ func TestAsset_Create(t *testing.T) {
 					ProjectID: p1.ID(),
 					File:      nil,
 				},
-				operator: &usecase.Operator{},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			want:     nil,
 			wantFile: nil,
@@ -807,8 +821,10 @@ func TestAsset_Create(t *testing.T) {
 					},
 				},
 				operator: &usecase.Operator{
-					User:               lo.ToPtr(u.ID()),
-					WritableWorkspaces: []id.WorkspaceID{ws.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               lo.ToPtr(u.ID()),
+						WritableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+					},
 				},
 			},
 			want:     nil,
@@ -828,8 +844,10 @@ func TestAsset_Create(t *testing.T) {
 					},
 				},
 				operator: &usecase.Operator{
-					User:               lo.ToPtr(u.ID()),
-					WritableWorkspaces: []id.WorkspaceID{ws2.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               lo.ToPtr(u.ID()),
+						WritableWorkspaces: []accountdomain.WorkspaceID{ws2.ID()},
+					},
 				},
 			},
 			want:     nil,
@@ -898,8 +916,8 @@ func TestAsset_Create(t *testing.T) {
 }
 
 func TestAsset_Update(t *testing.T) {
-	uid := id.NewUserID()
-	ws := user.NewWorkspace().NewID().MustBuild()
+	uid := accountdomain.NewUserID()
+	ws := workspace.New().NewID().MustBuild()
 	pid1 := id.NewProjectID()
 	p := project.New().ID(pid1).Workspace(ws.ID()).MustBuild()
 
@@ -917,12 +935,14 @@ func TestAsset_Update(t *testing.T) {
 	aid2 := id.NewAssetID()
 	a2 := asset.New().ID(aid2).Project(pid2).NewUUID().
 		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
-
-	op := &usecase.Operator{
+	acop := &accountusecase.Operator{
 		User:             &uid,
-		Integration:      nil,
-		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
-		OwningProjects:   []id.ProjectID{pid1},
+		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+	}
+	op := &usecase.Operator{
+		AcOperator:     acop,
+		OwningProjects: []id.ProjectID{pid1},
+		Integration:    nil,
 	}
 
 	type args struct {
@@ -944,7 +964,9 @@ func TestAsset_Update(t *testing.T) {
 					AssetID:     aid1,
 					PreviewType: &pti,
 				},
-				operator: &usecase.Operator{},
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrInvalidOperator,
@@ -958,8 +980,10 @@ func TestAsset_Update(t *testing.T) {
 					PreviewType: &pti,
 				},
 				operator: &usecase.Operator{
-					User:               &uid,
-					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               &uid,
+						ReadableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+					},
 				},
 			},
 			want:    nil,
@@ -1021,10 +1045,10 @@ func TestAsset_Update(t *testing.T) {
 }
 
 func TestAsset_UpdateFiles(t *testing.T) {
-	uid := id.NewUserID()
+	uid := accountdomain.NewUserID()
 	assetID1, uuid1 := asset.NewID(), "5130c89f-8f67-4766-b127-49ee6796d464"
 	assetID2, uuid2 := asset.NewID(), uuid.New().String()
-	ws := user.NewWorkspace().NewID().MustBuild()
+	ws := workspace.New().NewID().MustBuild()
 	proj := project.New().NewID().Workspace(ws.ID()).MustBuild()
 
 	thid := id.NewThreadID()
@@ -1049,11 +1073,13 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		ArchiveExtractionStatus(sp).
 		MustBuild()
 	a2f := asset.NewFile().Build()
-
-	op := &usecase.Operator{
+	acop := &accountusecase.Operator{
 		User:             &uid,
-		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
-		OwningProjects:   []id.ProjectID{proj.ID()},
+		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+	}
+	op := &usecase.Operator{
+		AcOperator:     acop,
+		OwningProjects: []id.ProjectID{proj.ID()},
 	}
 
 	tests := []struct {
@@ -1070,8 +1096,10 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		wantErr         error
 	}{
 		{
-			name:     "invalid operator",
-			operator: &usecase.Operator{},
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
 			prepareFileFunc: func() afero.Fs {
 				return mockFs()
 			},
@@ -1092,8 +1120,10 @@ func TestAsset_UpdateFiles(t *testing.T) {
 		{
 			name: "operation denied",
 			operator: &usecase.Operator{
-				User:               &uid,
-				ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+				AcOperator: &accountusecase.Operator{
+					User:               &uid,
+					ReadableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+				},
 			},
 			seedAssets: []*asset.Asset{a1.Clone(), a2.Clone()},
 			seedFiles: map[asset.ID]*asset.File{
@@ -1220,9 +1250,9 @@ func TestAsset_UpdateFiles(t *testing.T) {
 }
 
 func TestAsset_Delete(t *testing.T) {
-	uid := id.NewUserID()
+	uid := accountdomain.NewUserID()
 
-	ws := user.NewWorkspace().NewID().MustBuild()
+	ws := workspace.New().NewID().MustBuild()
 	proj1 := project.New().NewID().Workspace(ws.ID()).MustBuild()
 	aid1 := id.NewAssetID()
 	a1 := asset.New().ID(aid1).Project(proj1.ID()).NewUUID().
@@ -1233,12 +1263,14 @@ func TestAsset_Delete(t *testing.T) {
 	a2 := asset.New().ID(aid2).Project(proj2.ID()).NewUUID().
 		CreatedByUser(uid).Size(1000).Thread(id.NewThreadID()).MustBuild()
 
-	op := &usecase.Operator{
+	acop := &accountusecase.Operator{
 		User:             &uid,
-		OwningWorkspaces: []id.WorkspaceID{ws.ID()},
-		OwningProjects:   []id.ProjectID{proj1.ID()},
+		OwningWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
 	}
-
+	op := &usecase.Operator{
+		AcOperator:     acop,
+		OwningProjects: []id.ProjectID{proj1.ID()},
+	}
 	type args struct {
 		id       id.AssetID
 		operator *usecase.Operator
@@ -1267,8 +1299,10 @@ func TestAsset_Delete(t *testing.T) {
 			name:       "invalid operator",
 			seedsAsset: []*asset.Asset{a1, a2},
 			args: args{
-				id:       id.NewAssetID(),
-				operator: &usecase.Operator{},
+				id: id.NewAssetID(),
+				operator: &usecase.Operator{
+					AcOperator: &accountusecase.Operator{},
+				},
 			},
 			want:    nil,
 			wantErr: interfaces.ErrInvalidOperator,
@@ -1280,8 +1314,10 @@ func TestAsset_Delete(t *testing.T) {
 			args: args{
 				id: aid1,
 				operator: &usecase.Operator{
-					User:               &uid,
-					ReadableWorkspaces: []id.WorkspaceID{ws.ID()},
+					AcOperator: &accountusecase.Operator{
+						User:               &uid,
+						ReadableWorkspaces: []accountdomain.WorkspaceID{ws.ID()},
+					},
 				},
 			},
 			want:    nil,

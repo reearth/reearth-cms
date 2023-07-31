@@ -7,12 +7,13 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestToSchema(t *testing.T) {
-	wId := id.NewWorkspaceID()
+	wId := accountdomain.NewWorkspaceID()
 	pId := id.NewProjectID()
 	sId := schema.NewID()
 	fId := id.NewFieldID()

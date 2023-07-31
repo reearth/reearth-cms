@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,7 +20,7 @@ type Input struct {
 	id                      ID
 	project                 ProjectID
 	createdAt               time.Time
-	createdByUser           UserID
+	createdByUser           accountdomain.UserID
 	createdByIntegration    IntegrationID
 	fileName                string
 	size                    uint64
@@ -32,7 +33,7 @@ type Input struct {
 func TestBuilder_Build(t *testing.T) {
 	var aid ID = NewID()
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	iid := NewIntegrationID()
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
@@ -237,7 +238,7 @@ func TestBuilder_Build(t *testing.T) {
 func TestBuilder_MustBuild(t *testing.T) {
 	var aid ID = NewID()
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
@@ -314,7 +315,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 
 func TestBuilder_NewID(t *testing.T) {
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	var size uint64 = 15
 	a := New().NewID().Project(pid).CreatedByUser(uid).Size(size).Thread(NewThreadID()).NewUUID().MustBuild()
 	assert.False(t, a.id.IsNil())

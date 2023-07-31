@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,9 +13,9 @@ func TestList_CloseAll(t *testing.T) {
 
 	req1 := New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(ItemList{item}).
 		Title("foo").
@@ -22,9 +23,9 @@ func TestList_CloseAll(t *testing.T) {
 
 	req2 := New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(ItemList{item}).
 		Title("hoge").

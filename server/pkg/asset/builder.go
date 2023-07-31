@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 type Builder struct {
@@ -67,7 +68,7 @@ func (b *Builder) CreatedAt(createdAt time.Time) *Builder {
 	return b
 }
 
-func (b *Builder) CreatedByUser(createdBy UserID) *Builder {
+func (b *Builder) CreatedByUser(createdBy accountdomain.UserID) *Builder {
 	b.a.user = &createdBy
 	b.a.integration = nil
 	return b

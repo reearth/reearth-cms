@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +31,7 @@ func TestRequest_SetItems(t *testing.T) {
 
 func TestRequest_SetReviewers(t *testing.T) {
 	req := &Request{}
-	reviewers := id.UserIDList{id.NewUserID()}
+	reviewers := accountdomain.UserIDList{accountdomain.NewUserID()}
 	req.SetReviewers(reviewers)
 	assert.Equal(t, reviewers, req.Reviewers())
 }
@@ -62,9 +63,9 @@ func TestRequest_SetState1(t *testing.T) {
 
 	req1 := New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(ItemList{item}).
 		Title("foo").
@@ -72,9 +73,9 @@ func TestRequest_SetState1(t *testing.T) {
 
 	req2 := New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(id.NewProjectID()).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(ItemList{item}).
 		Title("hoge").

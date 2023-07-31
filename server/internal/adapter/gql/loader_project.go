@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 )
@@ -39,7 +40,7 @@ func (c *ProjectLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmod
 }
 
 func (c *ProjectLoader) FindByWorkspace(ctx context.Context, workspaceId gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error) {
-	wid, err := gqlmodel.ToID[id.Workspace](workspaceId)
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](workspaceId)
 	if err != nil {
 		return nil, err
 	}

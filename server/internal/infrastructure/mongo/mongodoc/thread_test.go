@@ -5,7 +5,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+
 	"github.com/stretchr/testify/assert"
 )
 

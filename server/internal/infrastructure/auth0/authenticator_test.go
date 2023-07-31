@@ -2,6 +2,7 @@ package auth0
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -9,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -52,12 +53,12 @@ func TestAuth0(t *testing.T) {
 	a.current = func() time.Time { return current }
 
 	newEmail := "xxxxx"
-	r, err := a.UpdateUser(gateway.AuthenticatorUpdateUserParam{
+	r, err := a.UpdateUser(context.Background(), accountgateway.AuthenticatorUpdateUserParam{
 		ID:    userID,
 		Email: &newEmail,
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, gateway.AuthenticatorUser{
+	assert.Equal(t, accountgateway.AuthenticatorUser{
 		ID:            userID,
 		Email:         newEmail,
 		EmailVerified: true,

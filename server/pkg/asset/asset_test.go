@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,7 +12,7 @@ import (
 func TestAsset_Type(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	iid := NewIntegrationID()
 	thid := NewThreadID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
@@ -57,7 +58,7 @@ func TestAsset_CreatedAt(t *testing.T) {
 func TestAsset_PreviewType(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
 
@@ -77,7 +78,7 @@ func TestAsset_PreviewType(t *testing.T) {
 func TestAsset_Status(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
 
@@ -97,7 +98,7 @@ func TestAsset_Status(t *testing.T) {
 func TestAsset_UpdatePreviewType(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
 
@@ -119,7 +120,7 @@ func TestAsset_UpdatePreviewType(t *testing.T) {
 func TestAsset_UpdateStatus(t *testing.T) {
 	aid := NewID()
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	var size uint64 = 15
 
@@ -140,7 +141,7 @@ func TestAsset_UpdateStatus(t *testing.T) {
 
 func TestAsset_Clone(t *testing.T) {
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
 
 	got := a.Clone()

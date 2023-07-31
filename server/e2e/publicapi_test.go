@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 )
 
@@ -260,8 +261,8 @@ func TestPublicAPI(t *testing.T) {
 }
 
 func publicAPISeeder(ctx context.Context, r *repo.Container) error {
-	uid := id.NewUserID()
-	p1 := project.New().ID(publicAPIProjectID).Workspace(id.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
+	uid := accountdomain.NewUserID()
+	p1 := project.New().ID(publicAPIProjectID).Workspace(accountdomain.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
 		project.NewPublication(project.PublicationScopePublic, true),
 	).MustBuild()
 

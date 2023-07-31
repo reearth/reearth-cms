@@ -1,9 +1,12 @@
 package operator
 
-import "github.com/reearth/reearth-cms/server/pkg/id"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
+)
 
 type ID = id.EventID
-type UserID = id.UserID
+type UserID = accountdomain.UserID
 type IntegrationID = id.IntegrationID
 
 var ErrInvalidID = id.ErrInvalidID

@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -58,12 +57,6 @@ func NewDocument(obj any) (doc Document, id string, err error) {
 	case *integration.Integration:
 		ty = "integration"
 		res, id = NewIntegration(m)
-	case *user.Workspace:
-		ty = "workspace"
-		res, id = NewWorkspace(m)
-	case *user.User:
-		ty = "user"
-		res, id = NewUser(m)
 	default:
 		err = ErrInvalidObject
 		return
@@ -110,16 +103,6 @@ func ModelFrom(obj Document) (res any, err error) {
 		}
 	case "integration":
 		var d *IntegrationDocument
-		if err = bson.Unmarshal(obj.Object, &d); err == nil {
-			res, err = d.Model()
-		}
-	case "workspace":
-		var d *WorkspaceDocument
-		if err = bson.Unmarshal(obj.Object, &d); err == nil {
-			res, err = d.Model()
-		}
-	case "user":
-		var d *UserDocument
 		if err = bson.Unmarshal(obj.Object, &d); err == nil {
 			res, err = d.Model()
 		}

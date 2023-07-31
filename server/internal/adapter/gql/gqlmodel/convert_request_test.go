@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -16,14 +17,14 @@ func TestToRequest(t *testing.T) {
 	req := request.New().
 		NewID().
 		Project(id.NewProjectID()).
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Items(request.ItemList{itm}).
 		Title("foo").
 		Description("xxx").
 		State(request.StateClosed).
 		Thread(id.NewThreadID()).
-		Reviewers(id.UserIDList{id.NewUserID()}).
-		CreatedBy(id.NewUserID()).
+		Reviewers(accountdomain.UserIDList{accountdomain.NewUserID()}).
+		CreatedBy(accountdomain.NewUserID()).
 		ClosedAt(lo.ToPtr(util.Now())).
 		ApprovedAt(lo.ToPtr(util.Now())).
 		UpdatedAt(util.Now()).

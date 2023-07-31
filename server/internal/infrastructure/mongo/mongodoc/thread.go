@@ -4,6 +4,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 )
@@ -45,7 +46,7 @@ func (d *ThreadDocument) Model() (*thread.Thread, error) {
 		return nil, err
 	}
 
-	wid, err := id.WorkspaceIDFrom(d.Workspace)
+	wid, err := accountdomain.WorkspaceIDFrom(d.Workspace)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,7 @@ func (c *CommentDocument) Model() *thread.Comment {
 
 	var author operator.Operator
 	if c.User != nil {
-		if uid := id.UserIDFromRef(c.User); uid != nil {
+		if uid := accountdomain.UserIDFromRef(c.User); uid != nil {
 			author = operator.OperatorFromUser(*uid)
 		}
 	} else if c.Integration != nil {

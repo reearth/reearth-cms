@@ -1,6 +1,9 @@
 package item
 
-import "github.com/reearth/reearth-cms/server/pkg/id"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
+)
 
 type ID = id.ItemID
 type ProjectID = id.ProjectID
@@ -9,7 +12,7 @@ type FieldID = id.FieldID
 type FieldIDList = id.FieldIDList
 type ModelID = id.ModelID
 type ThreadID = id.ThreadID
-type UserID = id.UserID
+type UserID = accountdomain.UserID
 type IntegrationID = id.IntegrationID
 type AssetID = id.AssetID
 type AssetIDList = id.AssetIDList

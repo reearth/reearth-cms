@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 )
 
@@ -180,7 +181,7 @@ func TestIntegrationRepo_FindByIDs(t *testing.T) {
 
 func TestIntegrationRepo_FindByUser(t *testing.T) {
 	now := time.Now()
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	iId1 := id.NewIntegrationID()
 	iId2 := id.NewIntegrationID()
 	i1 := integration.New().ID(iId1).Developer(uId).UpdatedAt(now).MustBuild()
@@ -204,7 +205,7 @@ func TestIntegrationRepo_FindByUser(t *testing.T) {
 		{
 			name:    "Not found",
 			seeds:   integration.List{i1, i2},
-			arg:     id.NewUserID(),
+			arg:     accountdomain.NewUserID(),
 			want:    nil,
 			wantErr: nil,
 		},

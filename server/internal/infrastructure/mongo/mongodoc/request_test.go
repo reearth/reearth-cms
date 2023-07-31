@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/idx"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -160,7 +160,7 @@ func TestRequestDocument_Model(t *testing.T) {
 			},
 			want: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId).CreatedBy(uId).
 				Title("ab").Description("abc").
-				UpdatedAt(now).State(request.StateDraft).Reviewers([]idx.ID[id.User]{}).
+				UpdatedAt(now).State(request.StateDraft).Reviewers([]idx.ID[accountdomain.User]{}).
 				Items([]*request.Item{itm}).
 				MustBuild(),
 			wantErr: false,
@@ -188,7 +188,7 @@ func TestRequestDocument_Model(t *testing.T) {
 			},
 			want: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId).CreatedBy(uId).
 				Title("ab").Description("abc").
-				UpdatedAt(now).State(request.StateDraft).Reviewers([]idx.ID[id.User]{}).
+				UpdatedAt(now).State(request.StateDraft).Reviewers([]idx.ID[accountdomain.User]{}).
 				Items([]*request.Item{lo.Must(request.NewItemWithVersion(itm.Item(), version.Version(uuId).OrRef()))}).
 				MustBuild(),
 			wantErr: false,

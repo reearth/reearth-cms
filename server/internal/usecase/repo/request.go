@@ -5,14 +5,15 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 )
 
 type RequestFilter struct {
 	State     []request.State
 	Keyword   *string
-	Reviewer  *id.UserID
-	CreatedBy *id.UserID
+	Reviewer  *accountdomain.UserID
+	CreatedBy *accountdomain.UserID
 }
 
 type Request interface {

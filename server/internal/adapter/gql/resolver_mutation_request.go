@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -16,7 +17,7 @@ func (r *mutationResolver) CreateRequest(ctx context.Context, input gqlmodel.Cre
 	if err != nil {
 		return nil, err
 	}
-	reviewers, err := util.TryMap(input.ReviewersID, gqlmodel.ToID[id.User])
+	reviewers, err := util.TryMap(input.ReviewersID, gqlmodel.ToID[accountdomain.User])
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +57,7 @@ func (r *mutationResolver) UpdateRequest(ctx context.Context, input gqlmodel.Upd
 	if err != nil {
 		return nil, err
 	}
-	reviewers, err := gqlmodel.ToIDs[id.User](input.ReviewersID)
+	reviewers, err := gqlmodel.ToIDs[accountdomain.User](input.ReviewersID)
 	if err != nil {
 		return nil, err
 	}

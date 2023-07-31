@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ func TestBuilder_Build(t *testing.T) {
 	i1, _ := NewItem(id.NewItemID())
 	req := &Request{
 		id:        NewID(),
-		workspace: NewWorkspaceID(),
+		workspace: accountdomain.NewWorkspaceID(),
 		project:   NewProjectID(),
 		items: ItemList{{
 			item:    NewItemID(),
@@ -87,7 +88,7 @@ func TestBuilder_Build(t *testing.T) {
 				r: &Request{
 					id:        NewID(),
 					project:   NewProjectID(),
-					workspace: NewWorkspaceID(),
+					workspace: accountdomain.NewWorkspaceID(),
 				},
 			},
 			wantErr: ErrInvalidID,
@@ -98,7 +99,7 @@ func TestBuilder_Build(t *testing.T) {
 				r: &Request{
 					id:        NewID(),
 					project:   NewProjectID(),
-					workspace: NewWorkspaceID(),
+					workspace: accountdomain.NewWorkspaceID(),
 					thread:    NewThreadID(),
 				},
 			},
@@ -110,7 +111,7 @@ func TestBuilder_Build(t *testing.T) {
 				r: &Request{
 					id:        NewID(),
 					project:   NewProjectID(),
-					workspace: NewWorkspaceID(),
+					workspace: accountdomain.NewWorkspaceID(),
 					thread:    NewThreadID(),
 					createdBy: NewUserID(),
 				},
@@ -123,7 +124,7 @@ func TestBuilder_Build(t *testing.T) {
 				r: &Request{
 					id:        NewID(),
 					project:   NewProjectID(),
-					workspace: NewWorkspaceID(),
+					workspace: accountdomain.NewWorkspaceID(),
 					thread:    NewThreadID(),
 					createdBy: NewUserID(),
 					items:     ItemList{i1, i1},
@@ -137,7 +138,7 @@ func TestBuilder_Build(t *testing.T) {
 				r: &Request{
 					id:        NewID(),
 					project:   NewProjectID(),
-					workspace: NewWorkspaceID(),
+					workspace: accountdomain.NewWorkspaceID(),
 					thread:    NewThreadID(),
 					createdBy: NewUserID(),
 					items: ItemList{{
@@ -265,7 +266,7 @@ func TestBuilder_UpdatedAt(t *testing.T) {
 
 func TestBuilder_Workspace(t *testing.T) {
 	b := &Builder{r: &Request{}}
-	wid := NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	b.Workspace(wid)
 	assert.Equal(t, wid, b.r.Workspace())
 }

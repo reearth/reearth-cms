@@ -6,7 +6,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountusecase"
 )
 
 type ContextKey string
@@ -38,6 +39,13 @@ func getUser(ctx context.Context) *user.User {
 
 func getOperator(ctx context.Context) *usecase.Operator {
 	return adapter.Operator(ctx)
+}
+
+func getAcOperator(ctx context.Context) *accountusecase.Operator {
+	if op := getOperator(ctx); op != nil {
+		return op.AcOperator
+	}
+	return nil
 }
 
 func usecases(ctx context.Context) *interfaces.Container {

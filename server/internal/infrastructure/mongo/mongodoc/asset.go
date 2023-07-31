@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -112,7 +113,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 		FlatFiles(d.FlatFiles)
 
 	if d.User != nil {
-		uid, err := id.UserIDFrom(*d.User)
+		uid, err := accountdomain.UserIDFrom(*d.User)
 		if err != nil {
 			return nil, err
 		}

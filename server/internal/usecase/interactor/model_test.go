@@ -13,7 +13,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,9 @@ func TestModel_FindByID(t *testing.T) {
 	m2 := model.New().ID(id2).Key(key.Random()).Schema(sid).Project(id.NewProjectID()).MustBuild()
 
 	op := &usecase.Operator{
-		User: lo.ToPtr(user.NewID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(user.NewID()),
+		},
 	}
 
 	tests := []struct {
@@ -219,8 +222,8 @@ func TestModel_Create(t *testing.T) {
 	mockTime := time.Now()
 	// mId := id.NewModelID()
 	// sId := id.NewSchemaID()
-	// wid1 := id.NewWorkspaceID()
-	// wid2 := id.NewWorkspaceID()
+	// wid1 := accountdomain.NewWorkspaceID()
+	// wid2 := accountdomain.NewWorkspaceID()
 	//
 	// pid1 := id.NewProjectID()
 	// p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mockTime).MustBuild()

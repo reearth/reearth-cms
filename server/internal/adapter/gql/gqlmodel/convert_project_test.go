@@ -6,14 +6,15 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertProject_ToProject(t *testing.T) {
 	mocktime := time.Now()
-	wid := id.NewWorkspaceID()
-	r := []user.Role{user.RoleOwner}
+	wid := accountdomain.NewWorkspaceID()
+	r := []workspace.Role{workspace.RoleOwner}
 	pid := id.NewProjectID()
 	p := project.New().ID(pid).Workspace(wid).RequestRoles(r).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
 	want := &Project{

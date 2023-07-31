@@ -1,12 +1,14 @@
 package operator
 
+import "github.com/reearth/reearthx/account/accountdomain"
+
 type Operator struct {
-	user        *UserID
+	user        *accountdomain.UserID
 	integration *IntegrationID
 	isMachine   bool
 }
 
-func OperatorFromUser(user UserID) Operator {
+func OperatorFromUser(user accountdomain.UserID) Operator {
 	return Operator{
 		user: &user,
 	}
@@ -24,7 +26,7 @@ func OperatorFromMachine() Operator {
 	}
 }
 
-func (o Operator) User() *UserID {
+func (o Operator) User() *accountdomain.UserID {
 	return o.user.CloneRef()
 }
 

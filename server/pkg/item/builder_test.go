@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -56,7 +57,7 @@ func TestBuilder_Model(t *testing.T) {
 }
 
 func TestBuilder_User(t *testing.T) {
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	b := New().User(uId)
 	assert.Equal(t, &uId, b.i.user)
 }

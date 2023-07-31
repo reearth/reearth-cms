@@ -3,7 +3,7 @@ package thread
 import (
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,7 +28,7 @@ func TestList_SortByID(t *testing.T) {
 }
 
 func TestList_Clone(t *testing.T) {
-	th := New().NewID().Workspace(id.NewWorkspaceID()).MustBuild()
+	th := New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild()
 
 	list := List{th}
 	got := list.Clone()

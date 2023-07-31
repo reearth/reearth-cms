@@ -8,12 +8,13 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestThreadRepo_Save(t *testing.T) {
-	wid1 := id.NewWorkspaceID()
+	wid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewThreadID()
 	th1 := thread.New().ID(id1).Workspace(wid1).MustBuild()
 
@@ -38,11 +39,11 @@ func TestThreadRepo_Save(t *testing.T) {
 			name: "Filtered operation error",
 			seeds: thread.List{
 				th1,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     th1,
-			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{}, Writable: []id.WorkspaceID{}},
+			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{}, Writable: []accountdomain.WorkspaceID{}},
 			want:    nil,
 			wantErr: repo.ErrOperationDenied,
 		},
@@ -50,11 +51,11 @@ func TestThreadRepo_Save(t *testing.T) {
 			name: "Filtered succeed",
 			seeds: thread.List{
 				th1,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     th1,
-			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{wid1}, Writable: []id.WorkspaceID{wid1}},
+			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{wid1}, Writable: []accountdomain.WorkspaceID{wid1}},
 			want:    th1,
 			wantErr: nil,
 		},
@@ -89,21 +90,21 @@ func TestThreadRepo_Save(t *testing.T) {
 
 func TestThread_Filtered(t *testing.T) {
 	r := &Thread{}
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 
 	assert.Equal(t, &Thread{
 		f: repo.WorkspaceFilter{
-			Readable: id.WorkspaceIDList{wid},
+			Readable: accountdomain.WorkspaceIDList{wid},
 			Writable: nil,
 		},
 	}, r.Filtered(repo.WorkspaceFilter{
-		Readable: id.WorkspaceIDList{wid},
+		Readable: accountdomain.WorkspaceIDList{wid},
 		Writable: nil,
 	}))
 }
 
 func TestThreadRepo_FindByID(t *testing.T) {
-	tid1 := id.NewWorkspaceID()
+	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewThreadID()
 	th1 := thread.New().ID(id1).Workspace(tid1).MustBuild()
 	tests := []struct {
@@ -126,7 +127,7 @@ func TestThreadRepo_FindByID(t *testing.T) {
 		{
 			name: "Not found",
 			seeds: thread.List{
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id.NewThreadID(),
 			filter:  nil,
@@ -147,8 +148,8 @@ func TestThreadRepo_FindByID(t *testing.T) {
 			name: "Found 2",
 			seeds: thread.List{
 				th1,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id1,
 			filter:  nil,
@@ -159,11 +160,11 @@ func TestThreadRepo_FindByID(t *testing.T) {
 			name: "Filtered Found 0",
 			seeds: thread.List{
 				th1,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id1,
-			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{id.NewWorkspaceID()}, Writable: []id.WorkspaceID{}},
+			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
 			want:    nil,
 			wantErr: nil,
 		},
@@ -171,11 +172,11 @@ func TestThreadRepo_FindByID(t *testing.T) {
 			name: "Filtered Found 2",
 			seeds: thread.List{
 				th1,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id1,
-			filter:  &repo.WorkspaceFilter{Readable: []id.WorkspaceID{tid1}, Writable: []id.WorkspaceID{}},
+			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
 			want:    th1,
 			wantErr: nil,
 		},
@@ -217,7 +218,7 @@ func TestThreadRepo_FindByID(t *testing.T) {
 }
 
 func TestThreadRepo_FindByIDs(t *testing.T) {
-	wid1 := id.NewWorkspaceID()
+	wid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewThreadID()
 	id2 := id.NewThreadID()
 	th1 := thread.New().ID(id1).Workspace(wid1).MustBuild()
@@ -241,7 +242,7 @@ func TestThreadRepo_FindByIDs(t *testing.T) {
 		{
 			name: "0 count with thread for another workspaces",
 			seeds: []*thread.Thread{
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id.ThreadIDList{},
 			want:    nil,
@@ -260,8 +261,8 @@ func TestThreadRepo_FindByIDs(t *testing.T) {
 			name: "1 count with multi threads",
 			seeds: []*thread.Thread{
 				th1,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id.ThreadIDList{id1},
 			want:    []*thread.Thread{th1},
@@ -272,8 +273,8 @@ func TestThreadRepo_FindByIDs(t *testing.T) {
 			seeds: []*thread.Thread{
 				th1,
 				th2,
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
-				thread.New().NewID().Workspace(id.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
+				thread.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
 			arg:     id.ThreadIDList{id1, id2},
 			want:    []*thread.Thread{th1, th2},

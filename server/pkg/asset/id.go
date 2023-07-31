@@ -2,18 +2,19 @@ package asset
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 type ID = id.AssetID
 type IDList = id.AssetIDList
 type ProjectID = id.ProjectID
-type UserID = id.UserID
+type UserID = accountdomain.UserID
 type ThreadID = id.ThreadID
 type IntegrationID = id.IntegrationID
 
 var NewID = id.NewAssetID
 var NewProjectID = id.NewProjectID
-var NewUserID = id.NewUserID
+var NewUserID = accountdomain.NewUserID
 var NewThreadID = id.NewThreadID
 var NewIntegrationID = id.NewIntegrationID
 
@@ -24,12 +25,12 @@ var MustThreadID = id.MustThreadID
 
 var IDFrom = id.AssetIDFrom
 var ProjectIDFrom = id.ProjectIDFrom
-var UserIDFrom = id.UserIDFrom
+var UserIDFrom = accountdomain.UserIDFrom
 var ThreadIDFrom = id.ThreadIDFrom
 
 var IDFromRef = id.AssetIDFromRef
 var ProjectIDFromRef = id.ProjectIDFromRef
-var UserIDFromRef = id.UserIDFromRef
+var UserIDFromRef = accountdomain.UserIDFromRef
 var ThreadIDFromRef = id.ThreadIDFromRef
 
 var ErrInvalidID = id.ErrInvalidID

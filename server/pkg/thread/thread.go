@@ -2,6 +2,7 @@ package thread
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -9,7 +10,7 @@ import (
 
 type Thread struct {
 	id        ID
-	workspace WorkspaceID
+	workspace accountdomain.WorkspaceID
 	comments  []*Comment
 }
 
@@ -17,7 +18,7 @@ func (th *Thread) ID() ID {
 	return th.id
 }
 
-func (th *Thread) Workspace() WorkspaceID {
+func (th *Thread) Workspace() accountdomain.WorkspaceID {
 	return th.workspace
 }
 

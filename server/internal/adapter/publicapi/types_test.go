@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +20,7 @@ func TestNewItem(t *testing.T) {
 	as := asset.New().
 		NewID().
 		Project(id.NewProjectID()).
-		CreatedByUser(id.NewUserID()).
+		CreatedByUser(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Size(1).
 		NewUUID().
@@ -28,7 +29,7 @@ func TestNewItem(t *testing.T) {
 	s := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Fields([]*schema.Field{
 			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("aaaaa")).MustBuild(),
 			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New("bbbbb")).MustBuild(),
@@ -73,7 +74,7 @@ func TestNewItem_Multiple(t *testing.T) {
 	as := asset.New().
 		NewID().
 		Project(id.NewProjectID()).
-		CreatedByUser(id.NewUserID()).
+		CreatedByUser(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Size(1).
 		NewUUID().
@@ -82,7 +83,7 @@ func TestNewItem_Multiple(t *testing.T) {
 	s := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Fields([]*schema.Field{
 			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("aaaaa")).Multiple(true).MustBuild(),
 			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New("bbbbb")).Multiple(true).MustBuild(),

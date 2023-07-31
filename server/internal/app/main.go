@@ -11,6 +11,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -27,7 +29,7 @@ func Start(debug bool, version string) {
 	log.Infof("config: %s", conf.Print())
 
 	// Init repositories
-	repos, gateways := initReposAndGateways(ctx, conf, debug)
+	repos, gateways, acRepos, acGateways := initReposAndGateways(ctx, conf, debug)
 
 	// Start web server
 	NewServer(ctx, &ServerConfig{
@@ -35,6 +37,8 @@ func Start(debug bool, version string) {
 		Debug:    debug,
 		Repos:    repos,
 		Gateways: gateways,
+		AcRepos:    acRepos,
+		AcGateways: acGateways,
 	}).Run(ctx)
 }
 
@@ -44,10 +48,12 @@ type WebServer struct {
 }
 
 type ServerConfig struct {
-	Config   *Config
-	Debug    bool
-	Repos    *repo.Container
-	Gateways *gateway.Container
+	Config     *Config
+	Debug      bool
+	Repos      *repo.Container
+	Gateways   *gateway.Container
+	AcRepos    *accountrepo.Container
+	AcGateways *accountgateway.Container
 }
 
 func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {

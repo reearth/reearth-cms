@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
@@ -28,12 +29,12 @@ func NewIntegration(r *repo.Container, g *gateway.Container) interfaces.Integrat
 }
 
 func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (integration.List, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (integration.List, error) {
-			in, err := i.repos.Integration.FindByUser(ctx, *operator.User)
+			in, err := i.repos.Integration.FindByUser(ctx, *operator.AcOperator.User)
 			if err != nil {
 				return nil, err
 			}
@@ -42,7 +43,7 @@ func (i Integration) FindByMe(ctx context.Context, operator *usecase.Operator) (
 }
 
 func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, operator *usecase.Operator) (integration.List, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
@@ -56,7 +57,7 @@ func (i Integration) FindByIDs(ctx context.Context, ids id.IntegrationIDList, op
 }
 
 func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
@@ -64,7 +65,7 @@ func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrat
 			in, err := integration.New().
 				NewID().
 				Type(param.Type).
-				Developer(*operator.User).
+				Developer(*operator.AcOperator.User).
 				Name(param.Name).
 				Description(lo.FromPtr(param.Description)).
 				GenerateToken().
@@ -83,7 +84,7 @@ func (i Integration) Create(ctx context.Context, param interfaces.CreateIntegrat
 }
 
 func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param interfaces.UpdateIntegrationParam, operator *usecase.Operator) (*integration.Integration, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
@@ -93,7 +94,7 @@ func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param int
 				return nil, err
 			}
 
-			if in.Developer() != *operator.User {
+			if in.Developer() != *operator.AcOperator.User {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -119,26 +120,30 @@ func (i Integration) Update(ctx context.Context, iId id.IntegrationID, param int
 }
 
 func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID, operator *usecase.Operator) error {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return interfaces.ErrInvalidOperator
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
+			iid, err := accountdomain.IntegrationIDFrom(integrationId.String())
+			if err != nil {
+				return err
+			}
 			in, err := i.repos.Integration.FindByID(ctx, integrationId)
 			if err != nil {
 				return err
 			}
-			if in.Developer() != *operator.User {
+			if in.Developer() != *operator.AcOperator.User {
 				return interfaces.ErrOperationDenied
 			}
 
 			// remove the integration from the connected workspaces
-			ws, err := i.repos.Workspace.FindByIntegration(ctx, integrationId)
+			ws, err := i.repos.Workspace.FindByIntegration(ctx, iid)
 			if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 				return err
 			}
 			for _, w := range ws {
-				if err := w.Members().DeleteIntegration(integrationId); err != nil {
+				if err := w.Members().DeleteIntegration(iid); err != nil {
 					return err
 				}
 			}
@@ -151,7 +156,7 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 }
 
 func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, param interfaces.CreateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
@@ -161,7 +166,7 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 				return nil, err
 			}
 
-			if in.Developer() != *operator.User {
+			if in.Developer() != *operator.AcOperator.User {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -190,7 +195,7 @@ func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, pa
 }
 
 func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wId id.WebhookID, param interfaces.UpdateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
@@ -200,7 +205,7 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 				return nil, err
 			}
 
-			if in.Developer() != *operator.User {
+			if in.Developer() != *operator.AcOperator.User {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -243,7 +248,7 @@ func (i Integration) UpdateWebhook(ctx context.Context, iId id.IntegrationID, wI
 }
 
 func (i Integration) DeleteWebhook(ctx context.Context, iId id.IntegrationID, wId id.WebhookID, operator *usecase.Operator) error {
-	if operator.User == nil {
+	if operator.AcOperator.User == nil {
 		return interfaces.ErrInvalidOperator
 	}
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
@@ -253,7 +258,7 @@ func (i Integration) DeleteWebhook(ctx context.Context, iId id.IntegrationID, wI
 				return err
 			}
 
-			if in.Developer() != *operator.User {
+			if in.Developer() != *operator.AcOperator.User {
 				return interfaces.ErrOperationDenied
 			}
 

@@ -6,7 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -14,33 +14,33 @@ const transactionRetry = 2
 
 type uc struct {
 	tx                     bool
-	readableWorkspaces     id.WorkspaceIDList
-	writableWorkspaces     id.WorkspaceIDList
-	maintainableWorkspaces id.WorkspaceIDList
-	ownableWorkspaces      id.WorkspaceIDList
+	readableWorkspaces     accountdomain.WorkspaceIDList
+	writableWorkspaces     accountdomain.WorkspaceIDList
+	maintainableWorkspaces accountdomain.WorkspaceIDList
+	ownableWorkspaces      accountdomain.WorkspaceIDList
 }
 
 func Usecase() *uc {
 	return &uc{}
 }
 
-func (u *uc) WithReadableWorkspaces(ids ...id.WorkspaceID) *uc {
-	u.readableWorkspaces = id.WorkspaceIDList(ids).Clone()
+func (u *uc) WithReadableWorkspaces(ids ...accountdomain.WorkspaceID) *uc {
+	u.readableWorkspaces = accountdomain.WorkspaceIDList(ids).Clone()
 	return u
 }
 
-func (u *uc) WithWritableWorkspaces(ids ...id.WorkspaceID) *uc {
-	u.writableWorkspaces = id.WorkspaceIDList(ids).Clone()
+func (u *uc) WithWritableWorkspaces(ids ...accountdomain.WorkspaceID) *uc {
+	u.writableWorkspaces = accountdomain.WorkspaceIDList(ids).Clone()
 	return u
 }
 
-func (u *uc) WithMaintainableWorkspaces(ids ...id.WorkspaceID) *uc {
-	u.maintainableWorkspaces = id.WorkspaceIDList(ids).Clone()
+func (u *uc) WithMaintainableWorkspaces(ids ...accountdomain.WorkspaceID) *uc {
+	u.maintainableWorkspaces = accountdomain.WorkspaceIDList(ids).Clone()
 	return u
 }
 
-func (u *uc) WithOwnableWorkspaces(ids ...id.WorkspaceID) *uc {
-	u.ownableWorkspaces = id.WorkspaceIDList(ids).Clone()
+func (u *uc) WithOwnableWorkspaces(ids ...accountdomain.WorkspaceID) *uc {
+	u.ownableWorkspaces = accountdomain.WorkspaceIDList(ids).Clone()
 	return u
 }
 

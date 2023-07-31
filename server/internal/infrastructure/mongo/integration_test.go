@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/samber/lo"
@@ -16,10 +17,10 @@ import (
 	"github.com/reearth/reearthx/rerror"
 )
 
-func testSuite() (now time.Time, uri *url.URL, uId id.UserID, iId1, iId2 id.IntegrationID, i1, i2 *integration.Integration) {
+func testSuite() (now time.Time, uri *url.URL, uId accountdomain.UserID, iId1, iId2 id.IntegrationID, i1, i2 *integration.Integration) {
 	now = time.Now().Truncate(time.Millisecond).UTC()
 	uri = lo.Must(url.Parse("https://sub.hugo2.com/dir?p=1#test"))
-	uId = id.NewUserID()
+	uId = accountdomain.NewUserID()
 	iId1 = id.NewIntegrationID()
 	iId2 = id.NewIntegrationID()
 	i1 = integration.New().ID(iId1).Name("i1").Webhook([]*integration.Webhook{}).Developer(uId).Type(integration.TypePrivate).LogoUrl(uri).UpdatedAt(now).MustBuild()
@@ -188,7 +189,7 @@ func TestIntegrationRepo_FindByUser(t *testing.T) {
 		{
 			name:    "Not found",
 			seeds:   integration.List{i1, i2},
-			arg:     id.NewUserID(),
+			arg:     accountdomain.NewUserID(),
 			want:    nil,
 			wantErr: nil,
 		},

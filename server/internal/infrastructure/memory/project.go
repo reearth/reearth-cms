@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -143,7 +144,7 @@ func (r *Project) FindByPublicAPIToken(ctx context.Context, token string) (*proj
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Project) CountByWorkspace(_ context.Context, workspace id.WorkspaceID) (c int, err error) {
+func (r *Project) CountByWorkspace(_ context.Context, workspace accountdomain.WorkspaceID) (c int, err error) {
 	if r.err != nil {
 		return 0, r.err
 	}

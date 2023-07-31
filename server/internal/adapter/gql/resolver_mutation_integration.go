@@ -29,7 +29,7 @@ func (r *mutationResolver) CreateIntegration(ctx context.Context, input gqlmodel
 	}
 
 	return &gqlmodel.IntegrationPayload{
-		Integration: gqlmodel.ToIntegration(res, op.User),
+		Integration: gqlmodel.ToIntegration(res, op.AcOperator.User),
 	}, nil
 }
 
@@ -55,7 +55,7 @@ func (r *mutationResolver) UpdateIntegration(ctx context.Context, input gqlmodel
 	}
 
 	return &gqlmodel.IntegrationPayload{
-		Integration: gqlmodel.ToIntegration(res, op.User),
+		Integration: gqlmodel.ToIntegration(res, op.AcOperator.User),
 	}, nil
 }
 

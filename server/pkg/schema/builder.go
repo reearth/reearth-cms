@@ -1,5 +1,7 @@
 package schema
 
+import "github.com/reearth/reearthx/account/accountdomain"
+
 type Builder struct {
 	s *Schema
 }
@@ -39,7 +41,7 @@ func (b *Builder) NewID() *Builder {
 	return b
 }
 
-func (b *Builder) Workspace(workspace WorkspaceID) *Builder {
+func (b *Builder) Workspace(workspace accountdomain.WorkspaceID) *Builder {
 	b.s.workspace = workspace.Clone()
 	return b
 }

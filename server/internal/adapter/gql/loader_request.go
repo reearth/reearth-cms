@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -51,8 +52,8 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 			return request.StateFrom(s.String())
 		})
 	}
-	f.Reviewer = gqlmodel.ToIDRef[id.User](reviewer)
-	f.CreatedBy = gqlmodel.ToIDRef[id.User](createdBy)
+	f.Reviewer = gqlmodel.ToIDRef[accountdomain.User](reviewer)
+	f.CreatedBy = gqlmodel.ToIDRef[accountdomain.User](createdBy)
 
 	requests, pi, err := c.usecase.FindByProject(ctx, pid, f, sort.Into(), p.Into(), getOperator(ctx))
 	if err != nil {

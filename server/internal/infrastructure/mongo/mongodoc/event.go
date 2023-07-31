@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 )
 
@@ -49,7 +50,7 @@ func (d *EventDocument) Model() (*event.Event[any], error) {
 
 	var o operator.Operator
 	if d.User != nil {
-		if uid := id.UserIDFromRef(d.User); uid != nil {
+		if uid := accountdomain.UserIDFromRef(d.User); uid != nil {
 			o = operator.OperatorFromUser(*uid)
 		}
 	} else if d.Integration != nil {

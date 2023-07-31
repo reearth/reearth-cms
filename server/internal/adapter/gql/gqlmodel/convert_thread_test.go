@@ -6,13 +6,14 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertThread_ToThread(t *testing.T) {
 	id1 := id.NewThreadID()
-	wid1 := id.NewWorkspaceID()
+	wid1 := accountdomain.NewWorkspaceID()
 	comments := []*thread.Comment{}
 	th1 := thread.New().ID(id1).Workspace(wid1).Comments(comments).MustBuild()
 	want1 := Thread{
@@ -31,7 +32,7 @@ func TestConvertThread_ToThread(t *testing.T) {
 
 func TestConvertThread_ToComment(t *testing.T) {
 	cid1 := id.NewCommentID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	c1 := "xxx"
 
 	th := thread.New().NewID().Workspace(thread.NewWorkspaceID()).MustBuild()

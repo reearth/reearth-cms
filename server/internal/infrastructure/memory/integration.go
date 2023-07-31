@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
@@ -66,7 +67,7 @@ func (r *Integration) FindByIDs(_ context.Context, iIds id.IntegrationIDList) (i
 	return integration.List(result).SortByID(), nil
 }
 
-func (r *Integration) FindByUser(_ context.Context, uID id.UserID) (integration.List, error) {
+func (r *Integration) FindByUser(_ context.Context, uID accountdomain.UserID) (integration.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
