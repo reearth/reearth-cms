@@ -186,7 +186,7 @@ Delete Project: プロジェクトを削除
 Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。
 Write something here to describe this record.: このレコードの説明を入力してください。
 Project Settings: プロジェクト設定
-Need request: リクエストが必須
+Need request: リクエストの要否
 If this option is chosen, all new model within the project will default follow it: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
 Close: クローズ
 Reopen: 再開
