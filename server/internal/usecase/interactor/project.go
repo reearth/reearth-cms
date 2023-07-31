@@ -9,7 +9,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -30,8 +31,8 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, operator *useca
 	return i.repos.Project.FindByIDs(ctx, ids)
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, wid id.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return i.repos.Project.FindByWorkspaces(ctx, id.WorkspaceIDList{wid}, p)
+func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, p *usecasex.Pagination, operator *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, p)
 }
 
 func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, operator *usecase.Operator) (*project.Project, error) {
@@ -61,7 +62,7 @@ func (i *Project) Create(ctx context.Context, p interfaces.CreateProjectParam, o
 			if len(p.RequestRoles) > 0 {
 				pb = pb.RequestRoles(p.RequestRoles)
 			} else {
-				pb = pb.RequestRoles([]user.Role{user.RoleOwner, user.RoleMaintainer, user.RoleWriter, user.RoleReader})
+				pb = pb.RequestRoles([]workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer, workspace.RoleWriter, workspace.RoleReader})
 			}
 
 			proj, err := pb.Build()

@@ -5,12 +5,13 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestThread_Getters(t *testing.T) {
 	thid := NewID()
-	wid := NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	c := []*Comment{}
 
 	got := Thread{
@@ -39,7 +40,7 @@ func TestThread_HasComment(t *testing.T) {
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	thread := (&Thread{
 		id:        NewID(),
-		workspace: NewWorkspaceID(),
+		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()}, c,
 		},
@@ -59,7 +60,7 @@ func TestThread_HasComment(t *testing.T) {
 func TestThread_AddComment(t *testing.T) {
 	thread := (&Thread{
 		id:        NewID(),
-		workspace: NewWorkspaceID(),
+		workspace: accountdomain.NewWorkspaceID(),
 	})
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	err := thread.AddComment(c)
@@ -74,7 +75,7 @@ func TestThread_UpdateComment(t *testing.T) {
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	thread := (&Thread{
 		id:        NewID(),
-		workspace: NewWorkspaceID(),
+		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()}, c,
 		},
@@ -93,7 +94,7 @@ func TestThread_DeleteComment(t *testing.T) {
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	thread := (&Thread{
 		id:        NewID(),
-		workspace: NewWorkspaceID(),
+		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()}, c,
 		},
@@ -111,7 +112,7 @@ func TestThread_Comment(t *testing.T) {
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	thread := (&Thread{
 		id:        NewID(),
-		workspace: NewWorkspaceID(),
+		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()}, c,
 		},
@@ -125,7 +126,7 @@ func TestThread_Comment(t *testing.T) {
 func TestThread_Clone(t *testing.T) {
 	thread := (&Thread{
 		id:        NewID(),
-		workspace: NewWorkspaceID(),
+		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()},
 		},

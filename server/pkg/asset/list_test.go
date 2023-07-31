@@ -3,6 +3,7 @@ package asset
 import (
 	"testing"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +30,7 @@ func TestList_SortByID(t *testing.T) {
 
 func TestList_Clone(t *testing.T) {
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 
 	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
 
@@ -41,7 +42,7 @@ func TestList_Clone(t *testing.T) {
 
 func TestList_Map(t *testing.T) {
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 
 	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
 

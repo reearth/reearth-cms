@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/integration"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )

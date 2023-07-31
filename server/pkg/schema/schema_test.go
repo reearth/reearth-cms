@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -279,10 +280,10 @@ func TestSchema_ID(t *testing.T) {
 }
 
 func TestSchema_SetWorkspace(t *testing.T) {
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	tests := []struct {
 		name string
-		wid  id.WorkspaceID
+		wid  accountdomain.WorkspaceID
 		want *Schema
 	}{
 		{
@@ -305,15 +306,15 @@ func TestSchema_SetWorkspace(t *testing.T) {
 }
 
 func TestSchema_Workspace(t *testing.T) {
-	wId := id.NewWorkspaceID()
+	wId := accountdomain.NewWorkspaceID()
 	tests := []struct {
 		name string
 		s    Schema
-		want id.WorkspaceID
+		want accountdomain.WorkspaceID
 	}{
 		{
 			name: "id",
-			want: id.WorkspaceID{},
+			want: accountdomain.WorkspaceID{},
 		},
 		{
 			name: "id",

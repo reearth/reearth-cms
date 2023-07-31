@@ -3,12 +3,12 @@ package operator
 import (
 	"testing"
 
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestOperator(t *testing.T) {
-	uID := user.NewID()
+	uID := accountdomain.NewUserID()
 	iID := NewIntegrationID()
 
 	uOp := OperatorFromUser(uID)
