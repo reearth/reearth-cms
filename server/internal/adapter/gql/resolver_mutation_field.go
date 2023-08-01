@@ -23,7 +23,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		}
 	}
 
-	f, err := createField(ctx, *i)
+	f, err := createField(ctx, input)
 	if err != nil {
 		return nil, err
 	}
