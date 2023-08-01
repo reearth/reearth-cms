@@ -5,6 +5,8 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Radio from "@reearth-cms/components/atoms/Radio";
+import Space from "@reearth-cms/components/atoms/Space";
 import Steps from "@reearth-cms/components/atoms/Step";
 import { useT } from "@reearth-cms/i18n";
 
@@ -22,10 +24,11 @@ export type Props = {
 const FieldCreationModalWithSteps: React.FC<Props> = ({ open, selectedType, onClose }) => {
   const t = useT();
   const [currentStep, setCurrentStep] = useState(0);
+  const [numSteps, setNumSteps] = useState(2);
 
   const nextStep = useCallback(() => {
-    if (currentStep < 2) setCurrentStep(currentStep + 1);
-  }, [currentStep]);
+    if (currentStep < numSteps) setCurrentStep(currentStep + 1);
+  }, [currentStep, numSteps]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
@@ -63,9 +66,15 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({ open, selectedType, onCl
           ) : (
             <div key="placeholder" />
           )}
-          <Button key="next" type="primary" onClick={nextStep}>
-            {t("Next")}
-          </Button>
+          {currentStep !== numSteps ? (
+            <Button key="next" type="primary" onClick={nextStep}>
+              {t("Next")}
+            </Button>
+          ) : (
+            <Button key="next" type="primary" onClick={nextStep}>
+              {t("Confirm")}
+            </Button>
+          )}
         </>
       }>
       <Steps progressDot current={currentStep}>
@@ -75,7 +84,20 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({ open, selectedType, onCl
       </Steps>
       {currentStep === 0 && (
         <Form>
-          <h1>First step</h1>
+          <StyledFormItem label={t("Reference direction")}>
+            <Radio.Group onChange={e => setNumSteps(e.target.value)} value={numSteps}>
+              <Space direction="vertical" size={0}>
+                <Radio value={1}>{t("One-way reference")}</Radio>
+                <div className="ant-form-item-extra">
+                  {t("A unidirectional relationship where an item refers to another item")}
+                </div>
+                <Radio value={2}>{t("Two-way reference")}</Radio>
+                <div className="ant-form-item-extra">
+                  {t("A bidirectional relationship where two items refer to each other")}
+                </div>
+              </Space>
+            </Radio.Group>
+          </StyledFormItem>
         </Form>
       )}
       {currentStep === 1 && (
@@ -114,6 +136,12 @@ const StyledIcon = styled(Icon)`
   align-items: center;
   span {
     display: inherit;
+  }
+`;
+
+const StyledFormItem = styled(Form.Item)`
+  .ant-row.ant-form-item-row {
+    display: block;
   }
 `;
 
