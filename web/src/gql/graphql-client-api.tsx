@@ -133,14 +133,9 @@ export type CommentPayload = {
   thread: Thread;
 };
 
-export type CorrespondingField = {
-  description?: InputMaybe<Scalars['String']>;
-  key: Scalars['String'];
-  multiple: Scalars['Boolean'];
-  required: Scalars['Boolean'];
-  title: Scalars['String'];
-  typeProperty: SchemaFieldTypePropertyInput;
-  unique: Scalars['Boolean'];
+export type CorrespondingFieldInput = {
+  create?: InputMaybe<CreateFieldInput>;
+  update?: InputMaybe<UpdateFieldInput>;
 };
 
 export type CreateAssetInput = {
@@ -1183,11 +1178,13 @@ export type SchemaFieldMarkdown = {
 
 export type SchemaFieldReference = {
   __typename?: 'SchemaFieldReference';
+  defaultValue?: Maybe<Scalars['Any']>;
   modelId: Scalars['ID'];
 };
 
 export type SchemaFieldReferenceInput = {
-  correspondingField?: InputMaybe<CorrespondingField>;
+  correspondingField?: InputMaybe<CorrespondingFieldInput>;
+  defaultValue?: InputMaybe<Scalars['Any']>;
   modelId: Scalars['ID'];
 };
 

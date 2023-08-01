@@ -145,6 +145,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         values.type = "Reference";
         values.typeProperty = {
           reference: {
+            defaultValue: "",
             modelId: selectedModel ?? "",
             correspondingField: null,
           },
@@ -161,6 +162,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             values.type = "Reference";
             values.typeProperty = {
               reference: {
+                defaultValue: "",
                 modelId: selectedModel,
                 correspondingField: null,
               },
@@ -176,7 +178,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         field2Form.validateFields().then(async fields2Values => {
           fields2Values.typeProperty = {
             reference: {
-              defaultValue: fields2Values.defaultValue,
+              defaultValue: "",
               modelId: selectedModel,
               correspondingField: null,
             },
@@ -186,8 +188,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           field1FormValues.type = "Reference";
           field1FormValues.typeProperty = {
             reference: {
+              defaultValue: "",
               modelId: selectedModel ?? "",
-              correspondingField: fields2Values,
+              correspondingField: {
+                create: { ...fields2Values, modelId: selectedModel, type: "Reference" },
+              },
             },
           };
 
