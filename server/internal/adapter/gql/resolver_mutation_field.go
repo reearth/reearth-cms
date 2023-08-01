@@ -15,18 +15,21 @@ import (
 )
 
 func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error) {
-	i := input.TypeProperty.Reference.CorrespondingField.Create
-	if i != nil {
-		_, err := createField(ctx, lo.FromPtr(i))
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	f, err := createField(ctx, input)
 	if err != nil {
 		return nil, err
 	}
+
+	if input.Type == gqlmodel.SchemaFieldTypeReference {
+		cf := input.TypeProperty.Reference.CorrespondingField
+		if cf != nil {
+			_, err := createField(ctx, lo.FromPtr(cf.Create))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 
 	return f, nil
 }
@@ -69,52 +72,54 @@ func createField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmode
 }
 
 func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error) {
-	i := input.TypeProperty.Reference.CorrespondingField.Update
-	if i != nil {
-		_, err := updateField(ctx, lo.FromPtr(i))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	f, err := updateField(ctx, input)
+	f, t, err := updateField(ctx, input)
 	if err != nil {
 		return nil, err
+	}
+
+	if t == value.TypeReference {
+		cf := input.TypeProperty.Reference.CorrespondingField
+		if cf != nil {
+			_, _, err := updateField(ctx, lo.FromPtr(cf.Update))
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	return f, nil
 }
 
-func updateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error) {
+func updateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, value.Type, error) {
 	fId, err := gqlmodel.ToID[id.Field](input.FieldID)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	mId, err := gqlmodel.ToID[id.Model](input.ModelID)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	ms, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
 	if err != nil || len(ms) != 1 || ms[0].ID() != mId {
 		if err == nil {
-			return nil, rerror.NewE(i18n.T("not found"))
+			return nil, "", rerror.NewE(i18n.T("not found"))
 		}
-		return nil, err
+		return nil, "", err
 	}
 	m := ms[0]
 
 	s, err := usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	dbField := s.Field(fId)
 
 	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, gqlmodel.ToValueType(dbField.Type()), dbField.Multiple())
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	f, err := usecases(ctx).Schema.UpdateField(ctx, interfaces.UpdateFieldParam{
@@ -131,12 +136,12 @@ func updateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmode
 		TypeProperty: tp,
 	}, getOperator(ctx))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	return &gqlmodel.FieldPayload{
 		Field: gqlmodel.ToSchemaField(f),
-	}, nil
+	}, dbField.Type(), nil
 }
 
 func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.DeleteFieldInput) (*gqlmodel.DeleteFieldPayload, error) {
