@@ -65,25 +65,6 @@ func (r *Model) FindByProject(_ context.Context, pid id.ProjectID, _ *usecasex.P
 	), nil
 }
 
-func (r *Model) FindBySchema(ctx context.Context, pid id.ProjectID, schemaId id.SchemaID) (*model.Model, error) {
-	if r.err != nil {
-		return nil, r.err
-	}
-
-	if !r.f.CanRead(pid) {
-		return nil, nil
-	}
-
-	m := r.data.Find(func(_ id.ModelID, m *model.Model) bool {
-		return m.Schema().String() == schemaId.String() && m.Project() == pid
-	})
-	if m == nil {
-		return nil, rerror.ErrNotFound
-	}
-
-	return m, nil
-}
-
 func (r *Model) CountByProject(_ context.Context, pid id.ProjectID) (int, error) {
 	if r.err != nil {
 		return 0, r.err

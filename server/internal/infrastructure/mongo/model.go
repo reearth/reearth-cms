@@ -104,15 +104,6 @@ func (r *Model) FindByIDOrKey(ctx context.Context, projectID id.ProjectID, q mod
 	return r.findOne(ctx, filter)
 }
 
-func (r *Model) FindBySchema(ctx context.Context, pid id.ProjectID, schemaId id.SchemaID) (*model.Model, error) {
-	filter := bson.M{
-		"project": pid.String(),
-	}
-	filter["schema"] = schemaId.String()
-
-	return r.findOne(ctx, filter)
-}
-
 func (r *Model) CountByProject(ctx context.Context, projectID id.ProjectID) (int, error) {
 	count, err := r.client.Count(ctx, bson.M{
 		"project": projectID.String(),

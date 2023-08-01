@@ -62,8 +62,7 @@ type FieldIntegerPropertyDocument struct {
 }
 
 type FieldReferencePropertyDocument struct {
-	Model              string
-	CorrespondingField string
+	Model string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -191,11 +190,10 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			tp = tpi.TypeProperty()
 		case value.TypeReference:
 			mid, err := id.ModelIDFrom(tpd.Reference.Model)
-			fid, err := id.FieldIDFrom(tpd.Reference.CorrespondingField)
 			if err != nil {
 				return nil, err
 			}
-			tp = schema.NewReference(mid, &fid, nil).TypeProperty()
+			tp = schema.NewReference(mid).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
 		}

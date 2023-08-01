@@ -8,43 +8,13 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-type CorrespondingField struct {
-	ID           id.FieldID
-	Name         string
-	Description  *string
-	Key          string
-	Multiple     bool
-	Unique       bool
-	Required     bool
-	TypeProperty *TypeProperty
-}
-
 type FieldReference struct {
-	modelID              id.ModelID
-	correspondingFieldId *id.FieldID
-	correspondingField   *CorrespondingField
+	modelID id.ModelID
 }
 
-func NewReference(id id.ModelID, fId *id.FieldID, cf *CorrespondingField) *FieldReference {
+func NewReference(id id.ModelID) *FieldReference {
 	return &FieldReference{
-		modelID:              id,
-		correspondingFieldId: fId,
-		correspondingField:   cf,
-	}
-}
-
-func NewTypeProperty(r *FieldReference) *TypeProperty {
-	return &TypeProperty{
-		t:         value.TypeReference,
-		reference: r,
-	}
-}
-
-func NewFieldReference(mid id.ModelID, cfid *id.FieldID, cf *CorrespondingField) *FieldReference {
-	return &FieldReference{
-		modelID:              mid,
-		correspondingFieldId: cfid,
-		correspondingField:   cf,
+		modelID: id,
 	}
 }
 
@@ -59,14 +29,6 @@ func (f *FieldReference) Model() model.ID {
 	return f.modelID
 }
 
-func (f *FieldReference) CorrespondingField() *CorrespondingField {
-	return f.correspondingField
-}
-
-func (f *FieldReference) CorrespondingFieldId() *id.FieldID {
-	return f.correspondingFieldId
-}
-
 func (f *FieldReference) Type() value.Type {
 	return value.TypeReference
 }
@@ -76,8 +38,7 @@ func (f *FieldReference) Clone() *FieldReference {
 		return nil
 	}
 	return &FieldReference{
-		modelID:            f.modelID,
-		correspondingField: f.correspondingField,
+		modelID: f.modelID,
 	}
 }
 
