@@ -1,5 +1,6 @@
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
+import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
 import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
@@ -74,7 +75,14 @@ const ProjectSchema: React.FC = () => {
         onFieldReorder={handleFieldOrder}
         onFieldDelete={handleFieldDelete}
       />
-      {selectedType && (
+      {selectedType && selectedType === "Reference" && (
+        <FieldCreationModalWithSteps
+          selectedType={selectedType}
+          open={fieldCreationModalShown}
+          onClose={handleFieldCreationModalClose}
+        />
+      )}
+      {selectedType && selectedType !== "Reference" && (
         <FieldCreationModal
           selectedType={selectedType}
           open={fieldCreationModalShown}
@@ -104,7 +112,7 @@ const ProjectSchema: React.FC = () => {
           setUploadModalVisibility={setUploadModalVisibility}
         />
       )}
-      {selectedType && (
+      {selectedType && selectedType !== "Reference" && (
         <FieldUpdateModal
           fieldUpdateLoading={fieldUpdateLoading}
           selectedType={selectedType}
