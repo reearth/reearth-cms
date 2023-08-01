@@ -179,14 +179,14 @@ const ContentForm: React.FC<Props> = ({
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
       {
-        key: "unpublish",
-        label: t("Unpublish"),
-        onClick: () => itemId && (onUnpublish([itemId]) as any),
-      },
-      {
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
+      },
+      {
+        key: "unpublish",
+        label: t("Unpublish"),
+        onClick: () => itemId && (onUnpublish([itemId]) as any),
       },
     ];
     if (showPublishAction) {
