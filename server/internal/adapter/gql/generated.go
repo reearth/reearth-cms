@@ -3456,7 +3456,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAddUsersToWorkspaceInput,
 		ec.unmarshalInputApproveRequestInput,
 		ec.unmarshalInputAssetSort,
-		ec.unmarshalInputCorrespondingField,
 		ec.unmarshalInputCreateAssetInput,
 		ec.unmarshalInputCreateAssetUploadInput,
 		ec.unmarshalInputCreateFieldInput,
@@ -4467,20 +4466,10 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
-input CorrespondingField {
-  title: String!
-  description: String
-  key: String!
-  multiple: Boolean!
-  unique: Boolean!
-  required: Boolean!
-  typeProperty: SchemaFieldTypePropertyInput!
-}
-
 input SchemaFieldReferenceInput {
   defaultValue: Any
   modelId: ID!
-  correspondingField: CorrespondingField
+  correspondingField: CreateFieldInput
 }
 
 input SchemaFieldURLInput {
@@ -24954,106 +24943,6 @@ func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCorrespondingField(ctx context.Context, obj interface{}) (gqlmodel.CorrespondingField, error) {
-	var it gqlmodel.CorrespondingField
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"title", "description", "key", "multiple", "unique", "required", "typeProperty"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Title = data
-		case "description":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Description = data
-		case "key":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Key = data
-		case "multiple":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("multiple"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Multiple = data
-		case "unique":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unique"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Unique = data
-		case "required":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Required = data
-		case "typeProperty":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("typeProperty"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
-				return ec.unmarshalNSchemaFieldTypePropertyInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTypePropertyInput(ctx, v)
-			}
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				if ec.directives.OnlyOne == nil {
-					return nil, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
-			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldTypePropertyInput); ok {
-				it.TypeProperty = data
-			} else if tmp == nil {
-				it.TypeProperty = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTypePropertyInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj interface{}) (gqlmodel.CreateAssetInput, error) {
 	var it gqlmodel.CreateAssetInput
 	asMap := map[string]interface{}{}
@@ -26666,7 +26555,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("correspondingField"))
-			data, err := ec.unmarshalOCorrespondingField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingField(ctx, v)
+			data, err := ec.unmarshalOCreateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -36788,14 +36677,6 @@ func (ec *executionContext) marshalOCommentPayload2ᚖgithubᚗcomᚋreearthᚋr
 	return ec._CommentPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCorrespondingField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingField(ctx context.Context, v interface{}) (*gqlmodel.CorrespondingField, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputCorrespondingField(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalOCreateAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateAssetPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -36808,6 +36689,14 @@ func (ec *executionContext) marshalOCreateAssetUploadPayload2ᚖgithubᚗcomᚋr
 		return graphql.Null
 	}
 	return ec._CreateAssetUploadPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCreateFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx context.Context, v interface{}) (*gqlmodel.CreateFieldInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCreateFieldInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOCreateWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateWorkspacePayload) graphql.Marshaler {

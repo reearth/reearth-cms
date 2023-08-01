@@ -154,20 +154,10 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
-input CorrespondingField {
-  title: String!
-  description: String
-  key: String!
-  multiple: Boolean!
-  unique: Boolean!
-  required: Boolean!
-  typeProperty: SchemaFieldTypePropertyInput!
-}
-
 input SchemaFieldReferenceInput {
   defaultValue: Any
   modelId: ID!
-  correspondingField: CorrespondingField
+  correspondingField: CreateFieldInput
 }
 
 input SchemaFieldURLInput {

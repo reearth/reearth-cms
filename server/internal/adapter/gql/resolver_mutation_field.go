@@ -46,6 +46,40 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
+	i := input.TypeProperty.Reference.CorrespondingField
+	if value.Type(input.Type) == value.TypeReference && i != nil {
+		mId, err := gqlmodel.ToID[id.Model](i.ModelID)
+		if err != nil {
+			return nil, err
+		}
+
+		m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
+		if err != nil || len(m) != 1 {
+			return nil, err
+		}
+
+		tp, dv, err := gqlmodel.FromSchemaTypeProperty(i.TypeProperty, i.Type, i.Multiple)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
+			SchemaId:     m[0].Schema(),
+			Type:         value.Type(input.Type),
+			Name:         input.Title,
+			Description:  input.Description,
+			Key:          input.Key,
+			Multiple:     input.Multiple,
+			Unique:       input.Unique,
+			Required:     input.Required,
+			DefaultValue: dv,
+			TypeProperty: tp,
+		}, getOperator(ctx))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &gqlmodel.FieldPayload{
 		Field: gqlmodel.ToSchemaField(f),
 	}, nil

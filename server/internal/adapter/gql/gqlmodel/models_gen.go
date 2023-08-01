@@ -123,16 +123,6 @@ type CommentPayload struct {
 	Comment *Comment `json:"comment"`
 }
 
-type CorrespondingField struct {
-	Title        string                        `json:"title"`
-	Description  *string                       `json:"description,omitempty"`
-	Key          string                        `json:"key"`
-	Multiple     bool                          `json:"multiple"`
-	Unique       bool                          `json:"unique"`
-	Required     bool                          `json:"required"`
-	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
-}
-
 type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file,omitempty"`
@@ -705,9 +695,9 @@ type SchemaFieldReference struct {
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	DefaultValue       interface{}         `json:"defaultValue,omitempty"`
-	ModelID            ID                  `json:"modelId"`
-	CorrespondingField *CorrespondingField `json:"correspondingField,omitempty"`
+	DefaultValue       interface{}       `json:"defaultValue,omitempty"`
+	ModelID            ID                `json:"modelId"`
+	CorrespondingField *CreateFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
