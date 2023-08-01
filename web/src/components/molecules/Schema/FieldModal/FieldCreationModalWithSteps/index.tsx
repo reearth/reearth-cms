@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -41,16 +41,19 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   onClose,
   onSubmit,
 }) => {
-  const initialValues: FormValues = {
-    title: "",
-    description: "",
-    key: "",
-    multiple: false,
-    unique: false,
-    required: false,
-    type: "Text",
-    typeProperty: { text: { defaultValue: "", maxLength: 0 } },
-  };
+  const initialValues: FormValues = useMemo(
+    () => ({
+      title: "",
+      description: "",
+      key: "",
+      multiple: false,
+      unique: false,
+      required: false,
+      type: "Text",
+      typeProperty: { text: { defaultValue: "", maxLength: 0 } },
+    }),
+    [],
+  );
 
   const t = useT();
   const [selectedModel, setSelectedModel] = useState<string | undefined>();
@@ -79,6 +82,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     },
     [setSelectedModel, field1Form, models],
   );
+
+  const clearFormFields = useCallback(() => {
+    modelForm.resetFields();
+    field1Form.resetFields();
+    field2Form.resetFields();
+    setField1FormValues(initialValues);
+  }, [modelForm, field1Form, field2Form, initialValues]);
 
   const nextStep = useCallback(() => {
     if (currentStep === 1) {
@@ -171,7 +181,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      onCancel={() => onClose?.(true)}
+      onCancel={() => {
+        onClose?.(true);
+        clearFormFields();
+      }}
       width={700}
       open={open}
       afterClose={handleModalReset}

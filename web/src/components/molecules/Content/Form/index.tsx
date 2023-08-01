@@ -381,6 +381,15 @@ const ContentForm: React.FC<Props> = ({
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
                 {field.multiple ? <MultiValueSwitch /> : <Switch />}
               </Form.Item>
+            ) : field.type === "Reference" ? (
+              <Form.Item
+                key={field.id}
+                extra={field.description}
+                name={field.id}
+                valuePropName="checked"
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? <MultiValueSwitch /> : <Switch />}
+              </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item
                 key={field.id}
