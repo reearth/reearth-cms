@@ -15,6 +15,23 @@ import (
 )
 
 func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error) {
+	i := input.TypeProperty.Reference.CorrespondingField.Create
+	if i != nil {
+		_, err := createField(ctx, lo.FromPtr(i))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	f, err := createField(ctx, *i)
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
+}
+
+func createField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error) {
 	mId, err := gqlmodel.ToID[id.Model](input.ModelID)
 	if err != nil {
 		return nil, err
@@ -46,46 +63,29 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	i := input.TypeProperty.Reference.CorrespondingField
-	if value.Type(input.Type) == value.TypeReference && i != nil {
-		mId, err := gqlmodel.ToID[id.Model](i.ModelID)
-		if err != nil {
-			return nil, err
-		}
-
-		m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
-		if err != nil || len(m) != 1 {
-			return nil, err
-		}
-
-		tp, dv, err := gqlmodel.FromSchemaTypeProperty(i.TypeProperty, i.Type, i.Multiple)
-		if err != nil {
-			return nil, err
-		}
-
-		_, err = usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
-			SchemaId:     m[0].Schema(),
-			Type:         value.Type(input.Type),
-			Name:         input.Title,
-			Description:  input.Description,
-			Key:          input.Key,
-			Multiple:     input.Multiple,
-			Unique:       input.Unique,
-			Required:     input.Required,
-			DefaultValue: dv,
-			TypeProperty: tp,
-		}, getOperator(ctx))
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	return &gqlmodel.FieldPayload{
 		Field: gqlmodel.ToSchemaField(f),
 	}, nil
 }
 
 func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error) {
+	i := input.TypeProperty.Reference.CorrespondingField.Update
+	if i != nil {
+		_, err := updateField(ctx, lo.FromPtr(i))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	f, err := updateField(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
+}
+
+func updateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error) {
 	fId, err := gqlmodel.ToID[id.Field](input.FieldID)
 	if err != nil {
 		return nil, err

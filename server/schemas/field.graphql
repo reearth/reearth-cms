@@ -154,10 +154,16 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input CorrespondingFieldInput @onlyOne  {
+  create: CreateFieldInput
+  update: UpdateFieldInput
+} 
+
+
 input SchemaFieldReferenceInput {
   defaultValue: Any
   modelId: ID!
-  correspondingField: CreateFieldInput
+  correspondingField: CorrespondingFieldInput
 }
 
 input SchemaFieldURLInput {
