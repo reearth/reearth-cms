@@ -79,6 +79,7 @@ const ProjectSchema: React.FC = () => {
         <FieldCreationModalWithSteps
           selectedType={selectedType}
           open={fieldCreationModalShown}
+          handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldCreationModalClose}
         />
       )}

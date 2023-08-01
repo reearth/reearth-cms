@@ -2,29 +2,64 @@ import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import Space from "@reearth-cms/components/atoms/Space";
 import Steps from "@reearth-cms/components/atoms/Step";
+import Tabs from "@reearth-cms/components/atoms/Tabs";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
+import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
+import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { useT } from "@reearth-cms/i18n";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 import { fieldTypes } from "../../fieldTypes";
-import { FieldType } from "../../types";
+import { FieldModalTabs, FieldType } from "../../types";
+import { FormValues } from "../FieldCreationModal";
 
 const { Step } = Steps;
 
 export type Props = {
   open?: boolean;
   selectedType: FieldType;
+  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
 };
 
-const FieldCreationModalWithSteps: React.FC<Props> = ({ open, selectedType, onClose }) => {
+const FieldCreationModalWithSteps: React.FC<Props> = ({
+  open,
+  selectedType,
+  handleFieldKeyUnique,
+  onClose,
+}) => {
   const t = useT();
+  const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [numSteps, setNumSteps] = useState(2);
+  const { TabPane } = Tabs;
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setActiveTab(key as FieldModalTabs);
+    },
+    [setActiveTab],
+  );
+
+  const initialValues: FormValues = {
+    title: "",
+    description: "",
+    key: "",
+    multiple: false,
+    unique: false,
+    required: false,
+    type: "Text",
+    typeProperty: { text: { defaultValue: "", maxLength: 0 } },
+  };
 
   const nextStep = useCallback(() => {
     if (currentStep < numSteps) setCurrentStep(currentStep + 1);
@@ -101,13 +136,169 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({ open, selectedType, onCl
         </Form>
       )}
       {currentStep === 1 && (
-        <Form>
-          <h1>Second step</h1>
+        <Form form={form} layout="vertical" initialValues={initialValues}>
+          <Tabs activeKey={activeTab} onChange={handleTabChange}>
+            <TabPane tab={t("Settings")} key="settings" forceRender>
+              <Form.Item
+                name="title"
+                label={t("Display name")}
+                rules={[{ required: true, message: t("Please input the display name of field!") }]}>
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="key"
+                label="Field Key"
+                extra={t(
+                  "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+                )}
+                rules={[
+                  {
+                    message: t("Key is not valid"),
+                    required: true,
+                    validator: async (_, value) => {
+                      if (!validateKey(value)) return Promise.reject();
+                      const isKeyAvailable = handleFieldKeyUnique(value);
+                      if (isKeyAvailable) {
+                        return Promise.resolve();
+                      } else {
+                        return Promise.reject();
+                      }
+                    },
+                  },
+                ]}>
+                <Input />
+              </Form.Item>
+              <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+                <TextArea rows={3} showCount maxLength={1000} />
+              </Form.Item>
+              {selectedType === "Select" && (
+                <Form.Item
+                  name="values"
+                  label={t("Set Options")}
+                  rules={[
+                    {
+                      validator: async (_, values) => {
+                        if (!values || values.length < 1) {
+                          return Promise.reject(new Error("At least 1 option"));
+                        }
+                        if (values.some((value: string) => value.length === 0)) {
+                          return Promise.reject(new Error("Empty values are not allowed"));
+                        }
+                      },
+                    },
+                  ]}>
+                  <MultiValueField FieldInput={Input} />
+                </Form.Item>
+              )}
+              <Form.Item
+                name="multiple"
+                valuePropName="checked"
+                extra={t("Stores a list of values instead of a single value")}>
+                <Checkbox>{t("Support multiple values")}</Checkbox>
+              </Form.Item>
+            </TabPane>
+            <TabPane tab="Validation" key="validation" forceRender>
+              <FieldValidationProps selectedType={selectedType} />
+              <Form.Item
+                name="required"
+                valuePropName="checked"
+                extra={t("Prevents saving an entry if this field is empty")}>
+                <Checkbox>{t("Make field required")}</Checkbox>
+              </Form.Item>
+              <Form.Item
+                name="unique"
+                valuePropName="checked"
+                extra={t(
+                  "Ensures that a multiple entries can't have the same value for this field",
+                )}>
+                <Checkbox>{t("Set field as unique")}</Checkbox>
+              </Form.Item>
+            </TabPane>
+            <TabPane tab={t("Default value")} key="defaultValue" forceRender />
+          </Tabs>
         </Form>
       )}
       {currentStep === 2 && (
-        <Form>
-          <h1>Third step</h1>
+        <Form form={form} layout="vertical" initialValues={initialValues}>
+          <Tabs activeKey={activeTab} onChange={handleTabChange}>
+            <TabPane tab={t("Settings")} key="settings" forceRender>
+              <Form.Item
+                name="title"
+                label={t("Display name")}
+                rules={[{ required: true, message: t("Please input the display name of field!") }]}>
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="key"
+                label="Field Key"
+                extra={t(
+                  "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+                )}
+                rules={[
+                  {
+                    message: t("Key is not valid"),
+                    required: true,
+                    validator: async (_, value) => {
+                      if (!validateKey(value)) return Promise.reject();
+                      const isKeyAvailable = handleFieldKeyUnique(value);
+                      if (isKeyAvailable) {
+                        return Promise.resolve();
+                      } else {
+                        return Promise.reject();
+                      }
+                    },
+                  },
+                ]}>
+                <Input />
+              </Form.Item>
+              <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+                <TextArea rows={3} showCount maxLength={1000} />
+              </Form.Item>
+              {selectedType === "Select" && (
+                <Form.Item
+                  name="values"
+                  label={t("Set Options")}
+                  rules={[
+                    {
+                      validator: async (_, values) => {
+                        if (!values || values.length < 1) {
+                          return Promise.reject(new Error("At least 1 option"));
+                        }
+                        if (values.some((value: string) => value.length === 0)) {
+                          return Promise.reject(new Error("Empty values are not allowed"));
+                        }
+                      },
+                    },
+                  ]}>
+                  <MultiValueField FieldInput={Input} />
+                </Form.Item>
+              )}
+              <Form.Item
+                name="multiple"
+                valuePropName="checked"
+                extra={t("Stores a list of values instead of a single value")}>
+                <Checkbox>{t("Support multiple values")}</Checkbox>
+              </Form.Item>
+            </TabPane>
+            <TabPane tab="Validation" key="validation" forceRender>
+              <FieldValidationProps selectedType={selectedType} />
+              <Form.Item
+                name="required"
+                valuePropName="checked"
+                extra={t("Prevents saving an entry if this field is empty")}>
+                <Checkbox>{t("Make field required")}</Checkbox>
+              </Form.Item>
+              <Form.Item
+                name="unique"
+                valuePropName="checked"
+                extra={t(
+                  "Ensures that a multiple entries can't have the same value for this field",
+                )}>
+                <Checkbox>{t("Set field as unique")}</Checkbox>
+              </Form.Item>
+            </TabPane>
+            <TabPane tab={t("Default value")} key="defaultValue" forceRender />
+          </Tabs>
         </Form>
       )}
     </StyledModal>
