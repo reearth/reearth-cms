@@ -58,6 +58,10 @@ export type CreationFieldTypePropertyInput = {
   text?: { defaultValue: string; maxLength: number };
   textArea?: { defaultValue: string; maxLength: number };
   url?: { defaultValue: string };
+  reference?: {
+    modelId: string;
+    correspondingField: any;
+  };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";

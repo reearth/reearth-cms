@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Field, FieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -10,9 +10,12 @@ import {
   useDeleteFieldMutation,
   useUpdateFieldMutation,
   useUpdateFieldsMutation,
+  useGetModelsQuery,
+  Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
+import { fromGraphQLModel } from "@reearth-cms/utils/values";
 
 export default () => {
   const t = useT();
@@ -25,6 +28,20 @@ export default () => {
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [collapsed, collapse] = useState(false);
+
+  const { data: modelsData } = useGetModelsQuery({
+    variables: {
+      projectId: projectId ?? "",
+      pagination: { first: 100 },
+    },
+    skip: !projectId,
+  });
+
+  const models = useMemo(() => {
+    return modelsData?.models.nodes
+      ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
+      .filter((model): model is Model => !!model);
+  }, [modelsData?.models.nodes]);
 
   useEffect(() => {
     if (!modelId && currentModel) {
@@ -195,6 +212,7 @@ export default () => {
   );
 
   return {
+    models,
     fieldCreationModalShown,
     fieldUpdateModalShown,
     selectedField,

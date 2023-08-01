@@ -8,17 +8,18 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Radio from "@reearth-cms/components/atoms/Radio";
+import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import { FieldModalTabs, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 import { fieldTypes } from "../../fieldTypes";
-import { FieldModalTabs, FieldType } from "../../types";
 import { FormValues } from "../FieldCreationModal";
 
 const { Step } = Steps;
@@ -26,30 +27,20 @@ const { Step } = Steps;
 export type Props = {
   open?: boolean;
   selectedType: FieldType;
+  models?: Model[];
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
+  onSubmit?: (values: FormValues) => Promise<void> | void;
 };
 
 const FieldCreationModalWithSteps: React.FC<Props> = ({
   open,
+  models,
   selectedType,
   handleFieldKeyUnique,
   onClose,
+  onSubmit,
 }) => {
-  const t = useT();
-  const [form] = Form.useForm();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [numSteps, setNumSteps] = useState(2);
-  const { TabPane } = Tabs;
-  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
-
-  const handleTabChange = useCallback(
-    (key: string) => {
-      setActiveTab(key as FieldModalTabs);
-    },
-    [setActiveTab],
-  );
-
   const initialValues: FormValues = {
     title: "",
     description: "",
@@ -61,9 +52,57 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     typeProperty: { text: { defaultValue: "", maxLength: 0 } },
   };
 
+  const t = useT();
+  const [selectedModel, setSelectedModel] = useState<string | undefined>();
+  const [modelForm] = Form.useForm();
+  const [field1Form] = Form.useForm();
+  const [field2Form] = Form.useForm();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [numSteps, setNumSteps] = useState(1);
+  const { TabPane } = Tabs;
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
+  const [field1FormValues, setField1FormValues] = useState(initialValues);
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setActiveTab(key as FieldModalTabs);
+    },
+    [setActiveTab],
+  );
+
+  const handleSelectModel = useCallback(
+    (modelId: string) => {
+      setSelectedModel(modelId);
+      const selectedModelObj = models?.find(model => model.id === modelId);
+      field1Form.setFieldValue("title", selectedModelObj?.name);
+      field1Form.setFieldValue("key", selectedModelObj?.key);
+    },
+    [setSelectedModel, field1Form, models],
+  );
+
   const nextStep = useCallback(() => {
+    if (currentStep === 1) {
+      field1Form
+        .validateFields()
+        .then(async values => {
+          values.type = "Reference";
+          values.typeProperty = {
+            reference: {
+              defaultValue: values.defaultValue,
+              modelId: selectedModel,
+              correspondingField: null,
+            },
+          };
+
+          setField1FormValues(values);
+        })
+        .catch(info => {
+          console.log("Validate Failed:", info);
+        });
+    }
+
     if (currentStep < numSteps) setCurrentStep(currentStep + 1);
-  }, [currentStep, numSteps]);
+  }, [currentStep, numSteps, field1Form, selectedModel]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
@@ -72,6 +111,50 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const handleModalReset = useCallback(() => {
     setCurrentStep(0);
   }, []);
+
+  const handleSubmit = useCallback(() => {
+    if (currentStep === 1) {
+      field1Form
+        .validateFields()
+        .then(async values => {
+          values.type = "Reference";
+          values.typeProperty = {
+            reference: {
+              modelId: selectedModel,
+              correspondingField: null,
+            },
+          };
+
+          await onSubmit?.(values);
+          onClose?.(true);
+        })
+        .catch(info => {
+          console.log("Validate Failed:", info);
+        });
+    } else {
+      field2Form.validateFields().then(async fields2Values => {
+        fields2Values.typeProperty = {
+          reference: {
+            defaultValue: fields2Values.defaultValue,
+            modelId: selectedModel,
+            correspondingField: null,
+          },
+        };
+        console.log(field1FormValues);
+
+        field1FormValues.type = "Reference";
+        field1FormValues.typeProperty = {
+          reference: {
+            modelId: selectedModel ?? "",
+            correspondingField: fields2Values,
+          },
+        };
+
+        await onSubmit?.(field1FormValues);
+        onClose?.(true);
+      });
+    }
+  }, [onClose, onSubmit, currentStep, field1FormValues, field1Form, field2Form, selectedModel]);
 
   return (
     <StyledModal
@@ -106,7 +189,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               {t("Next")}
             </Button>
           ) : (
-            <Button key="next" type="primary" onClick={nextStep}>
+            <Button key="submit" type="primary" onClick={handleSubmit}>
               {t("Confirm")}
             </Button>
           )}
@@ -118,7 +201,22 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         <StyledStep title={t("Corresponding field")} />
       </Steps>
       {currentStep === 0 && (
-        <Form>
+        <Form form={modelForm}>
+          <StyledFormItem
+            name="model"
+            label={t("Select the model to reference")}
+            rules={[{ required: true, message: t("Please select the model!") }]}>
+            <Select value={selectedModel} onChange={handleSelectModel}>
+              {models?.map(model => (
+                <Select.Option key={model.id} value={model.id}>
+                  {model.name}{" "}
+                  <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
+                    #{model.key}
+                  </span>
+                </Select.Option>
+              ))}
+            </Select>
+          </StyledFormItem>
           <StyledFormItem label={t("Reference direction")}>
             <Radio.Group onChange={e => setNumSteps(e.target.value)} value={numSteps}>
               <Space direction="vertical" size={0}>
@@ -136,7 +234,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         </Form>
       )}
       {currentStep === 1 && (
-        <Form form={form} layout="vertical" initialValues={initialValues}>
+        <Form form={field1Form} layout="vertical" initialValues={initialValues}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
               <Form.Item
@@ -194,7 +292,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 name="multiple"
                 valuePropName="checked"
                 extra={t("Stores a list of values instead of a single value")}>
-                <Checkbox>{t("Support multiple values")}</Checkbox>
+                <Checkbox disabled>{t("Support multiple values")}</Checkbox>
               </Form.Item>
             </TabPane>
             <TabPane tab="Validation" key="validation" forceRender>
@@ -214,12 +312,16 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 <Checkbox>{t("Set field as unique")}</Checkbox>
               </Form.Item>
             </TabPane>
-            <TabPane tab={t("Default value")} key="defaultValue" forceRender />
+            <TabPane tab={t("Default value")} key="defaultValue" forceRender>
+              {/* <Form.Item name="defaultValue" label={t("Set default value")}>
+                <Input />
+              </Form.Item> */}
+            </TabPane>
           </Tabs>
         </Form>
       )}
       {currentStep === 2 && (
-        <Form form={form} layout="vertical" initialValues={initialValues}>
+        <Form form={field2Form} layout="vertical" initialValues={initialValues}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
               <Form.Item
@@ -277,7 +379,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 name="multiple"
                 valuePropName="checked"
                 extra={t("Stores a list of values instead of a single value")}>
-                <Checkbox>{t("Support multiple values")}</Checkbox>
+                <Checkbox disabled>{t("Support multiple values")}</Checkbox>
               </Form.Item>
             </TabPane>
             <TabPane tab="Validation" key="validation" forceRender>
@@ -297,7 +399,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 <Checkbox>{t("Set field as unique")}</Checkbox>
               </Form.Item>
             </TabPane>
-            <TabPane tab={t("Default value")} key="defaultValue" forceRender />
+            <TabPane tab={t("Default value")} key="defaultValue" forceRender>
+              {/* <Form.Item name="defaultValue" label={t("Set default value")}>
+                <Input />
+              </Form.Item> */}
+            </TabPane>
           </Tabs>
         </Form>
       )}

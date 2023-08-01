@@ -40,6 +40,7 @@ const ProjectSchema: React.FC = () => {
   } = useAssetHooks();
 
   const {
+    models,
     fieldCreationModalShown,
     fieldUpdateModalShown,
     selectedField,
@@ -77,10 +78,12 @@ const ProjectSchema: React.FC = () => {
       />
       {selectedType && selectedType === "Reference" && (
         <FieldCreationModalWithSteps
+          models={models}
           selectedType={selectedType}
           open={fieldCreationModalShown}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldCreationModalClose}
+          onSubmit={handleFieldCreate}
         />
       )}
       {selectedType && selectedType !== "Reference" && (
