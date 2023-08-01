@@ -10,6 +10,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    linkedItemsModalList,
     showPublishAction,
     requests,
     itemId,
@@ -69,6 +70,7 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      linkedItemsModalList={linkedItemsModalList}
       showPublishAction={showPublishAction}
       requests={requests}
       requestCreationLoading={requestCreationLoading}

@@ -5,7 +5,7 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
-import { ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { ItemField, linkedItemsModalField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -15,6 +15,7 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export type Props = {
+  linkedItemsModalList?: linkedItemsModalField[];
   showPublishAction?: boolean;
   requests: Request[];
   collapsed?: boolean;
@@ -80,6 +81,7 @@ export type Props = {
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  linkedItemsModalList,
   showPublishAction,
   requests,
   collapsed,
@@ -145,6 +147,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       }
       center={
         <ContentForm
+          linkedItemsModalList={linkedItemsModalList}
           showPublishAction={showPublishAction}
           requests={requests}
           requestCreationLoading={requestCreationLoading}

@@ -29,6 +29,17 @@ export type ContentTableField = {
   updatedAt: Date;
 };
 
+export type linkedItemsModalField = {
+  id: string;
+  author: string;
+  schemaId: string;
+  status: ItemStatus;
+  modelId?: string;
+  fields: { [key: string]: any };
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type Comment = {
   id: string;
   author: { id?: string; name: string; type: "User" | "Integration" | null };

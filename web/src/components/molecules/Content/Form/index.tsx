@@ -21,9 +21,10 @@ import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import MultiValueSwitch from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSwitch";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
+import ReferenceItem from "@reearth-cms/components/molecules/Content/Form/ReferenceItem";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
-import { ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { ItemField, linkedItemsModalField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -35,6 +36,7 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
+  linkedItemsModalList?: linkedItemsModalField[];
   showPublishAction?: boolean;
   requests: Request[];
   itemId?: string;
@@ -96,6 +98,7 @@ export interface Props {
 }
 
 const ContentForm: React.FC<Props> = ({
+  linkedItemsModalList,
   showPublishAction,
   requests,
   itemId,
@@ -386,9 +389,8 @@ const ContentForm: React.FC<Props> = ({
                 key={field.id}
                 extra={field.description}
                 name={field.id}
-                valuePropName="checked"
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-                {field.multiple ? <MultiValueSwitch /> : <Switch />}
+                <ReferenceItem key={field.id} linkedItemsModalList={linkedItemsModalList} />
               </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item

@@ -3,7 +3,11 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Item } from "@reearth-cms/components/molecules/Content/types";
+import {
+  Item,
+  ItemStatus,
+  linkedItemsModalField,
+} from "@reearth-cms/components/molecules/Content/types";
 import {
   RequestUpdatePayload,
   RequestState,
@@ -20,8 +24,11 @@ import {
   useCreateRequestMutation,
   useGetItemQuery,
   useGetMeQuery,
+  useSearchItemQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
+  SortDirection as GQLSortDirection,
+  ItemSortType as GQLItemSortType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -58,6 +65,55 @@ export default () => {
     variables: { id: itemId ?? "" },
     skip: !itemId,
   });
+
+  const { data: itemsData } = useSearchItemQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      query: {
+        project: currentProject?.id as string,
+        schema: currentModel?.schema.id,
+        q: "",
+      },
+      pagination: { first: 10, offset: 0 },
+      sort: { sortBy: "CREATION_DATE" as GQLItemSortType, direction: "ASC" as GQLSortDirection },
+    },
+    skip: !currentModel?.schema.id,
+  });
+
+  const linkedItemsModalList: linkedItemsModalField[] | undefined = useMemo(() => {
+    return itemsData?.searchItem.nodes
+      ?.map(item =>
+        item
+          ? {
+              id: item.id,
+              schemaId: item.schemaId,
+              status: item.status as ItemStatus,
+              author: item.user?.name ?? item.integration?.name,
+              fields: item?.fields?.reduce(
+                (obj, field) =>
+                  Object.assign(obj, {
+                    [field.schemaFieldId]:
+                      field.type === "Asset"
+                        ? Array.isArray(field.value)
+                          ? field.value.map(value => value.id).join(", ")
+                          : item.id
+                        : Array.isArray(field.value)
+                        ? field.value.join(", ")
+                        : field.value
+                        ? "" + field.value
+                        : field.value,
+                  }),
+                {},
+              ),
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
+            }
+          : undefined,
+      )
+      .filter(
+        (contentTableField): contentTableField is linkedItemsModalField => !!contentTableField,
+      );
+  }, [itemsData?.searchItem.nodes]);
 
   const me: User | undefined = useMemo(() => {
     return userData?.me
@@ -259,6 +315,7 @@ export default () => {
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
   return {
+    linkedItemsModalList,
     showPublishAction,
     requests,
     itemId,
