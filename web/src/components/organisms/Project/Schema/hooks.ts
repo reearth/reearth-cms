@@ -92,16 +92,17 @@ export default () => {
 
   const handleFieldUpdate = useCallback(
     async (data: {
-      fieldId: string;
+      fieldId?: string;
       title: string;
-      description: string;
+      description?: string;
       key: string;
       multiple: boolean;
       unique: boolean;
       required: boolean;
+      type?: FieldType;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
-      if (!modelId) return;
+      if (!modelId || !data.fieldId) return;
       const field = await updateField({
         variables: {
           modelId,
@@ -154,12 +155,12 @@ export default () => {
   const handleFieldCreate = useCallback(
     async (data: {
       title: string;
-      description: string;
+      description?: string;
       key: string;
       multiple: boolean;
       unique: boolean;
       required: boolean;
-      type: FieldType;
+      type?: FieldType;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
       if (!modelId) return;
@@ -187,8 +188,6 @@ export default () => {
     [modelId, createNewField, t],
   );
 
-  const handleFieldCreationModalClose = useCallback(() => setFieldCreationModalShown(false), []);
-
   const handleFieldCreationModalOpen = useCallback(
     (fieldType: FieldType) => {
       setSelectedType(fieldType);
@@ -201,6 +200,11 @@ export default () => {
     setSelectedField(null);
     setFieldUpdateModalShown(false);
   }, [setSelectedField]);
+
+  const handleFieldCreationModalClose = useCallback(() => {
+    setFieldCreationModalShown(false);
+    handleFieldUpdateModalClose();
+  }, [handleFieldUpdateModalClose]);
 
   const handleFieldUpdateModalOpen = useCallback(
     (field: Field) => {

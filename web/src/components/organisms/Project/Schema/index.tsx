@@ -80,10 +80,12 @@ const ProjectSchema: React.FC = () => {
         <FieldCreationModalWithSteps
           models={models}
           selectedType={selectedType}
-          open={fieldCreationModalShown}
+          selectedField={selectedField}
+          open={fieldCreationModalShown || fieldUpdateModalShown}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldCreationModalClose}
           onSubmit={handleFieldCreate}
+          onUpdate={handleFieldUpdate}
         />
       )}
       {selectedType && selectedType !== "Reference" && (

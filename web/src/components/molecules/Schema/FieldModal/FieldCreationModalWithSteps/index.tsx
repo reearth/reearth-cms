@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -15,7 +15,12 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
-import { FieldModalTabs, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  Field,
+  FieldModalTabs,
+  FieldType,
+  Model,
+} from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
@@ -25,22 +30,42 @@ import { FormValues } from "../FieldCreationModal";
 const { Step } = Steps;
 
 export type Props = {
+  selectedField?: Field | null;
   open?: boolean;
   selectedType: FieldType;
   models?: Model[];
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
+  onUpdate?: (values: FormValues) => Promise<void> | void;
 };
 
 const FieldCreationModalWithSteps: React.FC<Props> = ({
+  selectedField,
   open,
   models,
   selectedType,
   handleFieldKeyUnique,
   onClose,
   onSubmit,
+  onUpdate,
 }) => {
+  const t = useT();
+  const [selectedModel, setSelectedModel] = useState<string | undefined>();
+  const [modelForm] = Form.useForm();
+  const [field1Form] = Form.useForm();
+  const [field2Form] = Form.useForm();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [numSteps, setNumSteps] = useState(1);
+  const { TabPane } = Tabs;
+  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
+
+  useEffect(() => {
+    modelForm.setFieldsValue({
+      model: selectedField?.typeProperty.modelId,
+    });
+  }, [modelForm, selectedField]);
+
   const initialValues: FormValues = useMemo(
     () => ({
       title: "",
@@ -55,15 +80,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     [],
   );
 
-  const t = useT();
-  const [selectedModel, setSelectedModel] = useState<string | undefined>();
-  const [modelForm] = Form.useForm();
-  const [field1Form] = Form.useForm();
-  const [field2Form] = Form.useForm();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [numSteps, setNumSteps] = useState(1);
-  const { TabPane } = Tabs;
-  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const [field1FormValues, setField1FormValues] = useState(initialValues);
 
   const handleTabChange = useCallback(
@@ -123,48 +139,74 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   }, []);
 
   const handleSubmit = useCallback(() => {
-    if (currentStep === 1) {
-      field1Form
-        .validateFields()
-        .then(async values => {
-          values.type = "Reference";
-          values.typeProperty = {
+    // For updating an existing field
+    if (selectedField) {
+      field1Form.validateFields().then(async values => {
+        values.type = "Reference";
+        values.typeProperty = {
+          reference: {
+            modelId: selectedModel ?? "",
+            correspondingField: null,
+          },
+        };
+        await onUpdate?.({ ...values, fieldId: selectedField.id }); // Pass the field ID for updating
+        onClose?.(true);
+      });
+    } else {
+      // For creating a new field
+      if (currentStep === 1) {
+        field1Form
+          .validateFields()
+          .then(async values => {
+            values.type = "Reference";
+            values.typeProperty = {
+              reference: {
+                modelId: selectedModel,
+                correspondingField: null,
+              },
+            };
+
+            await onSubmit?.(values);
+            onClose?.(true);
+          })
+          .catch(info => {
+            console.log("Validate Failed:", info);
+          });
+      } else {
+        field2Form.validateFields().then(async fields2Values => {
+          fields2Values.typeProperty = {
             reference: {
+              defaultValue: fields2Values.defaultValue,
               modelId: selectedModel,
               correspondingField: null,
             },
           };
+          console.log(field1FormValues);
 
-          await onSubmit?.(values);
+          field1FormValues.type = "Reference";
+          field1FormValues.typeProperty = {
+            reference: {
+              modelId: selectedModel ?? "",
+              correspondingField: fields2Values,
+            },
+          };
+
+          await onSubmit?.(field1FormValues);
           onClose?.(true);
-        })
-        .catch(info => {
-          console.log("Validate Failed:", info);
         });
-    } else {
-      field2Form.validateFields().then(async fields2Values => {
-        fields2Values.typeProperty = {
-          reference: {
-            defaultValue: fields2Values.defaultValue,
-            modelId: selectedModel,
-            correspondingField: null,
-          },
-        };
-        console.log(field1FormValues);
-
-        field1FormValues.type = "Reference";
-        field1FormValues.typeProperty = {
-          reference: {
-            modelId: selectedModel ?? "",
-            correspondingField: fields2Values,
-          },
-        };
-
-        await onSubmit?.(field1FormValues);
-        onClose?.(true);
-      });
+      }
     }
-  }, [onClose, onSubmit, currentStep, field1FormValues, field1Form, field2Form, selectedModel]);
+  }, [
+    onClose,
+    onSubmit,
+    onUpdate,
+    currentStep,
+    selectedField,
+    field1FormValues,
+    field1Form,
+    field2Form,
+    selectedModel,
+  ]);
 
   return (
     <StyledModal
