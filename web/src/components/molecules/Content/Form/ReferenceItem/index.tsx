@@ -15,6 +15,7 @@ type Props = {
   linkedItemsModalList?: linkedItemsModalField[];
   className?: string;
   value?: string;
+  modelId?: string;
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
@@ -26,12 +27,13 @@ const ReferenceItem: React.FC<Props> = ({
   linkedItemsModalList,
   value,
   onChange,
+  modelId,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
   onLinkItemTableChange,
 }) => {
-  const { workspaceId, projectId, modelId } = useParams();
+  const { workspaceId, projectId } = useParams();
 
   const t = useT();
   const [visible, setVisible] = useState(false);
@@ -48,7 +50,6 @@ const ReferenceItem: React.FC<Props> = ({
   useEffect(() => {
     const item = linkedItemsModalList?.find(item => item.id === value);
     setCurrentItem(item);
-    console.log(item);
   }, [linkedItemsModalList, value]);
 
   return (

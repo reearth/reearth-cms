@@ -400,6 +400,7 @@ const ContentForm: React.FC<Props> = ({
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
                 <ReferenceItem
                   key={field.id}
+                  modelId={field.typeProperty.modelId}
                   linkedItemsModalList={linkedItemsModalList}
                   linkItemModalTotalCount={linkItemModalTotalCount}
                   linkItemModalPage={linkItemModalPage}
