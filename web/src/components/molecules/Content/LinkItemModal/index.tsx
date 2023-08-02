@@ -3,7 +3,10 @@ import { useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import ProTable, {
+  ProColumns,
+  TablePaginationConfig,
+} from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -14,6 +17,10 @@ type Props = {
   linkedItemsModalList?: linkedItemsModalField[];
   visible?: boolean;
   linkedItem?: string;
+  linkItemModalTotalCount: number;
+  linkItemModalPage: number;
+  linkItemModalPageSize: number;
+  onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
 };
 
@@ -21,13 +28,22 @@ const LinkItemModal: React.FC<Props> = ({
   visible,
   linkedItemsModalList,
   linkedItem,
+  linkItemModalTotalCount,
+  linkItemModalPage,
+  linkItemModalPageSize,
+  onLinkItemTableChange,
   onLinkItemModalCancel,
   onChange,
 }) => {
   const [hoveredAssetId, setHoveredItemId] = useState<string>();
   const t = useT();
 
-  const submit = () => {};
+  const pagination: TablePaginationConfig = {
+    showSizeChanger: true,
+    current: linkItemModalPage,
+    total: linkItemModalTotalCount,
+    pageSize: linkItemModalPageSize,
+  };
 
   const columns: ProColumns<linkedItemsModalField>[] = [
     {
@@ -76,8 +92,9 @@ const LinkItemModal: React.FC<Props> = ({
       open={visible}
       title={t("Link item")}
       centered
-      onOk={submit}
       width="70vw"
+      footer={null}
+      onCancel={onLinkItemModalCancel}
       bodyStyle={{
         minHeight: "50vh",
         position: "relative",
@@ -89,7 +106,11 @@ const LinkItemModal: React.FC<Props> = ({
         search={false}
         rowKey="id"
         options={false}
+        pagination={pagination}
         tableStyle={{ overflowX: "scroll" }}
+        onChange={pagination => {
+          onLinkItemTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
+        }}
       />
     </Modal>
   );

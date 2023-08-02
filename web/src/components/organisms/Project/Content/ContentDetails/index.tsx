@@ -25,6 +25,10 @@ const ContentDetails: React.FC = () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTotalCount,
+    linkItemModalPage,
+    linkItemModalPageSize,
+    handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
@@ -70,6 +74,10 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      linkItemModalTotalCount={linkItemModalTotalCount}
+      linkItemModalPage={linkItemModalPage}
+      linkItemModalPageSize={linkItemModalPageSize}
+      onLinkItemTableChange={handleLinkItemTableChange}
       linkedItemsModalList={linkedItemsModalList}
       showPublishAction={showPublishAction}
       requests={requests}

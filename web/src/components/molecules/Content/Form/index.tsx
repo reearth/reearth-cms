@@ -61,6 +61,10 @@ export interface Props {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  linkItemModalTotalCount: number;
+  linkItemModalPage: number;
+  linkItemModalPageSize: number;
+  onLinkItemTableChange: (page: number, pageSize: number) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -124,6 +128,10 @@ const ContentForm: React.FC<Props> = ({
   requestModalPage,
   requestModalPageSize,
   requestCreationLoading,
+  linkItemModalTotalCount,
+  linkItemModalPage,
+  linkItemModalPageSize,
+  onLinkItemTableChange,
   onPublish,
   onUnpublish,
   onAssetTableChange,
@@ -390,7 +398,14 @@ const ContentForm: React.FC<Props> = ({
                 extra={field.description}
                 name={field.id}
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-                <ReferenceItem key={field.id} linkedItemsModalList={linkedItemsModalList} />
+                <ReferenceItem
+                  key={field.id}
+                  linkedItemsModalList={linkedItemsModalList}
+                  linkItemModalTotalCount={linkItemModalTotalCount}
+                  linkItemModalPage={linkItemModalPage}
+                  linkItemModalPageSize={linkItemModalPageSize}
+                  onLinkItemTableChange={onLinkItemTableChange}
+                />
               </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item

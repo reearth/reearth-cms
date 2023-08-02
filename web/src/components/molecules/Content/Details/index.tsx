@@ -43,6 +43,10 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  linkItemModalTotalCount: number;
+  linkItemModalPage: number;
+  linkItemModalPageSize: number;
+  onLinkItemTableChange: (page: number, pageSize: number) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemId: string) => Promise<void>;
   onRequestTableChange: (page: number, pageSize: number) => void;
@@ -110,6 +114,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  linkItemModalTotalCount,
+  linkItemModalPage,
+  linkItemModalPageSize,
+  onLinkItemTableChange,
   onPublish,
   onUnpublish,
   onCollapse,
@@ -147,6 +155,10 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       }
       center={
         <ContentForm
+          linkItemModalTotalCount={linkItemModalTotalCount}
+          linkItemModalPage={linkItemModalPage}
+          linkItemModalPageSize={linkItemModalPageSize}
+          onLinkItemTableChange={onLinkItemTableChange}
           linkedItemsModalList={linkedItemsModalList}
           showPublishAction={showPublishAction}
           requests={requests}

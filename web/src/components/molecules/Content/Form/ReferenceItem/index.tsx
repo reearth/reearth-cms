@@ -15,10 +15,22 @@ type Props = {
   linkedItemsModalList?: linkedItemsModalField[];
   className?: string;
   value?: string;
+  linkItemModalTotalCount: number;
+  linkItemModalPage: number;
+  linkItemModalPageSize: number;
+  onLinkItemTableChange: (page: number, pageSize: number) => void;
   onChange?: (value?: string) => void;
 };
 
-const ReferenceItem: React.FC<Props> = ({ linkedItemsModalList, value, onChange }) => {
+const ReferenceItem: React.FC<Props> = ({
+  linkedItemsModalList,
+  value,
+  onChange,
+  linkItemModalTotalCount,
+  linkItemModalPage,
+  linkItemModalPageSize,
+  onLinkItemTableChange,
+}) => {
   const { workspaceId, projectId, modelId } = useParams();
 
   const t = useT();
@@ -77,6 +89,10 @@ const ReferenceItem: React.FC<Props> = ({ linkedItemsModalList, value, onChange 
       </StyledButton>
 
       <LinkItemModal
+        linkItemModalTotalCount={linkItemModalTotalCount}
+        linkItemModalPage={linkItemModalPage}
+        linkItemModalPageSize={linkItemModalPageSize}
+        onLinkItemTableChange={onLinkItemTableChange}
         linkedItemsModalList={linkedItemsModalList}
         visible={visible}
         onLinkItemModalCancel={handleLinkItemModalCancel}

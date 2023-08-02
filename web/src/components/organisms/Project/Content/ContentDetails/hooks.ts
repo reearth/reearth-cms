@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -58,6 +58,13 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
+  const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
+  const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
+
+  useEffect(() => {
+    setLinkItemModalPage(+linkItemModalPage);
+    setLinkItemModalPageSize(+linkItemModalPageSize);
+  }, [setLinkItemModalPage, setLinkItemModalPageSize, linkItemModalPage, linkItemModalPageSize]);
   const t = useT();
 
   const { data } = useGetItemQuery({
@@ -74,11 +81,19 @@ export default () => {
         schema: currentModel?.schema.id,
         q: "",
       },
-      pagination: { first: 10, offset: 0 },
+      pagination: {
+        first: linkItemModalPageSize,
+        offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+      },
       sort: { sortBy: "CREATION_DATE" as GQLItemSortType, direction: "ASC" as GQLSortDirection },
     },
     skip: !currentModel?.schema.id,
   });
+
+  const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
+    setLinkItemModalPage(page);
+    setLinkItemModalPageSize(pageSize);
+  }, []);
 
   const linkedItemsModalList: linkedItemsModalField[] | undefined = useMemo(() => {
     return itemsData?.searchItem.nodes
@@ -330,6 +345,10 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
+    linkItemModalPage,
+    linkItemModalPageSize,
+    handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
