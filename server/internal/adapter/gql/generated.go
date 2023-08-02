@@ -526,8 +526,9 @@ type ComplexityRoot struct {
 	}
 
 	SchemaFieldReference struct {
-		DefaultValue func(childComplexity int) int
-		ModelID      func(childComplexity int) int
+		CorrespondingFieldID func(childComplexity int) int
+		DefaultValue         func(childComplexity int) int
+		ModelID              func(childComplexity int) int
 	}
 
 	SchemaFieldRichText struct {
@@ -3023,6 +3024,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldMarkdown.MaxLength(childComplexity), true
 
+	case "SchemaFieldReference.correspondingFieldId":
+		if e.complexity.SchemaFieldReference.CorrespondingFieldID == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldReference.CorrespondingFieldID(childComplexity), true
+
 	case "SchemaFieldReference.defaultValue":
 		if e.complexity.SchemaFieldReference.DefaultValue == nil {
 			break
@@ -4411,6 +4419,7 @@ type SchemaFieldInteger {
 type SchemaFieldReference {
   defaultValue: Any
   modelId: ID!
+  correspondingFieldId: ID
 }
 
 type SchemaFieldURL {
@@ -4467,7 +4476,7 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
-input CorrespondingFieldInput @onlyOne  {
+input CorrespondingFieldInput @onlyOne {
   create: CreateFieldInput
   update: UpdateFieldInput
 } 
@@ -20233,6 +20242,47 @@ func (ec *executionContext) fieldContext_SchemaFieldReference_modelId(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldReference_correspondingFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldReference_correspondingFieldId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CorrespondingFieldID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldReference",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldRichText_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldRichText) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldRichText_defaultValue(ctx, field)
 	if err != nil {
@@ -32930,6 +32980,8 @@ func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "correspondingFieldId":
+			out.Values[i] = ec._SchemaFieldReference_correspondingFieldId(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

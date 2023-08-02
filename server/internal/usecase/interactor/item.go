@@ -501,6 +501,15 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, interfaces.ErrFieldNotFound
 		}
 
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(f *schema.FieldReference) {
+				cf := f.CorrespondingField()
+				if cf != nil {
+					// two way
+				}
+			},
+		})
+
 		// TODO:
 		// fetch field value, the value is an item id
 		// fetch referred item

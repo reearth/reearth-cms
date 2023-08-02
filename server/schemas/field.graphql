@@ -98,6 +98,7 @@ type SchemaFieldInteger {
 type SchemaFieldReference {
   defaultValue: Any
   modelId: ID!
+  correspondingFieldId: ID
 }
 
 type SchemaFieldURL {
@@ -154,7 +155,7 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
-input CorrespondingFieldInput @onlyOne  {
+input CorrespondingFieldInput @onlyOne {
   create: CreateFieldInput
   update: UpdateFieldInput
 } 

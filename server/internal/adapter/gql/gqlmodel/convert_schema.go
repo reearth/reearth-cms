@@ -330,7 +330,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if err != nil {
 			return nil, nil, err
 		}
-		tpRes = schema.NewReference(mId).TypeProperty()
+		tpRes = schema.NewReference(mId, nil).TypeProperty()
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {
