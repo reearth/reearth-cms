@@ -96,7 +96,6 @@ type SchemaFieldInteger {
 }
 
 type SchemaFieldReference {
-  defaultValue: Any
   modelId: ID!
   correspondingFieldId: ID
 }
@@ -162,7 +161,6 @@ input CorrespondingFieldInput @onlyOne {
 
 
 input SchemaFieldReferenceInput {
-  defaultValue: Any
   modelId: ID!
   correspondingField: CorrespondingFieldInput
 }

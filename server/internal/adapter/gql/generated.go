@@ -532,7 +532,6 @@ type ComplexityRoot struct {
 
 	SchemaFieldReference struct {
 		CorrespondingFieldID func(childComplexity int) int
-		DefaultValue         func(childComplexity int) int
 		ModelID              func(childComplexity int) int
 	}
 
@@ -3056,13 +3055,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldReference.CorrespondingFieldID(childComplexity), true
 
-	case "SchemaFieldReference.defaultValue":
-		if e.complexity.SchemaFieldReference.DefaultValue == nil {
-			break
-		}
-
-		return e.complexity.SchemaFieldReference.DefaultValue(childComplexity), true
-
 	case "SchemaFieldReference.modelId":
 		if e.complexity.SchemaFieldReference.ModelID == nil {
 			break
@@ -4443,7 +4435,6 @@ type SchemaFieldInteger {
 }
 
 type SchemaFieldReference {
-  defaultValue: Any
   modelId: ID!
   correspondingFieldId: ID
 }
@@ -4509,7 +4500,6 @@ input CorrespondingFieldInput @onlyOne {
 
 
 input SchemaFieldReferenceInput {
-  defaultValue: Any
   modelId: ID!
   correspondingField: CorrespondingFieldInput
 }
@@ -20347,47 +20337,6 @@ func (ec *executionContext) fieldContext_SchemaFieldMarkdown_maxLength(ctx conte
 	return fc, nil
 }
 
-func (ec *executionContext) _SchemaFieldReference_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SchemaFieldReference_defaultValue(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DefaultValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(interface{})
-	fc.Result = res
-	return ec.marshalOAny2interface(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SchemaFieldReference_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SchemaFieldReference",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Any does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SchemaFieldReference_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldReference_modelId(ctx, field)
 	if err != nil {
@@ -26874,22 +26823,13 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"defaultValue", "modelId", "correspondingField"}
+	fieldsInOrder := [...]string{"modelId", "correspondingField"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "defaultValue":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
-			data, err := ec.unmarshalOAny2interface(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.DefaultValue = data
 		case "modelId":
 			var err error
 
@@ -33235,8 +33175,6 @@ func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.S
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SchemaFieldReference")
-		case "defaultValue":
-			out.Values[i] = ec._SchemaFieldReference_defaultValue(ctx, field, obj)
 		case "modelId":
 			out.Values[i] = ec._SchemaFieldReference_modelId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

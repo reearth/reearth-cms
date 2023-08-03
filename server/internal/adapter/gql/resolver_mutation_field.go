@@ -143,7 +143,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 							SchemaId:     *sid3,
 							FieldId:      f3.ID(),
 							TypeProperty: f3.TypeProperty(),
-						}, getOperator(ctx))		
+						}, getOperator(ctx))
 						_, err1 = updateField(ctx, lo.FromPtr(cf.Update), f3, sid3)
 					}
 				},

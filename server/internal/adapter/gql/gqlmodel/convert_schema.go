@@ -149,17 +149,8 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 		},
 		Reference: func(f *schema.FieldReference) {
-			var v any = nil
-			if dv != nil {
-				if multiple {
-					v, _ = dv.ValuesReference()
-				} else {
-					v, _ = dv.First().ValueReference()
-				}
-			}
 			res = &SchemaFieldReference{
-				DefaultValue: v,
-				ModelID:      IDFrom(f.Model()),
+				ModelID: IDFrom(f.Model()),
 			}
 		},
 		URL: func(f *schema.FieldURL) {
@@ -320,11 +311,6 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		x := tp.Reference
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
-		}
-		if multiple {
-			dv = value.NewMultiple(value.TypeReference, unpackArray(x.DefaultValue))
-		} else {
-			dv = FromValue(SchemaFieldTypeReference, x.DefaultValue).AsMultiple()
 		}
 		mId, err := ToID[id.Model](x.ModelID)
 		if err != nil {
