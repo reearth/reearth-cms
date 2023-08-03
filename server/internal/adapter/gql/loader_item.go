@@ -236,6 +236,15 @@ func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort 
 	}, nil
 }
 
+func (c *ItemLoader) CheckIfItemIsReferenced(ctx context.Context, itemId gqlmodel.ID) (*bool, error) {
+	op := getOperator(ctx)
+	iid, err := gqlmodel.ToID[id.Item](itemId)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.usecase.CheckIfItemIsReferenced(ctx, iid, op)
+}
 // data loader
 
 type ItemDataLoader interface {

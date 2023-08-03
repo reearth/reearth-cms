@@ -59,6 +59,7 @@ type Item interface {
 	Search(context.Context, *item.Query, *usecasex.Sort, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	LastModifiedByModel(context.Context, id.ModelID, *usecase.Operator) (time.Time, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)
+	CheckIfItemIsReferenced(context.Context, id.ItemID, *usecase.Operator) (*bool, error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
 	Update(context.Context, UpdateItemParam, *usecase.Operator) (item.Versioned, error)
 	Delete(context.Context, id.ItemID, *usecase.Operator) error
