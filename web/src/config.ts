@@ -14,6 +14,7 @@ export type Config = {
   authProvider?: string;
   logoUrl?: string;
   coverImageUrl?: string;
+  cesiumIonAccessToken?: string;
 };
 
 const env = import.meta.env;
@@ -26,6 +27,7 @@ export const defaultConfig: Config = {
   authProvider: env.REEARTH_CMS_AUTH_PROVIDER || "auth0",
   logoUrl: env.REEARTH_CMS_LOGO_URL,
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
+  cesiumIonAccessToken: env.REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN || "",
 };
 
 export default async function loadConfig() {
