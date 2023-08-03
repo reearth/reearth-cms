@@ -4,13 +4,14 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBuilder_Build(t *testing.T) {
 	sId := NewID()
 	pId := id.NewProjectID()
-	wId := id.NewWorkspaceID()
+	wId := accountdomain.NewWorkspaceID()
 	tests := []struct {
 		name    string
 		s       *Schema
@@ -31,7 +32,7 @@ func TestBuilder_Build(t *testing.T) {
 		},
 		{
 			name:    "id and wid only",
-			s:       &Schema{id: NewID(), workspace: id.NewWorkspaceID()},
+			s:       &Schema{id: NewID(), workspace: accountdomain.NewWorkspaceID()},
 			want:    nil,
 			wantErr: ErrInvalidID,
 		},
@@ -85,7 +86,7 @@ func TestBuilder_ID(t *testing.T) {
 func TestBuilder_MustBuild(t *testing.T) {
 	sId := NewID()
 	pId := id.NewProjectID()
-	wId := id.NewWorkspaceID()
+	wId := accountdomain.NewWorkspaceID()
 	tests := []struct {
 		name    string
 		s       *Schema
@@ -106,7 +107,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 		},
 		{
 			name:    "id and wid only",
-			s:       &Schema{id: NewID(), workspace: id.NewWorkspaceID()},
+			s:       &Schema{id: NewID(), workspace: accountdomain.NewWorkspaceID()},
 			want:    nil,
 			wantErr: ErrInvalidID,
 		},
@@ -152,7 +153,7 @@ func TestBuilder_NewID(t *testing.T) {
 
 func TestBuilder_Workspace(t *testing.T) {
 	b := &Builder{s: &Schema{}}
-	wId := id.NewWorkspaceID()
+	wId := accountdomain.NewWorkspaceID()
 	b.Workspace(wId)
 	assert.Equal(t, wId, b.s.workspace)
 	assert.NotSame(t, wId, b.s.workspace)

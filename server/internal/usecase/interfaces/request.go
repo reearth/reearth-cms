@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -20,7 +21,7 @@ type CreateRequestParam struct {
 	Title       string
 	Description *string
 	State       *request.State
-	Reviewers   id.UserIDList
+	Reviewers   accountdomain.UserIDList
 	Items       request.ItemList
 }
 
@@ -29,15 +30,15 @@ type UpdateRequestParam struct {
 	Title       *string
 	Description *string
 	State       *request.State
-	Reviewers   id.UserIDList
+	Reviewers   accountdomain.UserIDList
 	Items       request.ItemList
 }
 
 type RequestFilter struct {
 	Keyword   *string
 	State     []request.State
-	Reviewer  *id.UserID
-	CreatedBy *id.UserID
+	Reviewer  *accountdomain.UserID
+	CreatedBy *accountdomain.UserID
 }
 
 type Request interface {

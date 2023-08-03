@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 type Thread struct {
@@ -37,7 +38,7 @@ func (i *Thread) FindByIDs(ctx context.Context, threads []id.ThreadID, operator 
 	return i.repos.Thread.FindByIDs(ctx, threads)
 }
 
-func (i *Thread) CreateThread(ctx context.Context, wid id.WorkspaceID, op *usecase.Operator) (*thread.Thread, error) {
+func (i *Thread) CreateThread(ctx context.Context, wid accountdomain.WorkspaceID, op *usecase.Operator) (*thread.Thread, error) {
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().WithWritableWorkspaces(wid).Transaction(),
@@ -57,7 +58,7 @@ func (i *Thread) CreateThread(ctx context.Context, wid id.WorkspaceID, op *useca
 }
 
 func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
-	if op.User == nil && op.Integration == nil {
+	if op.AcOperator.User == nil && op.Integration == nil {
 		return nil, nil, interfaces.ErrInvalidOperator
 	}
 	return Run2(
@@ -88,7 +89,7 @@ func (i *Thread) AddComment(ctx context.Context, thid id.ThreadID, content strin
 }
 
 func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.CommentID, content string, op *usecase.Operator) (*thread.Thread, *thread.Comment, error) {
-	if op.User == nil && op.Integration == nil {
+	if op.AcOperator.User == nil && op.Integration == nil {
 		return nil, nil, interfaces.ErrInvalidOperator
 	}
 	return Run2(
@@ -118,7 +119,7 @@ func (i *Thread) UpdateComment(ctx context.Context, thid id.ThreadID, cid id.Com
 }
 
 func (i *Thread) DeleteComment(ctx context.Context, thid id.ThreadID, cid id.CommentID, op *usecase.Operator) (*thread.Thread, error) {
-	if op.User == nil && op.Integration == nil {
+	if op.AcOperator.User == nil && op.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(

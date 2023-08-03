@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -35,7 +36,7 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	}
 }
 
-func (r *Project) FindByWorkspaces(_ context.Context, wids id.WorkspaceIDList, _ *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *Project) FindByWorkspaces(_ context.Context, wids accountdomain.WorkspaceIDList, _ *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -128,7 +129,7 @@ func (r *Project) FindByPublicName(_ context.Context, name string) (*project.Pro
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Project) CountByWorkspace(_ context.Context, workspace id.WorkspaceID) (c int, err error) {
+func (r *Project) CountByWorkspace(_ context.Context, workspace accountdomain.WorkspaceID) (c int, err error) {
 	if r.err != nil {
 		return 0, r.err
 	}

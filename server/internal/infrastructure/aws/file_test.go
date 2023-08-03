@@ -8,6 +8,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +23,7 @@ func TestFile_GetURL(t *testing.T) {
 	n := "xxx.yyy"
 	a := asset.New().NewID().
 		Project(id.NewProjectID()).
-		CreatedByUser(id.NewUserID()).
+		CreatedByUser(accountdomain.NewUserID()).
 		Size(1000).
 		FileName(n).
 		UUID(u).

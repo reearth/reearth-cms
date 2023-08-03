@@ -1,7 +1,6 @@
 package item
 
 import (
-	"golang.org/x/exp/slices"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -137,13 +136,8 @@ func TestCompareFields(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		// tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			res := CompareFields(tt.args.n, tt.args.o)
-			// t.Parallel()
-			slices.SortFunc(res, func(a, b FieldChange) bool {
-				return a.ID.Timestamp().Before(b.ID.Timestamp())
-			})
 			assert.Equal(t, tt.want, res)
 		})
 	}

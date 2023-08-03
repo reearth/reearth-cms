@@ -8,24 +8,25 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestToIntegration(t *testing.T) {
 	iId := integration.NewID()
-	uId, dId := id.NewUserID(), id.NewUserID()
+	uId, dId := accountdomain.NewUserID(), accountdomain.NewUserID()
 	now := time.Now()
 	tests := []struct {
 		name        string
 		integration *integration.Integration
-		user        id.UserID
+		user        accountdomain.UserID
 		want        *Integration
 	}{
 		{
 			name:        "nil",
 			integration: nil,
-			user:        id.NewUserID(),
+			user:        accountdomain.NewUserID(),
 			want:        nil,
 		},
 		{

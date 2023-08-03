@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -354,7 +355,7 @@ func TestBuilder_LogoUrl(t *testing.T) {
 }
 
 func TestBuilder_Developer(t *testing.T) {
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	type fields struct {
 		i *Integration
 	}
