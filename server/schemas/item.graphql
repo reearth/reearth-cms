@@ -119,6 +119,7 @@ input ItemQuery {
 
 extend type Query {
   items(modelId: ID!, pagination: Pagination): ItemConnection!
+  itemsByIds(ids: [ID!]!): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
   searchItem(
     query: ItemQuery!
