@@ -534,6 +534,14 @@ type ProjectPublication struct {
 	AssetPublic bool                    `json:"assetPublic"`
 }
 
+type PublishItemInput struct {
+	ItemID []ID `json:"itemId"`
+}
+
+type PublishItemPayload struct {
+	Items []*Item `json:"items"`
+}
+
 type PublishModelInput struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
