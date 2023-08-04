@@ -189,7 +189,7 @@ func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemId id.ItemID, _ *
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -239,8 +239,8 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Thread(th.ID()).
 			Fields(fields)
 
-		if operator.User != nil {
-			ib = ib.User(*operator.User)
+		if operator.AcOperator.User != nil {
+			ib = ib.User(*operator.AcOperator.User)
 		}
 		if operator.Integration != nil {
 			ib = ib.Integration(*operator.Integration)
@@ -275,27 +275,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
-			if err := i.repos.Item.UpdateRef(ctx, vi.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
-				return nil, err
-			}
-
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: s.Workspace(),
-				Type:      event.ItemPublish,
-				Object:    vi,
-				WebhookObject: item.ItemModelSchema{
-					Item:   vi.Value(),
-					Model:  m,
-					Schema: s,
-				},
-				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
-			}
-		}
-
 		return vi, nil
 	})
 }
@@ -305,7 +284,7 @@ func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, op *use
 }
 
 func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	if len(param.Fields) == 0 {
@@ -350,10 +329,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		oldFields := itv.Fields()
+
 		itv.UpdateFields(fields)
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
 		}
+
+		newFields := itv.Fields()
 
 		if err := i.event(ctx, Event{
 			Project:   prj,
@@ -361,34 +344,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Type:      event.ItemUpdate,
 			Object:    itm,
 			WebhookObject: item.ItemModelSchema{
-				Item:   itv,
-				Model:  m,
-				Schema: s,
+				Item:    itv,
+				Model:   m,
+				Schema:  s,
+				Changes: item.CompareFields(newFields, oldFields),
 			},
 			Operator: operator.Operator(),
 		}); err != nil {
 			return nil, err
-		}
-
-		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
-			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
-				return nil, err
-			}
-
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: s.Workspace(),
-				Type:      event.ItemPublish,
-				Object:    itm,
-				WebhookObject: item.ItemModelSchema{
-					Item:   itm.Value(),
-					Model:  m,
-					Schema: s,
-				},
-				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
-			}
 		}
 
 		return itm, nil
@@ -396,7 +359,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return interfaces.ErrInvalidOperator
 	}
 
@@ -415,7 +378,7 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 }
 
 func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
@@ -485,7 +448,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 }
 
 func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
-	if operator.User == nil && operator.Integration == nil {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
@@ -551,6 +514,60 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 		}
 
 		return items, nil
+	})
+}
+
+func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
+		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		if itm.Refs().Has(version.Public) {
+			return nil, interfaces.ErrAlreadyPublished
+		}
+
+		m, err := i.repos.Model.FindByID(ctx, itm.Value().Model())
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, m.Project())
+		if err != nil {
+			return nil, err
+		}
+
+		s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: s.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: s,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
+		return itm, nil
 	})
 }
 

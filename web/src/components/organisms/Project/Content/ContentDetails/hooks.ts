@@ -2,13 +2,14 @@ import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
 import {
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/convertItem";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
@@ -18,6 +19,7 @@ import {
   useCreateItemMutation,
   useCreateRequestMutation,
   useGetItemQuery,
+  useGetMeQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -30,6 +32,7 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
@@ -42,6 +45,7 @@ export default () => {
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: userData } = useGetMeQuery();
 
   const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
@@ -54,6 +58,27 @@ export default () => {
     variables: { id: itemId ?? "" },
     skip: !itemId,
   });
+
+  const me: User | undefined = useMemo(() => {
+    return userData?.me
+      ? {
+          id: userData.me.id,
+          name: userData.me.name,
+          lang: userData.me.lang,
+          email: userData.me.email,
+        }
+      : undefined;
+  }, [userData]);
+
+  const myRole: Role = useMemo(
+    () => currentWorkspace?.members?.find(m => m.userId === me?.id).role,
+    [currentWorkspace?.members, me?.id],
+  );
+
+  const showPublishAction = useMemo(
+    () => !currentProject?.requestRoles?.includes(myRole),
+    [currentProject?.requestRoles, myRole],
+  );
 
   const currentItem: Item | undefined = useMemo(
     () => convertItem(data?.node as GQLItem),
@@ -234,6 +259,7 @@ export default () => {
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
   return {
+    showPublishAction,
     requests,
     itemId,
     requestCreationLoading,
@@ -252,6 +278,7 @@ export default () => {
     requestModalTotalCount: totalCount,
     requestModalPage: page,
     requestModalPageSize: pageSize,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
     collapseCommentsPanel,

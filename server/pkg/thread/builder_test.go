@@ -3,6 +3,7 @@ package thread
 import (
 	"testing"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,13 +16,13 @@ type Tests []struct {
 
 type Input struct {
 	id        ID
-	workspace WorkspaceID
+	workspace accountdomain.WorkspaceID
 	comments  []*Comment
 }
 
 func TestBuilder_Build(t *testing.T) {
 	var thid ID = NewID()
-	var wid WorkspaceID = NewWorkspaceID()
+	var wid accountdomain.WorkspaceID = accountdomain.NewWorkspaceID()
 	c := []*Comment{}
 
 	tests := Tests{
@@ -61,7 +62,7 @@ func TestBuilder_Build(t *testing.T) {
 
 func TestBuilder_MustBuild(t *testing.T) {
 	thid := NewID()
-	wid := NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	c := []*Comment{}
 
 	tests := Tests{
@@ -119,7 +120,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 
 func TestBuilder_NewID(t *testing.T) {
 	c := []*Comment{}
-	wid := NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	a := New().NewID().Workspace(wid).Comments(c).MustBuild()
 	assert.False(t, a.id.IsNil())
 }

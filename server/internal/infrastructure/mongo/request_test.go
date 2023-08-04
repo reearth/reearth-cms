@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
@@ -22,18 +23,18 @@ func TestRequest_Filtered(t *testing.T) {
 
 	req1 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("hoge").
@@ -84,18 +85,18 @@ func TestRequest_FindByID(t *testing.T) {
 
 	req1 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("hoge").
@@ -147,18 +148,18 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 	req1 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("hoge").
@@ -205,23 +206,23 @@ func TestRequest_FindByIDs(t *testing.T) {
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
 	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-	reviewer := id.NewUserID()
-	creator := id.NewUserID()
+	reviewer := accountdomain.NewUserID()
+	creator := accountdomain.NewUserID()
 	req1 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(creator).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
-		Reviewers(id.UserIDList{reviewer}).
+		Reviewers(accountdomain.UserIDList{reviewer}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		State(request.StateDraft).
@@ -335,27 +336,27 @@ func TestRequest_SaveAll(t *testing.T) {
 
 	req1 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("hoge").
 		MustBuild()
 	req3 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item}).
 		Title("xxx").
@@ -377,23 +378,23 @@ func TestRequest_FindByItem(t *testing.T) {
 	pid := id.NewProjectID()
 	item1, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
 	item2, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-	reviewer := id.NewUserID()
-	creator := id.NewUserID()
+	reviewer := accountdomain.NewUserID()
+	creator := accountdomain.NewUserID()
 	req1 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
 		CreatedBy(creator).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item1}).
-		Reviewers(id.UserIDList{reviewer}).
+		Reviewers(accountdomain.UserIDList{reviewer}).
 		Title("foo").
 		MustBuild()
 	req2 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item1, item2}).
 		State(request.StateDraft).
@@ -401,9 +402,9 @@ func TestRequest_FindByItem(t *testing.T) {
 		MustBuild()
 	req3 := request.New().
 		NewID().
-		Workspace(id.NewWorkspaceID()).
+		Workspace(accountdomain.NewWorkspaceID()).
 		Project(pid).
-		CreatedBy(id.NewUserID()).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{item2}).
 		Title("xxx").

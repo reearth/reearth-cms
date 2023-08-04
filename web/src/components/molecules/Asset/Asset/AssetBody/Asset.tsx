@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import { Viewer as CesiumViewer } from "cesium";
-import { useCallback, useMemo, useState } from "react";
+import { Ion, Viewer as CesiumViewer } from "cesium";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
@@ -26,6 +26,7 @@ import {
   GltfViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
+import { config } from "@reearth-cms/config";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -71,6 +72,10 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
+  useEffect(() => {
+    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
+  }, []);
+
   const getViewer = (viewer: CesiumViewer | undefined) => {
     viewerRef = viewer;
   };
@@ -95,11 +100,6 @@ const AssetMolecule: React.FC<Props> = ({
     }
   }, [assetFileExt, assetUrl, svgRender, viewerType]);
 
-  const showCopyIcon = useMemo(
-    () => asset.previewType === "IMAGE" || asset.previewType === "IMAGE_SVG",
-    [asset.previewType],
-  );
-
   return (
     <BodyContainer>
       <BodyWrapper>
@@ -107,14 +107,12 @@ const AssetMolecule: React.FC<Props> = ({
           title={
             <>
               {asset.fileName}{" "}
-              {showCopyIcon && (
-                <CopyIcon
-                  icon="copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(asset.url);
-                  }}
-                />
-              )}
+              <CopyIcon
+                icon="copy"
+                onClick={() => {
+                  navigator.clipboard.writeText(asset.url);
+                }}
+              />
             </>
           }
           toolbar={
@@ -132,17 +130,7 @@ const AssetMolecule: React.FC<Props> = ({
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
-            title={
-              <>
-                {asset.fileName}{" "}
-                <CopyIcon
-                  icon="copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(asset.url);
-                  }}
-                />
-              </>
-            }
+            title={asset.fileName}
             toolbar={
               <>
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />

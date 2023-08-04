@@ -35,6 +35,7 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
+  showPublishAction?: boolean;
   requests: Request[];
   itemId?: string;
   initialFormValues: any;
@@ -77,6 +78,7 @@ export interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
+  onPublish: (itemId: string) => Promise<void>;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -94,6 +96,7 @@ export interface Props {
 }
 
 const ContentForm: React.FC<Props> = ({
+  showPublishAction,
   requests,
   itemId,
   model,
@@ -118,6 +121,7 @@ const ContentForm: React.FC<Props> = ({
   requestModalPage,
   requestModalPageSize,
   requestCreationLoading,
+  onPublish,
   onUnpublish,
   onAssetTableChange,
   onUploadModalCancel,
@@ -198,6 +202,11 @@ const ContentForm: React.FC<Props> = ({
               </Button>
               {itemId && (
                 <>
+                  {showPublishAction && (
+                    <Button type="primary" onClick={() => onPublish(itemId)}>
+                      {t("Publish")}
+                    </Button>
+                  )}
                   <Button type="primary" onClick={onModalOpen}>
                     {t("New Request")}
                   </Button>

@@ -6,7 +6,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/mongox"
 )
 
@@ -64,7 +65,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	tid, err := id.WorkspaceIDFrom(d.Workspace)
+	tid, err := accountdomain.WorkspaceIDFrom(d.Workspace)
 	if err != nil {
 		return nil, err
 	}
@@ -102,16 +103,16 @@ func NewProjectConsumer() *ProjectConsumer {
 	return NewConsumer[*ProjectDocument, *project.Project]()
 }
 
-func toRequestRoles(s []string) []user.Role {
-	var roles []user.Role
+func toRequestRoles(s []string) []workspace.Role {
+	var roles []workspace.Role
 	for _, role := range s {
-		r, _ := user.RoleFromString(role)
+		r, _ := workspace.RoleFrom(role)
 		roles = append(roles, r)
 	}
 	return roles
 }
 
-func fromRequestRoles(s []user.Role) []string {
+func fromRequestRoles(s []workspace.Role) []string {
 	var roles []string
 	for _, role := range s {
 		roles = append(roles, string(role))

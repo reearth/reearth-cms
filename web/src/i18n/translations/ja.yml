@@ -5,7 +5,7 @@ PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
 Model: モデル
 Switch: 切り替え
-End point: ''
+End point: エンドポイント
 Assets: アセット
 Private: 非公開
 Public: 公開
@@ -34,7 +34,7 @@ Unzip: ''
 Asset Type: アセットの種類
 Created Time: 作成日時
 Created By: 作成者
-Linked to: ''
+Linked to: リンク先
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
@@ -52,7 +52,7 @@ Decompressed: 解凍完了
 Failed: 失敗
 Decompressing: 解凍中
 Skipped: スキップ
-Pending: ''
+Pending: 保留中
 File: ファイル
 Size: サイズ
 Preview Type: プレビュータイプ
@@ -107,6 +107,7 @@ Account: アカウント
 unique: ユニーク
 Add to Request: 既存のリクエストに追加
 Unpublish: 非公開
+Publish: 公開
 New Request: 新規リクエスト
 Please input field!: フィールドを入力してください。
 Title: タイトル
@@ -154,10 +155,9 @@ Once the integration is removed, it will disappear from all workspaces.: イン�
 Remove Integration: インテグレーションを削除
 Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.: インテグレーションを削除します。この操作は取り消すことができません。
 Integration Token: インテグレーショントークン
-Code Example: ''
-your model id here: ''
+Code Example: コード例
+your model id here: モデルIDをここに入力してください
 Update: アップデート
-Publish: 公開
 Decompress: 圧縮
 This is your webhook name: Webhookの名前です
 Please input the name of the webhook!: Webhookの名前を入力してください
@@ -182,14 +182,14 @@ Are you sure you want to delete the model: 本当にこのモデルを削除し�
 Warning: 注意
 This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
-Delete Project: ''
-Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: ''
-Write something here to describe this record.: このレコードの説明を入力してください
-Project Settings: ''
-Need request: ''
-If this option is chosen, all new model within the project will default follow it: ''
+Delete Project: プロジェクトを削除
+Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。
+Write something here to describe this record.: このレコードの説明を入力してください。
+Project Settings: プロジェクト設定
+Need request: リクエストの要否
+If this option is chosen, all new model within the project will default follow it: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
 Close: クローズ
-Reopen: ''
+Reopen: 再開
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
@@ -229,7 +229,7 @@ Multi line text: 複数行テキスト
 Markdown text: マークダウン
 Rich text which supports md style: マークダウン対応のリッチテキスト
 Asset file: アセット
-true/false field: ''
+true/false field: 真偽
 Option: 選択
 Multiple select: 複数選択
 Int: 整数値
@@ -259,8 +259,8 @@ Failed to delete user.: ユーザーの削除に失敗しました。
 Successfully deleted user!: ユーザーの削除に成功しました。
 Failed to update asset.: アセットの更新に失敗しました。
 Asset was successfully updated!: アセットの更新に成功しました。
-Failed to decompress asset.: ''
-Asset is being decompressed!: ''
+Failed to decompress asset.: アセットの解凍に失敗しました。
+Asset is being decompressed!: アセットは解凍中です！
 Failed to add one or more assets.: アセットの追加に失敗しました。
 Successfully added one or more assets!: アセットの追加に成功しました。
 Successfully added asset!: アセットの追加に成功しました。
@@ -289,8 +289,10 @@ Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
 Successfully updated Request!: リクエストの更新に成功しました。
-Failed to unpublish items.: ''
-Successfully unpublished items!: ''
+Failed to publish items.: アイテムの公開に失敗しました。
+Successfully published items!: アイテムの公開に成功しました!
+Failed to unpublish items.: エラーによりアイテムを非公開にできませんでした。
+Successfully unpublished items!: アイテムを非公開にしました。
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to delete model.: モデルの削除に失敗しました。
@@ -309,8 +311,8 @@ Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
 Failed to update project.: プロジェクトの更新に失敗しました。
 Successfully updated project!: プロジェクトの更新に成功しました。
-Failed to update request roles.: ''
-Successfully updated request roles!: ''
+Failed to update request roles.: リクエストロールの更新に失敗しました。
+Successfully updated request roles!: リクエストロールの更新に成功しました。
 Failed to delete project.: プロジェクトの削除に失敗しました。
 Successfully deleted project!: プロジェクトの削除に成功しました。
 Failed to connect integration.: インテグレーションの接続に失敗しました。

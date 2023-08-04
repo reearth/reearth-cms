@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +15,7 @@ func TestNewProject(t *testing.T) {
 	now := time.Now()
 	pp := project.NewPublication(project.PublicationScopePublic, true)
 	pId, wId := project.NewID(), project.NewWorkspaceID()
-	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
+	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 	tests := []struct {
 		name   string
 		args   *project.Project
@@ -100,7 +100,7 @@ func TestProjectDocument_Model(t *testing.T) {
 	now := time.Now()
 	pId, wId := project.NewID(), project.NewWorkspaceID()
 	pp := project.NewPublication(project.PublicationScopePublic, true)
-	r := []user.Role{user.RoleOwner, user.RoleMaintainer}
+	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 
 	tests := []struct {
 		name    string

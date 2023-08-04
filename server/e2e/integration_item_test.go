@@ -22,15 +22,17 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/thread"
-	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
 var (
 	secret = "secret_1234567890"
-	uId    = id.NewUserID()
+	uId    = accountdomain.NewUserID()
 	iId    = id.NewIntegrationID()
 	mId    = id.NewModelID()
 	aid    = id.NewAssetID()
@@ -67,16 +69,22 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Description("i1 desc").
 		LogoUrl(lo.Must(url.Parse("https://test.com"))).
 		Token(secret).
-		Developer(id.NewUserID()).
+		Developer(accountdomain.NewUserID()).
 		MustBuild()
 	if err := r.Integration.Save(ctx, i); err != nil {
 		return err
 	}
 
-	w := user.NewWorkspace().NewID().
+	iid, err := accountdomain.IntegrationIDFrom(i.ID().String())
+	if err != nil {
+		return err
+	}
+
+	w := workspace.New().NewID().
 		Name("e2e").
 		Personal(false).
-		Integrations(map[user.IntegrationID]user.Member{i.ID(): {Role: user.RoleOwner, InvitedBy: u.ID()}}).
+		Members(map[accountdomain.UserID]workspace.Member{uId: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
+		Integrations(map[workspace.IntegrationID]workspace.Member{iid: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
 		return err
