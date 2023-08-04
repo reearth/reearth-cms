@@ -1772,7 +1772,7 @@ export type GetItemsByIdsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsByIdsQuery = { __typename?: 'Query', itemsByIds: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null> } };
+export type GetItemsByIdsQuery = { __typename?: 'Query', itemsByIds: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus } | null> } };
 
 export type SearchItemQueryVariables = Exact<{
   query: ItemQuery;
@@ -3352,21 +3352,6 @@ export const GetItemsByIdsDocument = gql`
       createdAt
       updatedAt
       status
-      assets {
-        id
-        url
-      }
-      user {
-        name
-      }
-      integration {
-        name
-      }
-      fields {
-        schemaFieldId
-        type
-        value
-      }
     }
   }
 }
