@@ -3,8 +3,8 @@ import { gql } from "@apollo/client";
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_ITEMS = gql`
-  query GetItems($schemaId: ID!, $pagination: Pagination) {
-    items(schemaId: $schemaId, pagination: $pagination) {
+  query GetItems($modelId: ID!, $pagination: Pagination) {
+    items(modelId: $modelId, pagination: $pagination) {
       nodes {
         id
         schemaId
@@ -26,6 +26,7 @@ export const GET_ITEMS = gql`
           ...threadFragment
         }
       }
+      totalCount
     }
   }
 
@@ -151,9 +152,9 @@ export const UNPUBLISH_ITEM = gql`
 `;
 
 export const PUBLISH_ITEM = gql`
-  mutation PublishItem($itemId: ID!) {
+  mutation PublishItem($itemId: [ID!]!) {
     publishItem(input: { itemId: $itemId }) {
-      item {
+      items {
         id
       }
     }

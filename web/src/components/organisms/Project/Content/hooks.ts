@@ -9,7 +9,7 @@ import {
   Request as GQLRequest,
   useGetModalRequestsQuery,
   useUnpublishItemMutation,
-  usePublishItemMutation,
+  useUnpublishItemMutation as usePublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";

@@ -24,11 +24,9 @@ import {
   useCreateRequestMutation,
   useGetItemQuery,
   useGetMeQuery,
-  useSearchItemQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
-  SortDirection as GQLSortDirection,
-  ItemSortType as GQLItemSortType,
+  useGetItemsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -73,19 +71,14 @@ export default () => {
     skip: !itemId,
   });
 
-  const { data: itemsData } = useSearchItemQuery({
+  const { data: itemsData } = useGetItemsQuery({
     fetchPolicy: "no-cache",
     variables: {
-      query: {
-        project: currentProject?.id as string,
-        schema: currentModel?.schema.id,
-        q: "",
-      },
+      modelId: "",
       pagination: {
         first: linkItemModalPageSize,
         offset: (linkItemModalPage - 1) * linkItemModalPageSize,
       },
-      sort: { sortBy: "CREATION_DATE" as GQLItemSortType, direction: "ASC" as GQLSortDirection },
     },
     skip: !currentModel?.schema.id,
   });
@@ -96,7 +89,7 @@ export default () => {
   }, []);
 
   const linkedItemsModalList: linkedItemsModalField[] | undefined = useMemo(() => {
-    return itemsData?.searchItem.nodes
+    return itemsData?.items.nodes
       ?.map(item =>
         item
           ? {
@@ -128,7 +121,7 @@ export default () => {
       .filter(
         (contentTableField): contentTableField is linkedItemsModalField => !!contentTableField,
       );
-  }, [itemsData?.searchItem.nodes]);
+  }, [itemsData?.items.nodes]);
 
   const me: User | undefined = useMemo(() => {
     return userData?.me
@@ -345,7 +338,7 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
+    linkItemModalTotalCount: itemsData?.items.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
     handleLinkItemTableChange,

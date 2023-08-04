@@ -75,7 +75,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       unique: false,
       required: false,
       type: "Text",
-      typeProperty: { text: { defaultValue: "", maxLength: 0 } },
+      typeProperty: {
+        reference: {
+          modelId: "",
+          correspondingField: null,
+        },
+      },
     }),
     [],
   );
@@ -114,7 +119,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           values.type = "Reference";
           values.typeProperty = {
             reference: {
-              defaultValue: values.defaultValue,
               modelId: selectedModel,
               correspondingField: null,
             },
@@ -145,7 +149,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         values.type = "Reference";
         values.typeProperty = {
           reference: {
-            defaultValue: "",
             modelId: selectedModel ?? "",
             correspondingField: null,
           },
@@ -162,7 +165,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             values.type = "Reference";
             values.typeProperty = {
               reference: {
-                defaultValue: "",
                 modelId: selectedModel,
                 correspondingField: null,
               },
@@ -178,7 +180,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         field2Form.validateFields().then(async fields2Values => {
           fields2Values.typeProperty = {
             reference: {
-              defaultValue: "",
               modelId: selectedModel,
               correspondingField: null,
             },
@@ -188,7 +189,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           field1FormValues.type = "Reference";
           field1FormValues.typeProperty = {
             reference: {
-              defaultValue: "",
               modelId: selectedModel ?? "",
               correspondingField: {
                 create: { ...fields2Values, modelId: selectedModel, type: "Reference" },
@@ -258,7 +258,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       <Steps progressDot current={currentStep}>
         <StyledStep title={t("Reference setting")} />
         <StyledStep title={t("Field")} />
-        <StyledStep title={t("Corresponding field")} />
+        {numSteps === 2 && <StyledStep title={t("Corresponding field")} />}
       </Steps>
       {currentStep === 0 && (
         <Form form={modelForm}>

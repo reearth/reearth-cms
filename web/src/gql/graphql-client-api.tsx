@@ -554,6 +554,7 @@ export type Mutation = {
   deleteRequest?: Maybe<DeleteRequestPayload>;
   deleteWebhook?: Maybe<DeleteWebhookPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
+  publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
@@ -708,6 +709,11 @@ export type MutationDeleteWebhookArgs = {
 
 export type MutationDeleteWorkspaceArgs = {
   input: DeleteWorkspaceInput;
+};
+
+
+export type MutationPublishItemArgs = {
+  input: PublishItemInput;
 };
 
 
@@ -905,6 +911,15 @@ export enum ProjectPublicationScope {
   Public = 'PUBLIC'
 }
 
+export type PublishItemInput = {
+  itemId: Array<Scalars['ID']>;
+};
+
+export type PublishItemPayload = {
+  __typename?: 'PublishItemPayload';
+  items: Array<Item>;
+};
+
 export type PublishModelInput = {
   modelId: Scalars['ID'];
   status: Scalars['Boolean'];
@@ -920,9 +935,11 @@ export type Query = {
   __typename?: 'Query';
   assetFile: AssetFile;
   assets: AssetConnection;
+  checkIfItemIsReferenced?: Maybe<Scalars['Boolean']>;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
   items: ItemConnection;
+  itemsByIds: ItemConnection;
   me?: Maybe<Me>;
   models: ModelConnection;
   node?: Maybe<Node>;
@@ -948,6 +965,11 @@ export type QueryAssetsArgs = {
 };
 
 
+export type QueryCheckIfItemIsReferencedArgs = {
+  itemId: Scalars['ID'];
+};
+
+
 export type QueryCheckModelKeyAvailabilityArgs = {
   key: Scalars['String'];
   projectId: Scalars['ID'];
@@ -960,9 +982,13 @@ export type QueryCheckProjectAliasArgs = {
 
 
 export type QueryItemsArgs = {
+  modelId: Scalars['ID'];
   pagination?: InputMaybe<Pagination>;
-  schemaId: Scalars['ID'];
-  sort?: InputMaybe<ItemSort>;
+};
+
+
+export type QueryItemsByIdsArgs = {
+  ids: Array<Scalars['ID']>;
 };
 
 
@@ -1178,13 +1204,12 @@ export type SchemaFieldMarkdown = {
 
 export type SchemaFieldReference = {
   __typename?: 'SchemaFieldReference';
-  defaultValue?: Maybe<Scalars['Any']>;
+  correspondingFieldId?: Maybe<Scalars['ID']>;
   modelId: Scalars['ID'];
 };
 
 export type SchemaFieldReferenceInput = {
   correspondingField?: InputMaybe<CorrespondingFieldInput>;
-  defaultValue?: InputMaybe<Scalars['Any']>;
   modelId: Scalars['ID'];
 };
 
@@ -1728,12 +1753,12 @@ export type DeleteIntegrationMutationVariables = Exact<{
 export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration?: { __typename?: 'DeleteIntegrationPayload', integrationId: string } | null };
 
 export type GetItemsQueryVariables = Exact<{
-  schemaId: Scalars['ID'];
+  modelId: Scalars['ID'];
   pagination?: InputMaybe<Pagination>;
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type GetItemQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -1783,13 +1808,20 @@ export type UnpublishItemMutationVariables = Exact<{
 
 export type UnpublishItemMutation = { __typename?: 'Mutation', unpublishItem?: { __typename?: 'UnpublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
 
+export type PublishItemMutationVariables = Exact<{
+  itemId: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
+
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
   pagination?: InputMaybe<Pagination>;
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -3188,8 +3220,8 @@ export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteInt
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
 export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
 export const GetItemsDocument = gql`
-    query GetItems($schemaId: ID!, $pagination: Pagination) {
-  items(schemaId: $schemaId, pagination: $pagination) {
+    query GetItems($modelId: ID!, $pagination: Pagination) {
+  items(modelId: $modelId, pagination: $pagination) {
     nodes {
       id
       schemaId
@@ -3211,6 +3243,7 @@ export const GetItemsDocument = gql`
         ...threadFragment
       }
     }
+    totalCount
   }
 }
     ${ThreadFragmentFragmentDoc}`;
@@ -3227,7 +3260,7 @@ export const GetItemsDocument = gql`
  * @example
  * const { data, loading, error } = useGetItemsQuery({
  *   variables: {
- *      schemaId: // value for 'schemaId'
+ *      modelId: // value for 'modelId'
  *      pagination: // value for 'pagination'
  *   },
  * });
@@ -3519,6 +3552,41 @@ export function useUnpublishItemMutation(baseOptions?: Apollo.MutationHookOption
 export type UnpublishItemMutationHookResult = ReturnType<typeof useUnpublishItemMutation>;
 export type UnpublishItemMutationResult = Apollo.MutationResult<UnpublishItemMutation>;
 export type UnpublishItemMutationOptions = Apollo.BaseMutationOptions<UnpublishItemMutation, UnpublishItemMutationVariables>;
+export const PublishItemDocument = gql`
+    mutation PublishItem($itemId: [ID!]!) {
+  publishItem(input: {itemId: $itemId}) {
+    items {
+      id
+    }
+  }
+}
+    `;
+export type PublishItemMutationFn = Apollo.MutationFunction<PublishItemMutation, PublishItemMutationVariables>;
+
+/**
+ * __usePublishItemMutation__
+ *
+ * To run a mutation, you first call `usePublishItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishItemMutation, { data, loading, error }] = usePublishItemMutation({
+ *   variables: {
+ *      itemId: // value for 'itemId'
+ *   },
+ * });
+ */
+export function usePublishItemMutation(baseOptions?: Apollo.MutationHookOptions<PublishItemMutation, PublishItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishItemMutation, PublishItemMutationVariables>(PublishItemDocument, options);
+      }
+export type PublishItemMutationHookResult = ReturnType<typeof usePublishItemMutation>;
+export type PublishItemMutationResult = Apollo.MutationResult<PublishItemMutation>;
+export type PublishItemMutationOptions = Apollo.BaseMutationOptions<PublishItemMutation, PublishItemMutationVariables>;
 export const GetModelsDocument = gql`
     query GetModels($projectId: ID!, $pagination: Pagination) {
   models(projectId: $projectId, pagination: $pagination) {
@@ -3570,9 +3638,6 @@ export const GetModelsDocument = gql`
             }
             ... on SchemaFieldURL {
               defaultValue
-            }
-            ... on SchemaFieldReference {
-              modelId
             }
           }
         }

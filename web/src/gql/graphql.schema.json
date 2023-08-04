@@ -5320,6 +5320,35 @@
             "deprecationReason": null
           },
           {
+            "name": "publishItem",
+            "description": null,
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "PublishItemInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "PublishItemPayload",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "publishModel",
             "description": null,
             "args": [
@@ -6700,6 +6729,76 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "PublishItemInput",
+        "description": null,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "itemId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "PublishItemPayload",
+        "description": null,
+        "fields": [
+          {
+            "name": "items",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Item",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "PublishModelInput",
         "description": null,
         "fields": null,
@@ -6892,6 +6991,35 @@
             "deprecationReason": null
           },
           {
+            "name": "checkIfItemIsReferenced",
+            "description": null,
+            "args": [
+              {
+                "name": "itemId",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "checkModelKeyAvailability",
             "description": null,
             "args": [
@@ -6978,19 +7106,7 @@
             "description": null,
             "args": [
               {
-                "name": "pagination",
-                "description": null,
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "Pagination",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "schemaId",
+                "name": "modelId",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -7006,12 +7122,53 @@
                 "deprecationReason": null
               },
               {
-                "name": "sort",
+                "name": "pagination",
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "ItemSort",
+                  "name": "Pagination",
                   "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ItemConnection",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "itemsByIds",
+            "description": null,
+            "args": [
+              {
+                "name": "ids",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "ID",
+                        "ofType": null
+                      }
+                    }
+                  }
                 },
                 "defaultValue": null,
                 "isDeprecated": false,
@@ -8839,12 +8996,12 @@
         "description": null,
         "fields": [
           {
-            "name": "defaultValue",
+            "name": "correspondingFieldId",
             "description": null,
             "args": [],
             "type": {
               "kind": "SCALAR",
-              "name": "Any",
+              "name": "ID",
               "ofType": null
             },
             "isDeprecated": false,
@@ -8884,18 +9041,6 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "CorrespondingFieldInput",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "defaultValue",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "Any",
               "ofType": null
             },
             "defaultValue": null,
