@@ -66,6 +66,35 @@ export const GET_ITEM_NODE = gql`
   }
 `;
 
+export const GET_ITEMS_BY_IDS = gql`
+  query GetItemsByIds($ids: [ID!]!) {
+    itemsByIds(ids: $ids) {
+      nodes {
+        id
+        schemaId
+        createdAt
+        updatedAt
+        status
+        assets {
+          id
+          url
+        }
+        user {
+          name
+        }
+        integration {
+          name
+        }
+        fields {
+          schemaFieldId
+          type
+          value
+        }
+      }
+    }
+  }
+`;
+
 export const SEARCH_ITEM = gql`
   query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
     searchItem(query: $query, sort: $sort, pagination: $pagination) {
