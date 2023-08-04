@@ -46,6 +46,7 @@ export type Props = {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
+  onReferenceModelUpdate: (modelId?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onPublish: (itemId: string) => Promise<void>;
@@ -117,6 +118,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onReferenceModelUpdate,
   onLinkItemTableChange,
   onPublish,
   onUnpublish,
@@ -158,6 +160,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           linkItemModalTotalCount={linkItemModalTotalCount}
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}
+          onReferenceModelUpdate={onReferenceModelUpdate}
           onLinkItemTableChange={onLinkItemTableChange}
           linkedItemsModalList={linkedItemsModalList}
           showPublishAction={showPublishAction}

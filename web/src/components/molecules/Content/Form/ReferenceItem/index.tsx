@@ -19,6 +19,7 @@ type Props = {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
+  onReferenceModelUpdate: (modelId?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onChange?: (value?: string) => void;
 };
@@ -31,6 +32,7 @@ const ReferenceItem: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onReferenceModelUpdate,
   onLinkItemTableChange,
 }) => {
   const { workspaceId, projectId } = useParams();
@@ -40,8 +42,9 @@ const ReferenceItem: React.FC<Props> = ({
   const [currentItem, setCurrentItem] = useState<linkedItemsModalField | undefined>();
 
   const handleClick = useCallback(() => {
+    onReferenceModelUpdate(value);
     setVisible(true);
-  }, [setVisible]);
+  }, [setVisible, onReferenceModelUpdate, value]);
 
   const handleLinkItemModalCancel = useCallback(() => {
     setVisible(false);

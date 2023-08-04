@@ -28,6 +28,7 @@ const ContentDetails: React.FC = () => {
     linkItemModalTotalCount,
     linkItemModalPage,
     linkItemModalPageSize,
+    handleReferenceModelUpdate,
     handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading,
@@ -78,6 +79,7 @@ const ContentDetails: React.FC = () => {
       linkItemModalPage={linkItemModalPage}
       linkItemModalPageSize={linkItemModalPageSize}
       onLinkItemTableChange={handleLinkItemTableChange}
+      onReferenceModelUpdate={handleReferenceModelUpdate}
       linkedItemsModalList={linkedItemsModalList}
       showPublishAction={showPublishAction}
       requests={requests}

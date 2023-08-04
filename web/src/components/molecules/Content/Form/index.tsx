@@ -64,6 +64,7 @@ export interface Props {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
+  onReferenceModelUpdate: (modelId?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
@@ -131,6 +132,7 @@ const ContentForm: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onReferenceModelUpdate,
   onLinkItemTableChange,
   onPublish,
   onUnpublish,
@@ -401,6 +403,7 @@ const ContentForm: React.FC<Props> = ({
                 <ReferenceItem
                   key={field.id}
                   modelId={field.typeProperty.modelId}
+                  onReferenceModelUpdate={onReferenceModelUpdate}
                   linkedItemsModalList={linkedItemsModalList}
                   linkItemModalTotalCount={linkItemModalTotalCount}
                   linkItemModalPage={linkItemModalPage}

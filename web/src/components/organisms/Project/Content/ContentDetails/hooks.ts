@@ -52,12 +52,13 @@ export default () => {
   const location = useLocation();
   const { data: userData } = useGetMeQuery();
 
-  const { itemId } = useParams();
+  const { itemId, modelId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
+  const [refernceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
 
   useEffect(() => {
     setLinkItemModalPage(+linkItemModalPage);
@@ -74,13 +75,13 @@ export default () => {
   const { data: itemsData } = useGetItemsQuery({
     fetchPolicy: "no-cache",
     variables: {
-      modelId: "",
+      modelId: refernceModelId ?? "",
       pagination: {
         first: linkItemModalPageSize,
         offset: (linkItemModalPage - 1) * linkItemModalPageSize,
       },
     },
-    skip: !currentModel?.schema.id,
+    skip: !refernceModelId,
   });
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
@@ -322,6 +323,10 @@ export default () => {
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
+  const handleReferenceModelUpdate = useCallback((modelId?: string) => {
+    setReferenceModelId(modelId);
+  }, []);
+
   return {
     linkedItemsModalList,
     showPublishAction,
@@ -341,6 +346,7 @@ export default () => {
     linkItemModalTotalCount: itemsData?.items.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
+    handleReferenceModelUpdate,
     handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading: loading,
