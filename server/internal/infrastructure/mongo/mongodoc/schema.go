@@ -129,6 +129,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Reference: func(fp *schema.FieldReference) {
 				fd.TypeProperty.Reference = &FieldReferencePropertyDocument{
 					Model: fp.Model().String(),
+					CorrespondingField: fp.CorrespondingField().StringRef(),
 				}
 			},
 			URL: func(fp *schema.FieldURL) {},
