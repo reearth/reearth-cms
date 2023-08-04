@@ -75,21 +75,6 @@ export const GET_ITEMS_BY_IDS = gql`
         createdAt
         updatedAt
         status
-        assets {
-          id
-          url
-        }
-        user {
-          name
-        }
-        integration {
-          name
-        }
-        fields {
-          schemaFieldId
-          type
-          value
-        }
       }
     }
   }
