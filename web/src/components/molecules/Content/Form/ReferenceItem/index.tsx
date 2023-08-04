@@ -42,9 +42,11 @@ const ReferenceItem: React.FC<Props> = ({
   const [currentItem, setCurrentItem] = useState<linkedItemsModalField | undefined>();
 
   const handleClick = useCallback(() => {
-    onReferenceModelUpdate(value);
+    console.log(modelId);
+
+    onReferenceModelUpdate(modelId);
     setVisible(true);
-  }, [setVisible, onReferenceModelUpdate, value]);
+  }, [setVisible, onReferenceModelUpdate, modelId]);
 
   const handleLinkItemModalCancel = useCallback(() => {
     setVisible(false);
