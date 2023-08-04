@@ -9,7 +9,7 @@ import {
   Request as GQLRequest,
   useGetModalRequestsQuery,
   useUnpublishItemMutation,
-  useUnpublishItemMutation as usePublishItemMutation,
+  usePublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useProject, useWorkspace } from "@reearth-cms/state";
@@ -81,7 +81,7 @@ export default () => {
     async (itemId: string) => {
       const item = await publishItem({
         variables: {
-          itemId: itemId,
+          itemId: [itemId],
         },
         refetchQueries: ["SearchItem", "GetItem"],
       });
