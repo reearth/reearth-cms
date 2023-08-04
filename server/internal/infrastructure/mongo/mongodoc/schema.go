@@ -195,11 +195,11 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			if err != nil {
 				return nil, err
 			}
-			cfid, err := id.FieldIDFrom(*tpd.Reference.CorrespondingField)
-			if err != nil {
-				return nil, err
+			var cfid *id.FieldID
+			if tpd.Reference.CorrespondingField != nil {
+				cfid = id.FieldIDFromRef(tpd.Reference.CorrespondingField)
 			}
-			tp = schema.NewReference(mid, &cfid).TypeProperty()
+			tp = schema.NewReference(mid, cfid).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
 		}
