@@ -17,6 +17,14 @@ export type Item = {
   comments: Comment[];
 };
 
+export type FormItem = {
+  id: string;
+  schemaId: string;
+  status: ItemStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type ContentTableField = {
   id: string;
   author: string;
@@ -25,17 +33,6 @@ export type ContentTableField = {
   modelId?: string;
   fields: { [key: string]: any };
   comments: Comment[];
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type linkedItemsModalField = {
-  id: string;
-  author: string;
-  schemaId: string;
-  status: ItemStatus;
-  modelId?: string;
-  fields: { [key: string]: any };
   createdAt: Date;
   updatedAt: Date;
 };

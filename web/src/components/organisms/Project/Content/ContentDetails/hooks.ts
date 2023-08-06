@@ -3,11 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import {
-  Item,
-  ItemStatus,
-  linkedItemsModalField,
-} from "@reearth-cms/components/molecules/Content/types";
+import { FormItem, Item, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import {
   RequestUpdatePayload,
   RequestState,
@@ -27,6 +23,7 @@ import {
   useUpdateItemMutation,
   useUpdateRequestMutation,
   useGetItemsQuery,
+  useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -89,7 +86,7 @@ export default () => {
     setLinkItemModalPageSize(pageSize);
   }, []);
 
-  const linkedItemsModalList: linkedItemsModalField[] | undefined = useMemo(() => {
+  const linkedItemsModalList: FormItem[] | undefined = useMemo(() => {
     return itemsData?.items.nodes
       ?.map(item =>
         item
@@ -97,31 +94,12 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              author: item.user?.name ?? item.integration?.name,
-              fields: item?.fields?.reduce(
-                (obj, field) =>
-                  Object.assign(obj, {
-                    [field.schemaFieldId]:
-                      field.type === "Asset"
-                        ? Array.isArray(field.value)
-                          ? field.value.map(value => value.id).join(", ")
-                          : item.id
-                        : Array.isArray(field.value)
-                        ? field.value.join(", ")
-                        : field.value
-                        ? "" + field.value
-                        : field.value,
-                  }),
-                {},
-              ),
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
             }
           : undefined,
       )
-      .filter(
-        (contentTableField): contentTableField is linkedItemsModalField => !!contentTableField,
-      );
+      .filter((contentTableField): contentTableField is FormItem => !!contentTableField);
   }, [itemsData?.items.nodes]);
 
   const me: User | undefined = useMemo(() => {
@@ -148,6 +126,27 @@ export default () => {
   const currentItem: Item | undefined = useMemo(
     () => convertItem(data?.node as GQLItem),
     [data?.node],
+  );
+
+  const formReferenceItemsIds = useMemo(
+    () =>
+      currentItem?.fields
+        ?.filter(field => field.value && field.type === "Reference")
+        .map(field => field.value) ?? [],
+    [currentItem?.fields],
+  );
+
+  const { data: gqlFormItemsData } = useGetItemsByIdsQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      ids: formReferenceItemsIds,
+    },
+    skip: formReferenceItemsIds.length === 0,
+  });
+
+  const formItemsData: FormItem[] | undefined = useMemo(
+    () => gqlFormItemsData?.itemsByIds?.nodes as FormItem[],
+    [gqlFormItemsData?.itemsByIds?.nodes],
   );
 
   const handleNavigateToModel = useCallback(
@@ -335,6 +334,7 @@ export default () => {
     requestCreationLoading,
     currentModel,
     currentItem,
+    formItemsData,
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,

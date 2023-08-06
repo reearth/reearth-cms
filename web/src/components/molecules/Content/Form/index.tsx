@@ -24,7 +24,7 @@ import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitl
 import ReferenceItem from "@reearth-cms/components/molecules/Content/Form/ReferenceItem";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
-import { ItemField, linkedItemsModalField } from "@reearth-cms/components/molecules/Content/types";
+import { FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -36,10 +36,11 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
-  linkedItemsModalList?: linkedItemsModalField[];
+  linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
   itemId?: string;
+  formItemsData: FormItem[];
   initialFormValues: any;
   loading: boolean;
   model?: Model;
@@ -108,6 +109,7 @@ const ContentForm: React.FC<Props> = ({
   requests,
   itemId,
   model,
+  formItemsData,
   initialFormValues,
   loading,
   assetList,
@@ -402,6 +404,7 @@ const ContentForm: React.FC<Props> = ({
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
                 <ReferenceItem
                   key={field.id}
+                  formItemsData={formItemsData}
                   modelId={field.typeProperty.modelId}
                   onReferenceModelUpdate={onReferenceModelUpdate}
                   linkedItemsModalList={linkedItemsModalList}

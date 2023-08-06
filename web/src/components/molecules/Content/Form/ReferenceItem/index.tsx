@@ -9,13 +9,14 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import LinkItemModal from "@reearth-cms/components/molecules/Content/LinkItemModal";
 import { useT } from "@reearth-cms/i18n";
 
-import { linkedItemsModalField } from "../../types";
+import { FormItem } from "../../types";
 
 type Props = {
-  linkedItemsModalList?: linkedItemsModalField[];
+  linkedItemsModalList?: FormItem[];
   className?: string;
   value?: string;
   modelId?: string;
+  formItemsData?: FormItem[];
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
@@ -29,6 +30,7 @@ const ReferenceItem: React.FC<Props> = ({
   value,
   onChange,
   modelId,
+  formItemsData,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
@@ -39,7 +41,7 @@ const ReferenceItem: React.FC<Props> = ({
 
   const t = useT();
   const [visible, setVisible] = useState(false);
-  const [currentItem, setCurrentItem] = useState<linkedItemsModalField | undefined>();
+  const [currentItem, setCurrentItem] = useState<FormItem | undefined>();
 
   const handleClick = useCallback(() => {
     console.log(modelId);
@@ -53,9 +55,11 @@ const ReferenceItem: React.FC<Props> = ({
   }, [setVisible]);
 
   useEffect(() => {
-    const item = linkedItemsModalList?.find(item => item.id === value);
+    const item = [...(linkedItemsModalList ?? []), ...(formItemsData ?? [])]?.find(
+      item => item.id === value,
+    );
     setCurrentItem(item);
-  }, [linkedItemsModalList, value]);
+  }, [linkedItemsModalList, formItemsData, value]);
 
   return (
     <>

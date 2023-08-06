@@ -16,6 +16,7 @@ const ContentDetails: React.FC = () => {
     itemId,
     currentModel,
     currentItem,
+    formItemsData,
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
@@ -75,6 +76,7 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      formItemsData={formItemsData}
       linkItemModalTotalCount={linkItemModalTotalCount}
       linkItemModalPage={linkItemModalPage}
       linkItemModalPageSize={linkItemModalPageSize}
