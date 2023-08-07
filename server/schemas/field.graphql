@@ -97,6 +97,7 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  correspondingField: SchemaField
   correspondingFieldId: ID
 }
 
