@@ -10,11 +10,13 @@ import ProTable, {
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-import { linkedItemsModalField } from "../types";
+import { FormItem } from "../types";
+
+import useHooks from "./hooks";
 
 type Props = {
   onChange?: (value: string) => void;
-  linkedItemsModalList?: linkedItemsModalField[];
+  linkedItemsModalList?: FormItem[];
   visible?: boolean;
   linkedItem?: string;
   linkItemModalTotalCount: number;
@@ -37,6 +39,8 @@ const LinkItemModal: React.FC<Props> = ({
 }) => {
   const [hoveredAssetId, setHoveredItemId] = useState<string>();
   const t = useT();
+  const { confirm } = Modal;
+  const { handleCheckItemReference } = useHooks();
 
   const pagination: TablePaginationConfig = {
     showSizeChanger: true,
@@ -45,7 +49,7 @@ const LinkItemModal: React.FC<Props> = ({
     pageSize: linkItemModalPageSize,
   };
 
-  const columns: ProColumns<linkedItemsModalField>[] = [
+  const columns: ProColumns<FormItem>[] = [
     {
       title: "",
       render: (_, item) => {
@@ -58,9 +62,29 @@ const LinkItemModal: React.FC<Props> = ({
             onMouseEnter={() => setHoveredItemId(item.id)}
             onMouseLeave={() => setHoveredItemId(undefined)}
             icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
-            onClick={() => {
-              onChange?.(link ? item.id : "");
-              onLinkItemModalCancel();
+            onClick={async () => {
+              if (!link) {
+                onChange?.("");
+                onLinkItemModalCancel();
+              } else {
+                const response = await handleCheckItemReference(item.id);
+                if (!response.data?.checkIfItemIsReferenced) {
+                  onChange?.(item.id);
+                  onLinkItemModalCancel();
+                } else {
+                  confirm({
+                    title: t("This item has been referenced"),
+                    content: t(
+                      "Are you going to refer to it? The previous reference will be canceled automatically",
+                    ),
+                    icon: <Icon icon="exclamationCircle" />,
+                    onOk() {
+                      onChange?.(item.id);
+                      onLinkItemModalCancel();
+                    },
+                  });
+                }
+              }
             }}
           />
         );

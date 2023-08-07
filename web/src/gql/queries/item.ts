@@ -66,6 +66,12 @@ export const GET_ITEM_NODE = gql`
   }
 `;
 
+export const CHECK_IF_ITEM_IS_REFERENCED = gql`
+  query CheckIfItemIsReferenced($itemId: ID!) {
+    checkIfItemIsReferenced(itemId: $itemId)
+  }
+`;
+
 export const GET_ITEMS_BY_IDS = gql`
   query GetItemsByIds($ids: [ID!]!) {
     itemsByIds(ids: $ids) {

@@ -20,6 +20,7 @@ export type Item = {
 export type FormItem = {
   id: string;
   schemaId: string;
+  author?: string;
   status: ItemStatus;
   createdAt: Date;
   updatedAt: Date;

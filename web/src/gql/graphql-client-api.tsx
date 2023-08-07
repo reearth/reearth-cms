@@ -556,6 +556,7 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
+  publishOneItem?: Maybe<PublishOneItemPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
@@ -719,6 +720,11 @@ export type MutationPublishItemArgs = {
 
 export type MutationPublishModelArgs = {
   input: PublishModelInput;
+};
+
+
+export type MutationPublishOneItemArgs = {
+  input: PublishOneItemInput;
 };
 
 
@@ -929,6 +935,15 @@ export type PublishModelPayload = {
   __typename?: 'PublishModelPayload';
   modelId: Scalars['ID'];
   status: Scalars['Boolean'];
+};
+
+export type PublishOneItemInput = {
+  itemId: Scalars['ID'];
+};
+
+export type PublishOneItemPayload = {
+  __typename?: 'PublishOneItemPayload';
+  item: Item;
 };
 
 export type Query = {
@@ -1766,6 +1781,13 @@ export type GetItemQueryVariables = Exact<{
 
 
 export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null };
+
+export type CheckIfItemIsReferencedQueryVariables = Exact<{
+  itemId: Scalars['ID'];
+}>;
+
+
+export type CheckIfItemIsReferencedQuery = { __typename?: 'Query', checkIfItemIsReferenced?: boolean | null };
 
 export type GetItemsByIdsQueryVariables = Exact<{
   ids: Array<Scalars['ID']> | Scalars['ID'];
@@ -3343,6 +3365,39 @@ export function useGetItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ge
 export type GetItemQueryHookResult = ReturnType<typeof useGetItemQuery>;
 export type GetItemLazyQueryHookResult = ReturnType<typeof useGetItemLazyQuery>;
 export type GetItemQueryResult = Apollo.QueryResult<GetItemQuery, GetItemQueryVariables>;
+export const CheckIfItemIsReferencedDocument = gql`
+    query CheckIfItemIsReferenced($itemId: ID!) {
+  checkIfItemIsReferenced(itemId: $itemId)
+}
+    `;
+
+/**
+ * __useCheckIfItemIsReferencedQuery__
+ *
+ * To run a query within a React component, call `useCheckIfItemIsReferencedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckIfItemIsReferencedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckIfItemIsReferencedQuery({
+ *   variables: {
+ *      itemId: // value for 'itemId'
+ *   },
+ * });
+ */
+export function useCheckIfItemIsReferencedQuery(baseOptions: Apollo.QueryHookOptions<CheckIfItemIsReferencedQuery, CheckIfItemIsReferencedQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CheckIfItemIsReferencedQuery, CheckIfItemIsReferencedQueryVariables>(CheckIfItemIsReferencedDocument, options);
+      }
+export function useCheckIfItemIsReferencedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckIfItemIsReferencedQuery, CheckIfItemIsReferencedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CheckIfItemIsReferencedQuery, CheckIfItemIsReferencedQueryVariables>(CheckIfItemIsReferencedDocument, options);
+        }
+export type CheckIfItemIsReferencedQueryHookResult = ReturnType<typeof useCheckIfItemIsReferencedQuery>;
+export type CheckIfItemIsReferencedLazyQueryHookResult = ReturnType<typeof useCheckIfItemIsReferencedLazyQuery>;
+export type CheckIfItemIsReferencedQueryResult = Apollo.QueryResult<CheckIfItemIsReferencedQuery, CheckIfItemIsReferencedQueryVariables>;
 export const GetItemsByIdsDocument = gql`
     query GetItemsByIds($ids: [ID!]!) {
   itemsByIds(ids: $ids) {
