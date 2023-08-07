@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
@@ -169,6 +169,11 @@ const ContentForm: React.FC<Props> = ({
   const handleBack = useCallback(() => {
     onBack(model?.id);
   }, [onBack, model]);
+
+  const unpublishedItems = useMemo(
+    () => formItemsData?.filter(item => item.status !== "PUBLIC"),
+    [formItemsData],
+  );
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -482,6 +487,7 @@ const ContentForm: React.FC<Props> = ({
       {itemId && (
         <>
           <RequestCreationModal
+            unpublishedItems={unpublishedItems}
             itemId={itemId}
             open={requestModalShown}
             onClose={onModalClose}

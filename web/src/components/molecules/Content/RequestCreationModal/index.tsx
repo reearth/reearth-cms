@@ -1,13 +1,20 @@
-import { useCallback } from "react";
+import styled from "@emotion/styled";
+import { useCallback, useState } from "react";
 
+import Badge from "@reearth-cms/components/atoms/Badge";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Row from "@reearth-cms/components/atoms/Row";
 import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+
+import { FormItem } from "../types";
 
 export type FormValues = {
   title: string;
@@ -23,6 +30,7 @@ export type Props = {
   open?: boolean;
   requestCreationLoading: boolean;
   itemId: string;
+  unpublishedItems: FormItem[];
   workspaceUserMembers: Member[];
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (data: FormValues) => Promise<void>;
@@ -44,12 +52,14 @@ const RequestCreationModal: React.FC<Props> = ({
   open,
   requestCreationLoading,
   itemId,
+  unpublishedItems,
   workspaceUserMembers,
   onClose,
   onSubmit,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
+  const [selectedItems, setSelectedItems] = useState<{ [key: string]: boolean }>({});
 
   const reviewers: SelectProps["options"] = [];
   for (const member of workspaceUserMembers) {
@@ -59,10 +69,25 @@ const RequestCreationModal: React.FC<Props> = ({
     });
   }
 
+  const handleCheckboxChange = useCallback(
+    (itemId: string, checked: boolean) => {
+      setSelectedItems(prevState => ({
+        ...prevState,
+        [itemId]: checked,
+      }));
+    },
+    [setSelectedItems],
+  );
+
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      values.items = [{ itemId }];
+      values.items = [
+        { itemId },
+        ...Object.keys(selectedItems)
+          .filter(key => selectedItems[key] === true)
+          .map(key => ({ itemId: key })),
+      ];
       values.state = "WAITING";
       await onSubmit?.(values);
       onClose?.(true);
@@ -70,7 +95,7 @@ const RequestCreationModal: React.FC<Props> = ({
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [itemId, form, onClose, onSubmit]);
+  }, [itemId, form, onClose, onSubmit, selectedItems]);
 
   const handleClose = useCallback(() => {
     onClose?.(true);
@@ -111,9 +136,88 @@ const RequestCreationModal: React.FC<Props> = ({
             allowClear
           />
         </Form.Item>
+        {unpublishedItems?.length !== 0 && (
+          <RequestWarning>
+            <Icon icon="exclamationCircle" />
+            <p>
+              We found some referenced items that not published yet. Please select to add the items
+              to the same request.
+            </p>
+          </RequestWarning>
+        )}
+        {unpublishedItems?.map((item, index) => (
+          <StyledRow key={index}>
+            <StyledCheckbox
+              value={selectedItems[item.id]}
+              onChange={e => handleCheckboxChange(item.id, e.target.checked)}>
+              <StyledReferenceItem>
+                <ReferenceItemName>{item.id}</ReferenceItemName>
+                <Badge
+                  color={
+                    item?.status === "PUBLIC"
+                      ? "#52C41A"
+                      : item?.status === "REVIEW"
+                      ? "#F5222D"
+                      : item?.status === "DRAFT"
+                      ? "#BFBFBF"
+                      : ""
+                  }
+                />
+              </StyledReferenceItem>
+            </StyledCheckbox>
+          </StyledRow>
+        ))}
       </Form>
     </Modal>
   );
 };
+
+const RequestWarning = styled.div`
+  .anticon {
+    float: left;
+    margin-right: 8px;
+    font-size: 16px;
+    color: #faad14;
+  }
+  p {
+    display: block;
+    overflow: hidden;
+    color: #000000d9;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-top: 2px;
+  }
+`;
+
+const StyledRow = styled(Row)`
+  + .ant-row {
+    margin-top: 10px;
+  }
+`;
+
+const StyledReferenceItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  justify-content: space-between;
+  flex: 1;
+`;
+
+const ReferenceItemName = styled.p`
+  margin: 0;
+  color: #1890ff;
+`;
+
+const StyledCheckbox = styled(Checkbox)`
+  display: flex;
+  width: 100%;
+  .ant-checkbox + span {
+    flex: 1;
+  }
+`;
 
 export default RequestCreationModal;
