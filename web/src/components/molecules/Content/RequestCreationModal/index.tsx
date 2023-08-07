@@ -140,8 +140,9 @@ const RequestCreationModal: React.FC<Props> = ({
           <RequestWarning>
             <Icon icon="exclamationCircle" />
             <p>
-              We found some referenced items that not published yet. Please select to add the items
-              to the same request.
+              {t(
+                "We found some referenced items that not published yet. Please select to add the items to the same request.",
+              )}
             </p>
           </RequestWarning>
         )}

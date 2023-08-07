@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -48,6 +48,12 @@ const PublishItemModal: React.FC<Props> = ({
     [setSelectedItems],
   );
 
+  useEffect(() => {
+    return () => {
+      setSelectedItems({});
+    };
+  }, [setSelectedItems, onClose]);
+
   const handleSubmit = useCallback(async () => {
     try {
       await onSubmit?.([
@@ -67,14 +73,15 @@ const PublishItemModal: React.FC<Props> = ({
     onClose?.(true);
   }, [onClose]);
   return (
-    <Modal open={open} onCancel={handleClose} onOk={handleSubmit} title={t("New Request")}>
+    <Modal open={open} onCancel={handleClose} onOk={handleSubmit} title={t("Publish")}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         {unpublishedItems?.length !== 0 && (
           <RequestWarning>
             <Icon icon="exclamationCircle" />
             <p>
-              We found some referenced items that not published yet. Please select to add the items
-              to the same request.
+              {t(
+                "We found some referenced items that not been published yet. Please select to publish the items.",
+              )}
             </p>
           </RequestWarning>
         )}
