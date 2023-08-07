@@ -12,10 +12,10 @@ import (
 )
 
 type SchemaFieldLoader struct {
-	usecase interfaces.SchemaField
+	usecase interfaces.Schema
 }
 
-func NewSchemaFieldLoader(usecase interfaces.SchemaField) *SchemaFieldLoader {
+func NewSchemaFieldLoader(usecase interfaces.Schema) *SchemaFieldLoader {
 	return &SchemaFieldLoader{usecase: usecase}
 }
 
@@ -43,8 +43,8 @@ type ordinarySchemaFieldLoader struct {
 	c   *SchemaFieldLoader
 }
 
-func (l *ordinarySchemaFieldLoader) Load(key gqlmodel.ID) (*gqlmodel.SchemaField, error) {
-	res, errs := l.c.FindByIDs(l.ctx, []gqlmodel.ID{key})
+func (l *ordinarySchemaFieldLoader) Load(id gqlmodel.ID) (*gqlmodel.SchemaField, error) {
+	res, errs := l.c.FindByIDs(l.ctx, []gqlmodel.ID{id})
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}
@@ -64,7 +64,7 @@ func (c *SchemaFieldLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, ids2, getOperator(ctx))
+	res, err := c.usecase.FindFieldByIDs(ctx, ids2, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}

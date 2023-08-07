@@ -75,7 +75,7 @@ func (r *Schema) FindFieldByIDs(ctx context.Context, ids id.FieldIDList) ([]*sch
 	}
 
 	res, err := r.find(ctx, bson.M{
-		"id": bson.M{
+		"fields.id": bson.M{
 			"$in": ids.Strings(),
 		},
 	})

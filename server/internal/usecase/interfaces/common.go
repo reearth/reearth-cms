@@ -22,7 +22,6 @@ type Container struct {
 	Request     Request
 	Model       Model
 	Schema      Schema
-	SchemaField SchemaField
 	Integration Integration
 	Thread      Thread
 }
