@@ -78,10 +78,10 @@ export default () => {
   const [publishItem] = usePublishItemMutation();
 
   const handlePublish = useCallback(
-    async (itemId: string) => {
+    async (itemIds: string[]) => {
       const item = await publishItem({
         variables: {
-          itemId: [itemId],
+          itemId: itemIds,
         },
         refetchQueries: ["SearchItem", "GetItem"],
       });

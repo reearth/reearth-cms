@@ -50,7 +50,7 @@ export type Props = {
   onReferenceModelUpdate: (modelId?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
-  onPublish: (itemId: string) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,

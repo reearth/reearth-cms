@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
@@ -23,6 +23,7 @@ import MultiValueSwitch from "@reearth-cms/components/molecules/Common/MultiValu
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/Form/ReferenceItem";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
+import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
 import { FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
@@ -86,7 +87,7 @@ export interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
-  onPublish: (itemId: string) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -161,6 +162,7 @@ const ContentForm: React.FC<Props> = ({
   const t = useT();
   const { Option } = Select;
   const [form] = Form.useForm();
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
@@ -171,7 +173,7 @@ const ContentForm: React.FC<Props> = ({
   }, [onBack, model]);
 
   const unpublishedItems = useMemo(
-    () => formItemsData?.filter(item => item.status !== "PUBLIC"),
+    () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
     [formItemsData],
   );
 
@@ -209,6 +211,19 @@ const ContentForm: React.FC<Props> = ({
     },
   ];
 
+  const handlePublishSubmit = useCallback(async () => {
+    if (!itemId || !unpublishedItems) return;
+    if (unpublishedItems.length === 0) {
+      onPublish([itemId]);
+    } else {
+      setPublishModalOpen(true);
+    }
+  }, [itemId, unpublishedItems, onPublish, setPublishModalOpen]);
+
+  const handlePublishItemClose = useCallback(() => {
+    setPublishModalOpen(false);
+  }, [setPublishModalOpen]);
+
   return (
     <>
       <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
@@ -223,7 +238,7 @@ const ContentForm: React.FC<Props> = ({
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={() => onPublish(itemId)}>
+                    <Button type="primary" onClick={handlePublishSubmit}>
                       {t("Publish")}
                     </Button>
                   )}
@@ -507,6 +522,13 @@ const ContentForm: React.FC<Props> = ({
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
+          />
+          <PublishItemModal
+            unpublishedItems={unpublishedItems}
+            itemId={itemId}
+            open={publishModalOpen}
+            onClose={handlePublishItemClose}
+            onSubmit={onPublish}
           />
         </>
       )}
