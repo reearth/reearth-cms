@@ -54,6 +54,17 @@ export const GET_MODELS = gql`
               }
               ... on SchemaFieldReference {
                 modelId
+                correspondingField {
+                  id
+                  type
+                  title
+                  key
+                  description
+                  required
+                  unique
+                  multiple
+                  order
+                }
               }
             }
           }
