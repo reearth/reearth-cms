@@ -517,60 +517,6 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 	})
 }
 
-func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
-	if operator.AcOperator.User == nil && operator.Integration == nil {
-		return nil, interfaces.ErrInvalidOperator
-	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
-		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		if itm.Refs().Has(version.Public) {
-			return nil, interfaces.ErrAlreadyPublished
-		}
-
-		m, err := i.repos.Model.FindByID(ctx, itm.Value().Model())
-		if err != nil {
-			return nil, err
-		}
-
-		prj, err := i.repos.Project.FindByID(ctx, m.Project())
-		if err != nil {
-			return nil, err
-		}
-
-		s, err := i.repos.Schema.FindByID(ctx, m.Schema())
-		if err != nil {
-			return nil, err
-		}
-
-		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
-			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
-				return nil, err
-			}
-
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: s.Workspace(),
-				Type:      event.ItemPublish,
-				Object:    itm,
-				WebhookObject: item.ItemModelSchema{
-					Item:   itm.Value(),
-					Model:  m,
-					Schema: s,
-				},
-				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
-			}
-		}
-
-		return itm, nil
-	})
-}
-
 func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID, itm *item.Item) error {
 	var fieldsArg []repo.FieldAndValue
 	for _, f := range itemFields {

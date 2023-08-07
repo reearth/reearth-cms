@@ -343,7 +343,6 @@ type ComplexityRoot struct {
 		DeleteWorkspace                func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
 		PublishItem                    func(childComplexity int, input gqlmodel.PublishItemInput) int
 		PublishModel                   func(childComplexity int, input gqlmodel.PublishModelInput) int
-		PublishOneItem                 func(childComplexity int, input gqlmodel.PublishOneItemInput) int
 		RemoveIntegrationFromWorkspace func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
 		RemoveMyAuth                   func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		RemoveUserFromWorkspace        func(childComplexity int, input gqlmodel.RemoveUserFromWorkspaceInput) int
@@ -417,10 +416,6 @@ type ComplexityRoot struct {
 	PublishModelPayload struct {
 		ModelID func(childComplexity int) int
 		Status  func(childComplexity int) int
-	}
-
-	PublishOneItemPayload struct {
-		Item func(childComplexity int) int
 	}
 
 	Query struct {
@@ -737,7 +732,6 @@ type MutationResolver interface {
 	CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error)
 	UpdateItem(ctx context.Context, input gqlmodel.UpdateItemInput) (*gqlmodel.ItemPayload, error)
 	DeleteItem(ctx context.Context, input gqlmodel.DeleteItemInput) (*gqlmodel.DeleteItemPayload, error)
-	PublishOneItem(ctx context.Context, input gqlmodel.PublishOneItemInput) (*gqlmodel.PublishOneItemPayload, error)
 	PublishItem(ctx context.Context, input gqlmodel.PublishItemInput) (*gqlmodel.PublishItemPayload, error)
 	UnpublishItem(ctx context.Context, input gqlmodel.UnpublishItemInput) (*gqlmodel.UnpublishItemPayload, error)
 	CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
@@ -2089,18 +2083,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.PublishModel(childComplexity, args["input"].(gqlmodel.PublishModelInput)), true
 
-	case "Mutation.publishOneItem":
-		if e.complexity.Mutation.PublishOneItem == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_publishOneItem_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.PublishOneItem(childComplexity, args["input"].(gqlmodel.PublishOneItemInput)), true
-
 	case "Mutation.removeIntegrationFromWorkspace":
 		if e.complexity.Mutation.RemoveIntegrationFromWorkspace == nil {
 			break
@@ -2512,13 +2494,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PublishModelPayload.Status(childComplexity), true
-
-	case "PublishOneItemPayload.item":
-		if e.complexity.PublishOneItemPayload.Item == nil {
-			break
-		}
-
-		return e.complexity.PublishOneItemPayload.Item(childComplexity), true
 
 	case "Query.assetFile":
 		if e.complexity.Query.AssetFile == nil {
@@ -3577,7 +3552,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputPublishItemInput,
 		ec.unmarshalInputPublishModelInput,
-		ec.unmarshalInputPublishOneItemInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
 		ec.unmarshalInputRemoveMyAuthInput,
 		ec.unmarshalInputRemoveUserFromWorkspaceInput,
@@ -4716,10 +4690,6 @@ input UnpublishItemInput {
   itemId: [ID!]!
 }
 
-input PublishOneItemInput {
-  itemId: ID!
-}
-
 # Payloads
 type ItemPayload {
   item: Item!
@@ -4735,10 +4705,6 @@ type PublishItemPayload {
 
 type UnpublishItemPayload {
   items: [Item!]!
-}
-
-type PublishOneItemPayload {
-  item: Item!
 }
 
 type ItemConnection {
@@ -4785,7 +4751,6 @@ extend type Mutation {
   createItem(input: CreateItemInput!): ItemPayload
   updateItem(input: UpdateItemInput!): ItemPayload
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
-  publishOneItem(input: PublishOneItemInput!): PublishOneItemPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
 }
@@ -5419,21 +5384,6 @@ func (ec *executionContext) field_Mutation_publishModel_args(ctx context.Context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_publishOneItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 gqlmodel.PublishOneItemInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNPublishOneItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishOneItemInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -14676,62 +14626,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteItem(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_publishOneItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_publishOneItem(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PublishOneItem(rctx, fc.Args["input"].(gqlmodel.PublishOneItemInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.PublishOneItemPayload)
-	fc.Result = res
-	return ec.marshalOPublishOneItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishOneItemPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_publishOneItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "item":
-				return ec.fieldContext_PublishOneItemPayload_item(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PublishOneItemPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_publishOneItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_publishItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_publishItem(ctx, field)
 	if err != nil {
@@ -16757,90 +16651,6 @@ func (ec *executionContext) fieldContext_PublishModelPayload_status(ctx context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PublishOneItemPayload_item(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PublishOneItemPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PublishOneItemPayload_item(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Item, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Item)
-	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PublishOneItemPayload_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PublishOneItemPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Item_id(ctx, field)
-			case "schemaId":
-				return ec.fieldContext_Item_schemaId(ctx, field)
-			case "threadId":
-				return ec.fieldContext_Item_threadId(ctx, field)
-			case "modelId":
-				return ec.fieldContext_Item_modelId(ctx, field)
-			case "projectId":
-				return ec.fieldContext_Item_projectId(ctx, field)
-			case "integrationId":
-				return ec.fieldContext_Item_integrationId(ctx, field)
-			case "userId":
-				return ec.fieldContext_Item_userId(ctx, field)
-			case "integration":
-				return ec.fieldContext_Item_integration(ctx, field)
-			case "user":
-				return ec.fieldContext_Item_user(ctx, field)
-			case "schema":
-				return ec.fieldContext_Item_schema(ctx, field)
-			case "model":
-				return ec.fieldContext_Item_model(ctx, field)
-			case "status":
-				return ec.fieldContext_Item_status(ctx, field)
-			case "project":
-				return ec.fieldContext_Item_project(ctx, field)
-			case "thread":
-				return ec.fieldContext_Item_thread(ctx, field)
-			case "fields":
-				return ec.fieldContext_Item_fields(ctx, field)
-			case "assets":
-				return ec.fieldContext_Item_assets(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Item_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Item_updatedAt(ctx, field)
-			case "version":
-				return ec.fieldContext_Item_version(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
 	}
 	return fc, nil
@@ -26990,35 +26800,6 @@ func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPublishOneItemInput(ctx context.Context, obj interface{}) (gqlmodel.PublishOneItemInput, error) {
-	var it gqlmodel.PublishOneItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"itemId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "itemId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ItemID = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveIntegrationFromWorkspaceInput
 	asMap := map[string]interface{}{}
@@ -31847,10 +31628,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteItem(ctx, field)
 			})
-		case "publishOneItem":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_publishOneItem(ctx, field)
-			})
 		case "publishItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_publishItem(ctx, field)
@@ -32355,45 +32132,6 @@ func (ec *executionContext) _PublishModelPayload(ctx context.Context, sel ast.Se
 			}
 		case "status":
 			out.Values[i] = ec._PublishModelPayload_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var publishOneItemPayloadImplementors = []string{"PublishOneItemPayload"}
-
-func (ec *executionContext) _PublishOneItemPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.PublishOneItemPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, publishOneItemPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PublishOneItemPayload")
-		case "item":
-			out.Values[i] = ec._PublishOneItemPayload_item(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -36403,11 +36141,6 @@ func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearth�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNPublishOneItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishOneItemInput(ctx context.Context, v interface{}) (gqlmodel.PublishOneItemInput, error) {
-	res, err := ec.unmarshalInputPublishOneItemInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNRemoveIntegrationFromWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveIntegrationFromWorkspaceInput(ctx context.Context, v interface{}) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
 	res, err := ec.unmarshalInputRemoveIntegrationFromWorkspaceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -38029,13 +37762,6 @@ func (ec *executionContext) marshalOPublishModelPayload2ᚖgithubᚗcomᚋreeart
 		return graphql.Null
 	}
 	return ec._PublishModelPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOPublishOneItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishOneItemPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.PublishOneItemPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._PublishOneItemPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORemoveMemberFromWorkspacePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRemoveMemberFromWorkspacePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.RemoveMemberFromWorkspacePayload) graphql.Marshaler {

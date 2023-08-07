@@ -552,14 +552,6 @@ type PublishModelPayload struct {
 	Status  bool `json:"status"`
 }
 
-type PublishOneItemInput struct {
-	ItemID ID `json:"itemId"`
-}
-
-type PublishOneItemPayload struct {
-	Item *Item `json:"item"`
-}
-
 type RemoveIntegrationFromWorkspaceInput struct {
 	WorkspaceID   ID `json:"workspaceId"`
 	IntegrationID ID `json:"integrationId"`
