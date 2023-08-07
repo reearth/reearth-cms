@@ -63,8 +63,20 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   useEffect(() => {
     modelForm.setFieldsValue({
       model: selectedField?.typeProperty.modelId,
+      direction: selectedField?.typeProperty.correspondingField ? 2 : 1,
     });
-  }, [modelForm, selectedField]);
+
+    setSelectedModel(selectedField?.typeProperty.modelId);
+    setNumSteps(selectedField?.typeProperty.correspondingField ? 2 : 1);
+    field1Form.setFieldsValue({
+      ...selectedField,
+    });
+    if (selectedField?.typeProperty.correspondingField) {
+      field2Form.setFieldsValue({
+        ...selectedField.typeProperty.correspondingField,
+      });
+    }
+  }, [modelForm, selectedField, field1Form, field2Form, setNumSteps, setSelectedModel]);
 
   const initialValues: FormValues = useMemo(
     () => ({
@@ -143,20 +155,49 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   }, []);
 
   const handleSubmit = useCallback(() => {
-    // For updating an existing field
     if (selectedField) {
-      field1Form.validateFields().then(async values => {
-        values.type = "Reference";
-        values.typeProperty = {
-          reference: {
-            modelId: selectedModel ?? "",
-            correspondingField: null,
-          },
-        };
-        await onUpdate?.({ ...values, fieldId: selectedField.id }); // Pass the field ID for updating
-        onClose?.(true);
-      });
+      if (currentStep === 1) {
+        field1Form.validateFields().then(async values => {
+          values.type = "Reference";
+          values.typeProperty = {
+            reference: {
+              modelId: selectedModel ?? "",
+              correspondingField: null,
+            },
+          };
+          await onUpdate?.({ ...values, fieldId: selectedField.id }); // Pass the field ID for updating
+          onClose?.(true);
+        });
+      } else {
+        field2Form.validateFields().then(async fields2Values => {
+          fields2Values.typeProperty = {
+            reference: {
+              modelId: selectedModel,
+              correspondingField: null,
+            },
+          };
+          console.log(selectedModel);
+
+          field1FormValues.type = "Reference";
+          field1FormValues.typeProperty = {
+            reference: {
+              modelId: selectedModel ?? "",
+              correspondingField: {
+                update: {
+                  ...fields2Values,
+                  modelId: selectedModel,
+                  fieldId: selectedField?.typeProperty.correspondingField.id,
+                },
+              },
+            },
+          };
+          console.log({ ...field1FormValues, fieldId: selectedField.id });
+          await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
+          onClose?.(true);
+        });
+      }
     } else {
+      console.log("fun");
       // For creating a new field
       if (currentStep === 1) {
         field1Form
@@ -277,7 +318,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               ))}
             </Select>
           </StyledFormItem>
-          <StyledFormItem label={t("Reference direction")}>
+          <StyledFormItem name="direction" label={t("Reference direction")}>
             <Radio.Group onChange={e => setNumSteps(e.target.value)} value={numSteps}>
               <Space direction="vertical" size={0}>
                 <Radio value={1}>{t("One-way reference")}</Radio>

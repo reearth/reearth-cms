@@ -47,6 +47,8 @@ export type TypeProperty =
       integerDefaultValue?: number;
       min?: number;
       max?: number;
+      correspondingField?: any;
+      modelId?: string;
     }
   | any;
 

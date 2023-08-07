@@ -556,7 +556,6 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
-  publishOneItem?: Maybe<PublishOneItemPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
@@ -720,11 +719,6 @@ export type MutationPublishItemArgs = {
 
 export type MutationPublishModelArgs = {
   input: PublishModelInput;
-};
-
-
-export type MutationPublishOneItemArgs = {
-  input: PublishOneItemInput;
 };
 
 
@@ -935,15 +929,6 @@ export type PublishModelPayload = {
   __typename?: 'PublishModelPayload';
   modelId: Scalars['ID'];
   status: Scalars['Boolean'];
-};
-
-export type PublishOneItemInput = {
-  itemId: Scalars['ID'];
-};
-
-export type PublishOneItemPayload = {
-  __typename?: 'PublishOneItemPayload';
-  item: Item;
 };
 
 export type Query = {
