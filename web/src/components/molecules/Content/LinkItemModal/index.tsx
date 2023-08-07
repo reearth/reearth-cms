@@ -66,24 +66,27 @@ const LinkItemModal: React.FC<Props> = ({
               if (!link) {
                 onChange?.("");
                 onLinkItemModalCancel();
+                return;
+              }
+
+              const response = await handleCheckItemReference(item.id);
+              const isReferenced = response?.data?.checkIfItemIsReferenced;
+
+              if (isReferenced) {
+                confirm({
+                  title: t("This item has been referenced"),
+                  content: t(
+                    "Are you going to refer to it? The previous reference will be canceled automatically",
+                  ),
+                  icon: <Icon icon="exclamationCircle" />,
+                  onOk() {
+                    onChange?.(item.id);
+                    onLinkItemModalCancel();
+                  },
+                });
               } else {
-                const response = await handleCheckItemReference(item.id);
-                if (!response.data?.checkIfItemIsReferenced) {
-                  onChange?.(item.id);
-                  onLinkItemModalCancel();
-                } else {
-                  confirm({
-                    title: t("This item has been referenced"),
-                    content: t(
-                      "Are you going to refer to it? The previous reference will be canceled automatically",
-                    ),
-                    icon: <Icon icon="exclamationCircle" />,
-                    onOk() {
-                      onChange?.(item.id);
-                      onLinkItemModalCancel();
-                    },
-                  });
-                }
+                onChange?.(item.id);
+                onLinkItemModalCancel();
               }
             }}
           />
