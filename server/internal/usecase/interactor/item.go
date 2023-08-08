@@ -172,7 +172,7 @@ func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemId id.ItemID, _ *
 	}
 	fields := s.Fields()
 
-	res := lo.ToPtr(false) 
+	res := lo.ToPtr(false)
 	for _, sf := range fields {
 		sf.TypeProperty().Match(schema.TypePropertyMatch{
 			Reference: func(f *schema.FieldReference) {
@@ -377,76 +377,6 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 	})
 }
 
-func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
-	if operator.AcOperator.User == nil && operator.Integration == nil {
-		return nil, interfaces.ErrInvalidOperator
-	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
-		items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		// check all items were found
-		if len(items) != len(itemIDs) {
-			return nil, interfaces.ErrItemMissing
-		}
-
-		// check all items on the same models
-		s := lo.CountBy(items, func(itm item.Versioned) bool {
-			return itm.Value().Model() == items[0].Value().Model()
-		})
-		if s != len(items) {
-			return nil, interfaces.ErrItemsShouldBeOnSameModel
-		}
-
-		m, err := i.repos.Model.FindByID(ctx, items[0].Value().Model())
-		if err != nil {
-			return nil, err
-		}
-
-		prj, err := i.repos.Project.FindByID(ctx, m.Project())
-		if err != nil {
-			return nil, err
-		}
-
-		sch, err := i.repos.Schema.FindByID(ctx, m.Schema())
-		if err != nil {
-			return nil, err
-		}
-
-		if !operator.IsMaintainingWorkspace(prj.Workspace()) {
-			return nil, interfaces.ErrInvalidOperator
-		}
-
-		// add public ref to the items
-		for _, itm := range items {
-			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
-				return nil, err
-			}
-		}
-
-		for _, itm := range items {
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: prj.Workspace(),
-				Type:      event.ItemPublish,
-				Object:    itm,
-				WebhookObject: item.ItemModelSchema{
-					Item:   itm.Value(),
-					Model:  m,
-					Schema: sch,
-				},
-				Operator: operator.Operator(),
-			}); err != nil {
-				return nil, err
-			}
-		}
-
-		return items, nil
-	})
-}
-
 func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
@@ -517,6 +447,76 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 	})
 }
 
+func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
+		items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		// check all items were found
+		if len(items) != len(itemIDs) {
+			return nil, interfaces.ErrItemMissing
+		}
+
+		// check all items on the same models
+		s := lo.CountBy(items, func(itm item.Versioned) bool {
+			return itm.Value().Model() == items[0].Value().Model()
+		})
+		if s != len(items) {
+			return nil, interfaces.ErrItemsShouldBeOnSameModel
+		}
+
+		m, err := i.repos.Model.FindByID(ctx, items[0].Value().Model())
+		if err != nil {
+			return nil, err
+		}
+
+		prj, err := i.repos.Project.FindByID(ctx, m.Project())
+		if err != nil {
+			return nil, err
+		}
+
+		sch, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		if !operator.IsMaintainingWorkspace(prj.Workspace()) {
+			return nil, interfaces.ErrInvalidOperator
+		}
+
+		// add public ref to the items
+		for _, itm := range items {
+			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
+				return nil, err
+			}
+		}
+
+		for _, itm := range items {
+			if err := i.event(ctx, Event{
+				Project:   prj,
+				Workspace: prj.Workspace(),
+				Type:      event.ItemPublish,
+				Object:    itm,
+				WebhookObject: item.ItemModelSchema{
+					Item:   itm.Value(),
+					Model:  m,
+					Schema: sch,
+				},
+				Operator: operator.Operator(),
+			}); err != nil {
+				return nil, err
+			}
+		}
+
+		return items, nil
+	})
+}
+
 func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *schema.Schema, mid id.ModelID, itm *item.Item) error {
 	var fieldsArg []repo.FieldAndValue
 	for _, f := range itemFields {
@@ -561,20 +561,6 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 		if sf == nil {
 			return nil, interfaces.ErrFieldNotFound
 		}
-
-		sf.TypeProperty().Match(schema.TypePropertyMatch{
-			Reference: func(f *schema.FieldReference) {
-				cf := f.CorrespondingField()
-				if cf != nil {
-					// two way
-				}
-			},
-		})
-
-		// TODO:
-		// fetch field value, the value is an item id
-		// fetch referred item
-		// update the item corresponding field with the source item ID
 
 		if !sf.Multiple() {
 			f.Value = []any{f.Value}

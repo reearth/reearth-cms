@@ -4682,11 +4682,11 @@ input DeleteItemInput {
   itemId: ID!
 }
 
-input PublishItemInput {
+input UnpublishItemInput {
   itemId: [ID!]!
 }
 
-input UnpublishItemInput {
+input PublishItemInput {
   itemId: [ID!]!
 }
 
@@ -4699,11 +4699,11 @@ type DeleteItemPayload {
   itemId: ID!
 }
 
-type PublishItemPayload {
+type UnpublishItemPayload {
   items: [Item!]!
 }
 
-type UnpublishItemPayload {
+type PublishItemPayload {
   items: [Item!]!
 }
 

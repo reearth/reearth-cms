@@ -25,6 +25,7 @@ type ItemLoader struct {
 func NewItemLoader(usecase interfaces.Item, schemaUsecase interfaces.Schema, modelUsecase interfaces.Model) *ItemLoader {
 	return &ItemLoader{usecase: usecase, schemaUsecase: schemaUsecase, modelUsecase: modelUsecase}
 }
+
 func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Item, []error) {
 	op := getOperator(ctx)
 	iIds, err := util.TryMap(ids, gqlmodel.ToID[id.Item])
@@ -284,6 +285,7 @@ func (c *ItemLoader) CheckIfItemIsReferenced(ctx context.Context, itemId gqlmode
 
 	return c.usecase.CheckIfItemIsReferenced(ctx, iid, op)
 }
+
 // data loader
 
 type ItemDataLoader interface {
