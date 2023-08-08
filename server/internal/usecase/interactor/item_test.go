@@ -596,6 +596,61 @@ func TestItem_Search(t *testing.T) {
 	}
 }
 
+func TestItem_CheckIfItemIsReferenced(t *testing.T) {
+	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
+	w := accountdomain.NewWorkspaceID()
+	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+
+	sf1 := schema.NewField(schema.NewReference(id.NewModelID(), lo.ToPtr(id.NewFieldID())).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
+	s1 := schema.New().NewID().Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
+	m1 := model.New().NewID().Schema(s1.ID()).Key(key.Random()).Project(s1.Project()).MustBuild()
+	fs1 := []*item.Field{item.NewField(sf1.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple())}
+	i1 := item.New().NewID().Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID()).Fields(fs1).MustBuild()
+
+	sf2 := schema.NewField(schema.NewReference(id.NewModelID(), nil).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
+	s2 := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf2}).MustBuild()
+	m2 := model.New().NewID().Schema(s2.ID()).Key(key.Random()).Project(s2.Project()).MustBuild()
+	fs2 := []*item.Field{item.NewField(sf2.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple())}
+	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID()).Fields(fs2).MustBuild()
+
+	ctx := context.Background()
+	db := memory.New()
+	lo.Must0(db.Project.Save(ctx, prj))
+	lo.Must0(db.Schema.Save(ctx, s1))
+	lo.Must0(db.Model.Save(ctx, m1))
+	lo.Must0(db.Item.Save(ctx, i1))
+	lo.Must0(db.Schema.Save(ctx, s2))
+	lo.Must0(db.Model.Save(ctx, m2))
+	lo.Must0(db.Item.Save(ctx, i2))
+	itemUC := NewItem(db, nil)
+	itemUC.ignoreEvent = true
+
+	op := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               accountdomain.NewUserID().Ref(),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{s1.Workspace()},
+			WritableWorkspaces: []accountdomain.WorkspaceID{s1.Workspace()},
+		},
+		ReadableProjects: []id.ProjectID{prj.ID()},
+		WritableProjects: []id.ProjectID{prj.ID()},
+	}
+
+	// reference item
+	b, err := itemUC.CheckIfItemIsReferenced(ctx, i1.ID(), op)
+	assert.True(t, lo.FromPtr(b))
+	assert.Nil(t, err)
+
+	// not reference item
+	b, err = itemUC.CheckIfItemIsReferenced(ctx, i2.ID(), op)
+	assert.False(t, lo.FromPtr(b))
+	assert.Nil(t, err)
+
+	// item not found
+	b, err = itemUC.CheckIfItemIsReferenced(ctx, id.NewItemID(), op)
+	assert.False(t, lo.FromPtr(b))
+	assert.Error(t, err)
+}
+
 func TestItem_Create(t *testing.T) {
 	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
 	prj := project.New().NewID().RequestRoles(r).MustBuild()
@@ -1073,4 +1128,22 @@ func TestWorkFlow(t *testing.T) {
 	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusDraft}, status)
+	// Publish Item
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: id.WorkspaceIDList{wid},
+		},
+	})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 }

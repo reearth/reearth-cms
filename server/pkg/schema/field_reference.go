@@ -1,8 +1,6 @@
 package schema
 
 import (
-	"fmt"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -56,9 +54,9 @@ func (f *FieldReference) Clone() *FieldReference {
 func (f *FieldReference) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Reference: func(a value.Reference) {
-			v, ok := v.ValueReference()
+			_, ok := v.ValueReference()
 			if !ok {
-				err = fmt.Errorf("invalid value %v", v)
+				err = ErrInvalidValue
 			}
 		},
 		Default: func() {
