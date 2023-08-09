@@ -21,7 +21,7 @@ import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import MultiValueSwitch from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSwitch";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
-import ReferenceItem from "@reearth-cms/components/molecules/Content/Form/ReferenceItem";
+import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
@@ -422,7 +422,7 @@ const ContentForm: React.FC<Props> = ({
                 extra={field.description}
                 name={field.id}
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-                <ReferenceItem
+                <ReferenceFormItem
                   key={field.id}
                   formItemsData={formItemsData}
                   modelId={field.typeProperty.modelId}

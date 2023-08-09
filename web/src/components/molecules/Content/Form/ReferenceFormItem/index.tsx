@@ -1,12 +1,11 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import LinkItemModal from "@reearth-cms/components/molecules/Content/LinkItemModal";
+import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../../types";
@@ -25,7 +24,7 @@ type Props = {
   onChange?: (value?: string) => void;
 };
 
-const ReferenceItem: React.FC<Props> = ({
+const ReferenceFormItem: React.FC<Props> = ({
   linkedItemsModalList,
   value,
   onChange,
@@ -65,26 +64,13 @@ const ReferenceItem: React.FC<Props> = ({
     <>
       {value && (
         <ReferenceItemWrapper>
-          <StyledReferenceItem>
-            <Tooltip>
-              <Link
-                to={`/workspace/${workspaceId}/project/${projectId}/content/${modelId}/details/${value}`}
-                target="_blank">
-                <ReferenceItemName>{value}</ReferenceItemName>
-              </Link>
-            </Tooltip>
-            <Badge
-              color={
-                currentItem?.status === "PUBLIC"
-                  ? "#52C41A"
-                  : currentItem?.status === "REVIEW"
-                  ? "#F5222D"
-                  : currentItem?.status === "DRAFT"
-                  ? "#BFBFBF"
-                  : ""
-              }
-            />
-          </StyledReferenceItem>
+          <ReferenceItem
+            value={value}
+            status={currentItem?.status}
+            workspaceId={workspaceId}
+            projectId={projectId}
+            modelId={modelId}
+          />
           <Button
             type="link"
             icon={<Icon icon={"unlinkSolid"} size={16} />}
@@ -128,20 +114,4 @@ const ReferenceItemWrapper = styled.div`
   justify-content: space-between;
 `;
 
-const StyledReferenceItem = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  background-color: #fafafa;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  justify-content: space-between;
-  flex: 1;
-`;
-
-const ReferenceItemName = styled.p`
-  margin: 0;
-  color: #1890ff;
-`;
-
-export default ReferenceItem;
+export default ReferenceFormItem;

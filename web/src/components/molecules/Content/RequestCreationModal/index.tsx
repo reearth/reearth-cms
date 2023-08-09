@@ -1,15 +1,15 @@
 import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
-import Badge from "@reearth-cms/components/atoms/Badge";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Row from "@reearth-cms/components/atoms/Row";
 import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
+import WarningText from "@reearth-cms/components/molecules/Content/WarningText";
 import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
@@ -137,34 +137,18 @@ const RequestCreationModal: React.FC<Props> = ({
           />
         </Form.Item>
         {unpublishedItems?.length !== 0 && (
-          <RequestWarning>
-            <Icon icon="exclamationCircle" />
-            <p>
-              {t(
-                "We found some referenced items that not published yet. Please select to add the items to the same request.",
-              )}
-            </p>
-          </RequestWarning>
+          <WarningText
+            text={t(
+              "We found some referenced items that not published yet. Please select to add the items to the same request.",
+            )}
+          />
         )}
         {unpublishedItems?.map((item, index) => (
           <StyledRow key={index}>
             <StyledCheckbox
               value={selectedItems[item.id]}
               onChange={e => handleCheckboxChange(item.id, e.target.checked)}>
-              <StyledReferenceItem>
-                <ReferenceItemName>{item.id}</ReferenceItemName>
-                <Badge
-                  color={
-                    item?.status === "PUBLIC"
-                      ? "#52C41A"
-                      : item?.status === "REVIEW"
-                      ? "#F5222D"
-                      : item?.status === "DRAFT"
-                      ? "#BFBFBF"
-                      : ""
-                  }
-                />
-              </StyledReferenceItem>
+              <ReferenceItem value={item.id} status={item.status} />
             </StyledCheckbox>
           </StyledRow>
         ))}
@@ -173,44 +157,10 @@ const RequestCreationModal: React.FC<Props> = ({
   );
 };
 
-const RequestWarning = styled.div`
-  .anticon {
-    float: left;
-    margin-right: 8px;
-    font-size: 16px;
-    color: #faad14;
-  }
-  p {
-    display: block;
-    overflow: hidden;
-    color: #000000d9;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 1.4;
-    margin-top: 2px;
-  }
-`;
-
 const StyledRow = styled(Row)`
   + .ant-row {
     margin-top: 10px;
   }
-`;
-
-const StyledReferenceItem = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  background-color: #fafafa;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  justify-content: space-between;
-  flex: 1;
-`;
-
-const ReferenceItemName = styled.p`
-  margin: 0;
-  color: #1890ff;
 `;
 
 const StyledCheckbox = styled(Checkbox)`
