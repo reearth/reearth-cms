@@ -40,6 +40,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		Order:        lo.ToPtr(sf.Order()),
 		Description:  lo.ToPtr(sf.Description()),
 		Multiple:     sf.Multiple(),
+		Meta:         sf.Meta(),
 		Unique:       sf.Unique(),
 		Required:     sf.Required(),
 		CreatedAt:    sf.CreatedAt(),
@@ -75,6 +76,12 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Select: func(f *schema.FieldSelect) {
 			res = &SchemaFieldSelect{
+				DefaultValue: valueString(dv, multiple),
+				Values:       f.Values(),
+			}
+		},
+		Tag: func(f *schema.FieldTag) {
+			res = &SchemaFieldTag{
 				DefaultValue: valueString(dv, multiple),
 				Values:       f.Values(),
 			}
@@ -283,6 +290,21 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = value.NewMultiple(value.TypeSelect, unpackArray(x.DefaultValue))
 		} else {
 			dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue).AsMultiple()
+		}
+		tpRes = res.TypeProperty()
+	case SchemaFieldTypeTag:
+		x := tp.Tag
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		res := schema.NewTag(x.Values)
+		if len(res.Values()) == 0 {
+			return nil, nil, ErrEmptyOptions
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeTag, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeTag, x.DefaultValue).AsMultiple()
 		}
 		tpRes = res.TypeProperty()
 	case SchemaFieldTypeInteger:

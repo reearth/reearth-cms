@@ -2,7 +2,6 @@ package gql
 
 import (
 	"context"
-
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
