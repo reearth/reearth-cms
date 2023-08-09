@@ -63,6 +63,9 @@ import NumberNine from "./Icons/numberNine.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
 import Unzip from "./Icons/unzip.svg";
+import Date from "./Icons/date.svg";
+import Tag from "./Icons/tag.svg";
+import CheckSquare from "./Icons/checkSquare.svg";
 
 export default {
   home: HomeOutlined,
@@ -127,4 +130,7 @@ export default {
   unzip: Unzip,
   eyeInvisible: EyeInvisibleOutlined,
   copy: CopyOutlined,
+  date: Date,
+  tag: Tag,
+  checkSquare: CheckSquare,
 };
