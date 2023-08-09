@@ -67,6 +67,9 @@ export const requestFragment = gql`
                 ... on SchemaFieldURL {
                   defaultValue
                 }
+                ... on SchemaFieldCheckbox {
+                defaultValue
+                }
               }
             }
           }

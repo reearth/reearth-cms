@@ -1286,6 +1286,22 @@
             "deprecationReason": null
           },
           {
+            "name": "meta",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "modelId",
             "description": null,
             "type": {
@@ -8420,6 +8436,22 @@
             "deprecationReason": null
           },
           {
+            "name": "meta",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "model",
             "description": null,
             "args": [],
@@ -8649,6 +8681,52 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "SchemaFieldBoolInput",
+        "description": null,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "SchemaFieldCheckbox",
+        "description": null,
+        "fields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "SchemaFieldCheckboxInput",
         "description": null,
         "fields": null,
         "inputFields": [
@@ -9400,6 +9478,11 @@
           },
           {
             "kind": "OBJECT",
+            "name": "SchemaFieldCheckbox",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
             "name": "SchemaFieldDate",
             "ofType": null
           },
@@ -9474,6 +9557,18 @@
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "SchemaFieldBoolInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "checkbox",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "SchemaFieldCheckboxInput",
               "ofType": null
             },
             "defaultValue": null,

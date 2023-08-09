@@ -6,6 +6,7 @@ export const CREATE_FIELD = gql`
     $type: SchemaFieldType!
     $title: String!
     $description: String
+    $meta: Boolean!
     $key: String!
     $multiple: Boolean!
     $unique: Boolean!
@@ -18,6 +19,7 @@ export const CREATE_FIELD = gql`
         type: $type
         title: $title
         description: $description
+        meta: $meta
         key: $key
         multiple: $multiple
         unique: $unique
