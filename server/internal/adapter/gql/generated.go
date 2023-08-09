@@ -516,6 +516,10 @@ type ComplexityRoot struct {
 		DefaultValue func(childComplexity int) int
 	}
 
+	SchemaFieldCheckbox struct {
+		DefaultValue func(childComplexity int) int
+	}
+
 	SchemaFieldDate struct {
 		DefaultValue func(childComplexity int) int
 	}
@@ -3013,6 +3017,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldBool.DefaultValue(childComplexity), true
 
+	case "SchemaFieldCheckbox.defaultValue":
+		if e.complexity.SchemaFieldCheckbox.DefaultValue == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldCheckbox.DefaultValue(childComplexity), true
+
 	case "SchemaFieldDate.defaultValue":
 		if e.complexity.SchemaFieldDate.DefaultValue == nil {
 			break
@@ -4384,6 +4395,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldInteger
   | SchemaFieldReference
   | SchemaFieldURL
+  | SchemaFieldCheckbox
 
 
 type SchemaFieldText {
@@ -4439,6 +4451,10 @@ type SchemaFieldReference {
 }
 
 type SchemaFieldURL {
+  defaultValue: Any
+}
+
+type SchemaFieldCheckbox {
   defaultValue: Any
 }
 
@@ -20139,6 +20155,47 @@ func (ec *executionContext) fieldContext_SchemaFieldBool_defaultValue(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldCheckbox_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldCheckbox) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldCheckbox_defaultValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldCheckbox_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldCheckbox",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Any does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldDate_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldDate) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldDate_defaultValue(ctx, field)
 	if err != nil {
@@ -28634,6 +28691,13 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldURL(ctx, sel, obj)
+	case gqlmodel.SchemaFieldCheckbox:
+		return ec._SchemaFieldCheckbox(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldCheckbox:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldCheckbox(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -33005,6 +33069,42 @@ func (ec *executionContext) _SchemaFieldBool(ctx context.Context, sel ast.Select
 			out.Values[i] = graphql.MarshalString("SchemaFieldBool")
 		case "defaultValue":
 			out.Values[i] = ec._SchemaFieldBool_defaultValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var schemaFieldCheckboxImplementors = []string{"SchemaFieldCheckbox", "SchemaFieldTypeProperty"}
+
+func (ec *executionContext) _SchemaFieldCheckbox(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldCheckbox) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldCheckboxImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldCheckbox")
+		case "defaultValue":
+			out.Values[i] = ec._SchemaFieldCheckbox_defaultValue(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

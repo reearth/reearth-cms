@@ -45,6 +45,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldInteger
   | SchemaFieldReference
   | SchemaFieldURL
+  | SchemaFieldCheckbox
 
 
 type SchemaFieldText {
@@ -100,6 +101,10 @@ type SchemaFieldReference {
 }
 
 type SchemaFieldURL {
+  defaultValue: Any
+}
+
+type SchemaFieldCheckbox {
   defaultValue: Any
 }
 

@@ -662,6 +662,12 @@ type SchemaFieldBoolInput struct {
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
+type SchemaFieldCheckbox struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+func (SchemaFieldCheckbox) IsSchemaFieldTypeProperty() {}
+
 type SchemaFieldCheckboxInput struct {
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
