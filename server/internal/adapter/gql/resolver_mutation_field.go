@@ -237,6 +237,42 @@ func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.Delet
 		return nil, err
 	}
 
+	fs, err := usecases(ctx).Schema.FindFieldByIDs(ctx, []id.FieldID{fId}, getOperator(ctx))
+	if err != nil || len(fs) != 1 {
+		return nil, err
+	}
+	f := fs[0]
+	
+	if f.Type() == value.TypeReference {
+		var err1 error
+		f.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(fr *schema.FieldReference) {
+				if fr.CorrespondingField() != nil {			
+					ms, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{fr.Model()}, getOperator(ctx))
+					if err != nil || len(ms) != 1 || ms[0].ID() != mId {
+						if err == nil {
+							err1 = rerror.NewE(i18n.T("not found"))
+						}
+						err1 = err
+					}
+					m := ms[0]
+					
+					cfId := *fr.CorrespondingField()
+					fr.SetCorrespondingField(nil)
+
+					_, err1 = usecases(ctx).Schema.UpdateField(ctx, interfaces.UpdateFieldParam{
+						SchemaId:     m.Schema(),
+						FieldId:      cfId,
+						TypeProperty: fr.TypeProperty(),
+					}, getOperator(ctx))
+				}
+			},
+		})
+		if err1 != nil {
+			return nil, err1
+		}
+	}
+
 	if err := usecases(ctx).Schema.DeleteField(ctx, m[0].Schema(), fId, getOperator(ctx)); err != nil {
 		return nil, err
 	}
