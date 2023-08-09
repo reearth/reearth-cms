@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"fmt"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -21,6 +22,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 
 	m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
 	if err != nil || len(m) != 1 {
+
 		return nil, err
 	}
 
@@ -28,7 +30,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println(tp)
 	f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
 		SchemaId:     m[0].Schema(),
 		Type:         value.Type(input.Type),

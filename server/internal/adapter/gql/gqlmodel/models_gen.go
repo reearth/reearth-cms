@@ -1549,6 +1549,7 @@ const (
 	SchemaFieldTypeTag          SchemaFieldType = "Tag"
 	SchemaFieldTypeInteger      SchemaFieldType = "Integer"
 	SchemaFieldTypeReference    SchemaFieldType = "Reference"
+	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
 )
 
@@ -1564,12 +1565,13 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeTag,
 	SchemaFieldTypeInteger,
 	SchemaFieldTypeReference,
+	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeURL:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL:
 		return true
 	}
 	return false

@@ -121,6 +121,19 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 					v, _ = dv.First().ValueBool()
 				}
 			}
+			res = &SchemaFieldCheckbox{
+				DefaultValue: v,
+			}
+		},
+		Checkbox: func(f *schema.FieldCheckbox) {
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesBool()
+				} else {
+					v, _ = dv.First().ValueBool()
+				}
+			}
 			res = &SchemaFieldBool{
 				DefaultValue: v,
 			}
@@ -275,6 +288,17 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = value.NewMultiple(value.TypeBool, unpackArray(x.DefaultValue))
 		} else {
 			dv = FromValue(SchemaFieldTypeBool, x.DefaultValue).AsMultiple()
+		}
+		tpRes = schema.NewBool().TypeProperty()
+	case SchemaFieldTypeCheckbox:
+		x := tp.Checkbox
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeCheckbox, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeCheckbox, x.DefaultValue).AsMultiple()
 		}
 		tpRes = schema.NewBool().TypeProperty()
 	case SchemaFieldTypeSelect:

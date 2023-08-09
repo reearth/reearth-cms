@@ -4360,6 +4360,7 @@ extend type Mutation {
   Tag
   Integer
   Reference
+  Checkbox
   URL
 }
 

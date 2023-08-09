@@ -115,6 +115,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Asset:    func(fp *schema.FieldAsset) {},
 			DateTime: func(fp *schema.FieldDateTime) {},
 			Bool:     func(fp *schema.FieldBool) {},
+			Checkbox: func(fp *schema.FieldCheckbox) {},
 			Select: func(fp *schema.FieldSelect) {
 				fd.TypeProperty.Select = &FieldSelectPropertyDocument{
 					Values: fp.Values(),
@@ -186,8 +187,12 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			tp = schema.NewDateTime().TypeProperty()
 		case value.TypeBool:
 			tp = schema.NewBool().TypeProperty()
+		case value.TypeCheckbox:
+			tp = schema.NewCheckbox().TypeProperty()
 		case value.TypeSelect:
 			tp = schema.NewSelect(tpd.Select.Values).TypeProperty()
+		case value.TypeTag:
+			tp = schema.NewTag(tpd.Tag.Values).TypeProperty()
 		case value.TypeNumber:
 			tpi, err := schema.NewNumber(tpd.Number.Min, tpd.Number.Max)
 			if err != nil {

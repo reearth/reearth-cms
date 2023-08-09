@@ -49,6 +49,8 @@ func FromValueType(t SchemaFieldType) value.Type {
 		return value.TypeDateTime
 	case SchemaFieldTypeBool:
 		return value.TypeBool
+	case SchemaFieldTypeCheckbox:
+		return value.TypeCheckbox
 	case SchemaFieldTypeSelect:
 		return value.TypeSelect
 	// case SchemaFieldTypeNumber:

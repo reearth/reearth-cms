@@ -10,6 +10,7 @@ enum SchemaFieldType {
   Tag
   Integer
   Reference
+  Checkbox
   URL
 }
 
