@@ -153,6 +153,7 @@ type CreateFieldInput struct {
 	Description  *string                       `json:"description,omitempty"`
 	Key          string                        `json:"key"`
 	Multiple     bool                          `json:"multiple"`
+	Meta         bool                          `json:"meta"`
 	Unique       bool                          `json:"unique"`
 	Required     bool                          `json:"required"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
@@ -633,6 +634,7 @@ type SchemaField struct {
 	Title        string                  `json:"title"`
 	Order        *int                    `json:"order,omitempty"`
 	Description  *string                 `json:"description,omitempty"`
+	Meta         bool                    `json:"meta"`
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
 	Required     bool                    `json:"required"`
@@ -657,6 +659,10 @@ type SchemaFieldBool struct {
 func (SchemaFieldBool) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldBoolInput struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+type SchemaFieldCheckboxInput struct {
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
@@ -771,6 +777,7 @@ type SchemaFieldTypePropertyInput struct {
 	Bool         *SchemaFieldBoolInput      `json:"bool,omitempty"`
 	Select       *SchemaFieldSelectInput    `json:"select,omitempty"`
 	Tag          *SchemaFieldTagInput       `json:"tag,omitempty"`
+	Checkbox     *SchemaFieldCheckboxInput  `json:"checkbox,omitempty"`
 	Integer      *SchemaFieldIntegerInput   `json:"integer,omitempty"`
 	Reference    *SchemaFieldReferenceInput `json:"reference,omitempty"`
 	URL          *SchemaFieldURLInput       `json:"url,omitempty"`

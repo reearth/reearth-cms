@@ -495,6 +495,7 @@ type ComplexityRoot struct {
 		Description  func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Key          func(childComplexity int) int
+		Meta         func(childComplexity int) int
 		Model        func(childComplexity int) int
 		ModelID      func(childComplexity int) int
 		Multiple     func(childComplexity int) int
@@ -2921,6 +2922,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaField.Key(childComplexity), true
 
+	case "SchemaField.meta":
+		if e.complexity.SchemaField.Meta == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Meta(childComplexity), true
+
 	case "SchemaField.model":
 		if e.complexity.SchemaField.Model == nil {
 			break
@@ -3508,6 +3516,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRequestItemInput,
 		ec.unmarshalInputSchemaFieldAssetInput,
 		ec.unmarshalInputSchemaFieldBoolInput,
+		ec.unmarshalInputSchemaFieldCheckboxInput,
 		ec.unmarshalInputSchemaFieldDateInput,
 		ec.unmarshalInputSchemaFieldIntegerInput,
 		ec.unmarshalInputSchemaFieldReferenceInput,
@@ -4353,7 +4362,7 @@ type SchemaField {
   title: String!
   order: Int
   description: String
-
+  meta: Boolean!
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
@@ -4467,6 +4476,10 @@ input SchemaFieldBoolInput {
   defaultValue: Any
 }
 
+input SchemaFieldCheckboxInput {
+  defaultValue: Any
+}
+
 input SchemaFieldSelectInput {
   values: [String!]!
   defaultValue: Any
@@ -4501,6 +4514,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   bool: SchemaFieldBoolInput
   select: SchemaFieldSelectInput
   tag: SchemaFieldTagInput
+  checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
@@ -4513,6 +4527,7 @@ input CreateFieldInput {
   description: String
   key: String!
   multiple: Boolean!
+  meta: Boolean!
   unique: Boolean!
   required: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
@@ -8857,6 +8872,8 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_order(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
+			case "meta":
+				return ec.fieldContext_SchemaField_meta(ctx, field)
 			case "multiple":
 				return ec.fieldContext_SchemaField_multiple(ctx, field)
 			case "unique":
@@ -8931,6 +8948,8 @@ func (ec *executionContext) fieldContext_FieldsPayload_fields(ctx context.Contex
 				return ec.fieldContext_SchemaField_order(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
+			case "meta":
+				return ec.fieldContext_SchemaField_meta(ctx, field)
 			case "multiple":
 				return ec.fieldContext_SchemaField_multiple(ctx, field)
 			case "unique":
@@ -19278,6 +19297,8 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_order(ctx, field)
 			case "description":
 				return ec.fieldContext_SchemaField_description(ctx, field)
+			case "meta":
+				return ec.fieldContext_SchemaField_meta(ctx, field)
 			case "multiple":
 				return ec.fieldContext_SchemaField_multiple(ctx, field)
 			case "unique":
@@ -19767,6 +19788,50 @@ func (ec *executionContext) fieldContext_SchemaField_description(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaField_meta(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_meta(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Meta, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaField_meta(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25191,7 +25256,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "meta", "unique", "required", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25252,6 +25317,15 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Multiple = data
+		case "meta":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("meta"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Meta = data
 		case "unique":
 			var err error
 
@@ -26581,6 +26655,35 @@ func (ec *executionContext) unmarshalInputSchemaFieldBoolInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSchemaFieldCheckboxInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldCheckboxInput, error) {
+	var it gqlmodel.SchemaFieldCheckboxInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"defaultValue"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "defaultValue":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
+			data, err := ec.unmarshalOAny2interface(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DefaultValue = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldDateInput, error) {
 	var it gqlmodel.SchemaFieldDateInput
 	asMap := map[string]interface{}{}
@@ -26883,7 +26986,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "integer", "reference", "url"}
+	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27122,6 +27225,32 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 				it.Tag = nil
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTagInput`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "checkbox":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("checkbox"))
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOSchemaFieldCheckboxInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldCheckboxInput(ctx, v)
+			}
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.OnlyOne == nil {
+					return nil, errors.New("directive onlyOne is not implemented")
+				}
+				return ec.directives.OnlyOne(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*gqlmodel.SchemaFieldCheckboxInput); ok {
+				it.Checkbox = data
+			} else if tmp == nil {
+				it.Checkbox = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldCheckboxInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "integer":
@@ -32774,6 +32903,11 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._SchemaField_order(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._SchemaField_description(ctx, field, obj)
+		case "meta":
+			out.Values[i] = ec._SchemaField_meta(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "multiple":
 			out.Values[i] = ec._SchemaField_multiple(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -37468,6 +37602,14 @@ func (ec *executionContext) unmarshalOSchemaFieldBoolInput2ᚖgithubᚗcomᚋree
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputSchemaFieldBoolInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOSchemaFieldCheckboxInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldCheckboxInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldCheckboxInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSchemaFieldCheckboxInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

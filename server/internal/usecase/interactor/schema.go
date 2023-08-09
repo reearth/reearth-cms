@@ -54,6 +54,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			Multiple(param.Multiple).
 			Required(param.Required).
 			Name(param.Name).
+			Meta(param.Meta).
 			Description(lo.FromPtr(param.Description)).
 			Key(key.New(param.Key)).
 			DefaultValue(param.DefaultValue).

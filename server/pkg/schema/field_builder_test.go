@@ -29,6 +29,7 @@ func TestNewField(t *testing.T) {
 			unique:       true,
 			multiple:     true,
 			required:     true,
+			meta:         true,
 			typeProperty: tp,
 			order:        3,
 			updatedAt:    now,
@@ -40,6 +41,7 @@ func TestNewField(t *testing.T) {
 			Description("a").
 			Key(k).
 			Multiple(true).
+			Meta(true).
 			Unique(true).
 			Required(true).
 			DefaultValue(dv.AsMultiple()).

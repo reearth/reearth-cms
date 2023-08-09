@@ -20,6 +20,7 @@ type Field struct {
 	unique       bool
 	multiple     bool
 	required     bool
+	meta         bool
 	updatedAt    time.Time
 	defaultValue *value.Multiple
 	typeProperty *TypeProperty
@@ -40,6 +41,10 @@ func (f *Field) SetName(name string) {
 
 func (f *Field) Description() string {
 	return f.description
+}
+
+func (f *Field) Meta() bool {
+	return f.meta
 }
 
 func (f *Field) Order() int {
@@ -111,6 +116,10 @@ func (f *Field) SetUnique(unique bool) {
 
 func (f *Field) SetMultiple(m bool) {
 	f.multiple = m
+}
+
+func (f *Field) SetMeta(m bool) {
+	f.meta = m
 }
 
 func (f *Field) CreatedAt() time.Time {

@@ -40,6 +40,7 @@ type TypePropertyDocument struct {
 	RichText  *FieldTextPropertyDocument      `bson:",omitempty"`
 	Markdown  *FieldTextPropertyDocument      `bson:",omitempty"`
 	Select    *FieldSelectPropertyDocument    `bson:",omitempty"`
+	Tag       *FieldTagPropertyDocument       `bson:",omitempty"`
 	Number    *FieldNumberPropertyDocument    `bson:",omitempty"`
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
@@ -49,6 +50,9 @@ type FieldTextPropertyDocument struct {
 	MaxLength *int
 }
 type FieldSelectPropertyDocument struct {
+	Values []string
+}
+type FieldTagPropertyDocument struct {
 	Values []string
 }
 
@@ -111,6 +115,11 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Bool:     func(fp *schema.FieldBool) {},
 			Select: func(fp *schema.FieldSelect) {
 				fd.TypeProperty.Select = &FieldSelectPropertyDocument{
+					Values: fp.Values(),
+				}
+			},
+			Tag: func(fp *schema.FieldTag) {
+				fd.TypeProperty.Tag = &FieldTagPropertyDocument{
 					Values: fp.Values(),
 				}
 			},

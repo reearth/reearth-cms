@@ -37,6 +37,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		Description:  input.Description,
 		Key:          input.Key,
 		Multiple:     input.Multiple,
+		Meta:         input.Meta,
 		Unique:       input.Unique,
 		Required:     input.Required,
 		DefaultValue: dv,

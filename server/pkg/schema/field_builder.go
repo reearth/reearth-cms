@@ -77,6 +77,11 @@ func (b *FieldBuilder) Unique(unique bool) *FieldBuilder {
 	return b
 }
 
+func (b *FieldBuilder) Meta(meta bool) *FieldBuilder {
+	b.f.meta = meta
+	return b
+}
+
 func (b *FieldBuilder) Multiple(multiple bool) *FieldBuilder {
 	b.f.multiple = multiple
 	return b

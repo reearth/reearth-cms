@@ -23,7 +23,7 @@ type SchemaField {
   title: String!
   order: Int
   description: String
-
+  meta: Boolean!
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
@@ -137,6 +137,10 @@ input SchemaFieldBoolInput {
   defaultValue: Any
 }
 
+input SchemaFieldCheckboxInput {
+  defaultValue: Any
+}
+
 input SchemaFieldSelectInput {
   values: [String!]!
   defaultValue: Any
@@ -171,6 +175,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   bool: SchemaFieldBoolInput
   select: SchemaFieldSelectInput
   tag: SchemaFieldTagInput
+  checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
@@ -183,6 +188,7 @@ input CreateFieldInput {
   description: String
   key: String!
   multiple: Boolean!
+  meta: Boolean!
   unique: Boolean!
   required: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!

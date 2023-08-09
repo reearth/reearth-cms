@@ -18,6 +18,7 @@ type CreateFieldParam struct {
 	Description  *string
 	Key          string
 	Multiple     bool
+	Meta         bool
 	Unique       bool
 	Required     bool
 	TypeProperty *schema.TypeProperty
