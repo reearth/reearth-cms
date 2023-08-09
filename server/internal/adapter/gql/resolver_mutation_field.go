@@ -87,6 +87,7 @@ func createField(ctx context.Context, input gqlmodel.CreateFieldInput) (*schema.
 		Key:          input.Key,
 		Multiple:     input.Multiple,
 		Unique:       input.Unique,
+		IsTitle:      input.IsTitle,
 		Required:     input.Required,
 		DefaultValue: dv,
 		TypeProperty: tp,
@@ -104,7 +105,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 	// check if type is reference
-	if f1.Type() == value.TypeReference {
+	if f1.Type() == value.TypeReference && input.TypeProperty != nil {
 		cf := input.TypeProperty.Reference.CorrespondingField
 		// check if reference direction is two way
 		if cf != nil {
@@ -127,6 +128,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 							Key:          *cf.Update.Key,
 							Multiple:     *cf.Update.Multiple,
 							Unique:       *cf.Update.Unique,
+							IsTitle:      cf.Update.IsTitle,
 							Required:     *cf.Update.Required,
 							TypeProperty: cf.Update.TypeProperty,
 						}
@@ -178,6 +180,7 @@ func updateField(ctx context.Context, input gqlmodel.UpdateFieldInput, f *schema
 		Order:        input.Order,
 		Unique:       input.Unique,
 		Required:     input.Required,
+		IsTitle:      input.IsTitle,
 		DefaultValue: dv,
 		TypeProperty: tp,
 	}, getOperator(ctx))
@@ -286,6 +289,7 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 			Order:        ipt.Order,
 			Unique:       ipt.Unique,
 			Required:     ipt.Required,
+			IsTitle:      ipt.IsTitle,
 			DefaultValue: dv,
 			TypeProperty: tp,
 		}, nil

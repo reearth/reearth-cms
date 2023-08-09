@@ -16,8 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
-
 func TestSchemaRepo_FindFieldByIDs(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()

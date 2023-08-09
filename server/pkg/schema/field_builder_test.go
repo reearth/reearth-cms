@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,6 +20,7 @@ func TestNewField(t *testing.T) {
 	dv := tp.Type().Value("aaa")
 	id := id.NewFieldID()
 	k := key.Random()
+	isTitle := lo.ToPtr(true)
 	assert.Equal(
 		t,
 		&Field{
@@ -29,6 +31,7 @@ func TestNewField(t *testing.T) {
 			unique:       true,
 			multiple:     true,
 			required:     true,
+			isTitle:      isTitle,
 			typeProperty: tp,
 			order:        3,
 			updatedAt:    now,
@@ -42,6 +45,7 @@ func TestNewField(t *testing.T) {
 			Multiple(true).
 			Unique(true).
 			Required(true).
+			IsTitle(isTitle).
 			DefaultValue(dv.AsMultiple()).
 			Order(3).
 			UpdatedAt(now).

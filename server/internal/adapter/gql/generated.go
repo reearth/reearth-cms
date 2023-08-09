@@ -497,6 +497,7 @@ type ComplexityRoot struct {
 		CreatedAt    func(childComplexity int) int
 		Description  func(childComplexity int) int
 		ID           func(childComplexity int) int
+		IsTitle      func(childComplexity int) int
 		Key          func(childComplexity int) int
 		Model        func(childComplexity int) int
 		ModelID      func(childComplexity int) int
@@ -2948,6 +2949,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaField.ID(childComplexity), true
 
+	case "SchemaField.isTitle":
+		if e.complexity.SchemaField.IsTitle == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.IsTitle(childComplexity), true
+
 	case "SchemaField.key":
 		if e.complexity.SchemaField.Key == nil {
 			break
@@ -4406,6 +4414,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -4573,6 +4582,7 @@ input CreateFieldInput {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -4586,6 +4596,7 @@ input UpdateFieldInput {
   required: Boolean
   unique: Boolean
   multiple: Boolean
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
@@ -8944,6 +8955,8 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -9018,6 +9031,8 @@ func (ec *executionContext) fieldContext_FieldsPayload_fields(ctx context.Contex
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -19482,6 +19497,8 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -20102,6 +20119,47 @@ func (ec *executionContext) fieldContext_SchemaField_required(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaField_isTitle(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_isTitle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsTitle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaField_isTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaField_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaField_createdAt(ctx, field)
 	if err != nil {
@@ -20622,6 +20680,8 @@ func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingField
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -25573,7 +25633,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25652,6 +25712,15 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Required = data
+		case "isTitle":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsTitle = data
 		case "typeProperty":
 			var err error
 
@@ -27871,7 +27940,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27959,6 +28028,15 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Multiple = data
+		case "isTitle":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsTitle = data
 		case "typeProperty":
 			var err error
 
@@ -33238,6 +33316,8 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "isTitle":
+			out.Values[i] = ec._SchemaField_isTitle(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._SchemaField_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
