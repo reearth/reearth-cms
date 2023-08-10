@@ -30,7 +30,6 @@ export interface FormValues {
   title: string;
   description: string;
   key: string;
-  meta: boolean;
   multiple: boolean;
   unique: boolean;
   required: boolean;
@@ -41,7 +40,6 @@ export interface Props {
   open?: boolean;
   fieldUpdateLoading: boolean;
   selectedType: FieldType;
-  isMeta?: boolean;
   selectedField?: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
@@ -77,7 +75,6 @@ const initialValues: FormValues = {
   title: "",
   description: "",
   key: "",
-  meta: false,
   multiple: false,
   unique: false,
   required: false,
@@ -91,7 +88,6 @@ const FieldUpdateModal: React.FC<Props> = ({
   onSubmit,
   handleFieldKeyUnique,
   selectedType,
-  isMeta,
   selectedField,
   assetList,
   fileList,
@@ -144,7 +140,6 @@ const FieldUpdateModal: React.FC<Props> = ({
       fieldId: selectedField?.id,
       title: selectedField?.title,
       description: selectedField?.description,
-      meta: selectedField?.meta,
       key: selectedField?.key,
       multiple: selectedField?.multiple,
       unique: selectedField?.unique,
@@ -165,7 +160,6 @@ const FieldUpdateModal: React.FC<Props> = ({
     form
       .validateFields()
       .then(async values => {
-        values.meta = isMeta;
         if (selectedType === "Text") {
           values.typeProperty = {
             text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
@@ -225,7 +219,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, isMeta, selectedType, onSubmit, selectedField?.id, onClose]);
+  }, [form, selectedType, onSubmit, selectedField?.id, onClose]);
 
   const handleModalReset = useCallback(() => {
     form.resetFields();
