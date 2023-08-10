@@ -121,7 +121,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 					v, _ = dv.First().ValueBool()
 				}
 			}
-			res = &SchemaFieldCheckbox{
+			res = &SchemaFieldBool{
 				DefaultValue: v,
 			}
 		},
@@ -134,7 +134,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 					v, _ = dv.First().ValueBool()
 				}
 			}
-			res = &SchemaFieldBool{
+			res = &SchemaFieldCheckbox{
 				DefaultValue: v,
 			}
 		},
