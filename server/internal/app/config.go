@@ -50,7 +50,7 @@ type Config struct {
 	// auth for m2m
 	AuthM2M AuthM2MConfig
 
-	AccountDatabase string
+	DB_Account string
 }
 
 type AuthConfig struct {
