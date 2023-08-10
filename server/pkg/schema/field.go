@@ -165,6 +165,7 @@ func (f *Field) Clone() *Field {
 		id:           f.id,
 		name:         f.name,
 		description:  f.description,
+		meta:         f.meta,
 		key:          f.key,
 		order:        f.order,
 		unique:       f.unique,

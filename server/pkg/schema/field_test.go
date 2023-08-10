@@ -70,6 +70,7 @@ func TestField_Clone(t *testing.T) {
 		id:           NewFieldID(),
 		name:         "a",
 		description:  "b",
+		meta:         true,
 		key:          key.Random(),
 		unique:       true,
 		multiple:     true,
