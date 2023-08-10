@@ -21,42 +21,51 @@ type FieldListItem = { title: string; fields: string[] };
 const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
   const t = useT();
 
-  const data: FieldListItem[] = [
-    {
-      title: t("Text"),
-      fields: ["Text", "TextArea", "MarkdownText"],
-    },
-    {
-      title: t("Asset"),
-      fields: ["Asset"],
-    },
-    {
-      title: t("Boolean"),
-      fields: ["Bool"],
-    },
-    {
-      title: t("Select"),
-      fields: ["Select"],
-    },
-    {
-      title: t("Number"),
-      fields: ["Integer"],
-    },
-    {
-      title: t("URL"),
-      fields: ["URL"],
-    },
-  ];
+  const data: FieldListItem[] = useMemo(
+    () => [
+      {
+        title: t("Text"),
+        fields: ["Text", "TextArea", "MarkdownText"],
+      },
+      {
+        title: t("Asset"),
+        fields: ["Asset"],
+      },
+      {
+        title: t("Boolean"),
+        fields: ["Bool"],
+      },
+      {
+        title: t("Select"),
+        fields: ["Select"],
+      },
+      {
+        title: t("Number"),
+        fields: ["Integer"],
+      },
+      {
+        title: t("URL"),
+        fields: ["URL"],
+      },
+    ],
+    [t],
+  );
 
-  const meta: FieldListItem[] = [
-    {
-      title: t("Meta Data"),
-      fields: ["Tag", "Bool", "Checkbox", "Date", "Text", "URL"],
-    },
-  ];
+  const meta: FieldListItem[] = useMemo(
+    () => [
+      {
+        title: t("Meta Data"),
+        fields: ["Tag", "Bool", "Checkbox", "Date", "Text", "URL"],
+      },
+    ],
+    [t],
+  );
 
-  const isMeta = useMemo(() => currentTab === "meta-data", [currentTab]);
-  const dataSource = useMemo(() => (currentTab === "meta-data" ? meta : data), [currentTab]);
+  // const isMeta = useMemo(() => currentTab === "meta-data", [currentTab]);
+  const dataSource = useMemo(
+    () => (currentTab === "meta-data" ? meta : data),
+    [currentTab, meta, data],
+  );
 
   return (
     <>
