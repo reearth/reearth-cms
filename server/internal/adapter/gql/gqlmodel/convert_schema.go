@@ -300,7 +300,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		} else {
 			dv = FromValue(SchemaFieldTypeCheckbox, x.DefaultValue).AsMultiple()
 		}
-		tpRes = schema.NewBool().TypeProperty()
+		tpRes = schema.NewCheckbox().TypeProperty()
 	case SchemaFieldTypeSelect:
 		x := tp.Select
 		if x == nil {
