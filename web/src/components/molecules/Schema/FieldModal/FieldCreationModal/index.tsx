@@ -40,6 +40,7 @@ export type Props = {
   open?: boolean;
   fieldCreationLoading: boolean;
   selectedType: FieldType;
+  isMeta?: boolean;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
@@ -85,6 +86,7 @@ const FieldCreationModal: React.FC<Props> = ({
   open,
   fieldCreationLoading,
   selectedType,
+  isMeta,
   onClose,
   onSubmit,
   handleFieldKeyUnique,
@@ -147,6 +149,7 @@ const FieldCreationModal: React.FC<Props> = ({
       .validateFields()
       .then(async values => {
         values.type = selectedType;
+        values.meta = isMeta;
         if (selectedType === "Text") {
           values.typeProperty = {
             text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
@@ -185,15 +188,15 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            url: { defaultValue: values.defaultValue },
+            date: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Tag") {
           values.typeProperty = {
-            url: { defaultValue: values.defaultValue, values: values.values },
+            tag: { defaultValue: values.defaultValue, values: values.values },
           };
         } else if (selectedType === "Checkbox") {
           values.typeProperty = {
-            url: { defaultValue: values.defaultValue },
+            checkbox: { defaultValue: values.defaultValue },
           };
         }
 
@@ -203,7 +206,7 @@ const FieldCreationModal: React.FC<Props> = ({
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit, selectedType]);
+  }, [form, isMeta, onClose, onSubmit, selectedType]);
 
   const handleModalReset = useCallback(() => {
     form.resetFields();

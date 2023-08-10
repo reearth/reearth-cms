@@ -41,6 +41,7 @@ export interface Props {
   open?: boolean;
   fieldUpdateLoading: boolean;
   selectedType: FieldType;
+  isMeta?: boolean;
   selectedField?: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
@@ -90,6 +91,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   onSubmit,
   handleFieldKeyUnique,
   selectedType,
+  isMeta,
   selectedField,
   assetList,
   fileList,
@@ -163,6 +165,7 @@ const FieldUpdateModal: React.FC<Props> = ({
     form
       .validateFields()
       .then(async values => {
+        values.meta = isMeta;
         if (selectedType === "Text") {
           values.typeProperty = {
             text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
@@ -201,15 +204,15 @@ const FieldUpdateModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            url: { defaultValue: values.defaultValue },
+            date: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Tag") {
           values.typeProperty = {
-            url: { defaultValue: values.defaultValue, values: values.values },
+            tag: { defaultValue: values.defaultValue, values: values.values },
           };
         } else if (selectedType === "Checkbox") {
           values.typeProperty = {
-            url: { defaultValue: values.defaultValue },
+            checkbox: { defaultValue: values.defaultValue },
           };
         }
 
@@ -222,7 +225,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit, selectedType, selectedField?.id]);
+  }, [form, isMeta, selectedType, onSubmit, selectedField?.id, onClose]);
 
   const handleModalReset = useCallback(() => {
     form.resetFields();

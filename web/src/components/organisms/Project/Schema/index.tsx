@@ -43,6 +43,7 @@ const ProjectSchema: React.FC = () => {
     fieldUpdateModalShown,
     selectedField,
     currentModel,
+    isMeta,
     selectedType,
     collapsed,
     fieldCreationLoading,
@@ -77,6 +78,7 @@ const ProjectSchema: React.FC = () => {
       {selectedType && (
         <FieldCreationModal
           selectedType={selectedType}
+          isMeta={isMeta}
           open={fieldCreationModalShown}
           fieldCreationLoading={fieldCreationLoading}
           handleFieldKeyUnique={handleFieldKeyUnique}

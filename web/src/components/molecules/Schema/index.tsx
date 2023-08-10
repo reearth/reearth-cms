@@ -18,7 +18,7 @@ export type Props = {
   onCollapse?: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void> | void;
   onFieldUpdateModalOpen: (field: Field) => void;
-  onFieldCreationModalOpen: (fieldType: FieldType) => void;
+  onFieldCreationModalOpen: (fieldType: FieldType, meta?: boolean) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
 };
 export type Tab = "fields" | "meta-data";

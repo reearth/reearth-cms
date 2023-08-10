@@ -24,6 +24,7 @@ export default () => {
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
+  const [isMeta, setIsMeta] = useState<boolean | undefined>();
   const [collapsed, collapse] = useState(false);
 
   useEffect(() => {
@@ -175,8 +176,9 @@ export default () => {
   const handleFieldCreationModalClose = useCallback(() => setFieldCreationModalShown(false), []);
 
   const handleFieldCreationModalOpen = useCallback(
-    (fieldType: FieldType) => {
+    (fieldType: FieldType, meta?: boolean) => {
       setSelectedType(fieldType);
+      setIsMeta(meta);
       if (modelId) setFieldCreationModalShown(true);
     },
     [modelId],
@@ -202,6 +204,7 @@ export default () => {
     selectedField,
     currentModel,
     selectedType,
+    isMeta,
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
