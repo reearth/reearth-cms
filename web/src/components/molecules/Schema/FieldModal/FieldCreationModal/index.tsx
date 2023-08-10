@@ -28,6 +28,7 @@ export type FormValues = {
   title: string;
   description: string;
   key: string;
+  meta: boolean;
   multiple: boolean;
   unique: boolean;
   required: boolean;
@@ -73,6 +74,7 @@ const initialValues: FormValues = {
   description: "",
   key: "",
   multiple: false,
+  meta: false,
   unique: false,
   required: false,
   type: "Text",
@@ -178,6 +180,18 @@ const FieldCreationModal: React.FC<Props> = ({
             bool: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "URL") {
+          values.typeProperty = {
+            url: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Date") {
+          values.typeProperty = {
+            url: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Tag") {
+          values.typeProperty = {
+            url: { defaultValue: values.defaultValue, values: values.values },
+          };
+        } else if (selectedType === "Checkbox") {
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
           };

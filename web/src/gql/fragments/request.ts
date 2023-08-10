@@ -33,6 +33,7 @@ export const requestFragment = gql`
               title
               key
               description
+              meta
               required
               unique
               multiple
@@ -68,7 +69,7 @@ export const requestFragment = gql`
                   defaultValue
                 }
                 ... on SchemaFieldCheckbox {
-                defaultValue
+                  defaultValue
                 }
               }
             }

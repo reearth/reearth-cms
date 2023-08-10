@@ -1,12 +1,15 @@
 import styled from "@emotion/styled";
+import { useMemo, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   collapsed?: boolean;
@@ -18,6 +21,7 @@ export type Props = {
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
 };
+export type Tab = "fields" | "meta-data";
 
 const Schema: React.FC<Props> = ({
   collapsed,
@@ -29,6 +33,46 @@ const Schema: React.FC<Props> = ({
   onFieldCreationModalOpen,
   onFieldDelete,
 }) => {
+  const t = useT();
+  const [tab, setTab] = useState<Tab>("fields");
+  const fields = useMemo(() => model?.schema.fields.filter(f => !f.meta), [model?.schema.fields]);
+  const metaData = useMemo(() => model?.schema.fields.filter(f => f.meta), [model?.schema.fields]);
+
+  const items: TabsProps["items"] = [
+    {
+      key: "fields",
+      label: t("Fields"),
+      children: (
+        <div>
+          <ModelFieldList
+            fields={fields}
+            handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
+            onFieldReorder={onFieldReorder}
+            onFieldDelete={onFieldDelete}
+          />
+        </div>
+      ),
+    },
+    {
+      key: "meta-data",
+      label: t("Meta Data"),
+      children: (
+        <div>
+          <ModelFieldList
+            fields={metaData}
+            handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
+            onFieldReorder={onFieldReorder}
+            onFieldDelete={onFieldDelete}
+          />
+        </div>
+      ),
+    },
+  ];
+
+  const handleTabChange = (key: string) => {
+    setTab(key as Tab);
+  };
+
   return (
     <ComplexInnerContents
       left={
@@ -44,19 +88,12 @@ const Schema: React.FC<Props> = ({
       center={
         <Content>
           <PageHeader title={model?.name} subTitle={model?.key ? `#${model.key}` : null} />
-          <ModelFieldListWrapper>
-            <ModelFieldList
-              fields={model?.schema.fields}
-              handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
-              onFieldReorder={onFieldReorder}
-              onFieldDelete={onFieldDelete}
-            />
-          </ModelFieldListWrapper>
+          <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
         </Content>
       }
       right={
         <FieldListWrapper>
-          <FieldList addField={onFieldCreationModalOpen} />
+          <FieldList currentTab={tab} addField={onFieldCreationModalOpen} />
         </FieldListWrapper>
       }
     />
@@ -72,7 +109,7 @@ const Content = styled.div`
   background: #fafafa;
 `;
 
-const ModelFieldListWrapper = styled.div`
+const StyledTabs = styled(Tabs)`
   padding: 24px;
 `;
 

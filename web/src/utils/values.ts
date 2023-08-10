@@ -15,6 +15,7 @@ export const fromGraphQLModel = (model: Maybe<Model>) => {
         description: field.description,
         title: field.title,
         type: field.type,
+        meta: field.meta,
         key: field.key,
         unique: field.unique,
         multiple: field.multiple,

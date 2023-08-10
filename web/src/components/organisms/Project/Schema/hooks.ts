@@ -138,6 +138,7 @@ export default () => {
     async (data: {
       title: string;
       description: string;
+      meta: boolean;
       key: string;
       multiple: boolean;
       unique: boolean;
@@ -151,6 +152,7 @@ export default () => {
           modelId,
           title: data.title,
           description: data.description,
+          meta: data.meta,
           key: data.key,
           multiple: data.multiple,
           unique: data.unique,

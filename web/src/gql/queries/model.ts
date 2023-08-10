@@ -17,6 +17,7 @@ export const GET_MODELS = gql`
             title
             key
             description
+            meta
             required
             unique
             multiple

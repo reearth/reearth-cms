@@ -30,6 +30,7 @@ export interface FormValues {
   title: string;
   description: string;
   key: string;
+  meta: boolean;
   multiple: boolean;
   unique: boolean;
   required: boolean;
@@ -75,6 +76,7 @@ const initialValues: FormValues = {
   title: "",
   description: "",
   key: "",
+  meta: false,
   multiple: false,
   unique: false,
   required: false,
@@ -140,6 +142,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       fieldId: selectedField?.id,
       title: selectedField?.title,
       description: selectedField?.description,
+      meta: selectedField?.meta,
       key: selectedField?.key,
       multiple: selectedField?.multiple,
       unique: selectedField?.unique,
@@ -193,6 +196,18 @@ const FieldUpdateModal: React.FC<Props> = ({
             bool: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "URL") {
+          values.typeProperty = {
+            url: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Date") {
+          values.typeProperty = {
+            url: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Tag") {
+          values.typeProperty = {
+            url: { defaultValue: values.defaultValue, values: values.values },
+          };
+        } else if (selectedType === "Checkbox") {
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
           };

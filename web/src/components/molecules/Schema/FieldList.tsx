@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useMemo } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
@@ -8,14 +8,17 @@ import { useT } from "@reearth-cms/i18n";
 import { fieldTypes } from "./fieldTypes";
 import { FieldType } from "./types";
 
+import { Tab } from ".";
+
 export interface Props {
   className?: string;
+  currentTab?: Tab;
   addField: (fieldType: FieldType) => void;
 }
 
 type FieldListItem = { title: string; fields: string[] };
 
-const FieldList: React.FC<Props> = ({ addField }) => {
+const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
   const t = useT();
 
   const data: FieldListItem[] = [
@@ -45,12 +48,22 @@ const FieldList: React.FC<Props> = ({ addField }) => {
     },
   ];
 
+  const meta: FieldListItem[] = [
+    {
+      title: t("Meta Data"),
+      fields: ["Tag", "Bool", "Checkbox", "Date", "Text", "URL"],
+    },
+  ];
+
+  const isMeta = useMemo(() => currentTab === "meta-data", [currentTab]);
+  const dataSource = useMemo(() => (currentTab === "meta-data" ? meta : data), [currentTab]);
+
   return (
     <>
       <h1>{t("Add Field")}</h1>
       <FieldStyledList
         itemLayout="horizontal"
-        dataSource={data}
+        dataSource={dataSource}
         renderItem={item => (
           <>
             <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>

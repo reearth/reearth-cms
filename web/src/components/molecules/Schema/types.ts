@@ -18,6 +18,7 @@ export type Field = {
   title: string;
   key: string;
   description: string | null | undefined;
+  meta: boolean;
   required: boolean;
   unique: boolean;
   multiple: boolean;
@@ -36,7 +37,8 @@ export type FieldType =
   | "Tag"
   | "Integer"
   | "Reference"
-  | "URL";
+  | "URL"
+  | "Checkbox";
 
 export type TypeProperty =
   | {
@@ -58,6 +60,9 @@ export type CreationFieldTypePropertyInput = {
   text?: { defaultValue: string; maxLength: number };
   textArea?: { defaultValue: string; maxLength: number };
   url?: { defaultValue: string };
+  date?: { defaultValue: string };
+  tag?: { defaultValue: string; values: string[] };
+  checkbox?: { defaultValue: string };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
