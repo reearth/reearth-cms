@@ -49,6 +49,8 @@ type Config struct {
 	Auth_JWKSURI  *string
 	// auth for m2m
 	AuthM2M AuthM2MConfig
+
+	DB_Account string
 }
 
 type AuthConfig struct {

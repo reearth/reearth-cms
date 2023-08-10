@@ -46,7 +46,11 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
 
-	acRepos, err := accountmongo.New(ctx, client, databaseName, true, false)
+	accountDatabase := conf.AccountDatabase
+	if accountDatabase == "" {
+		accountDatabase = databaseName
+	}
+	acRepos, err := accountmongo.New(ctx, client, accountDatabase, true, false)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
@@ -77,7 +81,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	// Auth0
 	auth := auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 	gateways.Authenticator = auth
-	acGateways.Authenticator =auth
+	acGateways.Authenticator = auth
 
 	// CloudTasks
 	if conf.Task.GCPProject != "" {
