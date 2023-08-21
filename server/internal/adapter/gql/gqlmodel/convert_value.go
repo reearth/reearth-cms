@@ -18,6 +18,8 @@ func ToValueType(t value.Type) SchemaFieldType {
 		return SchemaFieldTypeDate
 	case value.TypeBool:
 		return SchemaFieldTypeBool
+	case value.TypeCheckbox:
+		return SchemaFieldTypeCheckbox
 	case value.TypeSelect:
 		return SchemaFieldTypeSelect
 	case value.TypeNumber:
