@@ -20,6 +20,8 @@ func ToValueType(t value.Type) SchemaFieldType {
 		return SchemaFieldTypeBool
 	case value.TypeCheckbox:
 		return SchemaFieldTypeCheckbox
+	case value.TypeTag:
+		return SchemaFieldTypeTag
 	case value.TypeSelect:
 		return SchemaFieldTypeSelect
 	case value.TypeNumber:
@@ -53,6 +55,8 @@ func FromValueType(t SchemaFieldType) value.Type {
 		return value.TypeBool
 	case SchemaFieldTypeCheckbox:
 		return value.TypeCheckbox
+	case SchemaFieldTypeTag:
+		return value.TypeTag
 	case SchemaFieldTypeSelect:
 		return value.TypeSelect
 	// case SchemaFieldTypeNumber:
