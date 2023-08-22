@@ -57,7 +57,8 @@ type FieldSelectPropertyDocument struct {
 }
 
 type FieldTagPropertyDocument struct {
-	Values []string
+	Values        []string
+	AllowMultiple bool
 }
 
 type FieldDatePropertyDocument struct {
@@ -203,7 +204,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		case value.TypeSelect:
 			tp = schema.NewSelect(tpd.Select.Values).TypeProperty()
 		case value.TypeTag:
-			tp = schema.NewTag(tpd.Tag.Values).TypeProperty()
+			tp = schema.NewTag(tpd.Tag.Values, tpd.Tag.AllowMultiple).TypeProperty()
 		case value.TypeNumber:
 			tpi, err := schema.NewNumber(tpd.Number.Min, tpd.Number.Max)
 			if err != nil {

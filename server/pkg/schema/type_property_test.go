@@ -425,7 +425,7 @@ func TestTypeProperty_Validate(t *testing.T) {
 		{
 			name: "Tag",
 			args: args{
-				tp:    &TypeProperty{t: value.TypeTag, tag: NewTag([]string{"xyz"})},
+				tp:    &TypeProperty{t: value.TypeTag, tag: NewTag([]string{"xyz"}, false)},
 				value: value.TypeTag.Value("xyz"),
 			},
 			want: nil,

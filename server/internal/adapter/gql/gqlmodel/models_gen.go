@@ -740,15 +740,17 @@ type SchemaFieldSelectInput struct {
 }
 
 type SchemaFieldTag struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Values        []string    `json:"values"`
+	AllowMultiple bool        `json:"allowMultiple"`
+	DefaultValue  interface{} `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTagInput struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Values        []string    `json:"values"`
+	AllowMultiple bool        `json:"allowMultiple"`
+	DefaultValue  interface{} `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldText struct {
