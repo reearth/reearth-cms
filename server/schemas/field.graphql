@@ -88,6 +88,7 @@ type SchemaFieldSelect {
 
 type SchemaFieldTag {
   values: [String!]!
+  allowMultiple: Boolean!
   defaultValue: Any
 }
 
@@ -154,6 +155,7 @@ input SchemaFieldSelectInput {
 
 input SchemaFieldTagInput {
   values: [String!]!
+  allowMultiple: Boolean!
   defaultValue: Any
 }
 

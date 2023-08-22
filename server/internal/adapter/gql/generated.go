@@ -550,8 +550,9 @@ type ComplexityRoot struct {
 	}
 
 	SchemaFieldTag struct {
-		DefaultValue func(childComplexity int) int
-		Values       func(childComplexity int) int
+		AllowMultiple func(childComplexity int) int
+		DefaultValue  func(childComplexity int) int
+		Values        func(childComplexity int) int
 	}
 
 	SchemaFieldText struct {
@@ -3101,6 +3102,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldSelect.Values(childComplexity), true
 
+	case "SchemaFieldTag.allowMultiple":
+		if e.complexity.SchemaFieldTag.AllowMultiple == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldTag.AllowMultiple(childComplexity), true
+
 	case "SchemaFieldTag.defaultValue":
 		if e.complexity.SchemaFieldTag.DefaultValue == nil {
 			break
@@ -4438,6 +4446,7 @@ type SchemaFieldSelect {
 
 type SchemaFieldTag {
   values: [String!]!
+  allowMultiple: Boolean!
   defaultValue: Any
 }
 
@@ -4504,6 +4513,7 @@ input SchemaFieldSelectInput {
 
 input SchemaFieldTagInput {
   values: [String!]!
+  allowMultiple: Boolean!
   defaultValue: Any
 }
 
@@ -20698,6 +20708,50 @@ func (ec *executionContext) fieldContext_SchemaFieldTag_values(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldTag_allowMultiple(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTag) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldTag_allowMultiple(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AllowMultiple, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldTag_allowMultiple(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldTag",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldTag_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTag) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldTag_defaultValue(ctx, field)
 	if err != nil {
@@ -26930,7 +26984,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"values", "defaultValue"}
+	fieldsInOrder := [...]string{"values", "allowMultiple", "defaultValue"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26946,6 +27000,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 				return it, err
 			}
 			it.Values = data
+		case "allowMultiple":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowMultiple"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AllowMultiple = data
 		case "defaultValue":
 			var err error
 
@@ -33374,6 +33437,11 @@ func (ec *executionContext) _SchemaFieldTag(ctx context.Context, sel ast.Selecti
 			out.Values[i] = graphql.MarshalString("SchemaFieldTag")
 		case "values":
 			out.Values[i] = ec._SchemaFieldTag_values(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "allowMultiple":
+			out.Values[i] = ec._SchemaFieldTag_allowMultiple(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

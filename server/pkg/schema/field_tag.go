@@ -9,15 +9,17 @@ import (
 )
 
 type FieldTag struct {
-	values []string
+	values        []string
+	allowMultiple bool
 }
 
-func NewTag(values []string) *FieldTag {
+func NewTag(values []string, allowMultiple bool) *FieldTag {
 	return &FieldTag{
 		values: lo.Uniq(lo.FilterMap(values, func(v string, _ int) (string, bool) {
 			s := strings.TrimSpace(v)
 			return s, len(s) > 0
 		})),
+		allowMultiple: allowMultiple,
 	}
 }
 
@@ -32,6 +34,10 @@ func (f *FieldTag) Values() []string {
 	return slices.Clone(f.values)
 }
 
+func (f *FieldTag) AllowMultiple() bool {
+	return f.allowMultiple
+}
+
 func (*FieldTag) Type() value.Type {
 	return value.TypeTag
 }
@@ -41,7 +47,8 @@ func (f *FieldTag) Clone() *FieldTag {
 		return nil
 	}
 	return &FieldTag{
-		values: slices.Clone(f.values),
+		values:        slices.Clone(f.values),
+		allowMultiple: f.allowMultiple,
 	}
 }
 
