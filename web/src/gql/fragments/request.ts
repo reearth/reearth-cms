@@ -71,6 +71,13 @@ export const requestFragment = gql`
                 ... on SchemaFieldCheckbox {
                   defaultValue
                 }
+                ... on SchemaFieldTag {
+                  defaultValue
+                  values
+                }
+                ... on SchemaFieldDate {
+                  defaultValue
+                }
               }
             }
           }

@@ -61,8 +61,8 @@ export type CreationFieldTypePropertyInput = {
   textArea?: { defaultValue: string; maxLength: number };
   url?: { defaultValue: string };
   date?: { defaultValue: string };
-  tag?: { defaultValue: string; values: string[] };
-  checkbox?: { defaultValue: string };
+  tag?: { defaultValue: string; values: string[]; allowMultiple: boolean };
+  checkbox?: { defaultValue: boolean };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";

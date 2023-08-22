@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -18,6 +19,7 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
+import MultiValueCheckbox from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueCheckbox";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import MultiValueSwitch from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSwitch";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
@@ -380,6 +382,30 @@ const ContentForm: React.FC<Props> = ({
                 valuePropName="checked"
                 label={<FieldTitle title={field.title} isUnique={field.unique} />}>
                 {field.multiple ? <MultiValueSwitch /> : <Switch />}
+              </Form.Item>
+            ) : field.type === "Checkbox" ? (
+              <Form.Item
+                key={field.id}
+                extra={field.description}
+                name={field.id}
+                valuePropName="checked"
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                {field.multiple ? <MultiValueCheckbox /> : <Checkbox />}
+              </Form.Item>
+            ) : field.type === "Tag" ? (
+              <Form.Item
+                key={field.id}
+                extra={field.description}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                <Select allowClear>
+                  {field.typeProperty?.values?.map((value: string) => (
+                    <Option key={value} value={value}>
+                      {value}
+                    </Option>
+                  ))}
+                </Select>
+                )
               </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item

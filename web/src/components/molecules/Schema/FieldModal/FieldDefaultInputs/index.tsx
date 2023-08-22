@@ -10,14 +10,17 @@ import { FieldType } from "../../types";
 
 import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";
+import CheckboxField from "./CheckboxField";
 import IntegerField from "./IntegerField";
 import MarkdownField from "./Markdown";
 import SelectField from "./SelectField";
+import TagField from "./TagField";
 import TextAreaField from "./TextArea";
 import TextField from "./TextField";
 import URLField from "./URLField";
 
 export interface Props {
+  allowMultiple?: boolean;
   selectedType: FieldType;
   multiple?: boolean;
   selectedValues: string[];
@@ -49,6 +52,7 @@ export interface Props {
 }
 
 const FieldDefaultInputs: React.FC<Props> = ({
+  allowMultiple,
   selectedType,
   selectedValues,
   multiple,
@@ -108,8 +112,12 @@ const FieldDefaultInputs: React.FC<Props> = ({
       />
     ) : selectedType === "Select" ? (
       <SelectField selectedValues={selectedValues} multiple={multiple} />
+    ) : selectedType === "Tag" ? (
+      <TagField selectedValues={selectedValues} allowMultiple={allowMultiple} />
     ) : selectedType === "URL" ? (
       <URLField multiple={multiple} />
+    ) : selectedType === "Checkbox" ? (
+      <CheckboxField multiple={multiple} />
     ) : (
       <TextField multiple={multiple} />
     )

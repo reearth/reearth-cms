@@ -117,6 +117,7 @@ const FieldCreationModal: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+  const allowMultiple: boolean = Form.useWatch("allowMultiple", form);
   const multipleValue: boolean = Form.useWatch("multiple", form);
 
   const handleTabChange = useCallback(
@@ -129,7 +130,7 @@ const FieldCreationModal: React.FC<Props> = ({
   useEffect(() => {
     if (selectedType === "Asset" || selectedType === "Select") {
       form.setFieldValue("defaultValue", null);
-    } else if (selectedType === "Bool") {
+    } else if (selectedType === "Bool" || selectedType === "Checkbox") {
       form.setFieldValue("defaultValue", false);
     }
   }, [form, selectedType, multipleValue]);
@@ -305,6 +306,25 @@ const FieldCreationModal: React.FC<Props> = ({
                 <MultiValueField FieldInput={Input} />
               </Form.Item>
             )}
+            {selectedType === "Tag" && (
+              <Form.Item
+                name="values"
+                label={t("Set Tags")}
+                rules={[
+                  {
+                    validator: async (_, values) => {
+                      if (!values || values.length < 1) {
+                        return Promise.reject(new Error("At least 1 tag"));
+                      }
+                      if (values.some((value: string) => value.length === 0)) {
+                        return Promise.reject(new Error("Empty values are not allowed"));
+                      }
+                    },
+                  },
+                ]}>
+                <MultiValueField FieldInput={Input} />
+              </Form.Item>
+            )}
             <Form.Item
               name="multiple"
               valuePropName="checked"
@@ -352,6 +372,7 @@ const FieldCreationModal: React.FC<Props> = ({
               onAssetsReload={onAssetsReload}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
+              allowMultiple={allowMultiple}
             />
           </TabPane>
         </Tabs>
