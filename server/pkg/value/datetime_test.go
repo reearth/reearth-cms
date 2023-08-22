@@ -23,13 +23,13 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 			args: []any{
 				now, now.Format(time.RFC3339), now.Format(time.RFC3339Nano),
 			},
-			want1: now,
+			want1: []time.Time{now},
 			want2: true,
 		},
 		{
 			name:  "integer",
 			args:  []any{now.Unix(), float64(now.Unix()), json.Number(fmt.Sprintf("%d", now.Unix()))},
-			want1: now,
+			want1: []time.Time{now},
 			want2: true,
 		},
 		{
@@ -50,7 +50,7 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 				&now, lo.ToPtr(now.Format(time.RFC3339)), lo.ToPtr(now.Format(time.RFC3339Nano)),
 				lo.ToPtr(now.Unix()), lo.ToPtr(float64(now.Unix())), lo.ToPtr(json.Number(fmt.Sprintf("%d", now.Unix()))),
 			},
-			want1: now,
+			want1: []time.Time{now},
 			want2: true,
 		},
 	}
@@ -62,9 +62,9 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 
 			p := &propertyDateTime{}
 			for i, v := range tt.args {
-				got1, got2 := p.ToValue(v)
+				got1, got2 := p.ToValue([]any{v})
 				if tt.want1 != nil {
-					assert.Equal(t, tt.want1.(time.Time).Unix(), got1.(time.Time).Unix(), "test %d", i)
+					assert.Equal(t, tt.want1, got1, "test %d", i)
 				} else {
 					assert.Nil(t, got1, "test %d", i)
 				}
@@ -76,34 +76,33 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 
 func Test_propertyDateTime_ToInterface(t *testing.T) {
 	v := time.Now()
-	tt, ok := (&propertyDateTime{}).ToInterface(v)
-	assert.Equal(t, v.Format(time.RFC3339), tt)
+	tt, ok := (&propertyDateTime{}).ToInterface([]time.Time{v})
+	assert.Equal(t, []interface{}{v.Format(time.RFC3339)}, tt)
 	assert.Equal(t, true, ok)
 }
 
 func Test_propertyDateTime_IsEmpty(t *testing.T) {
-	assert.True(t, (&propertyDateTime{}).IsEmpty(time.Time{}))
-	assert.False(t, (&propertyDateTime{}).IsEmpty(time.Now()))
+	assert.True(t, (&propertyDateTime{}).IsEmpty([]time.Time{}))
+	assert.False(t, (&propertyDateTime{}).IsEmpty([]time.Time{time.Now()}))
 }
 
 func Test_propertyDateTime_Validate(t *testing.T) {
-	assert.True(t, (&propertyDateTime{}).Validate(time.Now()))
+	assert.True(t, (&propertyDateTime{}).Validate([]time.Time{time.Now()}))
 	assert.False(t, (&propertyDateTime{}).Validate("a"))
 }
 
 func Test_propertyDateTime_Equal(t *testing.T) {
 	now := time.Now()
-	p := &propertyDateTime{}
-	assert.True(t, (&propertyDateTime{}).Equal(now, lo.Must(p.ToValue(&now))))
-	assert.True(t, (&propertyDateTime{}).Equal(now, lo.Must(p.ToValue(now))))
-	assert.False(t, (&propertyDateTime{}).Equal(now, now.Add(2*time.Millisecond)))
-	assert.False(t, (&propertyDateTime{}).Equal(now, now.Add(2*time.Millisecond)))
+	assert.True(t, (&propertyDateTime{}).Equal([]time.Time{now}, []time.Time{now}))
+	assert.False(t, (&propertyDateTime{}).Equal([]time.Time{now}, []time.Time{now.Add(2 * time.Millisecond)}))
+	assert.False(t, (&propertyDateTime{}).Equal([]time.Time{now, now}, []time.Time{now}))
 }
 
 func TestValue_ValueDateTime(t *testing.T) {
 	var v *Value = nil
+	var expected DateTime
 	res, ok := v.ValueDateTime()
-	assert.Equal(t, DateTime{}, res)
+	assert.Equal(t, expected, res)
 	assert.False(t, ok)
 
 	v = &Value{
@@ -113,18 +112,18 @@ func TestValue_ValueDateTime(t *testing.T) {
 	}
 
 	res, ok = v.ValueDateTime()
-	assert.Equal(t, DateTime{}, res)
+	assert.Equal(t, expected, res)
 	assert.False(t, ok)
 
 	now := time.Now()
 	v = &Value{
 		t: TypeDateTime,
-		v: now,
+		v: []time.Time{now},
 		p: nil,
 	}
 
 	res, ok = v.ValueDateTime()
-	assert.Equal(t, now, res)
+	assert.Equal(t, []time.Time{now}, res)
 	assert.True(t, ok)
 }
 
@@ -144,18 +143,19 @@ func TestValue_ValuesDateTime(t *testing.T) {
 
 	now1 := time.Now()
 	now2 := time.Now()
+	v1 := New(TypeDateTime, []time.Time{now1})
 	v = &Multiple{
 		t: TypeDateTime,
-		v: []*Value{New(TypeDateTime, now1), New(TypeDateTime, now2)},
+		v: []*Value{v1, New(TypeDateTime, []time.Time{now2})},
 	}
 
 	res, ok = v.ValuesDateTime()
-	assert.Equal(t, []DateTime{now1, now2}, res)
+	assert.Equal(t, []DateTime{{now1}, {now2}}, res)
 	assert.True(t, ok)
 
 	v = &Multiple{
 		t: TypeDateTime,
-		v: []*Value{New(TypeDateTime, now1), New(TypeInteger, 1)},
+		v: []*Value{New(TypeDateTime, []time.Time{now1}), New(TypeInteger, 1)},
 	}
 
 	res, ok = v.ValuesDateTime()

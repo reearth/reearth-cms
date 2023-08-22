@@ -4,10 +4,14 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-type FieldDateTime struct{}
+type FieldDateTime struct {
+	isTimeRange bool
+}
 
-func NewDateTime() *FieldDateTime {
-	return &FieldDateTime{}
+func NewDateTime(tr bool) *FieldDateTime {
+	return &FieldDateTime{
+		isTimeRange: tr,
+	}
 }
 
 func (f *FieldDateTime) TypeProperty() *TypeProperty {
@@ -15,6 +19,10 @@ func (f *FieldDateTime) TypeProperty() *TypeProperty {
 		t:        f.Type(),
 		dateTime: f,
 	}
+}
+
+func (f *FieldDateTime) IsTimeRange() bool {
+	return f.isTimeRange
 }
 
 func (f *FieldDateTime) Type() value.Type {
@@ -31,7 +39,12 @@ func (f *FieldDateTime) Clone() *FieldDateTime {
 func (f *FieldDateTime) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		DateTime: func(a value.DateTime) {
-			// ok
+			if len(a) > 2 {
+				err = ErrInvalidValue
+			}
+			if f.isTimeRange && (len(a) != 2 || a[0].After(a[1])) {
+				err = ErrInvalidValue
+			}
 		},
 		Default: func() {
 			err = ErrInvalidValue

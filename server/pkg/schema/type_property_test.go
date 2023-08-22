@@ -401,8 +401,8 @@ func TestTypeProperty_Validate(t *testing.T) {
 		{
 			name: "DateTime",
 			args: args{
-				tp:    &TypeProperty{t: value.TypeDateTime, dateTime: NewDateTime()},
-				value: value.TypeDateTime.Value(time.Now()),
+				tp:    &TypeProperty{t: value.TypeDateTime, dateTime: NewDateTime(false)},
+				value: value.TypeDateTime.Value([]time.Time{time.Now()}),
 			},
 			want: nil,
 		},

@@ -1,7 +1,5 @@
 package value
 
-import "fmt"
-
 type Match struct {
 	Asset     func(Asset)
 	Bool      func(Bool)
@@ -23,13 +21,11 @@ type Match struct {
 
 func (v *Value) Match(m Match) {
 	if v == nil {
-		fmt.Println(v)
 		if m.Default != nil {
 			m.Default()
 		}
 		return
 	}
-
 	switch v.t {
 	case TypeText:
 		if m.Text != nil {

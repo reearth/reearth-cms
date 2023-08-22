@@ -278,7 +278,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		} else {
 			dv = FromValue(SchemaFieldTypeDate, x.DefaultValue).AsMultiple()
 		}
-		tpRes = schema.NewDateTime().TypeProperty()
+		tpRes = schema.NewDateTime(x.IsTimeRange).TypeProperty()
 	case SchemaFieldTypeBool:
 		x := tp.Bool
 		if x == nil {

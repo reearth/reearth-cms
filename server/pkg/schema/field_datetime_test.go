@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewDateTime(t *testing.T) {
-	assert.Equal(t, &FieldDateTime{}, NewDateTime())
+	assert.Equal(t, &FieldDateTime{isTimeRange: true}, NewDateTime(true))
 }
 
 func TestFieldDateTime_Type(t *testing.T) {
@@ -31,6 +31,7 @@ func TestFieldDateTime_Clone(t *testing.T) {
 
 func TestFieldDateTime_Validate(t *testing.T) {
 	now := time.Now()
-	assert.NoError(t, (&FieldDateTime{}).Validate(value.TypeDateTime.Value(now)))
+	assert.NoError(t, (&FieldDateTime{}).Validate(value.TypeDateTime.Value([]time.Time{now, now.Add(1234)})))
 	assert.Equal(t, ErrInvalidValue, (&FieldDateTime{}).Validate(value.TypeText.Value("")))
+	assert.Equal(t, ErrInvalidValue, (&FieldDateTime{isTimeRange: true}).Validate(value.TypeDateTime.Value([]time.Time{now.Add(1234), now})))
 }

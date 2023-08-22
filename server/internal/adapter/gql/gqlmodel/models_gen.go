@@ -673,12 +673,14 @@ type SchemaFieldCheckboxInput struct {
 }
 
 type SchemaFieldDate struct {
+	IsTimeRange  bool        `json:"isTimeRange"`
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldDate) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldDateInput struct {
+	IsTimeRange  bool        `json:"isTimeRange"`
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 

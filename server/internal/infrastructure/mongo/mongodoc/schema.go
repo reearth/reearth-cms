@@ -45,16 +45,23 @@ type TypePropertyDocument struct {
 	Number    *FieldNumberPropertyDocument    `bson:",omitempty"`
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
+	Date      *FieldDatePropertyDocument      `bson:",omitempty"`
 }
 
 type FieldTextPropertyDocument struct {
 	MaxLength *int
 }
+
 type FieldSelectPropertyDocument struct {
 	Values []string
 }
+
 type FieldTagPropertyDocument struct {
 	Values []string
+}
+
+type FieldDatePropertyDocument struct {
+	IsTimeRange bool
 }
 
 type FieldNumberPropertyDocument struct {
@@ -112,8 +119,12 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 					MaxLength: fp.MaxLength(),
 				}
 			},
-			Asset:    func(fp *schema.FieldAsset) {},
-			DateTime: func(fp *schema.FieldDateTime) {},
+			Asset: func(fp *schema.FieldAsset) {},
+			DateTime: func(fp *schema.FieldDateTime) {
+				fd.TypeProperty.Date = &FieldDatePropertyDocument{
+					IsTimeRange: fp.IsTimeRange(),
+				}
+			},
 			Bool:     func(fp *schema.FieldBool) {},
 			Checkbox: func(fp *schema.FieldCheckbox) {},
 			Select: func(fp *schema.FieldSelect) {
@@ -184,7 +195,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		case value.TypeAsset:
 			tp = schema.NewAsset().TypeProperty()
 		case value.TypeDateTime:
-			tp = schema.NewDateTime().TypeProperty()
+			tp = schema.NewDateTime(tpd.Date.IsTimeRange).TypeProperty()
 		case value.TypeBool:
 			tp = schema.NewBool().TypeProperty()
 		case value.TypeCheckbox:

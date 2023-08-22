@@ -169,7 +169,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "datetime",
-			args: args{tp: schema.NewDateTime().TypeProperty()},
+			args: args{tp: schema.NewDateTime(false).TypeProperty()},
 			want: &SchemaFieldDate{DefaultValue: nil},
 		},
 		{
@@ -277,7 +277,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 				},
 			},
 			argsT:  SchemaFieldTypeDate,
-			wantTp: schema.NewDateTime().TypeProperty(),
+			wantTp: schema.NewDateTime(false).TypeProperty(),
 		},
 		{
 			name: "reference",

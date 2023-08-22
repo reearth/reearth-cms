@@ -2,6 +2,7 @@ package value
 
 import (
 	"testing"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
@@ -27,8 +28,8 @@ func TestValue_Match(t *testing.T) {
 
 	res = nil
 	now := util.Now()
-	(&Value{t: TypeDateTime, v: now}).Match(Match{DateTime: func(v DateTime) { res = v }})
-	assert.Equal(t, now, res)
+	(&Value{t: TypeDateTime, v: []time.Time{now}}).Match(Match{DateTime: func(v DateTime) { res = v }})
+	assert.Equal(t, []time.Time{now}, res)
 
 	res = nil
 	aid := id.NewAssetID()
