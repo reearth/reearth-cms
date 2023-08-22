@@ -5,6 +5,7 @@ type Item implements Node {
   modelId: ID!
   projectId: ID!
   integrationId: ID
+  updatedById: ID!
   userId: ID
   integration: Integration
   user: User
@@ -17,6 +18,7 @@ type Item implements Node {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
+  updatedBy: User
   version: String!
 }
 

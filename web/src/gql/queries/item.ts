@@ -49,6 +49,9 @@ export const GET_ITEM_NODE = gql`
         user {
           name
         }
+        updatedBy {
+          name
+        }
         integration {
           name
         }

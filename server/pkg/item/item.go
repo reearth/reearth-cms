@@ -20,6 +20,7 @@ type Item struct {
 	fields      []*Field
 	timestamp   time.Time
 	thread      ThreadID
+	updatedBy   *UserID
 	user        *UserID
 	integration *IntegrationID
 }
@@ -68,6 +69,11 @@ func (i *Item) Field(f FieldID) *Field {
 func (i *Item) Thread() ThreadID {
 	return i.thread
 }
+
+func (i *Item) UpdateddBy() *UserID {
+	return i.updatedBy
+}
+
 
 func (i *Item) UpdateFields(fields []*Field) {
 	if fields == nil {
