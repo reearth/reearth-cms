@@ -74,7 +74,6 @@ func TestToSchema(t *testing.T) {
 
 func TestToSchemaField(t *testing.T) {
 	fId := schema.NewFieldID()
-	isTitle := lo.ToPtr(true)
 	tests := []struct {
 		name   string
 		schema *schema.Field
@@ -94,7 +93,7 @@ func TestToSchemaField(t *testing.T) {
 				Description("D1").
 				Key(key.New("K123456")).
 				Unique(true).
-				IsTitle(isTitle).
+				IsTitle(true).
 				Multiple(true).
 				Required(true).
 				MustBuild(),
@@ -109,7 +108,7 @@ func TestToSchemaField(t *testing.T) {
 				Description:  lo.ToPtr("D1"),
 				Multiple:     true,
 				Unique:       true,
-				IsTitle:      isTitle,
+				IsTitle:      true,
 				Order:        lo.ToPtr(0),
 				Required:     true,
 				CreatedAt:    fId.Timestamp(),

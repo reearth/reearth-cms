@@ -27,7 +27,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
-  isTitle: Boolean
+  isTitle: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -195,7 +195,7 @@ input CreateFieldInput {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
-  isTitle: Boolean
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 

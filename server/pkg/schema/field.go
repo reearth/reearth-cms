@@ -20,7 +20,7 @@ type Field struct {
 	unique       bool
 	multiple     bool
 	required     bool
-	isTitle      *bool
+	isTitle      bool
 	updatedAt    time.Time
 	defaultValue *value.Multiple
 	typeProperty *TypeProperty
@@ -102,7 +102,7 @@ func (f *Field) Required() bool {
 	return f.required
 }
 
-func (f *Field) IsTitle() *bool {
+func (f *Field) IsTitle() bool {
 	return f.isTitle
 }
 
@@ -118,7 +118,7 @@ func (f *Field) SetMultiple(m bool) {
 	f.multiple = m
 }
 
-func (f *Field) SetIsTitle(isTitle *bool) {
+func (f *Field) SetIsTitle(isTitle bool) {
 	f.isTitle = isTitle
 }
 

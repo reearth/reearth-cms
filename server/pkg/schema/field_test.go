@@ -74,7 +74,7 @@ func TestField_Clone(t *testing.T) {
 		unique:       true,
 		multiple:     true,
 		required:     true,
-		isTitle:      lo.ToPtr(true),
+		isTitle:      true,
 		typeProperty: NewText(nil).TypeProperty(),
 		defaultValue: value.TypeText.Value("aa").AsMultiple(),
 		updatedAt:    time.Now(),
@@ -96,11 +96,10 @@ func TestField_SetRequired(t *testing.T) {
 }
 
 func TestField_SetIsTitle(t *testing.T) {
-	isTitle := lo.ToPtr(true)
-	f := &Field{isTitle: lo.ToPtr(false)}
-	f.SetIsTitle(isTitle)
-	assert.Equal(t, &Field{isTitle: isTitle}, f)
-	assert.Equal(t, isTitle, f.IsTitle())
+	f := &Field{isTitle: false}
+	f.SetIsTitle(true)
+	assert.Equal(t, &Field{isTitle: true}, f)
+	assert.True(t, f.IsTitle())
 }
 
 func TestField_SetUnique(t *testing.T) {

@@ -4414,7 +4414,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
-  isTitle: Boolean
+  isTitle: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -4582,7 +4582,7 @@ input CreateFieldInput {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
-  isTitle: Boolean
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -4694,11 +4694,11 @@ input DeleteItemInput {
 }
 
 input UnpublishItemInput {
-  itemId: [ID!]!
+  itemIds: [ID!]!
 }
 
 input PublishItemInput {
-  itemId: [ID!]!
+  itemIds: [ID!]!
 }
 
 # Payloads
@@ -20140,11 +20140,14 @@ func (ec *executionContext) _SchemaField_isTitle(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaField_isTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25716,7 +25719,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26809,22 +26812,22 @@ func (ec *executionContext) unmarshalInputPublishItemInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"itemId"}
+	fieldsInOrder := [...]string{"itemIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "itemId":
+		case "itemIds":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemIds"))
 			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ItemID = data
+			it.ItemIds = data
 		}
 	}
 
@@ -27826,22 +27829,22 @@ func (ec *executionContext) unmarshalInputUnpublishItemInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"itemId"}
+	fieldsInOrder := [...]string{"itemIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "itemId":
+		case "itemIds":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemIds"))
 			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ItemID = data
+			it.ItemIds = data
 		}
 	}
 
@@ -33318,6 +33321,9 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			}
 		case "isTitle":
 			out.Values[i] = ec._SchemaField_isTitle(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "createdAt":
 			out.Values[i] = ec._SchemaField_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

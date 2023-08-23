@@ -87,7 +87,7 @@ func (b *FieldBuilder) Required(required bool) *FieldBuilder {
 	return b
 }
 
-func (b *FieldBuilder) IsTitle(isTitle *bool) *FieldBuilder {
+func (b *FieldBuilder) IsTitle(isTitle bool) *FieldBuilder {
 	b.f.isTitle = isTitle
 	return b
 }

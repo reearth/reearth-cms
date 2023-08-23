@@ -28,7 +28,7 @@ type FieldDocument struct {
 	Unique       bool
 	Multiple     bool
 	Required     bool
-	IsTitle      *bool
+	IsTitle      bool
 	UpdatedAt    time.Time
 	DefaultValue *ValueDocument
 	TypeProperty TypePropertyDocument

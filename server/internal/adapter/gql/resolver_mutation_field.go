@@ -128,7 +128,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 							Key:          *cf.Update.Key,
 							Multiple:     *cf.Update.Multiple,
 							Unique:       *cf.Update.Unique,
-							IsTitle:      cf.Update.IsTitle,
+							IsTitle:      *cf.Update.IsTitle,
 							Required:     *cf.Update.Required,
 							TypeProperty: cf.Update.TypeProperty,
 						}
@@ -242,12 +242,12 @@ func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.Delet
 		return nil, err
 	}
 	f := fs[0]
-	
+
 	if f.Type() == value.TypeReference {
 		var err1 error
 		f.TypeProperty().Match(schema.TypePropertyMatch{
 			Reference: func(fr *schema.FieldReference) {
-				if fr.CorrespondingField() != nil {			
+				if fr.CorrespondingField() != nil {
 					ms, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{fr.Model()}, getOperator(ctx))
 					if err != nil || len(ms) != 1 || ms[0].ID() != mId {
 						if err == nil {
@@ -256,7 +256,7 @@ func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.Delet
 						err1 = err
 					}
 					m := ms[0]
-					
+
 					cfId := *fr.CorrespondingField()
 					fr.SetCorrespondingField(nil)
 

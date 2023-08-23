@@ -53,7 +53,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		}
 
 		// reset isTitle in all fields if the param.IsTitle is true
-		if lo.FromPtr(param.IsTitle) {
+		if param.IsTitle {
 			s.ResetTitles()
 		}
 
@@ -206,7 +206,7 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 	}
 
 	if param.IsTitle != nil {
-		f.SetIsTitle(param.IsTitle)
+		f.SetIsTitle(*param.IsTitle)
 	}
 
 	return nil

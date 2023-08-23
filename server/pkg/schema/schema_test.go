@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -367,14 +366,14 @@ func TestSchema_Project(t *testing.T) {
 }
 
 func TestSchema_ResetTitles(t *testing.T) {
-	f1 := &Field{id: NewFieldID(), name: "f1", isTitle: lo.ToPtr(true)}
-	f2 := &Field{id: NewFieldID(), name: "f2", isTitle: lo.ToPtr(true)}
-	f3 := &Field{id: NewFieldID(), name: "f3", isTitle: lo.ToPtr(true)}
+	f1 := &Field{id: NewFieldID(), name: "f1", isTitle: true}
+	f2 := &Field{id: NewFieldID(), name: "f2", isTitle: true}
+	f3 := &Field{id: NewFieldID(), name: "f3", isTitle: true}
 	s := &Schema{fields: []*Field{f1, f2, f3}}
 	s.ResetTitles()
-	assert.False(t, lo.FromPtr(f1.isTitle))
-	assert.False(t, lo.FromPtr(f2.isTitle))
-	assert.False(t, lo.FromPtr(f3.isTitle))
+	assert.False(t, f1.isTitle)
+	assert.False(t, f2.isTitle)
+	assert.False(t, f3.isTitle)
 }
 
 func TestSchema_Clone(t *testing.T) {

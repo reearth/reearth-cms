@@ -160,7 +160,7 @@ type CreateFieldInput struct {
 	Multiple     bool                          `json:"multiple"`
 	Unique       bool                          `json:"unique"`
 	Required     bool                          `json:"required"`
-	IsTitle      *bool                         `json:"isTitle,omitempty"`
+	IsTitle      bool                          `json:"isTitle"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
@@ -536,7 +536,7 @@ type ProjectPublication struct {
 }
 
 type PublishItemInput struct {
-	ItemID []ID `json:"itemId"`
+	ItemIds []ID `json:"itemIds"`
 }
 
 type PublishItemPayload struct {
@@ -646,7 +646,7 @@ type SchemaField struct {
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
 	Required     bool                    `json:"required"`
-	IsTitle      *bool                   `json:"isTitle,omitempty"`
+	IsTitle      bool                    `json:"isTitle"`
 	CreatedAt    time.Time               `json:"createdAt"`
 	UpdatedAt    time.Time               `json:"updatedAt"`
 }
@@ -822,7 +822,7 @@ type ThreadPayload struct {
 }
 
 type UnpublishItemInput struct {
-	ItemID []ID `json:"itemId"`
+	ItemIds []ID `json:"itemIds"`
 }
 
 type UnpublishItemPayload struct {

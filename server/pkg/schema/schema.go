@@ -79,7 +79,7 @@ func (s *Schema) RemoveField(fid FieldID) {
 
 func (s *Schema) ResetTitles() {
 	for _, v := range s.Fields() {
-		v.SetIsTitle(lo.ToPtr(false))
+		v.SetIsTitle(false)
 	}
 }
 

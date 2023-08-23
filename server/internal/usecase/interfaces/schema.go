@@ -20,7 +20,7 @@ type CreateFieldParam struct {
 	Multiple     bool
 	Unique       bool
 	Required     bool
-	IsTitle      *bool
+	IsTitle      bool
 	TypeProperty *schema.TypeProperty
 	DefaultValue *value.Multiple
 }

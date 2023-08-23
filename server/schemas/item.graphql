@@ -65,11 +65,11 @@ input DeleteItemInput {
 }
 
 input UnpublishItemInput {
-  itemId: [ID!]!
+  itemIds: [ID!]!
 }
 
 input PublishItemInput {
-  itemId: [ID!]!
+  itemIds: [ID!]!
 }
 
 # Payloads
