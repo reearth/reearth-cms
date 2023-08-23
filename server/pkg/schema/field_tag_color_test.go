@@ -74,6 +74,7 @@ func TestTagColorFrom(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
 			assert.Equalf(tt, tc.want, TagColorFrom(tc.arg), "TagColorFrom(%v)", tc.arg)
