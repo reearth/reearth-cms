@@ -108,7 +108,7 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 	return vis, nil
 }
 
-func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
 	mid, err := gqlmodel.ToID[id.Model](modelId)
 	if err != nil {
@@ -131,7 +131,7 @@ func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, p *gq
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindByModel(ctx, mid, p.Into(), op)
+	res, pi, err := c.usecase.FindByModel(ctx, mid, sort.Into(), p.Into(), op)
 	if err != nil {
 		return nil, err
 	}
