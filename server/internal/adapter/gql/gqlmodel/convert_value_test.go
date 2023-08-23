@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TODO: add testcases
 func TestValueType(t *testing.T) {
 	tests := []struct {
 		name string

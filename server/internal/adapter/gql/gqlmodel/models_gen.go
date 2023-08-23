@@ -660,6 +660,16 @@ type SchemaFieldBoolInput struct {
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
+type SchemaFieldCheckbox struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+func (SchemaFieldCheckbox) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldCheckboxInput struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
 type SchemaFieldDate struct {
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
@@ -771,6 +781,7 @@ type SchemaFieldTypePropertyInput struct {
 	Bool         *SchemaFieldBoolInput      `json:"bool,omitempty"`
 	Select       *SchemaFieldSelectInput    `json:"select,omitempty"`
 	Tag          *SchemaFieldTagInput       `json:"tag,omitempty"`
+	Checkbox     *SchemaFieldCheckboxInput  `json:"checkbox,omitempty"`
 	Integer      *SchemaFieldIntegerInput   `json:"integer,omitempty"`
 	Reference    *SchemaFieldReferenceInput `json:"reference,omitempty"`
 	URL          *SchemaFieldURLInput       `json:"url,omitempty"`
@@ -1536,6 +1547,7 @@ const (
 	SchemaFieldTypeTag          SchemaFieldType = "Tag"
 	SchemaFieldTypeInteger      SchemaFieldType = "Integer"
 	SchemaFieldTypeReference    SchemaFieldType = "Reference"
+	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
 )
 
@@ -1551,12 +1563,13 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeTag,
 	SchemaFieldTypeInteger,
 	SchemaFieldTypeReference,
+	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeURL:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL:
 		return true
 	}
 	return false
