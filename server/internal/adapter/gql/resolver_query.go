@@ -219,10 +219,6 @@ func (r *queryResolver) Items(ctx context.Context, modelId gqlmodel.ID, p *gqlmo
 	return loaders(ctx).Item.FindByModel(ctx, modelId, p)
 }
 
-func (r *queryResolver) ItemsByIds(ctx context.Context, ids []gqlmodel.ID) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.FindByIds(ctx, ids)
-}
-
 func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error) {
 	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, sort, pagination)
 }
