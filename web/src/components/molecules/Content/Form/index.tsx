@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
@@ -176,18 +176,28 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
-  const items: MenuProps["items"] = [
-    {
-      key: "addToRequest",
-      label: t("Add to Request"),
-      onClick: onAddItemToRequestModalOpen,
-    },
-    {
-      key: "unpublish",
-      label: t("Unpublish"),
-      onClick: () => itemId && onUnpublish([itemId]),
-    },
-  ];
+  const items: MenuProps["items"] = useMemo(() => {
+    const menuItems = [
+      {
+        key: "addToRequest",
+        label: t("Add to Request"),
+        onClick: onAddItemToRequestModalOpen,
+      },
+      {
+        key: "unpublish",
+        label: t("Unpublish"),
+        onClick: () => itemId && (onUnpublish([itemId]) as any),
+      },
+    ];
+    if (showPublishAction) {
+      menuItems.unshift({
+        key: "NewRequest",
+        label: t("New Request"),
+        onClick: onModalOpen,
+      });
+    }
+    return menuItems;
+  }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
 
   const handlePublishSubmit = useCallback(async () => {
     // TODO: fix this
@@ -213,9 +223,11 @@ const ContentForm: React.FC<Props> = ({
                       {t("Publish")}
                     </Button>
                   )}
-                  <Button type="primary" onClick={onModalOpen}>
-                    {t("New Request")}
-                  </Button>
+                  {!showPublishAction && (
+                    <Button type="primary" onClick={onModalOpen}>
+                      {t("New Request")}
+                    </Button>
+                  )}
                   <Dropdown menu={{ items }} trigger={["click"]}>
                     <Button>
                       <Icon icon="ellipsis" />
