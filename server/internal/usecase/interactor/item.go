@@ -122,7 +122,7 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 		return nil, nil, err
 	}
 	// TODO: check operation for projects that publication type is limited
-	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), p)
+	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), nil, p)
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
