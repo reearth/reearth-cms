@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewTag(t *testing.T) {
-	assert.Equal(t, &FieldTag{values: []string{"a", "b"}, allowMultiple: false}, NewTag([]string{"a", "b", " a", "b"}, false))
+	assert.Equal(t, &FieldTag{values: []string{"a", "b"}, allowMultiple: false, color: TagColorBlue}, NewTag([]string{"a", "b", " a", "b"}, false, TagColorBlue))
 }
 
 func TestAllowMultiple(t *testing.T) {
@@ -16,6 +16,11 @@ func TestAllowMultiple(t *testing.T) {
 	assert.False(t, tag1.allowMultiple)
 	tag2 := &FieldTag{values: []string{"a", "b"}, allowMultiple: true}
 	assert.True(t, tag2.allowMultiple)
+}
+
+func TestFieldTag_Color(t *testing.T) {
+	tag1 := &FieldTag{values: []string{"a", "b"}, allowMultiple: false, color: TagColorBlue}
+	assert.Equal(t, TagColorBlue, tag1.color)
 }
 
 func TestFieldTag_Type(t *testing.T) {

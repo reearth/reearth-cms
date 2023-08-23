@@ -1,8 +1,6 @@
 package gqlmodel
 
 import (
-	"reflect"
-
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -10,6 +8,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"reflect"
 )
 
 func ToSchema(s *schema.Schema) *Schema {
@@ -46,6 +45,37 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		CreatedAt:    sf.CreatedAt(),
 		UpdatedAt:    sf.UpdatedAt(),
 	}
+}
+
+func ToSchemaFieldTagColor(c schema.TagColor) SchemaFieldTagColor {
+	switch c {
+	case schema.TagColorMagenta:
+		return SchemaFieldTagColorMagenta
+	case schema.TagColorRed:
+		return SchemaFieldTagColorRed
+	case schema.TagColorVolcano:
+		return SchemaFieldTagColorVolcano
+	case schema.TagColorOrange:
+		return SchemaFieldTagColorOrange
+	case schema.TagColorGreen:
+		return SchemaFieldTagColorGreen
+	case schema.TagColorGold:
+		return SchemaFieldTagColorGold
+	case schema.TagColorLime:
+		return SchemaFieldTagColorLime
+	case schema.TagColorCyan:
+		return SchemaFieldTagColorCyan
+	case schema.TagColorBlue:
+		return SchemaFieldTagColorBlue
+	case schema.TagColorGeekblue:
+		return SchemaFieldTagColorGeekblue
+	case schema.TagColorPurple:
+		return SchemaFieldTagColorPurple
+
+	default:
+		return ""
+	}
+
 }
 
 func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, multiple bool) (res SchemaFieldTypeProperty) {
@@ -85,6 +115,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				DefaultValue:  valueString(dv, multiple),
 				Values:        f.Values(),
 				AllowMultiple: f.AllowMultiple(),
+				Color:         ToSchemaFieldTagColor(f.Color()),
 			}
 		},
 		Asset: func(f *schema.FieldAsset) {
@@ -322,7 +353,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		res := schema.NewTag(x.Values, x.AllowMultiple)
+		res := schema.NewTag(x.Values, x.AllowMultiple, schema.TagColorFrom(x.Color.String()))
 		if len(res.Values()) == 0 {
 			return nil, nil, ErrEmptyOptions
 		}

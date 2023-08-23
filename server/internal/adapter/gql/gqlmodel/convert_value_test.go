@@ -129,8 +129,8 @@ func TestToValue(t *testing.T) {
 		},
 		{
 			name: "TypeDate",
-			v:    value.TypeDateTime.Value(now),
-			want: now.Format(time.RFC3339),
+			v:    value.TypeDateTime.Value([]time.Time{now}),
+			want: []interface{}{now.Format(time.RFC3339)},
 		},
 		{
 			name: "TypeBool",

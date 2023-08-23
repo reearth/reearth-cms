@@ -552,6 +552,7 @@ type ComplexityRoot struct {
 
 	SchemaFieldTag struct {
 		AllowMultiple func(childComplexity int) int
+		Color         func(childComplexity int) int
 		DefaultValue  func(childComplexity int) int
 		Values        func(childComplexity int) int
 	}
@@ -3117,6 +3118,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldTag.AllowMultiple(childComplexity), true
 
+	case "SchemaFieldTag.color":
+		if e.complexity.SchemaFieldTag.Color == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldTag.Color(childComplexity), true
+
 	case "SchemaFieldTag.defaultValue":
 		if e.complexity.SchemaFieldTag.DefaultValue == nil {
 			break
@@ -4380,6 +4388,21 @@ extend type Mutation {
   URL
 }
 
+enum SchemaFieldTagColor {
+  MAGENTA
+  RED
+  VOLCANO
+  ORANGE
+  GOLD
+  LIME
+  GREEN
+  CYAN
+  BLUE
+  GEEKBLUE
+  PURPLE
+}
+
+
 type SchemaField {
   id: ID!
   modelId: ID!
@@ -4456,6 +4479,7 @@ type SchemaFieldSelect {
 type SchemaFieldTag {
   values: [String!]!
   allowMultiple: Boolean!
+  color: SchemaFieldTagColor!
   defaultValue: Any
 }
 
@@ -4522,6 +4546,7 @@ input SchemaFieldSelectInput {
 }
 
 input SchemaFieldTagInput {
+  color: SchemaFieldTagColor!
   values: [String!]!
   allowMultiple: Boolean!
   defaultValue: Any
@@ -20806,6 +20831,50 @@ func (ec *executionContext) fieldContext_SchemaFieldTag_allowMultiple(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldTag_color(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTag) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldTag_color(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Color, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.SchemaFieldTagColor)
+	fc.Result = res
+	return ec.marshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldTag_color(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldTag",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SchemaFieldTagColor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldTag_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTag) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldTag_defaultValue(ctx, field)
 	if err != nil {
@@ -27047,13 +27116,22 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"values", "allowMultiple", "defaultValue"}
+	fieldsInOrder := [...]string{"color", "values", "allowMultiple", "defaultValue"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "color":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("color"))
+			data, err := ec.unmarshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Color = data
 		case "values":
 			var err error
 
@@ -33513,6 +33591,11 @@ func (ec *executionContext) _SchemaFieldTag(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "color":
+			out.Values[i] = ec._SchemaFieldTag_color(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "defaultValue":
 			out.Values[i] = ec._SchemaFieldTag_defaultValue(ctx, field, obj)
 		default:
@@ -36316,6 +36399,16 @@ func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreea
 		return graphql.Null
 	}
 	return ec._SchemaField(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, v interface{}) (gqlmodel.SchemaFieldTagColor, error) {
+	var res gqlmodel.SchemaFieldTagColor
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFieldTagColor) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx context.Context, v interface{}) (gqlmodel.SchemaFieldType, error) {
