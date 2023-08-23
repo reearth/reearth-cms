@@ -70,10 +70,13 @@ func (i *Item) Thread() ThreadID {
 	return i.thread
 }
 
-func (i *Item) UpdateddBy() *UserID {
+func (i *Item) UpdatedBy() *UserID {
 	return i.updatedBy
 }
 
+func (i *Item) SetUpdatedBy(u UserID) {
+	i.updatedBy = &u
+}
 
 func (i *Item) UpdateFields(fields []*Field) {
 	if fields == nil {

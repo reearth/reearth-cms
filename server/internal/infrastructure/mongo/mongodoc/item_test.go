@@ -15,7 +15,7 @@ import (
 )
 
 func TestItemDocument_Model(t *testing.T) {
-	iId, pId, sId, tId, mId, uId, gId := item.NewID(), project.NewID(), schema.NewID(), thread.NewID(), model.NewID(), user.NewID(), integration.NewID()
+	iId, pId, sId, tId, mId, uId, uId2, gId := item.NewID(), project.NewID(), schema.NewID(), thread.NewID(), model.NewID(), user.NewID(), user.NewID(), integration.NewID()
 	now := time.Now()
 	tests := []struct {
 		name    string
@@ -34,9 +34,10 @@ func TestItemDocument_Model(t *testing.T) {
 				Fields:      nil,
 				Timestamp:   now,
 				User:        uId.StringRef(),
+				UpdatedBy:   uId2.StringRef(),
 				Integration: nil,
 			},
-			want:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId).Model(mId).Timestamp(now).User(uId).MustBuild(),
+			want:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId).Model(mId).Timestamp(now).User(uId).UpdatedBy(uId2).MustBuild(),
 			wantErr: false,
 		},
 		{

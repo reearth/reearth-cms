@@ -22,6 +22,7 @@ func TestToItem(t *testing.T) {
 	sid := id.NewSchemaID()
 	mid := id.NewModelID()
 	uid := id.NewUserID()
+	uid2 := id.NewUserID()
 	nid := id.NewIntegrationID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
@@ -36,6 +37,7 @@ func TestToItem(t *testing.T) {
 		Model(mid).
 		Thread(tid).
 		User(uid).
+		UpdatedBy(uid2).
 		Integration(nid).
 		MustBuild()
 	v := version.New()
@@ -56,6 +58,7 @@ func TestToItem(t *testing.T) {
 				SchemaID:      IDFrom(sid),
 				ThreadID:      IDFrom(tid),
 				UserID:        IDFromRef(uid.Ref()),
+				UpdatedByID:   IDFromRef(uid2.Ref()),
 				IntegrationID: IDFromRef(nid.Ref()),
 				CreatedAt:     i.ID().Timestamp(),
 				UpdatedAt:     i.Timestamp(),

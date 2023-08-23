@@ -21,6 +21,7 @@ type ItemDocument struct {
 	Fields      []ItemFieldDocument
 	Timestamp   time.Time
 	User        *string
+	UpdatedBy   *string
 	Integration *string
 	Assets      []string `bson:"assets,omitempty"`
 }
@@ -74,6 +75,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		}),
 		Timestamp:   i.Timestamp(),
 		User:        i.User().StringRef(),
+		UpdatedBy:   i.UpdatedBy().StringRef(),
 		Integration: i.Integration().StringRef(),
 		Assets:      i.AssetIDs().Strings(),
 	}, itmId
@@ -141,6 +143,10 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 
 	if uId := id.UserIDFromRef(d.User); uId != nil {
 		ib = ib.User(*uId)
+	}
+
+	if upId := id.UserIDFromRef(d.UpdatedBy); upId != nil {
+		ib = ib.UpdatedBy(*upId)
 	}
 
 	if iId := id.IntegrationIDFromRef(d.Integration); iId != nil {

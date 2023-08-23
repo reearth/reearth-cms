@@ -359,7 +359,7 @@ type Item struct {
 	ModelID       ID           `json:"modelId"`
 	ProjectID     ID           `json:"projectId"`
 	IntegrationID *ID          `json:"integrationId,omitempty"`
-	UpdatedByID   ID           `json:"updatedById"`
+	UpdatedByID   *ID          `json:"updatedById,omitempty"`
 	UserID        *ID          `json:"userId,omitempty"`
 	Integration   *Integration `json:"integration,omitempty"`
 	User          *User        `json:"user,omitempty"`

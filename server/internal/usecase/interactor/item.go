@@ -323,6 +323,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		itv.UpdateFields(fields)
+		itv.SetUpdatedBy(*operator.User)
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
 		}

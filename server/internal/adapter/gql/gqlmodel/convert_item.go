@@ -22,6 +22,7 @@ func ToItem(vi item.Versioned, s *schema.Schema) *Item {
 		SchemaID:      IDFrom(i.Schema()),
 		ModelID:       IDFrom(i.Model()),
 		UserID:        IDFromRef(i.User()),
+		UpdatedByID:   IDFromRef(i.UpdatedBy()),
 		IntegrationID: IDFromRef(i.Integration()),
 		ThreadID:      IDFrom(i.Thread()),
 		CreatedAt:     i.ID().Timestamp(),
