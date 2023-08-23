@@ -33,10 +33,10 @@ func Start(debug bool, version string) {
 
 	// Start web server
 	NewServer(ctx, &ServerConfig{
-		Config:   conf,
-		Debug:    debug,
-		Repos:    repos,
-		Gateways: gateways,
+		Config:     conf,
+		Debug:      debug,
+		Repos:      repos,
+		Gateways:   gateways,
 		AcRepos:    acRepos,
 		AcGateways: acGateways,
 	}).Run(ctx)
