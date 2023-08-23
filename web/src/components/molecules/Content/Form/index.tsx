@@ -78,7 +78,7 @@ export interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
-  onPublish: (itemId: string) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -199,6 +199,12 @@ const ContentForm: React.FC<Props> = ({
     return menuItems;
   }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
 
+  const handlePublishSubmit = useCallback(async () => {
+    // TODO: fix this
+    if (!itemId) return;
+    onPublish([itemId]);
+  }, [itemId, onPublish]);
+
   return (
     <>
       <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
@@ -213,7 +219,7 @@ const ContentForm: React.FC<Props> = ({
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={() => onPublish(itemId)}>
+                    <Button type="primary" onClick={handlePublishSubmit}>
                       {t("Publish")}
                     </Button>
                   )}
