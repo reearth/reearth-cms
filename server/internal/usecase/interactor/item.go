@@ -419,21 +419,30 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 	})
 }
 
-func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) (item.Versioned, error) {
+func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.Versioned, error) {
-		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (item.VersionedList, error) {
+		items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
 		if err != nil {
 			return nil, err
 		}
 
-		if itm.Refs().Has(version.Public) {
-			return nil, interfaces.ErrAlreadyPublished
+		// check all items were found
+		if len(items) != len(itemIDs) {
+			return nil, interfaces.ErrItemMissing
 		}
 
-		m, err := i.repos.Model.FindByID(ctx, itm.Value().Model())
+		// check all items on the same models
+		s := lo.CountBy(items, func(itm item.Versioned) bool {
+			return itm.Value().Model() == items[0].Value().Model()
+		})
+		if s != len(items) {
+			return nil, interfaces.ErrItemsShouldBeOnSameModel
+		}
+
+		m, err := i.repos.Model.FindByID(ctx, items[0].Value().Model())
 		if err != nil {
 			return nil, err
 		}
@@ -443,25 +452,32 @@ func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *us
 			return nil, err
 		}
 
-		s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		sch, err := i.repos.Schema.FindByID(ctx, m.Schema())
 		if err != nil {
 			return nil, err
 		}
 
-		if !slices.Contains(prj.RequestRoles(), operator.RoleByProject(prj.ID())) {
+		if !operator.IsMaintainingWorkspace(prj.Workspace()) {
+			return nil, interfaces.ErrInvalidOperator
+		}
+
+		// add public ref to the items
+		for _, itm := range items {
 			if err := i.repos.Item.UpdateRef(ctx, itm.Value().ID(), version.Public, version.Latest.OrVersion().Ref()); err != nil {
 				return nil, err
 			}
+		}
 
+		for _, itm := range items {
 			if err := i.event(ctx, Event{
 				Project:   prj,
-				Workspace: s.Workspace(),
+				Workspace: prj.Workspace(),
 				Type:      event.ItemPublish,
 				Object:    itm,
 				WebhookObject: item.ItemModelSchema{
 					Item:   itm.Value(),
 					Model:  m,
-					Schema: s,
+					Schema: sch,
 				},
 				Operator: operator.Operator(),
 			}); err != nil {
@@ -469,7 +485,7 @@ func (i Item) PublishOneItem(ctx context.Context, itemID id.ItemID, operator *us
 			}
 		}
 
-		return itm, nil
+		return items, nil
 	})
 }
 

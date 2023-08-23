@@ -1073,4 +1073,22 @@ func TestWorkFlow(t *testing.T) {
 	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusDraft}, status)
+	// Publish Item
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: id.WorkspaceIDList{wid},
+		},
+	})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 }
