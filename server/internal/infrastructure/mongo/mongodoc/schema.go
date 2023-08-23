@@ -40,6 +40,7 @@ type TypePropertyDocument struct {
 	RichText  *FieldTextPropertyDocument      `bson:",omitempty"`
 	Markdown  *FieldTextPropertyDocument      `bson:",omitempty"`
 	Select    *FieldSelectPropertyDocument    `bson:",omitempty"`
+	Tag       *FieldTagPropertyDocument       `bson:",omitempty"`
 	Number    *FieldNumberPropertyDocument    `bson:",omitempty"`
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
@@ -50,6 +51,12 @@ type FieldTextPropertyDocument struct {
 }
 type FieldSelectPropertyDocument struct {
 	Values []string
+}
+
+type FieldTagPropertyDocument struct {
+	Values        []string
+	AllowMultiple bool
+	Color         string
 }
 
 type FieldNumberPropertyDocument struct {
@@ -112,6 +119,13 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Select: func(fp *schema.FieldSelect) {
 				fd.TypeProperty.Select = &FieldSelectPropertyDocument{
 					Values: fp.Values(),
+				}
+			},
+			Tag: func(fp *schema.FieldTag) {
+				fd.TypeProperty.Tag = &FieldTagPropertyDocument{
+					Values:        fp.Values(),
+					AllowMultiple: fp.AllowMultiple(),
+					Color:         fp.Color().String(),
 				}
 			},
 			Number: func(fp *schema.FieldNumber) {
@@ -177,6 +191,8 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			tp = schema.NewBool().TypeProperty()
 		case value.TypeSelect:
 			tp = schema.NewSelect(tpd.Select.Values).TypeProperty()
+		case value.TypeTag:
+			tp = schema.NewTag(tpd.Tag.Values, tpd.Tag.AllowMultiple, schema.TagColorFrom(tpd.Tag.Color)).TypeProperty()
 		case value.TypeNumber:
 			tpi, err := schema.NewNumber(tpd.Number.Min, tpd.Number.Max)
 			if err != nil {

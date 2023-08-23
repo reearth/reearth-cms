@@ -13,6 +13,21 @@ enum SchemaFieldType {
   URL
 }
 
+enum SchemaFieldTagColor {
+  MAGENTA
+  RED
+  VOLCANO
+  ORANGE
+  GOLD
+  LIME
+  GREEN
+  CYAN
+  BLUE
+  GEEKBLUE
+  PURPLE
+}
+
+
 type SchemaField {
   id: ID!
   modelId: ID!
@@ -86,6 +101,8 @@ type SchemaFieldSelect {
 
 type SchemaFieldTag {
   values: [String!]!
+  allowMultiple: Boolean!
+  color: SchemaFieldTagColor!
   defaultValue: Any
 }
 
@@ -143,7 +160,9 @@ input SchemaFieldSelectInput {
 }
 
 input SchemaFieldTagInput {
+  color: SchemaFieldTagColor!
   values: [String!]!
+  allowMultiple: Boolean!
   defaultValue: Any
 }
 

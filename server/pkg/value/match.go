@@ -12,6 +12,7 @@ type Match struct {
 	RichText  func(String)
 	Markdown  func(String)
 	Select    func(String)
+	Tag       func(String)
 	Reference func(Reference)
 	URL       func(URL)
 	Default   func()
@@ -24,7 +25,6 @@ func (v *Value) Match(m Match) {
 		}
 		return
 	}
-
 	switch v.t {
 	case TypeText:
 		if m.Text != nil {
@@ -64,6 +64,11 @@ func (v *Value) Match(m Match) {
 	case TypeSelect:
 		if m.Select != nil {
 			m.Select(v.v.(String))
+			return
+		}
+	case TypeTag:
+		if m.Tag != nil {
+			m.Tag(v.v.(String))
 			return
 		}
 	case TypeNumber:

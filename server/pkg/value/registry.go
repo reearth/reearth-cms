@@ -11,6 +11,7 @@ var defaultTypes = TypeRegistry{
 	TypeRichText:  &propertyString{},
 	TypeMarkdown:  &propertyString{},
 	TypeSelect:    &propertyString{},
+	TypeTag:       &propertyString{},
 	TypeReference: &propertyReference{},
 	TypeURL:       &propertyURL{},
 }

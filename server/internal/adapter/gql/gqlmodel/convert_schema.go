@@ -47,6 +47,37 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 	}
 }
 
+func ToSchemaFieldTagColor(c schema.TagColor) SchemaFieldTagColor {
+	switch c {
+	case schema.TagColorMagenta:
+		return SchemaFieldTagColorMagenta
+	case schema.TagColorRed:
+		return SchemaFieldTagColorRed
+	case schema.TagColorVolcano:
+		return SchemaFieldTagColorVolcano
+	case schema.TagColorOrange:
+		return SchemaFieldTagColorOrange
+	case schema.TagColorGreen:
+		return SchemaFieldTagColorGreen
+	case schema.TagColorGold:
+		return SchemaFieldTagColorGold
+	case schema.TagColorLime:
+		return SchemaFieldTagColorLime
+	case schema.TagColorCyan:
+		return SchemaFieldTagColorCyan
+	case schema.TagColorBlue:
+		return SchemaFieldTagColorBlue
+	case schema.TagColorGeekblue:
+		return SchemaFieldTagColorGeekblue
+	case schema.TagColorPurple:
+		return SchemaFieldTagColorPurple
+
+	default:
+		return ""
+	}
+
+}
+
 func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, multiple bool) (res SchemaFieldTypeProperty) {
 	tp.Match(schema.TypePropertyMatch{
 		Text: func(f *schema.FieldText) {
@@ -77,6 +108,14 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			res = &SchemaFieldSelect{
 				DefaultValue: valueString(dv, multiple),
 				Values:       f.Values(),
+			}
+		},
+		Tag: func(f *schema.FieldTag) {
+			res = &SchemaFieldTag{
+				DefaultValue:  valueString(dv, multiple),
+				Values:        f.Values(),
+				AllowMultiple: f.AllowMultiple(),
+				Color:         ToSchemaFieldTagColor(f.Color()),
 			}
 		},
 		Asset: func(f *schema.FieldAsset) {
@@ -283,6 +322,21 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = value.NewMultiple(value.TypeSelect, unpackArray(x.DefaultValue))
 		} else {
 			dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue).AsMultiple()
+		}
+		tpRes = res.TypeProperty()
+	case SchemaFieldTypeTag:
+		x := tp.Tag
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		res := schema.NewTag(x.Values, x.AllowMultiple, schema.TagColorFrom(x.Color.String()))
+		if len(res.Values()) == 0 {
+			return nil, nil, ErrEmptyOptions
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeTag, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeTag, x.DefaultValue).AsMultiple()
 		}
 		tpRes = res.TypeProperty()
 	case SchemaFieldTypeInteger:

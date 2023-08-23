@@ -20,6 +20,7 @@ type TypeProperty struct {
 	dateTime  *FieldDateTime
 	bool      *FieldBool
 	selectt   *FieldSelect
+	tag       *FieldTag
 	integer   *FieldInteger
 	number    *FieldNumber
 	reference *FieldReference
@@ -35,6 +36,7 @@ type TypePropertyMatch struct {
 	DateTime  func(*FieldDateTime)
 	Bool      func(*FieldBool)
 	Select    func(*FieldSelect)
+	Tag       func(*FieldTag)
 	Integer   func(*FieldInteger)
 	Number    func(*FieldNumber)
 	Reference func(*FieldReference)
@@ -51,6 +53,7 @@ type TypePropertyMatch1[T any] struct {
 	DateTime  func(*FieldDateTime) T
 	Bool      func(*FieldBool) T
 	Select    func(*FieldSelect) T
+	Tag       func(*FieldTag) T
 	Integer   func(*FieldInteger) T
 	Number    func(*FieldNumber) T
 	Reference func(*FieldReference) T
@@ -95,6 +98,9 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 			return f.Validate(v)
 		},
 		Select: func(f *FieldSelect) error {
+			return f.Validate(v)
+		},
+		Tag: func(f *FieldTag) error {
 			return f.Validate(v)
 		},
 		URL: func(f *FieldURL) error {
@@ -162,6 +168,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.Select(t.selectt)
 			return
 		}
+	case value.TypeTag:
+		if m.Tag != nil {
+			m.Tag(t.tag)
+			return
+		}
 	case value.TypeBool:
 		if m.Bool != nil {
 			m.Bool(t.bool)
@@ -195,6 +206,7 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		bool:      t.bool.Clone(),
 		selectt:   t.selectt.Clone(),
 		number:    t.number.Clone(),
+		tag:       t.tag.Clone(),
 		integer:   t.integer.Clone(),
 		reference: t.reference.Clone(),
 		url:       t.url.Clone(),
@@ -249,6 +261,10 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypeSelect:
 		if m.Select != nil {
 			return m.Select(t.selectt)
+		}
+	case value.TypeTag:
+		if m.Tag != nil {
+			return m.Tag(t.tag)
 		}
 	case value.TypeBool:
 		if m.Bool != nil {
