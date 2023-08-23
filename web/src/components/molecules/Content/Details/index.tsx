@@ -43,7 +43,7 @@ export type Props = {
   requestModalPage: number;
   requestModalPageSize: number;
   onUnpublish: (itemIds: string[]) => Promise<void>;
-  onPublish: (itemId: string) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
