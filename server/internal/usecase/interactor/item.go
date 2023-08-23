@@ -430,15 +430,14 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 		}
 
 		// check all items were found
-		if len(items) != len(itemIDs) {
+		if len(items) == 0 || len(items) != len(itemIDs) {
 			return nil, interfaces.ErrItemMissing
 		}
 
 		// check all items on the same models
-		s := lo.CountBy(items, func(itm item.Versioned) bool {
+		if lo.EveryBy(items, func(itm item.Versioned) bool {
 			return itm.Value().Model() == items[0].Value().Model()
-		})
-		if s != len(items) {
+		}) {
 			return nil, interfaces.ErrItemsShouldBeOnSameModel
 		}
 
