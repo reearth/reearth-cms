@@ -15,7 +15,7 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 	tests := []struct {
 		name  string
 		args  []any
-		want1 any
+		want1 []time.Time
 		want2 bool
 	}{
 		{
@@ -64,7 +64,8 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 			for i, v := range tt.args {
 				got1, got2 := p.ToValue([]any{v})
 				if tt.want1 != nil {
-					assert.Equal(t, tt.want1, got1, "test %d", i)
+					out := got1.([]time.Time)
+					assert.Equal(t, tt.want1[0].Unix(), out[0].Unix(), "test %d", i)
 				} else {
 					assert.Nil(t, got1, "test %d", i)
 				}
