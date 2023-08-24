@@ -175,10 +175,17 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 
 	f, err := util.TryMap(d.Fields, func(fd FieldDocument) (*schema.Field, error) {
 		tpd := fd.TypeProperty
-		tId, err := id.TagFieldIDFrom(tpd.Tag.ID)
-		if err != nil {
-			return nil, err
+		var tId id.TagFieldID
+		if tpd.Tag != nil {
+			tId, err = id.TagFieldIDFrom(tpd.Tag.ID)
+			if err != nil {
+				return nil, err
+			}
+			if err != nil {
+				return nil, err
+			}
 		}
+
 		var tp *schema.TypeProperty
 		switch value.Type(tpd.Type) {
 		case value.TypeText:
