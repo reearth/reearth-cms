@@ -906,9 +906,13 @@ export enum ProjectPublicationScope {
   Public = 'PUBLIC'
 }
 
+export type PublishItemInput = {
+  itemIds: Array<Scalars['ID']>;
+};
+
 export type PublishItemPayload = {
   __typename?: 'PublishItemPayload';
-  item: Item;
+  items: Array<Item>;
 };
 
 export type PublishModelInput = {
@@ -1322,7 +1326,7 @@ export type ThreadPayload = {
 };
 
 export type UnpublishItemInput = {
-  itemId: Array<Scalars['ID']>;
+  itemIds: Array<Scalars['ID']>;
 };
 
 export type UnpublishItemPayload = {
@@ -1534,10 +1538,6 @@ export type WorkspaceUserMember = {
   role: Role;
   user?: Maybe<User>;
   userId: Scalars['ID'];
-};
-
-export type PublishItemInput = {
-  itemId: Scalars['ID'];
 };
 
 export type AssetFragmentFragment = { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null };
@@ -1784,18 +1784,18 @@ export type UpdateItemMutationVariables = Exact<{
 export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string }> } } | null };
 
 export type UnpublishItemMutationVariables = Exact<{
-  itemId: Array<Scalars['ID']> | Scalars['ID'];
+  itemIds: Array<Scalars['ID']> | Scalars['ID'];
 }>;
 
 
 export type UnpublishItemMutation = { __typename?: 'Mutation', unpublishItem?: { __typename?: 'UnpublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
 
 export type PublishItemMutationVariables = Exact<{
-  itemId: Scalars['ID'];
+  itemIds: Array<Scalars['ID']> | Scalars['ID'];
 }>;
 
 
-export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', item: { __typename?: 'Item', id: string } } | null };
+export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -3499,8 +3499,8 @@ export type UpdateItemMutationHookResult = ReturnType<typeof useUpdateItemMutati
 export type UpdateItemMutationResult = Apollo.MutationResult<UpdateItemMutation>;
 export type UpdateItemMutationOptions = Apollo.BaseMutationOptions<UpdateItemMutation, UpdateItemMutationVariables>;
 export const UnpublishItemDocument = gql`
-    mutation UnpublishItem($itemId: [ID!]!) {
-  unpublishItem(input: {itemId: $itemId}) {
+    mutation UnpublishItem($itemIds: [ID!]!) {
+  unpublishItem(input: {itemIds: $itemIds}) {
     items {
       id
     }
@@ -3522,7 +3522,7 @@ export type UnpublishItemMutationFn = Apollo.MutationFunction<UnpublishItemMutat
  * @example
  * const [unpublishItemMutation, { data, loading, error }] = useUnpublishItemMutation({
  *   variables: {
- *      itemId: // value for 'itemId'
+ *      itemIds: // value for 'itemIds'
  *   },
  * });
  */
@@ -3534,9 +3534,9 @@ export type UnpublishItemMutationHookResult = ReturnType<typeof useUnpublishItem
 export type UnpublishItemMutationResult = Apollo.MutationResult<UnpublishItemMutation>;
 export type UnpublishItemMutationOptions = Apollo.BaseMutationOptions<UnpublishItemMutation, UnpublishItemMutationVariables>;
 export const PublishItemDocument = gql`
-    mutation PublishItem($itemId: ID!) {
-  publishItem(input: {itemId: $itemId}) {
-    item {
+    mutation PublishItem($itemIds: [ID!]!) {
+  publishItem(input: {itemIds: $itemIds}) {
+    items {
       id
     }
   }
@@ -3557,7 +3557,7 @@ export type PublishItemMutationFn = Apollo.MutationFunction<PublishItemMutation,
  * @example
  * const [publishItemMutation, { data, loading, error }] = usePublishItemMutation({
  *   variables: {
- *      itemId: // value for 'itemId'
+ *      itemIds: // value for 'itemIds'
  *   },
  * });
  */
