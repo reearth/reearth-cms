@@ -112,6 +112,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Tag: func(f *schema.FieldTag) {
 			res = &SchemaFieldTag{
+				ID:            IDFrom(f.ID()),
 				DefaultValue:  valueString(dv, multiple),
 				Values:        f.Values(),
 				AllowMultiple: f.AllowMultiple(),

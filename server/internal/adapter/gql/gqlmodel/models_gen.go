@@ -726,6 +726,7 @@ type SchemaFieldSelectInput struct {
 }
 
 type SchemaFieldTag struct {
+	ID            ID                  `json:"id"`
 	Values        []string            `json:"values"`
 	AllowMultiple bool                `json:"allowMultiple"`
 	Color         SchemaFieldTagColor `json:"color"`

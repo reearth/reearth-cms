@@ -100,6 +100,7 @@ type SchemaFieldSelect {
 }
 
 type SchemaFieldTag {
+  id: ID!
   values: [String!]!
   allowMultiple: Boolean!
   color: SchemaFieldTagColor!

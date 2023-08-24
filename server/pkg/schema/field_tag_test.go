@@ -8,7 +8,19 @@ import (
 )
 
 func TestNewTag(t *testing.T) {
-	assert.Equal(t, &FieldTag{values: []string{"a", "b"}, allowMultiple: false, color: TagColorBlue}, NewTag([]string{"a", "b", " a", "b"}, false, TagColorBlue))
+	expected := &FieldTag{values: []string{"a", "b"}, allowMultiple: false, color: TagColorBlue}
+	res := NewTag([]string{"a", "b", " a", "b"}, false, TagColorBlue)
+	assert.Equal(t, expected.Values(), res.Values())
+	assert.Equal(t, expected.AllowMultiple(), res.AllowMultiple())
+	assert.Equal(t, expected.Color(), res.Color())
+	assert.False(t, res.ID().IsEmpty())
+}
+
+func TestNewTagWithID(t *testing.T) {
+	tid := NewTagFieldID()
+	expected := &FieldTag{id: tid, values: []string{"a", "b"}, allowMultiple: false, color: TagColorBlue}
+	res := NewTagWithID(tid, []string{"a", "b", " a", "b"}, false, TagColorBlue)
+	assert.Equal(t, expected, res)
 }
 
 func TestAllowMultiple(t *testing.T) {

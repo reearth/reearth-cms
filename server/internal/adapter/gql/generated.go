@@ -548,6 +548,7 @@ type ComplexityRoot struct {
 		AllowMultiple func(childComplexity int) int
 		Color         func(childComplexity int) int
 		DefaultValue  func(childComplexity int) int
+		ID            func(childComplexity int) int
 		Values        func(childComplexity int) int
 	}
 
@@ -3105,6 +3106,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldTag.DefaultValue(childComplexity), true
 
+	case "SchemaFieldTag.id":
+		if e.complexity.SchemaFieldTag.ID == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldTag.ID(childComplexity), true
+
 	case "SchemaFieldTag.values":
 		if e.complexity.SchemaFieldTag.Values == nil {
 			break
@@ -4446,6 +4454,7 @@ type SchemaFieldSelect {
 }
 
 type SchemaFieldTag {
+  id: ID!
   values: [String!]!
   allowMultiple: Boolean!
   color: SchemaFieldTagColor!
@@ -20566,6 +20575,50 @@ func (ec *executionContext) fieldContext_SchemaFieldSelect_defaultValue(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldTag_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTag) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldTag_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldTag_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldTag",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldTag_values(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTag) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldTag_values(ctx, field)
 	if err != nil {
@@ -33278,6 +33331,11 @@ func (ec *executionContext) _SchemaFieldTag(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SchemaFieldTag")
+		case "id":
+			out.Values[i] = ec._SchemaFieldTag_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "values":
 			out.Values[i] = ec._SchemaFieldTag_values(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

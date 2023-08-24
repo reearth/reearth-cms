@@ -54,6 +54,7 @@ type FieldSelectPropertyDocument struct {
 }
 
 type FieldTagPropertyDocument struct {
+	ID            string
 	Values        []string
 	AllowMultiple bool
 	Color         string
@@ -123,6 +124,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			},
 			Tag: func(fp *schema.FieldTag) {
 				fd.TypeProperty.Tag = &FieldTagPropertyDocument{
+					ID:            fp.ID().String(),
 					Values:        fp.Values(),
 					AllowMultiple: fp.AllowMultiple(),
 					Color:         fp.Color().String(),
@@ -173,6 +175,10 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 
 	f, err := util.TryMap(d.Fields, func(fd FieldDocument) (*schema.Field, error) {
 		tpd := fd.TypeProperty
+		tId, err := id.TagFieldIDFrom(tpd.Tag.ID)
+		if err != nil {
+			return nil, err
+		}
 		var tp *schema.TypeProperty
 		switch value.Type(tpd.Type) {
 		case value.TypeText:
@@ -192,7 +198,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		case value.TypeSelect:
 			tp = schema.NewSelect(tpd.Select.Values).TypeProperty()
 		case value.TypeTag:
-			tp = schema.NewTag(tpd.Tag.Values, tpd.Tag.AllowMultiple, schema.TagColorFrom(tpd.Tag.Color)).TypeProperty()
+			tp = schema.NewTagWithID(tId, tpd.Tag.Values, tpd.Tag.AllowMultiple, schema.TagColorFrom(tpd.Tag.Color)).TypeProperty()
 		case value.TypeNumber:
 			tpi, err := schema.NewNumber(tpd.Number.Min, tpd.Number.Max)
 			if err != nil {
