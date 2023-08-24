@@ -81,10 +81,10 @@ func TestSchemaDocument_Model(t *testing.T) {
 		{
 			name: "model",
 			sDoc: &SchemaDocument{
-				ID:        sId.String(),
-				Workspace: wId.String(),
-				Project:   PId.String(),
-				Fields:    []FieldDocument{fd},
+				ID:         sId.String(),
+				Workspace:  wId.String(),
+				Project:    PId.String(),
+				Fields:     []FieldDocument{fd},
 				TitleField: fId.String(),
 			},
 			want:    schema.New().ID(sId).Workspace(wId).Project(PId).Fields(schema.FieldList{sf}).TitleField(fId).MustBuild(),

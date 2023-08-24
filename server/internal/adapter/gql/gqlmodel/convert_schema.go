@@ -23,7 +23,7 @@ func ToSchema(s *schema.Schema) *Schema {
 		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) *SchemaField {
 			return ToSchemaField(sf)
 		}),
-		// TitleField: IDFrom(s.TitleField()),
+		TitleField: IDFrom(s.TitleField()),
 	}
 }
 

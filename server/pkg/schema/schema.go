@@ -92,6 +92,6 @@ func (s *Schema) Clone() *Schema {
 		project:    s.Project().Clone(),
 		workspace:  s.Workspace().Clone(),
 		fields:     slices.Clone(s.fields),
-		titleField: s.TitleField(),
+		titleField: s.TitleField().Clone(),
 	}
 }

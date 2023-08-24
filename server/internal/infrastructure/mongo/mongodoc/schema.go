@@ -137,10 +137,10 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 		return fd
 	})
 	return &SchemaDocument{
-		ID:        sId,
-		Workspace: s.Workspace().String(),
-		Project:   s.Project().String(),
-		Fields:    fieldsDoc,
+		ID:         sId,
+		Workspace:  s.Workspace().String(),
+		Project:    s.Project().String(),
+		Fields:     fieldsDoc,
 		TitleField: s.TitleField().String(),
 	}, sId
 }

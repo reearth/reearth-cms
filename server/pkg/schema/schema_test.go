@@ -365,8 +365,19 @@ func TestSchema_Project(t *testing.T) {
 	}
 }
 
+func TestSchema_TitleField(t *testing.T) {
+	s1 := &Schema{}
+	assert.Equal(t, id.FieldID{}, s1.TitleField())
+
+	fId := id.NewFieldID()
+	s2 := &Schema{
+		titleField: fId,
+	}
+	assert.Equal(t, fId, s2.TitleField())
+}
+
 func TestSchema_Clone(t *testing.T) {
-	s := &Schema{id: NewID()}
+	s := &Schema{id: NewID(), titleField: NewFieldID()}
 	c := s.Clone()
 	assert.Equal(t, s, c)
 	assert.NotSame(t, s, c)

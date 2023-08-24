@@ -167,6 +167,14 @@ func TestBuilder_Project(t *testing.T) {
 	assert.NotSame(t, pId, b.s.project)
 }
 
+func TestBuilder_TitleField(t *testing.T) {
+	b := &Builder{s: &Schema{}}
+	tf := id.NewFieldID()
+	b.TitleField(tf)
+	assert.Equal(t, tf, b.s.titleField)
+	assert.NotSame(t, tf, b.s.titleField)
+}
+
 func TestNew(t *testing.T) {
 	assert.Equal(t, &Builder{s: &Schema{}}, New())
 }
