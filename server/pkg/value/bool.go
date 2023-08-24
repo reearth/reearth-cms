@@ -7,6 +7,7 @@ import (
 )
 
 const TypeBool Type = "bool"
+const TypeCheckbox Type = "checkbox"
 
 type propertyBool struct{}
 

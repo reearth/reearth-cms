@@ -52,6 +52,11 @@ func TestValueType(t *testing.T) {
 			want: SchemaFieldTypeBool,
 		},
 		{
+			name: "TypeCheckbox",
+			t:    value.TypeCheckbox,
+			want: SchemaFieldTypeCheckbox,
+		},
+		{
 			name: "TypeSelect",
 			t:    value.TypeSelect,
 			want: SchemaFieldTypeSelect,

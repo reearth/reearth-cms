@@ -3,6 +3,7 @@ package value
 type Match struct {
 	Asset     func(Asset)
 	Bool      func(Bool)
+	Checkbox  func(Bool)
 	DateTime  func(DateTime)
 	Integer   func(Integer)
 	Number    func(Number)
@@ -59,6 +60,11 @@ func (v *Value) Match(m Match) {
 	case TypeBool:
 		if m.Bool != nil {
 			m.Bool(v.v.(Bool))
+			return
+		}
+	case TypeCheckbox:
+		if m.Checkbox != nil {
+			m.Checkbox(v.v.(Bool))
 			return
 		}
 	case TypeSelect:
