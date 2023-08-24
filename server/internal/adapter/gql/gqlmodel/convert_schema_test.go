@@ -93,7 +93,6 @@ func TestToSchemaField(t *testing.T) {
 				Description("D1").
 				Key(key.New("K123456")).
 				Unique(true).
-				IsTitle(true).
 				Multiple(true).
 				Required(true).
 				MustBuild(),
@@ -108,7 +107,6 @@ func TestToSchemaField(t *testing.T) {
 				Description:  lo.ToPtr("D1"),
 				Multiple:     true,
 				Unique:       true,
-				IsTitle:      true,
 				Order:        lo.ToPtr(0),
 				Required:     true,
 				CreatedAt:    fId.Timestamp(),

@@ -55,3 +55,8 @@ func (b *Builder) Fields(fields FieldList) *Builder {
 	b.s.fields = fields.Clone()
 	return b
 }
+
+func (b *Builder) TitleField(fId FieldID) *Builder {
+	b.s.titleField = fId.Clone()
+	return b
+}

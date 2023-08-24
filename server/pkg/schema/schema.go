@@ -8,10 +8,11 @@ import (
 )
 
 type Schema struct {
-	id        ID
-	project   ProjectID
-	workspace accountdomain.WorkspaceID
-	fields    []*Field
+	id         ID
+	project    ProjectID
+	workspace  accountdomain.WorkspaceID
+	fields     []*Field
+	titleField FieldID
 }
 
 func (s *Schema) ID() ID {
@@ -77,10 +78,8 @@ func (s *Schema) RemoveField(fid FieldID) {
 	}
 }
 
-func (s *Schema) ResetTitles() {
-	for _, v := range s.Fields() {
-		v.SetIsTitle(false)
-	}
+func (s *Schema) TitleField() FieldID {
+	return s.titleField
 }
 
 func (s *Schema) Clone() *Schema {
@@ -89,9 +88,10 @@ func (s *Schema) Clone() *Schema {
 	}
 
 	return &Schema{
-		id:        s.ID(),
-		project:   s.Project().Clone(),
-		workspace: s.Workspace().Clone(),
-		fields:    slices.Clone(s.fields),
+		id:         s.ID(),
+		project:    s.Project().Clone(),
+		workspace:  s.Workspace().Clone(),
+		fields:     slices.Clone(s.fields),
+		titleField: s.TitleField(),
 	}
 }

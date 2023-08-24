@@ -13,10 +13,11 @@ import (
 )
 
 type SchemaDocument struct {
-	ID        string
-	Workspace string
-	Project   string
-	Fields    []FieldDocument
+	ID         string
+	Workspace  string
+	Project    string
+	Fields     []FieldDocument
+	TitleField string
 }
 
 type FieldDocument struct {
@@ -28,7 +29,6 @@ type FieldDocument struct {
 	Unique       bool
 	Multiple     bool
 	Required     bool
-	IsTitle      bool
 	UpdatedAt    time.Time
 	DefaultValue *ValueDocument
 	TypeProperty TypePropertyDocument
@@ -79,7 +79,6 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Unique:       f.Unique(),
 			Multiple:     f.Multiple(),
 			Required:     f.Required(),
-			IsTitle:      f.IsTitle(),
 			UpdatedAt:    f.UpdatedAt(),
 			DefaultValue: NewMultipleValue(f.DefaultValue()),
 			TypeProperty: TypePropertyDocument{
@@ -142,6 +141,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 		Workspace: s.Workspace().String(),
 		Project:   s.Project().String(),
 		Fields:    fieldsDoc,
+		TitleField: s.TitleField().String(),
 	}, sId
 }
 
@@ -155,6 +155,10 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		return nil, err
 	}
 	pId, err := id.ProjectIDFrom(d.Project)
+	if err != nil {
+		return nil, err
+	}
+	fId, err := id.FieldIDFrom(d.TitleField)
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +217,6 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			Multiple(fd.Multiple).
 			Order(fd.Order).
 			Required(fd.Required).
-			IsTitle(fd.IsTitle).
 			Description(fd.Description).
 			Key(key.New(fd.Key)).
 			UpdatedAt(fd.UpdatedAt).
@@ -229,6 +232,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		Workspace(wId).
 		Project(pId).
 		Fields(f).
+		TitleField(fId).
 		Build()
 }
 

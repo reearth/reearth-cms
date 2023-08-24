@@ -48,17 +48,11 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			return nil, schema.ErrInvalidKey
 		}
 
-		// reset isTitle in all fields if the param.IsTitle is true
-		if param.IsTitle {
-			s.ResetTitles()
-		}
-
 		f, err := schema.NewField(param.TypeProperty).
 			NewID().
 			Unique(param.Unique).
 			Multiple(param.Multiple).
 			Required(param.Required).
-			IsTitle(param.IsTitle).
 			Name(param.Name).
 			Description(lo.FromPtr(param.Description)).
 			Key(key.New(param.Key)).
@@ -92,11 +86,6 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 		f := s.Field(param.FieldId)
 		if f == nil {
 			return nil, interfaces.ErrFieldNotFound
-		}
-
-		// reset isTitle in all fields if the param.IsTitle is true
-		if lo.FromPtr(param.IsTitle) {
-			s.ResetTitles()
 		}
 
 		if err := updateField(param, f); err != nil {
@@ -200,10 +189,5 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 	if param.Multiple != nil {
 		f.SetMultiple(*param.Multiple)
 	}
-
-	if param.IsTitle != nil {
-		f.SetIsTitle(*param.IsTitle)
-	}
-
 	return nil
 }
