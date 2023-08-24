@@ -41,7 +41,9 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
-	repos, err := mongorepo.New(ctx, client, databaseName, mongox.IsTransactionAvailable(conf.DB))
+	txAvailable := mongox.IsTransactionAvailable(conf.DB)
+
+	repos, err := mongorepo.New(ctx, client, databaseName, txAvailable)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
@@ -50,7 +52,7 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	if accountDatabase == "" {
 		accountDatabase = databaseName
 	}
-	acRepos, err := accountmongo.New(ctx, client, accountDatabase, true, false)
+	acRepos, err := accountmongo.New(ctx, client, accountDatabase, txAvailable, false)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
