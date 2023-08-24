@@ -82,6 +82,10 @@ func (s *Schema) TitleField() FieldID {
 	return s.titleField
 }
 
+func (s *Schema) SetTitleField(tf FieldID) {
+	s.titleField = tf
+}
+
 func (s *Schema) Clone() *Schema {
 	if s == nil {
 		return nil

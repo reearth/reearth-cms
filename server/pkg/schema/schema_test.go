@@ -376,6 +376,13 @@ func TestSchema_TitleField(t *testing.T) {
 	assert.Equal(t, fId, s2.TitleField())
 }
 
+func TestSchema_SetTitleField(t *testing.T) {
+	s1 := &Schema{}
+	fId := id.NewFieldID()
+	s1.SetTitleField(fId)
+	assert.Equal(t, fId, s1.TitleField())
+}
+
 func TestSchema_Clone(t *testing.T) {
 	s := &Schema{id: NewID(), titleField: NewFieldID()}
 	c := s.Clone()

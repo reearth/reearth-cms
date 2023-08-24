@@ -155,6 +155,7 @@ type CreateFieldInput struct {
 	Multiple     bool                          `json:"multiple"`
 	Unique       bool                          `json:"unique"`
 	Required     bool                          `json:"required"`
+	IsTitle      bool                          `json:"isTitle"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
@@ -845,6 +846,7 @@ type UpdateFieldInput struct {
 	Required     *bool                         `json:"required,omitempty"`
 	Unique       *bool                         `json:"unique,omitempty"`
 	Multiple     *bool                         `json:"multiple,omitempty"`
+	IsTitle      *bool                         `json:"isTitle,omitempty"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty,omitempty"`
 }
 

@@ -39,6 +39,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		Multiple:     input.Multiple,
 		Unique:       input.Unique,
 		Required:     input.Required,
+		IsTitle:     input.IsTitle,
 		DefaultValue: dv,
 		TypeProperty: tp,
 	}, getOperator(ctx))
@@ -93,6 +94,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		Order:        input.Order,
 		Unique:       input.Unique,
 		Required:     input.Required,
+		IsTitle:      input.IsTitle,
 		DefaultValue: dv,
 		TypeProperty: tp,
 	}, getOperator(ctx))

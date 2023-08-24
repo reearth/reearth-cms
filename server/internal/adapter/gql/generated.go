@@ -4524,6 +4524,7 @@ input CreateFieldInput {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -4537,6 +4538,7 @@ input UpdateFieldInput {
   required: Boolean
   unique: Boolean
   multiple: Boolean
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
@@ -25248,7 +25250,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25327,6 +25329,15 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Required = data
+		case "isTitle":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsTitle = data
 		case "typeProperty":
 			var err error
 
@@ -27520,7 +27531,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27608,6 +27619,15 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Multiple = data
+		case "isTitle":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsTitle = data
 		case "typeProperty":
 			var err error
 
