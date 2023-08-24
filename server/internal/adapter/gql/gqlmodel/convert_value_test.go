@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO: add testcases
 func TestValueType(t *testing.T) {
 	tests := []struct {
 		name string
@@ -51,6 +50,11 @@ func TestValueType(t *testing.T) {
 			name: "TypeBool",
 			t:    value.TypeBool,
 			want: SchemaFieldTypeBool,
+		},
+		{
+			name: "TypeCheckbox",
+			t:    value.TypeCheckbox,
+			want: SchemaFieldTypeCheckbox,
 		},
 		{
 			name: "TypeSelect",

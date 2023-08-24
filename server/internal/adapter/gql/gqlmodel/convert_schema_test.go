@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// todo: add test cases
 func TestToSchema(t *testing.T) {
 	wId := accountdomain.NewWorkspaceID()
 	pId := id.NewProjectID()
@@ -167,6 +166,11 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			name: "bool",
 			args: args{tp: schema.NewBool().TypeProperty()},
 			want: &SchemaFieldBool{DefaultValue: nil},
+		},
+		{
+			name: "checkbox",
+			args: args{tp: schema.NewCheckbox().TypeProperty()},
+			want: &SchemaFieldCheckbox{DefaultValue: nil},
 		},
 		{
 			name: "datetime",
