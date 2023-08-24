@@ -64,8 +64,7 @@ type FieldIntegerPropertyDocument struct {
 }
 
 type FieldReferencePropertyDocument struct {
-	Model              string
-	CorrespondingField *string
+	Model string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -131,8 +130,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			},
 			Reference: func(fp *schema.FieldReference) {
 				fd.TypeProperty.Reference = &FieldReferencePropertyDocument{
-					Model:              fp.Model().String(),
-					CorrespondingField: fp.CorrespondingField().StringRef(),
+					Model: fp.Model().String(),
 				}
 			},
 			URL: func(fp *schema.FieldURL) {},
@@ -198,11 +196,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			if err != nil {
 				return nil, err
 			}
-			var cfid *id.FieldID
-			if tpd.Reference.CorrespondingField != nil {
-				cfid = id.FieldIDFromRef(tpd.Reference.CorrespondingField)
-			}
-			tp = schema.NewReference(mid, cfid).TypeProperty()
+			tp = schema.NewReference(mid).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
 		}

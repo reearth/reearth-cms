@@ -151,8 +151,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Reference: func(f *schema.FieldReference) {
 			res = &SchemaFieldReference{
-				ModelID:              IDFrom(f.Model()),
-				CorrespondingFieldID: IDFromRef(f.CorrespondingField()),
+				ModelID: IDFrom(f.Model()),
 			}
 		},
 		URL: func(f *schema.FieldURL) {
@@ -318,12 +317,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if err != nil {
 			return nil, nil, err
 		}
-
-		var fId *id.FieldID
-		if x.CorrespondingField != nil && x.CorrespondingField.Update != nil {
-			fId = ToIDRef[id.Field](&x.CorrespondingField.Update.FieldID)
-		}
-		tpRes = schema.NewReference(mId, fId).TypeProperty()
+		tpRes = schema.NewReference(mId).TypeProperty()
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {

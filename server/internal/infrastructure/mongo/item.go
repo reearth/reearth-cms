@@ -92,10 +92,10 @@ func (r *Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, ref *vers
 	return res, pi, err
 }
 
-func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	res, pi, err := r.paginate(ctx, bson.M{
 		"modelid": modelID.String(),
-	}, ref, sort, pagination)
+	}, ref, nil, pagination)
 	return res, pi, err
 }
 

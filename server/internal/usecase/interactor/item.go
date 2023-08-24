@@ -105,7 +105,7 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 	return i.repos.Item.FindByProject(ctx, projectID, nil, p)
 }
 
-func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, sort *usecasex.Sort, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	m, err := i.repos.Model.FindByID(ctx, modelID)
 	if err != nil {
 		return nil, nil, err
@@ -113,7 +113,7 @@ func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, sort *usecase
 	if !operator.IsReadableProject(m.Project()) {
 		return nil, nil, rerror.ErrNotFound
 	}
-	return i.repos.Item.FindByModel(ctx, m.ID(), nil, sort, p)
+	return i.repos.Item.FindByModel(ctx, m.ID(), nil, p)
 }
 
 func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -122,7 +122,7 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 		return nil, nil, err
 	}
 	// TODO: check operation for projects that publication type is limited
-	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), nil, p)
+	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), p)
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -158,34 +158,6 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usec
 
 func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	return i.repos.Item.Search(ctx, q, sort, p)
-}
-
-func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemId id.ItemID, _ *usecase.Operator) (*bool, error) {
-	itm, err := i.repos.Item.FindByID(ctx, itemId, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
-	if err != nil {
-		return nil, err
-	}
-	fields := s.Fields()
-
-	res := lo.ToPtr(false)
-	for _, sf := range fields {
-		sf.TypeProperty().Match(schema.TypePropertyMatch{
-			Reference: func(f *schema.FieldReference) {
-				cf := f.CorrespondingField()
-				if cf != nil {
-					res = lo.ToPtr(true)
-				}
-			},
-		})
-
-	}
-
-	return res, nil
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
