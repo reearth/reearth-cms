@@ -65,7 +65,9 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		s.AddField(f)
 
 		if param.IsTitle {
-			s.SetTitleField(f.ID().Ref())
+			if err := s.SetTitleField(f.ID().Ref()); err != nil {
+				return nil, err
+			}
 		}
 
 		if err := i.repos.Schema.Save(ctx, s); err != nil {
@@ -97,7 +99,9 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 		}
 
 		if param.IsTitle != nil && *param.IsTitle {
-			s.SetTitleField(f.ID().Ref())
+			if err := s.SetTitleField(f.ID().Ref()); err != nil {
+				return nil, err
+			}
 		}
 
 		if err := i.repos.Schema.Save(ctx, s); err != nil {
