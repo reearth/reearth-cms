@@ -270,12 +270,13 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
 	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
 
+	fId := id.NewFieldID()
 	s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField1Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).Key(key.New(publicAPIField1Key)).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField2Key)).MustBuild(),
 		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
-	}).MustBuild()
+	}).TitleField(fId).MustBuild()
 
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
 	// not public model
