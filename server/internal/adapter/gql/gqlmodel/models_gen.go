@@ -529,8 +529,12 @@ type ProjectPublication struct {
 	AssetPublic bool                    `json:"assetPublic"`
 }
 
+type PublishItemInput struct {
+	ItemIds []ID `json:"itemIds"`
+}
+
 type PublishItemPayload struct {
-	Item *Item `json:"item"`
+	Items []*Item `json:"items"`
 }
 
 type PublishModelInput struct {
@@ -813,7 +817,7 @@ type ThreadPayload struct {
 }
 
 type UnpublishItemInput struct {
-	ItemID []ID `json:"itemId"`
+	ItemIds []ID `json:"itemIds"`
 }
 
 type UnpublishItemPayload struct {
@@ -1023,10 +1027,6 @@ type WorkspaceUserMember struct {
 }
 
 func (WorkspaceUserMember) IsWorkspaceMember() {}
-
-type PublishItemInput struct {
-	ItemID ID `json:"itemId"`
-}
 
 type ArchiveExtractionStatus string
 
