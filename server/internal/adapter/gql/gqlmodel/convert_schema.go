@@ -42,7 +42,6 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		Multiple:     sf.Multiple(),
 		Unique:       sf.Unique(),
 		Required:     sf.Required(),
-		IsTitle:      sf.IsTitle(),
 		CreatedAt:    sf.CreatedAt(),
 		UpdatedAt:    sf.UpdatedAt(),
 	}

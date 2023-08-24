@@ -28,7 +28,6 @@ type FieldDocument struct {
 	Unique       bool
 	Multiple     bool
 	Required     bool
-	IsTitle      bool
 	UpdatedAt    time.Time
 	DefaultValue *ValueDocument
 	TypeProperty TypePropertyDocument
@@ -80,7 +79,6 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Unique:       f.Unique(),
 			Multiple:     f.Multiple(),
 			Required:     f.Required(),
-			IsTitle:      f.IsTitle(),
 			UpdatedAt:    f.UpdatedAt(),
 			DefaultValue: NewMultipleValue(f.DefaultValue()),
 			TypeProperty: TypePropertyDocument{
@@ -219,7 +217,6 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			Multiple(fd.Multiple).
 			Order(fd.Order).
 			Required(fd.Required).
-			IsTitle(fd.IsTitle).
 			Description(fd.Description).
 			Key(key.New(fd.Key)).
 			UpdatedAt(fd.UpdatedAt).
