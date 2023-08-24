@@ -1,11 +1,15 @@
 package schema
 
 import (
+	"errors"
+
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
+
+var titleFieldErr = errors.New("title field must be one of schema fields")
 
 type Schema struct {
 	id         ID
@@ -82,8 +86,13 @@ func (s *Schema) TitleField() *FieldID {
 	return s.titleField
 }
 
-func (s *Schema) SetTitleField(tf *FieldID) {
+func (s *Schema) SetTitleField(tf *FieldID) error {
+	if !slices.Contains(s.Fields().IDs(), *tf) {
+		return titleFieldErr
+	}
+
 	s.titleField = tf
+	return nil
 }
 
 func (s *Schema) Clone() *Schema {
