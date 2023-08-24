@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
@@ -78,7 +78,7 @@ export interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
-  onPublish: (itemId: string) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onRequestCreate: (data: {
     title: string;
     description: string;
@@ -176,18 +176,34 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
 
-  const items: MenuProps["items"] = [
-    {
-      key: "addToRequest",
-      label: t("Add to Request"),
-      onClick: onAddItemToRequestModalOpen,
-    },
-    {
-      key: "unpublish",
-      label: t("Unpublish"),
-      onClick: () => itemId && onUnpublish([itemId]),
-    },
-  ];
+  const items: MenuProps["items"] = useMemo(() => {
+    const menuItems = [
+      {
+        key: "addToRequest",
+        label: t("Add to Request"),
+        onClick: onAddItemToRequestModalOpen,
+      },
+      {
+        key: "unpublish",
+        label: t("Unpublish"),
+        onClick: () => itemId && (onUnpublish([itemId]) as any),
+      },
+    ];
+    if (showPublishAction) {
+      menuItems.unshift({
+        key: "NewRequest",
+        label: t("New Request"),
+        onClick: onModalOpen,
+      });
+    }
+    return menuItems;
+  }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
+
+  const handlePublishSubmit = useCallback(async () => {
+    // TODO: fix this
+    if (!itemId) return;
+    onPublish([itemId]);
+  }, [itemId, onPublish]);
 
   return (
     <>
@@ -203,13 +219,15 @@ const ContentForm: React.FC<Props> = ({
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={() => onPublish(itemId)}>
+                    <Button type="primary" onClick={handlePublishSubmit}>
                       {t("Publish")}
                     </Button>
                   )}
-                  <Button type="primary" onClick={onModalOpen}>
-                    {t("New Request")}
-                  </Button>
+                  {!showPublishAction && (
+                    <Button type="primary" onClick={onModalOpen}>
+                      {t("New Request")}
+                    </Button>
+                  )}
                   <Dropdown menu={{ items }} trigger={["click"]}>
                     <Button>
                       <Icon icon="ellipsis" />
