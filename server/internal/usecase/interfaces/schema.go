@@ -20,6 +20,7 @@ type CreateFieldParam struct {
 	Multiple     bool
 	Unique       bool
 	Required     bool
+	IsTitle      bool
 	TypeProperty *schema.TypeProperty
 	DefaultValue *value.Multiple
 }
@@ -34,6 +35,7 @@ type UpdateFieldParam struct {
 	Multiple     *bool
 	Unique       *bool
 	Required     *bool
+	IsTitle      *bool
 	TypeProperty *schema.TypeProperty
 	DefaultValue *value.Multiple
 }
@@ -47,6 +49,7 @@ var (
 type Schema interface {
 	FindByID(context.Context, id.SchemaID, *usecase.Operator) (*schema.Schema, error)
 	FindByIDs(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
+	FindFieldByIDs(context.Context, id.FieldIDList, *usecase.Operator) ([]*schema.Field, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateFields(context.Context, id.SchemaID, []UpdateFieldParam, *usecase.Operator) (schema.FieldList, error)

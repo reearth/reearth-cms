@@ -123,6 +123,11 @@ type CommentPayload struct {
 	Comment *Comment `json:"comment"`
 }
 
+type CorrespondingFieldInput struct {
+	Create *CreateFieldInput `json:"create,omitempty"`
+	Update *UpdateFieldInput `json:"update,omitempty"`
+}
+
 type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file,omitempty"`
@@ -155,6 +160,7 @@ type CreateFieldInput struct {
 	Multiple     bool                          `json:"multiple"`
 	Unique       bool                          `json:"unique"`
 	Required     bool                          `json:"required"`
+	IsTitle      bool                          `json:"isTitle"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
@@ -640,6 +646,7 @@ type SchemaField struct {
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
 	Required     bool                    `json:"required"`
+	IsTitle      bool                    `json:"isTitle"`
 	CreatedAt    time.Time               `json:"createdAt"`
 	UpdatedAt    time.Time               `json:"updatedAt"`
 }
@@ -696,13 +703,16 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID ID `json:"modelId"`
+	ModelID              ID           `json:"modelId"`
+	CorrespondingField   *SchemaField `json:"correspondingField,omitempty"`
+	CorrespondingFieldID *ID          `json:"correspondingFieldId,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID ID `json:"modelId"`
+	ModelID            ID                       `json:"modelId"`
+	CorrespondingField *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
@@ -844,6 +854,7 @@ type UpdateFieldInput struct {
 	Required     *bool                         `json:"required,omitempty"`
 	Unique       *bool                         `json:"unique,omitempty"`
 	Multiple     *bool                         `json:"multiple,omitempty"`
+	IsTitle      *bool                         `json:"isTitle,omitempty"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty,omitempty"`
 }
 

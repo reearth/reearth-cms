@@ -77,6 +77,12 @@ func (s *Schema) RemoveField(fid FieldID) {
 	}
 }
 
+func (s *Schema) ResetTitles() {
+	for _, v := range s.Fields() {
+		v.SetIsTitle(false)
+	}
+}
+
 func (s *Schema) Clone() *Schema {
 	if s == nil {
 		return nil

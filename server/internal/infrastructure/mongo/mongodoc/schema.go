@@ -28,6 +28,7 @@ type FieldDocument struct {
 	Unique       bool
 	Multiple     bool
 	Required     bool
+	IsTitle      bool
 	UpdatedAt    time.Time
 	DefaultValue *ValueDocument
 	TypeProperty TypePropertyDocument
@@ -63,7 +64,8 @@ type FieldIntegerPropertyDocument struct {
 }
 
 type FieldReferencePropertyDocument struct {
-	Model string
+	Model              string
+	CorrespondingField *string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -78,6 +80,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Unique:       f.Unique(),
 			Multiple:     f.Multiple(),
 			Required:     f.Required(),
+			IsTitle:      f.IsTitle(),
 			UpdatedAt:    f.UpdatedAt(),
 			DefaultValue: NewMultipleValue(f.DefaultValue()),
 			TypeProperty: TypePropertyDocument{
@@ -128,7 +131,8 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			},
 			Reference: func(fp *schema.FieldReference) {
 				fd.TypeProperty.Reference = &FieldReferencePropertyDocument{
-					Model: fp.Model().String(),
+					Model:              fp.Model().String(),
+					CorrespondingField: fp.CorrespondingField().StringRef(),
 				}
 			},
 			URL: func(fp *schema.FieldURL) {},
@@ -194,7 +198,11 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			if err != nil {
 				return nil, err
 			}
-			tp = schema.NewReference(mid).TypeProperty()
+			var cfid *id.FieldID
+			if tpd.Reference.CorrespondingField != nil {
+				cfid = id.FieldIDFromRef(tpd.Reference.CorrespondingField)
+			}
+			tp = schema.NewReference(mid, cfid).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
 		}
@@ -211,6 +219,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			Multiple(fd.Multiple).
 			Order(fd.Order).
 			Required(fd.Required).
+			IsTitle(fd.IsTitle).
 			Description(fd.Description).
 			Key(key.New(fd.Key)).
 			UpdatedAt(fd.UpdatedAt).

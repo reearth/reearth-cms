@@ -93,6 +93,7 @@ func TestToSchemaField(t *testing.T) {
 				Description("D1").
 				Key(key.New("K123456")).
 				Unique(true).
+				IsTitle(true).
 				Multiple(true).
 				Required(true).
 				MustBuild(),
@@ -107,6 +108,7 @@ func TestToSchemaField(t *testing.T) {
 				Description:  lo.ToPtr("D1"),
 				Multiple:     true,
 				Unique:       true,
+				IsTitle:      true,
 				Order:        lo.ToPtr(0),
 				Required:     true,
 				CreatedAt:    fId.Timestamp(),
@@ -174,7 +176,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "reference",
-			args: args{tp: schema.NewReference(mid).TypeProperty()},
+			args: args{tp: schema.NewReference(mid, nil).TypeProperty()},
 			want: &SchemaFieldReference{ModelID: IDFrom(mid)},
 		},
 		{
@@ -287,7 +289,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 				},
 			},
 			argsT:  SchemaFieldTypeReference,
-			wantTp: schema.NewReference(mid).TypeProperty(),
+			wantTp: schema.NewReference(mid, nil).TypeProperty(),
 		},
 		{
 			name: "asset",

@@ -27,6 +27,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -97,6 +98,8 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  correspondingField: SchemaField
+  correspondingFieldId: ID
 }
 
 type SchemaFieldURL {
@@ -153,8 +156,15 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input CorrespondingFieldInput @onlyOne {
+  create: CreateFieldInput
+  update: UpdateFieldInput
+} 
+
+
 input SchemaFieldReferenceInput {
   modelId: ID!
+  correspondingField: CorrespondingFieldInput
 }
 
 input SchemaFieldURLInput {
@@ -185,6 +195,7 @@ input CreateFieldInput {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -198,6 +209,7 @@ input UpdateFieldInput {
   required: Boolean
   unique: Boolean
   multiple: Boolean
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
