@@ -4329,7 +4329,7 @@ extend type Mutation {
   id: ID!
   projectId: ID!
   fields: [SchemaField!]!
-  titleField: ID!
+  titleField: ID
   project: Project!
 }
 
@@ -19331,14 +19331,11 @@ func (ec *executionContext) _Schema_titleField(ctx context.Context, field graphq
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ID)
+	res := resTmp.(*gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Schema_titleField(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32716,9 +32713,6 @@ func (ec *executionContext) _Schema(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "titleField":
 			out.Values[i] = ec._Schema_titleField(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "project":
 			field := field
 

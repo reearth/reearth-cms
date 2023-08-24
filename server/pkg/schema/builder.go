@@ -56,7 +56,7 @@ func (b *Builder) Fields(fields FieldList) *Builder {
 	return b
 }
 
-func (b *Builder) TitleField(fId FieldID) *Builder {
-	b.s.titleField = fId.Clone()
+func (b *Builder) TitleField(fId *FieldID) *Builder {
+	b.s.titleField = fId.CloneRef()
 	return b
 }

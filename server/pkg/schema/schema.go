@@ -12,7 +12,7 @@ type Schema struct {
 	project    ProjectID
 	workspace  accountdomain.WorkspaceID
 	fields     []*Field
-	titleField FieldID
+	titleField *FieldID
 }
 
 func (s *Schema) ID() ID {
@@ -78,11 +78,11 @@ func (s *Schema) RemoveField(fid FieldID) {
 	}
 }
 
-func (s *Schema) TitleField() FieldID {
+func (s *Schema) TitleField() *FieldID {
 	return s.titleField
 }
 
-func (s *Schema) SetTitleField(tf FieldID) {
+func (s *Schema) SetTitleField(tf *FieldID) {
 	s.titleField = tf
 }
 
@@ -96,6 +96,6 @@ func (s *Schema) Clone() *Schema {
 		project:    s.Project().Clone(),
 		workspace:  s.Workspace().Clone(),
 		fields:     slices.Clone(s.fields),
-		titleField: s.TitleField().Clone(),
+		titleField: s.TitleField().CloneRef(),
 	}
 }

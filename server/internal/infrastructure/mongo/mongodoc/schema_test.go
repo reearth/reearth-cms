@@ -85,9 +85,9 @@ func TestSchemaDocument_Model(t *testing.T) {
 				Workspace:  wId.String(),
 				Project:    PId.String(),
 				Fields:     []FieldDocument{fd},
-				TitleField: fId.String(),
+				TitleField: fId.StringRef(),
 			},
-			want:    schema.New().ID(sId).Workspace(wId).Project(PId).Fields(schema.FieldList{sf}).TitleField(fId).MustBuild(),
+			want:    schema.New().ID(sId).Workspace(wId).Project(PId).Fields(schema.FieldList{sf}).TitleField(fId.Ref()).MustBuild(),
 			wantErr: false,
 		},
 	}

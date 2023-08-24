@@ -276,7 +276,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField2Key)).MustBuild(),
 		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
-	}).TitleField(fId).MustBuild()
+	}).TitleField(fId.Ref()).MustBuild()
 
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
 	// not public model

@@ -2,7 +2,7 @@ type Schema implements Node {
   id: ID!
   projectId: ID!
   fields: [SchemaField!]!
-  titleField: ID!
+  titleField: ID
   project: Project!
 }
 

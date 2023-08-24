@@ -17,7 +17,7 @@ type SchemaDocument struct {
 	Workspace  string
 	Project    string
 	Fields     []FieldDocument
-	TitleField string
+	TitleField *string
 }
 
 type FieldDocument struct {
@@ -141,7 +141,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 		Workspace:  s.Workspace().String(),
 		Project:    s.Project().String(),
 		Fields:     fieldsDoc,
-		TitleField: s.TitleField().String(),
+		TitleField: s.TitleField().StringRef(),
 	}, sId
 }
 
@@ -158,10 +158,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 	if err != nil {
 		return nil, err
 	}
-	fId, err := id.FieldIDFrom(d.TitleField)
-	if err != nil {
-		return nil, err
-	}
+	fId := id.FieldIDFromRef(d.TitleField)
 
 	f, err := util.TryMap(d.Fields, func(fd FieldDocument) (*schema.Field, error) {
 		tpd := fd.TypeProperty

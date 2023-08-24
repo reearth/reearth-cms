@@ -622,7 +622,7 @@ type Schema struct {
 	ID         ID             `json:"id"`
 	ProjectID  ID             `json:"projectId"`
 	Fields     []*SchemaField `json:"fields"`
-	TitleField ID             `json:"titleField"`
+	TitleField *ID            `json:"titleField,omitempty"`
 	Project    *Project       `json:"project"`
 }
 

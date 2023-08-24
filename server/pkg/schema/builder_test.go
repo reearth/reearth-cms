@@ -169,7 +169,7 @@ func TestBuilder_Project(t *testing.T) {
 
 func TestBuilder_TitleField(t *testing.T) {
 	b := &Builder{s: &Schema{}}
-	tf := id.NewFieldID()
+	tf := id.NewFieldID().Ref()
 	b.TitleField(tf)
 	assert.Equal(t, tf, b.s.titleField)
 	assert.NotSame(t, tf, b.s.titleField)
