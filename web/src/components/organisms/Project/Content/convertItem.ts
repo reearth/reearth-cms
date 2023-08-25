@@ -11,6 +11,8 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
       type: field.type,
       value: field.value,
     })),
+    createdAt: GQLItem.createdAt,
+    updatedAt: GQLItem.updatedAt,
     schemaId: GQLItem.schemaId,
     threadId: GQLItem.thread?.id ?? "",
     comments: GQLItem.thread?.comments?.map(comment => convertComment(comment)) ?? [],

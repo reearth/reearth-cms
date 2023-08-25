@@ -5,7 +5,7 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
-import { ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { Item, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -21,6 +21,7 @@ export type Props = {
   model?: Model;
   modelsMenu: React.ReactNode;
   initialFormValues: { [key: string]: any };
+  item?: Item;
   itemId?: string;
   loading: boolean;
   requestCreationLoading: boolean;
@@ -86,6 +87,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   model,
   modelsMenu,
   initialFormValues,
+  item,
   itemId,
   loading,
   requestCreationLoading,
@@ -154,6 +156,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           requestModalPage={requestModalPage}
           requestModalPageSize={requestModalPageSize}
           loading={loading}
+          item={item}
           itemId={itemId}
           model={model}
           initialFormValues={initialFormValues}
