@@ -81,7 +81,7 @@ export default () => {
     async (itemIds: string[]) => {
       const item = await publishItem({
         variables: {
-          itemId: itemIds,
+          itemIds: itemIds,
         },
         refetchQueries: ["SearchItem", "GetItem"],
       });
@@ -101,7 +101,7 @@ export default () => {
     async (itemIds: string[]) => {
       const item = await unpublishItem({
         variables: {
-          itemId: itemIds,
+          itemIds: itemIds,
         },
         refetchQueries: ["SearchItem", "GetItem"],
       });

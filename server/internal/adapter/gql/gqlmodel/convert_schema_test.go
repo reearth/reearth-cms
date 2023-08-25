@@ -168,6 +168,11 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			want: &SchemaFieldBool{DefaultValue: nil},
 		},
 		{
+			name: "checkbox",
+			args: args{tp: schema.NewCheckbox().TypeProperty()},
+			want: &SchemaFieldCheckbox{DefaultValue: nil},
+		},
+		{
 			name: "datetime",
 			args: args{tp: schema.NewDateTime().TypeProperty()},
 			want: &SchemaFieldDate{DefaultValue: nil},
