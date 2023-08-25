@@ -155,45 +155,6 @@ func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, sort 
 	}, nil
 }
 
-func (c *ItemLoader) FindByIds(ctx context.Context, ids []gqlmodel.ID) (*gqlmodel.ItemConnection, error) {
-	op := getOperator(ctx)
-	iIds, err := util.TryMap(ids, gqlmodel.ToID[id.Item])
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := c.usecase.FindByIDs(ctx, iIds, op)
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := c.schemaUsecase.FindByID(ctx, res[0].Value().Schema(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
-	nodes := make([]*gqlmodel.Item, 0, len(res))
-	for _, i := range res {
-		itm := gqlmodel.ToItem(i, s)
-		edges = append(edges, &gqlmodel.ItemEdge{
-			Node:   itm,
-			Cursor: usecasex.Cursor(itm.ID),
-		})
-		nodes = append(nodes, itm)
-	}
-
-	return &gqlmodel.ItemConnection{
-		Edges:      edges,
-		Nodes:      nodes,
-		PageInfo:   nil,
-		TotalCount: len(res),
-	}, nil
-}
-
 func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
 	pid, err := gqlmodel.ToID[id.Project](projectID)

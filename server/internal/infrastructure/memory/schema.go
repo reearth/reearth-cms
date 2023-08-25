@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 type Schema struct {
@@ -59,33 +58,6 @@ func (r *Schema) FindByIDs(_ context.Context, ids id.SchemaIDList) (schema.List,
 	})
 
 	return schema.List(result).SortByID(), nil
-}
-
-func (r *Schema) FindFieldByIDs(_ context.Context, ids id.FieldIDList) ([]*schema.Field, error) {
-	if r.err != nil {
-		return nil, r.err
-	}
-
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	res := lo.Filter(r.data.Values(), func(s *schema.Schema, _ int) bool {
-		for _, v := range s.Fields() {
-			return ids.Has(v.ID()) && r.f.CanRead(s.Workspace())
-		}
-		return false
-	})
-
-	return util.Map(ids, func(fid id.FieldID) *schema.Field {
-		s, ok := lo.Find(res, func(s *schema.Schema) bool {
-			return s.Field(fid) != nil
-		})
-		if !ok {
-			return nil
-		}
-		return s.Field(fid)
-	}), nil
 }
 
 func (r *Schema) Save(_ context.Context, s *schema.Schema) error {

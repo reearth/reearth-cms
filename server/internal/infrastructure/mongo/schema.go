@@ -69,32 +69,6 @@ func (r *Schema) FindByIDs(ctx context.Context, ids id.SchemaIDList) (schema.Lis
 	}), nil
 }
 
-func (r *Schema) FindFieldByIDs(ctx context.Context, ids id.FieldIDList) ([]*schema.Field, error) {
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	res, err := r.find(ctx, bson.M{
-		"fields.id": bson.M{
-			"$in": ids.Strings(),
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// prepare filters the results and sorts them according to original ids list
-	return util.Map(ids, func(fid id.FieldID) *schema.Field {
-		s, ok := lo.Find(res, func(s *schema.Schema) bool {
-			return s.Field(fid) != nil
-		})
-		if !ok {
-			return nil
-		}
-		return s.Field(fid)
-	}), nil
-}
-
 func (r *Schema) Save(ctx context.Context, schema *schema.Schema) error {
 	if !r.f.CanWrite(schema.Workspace()) {
 		return repo.ErrOperationDenied
