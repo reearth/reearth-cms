@@ -11,6 +11,7 @@ import { FieldType } from "../../types";
 import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";
 import CheckboxField from "./CheckboxField";
+import DateField from "./DateField";
 import IntegerField from "./IntegerField";
 import MarkdownField from "./Markdown";
 import SelectField from "./SelectField";
@@ -118,6 +119,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
       <URLField multiple={multiple} />
     ) : selectedType === "Checkbox" ? (
       <CheckboxField multiple={multiple} />
+    ) : selectedType === "Date" ? (
+      <DateField />
     ) : (
       <TextField multiple={multiple} />
     )

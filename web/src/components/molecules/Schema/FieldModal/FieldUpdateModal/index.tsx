@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -145,16 +146,18 @@ const FieldUpdateModal: React.FC<Props> = ({
       unique: selectedField?.unique,
       required: selectedField?.required,
       defaultValue:
-        selectedField?.typeProperty.defaultValue ||
-        selectedField?.typeProperty.selectDefaultValue ||
-        selectedField?.typeProperty.integerDefaultValue ||
-        selectedField?.typeProperty.assetDefaultValue,
+        selectedType === "Date"
+          ? moment(selectedField?.typeProperty.defaultValue)
+          : selectedField?.typeProperty.defaultValue ||
+            selectedField?.typeProperty.selectDefaultValue ||
+            selectedField?.typeProperty.integerDefaultValue ||
+            selectedField?.typeProperty.assetDefaultValue,
       min: selectedField?.typeProperty.min,
       max: selectedField?.typeProperty.max,
       maxLength: selectedField?.typeProperty.maxLength,
       values: selectedField?.typeProperty.values,
     });
-  }, [form, selectedField]);
+  }, [form, selectedField, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
