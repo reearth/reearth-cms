@@ -7,12 +7,14 @@ import (
 )
 
 type FieldReference struct {
-	modelID id.ModelID
+	modelId              id.ModelID
+	correspondingFieldId *id.FieldID
 }
 
-func NewReference(id id.ModelID) *FieldReference {
+func NewReference(id id.ModelID, cfId *id.FieldID) *FieldReference {
 	return &FieldReference{
-		modelID: id,
+		modelId:              id,
+		correspondingFieldId: cfId,
 	}
 }
 
@@ -23,8 +25,16 @@ func (f *FieldReference) TypeProperty() *TypeProperty {
 	}
 }
 
+func (f *FieldReference) SetCorrespondingField(cf *id.FieldID) {
+	f.correspondingFieldId = cf
+}
+
 func (f *FieldReference) Model() model.ID {
-	return f.modelID
+	return f.modelId
+}
+
+func (f *FieldReference) CorrespondingField() *id.FieldID {
+	return f.correspondingFieldId
 }
 
 func (f *FieldReference) Type() value.Type {
@@ -36,14 +46,18 @@ func (f *FieldReference) Clone() *FieldReference {
 		return nil
 	}
 	return &FieldReference{
-		modelID: f.modelID,
+		modelId:              f.modelId,
+		correspondingFieldId: f.correspondingFieldId,
 	}
 }
 
 func (f *FieldReference) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Reference: func(a value.Reference) {
-			// ok
+			_, ok := v.ValueReference()
+			if !ok {
+				err = ErrInvalidValue
+			}
 		},
 		Default: func() {
 			err = ErrInvalidValue
