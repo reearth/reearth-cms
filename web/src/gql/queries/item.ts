@@ -73,9 +73,9 @@ export const CHECK_IF_ITEM_IS_REFERENCED = gql`
 `;
 
 export const GET_ITEMS_BY_IDS = gql`
-  query GetItemsByIds($ids: [ID!]!) {
-    itemsByIds(ids: $ids) {
-      nodes {
+  query GetItemsByIds($id: [ID!]!) {
+    nodes(id: $id, type: Item) {
+      ... on Item {
         id
         schemaId
         createdAt
@@ -162,8 +162,8 @@ export const UPDATE_ITEM = gql`
 `;
 
 export const UNPUBLISH_ITEM = gql`
-  mutation UnpublishItem($itemId: [ID!]!) {
-    unpublishItem(input: { itemId: $itemId }) {
+  mutation UnpublishItem($itemIds: [ID!]!) {
+    unpublishItem(input: { itemIds: $itemIds }) {
       items {
         id
       }
@@ -172,8 +172,8 @@ export const UNPUBLISH_ITEM = gql`
 `;
 
 export const PUBLISH_ITEM = gql`
-  mutation PublishItem($itemId: [ID!]!) {
-    publishItem(input: { itemId: $itemId }) {
+  mutation PublishItem($itemIds: [ID!]!) {
+    publishItem(input: { itemIds: $itemIds }) {
       items {
         id
       }

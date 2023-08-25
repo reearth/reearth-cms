@@ -139,14 +139,14 @@ export default () => {
   const { data: gqlFormItemsData } = useGetItemsByIdsQuery({
     fetchPolicy: "no-cache",
     variables: {
-      ids: formReferenceItemsIds,
+      id: formReferenceItemsIds,
     },
     skip: formReferenceItemsIds.length === 0,
   });
 
   const formItemsData: FormItem[] | undefined = useMemo(
-    () => gqlFormItemsData?.itemsByIds?.nodes as FormItem[],
-    [gqlFormItemsData?.itemsByIds?.nodes],
+    () => gqlFormItemsData?.nodes as FormItem[],
+    [gqlFormItemsData?.nodes],
   );
 
   const handleNavigateToModel = useCallback(
