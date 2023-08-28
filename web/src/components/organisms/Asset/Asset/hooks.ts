@@ -1,3 +1,4 @@
+import { Ion } from "cesium";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -19,6 +20,7 @@ import {
   imageSVGFormat,
   compressedFileFormats,
 } from "@reearth-cms/components/molecules/Common/Asset";
+import { config } from "@reearth-cms/config";
 import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
@@ -206,6 +208,10 @@ export default (assetId?: string) => {
     },
     [setCollapsed],
   );
+
+  useEffect(() => {
+    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
+  }, []);
 
   return {
     asset,
