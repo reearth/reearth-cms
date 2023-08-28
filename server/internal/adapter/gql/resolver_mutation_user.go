@@ -2,20 +2,23 @@ package gql
 
 import (
 	"context"
-
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error) {
-	theme := user.ThemeFrom(input.Theme.String())
+	var theme *user.Theme
+	if input.Theme != nil {
+		theme = lo.ToPtr(user.ThemeFrom(input.Theme.String()))
+	}
 	res, err := usecases(ctx).User.UpdateMe(ctx, accountinterfaces.UpdateMeParam{
 		Name:                 input.Name,
 		Email:                input.Email,
 		Lang:                 input.Lang,
-		Theme:                &theme,
+		Theme:                theme,
 		Password:             input.Password,
 		PasswordConfirmation: input.PasswordConfirmation,
 	}, getAcOperator(ctx))
