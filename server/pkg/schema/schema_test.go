@@ -372,7 +372,7 @@ func TestSchema_TitleField(t *testing.T) {
 	fid := id.NewFieldID()
 	s2 := &Schema{
 		titleField: &fid,
-		fields:	 []*Field{{id: fid, name: "f1"}},
+		fields:     []*Field{{id: fid, name: "f1"}},
 	}
 	assert.Equal(t, fid.Ref(), s2.TitleField().Ref())
 
@@ -383,7 +383,7 @@ func TestSchema_TitleField(t *testing.T) {
 	assert.Nil(t, s3.TitleField())
 
 	s4 := &Schema{
-		fields: []*Field{},
+		fields:     []*Field{},
 		titleField: fid3.Ref(),
 	}
 	assert.Nil(t, s4.TitleField())
@@ -396,11 +396,11 @@ func TestSchema_SetTitleField(t *testing.T) {
 
 	err := s.SetTitleField(id.NewFieldID().Ref())
 	assert.ErrorIs(t, err, titleFieldErr)
-	
+
 	err = s.SetTitleField(sf.ID().Ref())
 	assert.NoError(t, err)
 	assert.Equal(t, sf.ID().Ref(), s.TitleField().Ref())
-	
+
 	f2 := []*Field{}
 	s2 := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f2).MustBuild()
 	err = s2.SetTitleField(id.NewFieldID().Ref())
@@ -423,7 +423,7 @@ func TestSchema_ResetTitles(t *testing.T) {
 }
 
 func TestSchema_Clone(t *testing.T) {
-	s := &Schema{id: NewID(), fields: []*Field{{id: id.NewFieldID(), name: "f1"}} ,titleField: NewFieldID().Ref()}
+	s := &Schema{id: NewID(), fields: []*Field{{id: id.NewFieldID(), name: "f1"}}, titleField: NewFieldID().Ref()}
 	c := s.Clone()
 	assert.Equal(t, s, c)
 	assert.NotSame(t, s, c)
