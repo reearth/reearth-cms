@@ -36,7 +36,7 @@ func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usec
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
-		s1, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
+		s1, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +81,6 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 }
 
 func (i Schema) createCorrespondingField(ctx context.Context, f1 *schema.Field, param interfaces.CreateFieldParam, operator *usecase.Operator) error {
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) error {
 		var fr *schema.FieldReference
 		var res *schema.Field
 
@@ -119,7 +118,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, f1 *schema.Field, 
 				Description: lo.ToPtr(f1.Description()),
 				Required:    lo.ToPtr(f1.Required()),
 			}
-			tp := schema.NewReference(param.ModelId, cf2, cf2.FieldID).TypeProperty()
+			tp := schema.NewReference(param.ModelID, cf2, cf2.FieldID).TypeProperty()
 
 			// create f2 from cf1
 			f2, err := schema.NewField(tp).
@@ -149,12 +148,11 @@ func (i Schema) createCorrespondingField(ctx context.Context, f1 *schema.Field, 
 		fr.SetCorrespondingField(res.ID().Ref())
 
 		return nil
-	})
 }
 
 func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
-		s1, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
+		s1, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 		if err != nil {
 			return nil, err
 		}
@@ -163,7 +161,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		f1 := s1.Field(param.FieldId)
+		f1 := s1.Field(param.FieldID)
 		if f1 == nil {
 			return nil, interfaces.ErrFieldNotFound
 		}
@@ -188,7 +186,6 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 }
 
 func (i Schema) updateCorrespondingField(ctx context.Context, f1 *schema.Field, param interfaces.UpdateFieldParam, operator *usecase.Operator) error {
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) error {
 		var res *schema.Field
 		var oldFr *schema.FieldReference
 		var newFr *schema.FieldReference
@@ -228,7 +225,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, f1 *schema.Field, 
 				Description: lo.ToPtr(f1.Description()),
 				Required:    lo.ToPtr(f1.Required()),
 			}
-			tp := schema.NewReference(param.ModelId, cf2, cf2.FieldID).TypeProperty()
+			tp := schema.NewReference(param.ModelID, cf2, cf2.FieldID).TypeProperty()
 			// check if modelId is different
 			if oldFr.Model() == newFr.Model() {
 				// if modelId is same, update f2
@@ -238,9 +235,9 @@ func (i Schema) updateCorrespondingField(ctx context.Context, f1 *schema.Field, 
 				}
 
 				if err := updateField(interfaces.UpdateFieldParam{
-					ModelId:      mId2,
-					SchemaId:     m2.Schema(),
-					FieldId:      *cf1.FieldID,
+					ModelID:      mId2,
+					SchemaID:     m2.Schema(),
+					FieldID:      *cf1.FieldID,
 					Name:         cf1.Title,
 					Description:  cf1.Description,
 					Key:          cf1.Key,
@@ -302,7 +299,6 @@ func (i Schema) updateCorrespondingField(ctx context.Context, f1 *schema.Field, 
 		newFr.SetCorrespondingField(res.ID().Ref())
 
 		return nil
-	})
 }
 
 func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID id.FieldID, operator *usecase.Operator) error {
@@ -333,7 +329,7 @@ func (i Schema) UpdateFields(ctx context.Context, sid id.SchemaID, params []inte
 		}
 
 		for _, param := range params {
-			f := s.Field(param.FieldId)
+			f := s.Field(param.FieldID)
 			if f == nil {
 				return nil, interfaces.ErrFieldNotFound
 			}
