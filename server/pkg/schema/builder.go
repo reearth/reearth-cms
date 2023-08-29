@@ -21,10 +21,10 @@ func (b *Builder) Build() (*Schema, error) {
 		return nil, ErrInvalidID
 	}
 	if b.s.titleField != nil && !b.s.HasField(*b.s.titleField) {
-		return nil, titleFieldErr
+		return nil, ErrInvalidTitleField
 	}
 	if b.s.titleField != nil && (len(b.s.fields) == 0 || b.s.fields == nil) {
-		return nil, titleFieldErr
+		return nil, ErrInvalidTitleField
 	}
 	return b.s, nil
 }

@@ -395,7 +395,7 @@ func TestSchema_SetTitleField(t *testing.T) {
 	s := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f).MustBuild()
 
 	err := s.SetTitleField(id.NewFieldID().Ref())
-	assert.ErrorIs(t, err, titleFieldErr)
+	assert.ErrorIs(t, err, ErrInvalidTitleField)
 
 	err = s.SetTitleField(sf.ID().Ref())
 	assert.NoError(t, err)
@@ -404,11 +404,11 @@ func TestSchema_SetTitleField(t *testing.T) {
 	f2 := []*Field{}
 	s2 := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f2).MustBuild()
 	err = s2.SetTitleField(id.NewFieldID().Ref())
-	assert.ErrorIs(t, err, titleFieldErr)
+	assert.ErrorIs(t, err, ErrInvalidTitleField)
 
 	s3 := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(nil).MustBuild()
 	err = s3.SetTitleField(id.NewFieldID().Ref())
-	assert.ErrorIs(t, err, titleFieldErr)
+	assert.ErrorIs(t, err, ErrInvalidTitleField)
 }
 
 func TestSchema_Clone(t *testing.T) {

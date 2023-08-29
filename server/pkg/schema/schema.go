@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var titleFieldErr = errors.New("title field must be one of schema fields")
+var ErrInvalidTitleField = errors.New("title field must be one of schema fields")
 
 type Schema struct {
 	id         ID
@@ -92,7 +92,7 @@ func (s *Schema) TitleField() *FieldID {
 func (s *Schema) SetTitleField(tf *FieldID) error {
 	if !s.HasField(*tf) || s.Fields() == nil || len(s.Fields()) == 0 {
 		s.titleField = nil
-		return titleFieldErr
+		return ErrInvalidTitleField
 	}
 	s.titleField = tf.CloneRef()
 	return nil
