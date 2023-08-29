@@ -12,6 +12,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -245,9 +247,46 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 				return interfaces.ErrOperationDenied
 			}
 
+			f := s.Field(fieldID)
+			if f.Type() == value.TypeReference {
+				err := i.deleteCorrespondingField(ctx, s, f, operator)
+				if err != nil {
+					return err
+				}
+			}
+
 			s.RemoveField(fieldID)
 			return i.repos.Schema.Save(ctx, s)
 		})
+}
+
+func (i Schema) deleteCorrespondingField(ctx context.Context, s *schema.Schema, f *schema.Field, operator *usecase.Operator) error {
+	fr, _ := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+	cfid := fr.CorrespondingFieldID()
+
+	if cfid == nil {
+		return errors.New("Not two way reference")
+	}
+	ms, err := i.repos.Model.FindByIDs(ctx, []id.ModelID{fr.Model()})
+	if err != nil || len(ms) != 1 {
+		if err == nil {
+			return rerror.NewE(i18n.T("not found"))
+		}
+		return err
+	}
+	m := ms[0]
+	
+	s2, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	if err != nil {
+		return err
+	}
+	
+	s2.RemoveField(*cfid)
+	if err := i.repos.Schema.Save(ctx, s2); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (i Schema) UpdateFields(ctx context.Context, sid id.SchemaID, params []interfaces.UpdateFieldParam, operator *usecase.Operator) (schema.FieldList, error) {
