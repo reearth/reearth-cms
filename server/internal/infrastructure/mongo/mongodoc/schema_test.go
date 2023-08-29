@@ -62,7 +62,6 @@ func TestSchemaDocument_Model(t *testing.T) {
 		Unique:       true,
 		Multiple:     true,
 		Required:     true,
-		IsTitle:      true,
 		DefaultValue: nil,
 		TypeProperty: TypePropertyDocument{
 			Type: "text",
