@@ -619,11 +619,12 @@ type RequestPayload struct {
 }
 
 type Schema struct {
-	ID         ID             `json:"id"`
-	ProjectID  ID             `json:"projectId"`
-	Fields     []*SchemaField `json:"fields"`
-	TitleField *ID            `json:"titleField,omitempty"`
-	Project    *Project       `json:"project"`
+	ID           ID             `json:"id"`
+	ProjectID    ID             `json:"projectId"`
+	Fields       []*SchemaField `json:"fields"`
+	TitleFieldID *ID            `json:"titleFieldId,omitempty"`
+	TitleField   *SchemaField   `json:"titleField,omitempty"`
+	Project      *Project       `json:"project"`
 }
 
 func (Schema) IsNode()        {}

@@ -33,6 +33,11 @@ func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usec
 	return i.repos.Schema.FindByIDs(ctx, ids)
 }
 
+func (i Schema) FindFieldsByIDs(ctx context.Context, ids []id.FieldID, operator *usecase.Operator) (schema.FieldList, error) {
+	panic("not implemented")
+}
+
+
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
