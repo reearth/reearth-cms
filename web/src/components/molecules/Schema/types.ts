@@ -37,6 +37,7 @@ export type FieldType =
   | "Tag"
   | "Integer"
   | "Reference"
+  | "Checkbox"
   | "URL";
 
 export type TypeProperty =
