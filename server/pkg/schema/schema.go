@@ -83,14 +83,19 @@ func (s *Schema) RemoveField(fid FieldID) {
 }
 
 func (s *Schema) TitleField() *FieldID {
+	if s.Fields() == nil || len(s.Fields()) == 0 {
+		s.ResetTitles()
+		return nil
+	}
 	return s.titleField.CloneRef()
 }
 
 func (s *Schema) SetTitleField(tf *FieldID) error {
-	if !slices.Contains(s.Fields().IDs(), *tf) {
+	if !s.HasField(*tf) || s.Fields() == nil || len(s.Fields()) == 0 {
+		s.titleField = nil
+		s.ResetTitles()
 		return titleFieldErr
 	}
-
 	s.titleField = tf.CloneRef()
 	return nil
 }

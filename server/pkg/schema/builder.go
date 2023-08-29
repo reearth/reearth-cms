@@ -20,6 +20,12 @@ func (b *Builder) Build() (*Schema, error) {
 	if b.s.project.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.s.titleField != nil && !b.s.HasField(*b.s.titleField) {
+		return nil, titleFieldErr
+	}
+	if b.s.titleField != nil && (len(b.s.Fields()) == 0 || b.s.Fields() == nil) {
+		return nil, titleFieldErr
+	}
 	return b.s, nil
 }
 
