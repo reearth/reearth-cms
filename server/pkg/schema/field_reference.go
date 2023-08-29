@@ -62,6 +62,7 @@ func (f *FieldReference) Clone() *FieldReference {
 	return &FieldReference{
 		modelId:              f.modelId,
 		correspondingFieldId: f.correspondingFieldId,
+		correspondingField:   f.correspondingField,
 	}
 }
 

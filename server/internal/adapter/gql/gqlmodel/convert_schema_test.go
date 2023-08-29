@@ -340,3 +340,26 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 		})
 	}
 }
+
+func TestFromCorrespondingField(t *testing.T) {
+	var cf *CorrespondingFieldInput
+	got := FromCorrespondingField(cf)
+	assert.Nil(t, got)
+
+	cf = &CorrespondingFieldInput{
+		FieldID:     IDFromRef(id.NewFieldID().Ref()),
+		Title:       lo.ToPtr("title"),
+		Key:         lo.ToPtr("key"),
+		Description: lo.ToPtr(""),
+		Required:    lo.ToPtr(false),
+	}
+	want := &schema.CorrespondingField{
+		FieldID:     ToIDRef[id.Field](cf.FieldID),
+		Title:       cf.Title,
+		Key:         cf.Key,
+		Description: cf.Description,
+		Required:    cf.Required,
+	}
+	got = FromCorrespondingField(cf)
+	assert.Equal(t, want, got)
+}
