@@ -50,11 +50,11 @@ func TestNewSchemaConsumer(t *testing.T) {
 
 func TestSchemaDocument_Model(t *testing.T) {
 	sId, wId, PId := schema.NewID(), user.NewWorkspaceID(), project.NewID()
-	fId := schema.NewFieldID()
+	fid := schema.NewFieldID()
 	key := id.NewKey("test")
 	max := lo.ToPtr(10)
 	fd := FieldDocument{
-		ID:           fId.String(),
+		ID:           fid.String(),
 		Name:         "test",
 		Description:  "",
 		Order:        0,
@@ -62,6 +62,7 @@ func TestSchemaDocument_Model(t *testing.T) {
 		Unique:       true,
 		Multiple:     true,
 		Required:     true,
+		IsTitle:      true,
 		DefaultValue: nil,
 		TypeProperty: TypePropertyDocument{
 			Type: "text",
@@ -70,7 +71,7 @@ func TestSchemaDocument_Model(t *testing.T) {
 			},
 		},
 	}
-	sf := schema.NewField(schema.NewText(max).TypeProperty()).ID(fId).Name("test").Description("").Order(0).Key(id.NewKey("test")).Unique(true).Multiple(true).Required(true).DefaultValue(nil).MustBuild()
+	sf := schema.NewField(schema.NewText(max).TypeProperty()).ID(fid).Name("test").Description("").Order(0).Key(id.NewKey("test")).Unique(true).Multiple(true).IsTitle(true).Required(true).DefaultValue(nil).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -85,9 +86,9 @@ func TestSchemaDocument_Model(t *testing.T) {
 				Workspace:  wId.String(),
 				Project:    PId.String(),
 				Fields:     []FieldDocument{fd},
-				TitleField: fId.StringRef(),
+				TitleField: fid.StringRef(),
 			},
-			want:    schema.New().ID(sId).Workspace(wId).Project(PId).Fields(schema.FieldList{sf}).TitleField(fId.Ref()).MustBuild(),
+			want:    schema.New().ID(sId).Workspace(wId).Project(PId).Fields(schema.FieldList{sf}).TitleField(fid.Ref()).MustBuild(),
 			wantErr: false,
 		},
 	}

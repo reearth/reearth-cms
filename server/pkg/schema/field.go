@@ -20,6 +20,7 @@ type Field struct {
 	unique       bool
 	multiple     bool
 	required     bool
+	isTitle      bool
 	updatedAt    time.Time
 	defaultValue *value.Multiple
 	typeProperty *TypeProperty
@@ -101,6 +102,10 @@ func (f *Field) Required() bool {
 	return f.required
 }
 
+func (f *Field) IsTitle() bool {
+	return f.isTitle
+}
+
 func (f *Field) SetRequired(req bool) {
 	f.required = req
 }
@@ -111,6 +116,10 @@ func (f *Field) SetUnique(unique bool) {
 
 func (f *Field) SetMultiple(m bool) {
 	f.multiple = m
+}
+
+func (f *Field) SetIsTitle(b bool) {
+	f.isTitle = b
 }
 
 func (f *Field) CreatedAt() time.Time {
@@ -160,6 +169,7 @@ func (f *Field) Clone() *Field {
 		order:        f.order,
 		unique:       f.unique,
 		multiple:     f.multiple,
+		isTitle:      f.isTitle,
 		required:     f.required,
 		updatedAt:    f.updatedAt,
 		typeProperty: f.typeProperty.Clone(),

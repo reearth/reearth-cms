@@ -42,6 +42,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		Description:  lo.ToPtr(sf.Description()),
 		Multiple:     sf.Multiple(),
 		Unique:       sf.Unique(),
+		IsTitle:      sf.IsTitle(),
 		Required:     sf.Required(),
 		CreatedAt:    sf.CreatedAt(),
 		UpdatedAt:    sf.UpdatedAt(),

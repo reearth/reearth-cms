@@ -174,6 +174,7 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 			Multiple:     ipt.Multiple,
 			Order:        ipt.Order,
 			Unique:       ipt.Unique,
+			IsTitle:      ipt.IsTitle,
 			Required:     ipt.Required,
 			DefaultValue: dv,
 			TypeProperty: tp,

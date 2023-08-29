@@ -83,7 +83,7 @@ func (s *Schema) RemoveField(fid FieldID) {
 }
 
 func (s *Schema) TitleField() *FieldID {
-	return s.titleField
+	return s.titleField.CloneRef()
 }
 
 func (s *Schema) SetTitleField(tf *FieldID) error {
@@ -91,8 +91,14 @@ func (s *Schema) SetTitleField(tf *FieldID) error {
 		return titleFieldErr
 	}
 
-	s.titleField = tf
+	s.titleField = tf.CloneRef()
 	return nil
+}
+
+func (s *Schema) ResetTitles() {
+	for _, v := range s.Fields() {
+		v.SetIsTitle(false)
+	}
 }
 
 func (s *Schema) Clone() *Schema {
