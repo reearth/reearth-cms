@@ -23,7 +23,7 @@ func (b *Builder) Build() (*Schema, error) {
 	if b.s.titleField != nil && !b.s.HasField(*b.s.titleField) {
 		return nil, titleFieldErr
 	}
-	if b.s.titleField != nil && (len(b.s.Fields()) == 0 || b.s.Fields() == nil) {
+	if b.s.titleField != nil && (len(b.s.fields) == 0 || b.s.fields == nil) {
 		return nil, titleFieldErr
 	}
 	return b.s, nil
