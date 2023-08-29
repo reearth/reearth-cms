@@ -85,6 +85,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	f, err := usecases(ctx).Schema.UpdateField(ctx, interfaces.UpdateFieldParam{
+		ModelId:      mId,
 		SchemaId:     m.Schema(),
 		FieldId:      fId,
 		Name:         input.Title,

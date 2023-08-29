@@ -26,6 +26,7 @@ type CreateFieldParam struct {
 }
 
 type UpdateFieldParam struct {
+	ModelId      id.ModelID
 	SchemaId     id.SchemaID
 	FieldId      id.FieldID
 	Name         *string

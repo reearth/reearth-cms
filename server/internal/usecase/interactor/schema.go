@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 )
 
@@ -120,7 +121,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, fr *schema.FieldRe
 			Description: lo.ToPtr(f1.Description()),
 			Required:    lo.ToPtr(f1.Required()),
 		}
-		tp := schema.NewReference(mId1, cf2, f1.ID().Ref()).TypeProperty()
+		tp := schema.NewReference(mId1, cf2, cf2.FieldID).TypeProperty()
 
 		// create f2 from cf1
 		f2, err := schema.NewField(tp).
@@ -149,28 +150,155 @@ func (i Schema) createCorrespondingField(ctx context.Context, fr *schema.FieldRe
 
 func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
-		s, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
+		s1, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
 		if err != nil {
 			return nil, err
 		}
 
-		if !operator.IsMaintainingProject(s.Project()) {
+		if !operator.IsMaintainingProject(s1.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		f := s.Field(param.FieldId)
-		if f == nil {
+		f1 := s1.Field(param.FieldId)
+		if f1 == nil {
 			return nil, interfaces.ErrFieldNotFound
 		}
 
-		if err := updateField(param, f); err != nil {
+		// check if type is reference
+		if f1.Type() == value.TypeReference {
+			var err error
+			var f2 *schema.Field
+			var oldFr *schema.FieldReference
+			var newFr *schema.FieldReference
+			f1.TypeProperty().Match(schema.TypePropertyMatch{
+				Reference: func(fr *schema.FieldReference) {
+					oldFr = fr
+				},
+			})
+			param.TypeProperty.Match(schema.TypePropertyMatch{
+				Reference: func(fr *schema.FieldReference) {
+					newFr = fr
+				},
+			})
+			// check if reference direction is two way
+			if newFr.CorrespondingField() != nil {
+				f2, err = i.updateCorrespondingField(ctx, oldFr, newFr, f1, param.ModelId, operator)
+				if err != nil {
+					return nil, err
+				}
+				// set corresponding field in f1 to f2
+				newFr.SetCorrespondingField(f2.ID().Ref())
+			}
+		}
+
+		if err := updateField(param, f1); err != nil {
 			return nil, err
 		}
-		if err := i.repos.Schema.Save(ctx, s); err != nil {
+		if err := i.repos.Schema.Save(ctx, s1); err != nil {
 			return nil, err
 		}
 
-		return f, nil
+		return f1, nil
+	})
+}
+
+func (i Schema) updateCorrespondingField(ctx context.Context, oldFr *schema.FieldReference, newFr *schema.FieldReference, f1 *schema.Field, mId1 id.ModelID, operator *usecase.Operator) (*schema.Field, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
+		mId2 := oldFr.Model()
+		m2, err := i.repos.Model.FindByID(ctx, mId2)
+		if err != nil {
+			return nil, err
+		}
+		s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		if !operator.IsMaintainingProject(s2.Project()) {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		var res *schema.Field
+		cf1 := newFr.CorrespondingField()
+		// set f2 type property, modelId = mId1, cf2 = f1
+		cf2 := &schema.CorrespondingField{
+			FieldID:     f1.ID().Ref(),
+			Title:       lo.ToPtr(f1.Name()),
+			Key:         lo.ToPtr(f1.Key().String()),
+			Description: lo.ToPtr(f1.Description()),
+			Required:    lo.ToPtr(f1.Required()),
+		}
+		tp := schema.NewReference(mId1, cf2, cf2.FieldID).TypeProperty()
+		// check if modelId is different
+		if oldFr.Model() == newFr.Model() {
+			// if modelId is same, update f2
+			f2 := s2.Field(*cf1.FieldID)
+			if f2 == nil {
+				return nil, interfaces.ErrFieldNotFound
+			}
+
+			if err := updateField(interfaces.UpdateFieldParam{
+				ModelId:      mId2,
+				SchemaId:     m2.Schema(),
+				FieldId:      *cf1.FieldID,
+				Name:         cf1.Title,
+				Description:  cf1.Description,
+				Key:          cf1.Key,
+				Required:     cf1.Required,
+				TypeProperty: tp,
+			}, f2); err != nil {
+				return nil, err
+			}
+			if err := i.repos.Schema.Save(ctx, s2); err != nil {
+				return nil, err
+			}
+
+			res = f2
+		} else {
+			// delete the old corresponding field
+			s2.RemoveField(*oldFr.CorrespondingFieldID())
+			if err := i.repos.Schema.Save(ctx, s2); err != nil {
+				return nil, err
+			}
+
+			mId3 := newFr.Model()
+			m3, err := i.repos.Model.FindByID(ctx, mId3)
+			if err != nil {
+				return nil, err
+			}
+			s3, err := i.repos.Schema.FindByID(ctx, m3.Schema())
+			if err != nil {
+				return nil, err
+			}
+
+			if !operator.IsMaintainingProject(s3.Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			// create f2 from cf1
+			f3, err := schema.NewField(tp).
+				NewID().
+				Unique(false).
+				Multiple(false).
+				Required(lo.FromPtr(cf1.Required)).
+				Name(lo.FromPtr(cf1.Title)).
+				Description(lo.FromPtr(cf1.Description)).
+				Key(key.New(lo.FromPtr(cf1.Key))).
+				DefaultValue(nil).
+				Build()
+			if err != nil {
+				return nil, err
+			}
+
+			s3.AddField(f3)
+			if err := i.repos.Schema.Save(ctx, s3); err != nil {
+				return nil, err
+			}
+
+			res = f3
+		}
+
+		return res, nil
 	})
 }
 
