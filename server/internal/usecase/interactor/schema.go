@@ -52,7 +52,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		if param.IsTitle {
 			s.ResetTitles()
 		}
-		
+
 		f, err := schema.NewField(param.TypeProperty).
 			NewID().
 			Unique(param.Unique).
@@ -104,7 +104,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 		if lo.FromPtr(param.IsTitle) {
 			s.ResetTitles()
 		}
-		
+
 		if err := updateField(param, f); err != nil {
 			return nil, err
 		}

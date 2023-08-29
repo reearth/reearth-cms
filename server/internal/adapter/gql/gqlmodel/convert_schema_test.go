@@ -108,7 +108,7 @@ func TestToSchemaField(t *testing.T) {
 				Description:  lo.ToPtr("D1"),
 				Multiple:     true,
 				Unique:       true,
-				IsTitle:       true,
+				IsTitle:      true,
 				Order:        lo.ToPtr(0),
 				Required:     true,
 				CreatedAt:    fId.Timestamp(),

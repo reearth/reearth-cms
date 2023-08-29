@@ -29,7 +29,7 @@ func TestNewField(t *testing.T) {
 			unique:       true,
 			multiple:     true,
 			required:     true,
-			isTitle:     true,
+			isTitle:      true,
 			typeProperty: tp,
 			order:        3,
 			updatedAt:    now,
