@@ -35,20 +35,20 @@ func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usec
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
-		s, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
+		s1, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
 		if err != nil {
 			return nil, err
 		}
 
-		if !operator.IsMaintainingProject(s.Project()) {
+		if !operator.IsMaintainingProject(s1.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if param.Key == "" || s.HasFieldByKey(param.Key) {
+		if param.Key == "" || s1.HasFieldByKey(param.Key) {
 			return nil, schema.ErrInvalidKey
 		}
 
-		f, err := schema.NewField(param.TypeProperty).
+		f1, err := schema.NewField(param.TypeProperty).
 			NewID().
 			Unique(param.Unique).
 			Multiple(param.Multiple).
@@ -62,13 +62,88 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			return nil, err
 		}
 
-		s.AddField(f)
+		if param.Type == "Reference" {
+			var err error
+			var f2 *schema.Field
+			// set corresponding field in f1 to f2
+			f1.TypeProperty().Match(schema.TypePropertyMatch{
+				Reference: func(f *schema.FieldReference) {
+					if f.CorrespondingField() != nil {
+						f2, err = i.createCorrespondingField(ctx, f, f1, param.ModelId, operator)
+						if err == nil {
+							f.SetCorrespondingField(f2.ID().Ref())
+						}
+					}
+				},
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
 
-		if err := i.repos.Schema.Save(ctx, s); err != nil {
+		s1.AddField(f1)
+
+		if err := i.repos.Schema.Save(ctx, s1); err != nil {
 			return nil, err
 		}
 
-		return f, nil
+		return f1, nil
+	})
+}
+
+func (i Schema) createCorrespondingField(ctx context.Context, fr *schema.FieldReference, f1 *schema.Field, mId1 id.ModelID, operator *usecase.Operator) (*schema.Field, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
+		cf1 := fr.CorrespondingField()
+		mId2 := fr.Model()
+		m2, err := i.repos.Model.FindByID(ctx, mId2)
+		if err != nil {
+			return nil, err
+		}
+		s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
+		if err != nil {
+			return nil, err
+		}
+
+		if !operator.IsMaintainingProject(s2.Project()) {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		if cf1.Key == nil || s2.HasFieldByKey(lo.FromPtr(cf1.Key)) {
+			return nil, schema.ErrInvalidKey
+		}
+
+		// set f2 type property, modelId = mId1, cf2 = f1
+		cf2 := &schema.CorrespondingField{
+			FieldID:     f1.ID().Ref(),
+			Title:       lo.ToPtr(f1.Name()),
+			Key:         lo.ToPtr(f1.Key().String()),
+			Description: lo.ToPtr(f1.Description()),
+			Required:    lo.ToPtr(f1.Required()),
+		}
+		tp := schema.NewReference(mId1, cf2, f1.ID().Ref()).TypeProperty()
+
+		// create f2 from cf1
+		f2, err := schema.NewField(tp).
+			NewID().
+			Unique(false).
+			Multiple(false).
+			Required(lo.FromPtr(cf1.Required)).
+			Name(lo.FromPtr(cf1.Title)).
+			Description(lo.FromPtr(cf1.Description)).
+			Key(key.New(lo.FromPtr(cf1.Key))).
+			DefaultValue(nil).
+			Build()
+		if err != nil {
+			return nil, err
+		}
+
+		s2.AddField(f2)
+
+		if err := i.repos.Schema.Save(ctx, s2); err != nil {
+			return nil, err
+		}
+
+		return f2, nil
 	})
 }
 

@@ -6,13 +6,25 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-type FieldReference struct {
-	modelID id.ModelID
+type CorrespondingField struct {
+	FieldID     *id.FieldID
+	Title       *string
+	Key         *string
+	Description *string
+	Required    *bool
 }
 
-func NewReference(id id.ModelID) *FieldReference {
+type FieldReference struct {
+	modelId              id.ModelID
+	correspondingFieldId *id.FieldID
+	correspondingField   *CorrespondingField
+}
+
+func NewReference(id id.ModelID, cf *CorrespondingField, cfId *id.FieldID) *FieldReference {
 	return &FieldReference{
-		modelID: id,
+		modelId:              id,
+		correspondingFieldId: cfId,
+		correspondingField:   cf,
 	}
 }
 
@@ -23,8 +35,20 @@ func (f *FieldReference) TypeProperty() *TypeProperty {
 	}
 }
 
+func (f *FieldReference) SetCorrespondingField(cf *id.FieldID) {
+	f.correspondingFieldId = cf
+}
+
 func (f *FieldReference) Model() model.ID {
-	return f.modelID
+	return f.modelId
+}
+
+func (f *FieldReference) CorrespondingField() *CorrespondingField {
+	return f.correspondingField
+}
+
+func (f *FieldReference) CorrespondingFieldID() *id.FieldID {
+	return f.correspondingFieldId
 }
 
 func (f *FieldReference) Type() value.Type {
@@ -36,14 +60,18 @@ func (f *FieldReference) Clone() *FieldReference {
 		return nil
 	}
 	return &FieldReference{
-		modelID: f.modelID,
+		modelId:              f.modelId,
+		correspondingFieldId: f.correspondingFieldId,
 	}
 }
 
 func (f *FieldReference) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Reference: func(a value.Reference) {
-			// ok
+			_, ok := v.ValueReference()
+			if !ok {
+				err = ErrInvalidValue
+			}
 		},
 		Default: func() {
 			err = ErrInvalidValue

@@ -12,6 +12,7 @@ import (
 )
 
 type CreateFieldParam struct {
+	ModelId      id.ModelID
 	SchemaId     id.SchemaID
 	Type         value.Type
 	Name         string
