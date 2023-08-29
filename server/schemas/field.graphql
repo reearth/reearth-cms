@@ -10,6 +10,7 @@ enum SchemaFieldType {
   Tag
   Integer
   Reference
+  Checkbox
   URL
 }
 
@@ -60,6 +61,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldInteger
   | SchemaFieldReference
   | SchemaFieldURL
+  | SchemaFieldCheckbox
 
 
 type SchemaFieldText {
@@ -124,6 +126,10 @@ type SchemaFieldURL {
   defaultValue: Any
 }
 
+type SchemaFieldCheckbox {
+  defaultValue: Any
+}
+
 # Inputs
 
 input SchemaFieldTextInput {
@@ -155,6 +161,10 @@ input SchemaFieldDateInput {
 }
 
 input SchemaFieldBoolInput {
+  defaultValue: Any
+}
+
+input SchemaFieldCheckboxInput {
   defaultValue: Any
 }
 
@@ -198,6 +208,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   bool: SchemaFieldBoolInput
   select: SchemaFieldSelectInput
   tag: SchemaFieldTagInput
+  checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput

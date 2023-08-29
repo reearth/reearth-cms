@@ -19,6 +19,7 @@ type TypeProperty struct {
 	markdown  *FieldMarkdown
 	dateTime  *FieldDateTime
 	bool      *FieldBool
+	checkbox  *FieldCheckbox
 	selectt   *FieldSelect
 	tag       *FieldTag
 	integer   *FieldInteger
@@ -35,6 +36,7 @@ type TypePropertyMatch struct {
 	Asset     func(*FieldAsset)
 	DateTime  func(*FieldDateTime)
 	Bool      func(*FieldBool)
+	Checkbox  func(checkbox *FieldCheckbox)
 	Select    func(*FieldSelect)
 	Tag       func(*FieldTag)
 	Integer   func(*FieldInteger)
@@ -52,6 +54,7 @@ type TypePropertyMatch1[T any] struct {
 	Asset     func(*FieldAsset) T
 	DateTime  func(*FieldDateTime) T
 	Bool      func(*FieldBool) T
+	Checkbox  func(checkbox *FieldCheckbox) T
 	Select    func(*FieldSelect) T
 	Tag       func(*FieldTag) T
 	Integer   func(*FieldInteger) T
@@ -83,6 +86,9 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 			return f.Validate(v)
 		},
 		Bool: func(f *FieldBool) error {
+			return f.Validate(v)
+		},
+		Checkbox: func(f *FieldCheckbox) error {
 			return f.Validate(v)
 		},
 		DateTime: func(f *FieldDateTime) error {
@@ -222,6 +228,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.Bool(t.bool)
 			return
 		}
+	case value.TypeCheckbox:
+		if m.Checkbox != nil {
+			m.Checkbox(t.checkbox)
+			return
+		}
 	case value.TypeURL:
 		if m.URL != nil {
 			m.URL(t.url)
@@ -248,6 +259,7 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		asset:     t.asset.Clone(),
 		dateTime:  t.dateTime.Clone(),
 		bool:      t.bool.Clone(),
+		checkbox:  t.checkbox.Clone(),
 		selectt:   t.selectt.Clone(),
 		number:    t.number.Clone(),
 		tag:       t.tag.Clone(),
@@ -313,6 +325,10 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypeBool:
 		if m.Bool != nil {
 			return m.Bool(t.bool)
+		}
+	case value.TypeCheckbox:
+		if m.Checkbox != nil {
+			return m.Checkbox(t.checkbox)
 		}
 	case value.TypeURL:
 		if m.URL != nil {

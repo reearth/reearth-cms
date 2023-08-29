@@ -14,6 +14,7 @@ func TestTypeProperty_Type(t *testing.T) {
 	assert.Equal(t, value.TypeText, (&TypeProperty{t: value.TypeText}).Type())
 }
 
+// @TODO add test cases
 func TestMatchTypeProperty(t *testing.T) {
 	val := ""
 	m := TypePropertyMatch{
