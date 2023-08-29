@@ -21,6 +21,7 @@ export type Field = {
   required: boolean;
   unique: boolean;
   multiple: boolean;
+  isTitle: boolean;
   typeProperty?: TypeProperty;
 };
 
