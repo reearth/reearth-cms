@@ -33,7 +33,7 @@ func getUser(ctx context.Context) *user.User {
 }
 
 //
-//func getLang(ctx context.Context, lang *language.Tag) string {
+//func getLang(ctx context.Context, lang *language.Name) string {
 //	return adapter.Lang(ctx, lang)
 //}
 

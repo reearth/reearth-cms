@@ -1,38 +1,28 @@
 package schema
 
 import (
-	"testing"
-
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestNewTag(t *testing.T) {
-	expected := &FieldTag{values: []string{"a", "b"}, allowMultiple: false, color: TagColorBlue}
-	res := NewTag([]string{"a", "b", " a", "b"}, false, TagColorBlue)
-	assert.Equal(t, expected.Values(), res.Values())
-	assert.Equal(t, expected.AllowMultiple(), res.AllowMultiple())
+	expected := &Tag{
+		name:  "xyz",
+		color: TagColorVolcano,
+	}
+	res := NewTag("xyz", TagColorVolcano)
+	assert.Equal(t, expected.Name(), res.Name())
 	assert.Equal(t, expected.Color(), res.Color())
 	assert.False(t, res.ID().IsEmpty())
 }
 
 func TestNewTagWithID(t *testing.T) {
-	tid := NewTagFieldID()
-	expected := &FieldTag{id: tid, values: []string{"a", "b"}, allowMultiple: false, color: TagColorBlue}
-	res := NewTagWithID(tid, []string{"a", "b", " a", "b"}, false, TagColorBlue)
+	tid := NewTagID()
+	expected := &Tag{id: tid, name: "xxx", color: TagColorBlue}
+	res, err := NewTagWithID(tid, "xxx", TagColorBlue)
+	assert.NoError(t, err)
 	assert.Equal(t, expected, res)
-}
-
-func TestAllowMultiple(t *testing.T) {
-	tag1 := &FieldTag{values: []string{"a", "b"}, allowMultiple: false}
-	assert.False(t, tag1.allowMultiple)
-	tag2 := &FieldTag{values: []string{"a", "b"}, allowMultiple: true}
-	assert.True(t, tag2.allowMultiple)
-}
-
-func TestFieldTag_Color(t *testing.T) {
-	tag1 := &FieldTag{values: []string{"a", "b"}, allowMultiple: false, color: TagColorBlue}
-	assert.Equal(t, TagColorBlue, tag1.color)
 }
 
 func TestFieldTag_Type(t *testing.T) {
@@ -46,14 +36,14 @@ func TestFieldTag_TypeProperty(t *testing.T) {
 		tag: &f,
 	}, (&f).TypeProperty())
 }
-
 func TestFieldTag_Clone(t *testing.T) {
 	assert.Nil(t, (*FieldTag)(nil).Clone())
 	assert.Equal(t, &FieldTag{}, (&FieldTag{}).Clone())
 }
 
 func TestFieldTag_Validate(t *testing.T) {
-	assert.NoError(t, (&FieldTag{values: []string{"aaa"}}).Validate(value.TypeTag.Value("aaa")))
-	assert.Equal(t, ErrInvalidValue, (&FieldTag{values: []string{"aa"}}).Validate(value.TypeTag.Value("aaa")))
+	tag := NewTag("xyz", TagColorVolcano)
+	assert.NoError(t, (&FieldTag{tags: TagList{tag}}).Validate(value.TypeTag.Value(tag.ID().String())))
+	assert.Equal(t, ErrInvalidValue, (&FieldTag{tags: TagList{tag}}).Validate(value.TypeTag.Value("aaa")))
 	assert.Equal(t, ErrInvalidValue, (&FieldTag{}).Validate(value.TypeText.Value("")))
 }

@@ -1,36 +1,34 @@
 package schema
 
 import (
-	"strings"
-
+	"errors"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
+	"strings"
 )
 
+var ErrDuplicatedTag = errors.New("duplicated tag")
+
+type TagList []*Tag
+type Tag struct {
+	id    TagID
+	name  string
+	color TagColor
+}
+
 type FieldTag struct {
-	id            TagFieldID
-	values        []string
-	allowMultiple bool
-	color         TagColor
+	tags TagList
 }
 
-func NewTag(values []string, allowMultiple bool, color TagColor) *FieldTag {
-	return &FieldTag{
-		id: NewTagFieldID(),
-		values: lo.Uniq(lo.FilterMap(values, func(v string, _ int) (string, bool) {
-			s := strings.TrimSpace(v)
-			return s, len(s) > 0
-		})),
-		allowMultiple: allowMultiple,
-		color:         color,
+func NewFieldTag(tags TagList) (*FieldTag, error) {
+	if tags.HasDuplication() {
+		return nil, ErrDuplicatedTag
 	}
-}
-
-func NewTagWithID(tid TagFieldID, values []string, allowMultiple bool, color TagColor) *FieldTag {
-	tag := NewTag(values, allowMultiple, color)
-	tag.id = tid
-	return tag
+	return &FieldTag{
+		tags: tags,
+	}, nil
 }
 
 func (f *FieldTag) TypeProperty() *TypeProperty {
@@ -40,20 +38,8 @@ func (f *FieldTag) TypeProperty() *TypeProperty {
 	}
 }
 
-func (f *FieldTag) ID() TagFieldID {
-	return f.id
-}
-
-func (f *FieldTag) Values() []string {
-	return slices.Clone(f.values)
-}
-
-func (f *FieldTag) Color() TagColor {
-	return f.color
-}
-
-func (f *FieldTag) AllowMultiple() bool {
-	return f.allowMultiple
+func (f *FieldTag) Tags() TagList {
+	return slices.Clone(f.tags)
 }
 
 func (*FieldTag) Type() value.Type {
@@ -65,17 +51,18 @@ func (f *FieldTag) Clone() *FieldTag {
 		return nil
 	}
 	return &FieldTag{
-		id:            f.id,
-		values:        slices.Clone(f.values),
-		allowMultiple: f.allowMultiple,
-		color:         f.color,
+		tags: f.Tags(),
 	}
 }
 
 func (f *FieldTag) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Tag: func(a value.String) {
-			if !slices.Contains(f.values, a) {
+			tid, err2 := id.TagIDFrom(a)
+			if err2 != nil {
+				err = ErrInvalidValue
+			}
+			if !f.tags.HasTag(tid) {
 				err = ErrInvalidValue
 			}
 		},
@@ -84,4 +71,71 @@ func (f *FieldTag) Validate(v *value.Value) (err error) {
 		},
 	})
 	return
+}
+func (f *FieldTag) ValidateMultiple(v *value.Multiple) (err error) {
+	vs, ok := v.ValuesString()
+	if !ok {
+		return ErrInvalidValue
+	}
+	tmap := make(map[string]struct{})
+	for _, i := range vs {
+		if _, ok := tmap[i]; ok {
+			return ErrDuplicatedTag
+		}
+		tmap[i] = struct{}{}
+	}
+	return
+}
+
+func NewTag(name string, color TagColor) *Tag {
+	return &Tag{
+		id:    NewTagID(),
+		name:  strings.TrimSpace(name),
+		color: color,
+	}
+}
+
+func NewTagWithID(tid TagID, name string, color TagColor) (*Tag, error) {
+	if tid.IsNil() {
+		return nil, id.ErrInvalidID
+	}
+	tag := NewTag(name, color)
+	tag.id = tid
+	return tag, nil
+}
+
+func (t *Tag) ID() TagID {
+	return t.id
+}
+
+func (t *Tag) Name() string {
+	return t.name
+}
+
+func (t *Tag) Color() TagColor {
+	return t.color
+}
+
+func (tl TagList) HasTag(tid TagID) bool {
+	return slices.ContainsFunc(tl, func(tag *Tag) bool {
+		return tag.id == tid
+	})
+}
+
+func (tl TagList) IDs() TagIDList {
+	return lo.Map(tl, func(tag *Tag, _ int) TagID {
+		return tag.ID()
+	})
+}
+
+func (tl TagList) HasDuplication() bool {
+	tmap := make(map[string]struct{})
+	for _, i := range tl {
+		if _, ok := tmap[i.Name()]; ok {
+			return true
+		}
+		tmap[i.Name()] = struct{}{}
+	}
+
+	return false
 }

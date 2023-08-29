@@ -1,6 +1,7 @@
 package mongodoc
 
 import (
+	"github.com/samber/lo"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -53,11 +54,14 @@ type FieldSelectPropertyDocument struct {
 	Values []string
 }
 
+type FieldTagValueDocument struct {
+	ID    string
+	Name  string
+	Color string
+}
+
 type FieldTagPropertyDocument struct {
-	ID            string
-	Values        []string
-	AllowMultiple bool
-	Color         string
+	Tags []FieldTagValueDocument
 }
 
 type FieldNumberPropertyDocument struct {
@@ -123,11 +127,15 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 				}
 			},
 			Tag: func(fp *schema.FieldTag) {
+				tags := lo.Map(fp.Tags(), func(item *schema.Tag, _ int) FieldTagValueDocument {
+					return FieldTagValueDocument{
+						ID:    item.ID().String(),
+						Name:  item.Name(),
+						Color: item.Color().String(),
+					}
+				})
 				fd.TypeProperty.Tag = &FieldTagPropertyDocument{
-					ID:            fp.ID().String(),
-					Values:        fp.Values(),
-					AllowMultiple: fp.AllowMultiple(),
-					Color:         fp.Color().String(),
+					Tags: tags,
 				}
 			},
 			Number: func(fp *schema.FieldNumber) {
@@ -175,12 +183,15 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 
 	f, err := util.TryMap(d.Fields, func(fd FieldDocument) (*schema.Field, error) {
 		tpd := fd.TypeProperty
-		var tId id.TagFieldID
+		var tags schema.TagList
 		if tpd.Tag != nil {
-			tId, err = id.TagFieldIDFrom(tpd.Tag.ID)
-			if err != nil {
-				return nil, err
-			}
+			tags, err = util.TryMap(tpd.Tag.Tags, func(tag FieldTagValueDocument) (*schema.Tag, error) {
+				tid, err := id.TagIDFrom(tag.ID)
+				if err != nil {
+					return nil, err
+				}
+				return schema.NewTagWithID(tid, tag.Name, schema.TagColorFrom(tag.Color))
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -205,7 +216,11 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		case value.TypeSelect:
 			tp = schema.NewSelect(tpd.Select.Values).TypeProperty()
 		case value.TypeTag:
-			tp = schema.NewTagWithID(tId, tpd.Tag.Values, tpd.Tag.AllowMultiple, schema.TagColorFrom(tpd.Tag.Color)).TypeProperty()
+			tag, err := schema.NewFieldTag(tags)
+			if err != nil {
+				return nil, err
+			}
+			tp = tag.TypeProperty()
 		case value.TypeNumber:
 			tpi, err := schema.NewNumber(tpd.Number.Min, tpd.Number.Max)
 			if err != nil {

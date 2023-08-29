@@ -730,20 +730,27 @@ type SchemaFieldSelectInput struct {
 }
 
 type SchemaFieldTag struct {
-	ID            ID                  `json:"id"`
-	Values        []string            `json:"values"`
-	AllowMultiple bool                `json:"allowMultiple"`
-	Color         SchemaFieldTagColor `json:"color"`
-	DefaultValue  interface{}         `json:"defaultValue,omitempty"`
+	Tags         []*SchemaFieldTagValue `json:"tags"`
+	DefaultValue interface{}            `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTagInput struct {
-	Color         SchemaFieldTagColor `json:"color"`
-	Values        []string            `json:"values"`
-	AllowMultiple bool                `json:"allowMultiple"`
-	DefaultValue  interface{}         `json:"defaultValue,omitempty"`
+	Tags         []*SchemaFieldTagValueInput `json:"tags"`
+	DefaultValue interface{}                 `json:"defaultValue,omitempty"`
+}
+
+type SchemaFieldTagValue struct {
+	ID    ID     `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
+}
+
+type SchemaFieldTagValueInput struct {
+	TagID *ID                  `json:"tagId,omitempty"`
+	Name  *string              `json:"name,omitempty"`
+	Color *SchemaFieldTagColor `json:"color,omitempty"`
 }
 
 type SchemaFieldText struct {

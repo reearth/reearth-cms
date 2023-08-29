@@ -100,11 +100,14 @@ type SchemaFieldSelect {
 }
 
 type SchemaFieldTag {
-  id: ID!
-  values: [String!]!
-  allowMultiple: Boolean!
-  color: SchemaFieldTagColor!
+  tags: [SchemaFieldTagValue!]!
   defaultValue: Any
+}
+
+type SchemaFieldTagValue {
+  id: ID!
+  name: String!
+  color: String!
 }
 
 type SchemaFieldInteger {
@@ -161,10 +164,14 @@ input SchemaFieldSelectInput {
 }
 
 input SchemaFieldTagInput {
-  color: SchemaFieldTagColor!
-  values: [String!]!
-  allowMultiple: Boolean!
+  tags: [SchemaFieldTagValueInput!]!
   defaultValue: Any
+}
+
+input SchemaFieldTagValueInput {
+  tagId: ID # if you want to create a new tag, it is not required
+  name: String # if you want to delete a tag, it should be an empty string
+  color: SchemaFieldTagColor
 }
 
 input SchemaFieldIntegerInput {

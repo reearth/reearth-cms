@@ -111,12 +111,16 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 		},
 		Tag: func(f *schema.FieldTag) {
+			tags := lo.Map(f.Tags(), func(tag *schema.Tag, _ int) *SchemaFieldTagValue {
+				return &SchemaFieldTagValue{
+					ID:    IDFrom(tag.ID()),
+					Name:  tag.Name(),
+					Color: tag.Color().String(),
+				}
+			})
 			res = &SchemaFieldTag{
-				ID:            IDFrom(f.ID()),
-				DefaultValue:  valueString(dv, multiple),
-				Values:        f.Values(),
-				AllowMultiple: f.AllowMultiple(),
-				Color:         ToSchemaFieldTagColor(f.Color()),
+				DefaultValue: valueString(dv, multiple),
+				Tags:         tags,
 			}
 		},
 		Asset: func(f *schema.FieldAsset) {
@@ -330,10 +334,31 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
-		res := schema.NewTag(x.Values, x.AllowMultiple, schema.TagColorFrom(x.Color.String()))
-		if len(res.Values()) == 0 {
+		var tags schema.TagList
+		for _, t := range x.Tags {
+			var tag *schema.Tag
+			if t.TagID == nil {
+				tag = schema.NewTag(*t.Name, schema.TagColorFrom(t.Color.String()))
+			} else {
+				tid, err := ToID[id.Tag](*t.TagID)
+				if err != nil {
+					return nil, nil, err
+				}
+				tag, err = schema.NewTagWithID(tid, *t.Name, schema.TagColorFrom(t.Color.String()))
+				if err != nil {
+					return nil, nil, err
+				}
+			}
+			tags = append(tags, tag)
+		}
+		if len(tags) == 0 {
 			return nil, nil, ErrEmptyOptions
 		}
+		res, err := schema.NewFieldTag(tags)
+		if err != nil {
+			return nil, nil, err
+		}
+
 		if multiple {
 			dv = value.NewMultiple(value.TypeTag, unpackArray(x.DefaultValue))
 		} else {

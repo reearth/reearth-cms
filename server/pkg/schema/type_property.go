@@ -109,6 +109,50 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 	})
 }
 
+func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
+	return MatchTypeProperty1(t, TypePropertyMatch1[error]{
+		Text: func(f *FieldText) error {
+			return f.ValidateMultiple(v)
+		},
+		TextArea: func(f *FieldTextArea) error {
+			return f.ValidateMultiple(v)
+		},
+		RichText: func(f *FieldRichText) error {
+			return f.ValidateMultiple(v)
+		},
+		Markdown: func(f *FieldMarkdown) error {
+			return f.ValidateMultiple(v)
+		},
+		Asset: func(f *FieldAsset) error {
+			return f.ValidateMultiple(v)
+		},
+		Bool: func(f *FieldBool) error {
+			return f.ValidateMultiple(v)
+		},
+		DateTime: func(f *FieldDateTime) error {
+			return f.ValidateMultiple(v)
+		},
+		Number: func(f *FieldNumber) error {
+			return f.ValidateMultiple(v)
+		},
+		Integer: func(f *FieldInteger) error {
+			return f.ValidateMultiple(v)
+		},
+		Reference: func(f *FieldReference) error {
+			return f.ValidateMultiple(v)
+		},
+		Select: func(f *FieldSelect) error {
+			return f.ValidateMultiple(v)
+		},
+		Tag: func(f *FieldTag) error {
+			return f.ValidateMultiple(v)
+		},
+		URL: func(f *FieldURL) error {
+			return f.ValidateMultiple(v)
+		},
+	})
+}
+
 func (t *TypeProperty) Match(m TypePropertyMatch) {
 	if t == nil || t.t == value.TypeUnknown {
 		if m.Default != nil {
