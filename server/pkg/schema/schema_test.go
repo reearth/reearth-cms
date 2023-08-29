@@ -411,17 +411,6 @@ func TestSchema_SetTitleField(t *testing.T) {
 	assert.ErrorIs(t, err, titleFieldErr)
 }
 
-func TestSchema_ResetTitles(t *testing.T) {
-	f1 := &Field{id: NewFieldID(), name: "f1", isTitle: true}
-	f2 := &Field{id: NewFieldID(), name: "f2", isTitle: true}
-	f3 := &Field{id: NewFieldID(), name: "f3", isTitle: true}
-	s := &Schema{fields: []*Field{f1, f2, f3}}
-	s.ResetTitles()
-	assert.False(t, f1.isTitle)
-	assert.False(t, f2.isTitle)
-	assert.False(t, f3.isTitle)
-}
-
 func TestSchema_Clone(t *testing.T) {
 	s := &Schema{id: NewID(), fields: []*Field{{id: id.NewFieldID(), name: "f1"}}, titleField: NewFieldID().Ref()}
 	c := s.Clone()

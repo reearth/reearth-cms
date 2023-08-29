@@ -25,6 +25,11 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
+	s, err := usecases(ctx).Schema.FindByID(ctx, m[0].Schema(), getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
 	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, input.Type, input.Multiple)
 	if err != nil {
 		return nil, err
@@ -48,7 +53,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 	}
 
 	return &gqlmodel.FieldPayload{
-		Field: gqlmodel.ToSchemaField(f),
+		Field: gqlmodel.ToSchemaField(f, s.TitleField()),
 	}, nil
 }
 
@@ -103,7 +108,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	return &gqlmodel.FieldPayload{
-		Field: gqlmodel.ToSchemaField(f),
+		Field: gqlmodel.ToSchemaField(f, s.TitleField()),
 	}, nil
 }
 
@@ -191,7 +196,7 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 
 	return &gqlmodel.FieldsPayload{
 		Fields: lo.Map(fl, func(sf *schema.Field, _ int) *gqlmodel.SchemaField {
-			return gqlmodel.ToSchemaField(sf)
+			return gqlmodel.ToSchemaField(sf, s.TitleField())
 		}),
 	}, nil
 }

@@ -73,7 +73,7 @@ func TestToSchema(t *testing.T) {
 }
 
 func TestToSchemaField(t *testing.T) {
-	fId := schema.NewFieldID()
+	fid := schema.NewFieldID()
 	tests := []struct {
 		name   string
 		schema *schema.Field
@@ -87,18 +87,17 @@ func TestToSchemaField(t *testing.T) {
 		{
 			name: "success",
 			schema: schema.NewField(schema.NewText(nil).TypeProperty()).
-				ID(fId).
-				UpdatedAt(fId.Timestamp()).
+				ID(fid).
+				UpdatedAt(fid.Timestamp()).
 				Name("N1").
 				Description("D1").
 				Key(key.New("K123456")).
 				Unique(true).
-				IsTitle(true).
 				Multiple(true).
 				Required(true).
 				MustBuild(),
 			want: &SchemaField{
-				ID:           IDFrom(fId),
+				ID:           IDFrom(fid),
 				ModelID:      "",
 				Model:        nil,
 				Type:         SchemaFieldTypeText,
@@ -108,11 +107,11 @@ func TestToSchemaField(t *testing.T) {
 				Description:  lo.ToPtr("D1"),
 				Multiple:     true,
 				Unique:       true,
-				IsTitle:      true,
 				Order:        lo.ToPtr(0),
 				Required:     true,
-				CreatedAt:    fId.Timestamp(),
-				UpdatedAt:    fId.Timestamp(),
+				IsTitle:      true,
+				CreatedAt:    fid.Timestamp(),
+				UpdatedAt:    fid.Timestamp(),
 			},
 		},
 	}
@@ -121,7 +120,7 @@ func TestToSchemaField(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := ToSchemaField(tt.schema)
+			got := ToSchemaField(tt.schema, fid.Ref())
 			assert.Equal(t, tt.want, got)
 		})
 	}
