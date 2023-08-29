@@ -99,6 +99,7 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  correspondingFieldId: ID
 }
 
 type SchemaFieldURL {
@@ -163,8 +164,17 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input CorrespondingFieldInput {
+  fieldId: ID
+  title: String
+  key: String
+  description: String
+  required: Boolean
+} 
+
 input SchemaFieldReferenceInput {
   modelId: ID!
+  correspondingField: CorrespondingFieldInput
 }
 
 input SchemaFieldURLInput {

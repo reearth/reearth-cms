@@ -163,7 +163,8 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Reference: func(f *schema.FieldReference) {
 			res = &SchemaFieldReference{
-				ModelID: IDFrom(f.Model()),
+				ModelID:              IDFrom(f.Model()),
+				CorrespondingFieldID: IDFromRef(f.CorrespondingFieldID()),
 			}
 		},
 		URL: func(f *schema.FieldURL) {
@@ -200,6 +201,20 @@ func valueString(dv *value.Multiple, multiple bool) any {
 
 var ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
 var ErrEmptyOptions = rerror.NewE(i18n.T("Options could not be empty!"))
+
+func FromCorrespondingField(cf *CorrespondingFieldInput) *schema.CorrespondingField {
+	if cf == nil {
+		return nil
+	}
+
+	return &schema.CorrespondingField{
+		FieldID:     ToIDRef[id.Field](cf.FieldID),
+		Title:       cf.Title,
+		Key:         cf.Key,
+		Description: cf.Description,
+		Required:    cf.Required,
+	}
+}
 
 func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
 	if tp == nil {
@@ -340,7 +355,11 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if err != nil {
 			return nil, nil, err
 		}
-		tpRes = schema.NewReference(mId).TypeProperty()
+		var fId *id.FieldID
+		if x.CorrespondingField != nil {
+			fId = ToIDRef[id.Field](x.CorrespondingField.FieldID)
+		}
+		tpRes = schema.NewReference(mId, FromCorrespondingField(x.CorrespondingField), fId).TypeProperty()
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {

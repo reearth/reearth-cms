@@ -535,7 +535,8 @@ type ComplexityRoot struct {
 	}
 
 	SchemaFieldReference struct {
-		ModelID func(childComplexity int) int
+		CorrespondingFieldID func(childComplexity int) int
+		ModelID              func(childComplexity int) int
 	}
 
 	SchemaFieldRichText struct {
@@ -3058,6 +3059,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldMarkdown.MaxLength(childComplexity), true
 
+	case "SchemaFieldReference.correspondingFieldId":
+		if e.complexity.SchemaFieldReference.CorrespondingFieldID == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldReference.CorrespondingFieldID(childComplexity), true
+
 	case "SchemaFieldReference.modelId":
 		if e.complexity.SchemaFieldReference.ModelID == nil {
 			break
@@ -3484,6 +3492,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAddUsersToWorkspaceInput,
 		ec.unmarshalInputApproveRequestInput,
 		ec.unmarshalInputAssetSort,
+		ec.unmarshalInputCorrespondingFieldInput,
 		ec.unmarshalInputCreateAssetInput,
 		ec.unmarshalInputCreateAssetUploadInput,
 		ec.unmarshalInputCreateFieldInput,
@@ -4441,6 +4450,7 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  correspondingFieldId: ID
 }
 
 type SchemaFieldURL {
@@ -4505,8 +4515,17 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input CorrespondingFieldInput {
+  fieldId: ID
+  title: String
+  key: String
+  description: String
+  required: Boolean
+} 
+
 input SchemaFieldReferenceInput {
   modelId: ID!
+  correspondingField: CorrespondingFieldInput
 }
 
 input SchemaFieldURLInput {
@@ -20428,6 +20447,47 @@ func (ec *executionContext) fieldContext_SchemaFieldReference_modelId(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldReference_correspondingFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldReference_correspondingFieldId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CorrespondingFieldID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldReference",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldRichText_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldRichText) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldRichText_defaultValue(ctx, field)
 	if err != nil {
@@ -25145,6 +25205,71 @@ func (ec *executionContext) unmarshalInputAssetSort(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCorrespondingFieldInput(ctx context.Context, obj interface{}) (gqlmodel.CorrespondingFieldInput, error) {
+	var it gqlmodel.CorrespondingFieldInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"fieldId", "title", "key", "description", "required"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "fieldId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fieldId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FieldID = data
+		case "title":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Title = data
+		case "key":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "required":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Required = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateAssetInput(ctx context.Context, obj interface{}) (gqlmodel.CreateAssetInput, error) {
 	var it gqlmodel.CreateAssetInput
 	asMap := map[string]interface{}{}
@@ -26786,7 +26911,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId"}
+	fieldsInOrder := [...]string{"modelId", "correspondingField"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26802,6 +26927,15 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 				return it, err
 			}
 			it.ModelID = data
+		case "correspondingField":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("correspondingField"))
+			data, err := ec.unmarshalOCorrespondingFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingFieldInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CorrespondingField = data
 		}
 	}
 
@@ -33186,6 +33320,8 @@ func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "correspondingFieldId":
+			out.Values[i] = ec._SchemaFieldReference_correspondingFieldId(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -37032,6 +37168,14 @@ func (ec *executionContext) marshalOCommentPayload2ᚖgithubᚗcomᚋreearthᚋr
 		return graphql.Null
 	}
 	return ec._CommentPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCorrespondingFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingFieldInput(ctx context.Context, v interface{}) (*gqlmodel.CorrespondingFieldInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCorrespondingFieldInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOCreateAssetPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateAssetPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CreateAssetPayload) graphql.Marshaler {

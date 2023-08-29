@@ -31,6 +31,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 	}
 
 	f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
+		ModelId:      mId,
 		SchemaId:     m[0].Schema(),
 		Type:         value.Type(input.Type),
 		Name:         input.Title,
