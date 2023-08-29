@@ -23,11 +23,11 @@ func TestFieldReference_SetCorrespondingField(t *testing.T) {
 	assert.Equal(t, &FieldReference{modelId: m, correspondingFieldId: cf}, NewReference(m, nil, cf))
 }
 
-func TestFieldReference_CorrespondingField(t *testing.T) {
+func TestFieldReference_CorrespondingFieldID(t *testing.T) {
 	m := id.NewModelID()
 	cf := lo.ToPtr(id.NewFieldID())
 	f := NewReference(m, nil, cf)
-	assert.Equal(t, cf, f.CorrespondingField())
+	assert.Equal(t, cf, f.CorrespondingFieldID())
 }
 
 func TestFieldReference_Model(t *testing.T) {
