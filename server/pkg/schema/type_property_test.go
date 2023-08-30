@@ -26,7 +26,7 @@ func TestMatchTypeProperty(t *testing.T) {
 		DateTime:  func(_ *FieldDateTime) { val = "DateTime" },
 		Bool:      func(_ *FieldBool) { val = "Bool" },
 		Select:    func(_ *FieldSelect) { val = "Select" },
-		Tag:       func(_ *FieldTag) { val = "Name" },
+		Tag:       func(_ *FieldTag) { val = "Tag" },
 		Integer:   func(_ *FieldInteger) { val = "Integer" },
 		Number:    func(_ *FieldNumber) { val = "Number" },
 		Reference: func(_ *FieldReference) { val = "Reference" },
