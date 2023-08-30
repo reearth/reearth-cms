@@ -36,7 +36,8 @@ export type FieldType =
   | "Tag"
   | "Integer"
   | "Reference"
-  | "URL";
+  | "URL"
+  | "Checkbox";
 
 export type TypeProperty =
   | {
