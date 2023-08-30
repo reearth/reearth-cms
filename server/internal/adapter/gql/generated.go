@@ -227,6 +227,8 @@ type ComplexityRoot struct {
 		ID            func(childComplexity int) int
 		Integration   func(childComplexity int) int
 		IntegrationID func(childComplexity int) int
+		Metadata      func(childComplexity int) int
+		MetadataID    func(childComplexity int) int
 		Model         func(childComplexity int) int
 		ModelID       func(childComplexity int) int
 		Project       func(childComplexity int) int
@@ -283,17 +285,19 @@ type ComplexityRoot struct {
 	}
 
 	Model struct {
-		CreatedAt   func(childComplexity int) int
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Key         func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Project     func(childComplexity int) int
-		ProjectID   func(childComplexity int) int
-		Public      func(childComplexity int) int
-		Schema      func(childComplexity int) int
-		SchemaID    func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		Description      func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Key              func(childComplexity int) int
+		MetadataSchema   func(childComplexity int) int
+		MetadataSchemaID func(childComplexity int) int
+		Name             func(childComplexity int) int
+		Project          func(childComplexity int) int
+		ProjectID        func(childComplexity int) int
+		Public           func(childComplexity int) int
+		Schema           func(childComplexity int) int
+		SchemaID         func(childComplexity int) int
+		UpdatedAt        func(childComplexity int) int
 	}
 
 	ModelConnection struct {
@@ -1354,6 +1358,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Item.IntegrationID(childComplexity), true
 
+	case "Item.metadata":
+		if e.complexity.Item.Metadata == nil {
+			break
+		}
+
+		return e.complexity.Item.Metadata(childComplexity), true
+
+	case "Item.metadataId":
+		if e.complexity.Item.MetadataID == nil {
+			break
+		}
+
+		return e.complexity.Item.MetadataID(childComplexity), true
+
 	case "Item.model":
 		if e.complexity.Item.Model == nil {
 			break
@@ -1626,6 +1644,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Model.Key(childComplexity), true
+
+	case "Model.metadataSchema":
+		if e.complexity.Model.MetadataSchema == nil {
+			break
+		}
+
+		return e.complexity.Model.MetadataSchema(childComplexity), true
+
+	case "Model.metadataSchemaId":
+		if e.complexity.Model.MetadataSchemaID == nil {
+			break
+		}
+
+		return e.complexity.Model.MetadataSchemaID(childComplexity), true
 
 	case "Model.name":
 		if e.complexity.Model.Name == nil {
@@ -4135,11 +4167,13 @@ extend type Mutation {
   id: ID!
   projectId: ID!
   schemaId: ID!
+  metadataSchemaId: ID
   name: String!
   description: String!
   key: String!
   project: Project!
   schema: Schema!
+  metadataSchema: Schema
   public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -4566,6 +4600,7 @@ extend type Mutation {
   projectId: ID!
   integrationId: ID
   userId: ID
+  metadataId: ID
   integration: Integration
   user: User
   schema: Schema!
@@ -4578,6 +4613,7 @@ extend type Mutation {
   createdAt: DateTime!
   updatedAt: DateTime!
   version: String!
+  metadata: Item
 }
 
 type ItemField {
@@ -9870,6 +9906,47 @@ func (ec *executionContext) fieldContext_Item_userId(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_metadataId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_metadataId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetadataID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_metadataId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_integration(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_integration(ctx, field)
 	if err != nil {
@@ -10081,6 +10158,8 @@ func (ec *executionContext) fieldContext_Item_model(ctx context.Context, field g
 				return ec.fieldContext_Model_projectId(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Model_schemaId(ctx, field)
+			case "metadataSchemaId":
+				return ec.fieldContext_Model_metadataSchemaId(ctx, field)
 			case "name":
 				return ec.fieldContext_Model_name(ctx, field)
 			case "description":
@@ -10091,6 +10170,8 @@ func (ec *executionContext) fieldContext_Item_model(ctx context.Context, field g
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "metadataSchema":
+				return ec.fieldContext_Model_metadataSchema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
@@ -10530,6 +10611,91 @@ func (ec *executionContext) fieldContext_Item_version(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_metadata(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_metadata(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Metadata, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Item)
+	fc.Result = res
+	return ec.marshalOItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Item_id(ctx, field)
+			case "schemaId":
+				return ec.fieldContext_Item_schemaId(ctx, field)
+			case "threadId":
+				return ec.fieldContext_Item_threadId(ctx, field)
+			case "modelId":
+				return ec.fieldContext_Item_modelId(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Item_projectId(ctx, field)
+			case "integrationId":
+				return ec.fieldContext_Item_integrationId(ctx, field)
+			case "userId":
+				return ec.fieldContext_Item_userId(ctx, field)
+			case "metadataId":
+				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "integration":
+				return ec.fieldContext_Item_integration(ctx, field)
+			case "user":
+				return ec.fieldContext_Item_user(ctx, field)
+			case "schema":
+				return ec.fieldContext_Item_schema(ctx, field)
+			case "model":
+				return ec.fieldContext_Item_model(ctx, field)
+			case "status":
+				return ec.fieldContext_Item_status(ctx, field)
+			case "project":
+				return ec.fieldContext_Item_project(ctx, field)
+			case "thread":
+				return ec.fieldContext_Item_thread(ctx, field)
+			case "fields":
+				return ec.fieldContext_Item_fields(ctx, field)
+			case "assets":
+				return ec.fieldContext_Item_assets(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Item_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "version":
+				return ec.fieldContext_Item_version(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Item_metadata(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ItemConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ItemConnection_edges(ctx, field)
 	if err != nil {
@@ -10633,6 +10799,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_integrationId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
+			case "metadataId":
+				return ec.fieldContext_Item_metadataId(ctx, field)
 			case "integration":
 				return ec.fieldContext_Item_integration(ctx, field)
 			case "user":
@@ -10657,6 +10825,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_updatedAt(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Item_metadata(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -10856,6 +11026,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_integrationId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
+			case "metadataId":
+				return ec.fieldContext_Item_metadataId(ctx, field)
 			case "integration":
 				return ec.fieldContext_Item_integration(ctx, field)
 			case "user":
@@ -10880,6 +11052,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_updatedAt(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Item_metadata(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -11069,6 +11243,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_integrationId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
+			case "metadataId":
+				return ec.fieldContext_Item_metadataId(ctx, field)
 			case "integration":
 				return ec.fieldContext_Item_integration(ctx, field)
 			case "user":
@@ -11093,6 +11269,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_updatedAt(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Item_metadata(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -11802,6 +11980,47 @@ func (ec *executionContext) fieldContext_Model_schemaId(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Model_metadataSchemaId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Model_metadataSchemaId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetadataSchemaID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Model_metadataSchemaId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Model",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Model_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Model_name(ctx, field)
 	if err != nil {
@@ -12054,6 +12273,57 @@ func (ec *executionContext) fieldContext_Model_schema(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Model_metadataSchema(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Model_metadataSchema(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetadataSchema, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Schema)
+	fc.Result = res
+	return ec.marshalOSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Model_metadataSchema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Model",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Schema_id(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Schema_projectId(ctx, field)
+			case "fields":
+				return ec.fieldContext_Schema_fields(ctx, field)
+			case "project":
+				return ec.fieldContext_Schema_project(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Model_public(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Model_public(ctx, field)
 	if err != nil {
@@ -12281,6 +12551,8 @@ func (ec *executionContext) fieldContext_ModelConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Model_projectId(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Model_schemaId(ctx, field)
+			case "metadataSchemaId":
+				return ec.fieldContext_Model_metadataSchemaId(ctx, field)
 			case "name":
 				return ec.fieldContext_Model_name(ctx, field)
 			case "description":
@@ -12291,6 +12563,8 @@ func (ec *executionContext) fieldContext_ModelConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "metadataSchema":
+				return ec.fieldContext_Model_metadataSchema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
@@ -12488,6 +12762,8 @@ func (ec *executionContext) fieldContext_ModelEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Model_projectId(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Model_schemaId(ctx, field)
+			case "metadataSchemaId":
+				return ec.fieldContext_Model_metadataSchemaId(ctx, field)
 			case "name":
 				return ec.fieldContext_Model_name(ctx, field)
 			case "description":
@@ -12498,6 +12774,8 @@ func (ec *executionContext) fieldContext_ModelEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "metadataSchema":
+				return ec.fieldContext_Model_metadataSchema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
@@ -12556,6 +12834,8 @@ func (ec *executionContext) fieldContext_ModelPayload_model(ctx context.Context,
 				return ec.fieldContext_Model_projectId(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Model_schemaId(ctx, field)
+			case "metadataSchemaId":
+				return ec.fieldContext_Model_metadataSchemaId(ctx, field)
 			case "name":
 				return ec.fieldContext_Model_name(ctx, field)
 			case "description":
@@ -12566,6 +12846,8 @@ func (ec *executionContext) fieldContext_ModelPayload_model(ctx context.Context,
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "metadataSchema":
+				return ec.fieldContext_Model_metadataSchema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
@@ -16456,6 +16738,8 @@ func (ec *executionContext) fieldContext_PublishItemPayload_items(ctx context.Co
 				return ec.fieldContext_Item_integrationId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
+			case "metadataId":
+				return ec.fieldContext_Item_metadataId(ctx, field)
 			case "integration":
 				return ec.fieldContext_Item_integration(ctx, field)
 			case "user":
@@ -16480,6 +16764,8 @@ func (ec *executionContext) fieldContext_PublishItemPayload_items(ctx context.Co
 				return ec.fieldContext_Item_updatedAt(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Item_metadata(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -19494,6 +19780,8 @@ func (ec *executionContext) fieldContext_SchemaField_model(ctx context.Context, 
 				return ec.fieldContext_Model_projectId(ctx, field)
 			case "schemaId":
 				return ec.fieldContext_Model_schemaId(ctx, field)
+			case "metadataSchemaId":
+				return ec.fieldContext_Model_metadataSchemaId(ctx, field)
 			case "name":
 				return ec.fieldContext_Model_name(ctx, field)
 			case "description":
@@ -19504,6 +19792,8 @@ func (ec *executionContext) fieldContext_SchemaField_model(ctx context.Context, 
 				return ec.fieldContext_Model_project(ctx, field)
 			case "schema":
 				return ec.fieldContext_Model_schema(ctx, field)
+			case "metadataSchema":
+				return ec.fieldContext_Model_metadataSchema(ctx, field)
 			case "public":
 				return ec.fieldContext_Model_public(ctx, field)
 			case "createdAt":
@@ -21129,6 +21419,8 @@ func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.
 				return ec.fieldContext_Item_integrationId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
+			case "metadataId":
+				return ec.fieldContext_Item_metadataId(ctx, field)
 			case "integration":
 				return ec.fieldContext_Item_integration(ctx, field)
 			case "user":
@@ -21153,6 +21445,8 @@ func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.
 				return ec.fieldContext_Item_updatedAt(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Item_metadata(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -21726,6 +22020,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_integrationId(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
+			case "metadataId":
+				return ec.fieldContext_Item_metadataId(ctx, field)
 			case "integration":
 				return ec.fieldContext_Item_integration(ctx, field)
 			case "user":
@@ -21750,6 +22046,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_updatedAt(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
+			case "metadata":
+				return ec.fieldContext_Item_metadata(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -30050,6 +30348,8 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Item_integrationId(ctx, field, obj)
 		case "userId":
 			out.Values[i] = ec._Item_userId(ctx, field, obj)
+		case "metadataId":
+			out.Values[i] = ec._Item_metadataId(ctx, field, obj)
 		case "integration":
 			field := field
 
@@ -30352,6 +30652,8 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "metadata":
+			out.Values[i] = ec._Item_metadata(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -30802,6 +31104,8 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "metadataSchemaId":
+			out.Values[i] = ec._Model_metadataSchemaId(ctx, field, obj)
 		case "name":
 			out.Values[i] = ec._Model_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -30889,6 +31193,8 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "metadataSchema":
+			out.Values[i] = ec._Model_metadataSchema(ctx, field, obj)
 		case "public":
 			out.Values[i] = ec._Model_public(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -37453,6 +37759,13 @@ func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑc
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Schema) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Schema(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldAssetInput, error) {

@@ -360,6 +360,7 @@ type Item struct {
 	ProjectID     ID           `json:"projectId"`
 	IntegrationID *ID          `json:"integrationId,omitempty"`
 	UserID        *ID          `json:"userId,omitempty"`
+	MetadataID    *ID          `json:"metadataId,omitempty"`
 	Integration   *Integration `json:"integration,omitempty"`
 	User          *User        `json:"user,omitempty"`
 	Schema        *Schema      `json:"schema"`
@@ -372,6 +373,7 @@ type Item struct {
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
 	Version       string       `json:"version"`
+	Metadata      *Item        `json:"metadata,omitempty"`
 }
 
 func (Item) IsNode()        {}
@@ -440,17 +442,19 @@ type MemberInput struct {
 }
 
 type Model struct {
-	ID          ID        `json:"id"`
-	ProjectID   ID        `json:"projectId"`
-	SchemaID    ID        `json:"schemaId"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Key         string    `json:"key"`
-	Project     *Project  `json:"project"`
-	Schema      *Schema   `json:"schema"`
-	Public      bool      `json:"public"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID               ID        `json:"id"`
+	ProjectID        ID        `json:"projectId"`
+	SchemaID         ID        `json:"schemaId"`
+	MetadataSchemaID *ID       `json:"metadataSchemaId,omitempty"`
+	Name             string    `json:"name"`
+	Description      string    `json:"description"`
+	Key              string    `json:"key"`
+	Project          *Project  `json:"project"`
+	Schema           *Schema   `json:"schema"`
+	MetadataSchema   *Schema   `json:"metadataSchema,omitempty"`
+	Public           bool      `json:"public"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
 }
 
 func (Model) IsNode()        {}

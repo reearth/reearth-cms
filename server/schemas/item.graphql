@@ -6,6 +6,7 @@ type Item implements Node {
   projectId: ID!
   integrationId: ID
   userId: ID
+  metadataId: ID
   integration: Integration
   user: User
   schema: Schema!
@@ -18,6 +19,7 @@ type Item implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   version: String!
+  metadata: Item
 }
 
 type ItemField {
