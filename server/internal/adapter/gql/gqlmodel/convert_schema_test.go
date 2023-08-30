@@ -179,7 +179,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "reference",
-			args: args{tp: schema.NewReference(mid, nil).TypeProperty()},
+			args: args{tp: schema.NewReference(mid).TypeProperty()},
 			want: &SchemaFieldReference{ModelID: IDFrom(mid)},
 		},
 		{
@@ -292,7 +292,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 				},
 			},
 			argsT:  SchemaFieldTypeReference,
-			wantTp: schema.NewReference(mid, nil).TypeProperty(),
+			wantTp: schema.NewReference(mid).TypeProperty(),
 		},
 		{
 			name: "asset",
