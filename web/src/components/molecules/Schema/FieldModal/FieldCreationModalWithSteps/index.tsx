@@ -14,7 +14,9 @@ import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
+import { FormValues } from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
   FieldModalTabs,
@@ -23,9 +25,6 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
-
-import { fieldTypes } from "../../fieldTypes";
-import { FormValues } from "../FieldCreationModal";
 
 const { Step } = Steps;
 
@@ -123,136 +122,84 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     setField1FormValues(initialValues);
   }, [modelForm, field1Form, field2Form, initialValues]);
 
-  const nextStep = useCallback(() => {
-    if (currentStep === 1) {
-      field1Form
-        .validateFields()
-        .then(async values => {
-          values.type = "Reference";
-          values.typeProperty = {
-            reference: {
-              modelId: selectedModel,
-              correspondingField: null,
-            },
-          };
+  const handleFirstField = useCallback(async () => {
+    console.log("here");
+    console.log("here");
 
-          setField1FormValues(values);
-        })
-        .catch(info => {
-          console.log("Validate Failed:", info);
-        });
-    }
+    field1Form
+      .validateFields()
+      .then(async values => {
+        console.log("here");
+        values.type = "Reference";
+        values.typeProperty = {
+          reference: {
+            modelId: selectedModel,
+            correspondingField: null,
+          },
+        };
+        console.log(values);
 
-    if (currentStep < numSteps) setCurrentStep(currentStep + 1);
-  }, [currentStep, numSteps, field1Form, selectedModel]);
+        setField1FormValues(values);
+        if (currentStep < numSteps) setCurrentStep(currentStep + 1);
+        else {
+          if (selectedField) {
+            await onUpdate?.({ ...values, fieldId: selectedField.id });
+          } else {
+            await onSubmit?.(values);
+          }
+        }
+      })
+      .catch(info => {
+        console.log("Validate Failed:", info);
+      });
+  }, [currentStep, numSteps, field1Form, selectedModel, selectedField, onSubmit, onUpdate]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
+  }, [currentStep]);
+
+  const nextStep = useCallback(() => {
+    if (currentStep == 0) setCurrentStep(currentStep + 1);
   }, [currentStep]);
 
   const handleModalReset = useCallback(() => {
     setCurrentStep(0);
   }, []);
 
-  const handleSubmit = useCallback(() => {
+  const handleSecondField = useCallback(() => {
+    console.log("here 2");
+
     if (selectedField) {
-      if (currentStep === 1) {
-        field1Form.validateFields().then(async values => {
-          values.type = "Reference";
-          values.typeProperty = {
-            reference: {
-              modelId: selectedModel ?? "",
-              correspondingField: null,
+      field2Form.validateFields().then(async fields2Values => {
+        field1FormValues.typeProperty = {
+          reference: {
+            modelId: selectedModel ?? "",
+            correspondingField: {
+              ...fields2Values,
+              fieldId: selectedField?.typeProperty.correspondingField.id,
             },
-          };
-          await onUpdate?.({ ...values, fieldId: selectedField.id }); // Pass the field ID for updating
-          onClose?.(true);
-        });
-      } else {
-        field2Form.validateFields().then(async fields2Values => {
-          fields2Values.typeProperty = {
-            reference: {
-              modelId: selectedModel,
-              correspondingField: null,
-            },
-          };
-          console.log(selectedModel);
-
-          field1FormValues.type = "Reference";
-          field1FormValues.typeProperty = {
-            reference: {
-              modelId: selectedModel ?? "",
-              correspondingField: {
-                update: {
-                  ...fields2Values,
-                  modelId: selectedModel,
-                  fieldId: selectedField?.typeProperty.correspondingField.id,
-                },
-              },
-            },
-          };
-          console.log({ ...field1FormValues, fieldId: selectedField.id });
-          await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
-          onClose?.(true);
-        });
-      }
+          },
+        };
+        console.log({ ...field1FormValues, fieldId: selectedField.id });
+        await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
+        onClose?.(true);
+      });
     } else {
-      console.log("fun");
-      // For creating a new field
-      if (currentStep === 1) {
-        field1Form
-          .validateFields()
-          .then(async values => {
-            values.type = "Reference";
-            values.typeProperty = {
-              reference: {
-                modelId: selectedModel,
-                correspondingField: null,
-              },
-            };
-
-            await onSubmit?.(values);
-            onClose?.(true);
-          })
-          .catch(info => {
-            console.log("Validate Failed:", info);
-          });
-      } else {
-        field2Form.validateFields().then(async fields2Values => {
-          fields2Values.typeProperty = {
-            reference: {
-              modelId: selectedModel,
-              correspondingField: null,
+      field2Form.validateFields().then(async fields2Values => {
+        field1FormValues.typeProperty = {
+          reference: {
+            modelId: selectedModel ?? "",
+            correspondingField: {
+              ...fields2Values,
             },
-          };
-          console.log(field1FormValues);
+          },
+        };
 
-          field1FormValues.type = "Reference";
-          field1FormValues.typeProperty = {
-            reference: {
-              modelId: selectedModel ?? "",
-              correspondingField: {
-                create: { ...fields2Values, modelId: selectedModel, type: "Reference" },
-              },
-            },
-          };
-
-          await onSubmit?.(field1FormValues);
-          onClose?.(true);
-        });
-      }
+        await onSubmit?.(field1FormValues);
+        onClose?.(true);
+      });
     }
-  }, [
-    onClose,
-    onSubmit,
-    onUpdate,
-    currentStep,
-    selectedField,
-    field1FormValues,
-    field1Form,
-    field2Form,
-    selectedModel,
-  ]);
+  }, [onClose, onSubmit, onUpdate, selectedField, field1FormValues, field2Form, selectedModel]);
 
   return (
     <StyledModal
@@ -285,12 +232,18 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           ) : (
             <div key="placeholder" />
           )}
-          {currentStep !== numSteps ? (
+          {currentStep === 0 && (
             <Button key="next" type="primary" onClick={nextStep}>
               {t("Next")}
             </Button>
-          ) : (
-            <Button key="submit" type="primary" onClick={handleSubmit}>
+          )}
+          {currentStep === 1 && (
+            <Button key="next" type="primary" onClick={handleFirstField}>
+              {currentStep !== numSteps ? t("Next") : t("Confirm")}
+            </Button>
+          )}
+          {currentStep === 2 && (
+            <Button key="submit" type="primary" onClick={handleSecondField}>
               {t("Confirm")}
             </Button>
           )}
@@ -413,11 +366,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 <Checkbox>{t("Set field as unique")}</Checkbox>
               </Form.Item>
             </TabPane>
-            <TabPane tab={t("Default value")} key="defaultValue" forceRender>
-              {/* <Form.Item name="defaultValue" label={t("Set default value")}>
-                <Input />
-              </Form.Item> */}
-            </TabPane>
           </Tabs>
         </Form>
       )}
@@ -476,12 +424,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   <MultiValueField FieldInput={Input} />
                 </Form.Item>
               )}
-              <Form.Item
-                name="multiple"
-                valuePropName="checked"
-                extra={t("Stores a list of values instead of a single value")}>
-                <Checkbox disabled>{t("Support multiple values")}</Checkbox>
-              </Form.Item>
             </TabPane>
             <TabPane tab="Validation" key="validation" forceRender>
               <FieldValidationProps selectedType={selectedType} />
@@ -491,19 +433,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 extra={t("Prevents saving an entry if this field is empty")}>
                 <Checkbox>{t("Make field required")}</Checkbox>
               </Form.Item>
-              <Form.Item
-                name="unique"
-                valuePropName="checked"
-                extra={t(
-                  "Ensures that a multiple entries can't have the same value for this field",
-                )}>
-                <Checkbox>{t("Set field as unique")}</Checkbox>
-              </Form.Item>
-            </TabPane>
-            <TabPane tab={t("Default value")} key="defaultValue" forceRender>
-              {/* <Form.Item name="defaultValue" label={t("Set default value")}>
-                <Input />
-              </Form.Item> */}
             </TabPane>
           </Tabs>
         </Form>
