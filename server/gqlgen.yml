@@ -59,6 +59,8 @@ models:
         resolver: true
       integration:
         resolver: true
+      metadata:
+        resolver: true
       status:
         resolver: true
       assets:
@@ -68,6 +70,8 @@ models:
       project:
         resolver: true
       schema:
+        resolver: true
+      metadataSchema:
         resolver: true
   Schema:
     fields:

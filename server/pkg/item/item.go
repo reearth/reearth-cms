@@ -1,6 +1,7 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -13,15 +14,16 @@ import (
 )
 
 type Item struct {
-	id          ID
-	schema      SchemaID
-	model       ModelID
-	project     ProjectID
-	fields      []*Field
-	timestamp   time.Time
-	thread      ThreadID
-	user        *UserID
-	integration *IntegrationID
+	id           ID
+	schema       SchemaID
+	model        ModelID
+	project      ProjectID
+	fields       []*Field
+	timestamp    time.Time
+	thread       ThreadID
+	user         *UserID
+	metadataItem *id.ItemID
+	integration  *IntegrationID
 }
 
 type Versioned = *version.Value[*Item]
@@ -56,6 +58,10 @@ func (i *Item) Schema() SchemaID {
 
 func (i *Item) Timestamp() time.Time {
 	return i.timestamp
+}
+
+func (i *Item) MetadataItem() *ID {
+	return i.metadataItem
 }
 
 func (i *Item) Field(f FieldID) *Field {
@@ -128,4 +134,8 @@ type ItemModelSchema struct {
 	Model   *model.Model
 	Schema  *schema.Schema
 	Changes FieldChanges
+}
+
+func (i *Item) SetMetadataItem(iid *id.ItemID) {
+	i.metadataItem = iid
 }

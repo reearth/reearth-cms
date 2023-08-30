@@ -97,6 +97,11 @@ func (b *Builder) NewThread() *Builder {
 	return b
 }
 
+func (b *Builder) MetadataItem(id *ID) *Builder {
+	b.i.metadataItem = id
+	return b
+}
+
 func (b *Builder) Timestamp(createdAt time.Time) *Builder {
 	b.i.timestamp = createdAt
 	return b

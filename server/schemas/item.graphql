@@ -53,11 +53,13 @@ input ItemFieldInput {
 input CreateItemInput {
   schemaId: ID!
   modelId: ID!
+  metadataId: ID
   fields: [ItemFieldInput!]!
 }
 
 input UpdateItemInput {
   itemId: ID!
+  metadataId: ID
   fields: [ItemFieldInput!]!
   version: String
 }

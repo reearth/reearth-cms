@@ -35,15 +35,17 @@ type ItemFieldParam struct {
 }
 
 type CreateItemParam struct {
-	SchemaID schema.ID
-	ModelID  model.ID
-	Fields   []ItemFieldParam
+	SchemaID   schema.ID
+	ModelID    model.ID
+	MetadataID *item.ID
+	Fields     []ItemFieldParam
 }
 
 type UpdateItemParam struct {
-	ItemID  item.ID
-	Fields  []ItemFieldParam
-	Version *version.Version
+	ItemID     item.ID
+	MetadataID *item.ID
+	Fields     []ItemFieldParam
+	Version    *version.Version
 }
 
 type Item interface {

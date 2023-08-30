@@ -23,10 +23,14 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
+	if err != nil {
+		return nil, err
+	}
 	res, err := usecases(ctx).Item.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: sid,
-		ModelID:  mid,
-		Fields:   util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
+		SchemaID:   sid,
+		ModelID:    mid,
+		MetadataID: gqlmodel.ToIDRef[id.Item](input.MetadataID),
+		Fields:     util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
 	}, op)
 	if err != nil {
 		return nil, err
@@ -57,9 +61,10 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 	}
 
 	res, err := usecases(ctx).Item.Update(ctx, interfaces.UpdateItemParam{
-		ItemID:  iid,
-		Fields:  util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
-		Version: &v,
+		ItemID:     iid,
+		MetadataID: gqlmodel.ToIDRef[id.Item](input.MetadataID),
+		Fields:     util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
+		Version:    &v,
 	}, op)
 	if err != nil {
 		return nil, err

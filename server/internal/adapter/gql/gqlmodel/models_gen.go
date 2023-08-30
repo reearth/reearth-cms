@@ -166,9 +166,10 @@ type CreateIntegrationInput struct {
 }
 
 type CreateItemInput struct {
-	SchemaID ID                `json:"schemaId"`
-	ModelID  ID                `json:"modelId"`
-	Fields   []*ItemFieldInput `json:"fields"`
+	SchemaID   ID                `json:"schemaId"`
+	ModelID    ID                `json:"modelId"`
+	MetadataID *ID               `json:"metadataId,omitempty"`
+	Fields     []*ItemFieldInput `json:"fields"`
 }
 
 type CreateModelInput struct {
@@ -888,9 +889,10 @@ type UpdateIntegrationOfWorkspaceInput struct {
 }
 
 type UpdateItemInput struct {
-	ItemID  ID                `json:"itemId"`
-	Fields  []*ItemFieldInput `json:"fields"`
-	Version *string           `json:"version,omitempty"`
+	ItemID     ID                `json:"itemId"`
+	MetadataID *ID               `json:"metadataId,omitempty"`
+	Fields     []*ItemFieldInput `json:"fields"`
+	Version    *string           `json:"version,omitempty"`
 }
 
 type UpdateMeInput struct {

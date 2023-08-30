@@ -71,3 +71,10 @@ func (i itemResolver) Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmod
 	}
 	return assets, nil
 }
+
+func (i itemResolver) Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Item, error) {
+	if obj.MetadataID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).Item.Load(*obj.MetadataID)
+}

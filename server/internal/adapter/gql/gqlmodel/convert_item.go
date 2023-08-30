@@ -24,6 +24,7 @@ func ToItem(vi item.Versioned, s *schema.Schema) *Item {
 		UserID:        IDFromRef(i.User()),
 		IntegrationID: IDFromRef(i.Integration()),
 		ThreadID:      IDFrom(i.Thread()),
+		MetadataID:    IDFromRef(i.MetadataItem()),
 		CreatedAt:     i.ID().Timestamp(),
 		UpdatedAt:     i.Timestamp(),
 		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) *ItemField {

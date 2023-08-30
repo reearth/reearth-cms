@@ -208,6 +208,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Schema(s.ID()).
 			Project(s.Project()).
 			Model(m.ID()).
+			MetadataItem(param.MetadataID).
 			Thread(th.ID()).
 			Fields(fields)
 
@@ -304,6 +305,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		oldFields := itv.Fields()
 
 		itv.UpdateFields(fields)
+
+		if param.MetadataID != nil {
+			itv.SetMetadataItem(param.MetadataID)
+		}
+
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
 		}

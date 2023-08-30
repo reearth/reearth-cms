@@ -695,6 +695,8 @@ type ItemResolver interface {
 	Thread(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Thread, error)
 
 	Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Asset, error)
+
+	Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Item, error)
 }
 type MeResolver interface {
 	Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Workspace, error)
@@ -704,6 +706,7 @@ type MeResolver interface {
 type ModelResolver interface {
 	Project(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Project, error)
 	Schema(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Schema, error)
+	MetadataSchema(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Schema, error)
 }
 type MutationResolver interface {
 	CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error)
@@ -4725,11 +4728,13 @@ input ItemFieldInput {
 input CreateItemInput {
   schemaId: ID!
   modelId: ID!
+  metadataId: ID
   fields: [ItemFieldInput!]!
 }
 
 input UpdateItemInput {
   itemId: ID!
+  metadataId: ID
   fields: [ItemFieldInput!]!
   version: String
 }
@@ -10703,7 +10708,7 @@ func (ec *executionContext) _Item_metadata(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Metadata, nil
+		return ec.resolvers.Item().Metadata(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10721,8 +10726,8 @@ func (ec *executionContext) fieldContext_Item_metadata(ctx context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "Item",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -12365,7 +12370,7 @@ func (ec *executionContext) _Model_metadataSchema(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.MetadataSchema, nil
+		return ec.resolvers.Model().MetadataSchema(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12383,8 +12388,8 @@ func (ec *executionContext) fieldContext_Model_metadataSchema(ctx context.Contex
 	fc = &graphql.FieldContext{
 		Object:     "Model",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -25922,7 +25927,7 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"schemaId", "modelId", "fields"}
+	fieldsInOrder := [...]string{"schemaId", "modelId", "metadataId", "fields"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25947,6 +25952,15 @@ func (ec *executionContext) unmarshalInputCreateItemInput(ctx context.Context, o
 				return it, err
 			}
 			it.ModelID = data
+		case "metadataId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metadataId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetadataID = data
 		case "fields":
 			var err error
 
@@ -28352,7 +28366,7 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"itemId", "fields", "version"}
+	fieldsInOrder := [...]string{"itemId", "metadataId", "fields", "version"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -28368,6 +28382,15 @@ func (ec *executionContext) unmarshalInputUpdateItemInput(ctx context.Context, o
 				return it, err
 			}
 			it.ItemID = data
+		case "metadataId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metadataId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetadataID = data
 		case "fields":
 			var err error
 
@@ -31021,7 +31044,38 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "metadata":
-			out.Values[i] = ec._Item_metadata(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Item_metadata(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -31562,7 +31616,38 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metadataSchema":
-			out.Values[i] = ec._Model_metadataSchema(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Model_metadataSchema(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "public":
 			out.Values[i] = ec._Model_public(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

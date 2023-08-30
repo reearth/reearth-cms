@@ -69,6 +69,10 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 			if err != nil {
 				return nil, err
 			}
+			meta, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).Build()
+			if err != nil {
+				return nil, err
+			}
 			if err := i.repos.Schema.Save(ctx, s); err != nil {
 				return nil, err
 			}
@@ -77,6 +81,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				New().
 				NewID().
 				Schema(s.ID()).
+				Metadata(meta.ID().Ref()).
 				Public(false).
 				Project(param.ProjectId)
 
@@ -193,5 +198,26 @@ func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator
 				return false, err
 			}
 			return b, nil
+		})
+}
+
+func (i Model) CreateMetadata(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) (*model.Model, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ *model.Model, err error) {
+			m, err := i.repos.Model.FindByID(ctx, modelID)
+			if err != nil {
+				return nil, err
+			}
+
+			if !operator.IsMaintainingProject(m.Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			m.SetMetadata(id.NewSchemaID())
+
+			if err := i.repos.Model.Save(ctx, m); err != nil {
+				return nil, err
+			}
+			return m, nil
 		})
 }
