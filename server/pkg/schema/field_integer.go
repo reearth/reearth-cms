@@ -73,3 +73,7 @@ func (f *FieldInteger) Validate(v *value.Value) (err error) {
 	})
 	return
 }
+
+func (f *FieldInteger) ValidateMultiple(v *value.Multiple) error {
+	return nil
+}

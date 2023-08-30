@@ -21,6 +21,7 @@ type TypeProperty struct {
 	bool      *FieldBool
 	checkbox  *FieldCheckbox
 	selectt   *FieldSelect
+	tag       *FieldTag
 	integer   *FieldInteger
 	number    *FieldNumber
 	reference *FieldReference
@@ -37,6 +38,7 @@ type TypePropertyMatch struct {
 	Bool      func(*FieldBool)
 	Checkbox  func(checkbox *FieldCheckbox)
 	Select    func(*FieldSelect)
+	Tag       func(*FieldTag)
 	Integer   func(*FieldInteger)
 	Number    func(*FieldNumber)
 	Reference func(*FieldReference)
@@ -54,6 +56,7 @@ type TypePropertyMatch1[T any] struct {
 	Bool      func(*FieldBool) T
 	Checkbox  func(checkbox *FieldCheckbox) T
 	Select    func(*FieldSelect) T
+	Tag       func(*FieldTag) T
 	Integer   func(*FieldInteger) T
 	Number    func(*FieldNumber) T
 	Reference func(*FieldReference) T
@@ -103,8 +106,55 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		Select: func(f *FieldSelect) error {
 			return f.Validate(v)
 		},
+		Tag: func(f *FieldTag) error {
+			return f.Validate(v)
+		},
 		URL: func(f *FieldURL) error {
 			return f.Validate(v)
+		},
+	})
+}
+
+func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
+	return MatchTypeProperty1(t, TypePropertyMatch1[error]{
+		Text: func(f *FieldText) error {
+			return f.ValidateMultiple(v)
+		},
+		TextArea: func(f *FieldTextArea) error {
+			return f.ValidateMultiple(v)
+		},
+		RichText: func(f *FieldRichText) error {
+			return f.ValidateMultiple(v)
+		},
+		Markdown: func(f *FieldMarkdown) error {
+			return f.ValidateMultiple(v)
+		},
+		Asset: func(f *FieldAsset) error {
+			return f.ValidateMultiple(v)
+		},
+		Bool: func(f *FieldBool) error {
+			return f.ValidateMultiple(v)
+		},
+		DateTime: func(f *FieldDateTime) error {
+			return f.ValidateMultiple(v)
+		},
+		Number: func(f *FieldNumber) error {
+			return f.ValidateMultiple(v)
+		},
+		Integer: func(f *FieldInteger) error {
+			return f.ValidateMultiple(v)
+		},
+		Reference: func(f *FieldReference) error {
+			return f.ValidateMultiple(v)
+		},
+		Select: func(f *FieldSelect) error {
+			return f.ValidateMultiple(v)
+		},
+		Tag: func(f *FieldTag) error {
+			return f.ValidateMultiple(v)
+		},
+		URL: func(f *FieldURL) error {
+			return f.ValidateMultiple(v)
 		},
 	})
 }
@@ -168,6 +218,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.Select(t.selectt)
 			return
 		}
+	case value.TypeTag:
+		if m.Tag != nil {
+			m.Tag(t.tag)
+			return
+		}
 	case value.TypeBool:
 		if m.Bool != nil {
 			m.Bool(t.bool)
@@ -207,6 +262,7 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		checkbox:  t.checkbox.Clone(),
 		selectt:   t.selectt.Clone(),
 		number:    t.number.Clone(),
+		tag:       t.tag.Clone(),
 		integer:   t.integer.Clone(),
 		reference: t.reference.Clone(),
 		url:       t.url.Clone(),
@@ -261,6 +317,10 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypeSelect:
 		if m.Select != nil {
 			return m.Select(t.selectt)
+		}
+	case value.TypeTag:
+		if m.Tag != nil {
+			return m.Tag(t.tag)
 		}
 	case value.TypeBool:
 		if m.Bool != nil {

@@ -65,3 +65,7 @@ func (f *FieldSelect) Validate(v *value.Value) (err error) {
 	})
 	return
 }
+
+func (f *FieldSelect) ValidateMultiple(v *value.Multiple) error {
+	return nil
+}

@@ -188,5 +188,5 @@ func (f *Field) ValidateValue(m *value.Multiple) error {
 			return err
 		}
 	}
-	return nil
+	return f.typeProperty.ValidateMultiple(m)
 }

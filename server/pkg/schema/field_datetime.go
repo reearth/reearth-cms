@@ -39,3 +39,7 @@ func (f *FieldDateTime) Validate(v *value.Value) (err error) {
 	})
 	return
 }
+
+func (f *FieldDateTime) ValidateMultiple(v *value.Multiple) error {
+	return nil
+}

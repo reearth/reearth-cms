@@ -13,6 +13,7 @@ const TypeTextArea Type = "textArea"
 const TypeRichText Type = "richText"
 const TypeMarkdown Type = "markdown"
 const TypeSelect Type = "select"
+const TypeTag Type = "tag"
 
 type propertyString struct{}
 

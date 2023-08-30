@@ -95,6 +95,19 @@ var FieldIDFrom = idx.From[Field]
 var FieldIDFromRef = idx.FromRef[Field]
 var FieldIDListFrom = idx.ListFrom[Field]
 
+type Tag struct{}
+
+func (Tag) Type() string { return "tag" }
+
+type TagID = idx.ID[Tag]
+type TagIDList = idx.List[Tag]
+
+var MustTagID = idx.Must[Tag]
+var NewTagID = idx.New[Tag]
+var TagIDFrom = idx.From[Tag]
+var TagIDFromRef = idx.FromRef[Tag]
+var TagIDListFrom = idx.ListFrom[Tag]
+
 type Schema struct{}
 
 func (Schema) Type() string { return "schema" }
