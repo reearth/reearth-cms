@@ -26,6 +26,7 @@ func TestMatchTypeProperty(t *testing.T) {
 		DateTime:  func(_ *FieldDateTime) { val = "DateTime" },
 		Bool:      func(_ *FieldBool) { val = "Bool" },
 		Select:    func(_ *FieldSelect) { val = "Select" },
+		Tag:       func(_ *FieldTag) { val = "Tag" },
 		Integer:   func(_ *FieldInteger) { val = "Integer" },
 		Number:    func(_ *FieldNumber) { val = "Number" },
 		Reference: func(_ *FieldReference) { val = "Reference" },
@@ -116,6 +117,14 @@ func TestMatchTypeProperty(t *testing.T) {
 			want: "Select",
 		},
 		{
+			name: "Tag",
+			args: args{
+				tp: &TypeProperty{t: value.TypeTag, tag: &FieldTag{}},
+				m:  m,
+			},
+			want: "Tag",
+		},
+		{
 			name: "Number",
 			args: args{
 				tp: &TypeProperty{t: value.TypeNumber, number: &FieldNumber{}},
@@ -179,6 +188,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		DateTime:  func(_ *FieldDateTime) string { return "DateTime" },
 		Bool:      func(_ *FieldBool) string { return "Bool" },
 		Select:    func(_ *FieldSelect) string { return "Select" },
+		Tag:       func(_ *FieldTag) string { return "Tag" },
 		Integer:   func(_ *FieldInteger) string { return "Integer" },
 		Number:    func(_ *FieldNumber) string { return "Number" },
 		Reference: func(_ *FieldReference) string { return "Reference" },
@@ -269,6 +279,14 @@ func TestMatchTypeProperty1(t *testing.T) {
 			want: "Select",
 		},
 		{
+			name: "Tag",
+			args: args{
+				tp: &TypeProperty{t: value.TypeTag, tag: &FieldTag{}},
+				m:  m,
+			},
+			want: "Tag",
+		},
+		{
 			name: "Number",
 			args: args{
 				tp: &TypeProperty{t: value.TypeNumber, number: &FieldNumber{}},
@@ -322,7 +340,8 @@ func TestMatchTypeProperty1(t *testing.T) {
 }
 
 func TestTypeProperty_Validate(t *testing.T) {
-
+	tag := NewTag("xyz", TagColorVolcano)
+	tf, _ := NewFieldTag(TagList{tag})
 	type args struct {
 		tp    *TypeProperty
 		value *value.Value
@@ -402,6 +421,14 @@ func TestTypeProperty_Validate(t *testing.T) {
 			args: args{
 				tp:    &TypeProperty{t: value.TypeSelect, selectt: NewSelect([]string{"xyz"})},
 				value: value.TypeSelect.Value("xyz"),
+			},
+			want: nil,
+		},
+		{
+			name: "Tag",
+			args: args{
+				tp:    &TypeProperty{t: value.TypeTag, tag: tf},
+				value: value.TypeTag.Value(tag.ID()),
 			},
 			want: nil,
 		},
