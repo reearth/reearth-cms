@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -86,35 +85,32 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema, f1 *schema.Field, param interfaces.CreateFieldParam, operator *usecase.Operator) error {
 	fr, _ := schema.FieldReferenceFromTypeProperty(f1.TypeProperty())
 	// check if reference direction is two way
-	if fr.CorrespondingField() == nil {
-		return errors.New("Not two way reference")
-	}
+	if fr.CorrespondingField() != nil {
+		mid2 := fr.Model()
+		m2, err := i.repos.Model.FindByID(ctx, mid2)
+		if err != nil {
+			return err
+		}
+		s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
+		if err != nil {
+			return err
+		}
 
-	mid2 := fr.Model()
-	m2, err := i.repos.Model.FindByID(ctx, mid2)
-	if err != nil {
-		return err
-	}
-	s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
-	if err != nil {
-		return err
-	}
+		if !operator.IsMaintainingProject(s2.Project()) {
+			return interfaces.ErrOperationDenied
+		}
 
-	if !operator.IsMaintainingProject(s2.Project()) {
-		return interfaces.ErrOperationDenied
+		fields, err := schema.GetCorrespondingFields(s1, s2, param.ModelID, f1, fr)
+		if err != nil {
+			return err
+		}
+
+		fields.Schema2.AddField(fields.Field2)
+
+		if err := i.repos.Schema.Save(ctx, fields.Schema2); err != nil {
+			return err
+		}
 	}
-
-	fields, err := schema.GetCorrespondingFields(s1, s2, param.ModelID, f1, fr)
-	if err != nil {
-		return err
-	}
-
-	fields.Schema2.AddField(fields.Field2)
-
-	if err := i.repos.Schema.Save(ctx, fields.Schema2); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -157,81 +153,78 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 	oldFr, _ := schema.FieldReferenceFromTypeProperty(f1.TypeProperty())
 	newFr, _ := schema.FieldReferenceFromTypeProperty(param.TypeProperty)
 	// check if reference direction is two way
-	if newFr.CorrespondingField() == nil {
-		return errors.New("Not two way reference")
-	}
-
-	mId2 := oldFr.Model()
-	m2, err := i.repos.Model.FindByID(ctx, mId2)
-	if err != nil {
-		return err
-	}
-	s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
-	if err != nil {
-		return err
-	}
-
-	if !operator.IsMaintainingProject(s2.Project()) {
-		return interfaces.ErrOperationDenied
-	}
-
-	// check if modelId is different
-	if oldFr.Model() == newFr.Model() {
-		// if modelId is same, update f2
-		cf1 := newFr.CorrespondingField()
-		f2 := s2.Field(*cf1.FieldID)
-		if f2 == nil {
-			return interfaces.ErrFieldNotFound
-		}
-		if err := updateField(interfaces.UpdateFieldParam{
-			ModelID:     mId2,
-			SchemaID:    m2.Schema(),
-			FieldID:     *cf1.FieldID,
-			Name:        cf1.Title,
-			Description: cf1.Description,
-			Key:         cf1.Key,
-			Required:    cf1.Required,
-		}, f2); err != nil {
-			return err
-		}
-		if err := i.repos.Schema.Save(ctx, s2); err != nil {
-			return err
-		}
-	} else {
-		// delete the old corresponding field
-		s2.RemoveField(*oldFr.CorrespondingFieldID())
-		if err := i.repos.Schema.Save(ctx, s2); err != nil {
-			return err
-		}
-		// create the new corresponding field
-		mid3 := newFr.Model()
-		m3, err := i.repos.Model.FindByID(ctx, mid3)
+	if newFr.CorrespondingField() != nil {
+		mId2 := oldFr.Model()
+		m2, err := i.repos.Model.FindByID(ctx, mId2)
 		if err != nil {
 			return err
 		}
-		s3, err := i.repos.Schema.FindByID(ctx, m3.Schema())
+		s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
 		if err != nil {
 			return err
 		}
 
-		if !operator.IsMaintainingProject(s3.Project()) {
+		if !operator.IsMaintainingProject(s2.Project()) {
 			return interfaces.ErrOperationDenied
 		}
 
-		fields, err := schema.GetCorrespondingFields(s1, s3, param.ModelID, f1, newFr)
-		if err != nil {
-			return err
-		}
-		if err != nil {
-			return err
-		}
+		// check if modelId is different
+		if oldFr.Model() == newFr.Model() {
+			// if modelId is same, update f2
+			cf1 := newFr.CorrespondingField()
+			f2 := s2.Field(*cf1.FieldID)
+			if f2 == nil {
+				return interfaces.ErrFieldNotFound
+			}
+			if err := updateField(interfaces.UpdateFieldParam{
+				ModelID:     mId2,
+				SchemaID:    m2.Schema(),
+				FieldID:     *cf1.FieldID,
+				Name:        cf1.Title,
+				Description: cf1.Description,
+				Key:         cf1.Key,
+				Required:    cf1.Required,
+			}, f2); err != nil {
+				return err
+			}
+			if err := i.repos.Schema.Save(ctx, s2); err != nil {
+				return err
+			}
+		} else {
+			// delete the old corresponding field
+			s2.RemoveField(*oldFr.CorrespondingFieldID())
+			if err := i.repos.Schema.Save(ctx, s2); err != nil {
+				return err
+			}
+			// create the new corresponding field
+			mid3 := newFr.Model()
+			m3, err := i.repos.Model.FindByID(ctx, mid3)
+			if err != nil {
+				return err
+			}
+			s3, err := i.repos.Schema.FindByID(ctx, m3.Schema())
+			if err != nil {
+				return err
+			}
 
-		fields.Schema2.AddField(fields.Field2)
-		if err := i.repos.Schema.Save(ctx, fields.Schema2); err != nil {
-			return err
+			if !operator.IsMaintainingProject(s3.Project()) {
+				return interfaces.ErrOperationDenied
+			}
+
+			fields, err := schema.GetCorrespondingFields(s1, s3, param.ModelID, f1, newFr)
+			if err != nil {
+				return err
+			}
+			if err != nil {
+				return err
+			}
+
+			fields.Schema2.AddField(fields.Field2)
+			if err := i.repos.Schema.Save(ctx, fields.Schema2); err != nil {
+				return err
+			}
 		}
 	}
-
 	return nil
 }
 
@@ -264,28 +257,27 @@ func (i Schema) deleteCorrespondingField(ctx context.Context, s *schema.Schema, 
 	fr, _ := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
 	cfid := fr.CorrespondingFieldID()
 
-	if cfid == nil {
-		return errors.New("Not two way reference")
-	}
-	ms, err := i.repos.Model.FindByIDs(ctx, []id.ModelID{fr.Model()})
-	if err != nil || len(ms) != 1 {
-		if err == nil {
-			return rerror.NewE(i18n.T("not found"))
+	// check if reference direction is two way
+	if cfid != nil {
+		ms, err := i.repos.Model.FindByIDs(ctx, []id.ModelID{fr.Model()})
+		if err != nil || len(ms) != 1 {
+			if err == nil {
+				return rerror.NewE(i18n.T("not found"))
+			}
+			return err
 		}
-		return err
-	}
-	m := ms[0]
-	
-	s2, err := i.repos.Schema.FindByID(ctx, m.Schema())
-	if err != nil {
-		return err
-	}
-	
-	s2.RemoveField(*cfid)
-	if err := i.repos.Schema.Save(ctx, s2); err != nil {
-		return err
-	}
+		m := ms[0]
 
+		s2, err := i.repos.Schema.FindByID(ctx, m.Schema())
+		if err != nil {
+			return err
+		}
+
+		s2.RemoveField(*cfid)
+		if err := i.repos.Schema.Save(ctx, s2); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
