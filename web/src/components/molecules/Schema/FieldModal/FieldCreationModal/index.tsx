@@ -125,7 +125,7 @@ const FieldCreationModal: React.FC<Props> = ({
   useEffect(() => {
     if (selectedType === "Asset" || selectedType === "Select") {
       form.setFieldValue("defaultValue", null);
-    } else if (selectedType === "Bool") {
+    } else if (selectedType === "Bool" || selectedType === "Checkbox") {
       form.setFieldValue("defaultValue", false);
     }
   }, [form, selectedType, multipleValue]);
@@ -176,6 +176,10 @@ const FieldCreationModal: React.FC<Props> = ({
         } else if (selectedType === "Bool") {
           values.typeProperty = {
             bool: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Checkbox") {
+          values.typeProperty = {
+            checkbox: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "URL") {
           values.typeProperty = {

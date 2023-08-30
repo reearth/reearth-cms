@@ -192,6 +192,10 @@ const FieldUpdateModal: React.FC<Props> = ({
           values.typeProperty = {
             bool: { defaultValue: values.defaultValue },
           };
+        } else if (selectedType === "Checkbox") {
+          values.typeProperty = {
+            checkbox: { defaultValue: values.defaultValue },
+          };
         } else if (selectedType === "URL") {
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
