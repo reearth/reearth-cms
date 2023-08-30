@@ -40,6 +40,5 @@ func (f *FieldURL) Validate(v *value.Value) (err error) {
 }
 
 func (f *FieldURL) ValidateMultiple(v *value.Multiple) (err error) {
-	v.Values()
-	return
+	return nil
 }

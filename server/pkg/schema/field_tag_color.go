@@ -4,17 +4,19 @@ import "strings"
 
 type TagColor string
 
-var TagColorMagenta TagColor = "magenta"
-var TagColorRed TagColor = "red"
-var TagColorVolcano TagColor = "volcano"
-var TagColorOrange TagColor = "orange"
-var TagColorGold TagColor = "gold"
-var TagColorLime TagColor = "lime"
-var TagColorGreen TagColor = "green"
-var TagColorCyan TagColor = "cyan"
-var TagColorBlue TagColor = "blue"
-var TagColorGeekblue TagColor = "geekblue"
-var TagColorPurple TagColor = "purple"
+const (
+	TagColorMagenta TagColor = "magenta"
+	TagColorRed TagColor = "red"
+	TagColorVolcano TagColor = "volcano"
+	TagColorOrange TagColor = "orange"
+	TagColorGold TagColor = "gold"
+	TagColorLime TagColor = "lime"
+	TagColorGreen TagColor = "green"
+	TagColorCyan TagColor = "cyan"
+	TagColorBlue TagColor = "blue"
+	TagColorGeekblue TagColor = "geekblue"
+	TagColorPurple TagColor = "purple"
+)
 
 func (s TagColor) String() string {
 	return string(s)
