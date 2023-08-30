@@ -750,15 +750,27 @@ type SchemaFieldSelectInput struct {
 }
 
 type SchemaFieldTag struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Tags         []*SchemaFieldTagValue `json:"tags"`
+	DefaultValue interface{}            `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTagInput struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Tags         []*SchemaFieldTagValueInput `json:"tags"`
+	DefaultValue interface{}                 `json:"defaultValue,omitempty"`
+}
+
+type SchemaFieldTagValue struct {
+	ID    ID     `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
+}
+
+type SchemaFieldTagValueInput struct {
+	TagID *ID                  `json:"tagId,omitempty"`
+	Name  *string              `json:"name,omitempty"`
+	Color *SchemaFieldTagColor `json:"color,omitempty"`
 }
 
 type SchemaFieldText struct {
@@ -1540,6 +1552,65 @@ func (e *Role) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Role) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type SchemaFieldTagColor string
+
+const (
+	SchemaFieldTagColorMagenta  SchemaFieldTagColor = "MAGENTA"
+	SchemaFieldTagColorRed      SchemaFieldTagColor = "RED"
+	SchemaFieldTagColorVolcano  SchemaFieldTagColor = "VOLCANO"
+	SchemaFieldTagColorOrange   SchemaFieldTagColor = "ORANGE"
+	SchemaFieldTagColorGold     SchemaFieldTagColor = "GOLD"
+	SchemaFieldTagColorLime     SchemaFieldTagColor = "LIME"
+	SchemaFieldTagColorGreen    SchemaFieldTagColor = "GREEN"
+	SchemaFieldTagColorCyan     SchemaFieldTagColor = "CYAN"
+	SchemaFieldTagColorBlue     SchemaFieldTagColor = "BLUE"
+	SchemaFieldTagColorGeekblue SchemaFieldTagColor = "GEEKBLUE"
+	SchemaFieldTagColorPurple   SchemaFieldTagColor = "PURPLE"
+)
+
+var AllSchemaFieldTagColor = []SchemaFieldTagColor{
+	SchemaFieldTagColorMagenta,
+	SchemaFieldTagColorRed,
+	SchemaFieldTagColorVolcano,
+	SchemaFieldTagColorOrange,
+	SchemaFieldTagColorGold,
+	SchemaFieldTagColorLime,
+	SchemaFieldTagColorGreen,
+	SchemaFieldTagColorCyan,
+	SchemaFieldTagColorBlue,
+	SchemaFieldTagColorGeekblue,
+	SchemaFieldTagColorPurple,
+}
+
+func (e SchemaFieldTagColor) IsValid() bool {
+	switch e {
+	case SchemaFieldTagColorMagenta, SchemaFieldTagColorRed, SchemaFieldTagColorVolcano, SchemaFieldTagColorOrange, SchemaFieldTagColorGold, SchemaFieldTagColorLime, SchemaFieldTagColorGreen, SchemaFieldTagColorCyan, SchemaFieldTagColorBlue, SchemaFieldTagColorGeekblue, SchemaFieldTagColorPurple:
+		return true
+	}
+	return false
+}
+
+func (e SchemaFieldTagColor) String() string {
+	return string(e)
+}
+
+func (e *SchemaFieldTagColor) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SchemaFieldTagColor(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SchemaFieldTagColor", str)
+	}
+	return nil
+}
+
+func (e SchemaFieldTagColor) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

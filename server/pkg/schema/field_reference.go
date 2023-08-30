@@ -80,3 +80,7 @@ func (f *FieldReference) Validate(v *value.Value) (err error) {
 	})
 	return
 }
+
+func (f *FieldReference) ValidateMultiple(v *value.Multiple) error {
+	return nil
+}
