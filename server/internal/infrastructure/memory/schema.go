@@ -61,7 +61,7 @@ func (r *Schema) FindByIDs(_ context.Context, ids id.SchemaIDList) (schema.List,
 	return schema.List(result).SortByID(), nil
 }
 
-func (r *Schema) FindFieldByIDs(_ context.Context, ids id.FieldIDList) ([]*schema.Field, error) {
+func (r *Schema) FindByFieldIDs(ctx context.Context, ids id.FieldIDList) (schema.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -77,15 +77,7 @@ func (r *Schema) FindFieldByIDs(_ context.Context, ids id.FieldIDList) ([]*schem
 		return false
 	})
 
-	return util.Map(ids, func(fid id.FieldID) *schema.Field {
-		s, ok := lo.Find(res, func(s *schema.Schema) bool {
-			return s.Field(fid) != nil
-		})
-		if !ok {
-			return nil
-		}
-		return s.Field(fid)
-	}), nil
+	return res, nil
 }
 
 func (r *Schema) Save(_ context.Context, s *schema.Schema) error {
