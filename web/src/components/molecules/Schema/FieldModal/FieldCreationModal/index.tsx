@@ -177,6 +177,10 @@ const FieldCreationModal: React.FC<Props> = ({
           values.typeProperty = {
             bool: { defaultValue: values.defaultValue },
           };
+        } else if (selectedType === "Date") {
+          values.typeProperty = {
+            date: { defaultValue: values.defaultValue },
+          };
         } else if (selectedType === "Checkbox") {
           values.typeProperty = {
             checkbox: { defaultValue: values.defaultValue },

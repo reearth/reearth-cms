@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -136,6 +137,20 @@ const FieldUpdateModal: React.FC<Props> = ({
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
+    let value =
+      selectedField?.typeProperty.defaultValue ||
+      selectedField?.typeProperty.selectDefaultValue ||
+      selectedField?.typeProperty.integerDefaultValue ||
+      selectedField?.typeProperty.assetDefaultValue;
+
+    if (selectedType === "Date") {
+      if (Array.isArray(value)) {
+        value = value.map(valueItem => moment(valueItem));
+      } else {
+        value = moment(value);
+      }
+    }
+
     form.setFieldsValue({
       fieldId: selectedField?.id,
       title: selectedField?.title,
@@ -144,17 +159,13 @@ const FieldUpdateModal: React.FC<Props> = ({
       multiple: selectedField?.multiple,
       unique: selectedField?.unique,
       required: selectedField?.required,
-      defaultValue:
-        selectedField?.typeProperty.defaultValue ||
-        selectedField?.typeProperty.selectDefaultValue ||
-        selectedField?.typeProperty.integerDefaultValue ||
-        selectedField?.typeProperty.assetDefaultValue,
+      defaultValue: value,
       min: selectedField?.typeProperty.min,
       max: selectedField?.typeProperty.max,
       maxLength: selectedField?.typeProperty.maxLength,
       values: selectedField?.typeProperty.values,
     });
-  }, [form, selectedField]);
+  }, [form, selectedField, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -191,6 +202,10 @@ const FieldUpdateModal: React.FC<Props> = ({
         } else if (selectedType === "Bool") {
           values.typeProperty = {
             bool: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Date") {
+          values.typeProperty = {
+            date: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Checkbox") {
           values.typeProperty = {
