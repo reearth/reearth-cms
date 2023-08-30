@@ -12,6 +12,9 @@ export type Item = {
   id: string;
   version: string;
   schemaId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  status: ItemStatus;
   fields: ItemField[] | undefined | null;
   threadId: string;
   comments: Comment[];
