@@ -17,5 +17,8 @@ func (s schemaResolver) Project(ctx context.Context, obj *gqlmodel.Schema) (*gql
 }
 
 func (s schemaResolver) TitleField(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.SchemaField, error) {
-	return dataloaders(ctx).SchemaField.Load(obj.ID)
+	if obj.TitleFieldID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).SchemaField.Load(*obj.TitleFieldID)
 }

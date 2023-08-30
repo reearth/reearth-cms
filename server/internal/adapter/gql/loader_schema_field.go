@@ -26,7 +26,7 @@ func (c *SchemaFieldLoader) Fetch(ctx context.Context, keys []gqlmodel.ID) ([]*g
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindFieldsByIDs(ctx, ff, getOperator(ctx))
+	res, err := c.usecase.FindFields(ctx, ff, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
