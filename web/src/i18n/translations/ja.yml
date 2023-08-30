@@ -107,9 +107,12 @@ Account: アカウント
 unique: ユニーク
 Add to Request: 既存のリクエストに追加
 Unpublish: 非公開
-Publish: 公開
 New Request: 新規リクエスト
+Publish: 公開
 Please input field!: フィールドを入力してください。
+Enter Information: ''
+Updated At: 更新日時
+Publish State: ''
 Title: タイトル
 State: ステータス
 Reviewers: レビュワー
@@ -118,7 +121,6 @@ Please input the title of your request!: リクエストのタイトルを入力
 Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
-Updated At: 更新日時
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
