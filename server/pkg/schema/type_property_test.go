@@ -117,12 +117,12 @@ func TestMatchTypeProperty(t *testing.T) {
 			want: "Select",
 		},
 		{
-			name: "Name",
+			name: "Tag",
 			args: args{
 				tp: &TypeProperty{t: value.TypeTag, tag: &FieldTag{}},
 				m:  m,
 			},
-			want: "Name",
+			want: "Tag",
 		},
 		{
 			name: "Number",
@@ -188,7 +188,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		DateTime:  func(_ *FieldDateTime) string { return "DateTime" },
 		Bool:      func(_ *FieldBool) string { return "Bool" },
 		Select:    func(_ *FieldSelect) string { return "Select" },
-		Tag:       func(_ *FieldTag) string { return "Name" },
+		Tag:       func(_ *FieldTag) string { return "Tag" },
 		Integer:   func(_ *FieldInteger) string { return "Integer" },
 		Number:    func(_ *FieldNumber) string { return "Number" },
 		Reference: func(_ *FieldReference) string { return "Reference" },
@@ -279,12 +279,12 @@ func TestMatchTypeProperty1(t *testing.T) {
 			want: "Select",
 		},
 		{
-			name: "Name",
+			name: "Tag",
 			args: args{
 				tp: &TypeProperty{t: value.TypeTag, tag: &FieldTag{}},
 				m:  m,
 			},
-			want: "Name",
+			want: "Tag",
 		},
 		{
 			name: "Number",
@@ -425,7 +425,7 @@ func TestTypeProperty_Validate(t *testing.T) {
 			want: nil,
 		},
 		{
-			name: "Name",
+			name: "Tag",
 			args: args{
 				tp:    &TypeProperty{t: value.TypeTag, tag: tf},
 				value: value.TypeTag.Value(tag.ID()),
