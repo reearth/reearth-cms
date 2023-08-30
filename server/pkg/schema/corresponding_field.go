@@ -15,10 +15,8 @@ type CorrespondingFieldTuple struct {
 }
 
 func GetCorrespondingFields(s1, s2 *Schema, mid id.ModelID, f1 *Field, fr *FieldReference) (*CorrespondingFieldTuple, error) {
-	cf1 := fr.CorrespondingField()
 	// check if reference direction is two way
-	if cf1 != nil {
-
+	if cf1 := fr.CorrespondingField(); cf1 != nil {
 		if cf1.Key == nil || s2.HasFieldByKey(lo.FromPtr(cf1.Key)) {
 			return nil, ErrInvalidKey
 		}
