@@ -129,12 +129,17 @@ func (tl TagList) IDs() TagIDList {
 }
 
 func (tl TagList) HasDuplication() bool {
-	tmap := make(map[string]struct{})
+	nmap := make(map[string]struct{})
+	imap := make(map[TagID]struct{})
 	for _, i := range tl {
-		if _, ok := tmap[i.Name()]; ok {
+		if _, ok := nmap[i.Name()]; ok {
 			return true
 		}
-		tmap[i.Name()] = struct{}{}
+		if _, ok := imap[i.ID()]; ok {
+			return true
+		}
+		nmap[i.Name()] = struct{}{}
+		imap[i.ID()] = struct{}{}
 	}
 
 	return false

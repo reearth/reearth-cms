@@ -47,3 +47,13 @@ func TestFieldTag_Validate(t *testing.T) {
 	assert.Equal(t, ErrInvalidValue, (&FieldTag{tags: TagList{tag}}).Validate(value.TypeTag.Value("aaa")))
 	assert.Equal(t, ErrInvalidValue, (&FieldTag{}).Validate(value.TypeText.Value("")))
 }
+
+func TestTagList_HasDuplication(t *testing.T) {
+	tag1 := NewTag("xxx", TagColorOrange)
+	tag2 := NewTag("yyy", TagColorOrange)
+	tag3 := NewTag("xxx", TagColorOrange)
+	tag4, _ := NewTagWithID(tag1.ID(), "zzz", TagColorOrange)
+	assert.False(t, TagList{tag1, tag2}.HasDuplication())
+	assert.True(t, TagList{tag1, tag2, tag3}.HasDuplication())
+	assert.True(t, TagList{tag1, tag2, tag4}.HasDuplication())
+}
