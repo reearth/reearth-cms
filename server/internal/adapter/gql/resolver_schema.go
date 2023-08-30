@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/samber/lo"
 )
 
 func (r *Resolver) Schema() SchemaResolver {
@@ -20,5 +21,15 @@ func (s schemaResolver) TitleField(ctx context.Context, obj *gqlmodel.Schema) (*
 	if obj.TitleFieldID == nil {
 		return nil, nil
 	}
-	return dataloaders(ctx).SchemaField.Load(*obj.TitleFieldID)
+	ss, err := dataloaders(ctx).Schema.Load(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	ff, ok := lo.Find(ss.Fields, func(f *gqlmodel.SchemaField) bool {
+		return f.ID == *obj.TitleFieldID
+	})
+	if !ok {
+		return nil, nil
+	}
+	return ff, nil
 }

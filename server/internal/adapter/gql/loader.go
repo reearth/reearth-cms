@@ -24,7 +24,6 @@ type Loaders struct {
 	Model       *ModelLoader
 	Request     *RequestLoader
 	Schema      *SchemaLoader
-	SchemaField *SchemaFieldLoader
 	Thread      *ThreadLoader
 	Integration *IntegrationLoader
 }
@@ -40,7 +39,6 @@ type DataLoaders struct {
 	Model       ModelDataLoader
 	Request     RequestDataLoader
 	Schema      SchemaDataLoader
-	SchemaField SchemaFieldDataLoader
 	Thread      ThreadDataLoader
 	Integration IntegrationDataLoader
 }
@@ -58,7 +56,6 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		Model:       NewModelLoader(usecases.Model),
 		Request:     NewRequestLoader(usecases.Request),
 		Schema:      NewSchemaLoader(usecases.Schema),
-		SchemaField: NewSchemaFieldLoader(usecases.Schema),
 		AssetItem:   NewAssetItemLoader(usecases.Item),
 		Integration: NewIntegrationLoader(usecases.Integration),
 		Item:        NewItemLoader(usecases.Item, usecases.Schema),
@@ -84,7 +81,6 @@ func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 		Request:     l.Request.DataLoader(ctx),
 		AssetItems:  l.AssetItem.DataLoader(ctx),
 		Schema:      l.Schema.DataLoader(ctx),
-		SchemaField: l.SchemaField.DataLoader(ctx),
 		Integration: l.Integration.DataLoader(ctx),
 		Item:        l.Item.DataLoader(ctx),
 		ItemStatus:  l.ItemStatus.DataLoader(ctx),
@@ -102,7 +98,6 @@ func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 		AssetItems:  l.AssetItem.OrdinaryDataLoader(ctx),
 		Request:     l.Request.OrdinaryDataLoader(ctx),
 		Schema:      l.Schema.OrdinaryDataLoader(ctx),
-		SchemaField: l.SchemaField.OrdinaryDataLoader(ctx),
 		Item:        l.Item.OrdinaryDataLoader(ctx),
 		ItemStatus:  l.ItemStatus.OrdinaryDataLoader(ctx),
 		Integration: l.Integration.OrdinaryDataLoader(ctx),
