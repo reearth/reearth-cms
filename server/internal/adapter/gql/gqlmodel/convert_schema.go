@@ -47,6 +47,37 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 	}
 }
 
+func ToSchemaFieldTagColor(c schema.TagColor) SchemaFieldTagColor {
+	switch c {
+	case schema.TagColorMagenta:
+		return SchemaFieldTagColorMagenta
+	case schema.TagColorRed:
+		return SchemaFieldTagColorRed
+	case schema.TagColorVolcano:
+		return SchemaFieldTagColorVolcano
+	case schema.TagColorOrange:
+		return SchemaFieldTagColorOrange
+	case schema.TagColorGreen:
+		return SchemaFieldTagColorGreen
+	case schema.TagColorGold:
+		return SchemaFieldTagColorGold
+	case schema.TagColorLime:
+		return SchemaFieldTagColorLime
+	case schema.TagColorCyan:
+		return SchemaFieldTagColorCyan
+	case schema.TagColorBlue:
+		return SchemaFieldTagColorBlue
+	case schema.TagColorGeekblue:
+		return SchemaFieldTagColorGeekblue
+	case schema.TagColorPurple:
+		return SchemaFieldTagColorPurple
+
+	default:
+		return ""
+	}
+
+}
+
 func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, multiple bool) (res SchemaFieldTypeProperty) {
 	tp.Match(schema.TypePropertyMatch{
 		Text: func(f *schema.FieldText) {
@@ -77,6 +108,19 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			res = &SchemaFieldSelect{
 				DefaultValue: valueString(dv, multiple),
 				Values:       f.Values(),
+			}
+		},
+		Tag: func(f *schema.FieldTag) {
+			tags := lo.Map(f.Tags(), func(tag *schema.Tag, _ int) *SchemaFieldTagValue {
+				return &SchemaFieldTagValue{
+					ID:    IDFrom(tag.ID()),
+					Name:  tag.Name(),
+					Color: tag.Color().String(),
+				}
+			})
+			res = &SchemaFieldTag{
+				DefaultValue: valueString(dv, multiple),
+				Tags:         tags,
 			}
 		},
 		Asset: func(f *schema.FieldAsset) {
@@ -115,6 +159,19 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				}
 			}
 			res = &SchemaFieldBool{
+				DefaultValue: v,
+			}
+		},
+		Checkbox: func(f *schema.FieldCheckbox) {
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesBool()
+				} else {
+					v, _ = dv.First().ValueBool()
+				}
+			}
+			res = &SchemaFieldCheckbox{
 				DefaultValue: v,
 			}
 		},
@@ -270,6 +327,17 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = FromValue(SchemaFieldTypeBool, x.DefaultValue).AsMultiple()
 		}
 		tpRes = schema.NewBool().TypeProperty()
+	case SchemaFieldTypeCheckbox:
+		x := tp.Checkbox
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeCheckbox, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeCheckbox, x.DefaultValue).AsMultiple()
+		}
+		tpRes = schema.NewCheckbox().TypeProperty()
 	case SchemaFieldTypeSelect:
 		x := tp.Select
 		if x == nil {
@@ -283,6 +351,42 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = value.NewMultiple(value.TypeSelect, unpackArray(x.DefaultValue))
 		} else {
 			dv = FromValue(SchemaFieldTypeSelect, x.DefaultValue).AsMultiple()
+		}
+		tpRes = res.TypeProperty()
+	case SchemaFieldTypeTag:
+		x := tp.Tag
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		var tags schema.TagList
+		for _, t := range x.Tags {
+			var tag *schema.Tag
+			if t.TagID == nil {
+				tag = schema.NewTag(*t.Name, schema.TagColorFrom(t.Color.String()))
+			} else {
+				tid, err := ToID[id.Tag](*t.TagID)
+				if err != nil {
+					return nil, nil, err
+				}
+				tag, err = schema.NewTagWithID(tid, *t.Name, schema.TagColorFrom(t.Color.String()))
+				if err != nil {
+					return nil, nil, err
+				}
+			}
+			tags = append(tags, tag)
+		}
+		if len(tags) == 0 {
+			return nil, nil, ErrEmptyOptions
+		}
+		res, err := schema.NewFieldTag(tags)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if multiple {
+			dv = value.NewMultiple(value.TypeTag, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeTag, x.DefaultValue).AsMultiple()
 		}
 		tpRes = res.TypeProperty()
 	case SchemaFieldTypeInteger:

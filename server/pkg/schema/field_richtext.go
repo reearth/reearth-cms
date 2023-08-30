@@ -39,3 +39,7 @@ func (f *FieldRichText) Clone() *FieldRichText {
 func (f *FieldRichText) Validate(v *value.Value) error {
 	return f.s.Validate(v)
 }
+
+func (f *FieldRichText) ValidateMultiple(v *value.Multiple) error {
+	return nil
+}

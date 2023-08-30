@@ -3,6 +3,7 @@ package value
 type Match struct {
 	Asset     func(Asset)
 	Bool      func(Bool)
+	Checkbox  func(Bool)
 	DateTime  func(DateTime)
 	Integer   func(Integer)
 	Number    func(Number)
@@ -12,6 +13,7 @@ type Match struct {
 	RichText  func(String)
 	Markdown  func(String)
 	Select    func(String)
+	Tag       func(String)
 	Reference func(Reference)
 	URL       func(URL)
 	Default   func()
@@ -24,7 +26,6 @@ func (v *Value) Match(m Match) {
 		}
 		return
 	}
-
 	switch v.t {
 	case TypeText:
 		if m.Text != nil {
@@ -61,9 +62,19 @@ func (v *Value) Match(m Match) {
 			m.Bool(v.v.(Bool))
 			return
 		}
+	case TypeCheckbox:
+		if m.Checkbox != nil {
+			m.Checkbox(v.v.(Bool))
+			return
+		}
 	case TypeSelect:
 		if m.Select != nil {
 			m.Select(v.v.(String))
+			return
+		}
+	case TypeTag:
+		if m.Tag != nil {
+			m.Tag(v.v.(String))
 			return
 		}
 	case TypeNumber:

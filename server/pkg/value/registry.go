@@ -3,6 +3,7 @@ package value
 var defaultTypes = TypeRegistry{
 	TypeAsset:     &propertyAsset{},
 	TypeBool:      &propertyBool{},
+	TypeCheckbox:  &propertyBool{},
 	TypeDateTime:  &propertyDateTime{},
 	TypeInteger:   &propertyInteger{},
 	TypeNumber:    &propertyNumber{},
@@ -11,6 +12,7 @@ var defaultTypes = TypeRegistry{
 	TypeRichText:  &propertyString{},
 	TypeMarkdown:  &propertyString{},
 	TypeSelect:    &propertyString{},
+	TypeTag:       &propertyString{},
 	TypeReference: &propertyReference{},
 	TypeURL:       &propertyURL{},
 }
