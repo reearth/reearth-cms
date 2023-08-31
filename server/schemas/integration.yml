@@ -929,9 +929,10 @@ components:
           type: array
           items:
             type: string
-        referencedItem:
-          type: object
-          $ref: '#/components/schemas/item'
+        referencedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/versionedItem' 
     field:
       type: object
       properties:
