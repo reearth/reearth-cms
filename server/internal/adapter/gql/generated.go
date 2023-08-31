@@ -484,16 +484,19 @@ type ComplexityRoot struct {
 	}
 
 	Schema struct {
-		Fields    func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Project   func(childComplexity int) int
-		ProjectID func(childComplexity int) int
+		Fields       func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Project      func(childComplexity int) int
+		ProjectID    func(childComplexity int) int
+		TitleField   func(childComplexity int) int
+		TitleFieldID func(childComplexity int) int
 	}
 
 	SchemaField struct {
 		CreatedAt    func(childComplexity int) int
 		Description  func(childComplexity int) int
 		ID           func(childComplexity int) int
+		IsTitle      func(childComplexity int) int
 		Key          func(childComplexity int) int
 		Model        func(childComplexity int) int
 		ModelID      func(childComplexity int) int
@@ -780,6 +783,7 @@ type RequestItemResolver interface {
 	Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error)
 }
 type SchemaResolver interface {
+	TitleField(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.SchemaField, error)
 	Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error)
 }
 type SchemaFieldResolver interface {
@@ -2903,6 +2907,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Schema.ProjectID(childComplexity), true
 
+	case "Schema.titleField":
+		if e.complexity.Schema.TitleField == nil {
+			break
+		}
+
+		return e.complexity.Schema.TitleField(childComplexity), true
+
+	case "Schema.titleFieldId":
+		if e.complexity.Schema.TitleFieldID == nil {
+			break
+		}
+
+		return e.complexity.Schema.TitleFieldID(childComplexity), true
+
 	case "SchemaField.createdAt":
 		if e.complexity.SchemaField.CreatedAt == nil {
 			break
@@ -2923,6 +2941,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SchemaField.ID(childComplexity), true
+
+	case "SchemaField.isTitle":
+		if e.complexity.SchemaField.IsTitle == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.IsTitle(childComplexity), true
 
 	case "SchemaField.key":
 		if e.complexity.SchemaField.Key == nil {
@@ -4361,6 +4386,8 @@ extend type Mutation {
   id: ID!
   projectId: ID!
   fields: [SchemaField!]!
+  titleFieldId: ID
+  titleField: SchemaField
   project: Project!
 }
 
@@ -4413,6 +4440,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -4593,6 +4621,7 @@ input CreateFieldInput {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -4606,6 +4635,7 @@ input UpdateFieldInput {
   required: Boolean
   unique: Boolean
   multiple: Boolean
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
@@ -8941,6 +8971,8 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -9015,6 +9047,8 @@ func (ec *executionContext) fieldContext_FieldsPayload_fields(ctx context.Contex
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -10105,6 +10139,10 @@ func (ec *executionContext) fieldContext_Item_schema(ctx context.Context, field 
 				return ec.fieldContext_Schema_projectId(ctx, field)
 			case "fields":
 				return ec.fieldContext_Schema_fields(ctx, field)
+			case "titleFieldId":
+				return ec.fieldContext_Schema_titleFieldId(ctx, field)
+			case "titleField":
+				return ec.fieldContext_Schema_titleField(ctx, field)
 			case "project":
 				return ec.fieldContext_Schema_project(ctx, field)
 			}
@@ -12123,6 +12161,10 @@ func (ec *executionContext) fieldContext_Model_schema(ctx context.Context, field
 				return ec.fieldContext_Schema_projectId(ctx, field)
 			case "fields":
 				return ec.fieldContext_Schema_fields(ctx, field)
+			case "titleFieldId":
+				return ec.fieldContext_Schema_titleFieldId(ctx, field)
+			case "titleField":
+				return ec.fieldContext_Schema_titleField(ctx, field)
 			case "project":
 				return ec.fieldContext_Schema_project(ctx, field)
 			}
@@ -19362,6 +19404,122 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_SchemaField_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_SchemaField_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SchemaField", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Schema_titleFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Schema) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Schema_titleFieldId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TitleFieldID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Schema_titleFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Schema",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Schema_titleField(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Schema) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Schema_titleField(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Schema().TitleField(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.SchemaField)
+	fc.Result = res
+	return ec.marshalOSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Schema_titleField(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Schema",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SchemaField_id(ctx, field)
+			case "modelId":
+				return ec.fieldContext_SchemaField_modelId(ctx, field)
+			case "model":
+				return ec.fieldContext_SchemaField_model(ctx, field)
+			case "type":
+				return ec.fieldContext_SchemaField_type(ctx, field)
+			case "typeProperty":
+				return ec.fieldContext_SchemaField_typeProperty(ctx, field)
+			case "key":
+				return ec.fieldContext_SchemaField_key(ctx, field)
+			case "title":
+				return ec.fieldContext_SchemaField_title(ctx, field)
+			case "order":
+				return ec.fieldContext_SchemaField_order(ctx, field)
+			case "description":
+				return ec.fieldContext_SchemaField_description(ctx, field)
+			case "multiple":
+				return ec.fieldContext_SchemaField_multiple(ctx, field)
+			case "unique":
+				return ec.fieldContext_SchemaField_unique(ctx, field)
+			case "required":
+				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -19970,6 +20128,50 @@ func (ec *executionContext) _SchemaField_required(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_SchemaField_required(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaField_isTitle(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_isTitle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsTitle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaField_isTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SchemaField",
 		Field:      field,
@@ -25450,7 +25652,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25529,6 +25731,15 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Required = data
+		case "isTitle":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsTitle = data
 		case "typeProperty":
 			var err error
 
@@ -27824,7 +28035,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27912,6 +28123,15 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Multiple = data
+		case "isTitle":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsTitle = data
 		case "typeProperty":
 			var err error
 
@@ -33005,6 +33225,41 @@ func (ec *executionContext) _Schema(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "titleFieldId":
+			out.Values[i] = ec._Schema_titleFieldId(ctx, field, obj)
+		case "titleField":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Schema_titleField(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "project":
 			field := field
 
@@ -33154,6 +33409,11 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			}
 		case "required":
 			out.Values[i] = ec._SchemaField_required(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "isTitle":
+			out.Values[i] = ec._SchemaField_isTitle(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -37982,6 +38242,13 @@ func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑc
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SchemaField) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SchemaField(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldAssetInput, error) {
