@@ -73,6 +73,8 @@ models:
     fields:
       project:
         resolver: true
+      titleField:
+        resolver: true
   Request:
     fields:
       project:

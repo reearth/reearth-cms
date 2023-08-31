@@ -835,6 +835,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/schemaField'
+        TitleField:
+          x-go-type: id.FieldID
+          type: string
         createdAt:
           type: string
           format: date-time

@@ -3,9 +3,11 @@ package mongodoc
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/samber/lo"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -48,6 +50,28 @@ func TestNewSchemaConsumer(t *testing.T) {
 
 func TestSchemaDocument_Model(t *testing.T) {
 	sId, wId, PId := schema.NewID(), user.NewWorkspaceID(), project.NewID()
+	fid := schema.NewFieldID()
+	key := id.NewKey("test")
+	max := lo.ToPtr(10)
+	fd := FieldDocument{
+		ID:           fid.String(),
+		Name:         "test",
+		Description:  "",
+		Order:        0,
+		Key:          key.String(),
+		Unique:       true,
+		Multiple:     true,
+		Required:     true,
+		DefaultValue: nil,
+		TypeProperty: TypePropertyDocument{
+			Type: "text",
+			Text: &FieldTextPropertyDocument{
+				MaxLength: max,
+			},
+		},
+	}
+	sf := schema.NewField(schema.NewText(max).TypeProperty()).ID(fid).Name("test").Description("").Order(0).Key(id.NewKey("test")).Unique(true).Multiple(true).Required(true).DefaultValue(nil).MustBuild()
+
 	tests := []struct {
 		name    string
 		sDoc    *SchemaDocument
@@ -57,12 +81,13 @@ func TestSchemaDocument_Model(t *testing.T) {
 		{
 			name: "model",
 			sDoc: &SchemaDocument{
-				ID:        sId.String(),
-				Workspace: wId.String(),
-				Project:   PId.String(),
-				Fields:    nil,
+				ID:         sId.String(),
+				Workspace:  wId.String(),
+				Project:    PId.String(),
+				Fields:     []FieldDocument{fd},
+				TitleField: fid.StringRef(),
 			},
-			want:    schema.New().ID(sId).Workspace(wId).Project(PId).MustBuild(),
+			want:    schema.New().ID(sId).Workspace(wId).Project(PId).Fields(schema.FieldList{sf}).TitleField(fid.Ref()).MustBuild(),
 			wantErr: false,
 		},
 	}

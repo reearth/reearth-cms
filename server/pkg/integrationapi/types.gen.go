@@ -229,10 +229,11 @@ type RefOrVersionRef string
 
 // Schema defines model for schema.
 type Schema struct {
-	CreatedAt *time.Time     `json:"createdAt,omitempty"`
-	Fields    *[]SchemaField `json:"fields,omitempty"`
-	Id        *id.SchemaID   `json:"id,omitempty"`
-	ProjectId *id.ProjectID  `json:"projectId,omitempty"`
+	TitleField *id.FieldID    `json:"TitleField,omitempty"`
+	CreatedAt  *time.Time     `json:"createdAt,omitempty"`
+	Fields     *[]SchemaField `json:"fields,omitempty"`
+	Id         *id.SchemaID   `json:"id,omitempty"`
+	ProjectId  *id.ProjectID  `json:"projectId,omitempty"`
 }
 
 // SchemaField defines model for schemaField.

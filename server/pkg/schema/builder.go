@@ -20,6 +20,12 @@ func (b *Builder) Build() (*Schema, error) {
 	if b.s.project.IsNil() {
 		return nil, ErrInvalidID
 	}
+	if b.s.titleField != nil && !b.s.HasField(*b.s.titleField) {
+		return nil, ErrInvalidTitleField
+	}
+	if b.s.titleField != nil && (len(b.s.fields) == 0 || b.s.fields == nil) {
+		return nil, ErrInvalidTitleField
+	}
 	return b.s, nil
 }
 
@@ -53,5 +59,10 @@ func (b *Builder) Project(project ProjectID) *Builder {
 
 func (b *Builder) Fields(fields FieldList) *Builder {
 	b.s.fields = fields.Clone()
+	return b
+}
+
+func (b *Builder) TitleField(fid *FieldID) *Builder {
+	b.s.titleField = fid.CloneRef()
 	return b
 }
