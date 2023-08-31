@@ -35,9 +35,11 @@ func TestGetCorrespondingFields(t *testing.T) {
 	assert.NotNil(t, fields.Field2)
 
 	// check that model ids are correct
-	assert.Equal(t, fields.Field2.typeProperty.reference.modelId, mid1)
-	assert.Equal(t, fields.Field1.typeProperty.reference.modelId, mid2)
-
+	rf1, _ := FieldReferenceFromTypeProperty(fields.Field2.TypeProperty())
+	assert.Equal(t, rf1.modelID, mid1)
+	rf2, _ := FieldReferenceFromTypeProperty(fields.Field1.TypeProperty())
+	assert.Equal(t, rf2.modelID, mid2)
+	
 	// check that corresponding field ids are correct
 	assert.Equal(t, fields.Field1.typeProperty.reference.correspondingFieldId, fields.Field2.ID().Ref())
 	assert.Equal(t, fields.Field2.typeProperty.reference.correspondingFieldId, fields.Field1.ID().Ref())
@@ -87,7 +89,7 @@ func TestFieldReferenceFromTypeProperty(t *testing.T) {
 	f1 := NewField(NewReference(mid1, nil, nil).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
 	got1, ok := FieldReferenceFromTypeProperty(f1.TypeProperty())
 	want1 := &FieldReference{
-		modelId  : mid1,
+		modelID  : mid1,
 		correspondingFieldId: nil,
 		correspondingField : nil,
 	}

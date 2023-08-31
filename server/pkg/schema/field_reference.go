@@ -15,14 +15,14 @@ type CorrespondingField struct {
 }
 
 type FieldReference struct {
-	modelId              id.ModelID
+	modelID              id.ModelID
 	correspondingFieldId *id.FieldID
 	correspondingField   *CorrespondingField
 }
 
 func NewReference(id id.ModelID, cf *CorrespondingField, cfId *id.FieldID) *FieldReference {
 	return &FieldReference{
-		modelId:              id,
+		modelID:              id,
 		correspondingFieldId: cfId,
 		correspondingField:   cf,
 	}
@@ -40,7 +40,7 @@ func (f *FieldReference) SetCorrespondingField(cf *id.FieldID) {
 }
 
 func (f *FieldReference) Model() model.ID {
-	return f.modelId
+	return f.modelID
 }
 
 func (f *FieldReference) CorrespondingField() *CorrespondingField {
@@ -60,7 +60,7 @@ func (f *FieldReference) Clone() *FieldReference {
 		return nil
 	}
 	return &FieldReference{
-		modelId:              f.modelId,
+		modelID:              f.modelID,
 		correspondingFieldId: f.correspondingFieldId,
 		correspondingField:   f.correspondingField,
 	}
