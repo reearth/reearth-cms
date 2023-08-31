@@ -15,6 +15,7 @@ import DateField from "./DateField";
 import IntegerField from "./IntegerField";
 import MarkdownField from "./Markdown";
 import SelectField from "./SelectField";
+import TagField from "./TagField";
 import TextAreaField from "./TextArea";
 import TextField from "./TextField";
 import URLField from "./URLField";
@@ -86,6 +87,8 @@ const FieldDefaultInputs: React.FC<Props> = ({
       <BooleanField multiple={multiple} />
     ) : selectedType === "Date" ? (
       <DateField multiple={multiple} />
+    ) : selectedType === "Tag" ? (
+      <TagField selectedValues={selectedValues} multiple={multiple} />
     ) : selectedType === "Checkbox" ? (
       <CheckboxField multiple={multiple} />
     ) : selectedType === "Asset" ? (

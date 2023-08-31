@@ -51,6 +51,7 @@ import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import Asset from "./Icons/asset.svg";
 import Boolean from "./Icons/boolean.svg";
 import CheckSquare from "./Icons/checkSquare.svg";
+import ColorPalette from "./Icons/colorPalette.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
@@ -133,4 +134,5 @@ export default {
   date: Date,
   tag: Tag,
   checkSquare: CheckSquare,
+  colorPalette: ColorPalette,
 };

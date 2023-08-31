@@ -12,6 +12,7 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
+import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import {
@@ -181,6 +182,10 @@ const FieldCreationModal: React.FC<Props> = ({
           values.typeProperty = {
             date: { defaultValue: values.defaultValue },
           };
+        } else if (selectedType === "Tag") {
+          values.typeProperty = {
+            tag: { defaultValue: values.defaultValue, tags: values.tags },
+          };
         } else if (selectedType === "Checkbox") {
           values.typeProperty = {
             checkbox: { defaultValue: values.defaultValue },
@@ -294,6 +299,25 @@ const FieldCreationModal: React.FC<Props> = ({
                   },
                 ]}>
                 <MultiValueField FieldInput={Input} />
+              </Form.Item>
+            )}
+            {selectedType === "Tag" && (
+              <Form.Item
+                name="values"
+                label={t("Set Options")}
+                rules={[
+                  {
+                    validator: async (_, values) => {
+                      if (!values || values.length < 1) {
+                        return Promise.reject(new Error("At least 1 option"));
+                      }
+                      if (values.some((value: string) => value.length === 0)) {
+                        return Promise.reject(new Error("Empty values are not allowed"));
+                      }
+                    },
+                  },
+                ]}>
+                <MultiValueColoredTag />
               </Form.Item>
             )}
             <Form.Item
