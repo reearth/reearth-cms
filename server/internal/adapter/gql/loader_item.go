@@ -19,11 +19,13 @@ import (
 type ItemLoader struct {
 	usecase       interfaces.Item
 	schemaUsecase interfaces.Schema
+	modelUsecase  interfaces.Model
 }
 
-func NewItemLoader(usecase interfaces.Item, schemaUsecase interfaces.Schema) *ItemLoader {
-	return &ItemLoader{usecase: usecase, schemaUsecase: schemaUsecase}
+func NewItemLoader(usecase interfaces.Item, schemaUsecase interfaces.Schema, modelUsecase interfaces.Model) *ItemLoader {
+	return &ItemLoader{usecase: usecase, schemaUsecase: schemaUsecase, modelUsecase: modelUsecase}
 }
+
 func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Item, []error) {
 	op := getOperator(ctx)
 	iIds, err := util.TryMap(ids, gqlmodel.ToID[id.Item])
@@ -106,14 +108,14 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 	return vis, nil
 }
 
-func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
-	sid, err := gqlmodel.ToID[id.Schema](schemaID)
+	mid, err := gqlmodel.ToID[id.Model](modelId)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := c.schemaUsecase.FindByID(ctx, sid, op)
+	m, err := c.modelUsecase.FindByID(ctx, mid, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil
@@ -121,7 +123,15 @@ func (c *ItemLoader) FindBySchema(ctx context.Context, schemaID gqlmodel.ID, sor
 		return nil, err
 	}
 
-	res, pi, err := c.usecase.FindBySchema(ctx, sid, sort.Into(), p.Into(), op)
+	s, err := c.schemaUsecase.FindByID(ctx, m.Schema(), op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	res, pi, err := c.usecase.FindByModel(ctx, mid, sort.Into(), p.Into(), op)
 	if err != nil {
 		return nil, err
 	}
@@ -225,6 +235,16 @@ func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort 
 		PageInfo:   gqlmodel.ToPageInfo(pi),
 		TotalCount: int(pi.TotalCount),
 	}, nil
+}
+
+func (c *ItemLoader) CheckIfItemIsReferenced(ctx context.Context, itemId gqlmodel.ID) (*bool, error) {
+	op := getOperator(ctx)
+	iid, err := gqlmodel.ToID[id.Item](itemId)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.usecase.CheckIfItemIsReferenced(ctx, iid, op)
 }
 
 // data loader
