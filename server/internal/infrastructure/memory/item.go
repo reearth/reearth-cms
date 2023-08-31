@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -47,9 +48,11 @@ func (r *Item) FindByID(_ context.Context, itemID id.ItemID, ref *version.Ref) (
 	}
 
 	item, ok := r.data.Load(itemID, ref.OrLatest().OrVersion())
-	if !ok {
+	b, _ := r.IsArchived(context.Background(), itemID)
+	if !ok || b {
 		return nil, rerror.ErrNotFound
 	}
+
 	return item, nil
 }
 
@@ -111,7 +114,10 @@ func (r *Item) FindByIDs(_ context.Context, list id.ItemIDList, ref *version.Ref
 		return nil, r.err
 	}
 
-	return r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), nil
+	return util.Filter(r.data.LoadAll(list, lo.ToPtr(ref.OrLatest().OrVersion())), func(versioned item.Versioned) bool {
+		b, _ := r.IsArchived(context.Background(), versioned.Value().ID())
+		return !b
+	}), nil
 }
 
 func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.VersionedList, error) {
@@ -265,7 +271,10 @@ func (r *Item) Search(_ context.Context, q *item.Query, sort *usecasex.Sort, pag
 		}
 		return true
 	})
-	return res, nil, nil
+	return util.Filter(res, func(versioned item.Versioned) bool {
+		b, _ := r.IsArchived(context.Background(), versioned.Value().ID())
+		return !b
+	}), nil, nil
 }
 
 func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {

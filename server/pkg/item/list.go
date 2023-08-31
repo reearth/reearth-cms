@@ -46,3 +46,14 @@ func (l VersionedList) Item(iid id.ItemID) Versioned {
 	}
 	return nil
 }
+
+func (l VersionedList) IDs() id.ItemIDList {
+	if l == nil {
+		return nil
+	}
+	res := id.ItemIDList{}
+	for _, versioned := range l {
+		res = res.Add(versioned.Value().ID())
+	}
+	return res
+}

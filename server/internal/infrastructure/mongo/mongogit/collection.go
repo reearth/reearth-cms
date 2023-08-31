@@ -152,6 +152,20 @@ func (c *Collection) ArchiveOne(ctx context.Context, filter bson.M, archived boo
 	return nil
 }
 
+func (c *Collection) FindMeta(ctx context.Context, filter any, cons mongox.Consumer) error {
+	q := mongox.And(filter, "", bson.M{
+		metaKey: true,
+	})
+
+	if err := c.client.Find(ctx, q, cons); err != nil {
+		if errors.Is(rerror.ErrNotFound, err) || err == io.EOF {
+			return nil
+		}
+		return err
+	}
+	return nil
+}
+
 func (c *Collection) Timestamp(ctx context.Context, filter any, q version.Query) (time.Time, error) {
 	consumer := mongox.SliceConsumer[Meta]{}
 	f := apply(q, filter)

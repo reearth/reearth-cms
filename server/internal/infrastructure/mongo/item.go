@@ -15,6 +15,8 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -268,6 +270,13 @@ func (r *Item) paginate(ctx context.Context, filter bson.M, ref *version.Ref, so
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
+	if len(c.Result) > 0 {
+		ml, err := r.findMeta(ctx, nil, lo.ToPtr(c.Result[0].Value().Project()))
+		if err != nil {
+			return nil, nil, err
+		}
+		return filterArchived(ml, c.Result), pageInfo, nil
+	}
 	return c.Result, pageInfo, nil
 }
 
@@ -275,6 +284,14 @@ func (r *Item) find(ctx context.Context, filter any, ref *version.Ref) (item.Ver
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.Find(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
 		return nil, err
+	}
+
+	if len(c.Result) > 0 {
+		ml, err := r.findMeta(ctx, nil, lo.ToPtr(c.Result[0].Value().Project()))
+		if err != nil {
+			return nil, err
+		}
+		return filterArchived(ml, c.Result), nil
 	}
 	return c.Result, nil
 }
@@ -284,7 +301,34 @@ func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.
 	if err := r.client.FindOne(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
 		return nil, err
 	}
-	return c.Result[0], nil
+
+	iid := c.Result[0].Value().ID()
+	ml, err := r.findMeta(ctx, id.ItemIDList{iid}, nil)
+	if err != nil {
+		return nil, err
+	}
+	res := filterArchived(ml, c.Result)
+	if len(res) > 0 {
+		return res[0], nil
+	}
+	return nil, rerror.ErrNotFound
+}
+
+func (r *Item) findMeta(ctx context.Context, ids id.ItemIDList, pid *id.ProjectID) ([]mongodoc.ItemMetaDocument, error) {
+	filter := bson.M{}
+	if len(ids) > 0 {
+		filter["id"] = bson.M{
+			"$in": ids.Strings(),
+		}
+	}
+	if pid != nil {
+		filter["project"] = pid.String()
+	}
+	c := mongox.SliceConsumer[mongodoc.ItemMetaDocument]{}
+	if err := r.client.FindMeta(ctx, filter, &c); err != nil {
+		return nil, err
+	}
+	return c.Result, nil
 }
 
 func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {
@@ -297,6 +341,16 @@ func filterItems(ids []id.ItemID, rows item.VersionedList) item.VersionedList {
 			}
 		}
 	}
+	return res
+}
+
+func filterArchived(ids []mongodoc.ItemMetaDocument, rows item.VersionedList) item.VersionedList {
+	res := util.Filter(rows, func(versioned item.Versioned) bool {
+		_, b := lo.Find(ids, func(document mongodoc.ItemMetaDocument) bool {
+			return versioned.Value().ID().String() == document.ID && document.Archived
+		})
+		return !b
+	})
 	return res
 }
 
