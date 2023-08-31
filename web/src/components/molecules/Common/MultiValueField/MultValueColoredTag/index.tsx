@@ -12,17 +12,17 @@ import { useT } from "@reearth-cms/i18n";
 import { moveItemInArray } from "../moveItemArray";
 
 export type TagColor =
-  | "magenta"
-  | "red"
-  | "volcano"
-  | "orange"
-  | "gold"
-  | "lime"
-  | "green"
-  | "cyan"
-  | "blue"
-  | "geekblue"
-  | "purple";
+  | "MAGENTA"
+  | "RED"
+  | "VOLCANO"
+  | "ORANGE"
+  | "GOLD"
+  | "LIME"
+  | "GREEN"
+  | "CYAN"
+  | "BLUE"
+  | "GEEKBLUE"
+  | "PURPLE";
 
 type Props = {
   className?: string;
@@ -32,22 +32,24 @@ type Props = {
   InputProps;
 
 const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange, ...props }) => {
+  console.log(value);
+
   const t = useT();
   const [showTag, setShowTag] = useState(true);
 
   const generateMenuItems = (key: number) => {
     const colors: TagColor[] = [
-      "magenta",
-      "red",
-      "volcano",
-      "orange",
-      "gold",
-      "lime",
-      "green",
-      "cyan",
-      "blue",
-      "geekblue",
-      "purple",
+      "MAGENTA",
+      "RED",
+      "VOLCANO",
+      "ORANGE",
+      "GOLD",
+      "LIME",
+      "GREEN",
+      "CYAN",
+      "BLUE",
+      "GEEKBLUE",
+      "PURPLE",
     ];
 
     return colors.map((color: TagColor) => ({
@@ -135,7 +137,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
               onClick={() => {
                 setShowTag(false);
               }}>
-              <Tag color={valueItem.color} style={{ flex: 1, marginRight: 8 }}>
+              <Tag color={valueItem.color.toLowerCase()} style={{ flex: 1, marginRight: 8 }}>
                 {valueItem.name}
               </Tag>
             </StyledTag>
@@ -157,7 +159,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
           type="primary"
           onClick={() => {
             if (!value) value = [];
-            onChange?.([...value, { color: "magenta", name: "Tag" }]);
+            onChange?.([...value, { color: "MAGENTA", name: "Tag" }]);
           }}>
           {t("New")}
         </Button>

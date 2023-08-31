@@ -24,6 +24,7 @@ export interface Props {
   selectedType: FieldType;
   multiple?: boolean;
   selectedValues: string[];
+  selectedTags: { id: string; name: string; color: string }[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -54,6 +55,7 @@ export interface Props {
 const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
+  selectedTags,
   multiple,
   assetList,
   fileList,
@@ -88,7 +90,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
     ) : selectedType === "Date" ? (
       <DateField multiple={multiple} />
     ) : selectedType === "Tag" ? (
-      <TagField selectedValues={selectedValues} multiple={multiple} />
+      <TagField selectedTags={selectedTags} multiple={multiple} />
     ) : selectedType === "Checkbox" ? (
       <CheckboxField multiple={multiple} />
     ) : selectedType === "Asset" ? (

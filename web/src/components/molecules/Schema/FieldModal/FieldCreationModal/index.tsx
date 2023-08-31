@@ -114,6 +114,7 @@ const FieldCreationModal: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+  const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
   const multipleValue: boolean = Form.useWatch("multiple", form);
 
   const handleTabChange = useCallback(
@@ -140,6 +141,14 @@ const FieldCreationModal: React.FC<Props> = ({
       }
     }
   }, [form, selectedValues, selectedType]);
+
+  useEffect(() => {
+    if (selectedType === "Tag") {
+      if (!selectedTags?.some(selectedTag => selectedTag === form.getFieldValue("defaultValue"))) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedTags, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -303,8 +312,8 @@ const FieldCreationModal: React.FC<Props> = ({
             )}
             {selectedType === "Tag" && (
               <Form.Item
-                name="values"
-                label={t("Set Options")}
+                name="tags"
+                label={t("Set Tags")}
                 rules={[
                   {
                     validator: async (_, values) => {
@@ -346,6 +355,7 @@ const FieldCreationModal: React.FC<Props> = ({
             <FieldDefaultInputs
               multiple={multipleValue}
               selectedValues={selectedValues}
+              selectedTags={selectedTags}
               selectedType={selectedType}
               assetList={assetList}
               fileList={fileList}
