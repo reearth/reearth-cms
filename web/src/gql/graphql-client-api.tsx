@@ -1121,7 +1121,8 @@ export type Schema = Node & {
   id: Scalars['ID'];
   project: Project;
   projectId: Scalars['ID'];
-  titleField?: Maybe<Scalars['ID']>;
+  titleField?: Maybe<SchemaField>;
+  titleFieldId?: Maybe<Scalars['ID']>;
 };
 
 export type SchemaField = {
@@ -1232,12 +1233,39 @@ export type SchemaFieldSelectInput = {
 export type SchemaFieldTag = {
   __typename?: 'SchemaFieldTag';
   defaultValue?: Maybe<Scalars['Any']>;
-  values: Array<Scalars['String']>;
+  tags: Array<SchemaFieldTagValue>;
 };
+
+export enum SchemaFieldTagColor {
+  Blue = 'BLUE',
+  Cyan = 'CYAN',
+  Geekblue = 'GEEKBLUE',
+  Gold = 'GOLD',
+  Green = 'GREEN',
+  Lime = 'LIME',
+  Magenta = 'MAGENTA',
+  Orange = 'ORANGE',
+  Purple = 'PURPLE',
+  Red = 'RED',
+  Volcano = 'VOLCANO'
+}
 
 export type SchemaFieldTagInput = {
   defaultValue?: InputMaybe<Scalars['Any']>;
-  values: Array<Scalars['String']>;
+  tags: Array<SchemaFieldTagValueInput>;
+};
+
+export type SchemaFieldTagValue = {
+  __typename?: 'SchemaFieldTagValue';
+  color: Scalars['String'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+};
+
+export type SchemaFieldTagValueInput = {
+  color?: InputMaybe<SchemaFieldTagColor>;
+  name?: InputMaybe<Scalars['String']>;
+  tagId?: InputMaybe<Scalars['ID']>;
 };
 
 export type SchemaFieldText = {
