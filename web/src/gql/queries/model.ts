@@ -19,6 +19,7 @@ export const GET_MODELS = gql`
             description
             required
             unique
+            isTitle
             multiple
             order
             typeProperty {

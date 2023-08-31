@@ -251,7 +251,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueField
                     rows={3}
@@ -274,7 +276,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueField
                     maxLength={field.typeProperty.maxLength ?? false}
@@ -295,7 +299,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueField
                     type="number"
@@ -322,7 +328,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueAsset
                     assetList={assetList}
@@ -377,7 +385,9 @@ const ContentForm: React.FC<Props> = ({
                 key={field.id}
                 extra={field.description}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueSelect selectedValues={field.typeProperty?.values} />
                 ) : (
@@ -396,7 +406,9 @@ const ContentForm: React.FC<Props> = ({
                 extra={field.description}
                 name={field.id}
                 valuePropName="checked"
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? <MultiValueSwitch /> : <Switch />}
               </Form.Item>
             ) : field.type === "URL" ? (
@@ -404,7 +416,9 @@ const ContentForm: React.FC<Props> = ({
                 key={field.id}
                 extra={field.description}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }
                 rules={[
                   {
                     required: field.required,
@@ -449,7 +463,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueField
                     showCount={true}
@@ -499,6 +515,10 @@ const StyledForm = styled(Form)`
   height: 100%;
   overflow-y: auto;
   background: #fff;
+  label {
+    width: 100%;
+    display: flex;
+  }
 `;
 
 const FormItemsWrapper = styled.div`

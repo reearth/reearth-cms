@@ -35,6 +35,7 @@ export const requestFragment = gql`
               description
               required
               unique
+              isTitle
               multiple
               typeProperty {
                 ... on SchemaFieldText {

@@ -5,6 +5,7 @@ import ReactDragListView from "react-drag-listview";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
@@ -98,6 +99,7 @@ const ModelFieldList: React.FC<Props> = ({
                   {(item as Field).title} {(item as Field).required ? " *" : ""}
                   <ItemKey>#{(item as Field).key}</ItemKey>
                   {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
+                  {(item as Field).isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
                 </ItemTitle>
               }
             />
@@ -180,6 +182,12 @@ const ItemUnique = styled.span`
   margin-left: 4px;
   color: rgba(0, 0, 0, 0.45);
   font-weight: 400;
+`;
+
+const ItemTitleTag = styled(Tag)`
+  margin-left: 4px;
+  color: rgba(0, 0, 0, 0.45);
+  background-color: #fafafa;
 `;
 
 export default ModelFieldList;

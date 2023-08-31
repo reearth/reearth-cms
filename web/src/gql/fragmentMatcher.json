@@ -18,6 +18,7 @@
     "SchemaFieldTypeProperty": [
       "SchemaFieldAsset",
       "SchemaFieldBool",
+      "SchemaFieldCheckbox",
       "SchemaFieldDate",
       "SchemaFieldInteger",
       "SchemaFieldMarkdown",

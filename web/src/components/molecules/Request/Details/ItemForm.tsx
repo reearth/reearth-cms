@@ -82,7 +82,9 @@ const RequestItemForm: React.FC<Props> = ({
               key={field.id}
               extra={field.description}
               name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              label={
+                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+              }>
               {field.multiple ? (
                 <MultiValueField
                   disabled={true}
@@ -105,7 +107,9 @@ const RequestItemForm: React.FC<Props> = ({
               key={field.id}
               extra={field.description}
               name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              label={
+                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+              }>
               {field.multiple ? (
                 <MultiValueField
                   disabled={true}
@@ -121,7 +125,9 @@ const RequestItemForm: React.FC<Props> = ({
               key={field.id}
               extra={field.description}
               name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              label={
+                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+              }>
               {field.multiple ? (
                 <MultiValueField
                   disabled={true}
@@ -144,7 +150,9 @@ const RequestItemForm: React.FC<Props> = ({
               key={field.id}
               extra={field.description}
               name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              label={
+                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+              }>
               {field.multiple ? (
                 <MultiValueAsset
                   disabled={true}
@@ -201,7 +209,9 @@ const RequestItemForm: React.FC<Props> = ({
               key={field.id}
               extra={field.description}
               name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              label={
+                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+              }>
               {field.multiple ? (
                 <MultiValueSelect disabled={true} selectedValues={field.typeProperty?.values} />
               ) : (
@@ -219,7 +229,9 @@ const RequestItemForm: React.FC<Props> = ({
               key={field.id}
               extra={field.description}
               name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              label={
+                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+              }>
               {field.multiple ? (
                 <MultiValueField
                   disabled={true}
@@ -240,7 +252,9 @@ const RequestItemForm: React.FC<Props> = ({
               key={field.id}
               extra={field.description}
               name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+              label={
+                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+              }>
               {field.multiple ? (
                 <MultiValueField
                   disabled={true}
@@ -271,6 +285,10 @@ const StyledForm = styled(Form)`
   height: 100%;
   overflow-y: auto;
   background: #fff;
+  label {
+    width: 100%;
+    display: flex;
+  }
 `;
 
 const FormItemsWrapper = styled.div`
