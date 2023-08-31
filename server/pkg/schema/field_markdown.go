@@ -39,3 +39,7 @@ func (f *FieldMarkdown) Clone() *FieldMarkdown {
 func (f *FieldMarkdown) Validate(v *value.Value) error {
 	return f.s.Validate(v)
 }
+
+func (f *FieldMarkdown) ValidateMultiple(v *value.Multiple) error {
+	return nil
+}
