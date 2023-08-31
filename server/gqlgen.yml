@@ -65,6 +65,8 @@ models:
         resolver: true
       assets:
         resolver: true
+      updatedBy:
+        resolver: true
   Model:
     fields:
       project:

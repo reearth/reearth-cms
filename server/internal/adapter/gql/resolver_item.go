@@ -13,6 +13,13 @@ func (r *Resolver) Item() ItemResolver {
 
 type itemResolver struct{ *Resolver }
 
+func (i itemResolver) UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.User, error) {
+	if obj.UpdatedBy != nil {
+		return dataloaders(ctx).User.Load(*obj.UpdatedByID)
+	}
+	return nil, nil
+}
+
 func (i itemResolver) Project(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Project, error) {
 	return dataloaders(ctx).Project.Load(obj.ProjectID)
 }

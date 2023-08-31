@@ -25,6 +25,7 @@ type ItemDocument struct {
 	Integration  *string
 	Assets       []string `bson:"assets,omitempty"`
 	MetadataItem *string
+	UpdatedBy    *string
 }
 
 type ItemFieldDocument struct {
@@ -77,6 +78,7 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 		}),
 		Timestamp:   i.Timestamp(),
 		User:        i.User().StringRef(),
+		UpdatedBy:   i.UpdatedBy().StringRef(),
 		Integration: i.Integration().StringRef(),
 		Assets:      i.AssetIDs().Strings(),
 	}, itmId
@@ -145,6 +147,10 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 
 	if uId := accountdomain.UserIDFromRef(d.User); uId != nil {
 		ib = ib.User(*uId)
+	}
+
+	if upId := accountdomain.UserIDFromRef(d.UpdatedBy); upId != nil {
+		ib = ib.UpdatedBy(*upId)
 	}
 
 	if iId := id.IntegrationIDFromRef(d.Integration); iId != nil {

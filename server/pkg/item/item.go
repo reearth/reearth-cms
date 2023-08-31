@@ -22,6 +22,7 @@ type Item struct {
 	timestamp    time.Time
 	thread       ThreadID
 	user         *UserID
+	updatedBy    *UserID
 	metadataItem *id.ItemID
 	integration  *IntegrationID
 }
@@ -73,6 +74,14 @@ func (i *Item) Field(f FieldID) *Field {
 
 func (i *Item) Thread() ThreadID {
 	return i.thread
+}
+
+func (i *Item) UpdatedBy() *UserID {
+	return i.updatedBy
+}
+
+func (i *Item) SetUpdatedBy(u UserID) {
+	i.updatedBy = &u
 }
 
 func (i *Item) UpdateFields(fields []*Field) {

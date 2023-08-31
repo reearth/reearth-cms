@@ -361,6 +361,7 @@ type Item struct {
 	ModelID       ID           `json:"modelId"`
 	ProjectID     ID           `json:"projectId"`
 	IntegrationID *ID          `json:"integrationId,omitempty"`
+	UpdatedByID   *ID          `json:"updatedById,omitempty"`
 	UserID        *ID          `json:"userId,omitempty"`
 	MetadataID    *ID          `json:"metadataId,omitempty"`
 	Integration   *Integration `json:"integration,omitempty"`
@@ -374,6 +375,7 @@ type Item struct {
 	Assets        []*Asset     `json:"assets"`
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
+	UpdatedBy     *User        `json:"updatedBy,omitempty"`
 	Version       string       `json:"version"`
 	Metadata      *Item        `json:"metadata,omitempty"`
 }

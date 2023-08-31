@@ -239,6 +239,8 @@ type ComplexityRoot struct {
 		Thread        func(childComplexity int) int
 		ThreadID      func(childComplexity int) int
 		UpdatedAt     func(childComplexity int) int
+		UpdatedBy     func(childComplexity int) int
+		UpdatedByID   func(childComplexity int) int
 		User          func(childComplexity int) int
 		UserID        func(childComplexity int) int
 		Version       func(childComplexity int) int
@@ -698,6 +700,8 @@ type ItemResolver interface {
 	Thread(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Thread, error)
 
 	Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Asset, error)
+
+	UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.User, error)
 
 	Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Item, error)
 }
@@ -1458,6 +1462,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.UpdatedAt(childComplexity), true
+
+	case "Item.updatedBy":
+		if e.complexity.Item.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Item.UpdatedBy(childComplexity), true
+
+	case "Item.updatedById":
+		if e.complexity.Item.UpdatedByID == nil {
+			break
+		}
+
+		return e.complexity.Item.UpdatedByID(childComplexity), true
 
 	case "Item.user":
 		if e.complexity.Item.User == nil {
@@ -4710,6 +4728,7 @@ extend type Mutation {
   modelId: ID!
   projectId: ID!
   integrationId: ID
+  updatedById: ID
   userId: ID
   metadataId: ID
   integration: Integration
@@ -4723,6 +4742,7 @@ extend type Mutation {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
+  updatedBy: User
   version: String!
   metadata: Item
 }
@@ -9982,6 +10002,47 @@ func (ec *executionContext) fieldContext_Item_integrationId(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_updatedById(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_updatedById(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedByID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_updatedById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_userId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_userId(ctx, field)
 	if err != nil {
@@ -10688,6 +10749,55 @@ func (ec *executionContext) fieldContext_Item_updatedAt(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_updatedBy(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_updatedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Item().UpdatedBy(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_version(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_version(ctx, field)
 	if err != nil {
@@ -10780,6 +10890,8 @@ func (ec *executionContext) fieldContext_Item_metadata(ctx context.Context, fiel
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "integrationId":
 				return ec.fieldContext_Item_integrationId(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Item_updatedById(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
@@ -10806,6 +10918,8 @@ func (ec *executionContext) fieldContext_Item_metadata(ctx context.Context, fiel
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Item_updatedBy(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
@@ -10918,6 +11032,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "integrationId":
 				return ec.fieldContext_Item_integrationId(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Item_updatedById(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
@@ -10944,6 +11060,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Item_updatedBy(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
@@ -11145,6 +11263,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "integrationId":
 				return ec.fieldContext_Item_integrationId(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Item_updatedById(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
@@ -11171,6 +11291,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Item_updatedBy(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
@@ -11362,6 +11484,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "integrationId":
 				return ec.fieldContext_Item_integrationId(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Item_updatedById(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
@@ -11388,6 +11512,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Item_updatedBy(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
@@ -16865,6 +16991,8 @@ func (ec *executionContext) fieldContext_PublishItemPayload_items(ctx context.Co
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "integrationId":
 				return ec.fieldContext_Item_integrationId(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Item_updatedById(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
@@ -16891,6 +17019,8 @@ func (ec *executionContext) fieldContext_PublishItemPayload_items(ctx context.Co
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Item_updatedBy(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
@@ -21887,6 +22017,8 @@ func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "integrationId":
 				return ec.fieldContext_Item_integrationId(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Item_updatedById(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
@@ -21913,6 +22045,8 @@ func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Item_updatedBy(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
@@ -22488,6 +22622,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_projectId(ctx, field)
 			case "integrationId":
 				return ec.fieldContext_Item_integrationId(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Item_updatedById(ctx, field)
 			case "userId":
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
@@ -22514,6 +22650,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Item_updatedAt(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Item_updatedBy(ctx, field)
 			case "version":
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
@@ -30961,6 +31099,8 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "integrationId":
 			out.Values[i] = ec._Item_integrationId(ctx, field, obj)
+		case "updatedById":
+			out.Values[i] = ec._Item_updatedById(ctx, field, obj)
 		case "userId":
 			out.Values[i] = ec._Item_userId(ctx, field, obj)
 		case "metadataId":
@@ -31262,6 +31402,39 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "updatedBy":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Item_updatedBy(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "version":
 			out.Values[i] = ec._Item_version(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

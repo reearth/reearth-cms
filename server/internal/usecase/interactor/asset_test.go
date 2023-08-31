@@ -921,8 +921,8 @@ func TestAsset_Update(t *testing.T) {
 	pid1 := id.NewProjectID()
 	p := project.New().ID(pid1).Workspace(ws.ID()).MustBuild()
 
-	var pti asset.PreviewType = asset.PreviewTypeImage
-	var ptg asset.PreviewType = asset.PreviewTypeGeo
+	var pti = asset.PreviewTypeImage
+	var ptg = asset.PreviewTypeGeo
 
 	aid1 := id.NewAssetID()
 	thid := id.NewThreadID()
