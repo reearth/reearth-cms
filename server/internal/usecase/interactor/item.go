@@ -305,7 +305,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		oldFields := itv.Fields()
 
 		itv.UpdateFields(fields)
-		itv.SetUpdatedBy(*operator.Operator().User())
+
+		if operator.AcOperator.User != nil {
+			itv.SetUpdatedBy(*operator.AcOperator.User)
+		}
+
 		if param.MetadataID != nil {
 			itv.SetMetadataItem(param.MetadataID)
 		}
