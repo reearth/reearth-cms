@@ -47,7 +47,7 @@ var (
 type Schema interface {
 	FindByID(context.Context, id.SchemaID, *usecase.Operator) (*schema.Schema, error)
 	FindByIDs(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
-	FindFieldByIDs(context.Context, id.FieldIDList, *usecase.Operator) ([]*schema.Field, error)
+	FindFields(context.Context, []id.FieldID, *usecase.Operator) (schema.FieldList, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateFields(context.Context, id.SchemaID, []UpdateFieldParam, *usecase.Operator) (schema.FieldList, error)

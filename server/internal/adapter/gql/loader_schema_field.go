@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type SchemaFieldLoader struct {
@@ -19,32 +20,53 @@ func NewSchemaFieldLoader(usecase interfaces.Schema) *SchemaFieldLoader {
 	return &SchemaFieldLoader{usecase: usecase}
 }
 
+func (c *SchemaFieldLoader) Fetch(ctx context.Context, keys []gqlmodel.ID) ([]*gqlmodel.SchemaField, []error) {
+	ff, err := util.TryMap(keys, gqlmodel.ToID[id.Field])
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	res, err := c.usecase.FindFields(ctx, ff, getOperator(ctx))
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	return lo.Map(res, func(f *schema.Field, _ int) *gqlmodel.SchemaField {
+		return gqlmodel.ToSchemaField(f)
+	}), nil
+}
+
+// data loaders
+
 type SchemaFieldDataLoader interface {
 	Load(gqlmodel.ID) (*gqlmodel.SchemaField, error)
 	LoadAll([]gqlmodel.ID) ([]*gqlmodel.SchemaField, []error)
 }
 
 func (c *SchemaFieldLoader) DataLoader(ctx context.Context) SchemaFieldDataLoader {
-	return gqldataloader.NewSchemaFieldLoader(gqldataloader.SchemaFieldLoaderConfig{
+	return gqldataloader.NewFieldLoader(gqldataloader.FieldLoaderConfig{
 		Wait:     dataLoaderWait,
 		MaxBatch: dataLoaderMaxBatch,
 		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.SchemaField, []error) {
-			return c.FindByIDs(ctx, keys)
+			return c.Fetch(ctx, keys)
 		},
 	})
 }
 
 func (c *SchemaFieldLoader) OrdinaryDataLoader(ctx context.Context) SchemaFieldDataLoader {
-	return &ordinarySchemaFieldLoader{ctx: ctx, c: c}
+	return &ordinarySchemaFieldLoader{
+		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.SchemaField, []error) {
+			return c.Fetch(ctx, keys)
+		},
+	}
 }
 
 type ordinarySchemaFieldLoader struct {
-	ctx context.Context
-	c   *SchemaFieldLoader
+	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.SchemaField, []error)
 }
 
-func (l *ordinarySchemaFieldLoader) Load(id gqlmodel.ID) (*gqlmodel.SchemaField, error) {
-	res, errs := l.c.FindByIDs(l.ctx, []gqlmodel.ID{id})
+func (l *ordinarySchemaFieldLoader) Load(key gqlmodel.ID) (*gqlmodel.SchemaField, error) {
+	res, errs := l.fetch([]gqlmodel.ID{key})
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}
@@ -55,21 +77,5 @@ func (l *ordinarySchemaFieldLoader) Load(id gqlmodel.ID) (*gqlmodel.SchemaField,
 }
 
 func (l *ordinarySchemaFieldLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.SchemaField, []error) {
-	return l.c.FindByIDs(l.ctx, keys)
-}
-
-func (c *SchemaFieldLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.SchemaField, []error) {
-	ids2, err := util.TryMap(ids, gqlmodel.ToID[id.Field])
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	res, err := c.usecase.FindFieldByIDs(ctx, ids2, getOperator(ctx))
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	return util.Map(res, func(a *schema.Field) *gqlmodel.SchemaField {
-		return gqlmodel.ToSchemaField(a)
-	}), nil
+	return l.fetch(keys)
 }
