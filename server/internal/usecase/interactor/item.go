@@ -232,17 +232,29 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		wo := item.ItemModelSchema{
+			Item:   vi.Value(),
+			Model:  m,
+			Schema: s,
+		}
+		if fields[0].Type() == value.TypeReference {
+			value, ok := fields[0].Value().First().ValueReference()
+			if ok {
+				ii, err := i.repos.Item.FindByID(ctx, value, nil)
+				if err != nil {
+					return nil, err
+				}
+				wo.ReferencedItem = ii.Value()
+			}
+		}
+
 		if err := i.event(ctx, Event{
-			Project:   prj,
-			Workspace: s.Workspace(),
-			Type:      event.ItemCreate,
-			Object:    vi,
-			WebhookObject: item.ItemModelSchema{
-				Item:   vi.Value(),
-				Model:  m,
-				Schema: s,
-			},
-			Operator: operator.Operator(),
+			Project:       prj,
+			Workspace:     s.Workspace(),
+			Type:          event.ItemCreate,
+			Object:        vi,
+			WebhookObject: wo,
+			Operator:      operator.Operator(),
 		}); err != nil {
 			return nil, err
 		}
@@ -310,18 +322,30 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 
 		newFields := itv.Fields()
 
+		wo := item.ItemModelSchema{
+			Item:    itv,
+			Model:   m,
+			Schema:  s,
+			Changes: item.CompareFields(newFields, oldFields),
+		}
+		if newFields[0].Type() == value.TypeReference {
+			value, ok := newFields[0].Value().First().ValueReference()
+			if ok {
+				ii, err := i.repos.Item.FindByID(ctx, value, nil)
+				if err != nil {
+					return nil, err
+				}
+				wo.ReferencedItem = ii.Value()
+			}
+		}
+
 		if err := i.event(ctx, Event{
-			Project:   prj,
-			Workspace: s.Workspace(),
-			Type:      event.ItemUpdate,
-			Object:    itm,
-			WebhookObject: item.ItemModelSchema{
-				Item:    itv,
-				Model:   m,
-				Schema:  s,
-				Changes: item.CompareFields(newFields, oldFields),
-			},
-			Operator: operator.Operator(),
+			Project:       prj,
+			Workspace:     s.Workspace(),
+			Type:          event.ItemUpdate,
+			Object:        itm,
+			WebhookObject: wo,
+			Operator:      operator.Operator(),
 		}); err != nil {
 			return nil, err
 		}

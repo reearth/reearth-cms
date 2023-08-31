@@ -143,6 +143,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, err
 	}
 
+	// update to support ref field
 	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil)), nil
 }
 
@@ -232,6 +233,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate500Response{}, err
 	}
 
+	// update to support ref field
 	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset))), nil
 }
 

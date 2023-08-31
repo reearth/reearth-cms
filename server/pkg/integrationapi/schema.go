@@ -11,10 +11,11 @@ import (
 )
 
 type ItemModelSchema struct {
-	Item       Item          `json:"item"`
-	Model      Model         `json:"model"`
-	Schema     Schema        `json:"schema"`
-	ItemChange []FieldChange `json:"itemChange,omitempty"`
+	Item           Item          `json:"item"`
+	ReferencedItem Item          `json:"referencedItem,omitempty"`
+	Model          Model         `json:"model"`
+	Schema         Schema        `json:"schema"`
+	ItemChange     []FieldChange `json:"itemChange,omitempty"`
 }
 
 type FieldChange struct {
@@ -33,10 +34,11 @@ type ItemModelSchemaItemChange struct {
 
 func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
 	return ItemModelSchema{
-		Item:       NewItem(i.Item, i.Schema, assets),
-		Model:      NewModel(i.Model, time.Time{}),
-		Schema:     NewSchema(i.Schema),
-		ItemChange: NewItemFieldChanges(i.Changes),
+		Item:           NewItem(i.Item, i.Schema, assets),
+		ReferencedItem: NewItem(i.ReferencedItem, nil, nil),
+		Model:          NewModel(i.Model, time.Time{}),
+		Schema:         NewSchema(i.Schema),
+		ItemChange:     NewItemFieldChanges(i.Changes),
 	}
 }
 
