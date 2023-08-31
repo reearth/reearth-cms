@@ -33,24 +33,6 @@ func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usec
 	return i.repos.Schema.FindByIDs(ctx, ids)
 }
 
-func (i Schema) FindFields(ctx context.Context, ids []id.FieldID, operator *usecase.Operator) (schema.FieldList, error) {
-	ss, err := i.repos.Schema.FindByFieldIDs(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-
-	var ff schema.FieldList
-	for _, s := range ss {
-		for _, fid := range ids {
-			if s.HasField(fid) {
-				ff = append(ff, s.Field(fid))
-			}
-		}
-	}
-
-	return ff, nil
-}
-
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
 		s, err := i.repos.Schema.FindByID(ctx, param.SchemaId)
@@ -207,6 +189,5 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 	if param.Multiple != nil {
 		f.SetMultiple(*param.Multiple)
 	}
-
 	return nil
 }

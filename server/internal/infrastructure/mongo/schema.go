@@ -69,18 +69,6 @@ func (r *Schema) FindByIDs(ctx context.Context, ids id.SchemaIDList) (schema.Lis
 	}), nil
 }
 
-func (r *Schema) FindByFieldIDs(ctx context.Context, ids id.FieldIDList) (schema.List, error) {
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
-	return r.find(ctx, bson.M{
-		"fields.id": bson.M{
-			"$in": ids.Strings(),
-		},
-	})
-}
-
 func (r *Schema) Save(ctx context.Context, schema *schema.Schema) error {
 	if !r.f.CanWrite(schema.Workspace()) {
 		return repo.ErrOperationDenied
