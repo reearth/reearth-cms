@@ -11,6 +11,10 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
+	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/util"
 )
@@ -20,11 +24,13 @@ type ContainerConfig struct {
 	AuthSrvUIDomain string
 }
 
-func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interfaces.Container {
+func New(r *repo.Container, g *gateway.Container,
+	ar *accountrepo.Container, ag *accountgateway.Container,
+	config ContainerConfig) interfaces.Container {
 	return interfaces.Container{
 		Asset:       NewAsset(r, g),
-		Workspace:   NewWorkspace(r, g),
-		User:        NewUser(r, g, config.SignupSecret, config.AuthSrvUIDomain),
+		Workspace:   accountinteractor.NewWorkspace(ar),
+		User:        accountinteractor.NewUser(ar, ag, config.SignupSecret, config.AuthSrvUIDomain),
 		Project:     NewProject(r, g),
 		Item:        NewItem(r, g),
 		Request:     NewRequest(r, g),
@@ -37,7 +43,7 @@ func New(r *repo.Container, g *gateway.Container, config ContainerConfig) interf
 
 type Event struct {
 	Project       *project.Project
-	Workspace     id.WorkspaceID
+	Workspace     accountdomain.WorkspaceID
 	Type          event.Type
 	Operator      operator.Operator
 	Object        any
@@ -83,7 +89,16 @@ func webhook(ctx context.Context, r *repo.Container, g *gateway.Container, e Eve
 	}
 	integrationIDs := ws.Members().IntegrationIDs()
 
-	integrations, err := r.Integration.FindByIDs(ctx, integrationIDs)
+	ids := make([]id.IntegrationID, len(integrationIDs))
+	for i, iid := range integrationIDs {
+		id, err := id.IntegrationIDFrom(iid.String())
+		if err != nil {
+			return err
+		}
+		ids[i] = id
+	}
+
+	integrations, err := r.Integration.FindByIDs(ctx, ids)
 	if err != nil {
 		return err
 	}

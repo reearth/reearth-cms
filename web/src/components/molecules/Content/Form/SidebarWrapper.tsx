@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
 
+import Badge from "@reearth-cms/components/atoms/Badge";
+import Tag from "@reearth-cms/components/atoms/Tag";
+import { Item, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-
-import { Item } from "../types";
 
 export type Props = {
   item: Item;
@@ -13,12 +14,32 @@ export type Props = {
 const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
   const t = useT();
 
+  const getStatusBadge = (status: ItemStatus) => {
+    type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
+    type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
+    const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
+    const itemStatus: StateType[] = status.split("_") as StateType[];
+    return (
+      <>
+        {itemStatus.map((state, index) => {
+          if (index === itemStatus.length - 1) {
+            return (
+              <StyledBadge key={index} color={stateColors[state] as ColorType} text={t(state)} />
+            );
+          } else {
+            return <StyledBadge key={index} color={stateColors[state] as ColorType} />;
+          }
+        })}
+      </>
+    );
+  };
+
   return (
     <SideBarWrapper>
       <SidebarCard title={t("Enter Information")}>
         <DataRow>
           <DataTitle>ID</DataTitle>
-          <DataText>{item.id}</DataText>
+          <StyledTag>{item.id}</StyledTag>
         </DataRow>
         <DataRow>
           <DataTitle>{t("Created At")}</DataTitle>
@@ -27,6 +48,11 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
         <DataRow>
           <DataTitle>{t("Updated At")}</DataTitle>
           <DataText>{dateTimeFormat(item.updatedAt)}</DataText>
+        </DataRow>
+      </SidebarCard>
+      <SidebarCard title={t("Publish State")}>
+        <DataRow>
+          <DataTitle>{getStatusBadge(item.status)}</DataTitle>
         </DataRow>
       </SidebarCard>
     </SideBarWrapper>
@@ -43,6 +69,7 @@ const DataRow = styled.div`
   display: flex;
   margin: 0 -4px;
   align-items: center;
+  justify-content: space-between;
 `;
 
 const DataTitle = styled.div`
@@ -52,12 +79,22 @@ const DataTitle = styled.div`
 `;
 
 const DataText = styled.div`
-  text-align: end;
-  flex: 1;
   color: #00000073;
   font-size: 12px;
   line-height: 22px;
   padding: 4px;
+`;
+
+const StyledTag = styled(Tag)`
+  margin: 0;
+  color: #00000073;
+  background-color: #f0f0f0;
+`;
+
+const StyledBadge = styled(Badge)`
+  + * {
+    margin-left: 4px;
+  }
 `;
 
 export default ContentSidebarWrapper;

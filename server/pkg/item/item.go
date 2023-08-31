@@ -133,7 +133,8 @@ func (i *Item) AssetIDs() AssetIDList {
 }
 
 type ItemModelSchema struct {
-	Item   *Item
-	Model  *model.Model
-	Schema *schema.Schema
+	Item    *Item
+	Model   *model.Model
+	Schema  *schema.Schema
+	Changes FieldChanges
 }

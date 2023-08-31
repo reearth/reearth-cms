@@ -7,12 +7,13 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestToSchema(t *testing.T) {
-	wId := id.NewWorkspaceID()
+	wId := accountdomain.NewWorkspaceID()
 	pId := id.NewProjectID()
 	sId := schema.NewID()
 	fId := id.NewFieldID()
@@ -72,7 +73,7 @@ func TestToSchema(t *testing.T) {
 }
 
 func TestToSchemaField(t *testing.T) {
-	fId := schema.NewFieldID()
+	fid := schema.NewFieldID()
 	tests := []struct {
 		name   string
 		schema *schema.Field
@@ -86,8 +87,8 @@ func TestToSchemaField(t *testing.T) {
 		{
 			name: "success",
 			schema: schema.NewField(schema.NewText(nil).TypeProperty()).
-				ID(fId).
-				UpdatedAt(fId.Timestamp()).
+				ID(fid).
+				UpdatedAt(fid.Timestamp()).
 				Name("N1").
 				Description("D1").
 				Key(key.New("K123456")).
@@ -96,7 +97,7 @@ func TestToSchemaField(t *testing.T) {
 				Required(true).
 				MustBuild(),
 			want: &SchemaField{
-				ID:           IDFrom(fId),
+				ID:           IDFrom(fid),
 				ModelID:      "",
 				Model:        nil,
 				Type:         SchemaFieldTypeText,
@@ -108,8 +109,9 @@ func TestToSchemaField(t *testing.T) {
 				Unique:       true,
 				Order:        lo.ToPtr(0),
 				Required:     true,
-				CreatedAt:    fId.Timestamp(),
-				UpdatedAt:    fId.Timestamp(),
+				IsTitle:      true,
+				CreatedAt:    fid.Timestamp(),
+				UpdatedAt:    fid.Timestamp(),
 			},
 		},
 	}
@@ -118,7 +120,7 @@ func TestToSchemaField(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := ToSchemaField(tt.schema)
+			got := ToSchemaField(tt.schema, fid.Ref())
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -165,6 +167,11 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			name: "bool",
 			args: args{tp: schema.NewBool().TypeProperty()},
 			want: &SchemaFieldBool{DefaultValue: nil},
+		},
+		{
+			name: "checkbox",
+			args: args{tp: schema.NewCheckbox().TypeProperty()},
+			want: &SchemaFieldCheckbox{DefaultValue: nil},
 		},
 		{
 			name: "datetime",

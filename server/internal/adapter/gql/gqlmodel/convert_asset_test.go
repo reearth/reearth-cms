@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -13,9 +14,9 @@ import (
 
 func TestToAsset(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	id1 := id.NewAssetID()
-	var pti asset.PreviewType = asset.PreviewTypeImage
+	var pti = asset.PreviewTypeImage
 	uuid := uuid.New().String()
 	thid := id.NewThreadID()
 	a1 := asset.New().ID(id1).Project(pid1).CreatedByUser(uid1).FileName("aaa.jpg").Size(1000).Type(&pti).UUID(uuid).Thread(thid).MustBuild()
@@ -69,27 +70,27 @@ func TestToAsset(t *testing.T) {
 }
 
 func TestConvertAsset_FromPreviewType(t *testing.T) {
-	var pt1 PreviewType = PreviewTypeImage
+	var pt1 = PreviewTypeImage
 	want1 := asset.PreviewTypeImage
 	got1 := FromPreviewType(&pt1)
 	assert.Equal(t, &want1, got1)
 
-	var pt2 PreviewType = PreviewTypeGeo
+	var pt2 = PreviewTypeGeo
 	want2 := asset.PreviewTypeGeo
 	got2 := FromPreviewType(&pt2)
 	assert.Equal(t, &want2, got2)
 
-	var pt3 PreviewType = PreviewTypeGeo3dTiles
+	var pt3 = PreviewTypeGeo3dTiles
 	want3 := asset.PreviewTypeGeo3dTiles
 	got3 := FromPreviewType(&pt3)
 	assert.Equal(t, &want3, got3)
 
-	var pt4 PreviewType = PreviewTypeGeoMvt
+	var pt4 = PreviewTypeGeoMvt
 	want4 := asset.PreviewTypeGeoMvt
 	got4 := FromPreviewType(&pt4)
 	assert.Equal(t, &want4, got4)
 
-	var pt5 PreviewType = PreviewTypeModel3d
+	var pt5 = PreviewTypeModel3d
 	want5 := asset.PreviewTypeModel3d
 	got5 := FromPreviewType(&pt5)
 	assert.Equal(t, &want5, got5)
@@ -104,39 +105,39 @@ func TestConvertAsset_FromPreviewType(t *testing.T) {
 	got7 := FromPreviewType(&pt7)
 	assert.Equal(t, want7, got7)
 
-	var pt8 PreviewType = PreviewTypeUnknown
+	var pt8 = PreviewTypeUnknown
 	want8 := asset.PreviewTypeUnknown
 	got8 := FromPreviewType(&pt8)
 	assert.Equal(t, &want8, got8)
 
-	var pt9 PreviewType = PreviewTypeImageSVG
+	var pt9 = PreviewTypeImageSVG
 	want9 := asset.PreviewTypeImageSvg
 	got9 := FromPreviewType(&pt9)
 	assert.Equal(t, &want9, got9)
 }
 
 func TestConvertAsset_ToPreviewType(t *testing.T) {
-	var pt1 asset.PreviewType = asset.PreviewTypeImage
+	var pt1 = asset.PreviewTypeImage
 	want1 := PreviewTypeImage
 	got1 := ToPreviewType(&pt1)
 	assert.Equal(t, &want1, got1)
 
-	var pt2 asset.PreviewType = asset.PreviewTypeGeo
+	var pt2 = asset.PreviewTypeGeo
 	want2 := PreviewTypeGeo
 	got2 := ToPreviewType(&pt2)
 	assert.Equal(t, &want2, got2)
 
-	var pt3 asset.PreviewType = asset.PreviewTypeGeo3dTiles
+	var pt3 = asset.PreviewTypeGeo3dTiles
 	want3 := PreviewTypeGeo3dTiles
 	got3 := ToPreviewType(&pt3)
 	assert.Equal(t, &want3, got3)
 
-	var pt4 asset.PreviewType = asset.PreviewTypeModel3d
+	var pt4 = asset.PreviewTypeModel3d
 	want4 := PreviewTypeModel3d
 	got4 := ToPreviewType(&pt4)
 	assert.Equal(t, &want4, got4)
 
-	var pt5 asset.PreviewType = asset.PreviewTypeModel3d
+	var pt5 = asset.PreviewTypeModel3d
 	want5 := PreviewTypeModel3d
 	got5 := ToPreviewType(&pt5)
 	assert.Equal(t, &want5, got5)
@@ -151,12 +152,12 @@ func TestConvertAsset_ToPreviewType(t *testing.T) {
 	got7 := ToPreviewType(&pt7)
 	assert.Equal(t, want7, got7)
 
-	var pt8 asset.PreviewType = asset.PreviewTypeUnknown
+	var pt8 = asset.PreviewTypeUnknown
 	want8 := PreviewTypeUnknown
 	got8 := ToPreviewType(&pt8)
 	assert.Equal(t, &want8, got8)
 
-	var pt9 asset.PreviewType = asset.PreviewTypeImageSvg
+	var pt9 = asset.PreviewTypeImageSvg
 	want9 := PreviewTypeImageSVG
 	got9 := ToPreviewType(&pt9)
 	assert.Equal(t, &want9, got9)

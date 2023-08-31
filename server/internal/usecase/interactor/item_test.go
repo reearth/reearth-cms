@@ -17,9 +17,12 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -40,10 +43,12 @@ func TestItem_FindByID(t *testing.T) {
 	id2 := id.NewItemID()
 	i2 := item.New().ID(id2).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 	}
 
 	tests := []struct {
@@ -155,7 +160,7 @@ func TestItem_FindByIDs(t *testing.T) {
 			}
 			itemUC := NewItem(db, nil)
 
-			got, err := itemUC.FindByIDs(ctx, tc.arg, &usecase.Operator{})
+			got, err := itemUC.FindByIDs(ctx, tc.arg, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -167,8 +172,8 @@ func TestItem_FindByIDs(t *testing.T) {
 }
 
 func TestItem_FindBySchema(t *testing.T) {
-	uid := id.NewUserID()
-	wid := id.NewWorkspaceID()
+	uid := accountdomain.NewUserID()
+	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()
 	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1}).MustBuild()
@@ -224,7 +229,9 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             &uid,
+					AcOperator: &accountusecase.Operator{
+						User: &uid,
+					},
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -239,7 +246,9 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             &uid,
+					AcOperator: &accountusecase.Operator{
+						User: &uid,
+					},
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -254,7 +263,9 @@ func TestItem_FindBySchema(t *testing.T) {
 			args: args{
 				schema: s1.ID(),
 				operator: &usecase.Operator{
-					User:             &uid,
+					AcOperator: &accountusecase.Operator{
+						User: &uid,
+					},
 					ReadableProjects: []id.ProjectID{pid},
 					WritableProjects: []id.ProjectID{pid},
 				},
@@ -306,11 +317,12 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	id1 := id.NewItemID()
 	i1 := item.New().ID(id1).Project(id.NewProjectID()).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).MustBuild()
 
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
-	}
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		}}
 	ctx := context.Background()
 
 	db := memory.New()
@@ -354,7 +366,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 func TestItem_FindByProject(t *testing.T) {
 	pid1 := id.NewProjectID()
 	pid2 := id.NewProjectID()
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	s1 := project.New().ID(pid1).Workspace(wid).MustBuild()
 	s2 := project.New().ID(pid2).Workspace(wid).MustBuild()
 	i1 := item.New().NewID().
@@ -381,7 +393,9 @@ func TestItem_FindByProject(t *testing.T) {
 
 	u := user.New().NewID().Email("aaa@bbb.com").Name("foo").Workspace(wid).MustBuild()
 	op := &usecase.Operator{
-		User:             lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 		ReadableProjects: []id.ProjectID{pid1, pid2},
 	}
 
@@ -479,10 +493,12 @@ func TestItem_Search(t *testing.T) {
 	id3 := id.NewItemID()
 	i3 := item.New().ID(id3).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f2}).Thread(id.NewThreadID()).MustBuild()
 
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
 	op := &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 	}
 
 	tests := []struct {
@@ -581,10 +597,10 @@ func TestItem_Search(t *testing.T) {
 }
 
 func TestItem_Create(t *testing.T) {
-	r := []user.Role{user.RoleReader, user.RoleWriter}
+	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
 	prj := project.New().NewID().RequestRoles(r).MustBuild()
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
-	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
+	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
 
 	ctx := context.Background()
@@ -596,11 +612,13 @@ func TestItem_Create(t *testing.T) {
 	itemUC.ignoreEvent = true
 
 	op := &usecase.Operator{
-		User:               id.NewUserID().Ref(),
-		ReadableProjects:   []id.ProjectID{s.Project()},
-		WritableProjects:   []id.ProjectID{s.Project()},
-		ReadableWorkspaces: []id.WorkspaceID{s.Workspace()},
-		WritableWorkspaces: []id.WorkspaceID{s.Workspace()},
+		AcOperator: &accountusecase.Operator{
+			User:               accountdomain.NewUserID().Ref(),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{s.Workspace()},
+			WritableWorkspaces: []accountdomain.WorkspaceID{s.Workspace()},
+		},
+		ReadableProjects: []id.ProjectID{s.Project()},
+		WritableProjects: []id.ProjectID{s.Project()},
 	}
 
 	// invalid operator
@@ -614,7 +632,7 @@ func TestItem_Create(t *testing.T) {
 				Value: "xxx",
 			},
 		},
-	}, &usecase.Operator{})
+	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 	assert.Nil(t, item)
 
@@ -630,7 +648,8 @@ func TestItem_Create(t *testing.T) {
 			},
 		},
 	}, &usecase.Operator{
-		User: id.NewUserID().Ref(),
+		AcOperator: &accountusecase.Operator{
+			User: accountdomain.NewUserID().Ref()},
 	})
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
 	assert.Nil(t, item)
@@ -718,14 +737,14 @@ func TestItem_Create(t *testing.T) {
 }
 
 func TestItem_Update(t *testing.T) {
-	uId := id.NewUserID().Ref()
+	uId := accountdomain.NewUserID().Ref()
 	prj := project.New().NewID().MustBuild()
 	sf := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
-	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
+	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf}).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).Key(key.Random()).Project(s.Project()).MustBuild()
 	i := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().User(*uId).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().NewID().User(id.NewUserID()).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().NewID().User(accountdomain.NewUserID()).Model(m.ID()).Project(s.Project()).Schema(s.ID()).Thread(id.NewThreadID()).MustBuild()
 
 	ctx := context.Background()
 	db := memory.New()
@@ -738,7 +757,9 @@ func TestItem_Update(t *testing.T) {
 	itemUC := NewItem(db, nil)
 	itemUC.ignoreEvent = true
 	op := &usecase.Operator{
-		User:             uId,
+		AcOperator: &accountusecase.Operator{
+			User: uId,
+		},
 		ReadableProjects: []id.ProjectID{s.Project()},
 		WritableProjects: []id.ProjectID{s.Project()},
 	}
@@ -775,7 +796,7 @@ func TestItem_Update(t *testing.T) {
 				Value: "xxx",
 			},
 		},
-	}, &usecase.Operator{})
+	}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 	assert.Nil(t, item)
 	vi, _ = itemUC.FindByID(ctx, i.ID(), op)
@@ -914,7 +935,7 @@ func TestItem_Update(t *testing.T) {
 }
 
 func TestItem_Delete(t *testing.T) {
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	sid := id.NewSchemaID()
 	id1 := id.NewItemID()
@@ -926,7 +947,9 @@ func TestItem_Delete(t *testing.T) {
 	i3 := item.New().ID(id3).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	op := &usecase.Operator{
-		User:             lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 		WritableProjects: id.ProjectIDList{i1.Project()},
 	}
 	ctx := context.Background()
@@ -943,20 +966,24 @@ func TestItem_Delete(t *testing.T) {
 	// invalid operator
 	err = db.Item.Save(ctx, i2)
 	assert.NoError(t, err)
-	err = itemUC.Delete(ctx, id2, &usecase.Operator{})
+	err = itemUC.Delete(ctx, id2, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 
 	// operation denied
 	err = db.Item.Save(ctx, i3)
 	assert.NoError(t, err)
 	err = itemUC.Delete(ctx, id3, &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 	})
 	assert.Equal(t, interfaces.ErrOperationDenied, err)
 
 	// not found
 	err = itemUC.Delete(ctx, id4, &usecase.Operator{
-		User: lo.ToPtr(u.ID()),
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
 	})
 	assert.Equal(t, rerror.ErrNotFound, err)
 
@@ -973,9 +1000,9 @@ func TestWorkFlow(t *testing.T) {
 	now := util.Now()
 	defer util.MockNow(now)()
 
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	prj := project.New().NewID().Workspace(wid).MustBuild()
-	s := schema.New().NewID().Workspace(id.NewWorkspaceID()).Project(prj.ID()).MustBuild()
+	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Project(prj.ID()).Schema(s.ID()).RandomKey().MustBuild()
 	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
 	ri, _ := request.NewItem(i.ID())
@@ -984,15 +1011,17 @@ func TestWorkFlow(t *testing.T) {
 		NewID().
 		Workspace(wid).
 		Project(prj.ID()).
-		Reviewers(id.UserIDList{u.ID()}).
-		CreatedBy(id.NewUserID()).
+		Reviewers(accountdomain.UserIDList{u.ID()}).
+		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
 		Items(request.ItemList{ri}).
 		Title("foo").
 		MustBuild()
 	op := &usecase.Operator{
-		User:             lo.ToPtr(u.ID()),
-		OwningWorkspaces: id.WorkspaceIDList{wid},
+		AcOperator: &accountusecase.Operator{
+			User:             lo.ToPtr(u.ID()),
+			OwningWorkspaces: id.WorkspaceIDList{wid},
+		},
 	}
 	ctx := context.Background()
 
@@ -1028,12 +1057,14 @@ func TestWorkFlow(t *testing.T) {
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 
 	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
-		User:               lo.ToPtr(u.ID()),
-		ReadableWorkspaces: id.WorkspaceIDList{wid},
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: id.WorkspaceIDList{wid},
+		},
 	})
 	assert.Equal(t, err, interfaces.ErrInvalidOperator)
 
-	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{})
+	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, err, interfaces.ErrInvalidOperator)
 
 	_, err = itemUC.Unpublish(ctx, id.ItemIDList{i.ID()}, op)
@@ -1042,4 +1073,23 @@ func TestWorkFlow(t *testing.T) {
 	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
 	assert.NoError(t, err)
 	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusDraft}, status)
+
+	// Publish Item
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: id.WorkspaceIDList{wid},
+		},
+	})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
+	assert.Equal(t, err, interfaces.ErrInvalidOperator)
+
+	_, err = itemUC.Publish(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+
+	status, err = itemUC.ItemStatus(ctx, id.ItemIDList{i.ID()}, op)
+	assert.NoError(t, err)
+	assert.Equal(t, map[id.ItemID]item.Status{i.ID(): item.StatusPublic}, status)
 }

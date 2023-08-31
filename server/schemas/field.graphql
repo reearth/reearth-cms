@@ -10,8 +10,24 @@ enum SchemaFieldType {
   Tag
   Integer
   Reference
+  Checkbox
   URL
 }
+
+enum SchemaFieldTagColor {
+  MAGENTA
+  RED
+  VOLCANO
+  ORANGE
+  GOLD
+  LIME
+  GREEN
+  CYAN
+  BLUE
+  GEEKBLUE
+  PURPLE
+}
+
 
 type SchemaField {
   id: ID!
@@ -27,6 +43,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -45,6 +62,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldInteger
   | SchemaFieldReference
   | SchemaFieldURL
+  | SchemaFieldCheckbox
 
 
 type SchemaFieldText {
@@ -85,8 +103,14 @@ type SchemaFieldSelect {
 }
 
 type SchemaFieldTag {
-  values: [String!]!
+  tags: [SchemaFieldTagValue!]!
   defaultValue: Any
+}
+
+type SchemaFieldTagValue {
+  id: ID!
+  name: String!
+  color: String!
 }
 
 type SchemaFieldInteger {
@@ -100,6 +124,10 @@ type SchemaFieldReference {
 }
 
 type SchemaFieldURL {
+  defaultValue: Any
+}
+
+type SchemaFieldCheckbox {
   defaultValue: Any
 }
 
@@ -137,14 +165,24 @@ input SchemaFieldBoolInput {
   defaultValue: Any
 }
 
+input SchemaFieldCheckboxInput {
+  defaultValue: Any
+}
+
 input SchemaFieldSelectInput {
   values: [String!]!
   defaultValue: Any
 }
 
 input SchemaFieldTagInput {
-  values: [String!]!
+  tags: [SchemaFieldTagValueInput!]!
   defaultValue: Any
+}
+
+input SchemaFieldTagValueInput {
+  tagId: ID # if you want to create a new tag, it is not required
+  name: String # if you want to delete a tag, it should be an empty string
+  color: SchemaFieldTagColor
 }
 
 input SchemaFieldIntegerInput {
@@ -171,6 +209,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   bool: SchemaFieldBoolInput
   select: SchemaFieldSelectInput
   tag: SchemaFieldTagInput
+  checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
@@ -185,6 +224,7 @@ input CreateFieldInput {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -198,6 +238,7 @@ input UpdateFieldInput {
   required: Boolean
   unique: Boolean
   multiple: Boolean
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 

@@ -5,6 +5,7 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
+import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import { Item, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -15,6 +16,7 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
 export type Props = {
+  showPublishAction?: boolean;
   requests: Request[];
   collapsed?: boolean;
   model?: Model;
@@ -43,6 +45,7 @@ export type Props = {
   requestModalPage: number;
   requestModalPageSize: number;
   onUnpublish: (itemIds: string[]) => Promise<void>;
+  onPublish: (itemIds: string[]) => Promise<void>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -79,6 +82,7 @@ export type Props = {
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  showPublishAction,
   requests,
   collapsed,
   model,
@@ -107,6 +111,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  onPublish,
   onUnpublish,
   onCollapse,
   onUploadModalCancel,
@@ -143,6 +148,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       }
       center={
         <ContentForm
+          showPublishAction={showPublishAction}
           requests={requests}
           requestCreationLoading={requestCreationLoading}
           onRequestTableChange={onRequestTableChange}
@@ -151,7 +157,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           requestModalPage={requestModalPage}
           requestModalPageSize={requestModalPageSize}
           loading={loading}
-          item={item}
           itemId={itemId}
           model={model}
           initialFormValues={initialFormValues}
@@ -166,6 +171,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           uploadModalVisibility={uploadModalVisibility}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
+          onPublish={onPublish}
           onUnpublish={onUnpublish}
           onChange={onChange}
           onUploadModalCancel={onUploadModalCancel}
@@ -190,7 +196,12 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           workspaceUserMembers={workspaceUserMembers}
         />
       }
-      right={commentsPanel}
+      right={
+        <>
+          {item && <ContentSidebarWrapper item={item} />}
+          {commentsPanel}
+        </>
+      }
     />
   );
 };

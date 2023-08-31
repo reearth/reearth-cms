@@ -21,6 +21,7 @@ export type Field = {
   required: boolean;
   unique: boolean;
   multiple: boolean;
+  isTitle: boolean;
   typeProperty?: TypeProperty;
 };
 
@@ -36,6 +37,7 @@ export type FieldType =
   | "Tag"
   | "Integer"
   | "Reference"
+  | "Checkbox"
   | "URL";
 
 export type TypeProperty =

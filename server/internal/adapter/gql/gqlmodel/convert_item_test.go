@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -21,14 +22,14 @@ func TestToItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
 	mid := id.NewModelID()
-	uid := id.NewUserID()
-	uid2 := id.NewUserID()
+	uid := accountdomain.NewUserID()
+	uid2 := accountdomain.NewUserID()
 	nid := id.NewIntegrationID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
 	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
-	s := schema.New().ID(sid).Fields(sf).Workspace(id.NewWorkspaceID()).Project(pid).MustBuild()
+	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
 	i := item.New().
 		ID(iid).
 		Schema(sid).
@@ -132,7 +133,7 @@ func TestToVersionedItem(t *testing.T) {
 	ref := "a"
 	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
-	s := schema.New().ID(sid).Fields(sf).Workspace(id.NewWorkspaceID()).Project(pId).MustBuild()
+	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).Project(pId).MustBuild()
 	fs := []*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple())}
 	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(pId).Fields(fs).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()

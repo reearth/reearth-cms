@@ -12,6 +12,9 @@ import (
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
+	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/spf13/afero"
@@ -22,8 +25,9 @@ import (
 
 const databaseName = "reearth_cms"
 
-func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.Container, *gateway.Container) {
+func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
 	gateways := &gateway.Container{}
+	acGateways := &accountgateway.Container{}
 
 	// Mongo
 	client, err := mongo.Connect(
@@ -37,11 +41,21 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
-	repos, err := mongorepo.New(ctx, client, databaseName, mongox.IsTransactionAvailable(conf.DB))
+	txAvailable := mongox.IsTransactionAvailable(conf.DB)
+
+	repos, err := mongorepo.New(ctx, client, databaseName, txAvailable)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
 
+	accountDatabase := conf.DB_Account
+	if accountDatabase == "" {
+		accountDatabase = databaseName
+	}
+	acRepos, err := accountmongo.New(ctx, client, accountDatabase, txAvailable, false)
+	if err != nil {
+		log.Fatalf("Failed to init mongo: %+v\n", err)
+	}
 	// File
 	var fileRepo gateway.File
 	if conf.GCS.BucketName != "" {
@@ -67,7 +81,9 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 	gateways.File = fileRepo
 
 	// Auth0
-	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
+	auth := auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
+	gateways.Authenticator = auth
+	acGateways.Authenticator = auth
 
 	// CloudTasks
 	if conf.Task.GCPProject != "" {
@@ -90,5 +106,5 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		log.Infofc(ctx, "task runner: not used")
 	}
 
-	return repos, gateways
+	return repos, gateways, acRepos, acGateways
 }

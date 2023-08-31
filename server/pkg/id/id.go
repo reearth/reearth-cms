@@ -1,6 +1,9 @@
 package id
 
-import "github.com/reearth/reearthx/idx"
+import (
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/idx"
+)
 
 type Workspace struct{}
 type User struct{}
@@ -37,12 +40,12 @@ var UserIDFromRef = idx.FromRef[User]
 var AssetIDFromRef = idx.FromRef[Asset]
 var EventIDFromRef = idx.FromRef[Event]
 
-type WorkspaceIDList = idx.List[Workspace]
-type UserIDList = idx.List[User]
+type WorkspaceIDList = idx.List[accountdomain.Workspace]
+type UserIDList = idx.List[accountdomain.User]
 type AssetIDList = idx.List[Asset]
 
-var WorkspaceIDListFrom = idx.ListFrom[Workspace]
-var UserIDListFrom = idx.ListFrom[User]
+var WorkspaceIDListFrom = idx.ListFrom[accountdomain.Workspace]
+var UserIDListFrom = idx.ListFrom[accountdomain.User]
 var AssetIDListFrom = idx.ListFrom[Asset]
 
 type WorkspaceIDSet = idx.Set[Workspace]
@@ -91,6 +94,19 @@ var NewFieldID = idx.New[Field]
 var FieldIDFrom = idx.From[Field]
 var FieldIDFromRef = idx.FromRef[Field]
 var FieldIDListFrom = idx.ListFrom[Field]
+
+type Tag struct{}
+
+func (Tag) Type() string { return "tag" }
+
+type TagID = idx.ID[Tag]
+type TagIDList = idx.List[Tag]
+
+var MustTagID = idx.Must[Tag]
+var NewTagID = idx.New[Tag]
+var TagIDFrom = idx.From[Tag]
+var TagIDFromRef = idx.FromRef[Tag]
+var TagIDListFrom = idx.ListFrom[Tag]
 
 type Schema struct{}
 

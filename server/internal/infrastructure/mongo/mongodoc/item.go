@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -141,11 +142,11 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		Fields(fields).
 		Timestamp(d.Timestamp)
 
-	if uId := id.UserIDFromRef(d.User); uId != nil {
+	if uId := accountdomain.UserIDFromRef(d.User); uId != nil {
 		ib = ib.User(*uId)
 	}
 
-	if upId := id.UserIDFromRef(d.UpdatedBy); upId != nil {
+	if upId := accountdomain.UserIDFromRef(d.UpdatedBy); upId != nil {
 		ib = ib.UpdatedBy(*upId)
 	}
 

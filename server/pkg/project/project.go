@@ -5,7 +5,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
@@ -19,14 +20,14 @@ var (
 
 type Project struct {
 	id           ID
-	workspaceID  WorkspaceID
+	workspaceID  accountdomain.WorkspaceID
 	name         string
 	description  string
 	alias        string
 	imageURL     *url.URL
 	updatedAt    time.Time
 	publication  *Publication
-	requestRoles []user.Role
+	requestRoles []workspace.Role
 }
 
 func (p *Project) ID() ID {
@@ -58,7 +59,7 @@ func (p *Project) ImageURL() *url.URL {
 	return &imageURL2
 }
 
-func (p *Project) Workspace() WorkspaceID {
+func (p *Project) Workspace() accountdomain.WorkspaceID {
 	return p.workspaceID
 }
 
@@ -70,7 +71,7 @@ func (p *Project) Publication() *Publication {
 	return p.publication
 }
 
-func (p *Project) RequestRoles() []user.Role {
+func (p *Project) RequestRoles() []workspace.Role {
 	return p.requestRoles
 }
 
@@ -100,7 +101,7 @@ func (p *Project) UpdateDescription(description string) {
 	p.description = description
 }
 
-func (p *Project) SetRequestRoles(sr []user.Role) {
+func (p *Project) SetRequestRoles(sr []workspace.Role) {
 	p.requestRoles = slices.Clone(sr)
 }
 
@@ -113,7 +114,7 @@ func (p *Project) UpdateAlias(alias string) error {
 	return nil
 }
 
-func (p *Project) UpdateTeam(team WorkspaceID) {
+func (p *Project) UpdateTeam(team accountdomain.WorkspaceID) {
 	p.workspaceID = team
 }
 

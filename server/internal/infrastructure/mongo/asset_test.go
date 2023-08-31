@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
@@ -18,7 +19,7 @@ import (
 
 func Test_AssetRepo_Filtered(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	id1 := id.NewAssetID()
 	id2 := id.NewAssetID()
 	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
@@ -78,7 +79,7 @@ func Test_AssetRepo_Filtered(t *testing.T) {
 
 func TestAssetRepo_FindByID(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	id1 := id.NewAssetID()
 	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
@@ -115,7 +116,7 @@ func TestAssetRepo_FindByID(t *testing.T) {
 			seeds: []*asset.Asset{
 				a1f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			arg:     id1,
 			want:    a1,
@@ -153,7 +154,7 @@ func TestAssetRepo_FindByID(t *testing.T) {
 
 func TestAssetRepo_FindByIDs(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	id1 := id.NewAssetID()
 	id2 := id.NewAssetID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
@@ -186,7 +187,7 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 			name: "0 count with asset for another workspaces",
 			seeds: []*asset.Asset{
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			arg:     []id.AssetID{},
 			want:    nil,
@@ -206,9 +207,9 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 			seeds: []*asset.Asset{
 				a1f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			arg:     []id.AssetID{id1},
 			want:    []*asset.Asset{a1},
@@ -220,9 +221,9 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 				a1f,
 				a2f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			arg:     []id.AssetID{id1, id2},
 			want:    []*asset.Asset{a1, a2},
@@ -261,7 +262,7 @@ func TestAssetRepo_FindByIDs(t *testing.T) {
 
 func TestAssetRepo_FindByProject(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	tim, _ := time.Parse(time.RFC3339, "2021-03-16T04:19:57.592Z")
 	// c := asset.NewFile().Path("/").Build()
 	// f := asset.NewFile().Path("/").Children([]*asset.File{c}).Build()
@@ -297,7 +298,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			name: "0 count with asset for another projects",
 			seeds: []*asset.Asset{
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args:    args{id.NewProjectID(), nil},
 			want:    nil,
@@ -317,9 +318,9 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			seeds: []*asset.Asset{
 				a1f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			want:    []*asset.Asset{a1},
@@ -331,9 +332,9 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 				a1f,
 				a2f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
 			want:    []*asset.Asset{a1, a2},
@@ -345,9 +346,9 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 				a1f,
 				a2f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			want:    []*asset.Asset{a1},
@@ -359,9 +360,9 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 				a1f,
 				a2f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args:    args{pid1, usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
 			want:    []*asset.Asset{a2},
@@ -372,9 +373,9 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			seeds: asset.List{
 				a1f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
@@ -386,9 +387,9 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 			seeds: asset.List{
 				a1f,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			args:    args{pid1, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{}, Writable: []id.ProjectID{}},
@@ -432,7 +433,7 @@ func TestAssetRepo_FindByProject(t *testing.T) {
 
 func TestAssetRepo_Delete(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	id1 := id.NewAssetID()
 	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
 	a1 := asset.New().ID(id1).Project(pid1).ArchiveExtractionStatus(s).NewUUID().
@@ -472,9 +473,9 @@ func TestAssetRepo_Delete(t *testing.T) {
 			seeds: []*asset.Asset{
 				a1,
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 				asset.New().NewID().Project(id.NewProjectID()).ArchiveExtractionStatus(s).NewUUID().
-					CreatedByUser(id.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
+					CreatedByUser(accountdomain.NewUserID()).Size(1000).Thread(id.NewThreadID()).MustBuild(),
 			},
 			arg:     id1,
 			wantErr: nil,
@@ -513,7 +514,7 @@ func TestAssetRepo_Delete(t *testing.T) {
 
 func TestAssetRepo_Save(t *testing.T) {
 	pid1 := id.NewProjectID()
-	uid1 := id.NewUserID()
+	uid1 := accountdomain.NewUserID()
 	id1 := id.NewAssetID()
 	s := lo.ToPtr(asset.ArchiveExtractionStatusPending)
 	a1 := asset.New().ID(id1).Project(pid1).ArchiveExtractionStatus(s).NewUUID().

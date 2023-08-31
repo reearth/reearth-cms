@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -62,7 +63,7 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids id.WorkspaceIDList, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
+func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, pagination *usecasex.Pagination) (project.List, *usecasex.PageInfo, error) {
 	return r.paginate(ctx, bson.M{
 		"workspace": bson.M{
 			"$in": ids.Strings(),
@@ -97,7 +98,7 @@ func (r *ProjectRepo) FindByPublicName(ctx context.Context, name string) (*proje
 	})
 }
 
-func (r *ProjectRepo) CountByWorkspace(ctx context.Context, workspace id.WorkspaceID) (int, error) {
+func (r *ProjectRepo) CountByWorkspace(ctx context.Context, workspace accountdomain.WorkspaceID) (int, error) {
 	count, err := r.client.Count(ctx, bson.M{
 		"workspace": workspace.String(),
 	})

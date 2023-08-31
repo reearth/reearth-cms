@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 )
 
@@ -260,8 +261,8 @@ func TestPublicAPI(t *testing.T) {
 }
 
 func publicAPISeeder(ctx context.Context, r *repo.Container) error {
-	uid := id.NewUserID()
-	p1 := project.New().ID(publicAPIProjectID).Workspace(id.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
+	uid := accountdomain.NewUserID()
+	p1 := project.New().ID(publicAPIProjectID).Workspace(accountdomain.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
 		project.NewPublication(project.PublicationScopePublic, true),
 	).MustBuild()
 
@@ -269,12 +270,13 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
 	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
 
+	fid := id.NewFieldID()
 	s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField1Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Key(key.New(publicAPIField1Key)).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField2Key)).MustBuild(),
 		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
-	}).MustBuild()
+	}).TitleField(fid.Ref()).MustBuild()
 
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
 	// not public model
