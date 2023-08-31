@@ -39,3 +39,7 @@ func (f *FieldTextArea) Clone() *FieldTextArea {
 func (f *FieldTextArea) Validate(v *value.Value) error {
 	return f.s.Validate(v)
 }
+
+func (f *FieldTextArea) ValidateMultiple(v *value.Multiple) error {
+	return nil
+}
