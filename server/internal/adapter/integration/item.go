@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -142,7 +143,11 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 	if err != nil {
 		return ItemCreate400Response{}, err
 	}
-
+	refid := i.Value().Fields()[0].Value().First().Value().Ref()
+	if refid != nil {
+		i, err := uc.Item.FindByID(ctx, *refid, op)
+	}
+	fmt.Println(refid)
 	// update to support ref field
 	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil)), nil
 }
