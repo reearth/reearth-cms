@@ -176,10 +176,10 @@ func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemId id.ItemID, _ *
 	for _, sf := range fields {
 		sf.TypeProperty().Match(schema.TypePropertyMatch{
 			Reference: func(f *schema.FieldReference) {
-				cf := f.CorrespondingField()
-				if cf != nil {
-					res = lo.ToPtr(true)
-				}
+				// cf := f.CorrespondingField()
+				// if cf != nil {
+				// 	res = lo.ToPtr(true)
+				// }
 			},
 		})
 
