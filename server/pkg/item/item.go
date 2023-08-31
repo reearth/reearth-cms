@@ -14,17 +14,18 @@ import (
 )
 
 type Item struct {
-	id           ID
-	schema       SchemaID
-	model        ModelID
-	project      ProjectID
-	fields       []*Field
-	timestamp    time.Time
-	thread       ThreadID
-	user         *UserID
-	updatedBy    *UserID
-	metadataItem *id.ItemID
-	integration  *IntegrationID
+	id                   ID
+	schema               SchemaID
+	model                ModelID
+	project              ProjectID
+	fields               []*Field
+	timestamp            time.Time
+	thread               ThreadID
+	user                 *UserID
+	updatedByUser        *UserID
+	updatedByIntegration *IntegrationID
+	metadataItem         *id.ItemID
+	integration          *IntegrationID
 }
 
 type Versioned = *version.Value[*Item]
@@ -76,12 +77,22 @@ func (i *Item) Thread() ThreadID {
 	return i.thread
 }
 
-func (i *Item) UpdatedBy() *UserID {
-	return i.updatedBy
+func (i *Item) UpdatedByUser() *UserID {
+	return i.updatedByUser
 }
 
-func (i *Item) SetUpdatedBy(u UserID) {
-	i.updatedBy = &u
+func (i *Item) UpdatedByIntegration() *IntegrationID {
+	return i.updatedByIntegration
+}
+
+func (i *Item) SetUpdatedByIntegration(u IntegrationID) {
+	i.updatedByIntegration = &u
+	i.updatedByUser = nil
+}
+
+func (i *Item) SetUpdatedByUser(u UserID) {
+	i.updatedByUser = &u
+	i.updatedByIntegration = nil
 }
 
 func (i *Item) UpdateFields(fields []*Field) {

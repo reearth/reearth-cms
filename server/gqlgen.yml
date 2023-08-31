@@ -55,9 +55,7 @@ models:
         resolver: true
       model:
         resolver: true
-      user:
-        resolver: true
-      integration:
+      createdBy:
         resolver: true
       metadata:
         resolver: true

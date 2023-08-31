@@ -14,18 +14,19 @@ import (
 )
 
 type ItemDocument struct {
-	ID           string
-	Project      string
-	Schema       string
-	Thread       string
-	ModelID      string
-	Fields       []ItemFieldDocument
-	Timestamp    time.Time
-	User         *string
-	Integration  *string
-	Assets       []string `bson:"assets,omitempty"`
-	MetadataItem *string
-	UpdatedBy    *string
+	ID                   string
+	Project              string
+	Schema               string
+	Thread               string
+	ModelID              string
+	Fields               []ItemFieldDocument
+	Timestamp            time.Time
+	User                 *string
+	Integration          *string
+	Assets               []string `bson:"assets,omitempty"`
+	MetadataItem         *string
+	UpdatedByUser        *string
+	UpdatedByIntegration *string
 }
 
 type ItemFieldDocument struct {
@@ -76,11 +77,12 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 				V: *v,
 			}, true
 		}),
-		Timestamp:   i.Timestamp(),
-		User:        i.User().StringRef(),
-		UpdatedBy:   i.UpdatedBy().StringRef(),
-		Integration: i.Integration().StringRef(),
-		Assets:      i.AssetIDs().Strings(),
+		Timestamp:            i.Timestamp(),
+		User:                 i.User().StringRef(),
+		UpdatedByUser:        i.UpdatedByUser().StringRef(),
+		UpdatedByIntegration: i.UpdatedByIntegration().StringRef(),
+		Integration:          i.Integration().StringRef(),
+		Assets:               i.AssetIDs().Strings(),
 	}, itmId
 }
 
@@ -139,6 +141,8 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		ID(itmId).
 		Project(pid).
 		Schema(sid).
+		UpdatedByUser(accountdomain.UserIDFromRef(d.UpdatedByUser)).
+		UpdatedByIntegration(id.IntegrationIDFromRef(d.UpdatedByIntegration)).
 		Model(mid).
 		MetadataItem(id.ItemIDFromRef(d.MetadataItem)).
 		Thread(tid).
@@ -147,10 +151,6 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 
 	if uId := accountdomain.UserIDFromRef(d.User); uId != nil {
 		ib = ib.User(*uId)
-	}
-
-	if upId := accountdomain.UserIDFromRef(d.UpdatedBy); upId != nil {
-		ib = ib.UpdatedBy(*upId)
 	}
 
 	if iId := id.IntegrationIDFromRef(d.Integration); iId != nil {

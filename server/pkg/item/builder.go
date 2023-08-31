@@ -58,8 +58,13 @@ func (b *Builder) User(id UserID) *Builder {
 	return b
 }
 
-func (b *Builder) UpdatedBy(id UserID) *Builder {
-	b.i.updatedBy = &id
+func (b *Builder) UpdatedByUser(id *UserID) *Builder {
+	b.i.updatedByUser = id
+	return b
+}
+
+func (b *Builder) UpdatedByIntegration(id *IntegrationID) *Builder {
+	b.i.updatedByIntegration = id
 	return b
 }
 

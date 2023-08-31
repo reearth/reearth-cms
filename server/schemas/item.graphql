@@ -5,11 +5,11 @@ type Item implements Node {
   modelId: ID!
   projectId: ID!
   integrationId: ID
-  updatedById: ID
+  updatedByUserId: ID
+  updatedByIntegrationId: ID
   userId: ID
   metadataId: ID
-  integration: Integration
-  user: User
+  createdBy: ItemEditor
   schema: Schema!
   model: Model!
   status: ItemStatus!
@@ -19,10 +19,12 @@ type Item implements Node {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
-  updatedBy: User
+  updatedBy: ItemEditor
   version: String!
   metadata: Item
 }
+
+union ItemEditor = User|Integration
 
 type ItemField {
   schemaFieldId: ID!

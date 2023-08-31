@@ -14,6 +14,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+type ItemEditor interface {
+	IsItemEditor()
+}
+
 type Node interface {
 	IsNode()
 	GetID() ID
@@ -150,6 +154,7 @@ type CreateFieldInput struct {
 	ModelID      ID                            `json:"modelId"`
 	Type         SchemaFieldType               `json:"type"`
 	Title        string                        `json:"title"`
+	Metadata     *bool                         `json:"metadata,omitempty"`
 	Description  *string                       `json:"description,omitempty"`
 	Key          string                        `json:"key"`
 	Multiple     bool                          `json:"multiple"`
@@ -342,6 +347,8 @@ type Integration struct {
 
 func (Integration) IsOperator() {}
 
+func (Integration) IsItemEditor() {}
+
 func (Integration) IsNode()        {}
 func (this Integration) GetID() ID { return this.ID }
 
@@ -355,29 +362,29 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID            ID           `json:"id"`
-	SchemaID      ID           `json:"schemaId"`
-	ThreadID      ID           `json:"threadId"`
-	ModelID       ID           `json:"modelId"`
-	ProjectID     ID           `json:"projectId"`
-	IntegrationID *ID          `json:"integrationId,omitempty"`
-	UpdatedByID   *ID          `json:"updatedById,omitempty"`
-	UserID        *ID          `json:"userId,omitempty"`
-	MetadataID    *ID          `json:"metadataId,omitempty"`
-	Integration   *Integration `json:"integration,omitempty"`
-	User          *User        `json:"user,omitempty"`
-	Schema        *Schema      `json:"schema"`
-	Model         *Model       `json:"model"`
-	Status        ItemStatus   `json:"status"`
-	Project       *Project     `json:"project"`
-	Thread        *Thread      `json:"thread"`
-	Fields        []*ItemField `json:"fields"`
-	Assets        []*Asset     `json:"assets"`
-	CreatedAt     time.Time    `json:"createdAt"`
-	UpdatedAt     time.Time    `json:"updatedAt"`
-	UpdatedBy     *User        `json:"updatedBy,omitempty"`
-	Version       string       `json:"version"`
-	Metadata      *Item        `json:"metadata,omitempty"`
+	ID                     ID           `json:"id"`
+	SchemaID               ID           `json:"schemaId"`
+	ThreadID               ID           `json:"threadId"`
+	ModelID                ID           `json:"modelId"`
+	ProjectID              ID           `json:"projectId"`
+	IntegrationID          *ID          `json:"integrationId,omitempty"`
+	UpdatedByUserID        *ID          `json:"updatedByUserId,omitempty"`
+	UpdatedByIntegrationID *ID          `json:"updatedByIntegrationId,omitempty"`
+	UserID                 *ID          `json:"userId,omitempty"`
+	MetadataID             *ID          `json:"metadataId,omitempty"`
+	CreatedBy              ItemEditor   `json:"createdBy,omitempty"`
+	Schema                 *Schema      `json:"schema"`
+	Model                  *Model       `json:"model"`
+	Status                 ItemStatus   `json:"status"`
+	Project                *Project     `json:"project"`
+	Thread                 *Thread      `json:"thread"`
+	Fields                 []*ItemField `json:"fields"`
+	Assets                 []*Asset     `json:"assets"`
+	CreatedAt              time.Time    `json:"createdAt"`
+	UpdatedAt              time.Time    `json:"updatedAt"`
+	UpdatedBy              ItemEditor   `json:"updatedBy,omitempty"`
+	Version                string       `json:"version"`
+	Metadata               *Item        `json:"metadata,omitempty"`
 }
 
 func (Item) IsNode()        {}
@@ -874,6 +881,7 @@ type UpdateFieldInput struct {
 	Title        *string                       `json:"title,omitempty"`
 	Description  *string                       `json:"description,omitempty"`
 	Order        *int                          `json:"order,omitempty"`
+	Metadata     *bool                         `json:"metadata,omitempty"`
 	Key          *string                       `json:"key,omitempty"`
 	Required     *bool                         `json:"required,omitempty"`
 	Unique       *bool                         `json:"unique,omitempty"`
@@ -985,6 +993,8 @@ func (User) IsOperator() {}
 
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
+
+func (User) IsItemEditor() {}
 
 type VersionedItem struct {
 	Version string   `json:"version"`
