@@ -53,4 +53,51 @@ func TestGetCorrespondingFields(t *testing.T) {
 	fr2, ok := FieldReferenceFromTypeProperty(fields.Field2.TypeProperty())
 	assert.True(t, ok)
 	assert.Equal(t, wantcf2, fr2.correspondingField)
+	
+	// check invalid key
+	cf3 := &CorrespondingField{
+		Title:       lo.ToPtr("title"),
+		Key:         nil,
+		Description: lo.ToPtr("description"),
+		Required:    lo.ToPtr(true),
+	}
+	f3 := NewField(NewReference(mid2, cf3, cf3.FieldID).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	s3 := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(FieldList{f3}).MustBuild()
+	s4 := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(FieldList{}).MustBuild()
+
+	mid3 := id.NewModelID()
+	fr3, _ := FieldReferenceFromTypeProperty(f3.TypeProperty())
+	fields, err := GetCorrespondingFields(s3, s4, mid3, f3, fr3)
+	assert.Nil(t, fields)
+	assert.Equal(t, err, ErrInvalidKey)
+	
+	// check one way reference
+	mid4 := id.NewModelID()
+	f4 := NewField(NewReference(mid2, nil, nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	fr4, _ := FieldReferenceFromTypeProperty(f4.TypeProperty())
+	fields, err = GetCorrespondingFields(s3, s4, mid4, f4, fr4)
+	assert.Nil(t, fields)
+	assert.Nil(t, err)
+}
+
+func TestFieldReferenceFromTypeProperty(t *testing.T) {
+	// check that it returns true and correct field reference if type is reference
+	mid1 := id.NewModelID()
+	fid1 := id.NewFieldID()
+	f1 := NewField(NewReference(mid1, nil, nil).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
+	got1, ok := FieldReferenceFromTypeProperty(f1.TypeProperty())
+	want1 := &FieldReference{
+		modelId  : mid1,
+		correspondingFieldId: nil,
+		correspondingField : nil,
+	}
+	assert.True(t, ok)
+	assert.Equal(t, want1, got1)
+
+	// check that it returns false and nil if type is not reference
+	fid2 := id.NewFieldID()
+	f2 := NewField(NewText(nil).TypeProperty()).ID(fid2).Key(key.Random()).MustBuild()
+	got2, ok := FieldReferenceFromTypeProperty(f2.TypeProperty())
+	assert.False(t, ok)
+	assert.Nil(t, got2)
 }
