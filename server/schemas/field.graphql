@@ -120,7 +120,9 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  correspondingSchemaId: ID
   correspondingFieldId: ID
+  correspondingField: SchemaField
 }
 
 type SchemaFieldURL {
@@ -201,6 +203,7 @@ input CorrespondingFieldInput {
 
 input SchemaFieldReferenceInput {
   modelId: ID!
+  correspondingSchemaId: ID
   correspondingField: CorrespondingFieldInput
 }
 

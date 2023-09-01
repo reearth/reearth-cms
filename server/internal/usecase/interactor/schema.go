@@ -100,6 +100,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 			return interfaces.ErrOperationDenied
 		}
 
+		fr.SetCorrespondingSchema(s2.ID().Ref())
 		fields, err := schema.GetCorrespondingFields(s1, s2, param.ModelID, f1, fr)
 		if err != nil {
 			return err

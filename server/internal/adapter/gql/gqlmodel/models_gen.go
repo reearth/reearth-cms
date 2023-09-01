@@ -714,15 +714,18 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID              ID  `json:"modelId"`
-	CorrespondingFieldID *ID `json:"correspondingFieldId,omitempty"`
+	ModelID               ID           `json:"modelId"`
+	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
+	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
+	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID            ID                       `json:"modelId"`
-	CorrespondingField *CorrespondingFieldInput `json:"correspondingField,omitempty"`
+	ModelID               ID                       `json:"modelId"`
+	CorrespondingSchemaID *ID                      `json:"correspondingSchemaId,omitempty"`
+	CorrespondingField    *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {

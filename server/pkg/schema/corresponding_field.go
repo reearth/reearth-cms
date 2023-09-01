@@ -28,7 +28,7 @@ func GetCorrespondingFields(s1, s2 *Schema, mid id.ModelID, f1 *Field, fr *Field
 			Description: lo.ToPtr(f1.Description()),
 			Required:    lo.ToPtr(f1.Required()),
 		}
-		tp := NewReference(mid, cf2, cf2.FieldID).TypeProperty()
+		tp := NewReference(mid, s1.ID().Ref(), cf2, cf2.FieldID).TypeProperty()
 
 		f2, err := NewField(tp).
 			NewID().
