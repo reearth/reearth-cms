@@ -423,7 +423,7 @@ type ComplexityRoot struct {
 		Assets                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) int
 		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
-		Items                     func(childComplexity int, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) int
+		Items                     func(childComplexity int, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) int
 		Me                        func(childComplexity int) int
 		Models                    func(childComplexity int, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) int
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
@@ -769,7 +769,7 @@ type QueryResolver interface {
 	Models(ctx context.Context, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error)
-	Items(ctx context.Context, schemaID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
+	Items(ctx context.Context, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
 	SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
 }
@@ -2560,7 +2560,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Items(childComplexity, args["schemaId"].(gqlmodel.ID), args["sort"].(*gqlmodel.ItemSort), args["pagination"].(*gqlmodel.Pagination)), true
+		return e.complexity.Query.Items(childComplexity, args["modelId"].(gqlmodel.ID), args["sort"].(*gqlmodel.ItemSort), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -4798,7 +4798,7 @@ input ItemQuery {
 }
 
 extend type Query {
-  items(schemaId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
+  items(modelId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
   searchItem(
     query: ItemQuery!
@@ -5837,14 +5837,14 @@ func (ec *executionContext) field_Query_items_args(ctx context.Context, rawArgs 
 	var err error
 	args := map[string]interface{}{}
 	var arg0 gqlmodel.ID
-	if tmp, ok := rawArgs["schemaId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schemaId"))
+	if tmp, ok := rawArgs["modelId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
 		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["schemaId"] = arg0
+	args["modelId"] = arg0
 	var arg1 *gqlmodel.ItemSort
 	if tmp, ok := rawArgs["sort"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
@@ -17388,7 +17388,7 @@ func (ec *executionContext) _Query_items(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Items(rctx, fc.Args["schemaId"].(gqlmodel.ID), fc.Args["sort"].(*gqlmodel.ItemSort), fc.Args["pagination"].(*gqlmodel.Pagination))
+		return ec.resolvers.Query().Items(rctx, fc.Args["modelId"].(gqlmodel.ID), fc.Args["sort"].(*gqlmodel.ItemSort), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
