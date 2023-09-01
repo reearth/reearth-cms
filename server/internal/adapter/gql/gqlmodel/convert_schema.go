@@ -117,7 +117,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				return &SchemaFieldTagValue{
 					ID:    IDFrom(tag.ID()),
 					Name:  tag.Name(),
-					Color: tag.Color().String(),
+					Color: ToSchemaFieldTagColor(tag.Color()),
 				}
 			})
 			res = &SchemaFieldTag{

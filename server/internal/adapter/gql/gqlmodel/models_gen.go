@@ -756,9 +756,9 @@ type SchemaFieldTagInput struct {
 }
 
 type SchemaFieldTagValue struct {
-	ID    ID     `json:"id"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
+	ID    ID                  `json:"id"`
+	Name  string              `json:"name"`
+	Color SchemaFieldTagColor `json:"color"`
 }
 
 type SchemaFieldTagValueInput struct {
