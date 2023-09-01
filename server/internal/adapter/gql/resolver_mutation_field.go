@@ -82,18 +82,22 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 
-	ms, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
-	if err != nil || len(ms) != 1 || ms[0].ID() != mId {
-		if err == nil {
-			return nil, rerror.NewE(i18n.T("not found"))
-		}
-		return nil, err
-	}
-	m := ms[0]
-
-	s, err := usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
+	m, err := usecases(ctx).Model.FindByID(ctx, mId, getOperator(ctx))
 	if err != nil {
 		return nil, err
+	}
+
+	var s *schema.Schema
+	if input.Metadata != nil && *input.Metadata && m.Metadata() != nil {
+		s, err = usecases(ctx).Schema.FindByID(ctx, *m.Metadata(), getOperator(ctx))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		s, err = usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	dbField := s.Field(fId)
@@ -104,7 +108,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	f, err := usecases(ctx).Schema.UpdateField(ctx, interfaces.UpdateFieldParam{
-		SchemaId:     m.Schema(),
+		SchemaId:     s.ID(),
 		FieldId:      fId,
 		Name:         input.Title,
 		Description:  input.Description,
