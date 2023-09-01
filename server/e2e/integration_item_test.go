@@ -107,6 +107,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Workspace(w.ID()).
 		Project(p.ID()).
 		Fields([]*schema.Field{sf, sf2}).
+		TitleField(sf.ID().Ref()).
 		MustBuild()
 	if err := r.Schema.Save(ctx, s); err != nil {
 		return err
