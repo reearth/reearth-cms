@@ -88,7 +88,7 @@ func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *ver
 	return res, nil, nil
 }
 
-func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
