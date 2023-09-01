@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -20,37 +21,23 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	m, err := usecases(ctx).Model.FindByID(ctx, mId, getOperator(ctx))
+	m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
+	if err != nil || len(m) != 1 {
+		return nil, err
+	}
+
+	s, err := usecases(ctx).Schema.FindByID(ctx, m[0].Schema(), getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	var s *schema.Schema
-	if input.Metadata != nil && *input.Metadata {
-		if m.Metadata() != nil {
-			s, err = usecases(ctx).Schema.FindByID(ctx, *m.Metadata(), getOperator(ctx))
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			_, err = usecases(ctx).Model.CreateMetadata(ctx, mId, getOperator(ctx))
-			if err != nil {
-				return nil, err
-			}
-		}
-	} else {
-		s, err = usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
-		if err != nil {
-			return nil, err
-		}
-	}
 	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, input.Type, input.Multiple)
 	if err != nil {
 		return nil, err
 	}
 
 	f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
-		SchemaId:     s.ID(),
+		SchemaId:     m[0].Schema(),
 		Type:         value.Type(input.Type),
 		Name:         input.Title,
 		Description:  input.Description,
@@ -88,7 +75,10 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	var s *schema.Schema
-	if input.Metadata != nil && *input.Metadata && m.Metadata() != nil {
+	if input.Metadata != nil && *input.Metadata {
+		if m.Metadata() == nil {
+			return nil, errors.New("metadata schema not found")
+		}
 		s, err = usecases(ctx).Schema.FindByID(ctx, *m.Metadata(), getOperator(ctx))
 		if err != nil {
 			return nil, err
@@ -108,7 +98,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	f, err := usecases(ctx).Schema.UpdateField(ctx, interfaces.UpdateFieldParam{
-		SchemaId:     s.ID(),
+		SchemaId:     m.Schema(),
 		FieldId:      fId,
 		Name:         input.Title,
 		Description:  input.Description,
