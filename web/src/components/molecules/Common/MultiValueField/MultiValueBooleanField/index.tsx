@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Switch from "@reearth-cms/components/atoms/Switch";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
@@ -12,14 +12,22 @@ type Props = {
   className?: string;
   checked?: boolean[];
   onChange?: (value: (string | number | boolean)[]) => void;
+  FieldInput: React.FunctionComponent<any>;
   disabled?: boolean;
 };
 
-const MultiValueSwitch: React.FC<Props> = ({ className, checked = [], onChange, disabled }) => {
+const MultiValueBooleanField: React.FC<Props> = ({
+  className,
+  checked = [],
+  FieldInput,
+  disabled,
+  onChange,
+}) => {
   const t = useT();
   const handleInput = useCallback(
-    (e: boolean, id: number) => {
-      onChange?.(checked?.map((valueItem, index) => (index === id ? e : valueItem)));
+    (e: boolean | CheckboxChangeEvent, id: number) => {
+      const value = typeof e === "boolean" ? e : e.target.checked;
+      onChange?.(checked?.map((valueItem, index) => (index === id ? value : valueItem)));
     },
     [onChange, checked],
   );
@@ -61,7 +69,11 @@ const MultiValueSwitch: React.FC<Props> = ({ className, checked = [], onChange, 
                 />
               </>
             )}
-            <Switch onChange={(e: boolean) => handleInput(e, key)} checked={valueItem} />
+            <FieldInput
+              onChange={(e: boolean | CheckboxChangeEvent) => handleInput(e, key)}
+              checked={valueItem}
+            />
+
             <FlexSpace />
             {!disabled && (
               <FieldButton
@@ -87,7 +99,7 @@ const MultiValueSwitch: React.FC<Props> = ({ className, checked = [], onChange, 
   );
 };
 
-export default MultiValueSwitch;
+export default MultiValueBooleanField;
 
 const FieldWrapper = styled.div`
   display: flex;
