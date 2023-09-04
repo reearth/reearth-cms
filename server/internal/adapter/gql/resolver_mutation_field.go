@@ -2,8 +2,6 @@ package gql
 
 import (
 	"context"
-	"errors"
-
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -77,7 +75,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	var s *schema.Schema
 	if input.Metadata != nil && *input.Metadata {
 		if m.Metadata() == nil {
-			return nil, errors.New("metadata schema not found")
+			return nil, rerror.NewE(i18n.T("metadata schema not found"))
 		}
 		s, err = usecases(ctx).Schema.FindByID(ctx, *m.Metadata(), getOperator(ctx))
 		if err != nil {
