@@ -21,12 +21,13 @@ func ToSchema(s *schema.Schema) *Schema {
 		ID:        IDFrom(s.ID()),
 		ProjectID: IDFrom(s.Project()),
 		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) *SchemaField {
-			return ToSchemaField(sf)
+			return ToSchemaField(sf, s.TitleField())
 		}),
+		TitleFieldID: IDFromRef(s.TitleField()),
 	}
 }
 
-func ToSchemaField(sf *schema.Field) *SchemaField {
+func ToSchemaField(sf *schema.Field, titleField *id.FieldID) *SchemaField {
 	if sf == nil {
 		return nil
 	}
@@ -42,6 +43,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		Multiple:     sf.Multiple(),
 		Unique:       sf.Unique(),
 		Required:     sf.Required(),
+		IsTitle:      lo.FromPtr(titleField) == sf.ID(),
 		CreatedAt:    sf.CreatedAt(),
 		UpdatedAt:    sf.UpdatedAt(),
 	}

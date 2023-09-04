@@ -34,6 +34,7 @@ export interface FormValues {
   key: string;
   multiple: boolean;
   unique: boolean;
+  isTitle: boolean;
   required: boolean;
   typeProperty: SchemaFieldTypePropertyInput;
 }
@@ -79,6 +80,7 @@ const initialValues: FormValues = {
   key: "",
   multiple: false,
   unique: false,
+  isTitle: false,
   required: false,
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
@@ -165,6 +167,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       key: selectedField?.key,
       multiple: selectedField?.multiple,
       unique: selectedField?.unique,
+      isTitle: selectedField?.isTitle,
       required: selectedField?.required,
       defaultValue: value,
       min: selectedField?.typeProperty.min,
@@ -367,6 +370,12 @@ const FieldUpdateModal: React.FC<Props> = ({
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
               <Checkbox>{t("Support multiple values")}</Checkbox>
+            </Form.Item>
+            <Form.Item
+              name="isTitle"
+              valuePropName="checked"
+              extra={t("Only one field can be used as the title")}>
+              <Checkbox>{t("Use as title")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
