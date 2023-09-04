@@ -445,7 +445,7 @@ const ContentForm: React.FC<Props> = ({
                 key={field.id}
                 extra={field.description}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
                 <ReferenceFormItem
                   key={field.id}
                   formItemsData={formItemsData}

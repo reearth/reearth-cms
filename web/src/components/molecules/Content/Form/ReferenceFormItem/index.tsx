@@ -43,8 +43,6 @@ const ReferenceFormItem: React.FC<Props> = ({
   const [currentItem, setCurrentItem] = useState<FormItem | undefined>();
 
   const handleClick = useCallback(() => {
-    console.log(modelId);
-
     onReferenceModelUpdate(modelId);
     setVisible(true);
   }, [setVisible, onReferenceModelUpdate, modelId]);
