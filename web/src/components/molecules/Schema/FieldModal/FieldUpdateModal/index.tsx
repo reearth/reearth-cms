@@ -141,8 +141,13 @@ const FieldUpdateModal: React.FC<Props> = ({
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
-    console.log(form.getFieldValue("defaultValue"));
-    console.log(selectedTags);
+    if (selectedType === "Tag") {
+      if (
+        !selectedTags?.some(selectedTag => selectedTag.id === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
   }, [form, selectedTags, selectedType]);
 
   useEffect(() => {
@@ -157,6 +162,13 @@ const FieldUpdateModal: React.FC<Props> = ({
         value = value.map(valueItem => moment(valueItem));
       } else {
         value = moment(value);
+      }
+    }
+    if (selectedType === "Tag") {
+      if (Array.isArray(value)) {
+        value = value.map(valueItem => selectedTags?.find(tag => tag.id === valueItem)?.name);
+      } else {
+        value = selectedTags?.find(tag => tag.id === value)?.name;
       }
     }
 
@@ -176,7 +188,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       values: selectedField?.typeProperty.values,
       tags: selectedField?.typeProperty.tags,
     });
-  }, [form, selectedField, selectedType]);
+  }, [form, selectedField, selectedType, selectedTags]);
 
   const handleSubmit = useCallback(() => {
     form
