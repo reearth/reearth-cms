@@ -601,8 +601,17 @@ func TestItem_CheckIfItemIsReferenced(t *testing.T) {
 	w := accountdomain.NewWorkspaceID()
 	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
 
-	sf1 := schema.NewField(schema.NewReference(id.NewModelID(), nil, nil, nil).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
-	s1 := schema.New().NewID().Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
+	sid1 := id.NewSchemaID()
+	fid1 := id.NewFieldID()
+	cf1 := &schema.CorrespondingField{
+		FieldID:     fid1.Ref(),
+		Title:       lo.ToPtr("title"),
+		Key:         lo.ToPtr("key"),
+		Description: lo.ToPtr("description"),
+		Required:    lo.ToPtr(true),
+	}
+	sf1 := schema.NewField(schema.NewReference(id.NewModelID(), sid1.Ref(), cf1, cf1.FieldID).TypeProperty()).ID(fid1).Name("f").Unique(true).Key(key.Random()).MustBuild()
+	s1 := schema.New().ID(sid1).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
 	m1 := model.New().NewID().Schema(s1.ID()).Key(key.Random()).Project(s1.Project()).MustBuild()
 	fs1 := []*item.Field{item.NewField(sf1.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple())}
 	i1 := item.New().NewID().Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID()).Fields(fs1).MustBuild()
