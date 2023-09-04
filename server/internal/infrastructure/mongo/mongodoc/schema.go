@@ -1,6 +1,7 @@
 package mongodoc
 
 import (
+	"github.com/samber/lo"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -10,7 +11,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 type SchemaDocument struct {
@@ -76,9 +76,7 @@ type FieldIntegerPropertyDocument struct {
 }
 
 type FieldReferencePropertyDocument struct {
-	Model               string
-	CorrespondingSchema *string
-	CorrespondingField  *string
+	Model string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -156,9 +154,7 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			},
 			Reference: func(fp *schema.FieldReference) {
 				fd.TypeProperty.Reference = &FieldReferencePropertyDocument{
-					Model:               fp.Model().String(),
-					CorrespondingSchema: fp.CorrespondingSchema().StringRef(),
-					CorrespondingField:  fp.CorrespondingFieldID().StringRef(),
+					Model: fp.Model().String(),
 				}
 			},
 			URL: func(fp *schema.FieldURL) {},
@@ -248,15 +244,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			if err != nil {
 				return nil, err
 			}
-			var cfid *id.FieldID
-			if tpd.Reference.CorrespondingField != nil {
-				cfid = id.FieldIDFromRef(tpd.Reference.CorrespondingField)
-			}
-			var sid *id.SchemaID
-			if tpd.Reference.CorrespondingSchema != nil {
-				sid = id.SchemaIDFromRef(tpd.Reference.CorrespondingSchema)
-			}
-			tp = schema.NewReference(mid, sid, nil, cfid).TypeProperty()
+			tp = schema.NewReference(mid).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
 		}

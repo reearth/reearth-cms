@@ -12,8 +12,7 @@ import (
 )
 
 type CreateFieldParam struct {
-	ModelID      id.ModelID
-	SchemaID     id.SchemaID
+	SchemaId     id.SchemaID
 	Type         value.Type
 	Name         string
 	Description  *string
@@ -27,9 +26,8 @@ type CreateFieldParam struct {
 }
 
 type UpdateFieldParam struct {
-	ModelID      id.ModelID
-	SchemaID     id.SchemaID
-	FieldID      id.FieldID
+	SchemaId     id.SchemaID
+	FieldId      id.FieldID
 	Name         *string
 	Description  *string
 	Order        *int
