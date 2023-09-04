@@ -219,7 +219,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 
 		if param.MetadataID != nil {
-			_, err := i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+			_, err = i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
 			if err != nil {
 				return nil, err
 			}
