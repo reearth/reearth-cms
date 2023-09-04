@@ -160,6 +160,34 @@ func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p 
 	return i.repos.Item.Search(ctx, q, sort, p)
 }
 
+func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemId id.ItemID, _ *usecase.Operator) (*bool, error) {
+	itm, err := i.repos.Item.FindByID(ctx, itemId, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
+	if err != nil {
+		return nil, err
+	}
+	fields := s.Fields()
+
+	res := lo.ToPtr(false)
+	for _, sf := range fields {
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(f *schema.FieldReference) {
+				// cf := f.CorrespondingField()
+				// if cf != nil {
+				// 	res = lo.ToPtr(true)
+				// }
+			},
+		})
+
+	}
+
+	return res, nil
+}
+
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
