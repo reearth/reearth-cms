@@ -28,7 +28,7 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
           ))}
         </Select>
       ) : (
-        <Select showArrow style={{ width: "100%" }}>
+        <Select showArrow style={{ width: "100%" }} allowClear>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
               <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
