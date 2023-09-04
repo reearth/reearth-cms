@@ -112,9 +112,10 @@ func TestMultiple_ValuesString(t *testing.T) {
 	got, ok := m.ValuesString()
 	var expected []String
 	assert.Equal(t, expected, got)
-	assert.Equal(t, false, ok)
+	assert.False(t, ok)
 	m = NewMultiple(TypeText, []any{"a", "b", "c"})
 	expected = []String{"a", "b", "c"}
-	got, _ = m.ValuesString()
+	got, ok = m.ValuesString()
 	assert.Equal(t, expected, got)
+	assert.True(t, ok)
 }
