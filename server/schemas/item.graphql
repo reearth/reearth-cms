@@ -125,6 +125,7 @@ extend type Query {
     sort: ItemSort
     pagination: Pagination
   ): ItemConnection!
+  isItemReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean!
 }
 
 extend type Mutation {
