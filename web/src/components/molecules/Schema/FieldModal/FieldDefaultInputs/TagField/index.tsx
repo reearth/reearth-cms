@@ -13,27 +13,27 @@ export interface Props {
 const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
   const t = useT();
 
+  const capitalizeFirstLetter = (input: string) => {
+    return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
+  };
+
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>
       {multiple ? (
         <Select mode="multiple" showArrow style={{ width: "100%" }}>
-          {selectedTags
-            ?.filter(tag => !!tag.id)
-            ?.map(tag => (
-              <Select.Option key={tag.id} value={tag.id}>
-                <Tag color={tag.color}>{tag.name}</Tag>
-              </Select.Option>
-            ))}
+          {selectedTags?.map(tag => (
+            <Select.Option key={tag.name} value={tag.name}>
+              <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+            </Select.Option>
+          ))}
         </Select>
       ) : (
         <Select showArrow style={{ width: "100%" }}>
-          {selectedTags
-            ?.filter(tag => !!tag.id)
-            ?.map(tag => (
-              <Select.Option key={tag.id} value={tag.id}>
-                <Tag color={tag.color}>{tag.name}</Tag>
-              </Select.Option>
-            ))}
+          {selectedTags?.map(tag => (
+            <Select.Option key={tag.id} value={tag.id}>
+              <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+            </Select.Option>
+          ))}
         </Select>
       )}
     </Form.Item>
