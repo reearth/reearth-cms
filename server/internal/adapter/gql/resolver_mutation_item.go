@@ -23,9 +23,6 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
 	res, err := usecases(ctx).Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID:   sid,
 		ModelID:    mid,

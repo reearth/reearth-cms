@@ -73,19 +73,15 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	var s *schema.Schema
+	var sid schema.ID
 	if input.Metadata != nil && *input.Metadata {
-		if m.Metadata() == nil {
-			return nil, rerror.NewE(i18n.T("metadata schema not found"))
-		}
-		s, err = usecases(ctx).Schema.FindByID(ctx, *m.Metadata(), getOperator(ctx))
-		if err != nil {
-			return nil, err
-		}
+		sid = *m.Metadata()
 	} else {
-		s, err = usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
-		if err != nil {
-			return nil, err
-		}
+		sid = m.Schema()
+	}
+	s, err = usecases(ctx).Schema.FindByID(ctx, sid, getOperator(ctx))
+	if err != nil {
+		return nil, err
 	}
 
 	dbField := s.Field(fId)

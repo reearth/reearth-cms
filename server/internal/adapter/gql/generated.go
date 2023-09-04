@@ -4748,7 +4748,7 @@ extend type Mutation {
   metadata: Item
 }
 
-union ItemEditor = User|Integration
+union ItemEditor = User | Integration
 
 type ItemField {
   schemaFieldId: ID!

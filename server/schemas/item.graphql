@@ -24,7 +24,7 @@ type Item implements Node {
   metadata: Item
 }
 
-union ItemEditor = User|Integration
+union ItemEditor = User | Integration
 
 type ItemField {
   schemaFieldId: ID!

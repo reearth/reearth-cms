@@ -208,7 +208,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Schema(s.ID()).
 			Project(s.Project()).
 			Model(m.ID()).
-			MetadataItem(param.MetadataID).
 			Thread(th.ID()).
 			Fields(fields)
 
@@ -217,6 +216,10 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 		if operator.Integration != nil {
 			ib = ib.Integration(*operator.Integration)
+		}
+
+		if param.MetadataID != nil {
+			ib = ib.MetadataItem(param.MetadataID)
 		}
 
 		it, err := ib.Build()
@@ -308,9 +311,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 
 		if operator.AcOperator.User != nil {
 			itv.SetUpdatedByUser(*operator.AcOperator.User)
-		}
-
-		if operator.Integration != nil {
+		} else if operator.Integration != nil {
 			itv.SetUpdatedByIntegration(*operator.Integration)
 		}
 

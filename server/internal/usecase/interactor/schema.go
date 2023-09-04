@@ -2,6 +2,8 @@ package interactor
 
 import (
 	"context"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -31,6 +33,13 @@ func (i Schema) FindByID(ctx context.Context, id id.SchemaID, operator *usecase.
 
 func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usecase.Operator) (schema.List, error) {
 	return i.repos.Schema.FindByIDs(ctx, ids)
+}
+
+func (i Schema) FindByIDRef(ctx context.Context, schemaID *id.SchemaID, operator *usecase.Operator) (*schema.Schema, error) {
+	if schemaID == nil {
+		return nil, rerror.NewE(i18n.T("metadata schema not found"))
+	}
+	return i.repos.Schema.FindByID(ctx, *schemaID)
 }
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
