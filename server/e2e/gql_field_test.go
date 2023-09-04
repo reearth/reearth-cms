@@ -113,7 +113,7 @@ func TestCreateField(t *testing.T) {
 
 	tags := res.Path("$.data.node.schema.fields[0].typeProperty.tags").Raw().([]any)
 
-	_, res = updateField(e, mId, fId, "test", "test", "test",
+	_, _ = updateField(e, mId, fId, "test", "test", "test",
 		true, true, true, true, nil, "Tag",
 		map[string]any{
 			"tag": map[string]any{
