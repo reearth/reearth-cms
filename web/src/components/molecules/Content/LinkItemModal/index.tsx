@@ -19,6 +19,7 @@ type Props = {
   linkedItemsModalList?: FormItem[];
   visible?: boolean;
   linkedItem?: string;
+  correspondingFieldId: string;
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
@@ -28,6 +29,7 @@ type Props = {
 
 const LinkItemModal: React.FC<Props> = ({
   visible,
+  correspondingFieldId,
   linkedItemsModalList,
   linkedItem,
   linkItemModalTotalCount,
@@ -69,8 +71,8 @@ const LinkItemModal: React.FC<Props> = ({
                 return;
               }
 
-              const response = await handleCheckItemReference(item.id);
-              const isReferenced = response?.data?.checkIfItemIsReferenced;
+              const response = await handleCheckItemReference(item.id, correspondingFieldId);
+              const isReferenced = response?.data?.isItemReferenced;
 
               if (isReferenced) {
                 confirm({

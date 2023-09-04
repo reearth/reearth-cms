@@ -14,6 +14,7 @@ type Props = {
   linkedItemsModalList?: FormItem[];
   className?: string;
   value?: string;
+  correspondingFieldId: string;
   modelId?: string;
   formItemsData?: FormItem[];
   linkItemModalTotalCount: number;
@@ -27,6 +28,7 @@ type Props = {
 const ReferenceFormItem: React.FC<Props> = ({
   linkedItemsModalList,
   value,
+  correspondingFieldId,
   onChange,
   modelId,
   formItemsData,
@@ -85,6 +87,7 @@ const ReferenceFormItem: React.FC<Props> = ({
       <LinkItemModal
         linkItemModalTotalCount={linkItemModalTotalCount}
         linkItemModalPage={linkItemModalPage}
+        correspondingFieldId={correspondingFieldId}
         linkItemModalPageSize={linkItemModalPageSize}
         onLinkItemTableChange={onLinkItemTableChange}
         linkedItemsModalList={linkedItemsModalList}

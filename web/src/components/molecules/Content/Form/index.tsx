@@ -448,6 +448,7 @@ const ContentForm: React.FC<Props> = ({
                 label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
                 <ReferenceFormItem
                   key={field.id}
+                  correspondingFieldId={field.id}
                   formItemsData={formItemsData}
                   modelId={field.typeProperty.modelId}
                   onReferenceModelUpdate={onReferenceModelUpdate}

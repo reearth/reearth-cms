@@ -941,6 +941,7 @@ export type Query = {
   assets: AssetConnection;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
+  isItemReferenced: Scalars['Boolean'];
   items: ItemConnection;
   me?: Maybe<Me>;
   models: ModelConnection;
@@ -975,6 +976,12 @@ export type QueryCheckModelKeyAvailabilityArgs = {
 
 export type QueryCheckProjectAliasArgs = {
   alias: Scalars['String'];
+};
+
+
+export type QueryIsItemReferencedArgs = {
+  correspondingFieldId: Scalars['ID'];
+  itemId: Scalars['ID'];
 };
 
 
@@ -1211,6 +1218,7 @@ export type SchemaFieldReference = {
   __typename?: 'SchemaFieldReference';
   correspondingField?: Maybe<SchemaField>;
   correspondingFieldId?: Maybe<Scalars['ID']>;
+  correspondingSchema?: Maybe<Schema>;
   correspondingSchemaId?: Maybe<Scalars['ID']>;
   modelId: Scalars['ID'];
 };
@@ -1806,6 +1814,14 @@ export type GetItemQueryVariables = Exact<{
 
 
 export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null };
+
+export type IsItemReferencedQueryVariables = Exact<{
+  itemId: Scalars['ID'];
+  correspondingFieldId: Scalars['ID'];
+}>;
+
+
+export type IsItemReferencedQuery = { __typename?: 'Query', isItemReferenced: boolean };
 
 export type GetItemsByIdsQueryVariables = Exact<{
   id: Array<Scalars['ID']> | Scalars['ID'];
@@ -3386,6 +3402,40 @@ export function useGetItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ge
 export type GetItemQueryHookResult = ReturnType<typeof useGetItemQuery>;
 export type GetItemLazyQueryHookResult = ReturnType<typeof useGetItemLazyQuery>;
 export type GetItemQueryResult = Apollo.QueryResult<GetItemQuery, GetItemQueryVariables>;
+export const IsItemReferencedDocument = gql`
+    query IsItemReferenced($itemId: ID!, $correspondingFieldId: ID!) {
+  isItemReferenced(itemId: $itemId, correspondingFieldId: $correspondingFieldId)
+}
+    `;
+
+/**
+ * __useIsItemReferencedQuery__
+ *
+ * To run a query within a React component, call `useIsItemReferencedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIsItemReferencedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIsItemReferencedQuery({
+ *   variables: {
+ *      itemId: // value for 'itemId'
+ *      correspondingFieldId: // value for 'correspondingFieldId'
+ *   },
+ * });
+ */
+export function useIsItemReferencedQuery(baseOptions: Apollo.QueryHookOptions<IsItemReferencedQuery, IsItemReferencedQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IsItemReferencedQuery, IsItemReferencedQueryVariables>(IsItemReferencedDocument, options);
+      }
+export function useIsItemReferencedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IsItemReferencedQuery, IsItemReferencedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IsItemReferencedQuery, IsItemReferencedQueryVariables>(IsItemReferencedDocument, options);
+        }
+export type IsItemReferencedQueryHookResult = ReturnType<typeof useIsItemReferencedQuery>;
+export type IsItemReferencedLazyQueryHookResult = ReturnType<typeof useIsItemReferencedLazyQuery>;
+export type IsItemReferencedQueryResult = Apollo.QueryResult<IsItemReferencedQuery, IsItemReferencedQueryVariables>;
 export const GetItemsByIdsDocument = gql`
     query GetItemsByIds($id: [ID!]!) {
   nodes(id: $id, type: Item) {

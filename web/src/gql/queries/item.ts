@@ -66,11 +66,11 @@ export const GET_ITEM_NODE = gql`
   }
 `;
 
-// export const CHECK_IF_ITEM_IS_REFERENCED = gql`
-//   query CheckIfItemIsReferenced($itemId: ID!) {
-//     checkIfItemIsReferenced(itemId: $itemId)
-//   }
-// `;
+export const IS_ITEM_REFERENCED = gql`
+  query IsItemReferenced($itemId: ID!, $correspondingFieldId: ID!) {
+    isItemReferenced(itemId: $itemId, correspondingFieldId: $correspondingFieldId)
+  }
+`;
 
 export const GET_ITEMS_BY_IDS = gql`
   query GetItemsByIds($id: [ID!]!) {
