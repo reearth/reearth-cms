@@ -10,9 +10,12 @@ import { FieldType } from "../../types";
 
 import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";
+import CheckboxField from "./CheckboxField";
+import DateField from "./DateField";
 import IntegerField from "./IntegerField";
 import MarkdownField from "./Markdown";
 import SelectField from "./SelectField";
+import TagField from "./TagField";
 import TextAreaField from "./TextArea";
 import TextField from "./TextField";
 import URLField from "./URLField";
@@ -21,6 +24,7 @@ export interface Props {
   selectedType: FieldType;
   multiple?: boolean;
   selectedValues: string[];
+  selectedTags: { id: string; name: string; color: string }[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -51,6 +55,7 @@ export interface Props {
 const FieldDefaultInputs: React.FC<Props> = ({
   selectedType,
   selectedValues,
+  selectedTags,
   multiple,
   assetList,
   fileList,
@@ -82,6 +87,12 @@ const FieldDefaultInputs: React.FC<Props> = ({
       <IntegerField multiple={multiple} />
     ) : selectedType === "Bool" ? (
       <BooleanField multiple={multiple} />
+    ) : selectedType === "Date" ? (
+      <DateField multiple={multiple} />
+    ) : selectedType === "Tag" ? (
+      <TagField selectedTags={selectedTags} multiple={multiple} />
+    ) : selectedType === "Checkbox" ? (
+      <CheckboxField multiple={multiple} />
     ) : selectedType === "Asset" ? (
       <AssetField
         multiple={multiple}

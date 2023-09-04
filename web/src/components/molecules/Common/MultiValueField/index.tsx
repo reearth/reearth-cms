@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import moment, { Moment } from "moment";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -11,8 +12,8 @@ import { moveItemInArray } from "./moveItemArray";
 
 type Props = {
   className?: string;
-  value?: (string | number)[];
-  onChange?: (value: (string | number)[]) => void;
+  value?: (string | number | Moment)[];
+  onChange?: (value: (string | number | Moment)[]) => void;
   FieldInput: React.FunctionComponent<any>;
 } & TextAreaProps &
   InputProps;
@@ -29,7 +30,11 @@ const MultiValueField: React.FC<Props> = ({
     (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {
       onChange?.(
         value?.map((valueItem, index) =>
-          index === id ? (typeof e === "number" ? e : e?.target.value) : valueItem,
+          index === id
+            ? typeof e === "number" || moment.isMoment(e)
+              ? e
+              : e?.target.value
+            : valueItem,
         ),
       );
     },

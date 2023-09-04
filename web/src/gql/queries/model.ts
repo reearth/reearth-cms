@@ -50,6 +50,20 @@ export const GET_MODELS = gql`
               ... on SchemaFieldBool {
                 defaultValue
               }
+              ... on SchemaFieldCheckbox {
+                defaultValue
+              }
+              ... on SchemaFieldTag {
+                selectDefaultValue: defaultValue
+                tags {
+                  id
+                  name
+                  color
+                }
+              }
+              ... on SchemaFieldDate {
+                defaultValue
+              }
               ... on SchemaFieldURL {
                 defaultValue
               }
