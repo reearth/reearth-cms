@@ -2,9 +2,6 @@ package interactor
 
 import (
 	"context"
-	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/rerror"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -12,6 +9,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -35,11 +34,15 @@ func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usec
 	return i.repos.Schema.FindByIDs(ctx, ids)
 }
 
-func (i Schema) FindByIDRef(ctx context.Context, schemaID *id.SchemaID, operator *usecase.Operator) (*schema.Schema, error) {
-	if schemaID == nil {
-		return nil, rerror.NewE(i18n.T("metadata schema not found"))
+func (i Schema) GetSchemaOrMetadata(ctx context.Context, param interfaces.GetSchemaOrMetadataParam, operator *usecase.Operator) (*schema.Schema, error) {
+	if param.IsMetadata != nil && *param.IsMetadata {
+		if param.MetadataId == nil {
+			return nil, rerror.NewE(i18n.T("metadata schema not found"))
+		}
+		return i.repos.Schema.FindByID(ctx, *param.MetadataId)
 	}
-	return i.repos.Schema.FindByID(ctx, *schemaID)
+
+	return i.repos.Schema.FindByID(ctx, param.SchemaId)
 }
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {

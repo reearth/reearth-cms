@@ -39,6 +39,11 @@ type UpdateFieldParam struct {
 	TypeProperty *schema.TypeProperty
 	DefaultValue *value.Multiple
 }
+type GetSchemaOrMetadataParam struct {
+	SchemaId   id.SchemaID
+	MetadataId *id.SchemaID
+	IsMetadata *bool
+}
 
 var (
 	ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
@@ -48,7 +53,7 @@ var (
 
 type Schema interface {
 	FindByID(context.Context, id.SchemaID, *usecase.Operator) (*schema.Schema, error)
-	FindByIDRef(context.Context, *id.SchemaID, *usecase.Operator) (*schema.Schema, error)
+	GetSchemaOrMetadata(context.Context, GetSchemaOrMetadataParam, *usecase.Operator) (*schema.Schema, error)
 	FindByIDs(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)

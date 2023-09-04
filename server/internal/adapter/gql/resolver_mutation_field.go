@@ -72,14 +72,11 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 
-	var s *schema.Schema
-	var sid schema.ID
-	if input.Metadata != nil && *input.Metadata {
-		sid = *m.Metadata()
-	} else {
-		sid = m.Schema()
-	}
-	s, err = usecases(ctx).Schema.FindByID(ctx, sid, getOperator(ctx))
+	s, err := usecases(ctx).Schema.GetSchemaOrMetadata(ctx, interfaces.GetSchemaOrMetadataParam{
+		SchemaId:   m.Schema(),
+		MetadataId: m.Metadata(),
+		IsMetadata: input.Metadata,
+	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
