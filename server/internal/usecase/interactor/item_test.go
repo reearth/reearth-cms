@@ -596,7 +596,7 @@ func TestItem_Search(t *testing.T) {
 	}
 }
 
-func TestItem_CheckIfItemIsReferenced(t *testing.T) {
+func TestItem_IsItemReferenced(t *testing.T) {
 	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
 	w := accountdomain.NewWorkspaceID()
 	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
@@ -664,22 +664,22 @@ func TestItem_CheckIfItemIsReferenced(t *testing.T) {
 	}
 
 	// reference item
-	b, err := itemUC.CheckIfItemIsReferenced(ctx, i1.ID(), fid1, op)
+	b, err := itemUC.IsItemReferenced(ctx, i1.ID(), fid1, op)
 	assert.True(t, b)
 	assert.Nil(t, err)
 
 	// not reference item 1
-	b, err = itemUC.CheckIfItemIsReferenced(ctx, i3.ID(), sf3.ID(), op)
+	b, err = itemUC.IsItemReferenced(ctx, i3.ID(), sf3.ID(), op)
 	assert.False(t, b)
 	assert.Nil(t, err)
 
 	// not reference item 2
-	b, err = itemUC.CheckIfItemIsReferenced(ctx, i3.ID(), id.NewFieldID(), op)
+	b, err = itemUC.IsItemReferenced(ctx, i3.ID(), id.NewFieldID(), op)
 	assert.False(t, b)
 	assert.Nil(t, err)
 
 	// item not found
-	b, err = itemUC.CheckIfItemIsReferenced(ctx, id.NewItemID(), sf2.ID(), op)
+	b, err = itemUC.IsItemReferenced(ctx, id.NewItemID(), sf2.ID(), op)
 	assert.False(t, b)
 	assert.Error(t, err)
 }

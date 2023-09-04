@@ -160,7 +160,7 @@ func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p 
 	return i.repos.Item.Search(ctx, q, sort, p)
 }
 
-func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemID id.ItemID, correspondingFieldID id.FieldID, _ *usecase.Operator) (bool, error) {
+func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspondingFieldID id.FieldID, _ *usecase.Operator) (bool, error) {
 	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
 	if err != nil {
 		return false, err

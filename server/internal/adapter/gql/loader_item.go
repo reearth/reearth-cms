@@ -237,7 +237,7 @@ func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort 
 	}, nil
 }
 
-func (c *ItemLoader) CheckIfItemIsReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error) {
+func (c *ItemLoader) IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error) {
 	op := getOperator(ctx)
 	iid, err := gqlmodel.ToID[id.Item](itemID)
 	if err != nil {
@@ -248,7 +248,7 @@ func (c *ItemLoader) CheckIfItemIsReferenced(ctx context.Context, itemID gqlmode
 		return false, err
 	}
 
-	return c.usecase.CheckIfItemIsReferenced(ctx, iid, fid, op)
+	return c.usecase.IsItemReferenced(ctx, iid, fid, op)
 }
 
 // data loader
