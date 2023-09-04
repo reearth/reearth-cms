@@ -601,13 +601,13 @@ func TestItem_CheckIfItemIsReferenced(t *testing.T) {
 	w := accountdomain.NewWorkspaceID()
 	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
 
-	sf1 := schema.NewField(schema.NewReference(id.NewModelID()).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewReference(id.NewModelID(), nil, nil, nil).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s1 := schema.New().NewID().Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
 	m1 := model.New().NewID().Schema(s1.ID()).Key(key.Random()).Project(s1.Project()).MustBuild()
 	fs1 := []*item.Field{item.NewField(sf1.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple())}
 	i1 := item.New().NewID().Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID()).Fields(fs1).MustBuild()
 
-	sf2 := schema.NewField(schema.NewReference(id.NewModelID()).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
+	sf2 := schema.NewField(schema.NewReference(id.NewModelID(), nil, nil, nil).TypeProperty()).NewID().Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s2 := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf2}).MustBuild()
 	m2 := model.New().NewID().Schema(s2.ID()).Key(key.Random()).Project(s2.Project()).MustBuild()
 	fs2 := []*item.Field{item.NewField(sf2.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple())}
