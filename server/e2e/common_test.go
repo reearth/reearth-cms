@@ -176,3 +176,8 @@ func StartGQLServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Containe
 	})
 	return httpexpect.New(t, "http://"+l.Addr().String())
 }
+
+type GraphQLRequest struct {
+	Query     string         `json:"query"`
+	Variables map[string]any `json:"variables"`
+}
