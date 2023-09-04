@@ -19,7 +19,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	s, err := usecases(ctx).Model.FindOrCreateMetadata(ctx, mId, input.Metadata, getOperator(ctx))
+	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, mId, input.Metadata, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

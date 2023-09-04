@@ -197,7 +197,7 @@ func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator
 		})
 }
 
-func (i Model) FindOrCreateMetadata(ctx context.Context, modelID id.ModelID, metadata *bool, operator *usecase.Operator) (*schema.Schema, error) {
+func (i Model) FindOrCreateSchema(ctx context.Context, modelID id.ModelID, metadata *bool, operator *usecase.Operator) (*schema.Schema, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *schema.Schema, err error) {
 			m, err := i.repos.Model.FindByID(ctx, modelID)
