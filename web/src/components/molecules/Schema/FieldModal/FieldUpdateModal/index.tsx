@@ -371,6 +371,10 @@ const FieldUpdateModal: React.FC<Props> = ({
                       if (values.some((value: string) => value.length === 0)) {
                         return Promise.reject(new Error("Empty values are not allowed"));
                       }
+                      const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
+                      if (uniqueNames.size !== values.length) {
+                        return Promise.reject(new Error("Labels must be unique"));
+                      }
                     },
                   },
                 ]}>
