@@ -196,39 +196,43 @@ func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator
 			return b, nil
 		})
 }
-func (i Model) FindOrCreateMetadata(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) (*schema.Schema, error) {
+
+func (i Model) FindOrCreateMetadata(ctx context.Context, modelID id.ModelID, metadata *bool, operator *usecase.Operator) (*schema.Schema, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *schema.Schema, err error) {
 			m, err := i.repos.Model.FindByID(ctx, modelID)
 			if err != nil {
 				return nil, err
 			}
-			if m.Metadata() != nil {
-				return i.repos.Schema.FindByID(ctx, *m.Metadata())
-			}
+			if metadata != nil && *metadata {
+				if m.Metadata() != nil {
+					return i.repos.Schema.FindByID(ctx, *m.Metadata())
+				}
 
-			p, err := i.repos.Project.FindByID(ctx, m.Project())
-			if err != nil {
-				return nil, err
-			}
-			if !operator.IsMaintainingProject(p.ID()) {
-				return nil, interfaces.ErrOperationDenied
-			}
+				p, err := i.repos.Project.FindByID(ctx, m.Project())
+				if err != nil {
+					return nil, err
+				}
+				if !operator.IsMaintainingProject(p.ID()) {
+					return nil, interfaces.ErrOperationDenied
+				}
 
-			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
-			if err != nil {
-				return nil, err
-			}
+				s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
+				if err != nil {
+					return nil, err
+				}
 
-			m.SetMetadata(s.ID())
+				m.SetMetadata(s.ID())
 
-			if err := i.repos.Schema.Save(ctx, s); err != nil {
-				return nil, err
-			}
+				if err := i.repos.Schema.Save(ctx, s); err != nil {
+					return nil, err
+				}
 
-			if err := i.repos.Model.Save(ctx, m); err != nil {
-				return nil, err
+				if err := i.repos.Model.Save(ctx, m); err != nil {
+					return nil, err
+				}
+				return s, nil
 			}
-			return s, nil
+			return i.repos.Schema.FindByID(ctx, m.Schema())
 		})
 }

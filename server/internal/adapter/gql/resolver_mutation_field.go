@@ -19,22 +19,9 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	m, err := usecases(ctx).Model.FindByID(ctx, mId, getOperator(ctx))
+	s, err := usecases(ctx).Model.FindOrCreateMetadata(ctx, mId, input.Metadata, getOperator(ctx))
 	if err != nil {
 		return nil, err
-	}
-
-	var s *schema.Schema
-	if input.Metadata != nil && *input.Metadata {
-		s, err = usecases(ctx).Model.FindOrCreateMetadata(ctx, mId, getOperator(ctx))
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		s, err = usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, input.Type, input.Multiple)
