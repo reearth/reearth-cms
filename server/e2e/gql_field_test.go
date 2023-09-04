@@ -129,4 +129,24 @@ func TestCreateField(t *testing.T) {
 		Value("node").Object().
 		ValueEqual("id", mId)
 
+	_, _ = createField(e, mId, "test2", "test2", "test2",
+		false, false, false, false, "Tag",
+		map[string]any{
+			"tag": map[string]any{
+				"defaultValue": "t1",
+				"tags": []any{
+					map[string]any{"id": nil, "name": "t1", "color": "RED"},
+					map[string]any{"id": nil, "name": "t2", "color": "RED"},
+					map[string]any{"id": nil, "name": "t3", "color": "RED"},
+				},
+			},
+		})
+
+	_, res = getModel(e, mId)
+
+	res.Object().
+		Value("data").Object().
+		Value("node").Object().
+		ValueEqual("id", mId)
+
 }

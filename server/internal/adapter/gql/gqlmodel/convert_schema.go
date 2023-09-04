@@ -395,12 +395,13 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			})
 			dv = value.NewMultiple(value.TypeTag, tagsIds)
 		} else {
-			valueName, ok := x.DefaultValue.(string)
-			if !ok {
-				return nil, nil, ErrInvalidTypeProperty
-			}
+			valueName, _ := x.DefaultValue.(string)
 			tag := tags.FindByName(valueName)
-			dv = FromValue(SchemaFieldTypeTag, tag.ID()).AsMultiple()
+			tagId := ""
+			if tag != nil {
+				tagId = tag.ID().String()
+			}
+			dv = FromValue(SchemaFieldTypeTag, tagId).AsMultiple()
 		}
 		tpRes = res.TypeProperty()
 	case SchemaFieldTypeInteger:

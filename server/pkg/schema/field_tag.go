@@ -147,6 +147,9 @@ func (tl TagList) HasDuplication() bool {
 }
 
 func (tl TagList) FindByName(name string) *Tag {
+	if name == "" {
+		return nil
+	}
 	for _, i := range tl {
 		if i.Name() == name {
 			return i
