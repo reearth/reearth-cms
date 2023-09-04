@@ -99,6 +99,8 @@ models:
     fields:
       correspondingField:
         resolver: true
+      correspondingSchema:
+        resolver: true
   Asset:
     fields:
       createdBy:

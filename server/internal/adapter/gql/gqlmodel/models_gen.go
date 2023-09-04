@@ -720,6 +720,7 @@ func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 type SchemaFieldReference struct {
 	ModelID               ID           `json:"modelId"`
 	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
+	CorrespondingSchema   *Schema      `json:"correspondingSchema,omitempty"`
 	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
 	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
 }
