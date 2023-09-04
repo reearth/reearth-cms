@@ -95,6 +95,10 @@ models:
     fields:
       model:
         resolver: true
+  SchemaFieldReference:
+    fields:
+      correspondingField:
+        resolver: true
   Asset:
     fields:
       createdBy:

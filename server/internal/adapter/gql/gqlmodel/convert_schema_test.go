@@ -180,7 +180,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "reference",
-			args: args{tp: schema.NewReference(mid).TypeProperty()},
+			args: args{tp: schema.NewReference(mid, nil, nil, nil).TypeProperty()},
 			want: &SchemaFieldReference{ModelID: IDFrom(mid)},
 		},
 		{
@@ -293,7 +293,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 				},
 			},
 			argsT:  SchemaFieldTypeReference,
-			wantTp: schema.NewReference(mid).TypeProperty(),
+			wantTp: schema.NewReference(mid, nil, nil, nil).TypeProperty(),
 		},
 		{
 			name: "asset",
@@ -340,4 +340,27 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			assert.Equal(t, tt.wantError, err)
 		})
 	}
+}
+
+func TestFromCorrespondingField(t *testing.T) {
+	var cf *CorrespondingFieldInput
+	got := FromCorrespondingField(cf)
+	assert.Nil(t, got)
+
+	cf = &CorrespondingFieldInput{
+		FieldID:     IDFromRef(id.NewFieldID().Ref()),
+		Title:       lo.ToPtr("title"),
+		Key:         lo.ToPtr("key"),
+		Description: lo.ToPtr(""),
+		Required:    lo.ToPtr(false),
+	}
+	want := &schema.CorrespondingField{
+		FieldID:     ToIDRef[id.Field](cf.FieldID),
+		Title:       cf.Title,
+		Key:         cf.Key,
+		Description: cf.Description,
+		Required:    cf.Required,
+	}
+	got = FromCorrespondingField(cf)
+	assert.Equal(t, want, got)
 }

@@ -105,7 +105,7 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 	return i.repos.Item.FindByProject(ctx, projectID, nil, p)
 }
 
-func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, sort *usecasex.Sort, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	m, err := i.repos.Model.FindByID(ctx, modelID)
 	if err != nil {
 		return nil, nil, err
@@ -113,7 +113,7 @@ func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, p *usecasex.P
 	if !operator.IsReadableProject(m.Project()) {
 		return nil, nil, rerror.ErrNotFound
 	}
-	return i.repos.Item.FindByModel(ctx, m.ID(), nil, p)
+	return i.repos.Item.FindByModel(ctx, m.ID(), nil, sort, p)
 }
 
 func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -122,7 +122,7 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 		return nil, nil, err
 	}
 	// TODO: check operation for projects that publication type is limited
-	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), p)
+	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), nil, p)
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
