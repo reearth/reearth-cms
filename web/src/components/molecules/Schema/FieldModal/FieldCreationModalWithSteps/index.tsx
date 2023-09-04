@@ -85,6 +85,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       multiple: false,
       unique: false,
       required: false,
+      isTitle: false,
       type: "Text",
       typeProperty: {
         reference: {
@@ -123,9 +124,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   }, [modelForm, field1Form, field2Form, initialValues]);
 
   const handleFirstField = useCallback(async () => {
-    console.log("here");
-    console.log("here");
-
     field1Form
       .validateFields()
       .then(async values => {
@@ -347,6 +345,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 valuePropName="checked"
                 extra={t("Stores a list of values instead of a single value")}>
                 <Checkbox disabled>{t("Support multiple values")}</Checkbox>
+              </Form.Item>
+              <Form.Item
+                hidden
+                name="isTitle"
+                valuePropName="checked"
+                extra={t("Only one field can be used as the title")}>
+                <Checkbox>{t("Use as title")}</Checkbox>
               </Form.Item>
             </TabPane>
             <TabPane tab="Validation" key="validation" forceRender>
