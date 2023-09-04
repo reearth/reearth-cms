@@ -776,7 +776,7 @@ type QueryResolver interface {
 	Items(ctx context.Context, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
 	SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
-	CheckIfItemIsReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (*bool, error)
+	CheckIfItemIsReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error)
 }
 type RequestResolver interface {
 	Thread(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Thread, error)
@@ -4849,7 +4849,7 @@ extend type Query {
     sort: ItemSort
     pagination: Pagination
   ): ItemConnection!
-  checkIfItemIsReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean
+  checkIfItemIsReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean!
 }
 
 extend type Mutation {
@@ -17671,11 +17671,14 @@ func (ec *executionContext) _Query_checkIfItemIsReferenced(ctx context.Context, 
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_checkIfItemIsReferenced(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -33037,6 +33040,9 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_checkIfItemIsReferenced(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 

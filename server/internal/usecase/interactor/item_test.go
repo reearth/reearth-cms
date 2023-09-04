@@ -616,7 +616,7 @@ func TestItem_CheckIfItemIsReferenced(t *testing.T) {
 	s1 := schema.New().ID(sid1).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
 	m1 := model.New().NewID().Schema(s1.ID()).Key(key.Random()).Project(s1.Project()).MustBuild()
 	fs1 := []*item.Field{item.NewField(sf1.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple())}
-	i1 := item.New().NewID().Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID()).Fields(fs1).MustBuild()	
+	i1 := item.New().NewID().Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID()).Fields(fs1).MustBuild()
 
 	cf2 := &schema.CorrespondingField{
 		FieldID:     fid1.Ref(),
@@ -665,22 +665,22 @@ func TestItem_CheckIfItemIsReferenced(t *testing.T) {
 
 	// reference item
 	b, err := itemUC.CheckIfItemIsReferenced(ctx, i1.ID(), fid1, op)
-	assert.True(t, lo.FromPtr(b))
+	assert.True(t, b)
 	assert.Nil(t, err)
 
 	// not reference item 1
 	b, err = itemUC.CheckIfItemIsReferenced(ctx, i3.ID(), sf3.ID(), op)
-	assert.False(t, lo.FromPtr(b))
+	assert.False(t, b)
 	assert.Nil(t, err)
 
 	// not reference item 2
 	b, err = itemUC.CheckIfItemIsReferenced(ctx, i3.ID(), id.NewFieldID(), op)
-	assert.False(t, lo.FromPtr(b))
+	assert.False(t, b)
 	assert.Nil(t, err)
 
 	// item not found
 	b, err = itemUC.CheckIfItemIsReferenced(ctx, id.NewItemID(), sf2.ID(), op)
-	assert.False(t, lo.FromPtr(b))
+	assert.False(t, b)
 	assert.Error(t, err)
 }
 

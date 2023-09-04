@@ -231,8 +231,8 @@ func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery
 	return loaders(ctx).Item.Search(ctx, query, sort, p)
 }
 
-func (r *queryResolver) CheckIfItemIsReferenced(ctx context.Context, itemId gqlmodel.ID, correspondingFieldId gqlmodel.ID) (*bool, error) {
-	return loaders(ctx).Item.CheckIfItemIsReferenced(ctx, itemId, correspondingFieldId)
+func (r *queryResolver) CheckIfItemIsReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error) {
+	return loaders(ctx).Item.CheckIfItemIsReferenced(ctx, itemID, correspondingFieldID)
 }
 
 func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error) {
