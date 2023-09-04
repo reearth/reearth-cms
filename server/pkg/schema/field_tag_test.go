@@ -1,9 +1,10 @@
 package schema
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestNewTag(t *testing.T) {
@@ -56,4 +57,14 @@ func TestTagList_HasDuplication(t *testing.T) {
 	assert.False(t, TagList{tag1, tag2}.HasDuplication())
 	assert.True(t, TagList{tag1, tag2, tag3}.HasDuplication())
 	assert.True(t, TagList{tag1, tag2, tag4}.HasDuplication())
+}
+
+func TestTagList_FindByName(t *testing.T) {
+	tag1 := NewTag("xxx", TagColorOrange)
+	tag2 := NewTag("yyy", TagColorOrange)
+	tag3 := NewTag("zzz", TagColorOrange)
+	tag4, _ := NewTagWithID(tag1.ID(), "ppp", TagColorOrange)
+
+	assert.Equal(t, tag4, TagList{tag1, tag2, tag3, tag4}.FindByName("ppp"))
+	assert.Nil(t, TagList{tag1, tag2, tag3, tag4}.FindByName("some value"))
 }

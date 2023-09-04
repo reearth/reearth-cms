@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"path"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -595,6 +596,11 @@ func TestAsset_Create(t *testing.T) {
 		AcOperator: acop,
 	}
 
+	zipMime := "application/zip"
+	if runtime.GOOS == "windows" {
+		zipMime = "application/x-zip-compressed"
+	}
+
 	buf := bytes.NewBufferString("Hello")
 	buf2 := bytes.NewBufferString("Hello")
 	buf3 := bytes.NewBufferString("Hello")
@@ -602,9 +608,9 @@ func TestAsset_Create(t *testing.T) {
 	buf5 := bytes.NewBufferString("Hello")
 	af := asset.NewFile().Name("aaa.txt").Size(uint64(buf.Len())).Path("aaa.txt").ContentType("text/plain; charset=utf-8").Build()
 	af2 := asset.NewFile().Name("aaa.txt").Size(uint64(buf2.Len())).Path("aaa.txt").ContentType("text/plain; charset=utf-8").Build()
-	af3 := asset.NewFile().Name("aaa.zip").Size(uint64(buf3.Len())).Path("aaa.zip").ContentType("application/zip").Build()
-	af4 := asset.NewFile().Name("aaa.zip").Size(uint64(buf4.Len())).Path("aaa.zip").ContentType("application/zip").Build()
-	af5 := asset.NewFile().Name("AAA.ZIP").Size(uint64(buf5.Len())).Path("AAA.ZIP").ContentType("application/zip").Build()
+	af3 := asset.NewFile().Name("aaa.zip").Size(uint64(buf3.Len())).Path("aaa.zip").ContentType(zipMime).Build()
+	af4 := asset.NewFile().Name("aaa.zip").Size(uint64(buf4.Len())).Path("aaa.zip").ContentType(zipMime).Build()
+	af5 := asset.NewFile().Name("AAA.ZIP").Size(uint64(buf5.Len())).Path("AAA.ZIP").ContentType(zipMime).Build()
 
 	type args struct {
 		cpp      interfaces.CreateAssetParam
@@ -910,7 +916,7 @@ func TestAsset_Create(t *testing.T) {
 			assert.Equal(t, tc.want.PreviewType(), dbGot.PreviewType())
 			assert.Equal(t, tc.want.ArchiveExtractionStatus(), dbGot.ArchiveExtractionStatus())
 
-			assert.Equal(t, gotFile, tc.wantFile)
+			assert.Equal(t, tc.wantFile, gotFile)
 		})
 	}
 }
