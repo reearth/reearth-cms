@@ -484,16 +484,19 @@ type ComplexityRoot struct {
 	}
 
 	Schema struct {
-		Fields    func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Project   func(childComplexity int) int
-		ProjectID func(childComplexity int) int
+		Fields       func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Project      func(childComplexity int) int
+		ProjectID    func(childComplexity int) int
+		TitleField   func(childComplexity int) int
+		TitleFieldID func(childComplexity int) int
 	}
 
 	SchemaField struct {
 		CreatedAt    func(childComplexity int) int
 		Description  func(childComplexity int) int
 		ID           func(childComplexity int) int
+		IsTitle      func(childComplexity int) int
 		Key          func(childComplexity int) int
 		Model        func(childComplexity int) int
 		ModelID      func(childComplexity int) int
@@ -550,7 +553,13 @@ type ComplexityRoot struct {
 
 	SchemaFieldTag struct {
 		DefaultValue func(childComplexity int) int
-		Values       func(childComplexity int) int
+		Tags         func(childComplexity int) int
+	}
+
+	SchemaFieldTagValue struct {
+		Color func(childComplexity int) int
+		ID    func(childComplexity int) int
+		Name  func(childComplexity int) int
 	}
 
 	SchemaFieldText struct {
@@ -774,6 +783,7 @@ type RequestItemResolver interface {
 	Item(ctx context.Context, obj *gqlmodel.RequestItem) (*gqlmodel.VersionedItem, error)
 }
 type SchemaResolver interface {
+	TitleField(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.SchemaField, error)
 	Project(ctx context.Context, obj *gqlmodel.Schema) (*gqlmodel.Project, error)
 }
 type SchemaFieldResolver interface {
@@ -2897,6 +2907,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Schema.ProjectID(childComplexity), true
 
+	case "Schema.titleField":
+		if e.complexity.Schema.TitleField == nil {
+			break
+		}
+
+		return e.complexity.Schema.TitleField(childComplexity), true
+
+	case "Schema.titleFieldId":
+		if e.complexity.Schema.TitleFieldID == nil {
+			break
+		}
+
+		return e.complexity.Schema.TitleFieldID(childComplexity), true
+
 	case "SchemaField.createdAt":
 		if e.complexity.SchemaField.CreatedAt == nil {
 			break
@@ -2917,6 +2941,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SchemaField.ID(childComplexity), true
+
+	case "SchemaField.isTitle":
+		if e.complexity.SchemaField.IsTitle == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.IsTitle(childComplexity), true
 
 	case "SchemaField.key":
 		if e.complexity.SchemaField.Key == nil {
@@ -3100,12 +3131,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldTag.DefaultValue(childComplexity), true
 
-	case "SchemaFieldTag.values":
-		if e.complexity.SchemaFieldTag.Values == nil {
+	case "SchemaFieldTag.tags":
+		if e.complexity.SchemaFieldTag.Tags == nil {
 			break
 		}
 
-		return e.complexity.SchemaFieldTag.Values(childComplexity), true
+		return e.complexity.SchemaFieldTag.Tags(childComplexity), true
+
+	case "SchemaFieldTagValue.color":
+		if e.complexity.SchemaFieldTagValue.Color == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldTagValue.Color(childComplexity), true
+
+	case "SchemaFieldTagValue.id":
+		if e.complexity.SchemaFieldTagValue.ID == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldTagValue.ID(childComplexity), true
+
+	case "SchemaFieldTagValue.name":
+		if e.complexity.SchemaFieldTagValue.Name == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldTagValue.Name(childComplexity), true
 
 	case "SchemaFieldText.defaultValue":
 		if e.complexity.SchemaFieldText.DefaultValue == nil {
@@ -3527,6 +3579,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldRichTextInput,
 		ec.unmarshalInputSchemaFieldSelectInput,
 		ec.unmarshalInputSchemaFieldTagInput,
+		ec.unmarshalInputSchemaFieldTagValueInput,
 		ec.unmarshalInputSchemaFieldTextAreaInput,
 		ec.unmarshalInputSchemaFieldTextInput,
 		ec.unmarshalInputSchemaFieldTypePropertyInput,
@@ -4333,6 +4386,8 @@ extend type Mutation {
   id: ID!
   projectId: ID!
   fields: [SchemaField!]!
+  titleFieldId: ID
+  titleField: SchemaField
   project: Project!
 }
 
@@ -4356,6 +4411,21 @@ extend type Mutation {
   URL
 }
 
+enum SchemaFieldTagColor {
+  MAGENTA
+  RED
+  VOLCANO
+  ORANGE
+  GOLD
+  LIME
+  GREEN
+  CYAN
+  BLUE
+  GEEKBLUE
+  PURPLE
+}
+
+
 type SchemaField {
   id: ID!
   modelId: ID!
@@ -4370,6 +4440,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -4429,8 +4500,14 @@ type SchemaFieldSelect {
 }
 
 type SchemaFieldTag {
-  values: [String!]!
+  tags: [SchemaFieldTagValue!]!
   defaultValue: Any
+}
+
+type SchemaFieldTagValue {
+  id: ID!
+  name: String!
+  color: String!
 }
 
 type SchemaFieldInteger {
@@ -4495,8 +4572,14 @@ input SchemaFieldSelectInput {
 }
 
 input SchemaFieldTagInput {
-  values: [String!]!
+  tags: [SchemaFieldTagValueInput!]!
   defaultValue: Any
+}
+
+input SchemaFieldTagValueInput {
+  tagId: ID # if you want to create a new tag, it is not required
+  name: String # if you want to delete a tag, it should be an empty string
+  color: SchemaFieldTagColor
 }
 
 input SchemaFieldIntegerInput {
@@ -4538,6 +4621,7 @@ input CreateFieldInput {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -4551,6 +4635,7 @@ input UpdateFieldInput {
   required: Boolean
   unique: Boolean
   multiple: Boolean
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
@@ -8886,6 +8971,8 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -8960,6 +9047,8 @@ func (ec *executionContext) fieldContext_FieldsPayload_fields(ctx context.Contex
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -10050,6 +10139,10 @@ func (ec *executionContext) fieldContext_Item_schema(ctx context.Context, field 
 				return ec.fieldContext_Schema_projectId(ctx, field)
 			case "fields":
 				return ec.fieldContext_Schema_fields(ctx, field)
+			case "titleFieldId":
+				return ec.fieldContext_Schema_titleFieldId(ctx, field)
+			case "titleField":
+				return ec.fieldContext_Schema_titleField(ctx, field)
 			case "project":
 				return ec.fieldContext_Schema_project(ctx, field)
 			}
@@ -12068,6 +12161,10 @@ func (ec *executionContext) fieldContext_Model_schema(ctx context.Context, field
 				return ec.fieldContext_Schema_projectId(ctx, field)
 			case "fields":
 				return ec.fieldContext_Schema_fields(ctx, field)
+			case "titleFieldId":
+				return ec.fieldContext_Schema_titleFieldId(ctx, field)
+			case "titleField":
+				return ec.fieldContext_Schema_titleField(ctx, field)
 			case "project":
 				return ec.fieldContext_Schema_project(ctx, field)
 			}
@@ -19307,6 +19404,122 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_unique(ctx, field)
 			case "required":
 				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_SchemaField_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_SchemaField_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SchemaField", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Schema_titleFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Schema) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Schema_titleFieldId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TitleFieldID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Schema_titleFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Schema",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Schema_titleField(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Schema) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Schema_titleField(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Schema().TitleField(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.SchemaField)
+	fc.Result = res
+	return ec.marshalOSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Schema_titleField(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Schema",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SchemaField_id(ctx, field)
+			case "modelId":
+				return ec.fieldContext_SchemaField_modelId(ctx, field)
+			case "model":
+				return ec.fieldContext_SchemaField_model(ctx, field)
+			case "type":
+				return ec.fieldContext_SchemaField_type(ctx, field)
+			case "typeProperty":
+				return ec.fieldContext_SchemaField_typeProperty(ctx, field)
+			case "key":
+				return ec.fieldContext_SchemaField_key(ctx, field)
+			case "title":
+				return ec.fieldContext_SchemaField_title(ctx, field)
+			case "order":
+				return ec.fieldContext_SchemaField_order(ctx, field)
+			case "description":
+				return ec.fieldContext_SchemaField_description(ctx, field)
+			case "multiple":
+				return ec.fieldContext_SchemaField_multiple(ctx, field)
+			case "unique":
+				return ec.fieldContext_SchemaField_unique(ctx, field)
+			case "required":
+				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_SchemaField_createdAt(ctx, field)
 			case "updatedAt":
@@ -19915,6 +20128,50 @@ func (ec *executionContext) _SchemaField_required(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_SchemaField_required(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaField_isTitle(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_isTitle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsTitle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaField_isTitle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SchemaField",
 		Field:      field,
@@ -20595,8 +20852,8 @@ func (ec *executionContext) fieldContext_SchemaFieldSelect_defaultValue(ctx cont
 	return fc, nil
 }
 
-func (ec *executionContext) _SchemaFieldTag_values(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTag) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SchemaFieldTag_values(ctx, field)
+func (ec *executionContext) _SchemaFieldTag_tags(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTag) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldTag_tags(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -20609,7 +20866,7 @@ func (ec *executionContext) _SchemaFieldTag_values(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Values, nil
+		return obj.Tags, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20621,19 +20878,27 @@ func (ec *executionContext) _SchemaFieldTag_values(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]string)
+	res := resTmp.([]*gqlmodel.SchemaFieldTagValue)
 	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalNSchemaFieldTagValue2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SchemaFieldTag_values(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SchemaFieldTag_tags(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SchemaFieldTag",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SchemaFieldTagValue_id(ctx, field)
+			case "name":
+				return ec.fieldContext_SchemaFieldTagValue_name(ctx, field)
+			case "color":
+				return ec.fieldContext_SchemaFieldTagValue_color(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SchemaFieldTagValue", field.Name)
 		},
 	}
 	return fc, nil
@@ -20675,6 +20940,138 @@ func (ec *executionContext) fieldContext_SchemaFieldTag_defaultValue(ctx context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Any does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldTagValue_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTagValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldTagValue_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldTagValue_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldTagValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldTagValue_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTagValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldTagValue_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldTagValue_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldTagValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldTagValue_color(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldTagValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldTagValue_color(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Color, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldTagValue_color(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldTagValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25255,7 +25652,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "type", "title", "description", "key", "multiple", "unique", "required", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25334,6 +25731,15 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Required = data
+		case "isTitle":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsTitle = data
 		case "typeProperty":
 			var err error
 
@@ -26891,22 +27297,22 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"values", "defaultValue"}
+	fieldsInOrder := [...]string{"tags", "defaultValue"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "values":
+		case "tags":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
-			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+			data, err := ec.unmarshalNSchemaFieldTagValueInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Values = data
+			it.Tags = data
 		case "defaultValue":
 			var err error
 
@@ -26916,6 +27322,53 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagInput(ctx context.Contex
 				return it, err
 			}
 			it.DefaultValue = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSchemaFieldTagValueInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldTagValueInput, error) {
+	var it gqlmodel.SchemaFieldTagValueInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"tagId", "name", "color"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "tagId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tagId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TagID = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "color":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("color"))
+			data, err := ec.unmarshalOSchemaFieldTagColor2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Color = data
 		}
 	}
 
@@ -27582,7 +28035,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "key", "required", "unique", "multiple", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27670,6 +28123,15 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Multiple = data
+		case "isTitle":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isTitle"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsTitle = data
 		case "typeProperty":
 			var err error
 
@@ -32763,6 +33225,41 @@ func (ec *executionContext) _Schema(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "titleFieldId":
+			out.Values[i] = ec._Schema_titleFieldId(ctx, field, obj)
+		case "titleField":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Schema_titleField(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "project":
 			field := field
 
@@ -32912,6 +33409,11 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			}
 		case "required":
 			out.Values[i] = ec._SchemaField_required(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "isTitle":
+			out.Values[i] = ec._SchemaField_isTitle(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -33299,13 +33801,62 @@ func (ec *executionContext) _SchemaFieldTag(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SchemaFieldTag")
-		case "values":
-			out.Values[i] = ec._SchemaFieldTag_values(ctx, field, obj)
+		case "tags":
+			out.Values[i] = ec._SchemaFieldTag_tags(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "defaultValue":
 			out.Values[i] = ec._SchemaFieldTag_defaultValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var schemaFieldTagValueImplementors = []string{"SchemaFieldTagValue"}
+
+func (ec *executionContext) _SchemaFieldTagValue(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldTagValue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldTagValueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldTagValue")
+		case "id":
+			out.Values[i] = ec._SchemaFieldTagValue_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._SchemaFieldTagValue_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "color":
+			out.Values[i] = ec._SchemaFieldTagValue_color(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -36114,6 +36665,82 @@ func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._SchemaField(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNSchemaFieldTagValue2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.SchemaFieldTagValue) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSchemaFieldTagValue2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValue(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSchemaFieldTagValue2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValue(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SchemaFieldTagValue) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SchemaFieldTagValue(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.SchemaFieldTagValueInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*gqlmodel.SchemaFieldTagValueInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNSchemaFieldTagValueInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNSchemaFieldTagValueInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTagValueInput, error) {
+	res, err := ec.unmarshalInputSchemaFieldTagValueInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx context.Context, v interface{}) (gqlmodel.SchemaFieldType, error) {
 	var res gqlmodel.SchemaFieldType
 	err := res.UnmarshalGQL(v)
@@ -37617,6 +38244,13 @@ func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑc
 	return ret
 }
 
+func (ec *executionContext) marshalOSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SchemaField) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SchemaField(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOSchemaFieldAssetInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldAssetInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldAssetInput, error) {
 	if v == nil {
 		return nil, nil
@@ -37679,6 +38313,22 @@ func (ec *executionContext) unmarshalOSchemaFieldSelectInput2ᚖgithubᚗcomᚋr
 	}
 	res, err := ec.unmarshalInputSchemaFieldSelectInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOSchemaFieldTagColor2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTagColor, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.SchemaFieldTagColor)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOSchemaFieldTagColor2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SchemaFieldTagColor) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOSchemaFieldTagInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldTagInput, error) {
