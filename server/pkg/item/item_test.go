@@ -11,6 +11,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestItem_UpdateField(t *testing.T) {
+	iid := id.NewItemID()
+	sfid1 := id.NewFieldID()
+	f1 := &Field{field: sfid1, value: value.TypeText.Value("test").AsMultiple()}
+	item:= &Item{
+		id : iid,
+		fields: []*Field{f1},
+	}
+	fields := item.fields
+	want := value.TypeText.Value("test").AsMultiple()
+	got := fields[0].Value()
+	assert.Equal(t, want, got)
+
+	item.UpdateField(&f1.field, value.TypeText.Value("test1").AsMultiple())
+
+	want = value.TypeText.Value("test1").AsMultiple()
+	got = fields[0].Value()
+	assert.Equal(t, want, got)
+}
+
 func TestItem_UpdateFields(t *testing.T) {
 	now := time.Now()
 	defer util.MockNow(now)()

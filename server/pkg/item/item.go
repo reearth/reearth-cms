@@ -3,6 +3,7 @@ package item
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -67,6 +68,19 @@ func (i *Item) Field(f FieldID) *Field {
 
 func (i *Item) Thread() ThreadID {
 	return i.thread
+}
+
+func (i *Item) UpdateField(fid *id.FieldID, v *value.Multiple) {
+	if fid == nil || v == nil {
+		return
+	}
+	_, ii, ok := lo.FindIndexOf(i.fields, func(f *Field) bool {
+		return f.FieldID() == *fid
+	})
+	if !ok {
+		return
+	}
+	i.fields[ii].value = v
 }
 
 func (i *Item) UpdateFields(fields []*Field) {

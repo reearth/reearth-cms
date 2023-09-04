@@ -223,6 +223,10 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		if err = i.CheckReferencedFields(ctx, s, param.Fields, it, operator); err != nil {
+			return nil, err
+		}
+
 		if err := i.repos.Item.Save(ctx, it); err != nil {
 			return nil, err
 		}
@@ -249,6 +253,44 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		return vi, nil
 	})
+}
+
+func (i Item) CheckReferencedFields(ctx context.Context, s *schema.Schema, fields []interfaces.ItemFieldParam, it *item.Item, op *usecase.Operator) error {
+	var rf []*interfaces.ItemFieldParam
+	for _, f := range fields {
+		if f.Type == value.TypeReference {
+			rf = append(rf, &f)
+			break
+		}
+	}
+
+	for _, ff := range rf {
+		v2, ok := ff.Value.(string)
+		if !ok {
+			return interfaces.ErrInvalidValue
+		}
+		iid, err := id.ItemIDFrom(v2)
+		if err != nil {
+			return err
+		}
+		itm2, err := i.repos.Item.FindByID(ctx, iid, nil)
+		if err != nil {
+			return err
+		}
+		s2, err := i.repos.Schema.FindByID(ctx, itm2.Value().Schema())
+		if err != nil {
+			return err
+		}
+		_, fid2, ok := item.AreItemsReferenced(it, itm2.Value(), s, s2)
+		if ok {
+			vv := value.New(value.TypeReference, it.ID().String())
+			itm2.Value().UpdateField(fid2, vv.AsMultiple())
+			if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, op *usecase.Operator) (time.Time, error) {
