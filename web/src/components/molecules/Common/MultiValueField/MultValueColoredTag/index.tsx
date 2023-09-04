@@ -32,8 +32,6 @@ type Props = {
   InputProps;
 
 const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange, ...props }) => {
-  console.log(value);
-
   const t = useT();
   const [showTag, setShowTag] = useState(true);
 
