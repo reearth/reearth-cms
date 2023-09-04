@@ -8,7 +8,7 @@ export default () => {
   });
 
   const handleCheckItemReference = useCallback(
-    async (value?: string, correspondingFieldId: string) =>
+    async (value: string, correspondingFieldId: string) =>
       await checkIfItemIsReferenced({ variables: { itemId: value ?? "", correspondingFieldId } }),
     [checkIfItemIsReferenced],
   );
