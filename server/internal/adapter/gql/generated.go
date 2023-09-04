@@ -542,6 +542,7 @@ type ComplexityRoot struct {
 	SchemaFieldReference struct {
 		CorrespondingField    func(childComplexity int) int
 		CorrespondingFieldID  func(childComplexity int) int
+		CorrespondingSchema   func(childComplexity int) int
 		CorrespondingSchemaID func(childComplexity int) int
 		ModelID               func(childComplexity int) int
 	}
@@ -796,6 +797,8 @@ type SchemaFieldResolver interface {
 	Model(ctx context.Context, obj *gqlmodel.SchemaField) (*gqlmodel.Model, error)
 }
 type SchemaFieldReferenceResolver interface {
+	CorrespondingSchema(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.Schema, error)
+
 	CorrespondingField(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.SchemaField, error)
 }
 type ThreadResolver interface {
@@ -3124,6 +3127,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldReference.CorrespondingFieldID(childComplexity), true
 
+	case "SchemaFieldReference.correspondingSchema":
+		if e.complexity.SchemaFieldReference.CorrespondingSchema == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldReference.CorrespondingSchema(childComplexity), true
+
 	case "SchemaFieldReference.correspondingSchemaId":
 		if e.complexity.SchemaFieldReference.CorrespondingSchemaID == nil {
 			break
@@ -4562,6 +4572,7 @@ type SchemaFieldInteger {
 type SchemaFieldReference {
   modelId: ID!
   correspondingSchemaId: ID
+  correspondingSchema: Schema
   correspondingFieldId: ID
   correspondingField: SchemaField
 }
@@ -20862,6 +20873,61 @@ func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingSchem
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldReference_correspondingSchema(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldReference_correspondingSchema(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SchemaFieldReference().CorrespondingSchema(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Schema)
+	fc.Result = res
+	return ec.marshalOSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingSchema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldReference",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Schema_id(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Schema_projectId(ctx, field)
+			case "fields":
+				return ec.fieldContext_Schema_fields(ctx, field)
+			case "titleFieldId":
+				return ec.fieldContext_Schema_titleFieldId(ctx, field)
+			case "titleField":
+				return ec.fieldContext_Schema_titleField(ctx, field)
+			case "project":
+				return ec.fieldContext_Schema_project(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldReference_correspondingFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldReference_correspondingFieldId(ctx, field)
 	if err != nil {
@@ -34086,6 +34152,39 @@ func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.S
 			}
 		case "correspondingSchemaId":
 			out.Values[i] = ec._SchemaFieldReference_correspondingSchemaId(ctx, field, obj)
+		case "correspondingSchema":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SchemaFieldReference_correspondingSchema(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "correspondingFieldId":
 			out.Values[i] = ec._SchemaFieldReference_correspondingFieldId(ctx, field, obj)
 		case "correspondingField":
@@ -38683,6 +38782,13 @@ func (ec *executionContext) marshalORole2ᚕgithubᚗcomᚋreearthᚋreearthᚑc
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Schema) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Schema(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOSchemaField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.SchemaField) graphql.Marshaler {

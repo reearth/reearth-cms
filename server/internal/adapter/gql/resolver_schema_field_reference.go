@@ -30,3 +30,10 @@ func (s schemaFieldReferenceResolver) CorrespondingField(ctx context.Context, ob
 
 	return ff, nil
 }
+
+func (s schemaFieldReferenceResolver) CorrespondingSchema(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.Schema, error) {
+	if obj.CorrespondingSchemaID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).Schema.Load(*obj.CorrespondingSchemaID)
+}
