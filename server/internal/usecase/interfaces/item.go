@@ -25,6 +25,7 @@ var (
 	ErrItemsShouldBeOnSameModel = rerror.NewE(i18n.T("items should be on the same model"))
 	ErrItemMissing              = rerror.NewE(i18n.T("one or more items not found"))
 	ErrItemConflicted           = rerror.NewE(i18n.T("item has been changed before you change it"))
+	ErrMetadataMismatch         = rerror.NewE(i18n.T("metadata item and schema mismatch"))
 )
 
 type ItemFieldParam struct {

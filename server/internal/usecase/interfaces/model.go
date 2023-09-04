@@ -5,6 +5,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -38,6 +39,7 @@ type Model interface {
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*model.Model, error)
 	FindByIDOrKey(context.Context, id.ProjectID, model.IDOrKey, *usecase.Operator) (*model.Model, error)
+	FindOrCreateMetadata(context.Context, id.ModelID, *usecase.Operator) (*schema.Schema, error)
 	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)

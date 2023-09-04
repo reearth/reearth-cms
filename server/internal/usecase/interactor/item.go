@@ -219,9 +219,12 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		}
 
 		if param.MetadataID != nil {
-			_, err = i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+			mi, err := i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
 			if err != nil {
 				return nil, err
+			}
+			if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
+				return nil, interfaces.ErrMetadataMismatch
 			}
 			ib = ib.MetadataItem(param.MetadataID)
 		}
@@ -320,6 +323,13 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		}
 
 		if param.MetadataID != nil {
+			mi, err := i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+			if err != nil {
+				return nil, err
+			}
+			if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
+				return nil, interfaces.ErrMetadataMismatch
+			}
 			itv.SetMetadataItem(param.MetadataID)
 		}
 

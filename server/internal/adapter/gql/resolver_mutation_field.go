@@ -19,14 +19,22 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
-	if err != nil || len(m) != 1 {
+	m, err := usecases(ctx).Model.FindByID(ctx, mId, getOperator(ctx))
+	if err != nil {
 		return nil, err
 	}
 
-	s, err := usecases(ctx).Schema.FindByID(ctx, m[0].Schema(), getOperator(ctx))
-	if err != nil {
-		return nil, err
+	var s *schema.Schema
+	if input.Metadata != nil && *input.Metadata {
+		s, err = usecases(ctx).Model.FindOrCreateMetadata(ctx, mId, getOperator(ctx))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		s, err = usecases(ctx).Schema.FindByID(ctx, m.Schema(), getOperator(ctx))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, input.Type, input.Multiple)
@@ -35,7 +43,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 	}
 
 	f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
-		SchemaId:     m[0].Schema(),
+		SchemaId:     s.ID(),
 		Type:         value.Type(input.Type),
 		Name:         input.Title,
 		Description:  input.Description,

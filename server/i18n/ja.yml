@@ -78,3 +78,4 @@ uuid is required: UUIDは必須です。
 value is required: 値は必須です。
 workspace id is required: ワークスペースIDは必須です。
 metadata schema not found: ""
+metadata item and schema mismatch: ""
