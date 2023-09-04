@@ -4577,7 +4577,7 @@ input SchemaFieldTagInput {
 }
 
 input SchemaFieldTagValueInput {
-  tagId: ID
+  id: ID
   name: String
   color: SchemaFieldTagColor
 }
@@ -27335,22 +27335,22 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagValueInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"tagId", "name", "color"}
+	fieldsInOrder := [...]string{"id", "name", "color"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "tagId":
+		case "id":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tagId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TagID = data
+			it.ID = data
 		case "name":
 			var err error
 

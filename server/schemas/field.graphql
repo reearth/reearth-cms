@@ -180,7 +180,7 @@ input SchemaFieldTagInput {
 }
 
 input SchemaFieldTagValueInput {
-  tagId: ID
+  id: ID
   name: String
   color: SchemaFieldTagColor
 }

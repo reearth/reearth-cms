@@ -363,10 +363,10 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		var tags schema.TagList
 		for _, t := range x.Tags {
 			var tag *schema.Tag
-			if t.TagID == nil {
+			if t.ID == nil {
 				tag = schema.NewTag(*t.Name, schema.TagColorFrom(t.Color.String()))
 			} else {
-				tid, err := ToID[id.Tag](*t.TagID)
+				tid, err := ToID[id.Tag](*t.ID)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -386,9 +386,21 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		}
 
 		if multiple {
-			dv = value.NewMultiple(value.TypeTag, unpackArray(x.DefaultValue))
+			values := unpackArray(x.DefaultValue)
+			valuesNames := lo.Map(values, func(v any, _ int) string {
+				return v.(string)
+			})
+			tagsIds := lo.Map(valuesNames, func(n string, _ int) any {
+				return tags.FindByName(n).ID().String()
+			})
+			dv = value.NewMultiple(value.TypeTag, tagsIds)
 		} else {
-			dv = FromValue(SchemaFieldTypeTag, x.DefaultValue).AsMultiple()
+			valueName, ok := x.DefaultValue.(string)
+			if !ok {
+				return nil, nil, ErrInvalidTypeProperty
+			}
+			tag := tags.FindByName(valueName)
+			dv = FromValue(SchemaFieldTypeTag, tag.ID()).AsMultiple()
 		}
 		tpRes = res.TypeProperty()
 	case SchemaFieldTypeInteger:
