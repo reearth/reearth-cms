@@ -160,6 +160,31 @@ func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p 
 	return i.repos.Item.Search(ctx, q, sort, p)
 }
 
+func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspondingFieldID id.FieldID, _ *usecase.Operator) (bool, error) {
+	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+	if err != nil {
+		return false, err
+	}
+
+	s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
+	if err != nil {
+		return false, err
+	}
+
+	if s.Field(correspondingFieldID) == nil {
+		return false, nil
+	}
+
+	fields := itm.Value().Fields()
+	for _, f := range fields {
+		if f != nil && f.FieldID() == correspondingFieldID && f.Value() != nil {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
