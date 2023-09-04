@@ -421,7 +421,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AssetFile                 func(childComplexity int, assetID gqlmodel.ID) int
 		Assets                    func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) int
-		CheckIfItemIsReferenced   func(childComplexity int, itemID gqlmodel.ID) int
+		CheckIfItemIsReferenced   func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
 		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
 		Items                     func(childComplexity int, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) int
@@ -776,7 +776,7 @@ type QueryResolver interface {
 	Items(ctx context.Context, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
 	SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
-	CheckIfItemIsReferenced(ctx context.Context, itemID gqlmodel.ID) (*bool, error)
+	CheckIfItemIsReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (*bool, error)
 }
 type RequestResolver interface {
 	Thread(ctx context.Context, obj *gqlmodel.Request) (*gqlmodel.Thread, error)
@@ -2542,7 +2542,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.CheckIfItemIsReferenced(childComplexity, args["itemId"].(gqlmodel.ID)), true
+		return e.complexity.Query.CheckIfItemIsReferenced(childComplexity, args["itemId"].(gqlmodel.ID), args["correspondingFieldId"].(gqlmodel.ID)), true
 
 	case "Query.checkModelKeyAvailability":
 		if e.complexity.Query.CheckModelKeyAvailability == nil {
@@ -4849,7 +4849,7 @@ extend type Query {
     sort: ItemSort
     pagination: Pagination
   ): ItemConnection!
-  checkIfItemIsReferenced(itemId: ID!): Boolean
+  checkIfItemIsReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean
 }
 
 extend type Mutation {
@@ -5851,6 +5851,15 @@ func (ec *executionContext) field_Query_checkIfItemIsReferenced_args(ctx context
 		}
 	}
 	args["itemId"] = arg0
+	var arg1 gqlmodel.ID
+	if tmp, ok := rawArgs["correspondingFieldId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("correspondingFieldId"))
+		arg1, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["correspondingFieldId"] = arg1
 	return args, nil
 }
 
@@ -17655,7 +17664,7 @@ func (ec *executionContext) _Query_checkIfItemIsReferenced(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CheckIfItemIsReferenced(rctx, fc.Args["itemId"].(gqlmodel.ID))
+		return ec.resolvers.Query().CheckIfItemIsReferenced(rctx, fc.Args["itemId"].(gqlmodel.ID), fc.Args["correspondingFieldId"].(gqlmodel.ID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

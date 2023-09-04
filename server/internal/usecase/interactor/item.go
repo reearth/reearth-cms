@@ -160,7 +160,7 @@ func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p 
 	return i.repos.Item.Search(ctx, q, sort, p)
 }
 
-func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemId id.ItemID, _ *usecase.Operator) (*bool, error) {
+func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemId id.ItemID, correspondingFieldId id.FieldID, _ *usecase.Operator) (*bool, error) {
 	itm, err := i.repos.Item.FindByID(ctx, itemId, nil)
 	if err != nil {
 		return nil, err
@@ -170,20 +170,19 @@ func (i Item) CheckIfItemIsReferenced(ctx context.Context, itemId id.ItemID, _ *
 	if err != nil {
 		return nil, err
 	}
-	fields := s.Fields()
 
-	res := lo.ToPtr(false)
-	for _, sf := range fields {
-		sf.TypeProperty().Match(schema.TypePropertyMatch{
-			Reference: func(f *schema.FieldReference) {
-				if f.CorrespondingField() != nil {
-					res = lo.ToPtr(true)
-				}
-			},
-		})
+	if s.Field(correspondingFieldId) == nil {
+		return lo.ToPtr(false), nil
 	}
 
-	return res, nil
+	fields := itm.Value().Fields()
+	for _, f := range fields {
+		if f != nil && f.FieldID() == correspondingFieldId && f.Value() != nil {
+			return lo.ToPtr(true), nil
+		}
+	}
+
+	return lo.ToPtr(false), nil
 }
 
 func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, operator *usecase.Operator) (item.Versioned, error) {
