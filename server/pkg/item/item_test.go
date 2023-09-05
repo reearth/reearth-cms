@@ -5,9 +5,12 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -192,4 +195,21 @@ func TestItem_Integration(t *testing.T) {
 	i1 := New().NewID().Integration(iid).Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	assert.Equal(t, &iid, i1.Integration())
+}
+
+func TestItem_GetTitle(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
+	if1 := NewField(sf1.ID(), value.TypeBool.Value(false).AsMultiple())
+	if2 := NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple())
+	i1 := New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Fields([]*Field{if1, if2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+
+	err := s1.SetTitleField(sf2.ID().Ref())
+	assert.NoError(t, err)
+
+	title := i1.GetTitle(s1)
+	assert.Equal(t, "test", *title)
 }

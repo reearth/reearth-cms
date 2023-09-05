@@ -381,6 +381,7 @@ type Item struct {
 	CreatedAt     time.Time    `json:"createdAt"`
 	UpdatedAt     time.Time    `json:"updatedAt"`
 	Version       string       `json:"version"`
+	Title         *string      `json:"title,omitempty"`
 }
 
 func (Item) IsNode()        {}

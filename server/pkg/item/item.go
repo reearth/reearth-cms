@@ -123,6 +123,24 @@ func (i *Item) AssetIDs() AssetIDList {
 	})
 }
 
+func (i *Item) GetTitle(s *schema.Schema) *string {
+	sf, ok := lo.Find(s.Fields(), func(f *schema.Field) bool {
+		return f.ID() == *s.TitleField()
+	})
+	if !ok {
+		return nil
+	}
+	f := i.Field(sf.ID())
+	if f == nil {
+		return nil
+	}
+	vv, ok := f.Value().First().Value().(string)
+	if !ok {
+		return nil
+	}
+	return &vv
+}
+
 type ItemModelSchema struct {
 	Item    *Item
 	Model   *model.Model
