@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -12,13 +13,13 @@ import (
 )
 
 func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.CreateFieldInput) (*gqlmodel.FieldPayload, error) {
-	mId, err := gqlmodel.ToID[id.Model](input.ModelID)
+	mid, err := gqlmodel.ToID[id.Model](input.ModelID)
 	if err != nil {
 		return nil, err
 	}
 
 	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
-		ModelId:  mId,
+		ModelId:  mid,
 		Metadata: input.Metadata,
 		Create:   true,
 	}, getOperator(ctx))
@@ -32,7 +33,8 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 	}
 
 	f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
-		SchemaId:     s.ID(),
+		ModelID:      mid,
+		SchemaID:     s.ID(),
 		Type:         value.Type(input.Type),
 		Name:         input.Title,
 		Description:  input.Description,
@@ -54,18 +56,18 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 }
 
 func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error) {
-	fId, err := gqlmodel.ToID[id.Field](input.FieldID)
+	fid, err := gqlmodel.ToID[id.Field](input.FieldID)
 	if err != nil {
 		return nil, err
 	}
 
-	mId, err := gqlmodel.ToID[id.Model](input.ModelID)
+	mid, err := gqlmodel.ToID[id.Model](input.ModelID)
 	if err != nil {
 		return nil, err
 	}
 
 	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
-		ModelId:  mId,
+		ModelId:  mid,
 		Metadata: input.Metadata,
 		Create:   true,
 	}, getOperator(ctx))
@@ -73,7 +75,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 
-	dbField := s.Field(fId)
+	dbField := s.Field(fid)
 
 	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, gqlmodel.ToValueType(dbField.Type()), dbField.Multiple())
 	if err != nil {
@@ -81,8 +83,9 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	f, err := usecases(ctx).Schema.UpdateField(ctx, interfaces.UpdateFieldParam{
-		SchemaId:     s.ID(),
-		FieldId:      fId,
+		ModelID:      mid,
+		SchemaID:     s.ID(),
+		FieldID:      fid,
 		Name:         input.Title,
 		Description:  input.Description,
 		Key:          input.Key,
@@ -104,22 +107,22 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 }
 
 func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.DeleteFieldInput) (*gqlmodel.DeleteFieldPayload, error) {
-	fId, err := gqlmodel.ToID[id.Field](input.FieldID)
+	fid, err := gqlmodel.ToID[id.Field](input.FieldID)
 	if err != nil {
 		return nil, err
 	}
 
-	mId, err := gqlmodel.ToID[id.Model](input.ModelID)
+	mid, err := gqlmodel.ToID[id.Model](input.ModelID)
 	if err != nil {
 		return nil, err
 	}
 
-	m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
+	m, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mid}, getOperator(ctx))
 	if err != nil || len(m) != 1 {
 		return nil, err
 	}
 
-	if err := usecases(ctx).Schema.DeleteField(ctx, m[0].Schema(), fId, getOperator(ctx)); err != nil {
+	if err := usecases(ctx).Schema.DeleteField(ctx, m[0].Schema(), fid, getOperator(ctx)); err != nil {
 		return nil, err
 	}
 
@@ -129,13 +132,13 @@ func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.Delet
 }
 
 func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.UpdateFieldInput) (*gqlmodel.FieldsPayload, error) {
-	mId, err := gqlmodel.ToID[id.Model](input[0].ModelID)
+	mid, err := gqlmodel.ToID[id.Model](input[0].ModelID)
 	if err != nil {
 		return nil, err
 	}
 
 	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
-		ModelId:  mId,
+		ModelId:  mid,
 		Metadata: input[0].Metadata,
 		Create:   true,
 	}, getOperator(ctx))
@@ -155,8 +158,8 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 			return interfaces.UpdateFieldParam{}, err
 		}
 		return interfaces.UpdateFieldParam{
-			SchemaId:     s.ID(),
-			FieldId:      fid,
+			SchemaID:     s.ID(),
+			FieldID:      fid,
 			Name:         ipt.Title,
 			Description:  ipt.Description,
 			Key:          ipt.Key,
