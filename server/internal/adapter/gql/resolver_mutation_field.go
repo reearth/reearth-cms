@@ -69,7 +69,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
 		ModelId:  mid,
 		Metadata: input.Metadata,
-		Create:   true,
+		Create:   false,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
 		ModelId:  mid,
 		Metadata: input[0].Metadata,
-		Create:   true,
+		Create:   false,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
