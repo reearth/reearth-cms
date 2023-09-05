@@ -73,6 +73,8 @@ models:
     fields:
       project:
         resolver: true
+      titleField:
+        resolver: true
   Request:
     fields:
       project:
@@ -92,6 +94,12 @@ models:
   SchemaField:
     fields:
       model:
+        resolver: true
+  SchemaFieldReference:
+    fields:
+      correspondingField:
+        resolver: true
+      correspondingSchema:
         resolver: true
   Asset:
     fields:

@@ -2,7 +2,7 @@ import React from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import MultiValueSwitch from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSwitch";
+import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -14,7 +14,7 @@ const BooleanField: React.FC<Props> = ({ multiple }) => {
 
   return (
     <Form.Item name="defaultValue" valuePropName="checked" label={t("Set default value")}>
-      {multiple ? <MultiValueSwitch /> : <Switch />}
+      {multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
     </Form.Item>
   );
 };

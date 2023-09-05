@@ -19,6 +19,7 @@ export const GET_MODELS = gql`
             description
             required
             unique
+            isTitle
             multiple
             order
             typeProperty {
@@ -47,6 +48,20 @@ export const GET_MODELS = gql`
                 max
               }
               ... on SchemaFieldBool {
+                defaultValue
+              }
+              ... on SchemaFieldCheckbox {
+                defaultValue
+              }
+              ... on SchemaFieldTag {
+                selectDefaultValue: defaultValue
+                tags {
+                  id
+                  name
+                  color
+                }
+              }
+              ... on SchemaFieldDate {
                 defaultValue
               }
               ... on SchemaFieldURL {

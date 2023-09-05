@@ -18,8 +18,8 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
+import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
-import MultiValueSwitch from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSwitch";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
@@ -251,7 +251,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueField
                     rows={3}
@@ -274,7 +276,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueField
                     maxLength={field.typeProperty.maxLength ?? false}
@@ -295,7 +299,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueField
                     type="number"
@@ -322,7 +328,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueAsset
                     assetList={assetList}
@@ -377,7 +385,9 @@ const ContentForm: React.FC<Props> = ({
                 key={field.id}
                 extra={field.description}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueSelect selectedValues={field.typeProperty?.values} />
                 ) : (
@@ -396,15 +406,19 @@ const ContentForm: React.FC<Props> = ({
                 extra={field.description}
                 name={field.id}
                 valuePropName="checked"
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
-                {field.multiple ? <MultiValueSwitch /> : <Switch />}
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
+                {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
               </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item
                 key={field.id}
                 extra={field.description}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }
                 rules={[
                   {
                     required: field.required,
@@ -449,7 +463,9 @@ const ContentForm: React.FC<Props> = ({
                   },
                 ]}
                 name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} />}>
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
                 {field.multiple ? (
                   <MultiValueField
                     showCount={true}
@@ -499,6 +515,10 @@ const StyledForm = styled(Form)`
   height: 100%;
   overflow-y: auto;
   background: #fff;
+  label {
+    width: 100%;
+    display: flex;
+  }
 `;
 
 const FormItemsWrapper = styled.div`

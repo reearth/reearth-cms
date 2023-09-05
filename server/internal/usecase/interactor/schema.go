@@ -74,6 +74,12 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 
 		s1.AddField(f1)
 
+		if param.IsTitle {
+			if err := s1.SetTitleField(f1.ID().Ref()); err != nil {
+				return nil, err
+			}
+		}
+
 		if err := i.repos.Schema.Save(ctx, s1); err != nil {
 			return nil, err
 		}
@@ -100,6 +106,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 			return interfaces.ErrOperationDenied
 		}
 
+		fr.SetCorrespondingSchema(s2.ID().Ref())
 		fields, err := schema.GetCorrespondingFields(s1, s2, param.ModelID, f1, fr)
 		if err != nil {
 			return err
@@ -141,6 +148,13 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 		if err := updateField(param, f1); err != nil {
 			return nil, err
 		}
+
+		if param.IsTitle != nil {
+			if err := s1.SetTitleField(f1.ID().Ref()); err != nil {
+				return nil, err
+			}
+		}
+
 		if err := i.repos.Schema.Save(ctx, s1); err != nil {
 			return nil, err
 		}

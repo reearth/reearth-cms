@@ -15,16 +15,18 @@ type CorrespondingField struct {
 }
 
 type FieldReference struct {
-	modelId              id.ModelID
-	correspondingFieldId *id.FieldID
-	correspondingField   *CorrespondingField
+	modelID               id.ModelID
+	correspondingSchemaID *id.SchemaID
+	correspondingFieldID  *id.FieldID
+	correspondingField    *CorrespondingField
 }
 
-func NewReference(id id.ModelID, cf *CorrespondingField, cfId *id.FieldID) *FieldReference {
+func NewReference(id id.ModelID, sid *id.SchemaID, cf *CorrespondingField, cfId *id.FieldID) *FieldReference {
 	return &FieldReference{
-		modelId:              id,
-		correspondingFieldId: cfId,
-		correspondingField:   cf,
+		modelID:               id,
+		correspondingSchemaID: sid,
+		correspondingFieldID:  cfId,
+		correspondingField:    cf,
 	}
 }
 
@@ -36,11 +38,19 @@ func (f *FieldReference) TypeProperty() *TypeProperty {
 }
 
 func (f *FieldReference) SetCorrespondingField(cf *id.FieldID) {
-	f.correspondingFieldId = cf
+	f.correspondingFieldID = cf
+}
+
+func (f *FieldReference) SetCorrespondingSchema(sid *id.SchemaID) {
+	f.correspondingSchemaID = sid
 }
 
 func (f *FieldReference) Model() model.ID {
-	return f.modelId
+	return f.modelID
+}
+
+func (f *FieldReference) CorrespondingSchema() *id.SchemaID {
+	return f.correspondingSchemaID
 }
 
 func (f *FieldReference) CorrespondingField() *CorrespondingField {
@@ -48,7 +58,7 @@ func (f *FieldReference) CorrespondingField() *CorrespondingField {
 }
 
 func (f *FieldReference) CorrespondingFieldID() *id.FieldID {
-	return f.correspondingFieldId
+	return f.correspondingFieldID
 }
 
 func (f *FieldReference) Type() value.Type {
@@ -60,9 +70,10 @@ func (f *FieldReference) Clone() *FieldReference {
 		return nil
 	}
 	return &FieldReference{
-		modelId:              f.modelId,
-		correspondingFieldId: f.correspondingFieldId,
-		correspondingField:   f.correspondingField,
+		modelID:               f.modelID,
+		correspondingSchemaID: f.correspondingSchemaID,
+		correspondingFieldID:  f.correspondingFieldID,
+		correspondingField:    f.correspondingField,
 	}
 }
 

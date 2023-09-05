@@ -11,35 +11,53 @@ import (
 
 func TestNewReference(t *testing.T) {
 	m := id.NewModelID()
-	cf := lo.ToPtr(id.NewFieldID())
-	assert.Equal(t, &FieldReference{modelId: m, correspondingFieldId: cf}, NewReference(m, nil, cf))
+	cf := id.NewFieldID().Ref()
+	sid := id.NewSchemaID().Ref()
+	assert.Equal(t, &FieldReference{modelID: m, correspondingSchemaID: sid, correspondingFieldID: cf}, NewReference(m, sid, nil, cf))
 }
 
 func TestFieldReference_SetCorrespondingField(t *testing.T) {
 	m := id.NewModelID()
-	cf := lo.ToPtr(id.NewFieldID())
-	f := NewReference(m, nil, nil)
+	cf := id.NewFieldID().Ref()
+	sid := id.NewSchemaID().Ref()
+	f := NewReference(m, nil, nil, nil)
 	f.SetCorrespondingField(cf)
-	assert.Equal(t, &FieldReference{modelId: m, correspondingFieldId: cf}, NewReference(m, nil, cf))
+	assert.Equal(t, &FieldReference{modelID: m, correspondingSchemaID: sid, correspondingFieldID: cf}, NewReference(m, sid, nil, cf))
+}
+
+func TestFieldReference_SetCorrespondingSchema(t *testing.T) {
+	m := id.NewModelID()
+	f := id.NewFieldID()
+	sid := id.NewSchemaID()
+	cf := &CorrespondingField{
+		Title:       lo.ToPtr("title"),
+		Key:         lo.ToPtr("key"),
+		Description: lo.ToPtr("description"),
+		Required:    lo.ToPtr(true),
+	}
+	fr := NewReference(m, sid.Ref(), cf, f.Ref())
+	fr.SetCorrespondingSchema(sid.Ref())
+	assert.Equal(t, fr.correspondingSchemaID.Ref(), sid.Ref())
 }
 
 func TestFieldReference_CorrespondingField(t *testing.T) {
 	m := id.NewModelID()
 	cf := &CorrespondingField{}
-	f := NewReference(m, cf, nil)
+	sid := id.NewSchemaID().Ref()
+	f := NewReference(m, sid, cf, nil)
 	assert.Equal(t, cf, f.CorrespondingField())
 }
 
 func TestFieldReference_CorrespondingFieldID(t *testing.T) {
 	m := id.NewModelID()
-	cf := lo.ToPtr(id.NewFieldID())
-	f := NewReference(m, nil, cf)
+	cf := id.NewFieldID().Ref()
+	f := NewReference(m, nil, nil, cf)
 	assert.Equal(t, cf, f.CorrespondingFieldID())
 }
 
 func TestFieldReference_Model(t *testing.T) {
 	m := id.NewModelID()
-	f := NewReference(m, nil, nil)
+	f := NewReference(m, nil, nil, nil)
 	assert.Equal(t, m, f.Model())
 }
 
@@ -57,9 +75,9 @@ func TestFieldReference_TypeProperty(t *testing.T) {
 
 func TestFieldReference_Clone(t *testing.T) {
 	m := id.NewModelID()
-	cf := lo.ToPtr(id.NewFieldID())
+	cf := id.NewFieldID().Ref()
 	assert.Nil(t, (*FieldReference)(nil).Clone())
-	assert.Equal(t, &FieldReference{modelId: m, correspondingFieldId: cf}, (&FieldReference{modelId: m, correspondingFieldId: cf}).Clone())
+	assert.Equal(t, &FieldReference{modelID: m, correspondingFieldID: cf}, (&FieldReference{modelID: m, correspondingFieldID: cf}).Clone())
 }
 
 func TestFieldReference_Validate(t *testing.T) {

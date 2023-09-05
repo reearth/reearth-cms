@@ -68,10 +68,11 @@ func NewSchema(i *schema.Schema) Schema {
 	})
 
 	return Schema{
-		Id:        i.ID().Ref(),
-		ProjectId: i.Project().Ref(),
-		Fields:    &fs,
-		CreatedAt: lo.ToPtr(i.ID().Timestamp()),
+		Id:         i.ID().Ref(),
+		ProjectId:  i.Project().Ref(),
+		Fields:     &fs,
+		TitleField: i.TitleField().Ref(),
+		CreatedAt:  lo.ToPtr(i.ID().Timestamp()),
 	}
 }
 

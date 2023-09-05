@@ -163,6 +163,7 @@ type CreateFieldInput struct {
 	Multiple     bool                          `json:"multiple"`
 	Unique       bool                          `json:"unique"`
 	Required     bool                          `json:"required"`
+	IsTitle      bool                          `json:"isTitle"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
@@ -626,10 +627,12 @@ type RequestPayload struct {
 }
 
 type Schema struct {
-	ID        ID             `json:"id"`
-	ProjectID ID             `json:"projectId"`
-	Fields    []*SchemaField `json:"fields"`
-	Project   *Project       `json:"project"`
+	ID           ID             `json:"id"`
+	ProjectID    ID             `json:"projectId"`
+	Fields       []*SchemaField `json:"fields"`
+	TitleFieldID *ID            `json:"titleFieldId,omitempty"`
+	TitleField   *SchemaField   `json:"titleField,omitempty"`
+	Project      *Project       `json:"project"`
 }
 
 func (Schema) IsNode()        {}
@@ -648,6 +651,7 @@ type SchemaField struct {
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
 	Required     bool                    `json:"required"`
+	IsTitle      bool                    `json:"isTitle"`
 	CreatedAt    time.Time               `json:"createdAt"`
 	UpdatedAt    time.Time               `json:"updatedAt"`
 }
@@ -714,15 +718,19 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID              ID  `json:"modelId"`
-	CorrespondingFieldID *ID `json:"correspondingFieldId,omitempty"`
+	ModelID               ID           `json:"modelId"`
+	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
+	CorrespondingSchema   *Schema      `json:"correspondingSchema,omitempty"`
+	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
+	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID            ID                       `json:"modelId"`
-	CorrespondingField *CorrespondingFieldInput `json:"correspondingField,omitempty"`
+	ModelID               ID                       `json:"modelId"`
+	CorrespondingSchemaID *ID                      `json:"correspondingSchemaId,omitempty"`
+	CorrespondingField    *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
@@ -762,13 +770,13 @@ type SchemaFieldTagInput struct {
 }
 
 type SchemaFieldTagValue struct {
-	ID    ID     `json:"id"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
+	ID    ID                  `json:"id"`
+	Name  string              `json:"name"`
+	Color SchemaFieldTagColor `json:"color"`
 }
 
 type SchemaFieldTagValueInput struct {
-	TagID *ID                  `json:"tagId,omitempty"`
+	ID    *ID                  `json:"id,omitempty"`
 	Name  *string              `json:"name,omitempty"`
 	Color *SchemaFieldTagColor `json:"color,omitempty"`
 }
@@ -877,6 +885,7 @@ type UpdateFieldInput struct {
 	Required     *bool                         `json:"required,omitempty"`
 	Unique       *bool                         `json:"unique,omitempty"`
 	Multiple     *bool                         `json:"multiple,omitempty"`
+	IsTitle      *bool                         `json:"isTitle,omitempty"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty,omitempty"`
 }
 

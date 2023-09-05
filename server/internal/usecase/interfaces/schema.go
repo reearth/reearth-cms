@@ -21,6 +21,7 @@ type CreateFieldParam struct {
 	Multiple     bool
 	Unique       bool
 	Required     bool
+	IsTitle      bool
 	TypeProperty *schema.TypeProperty
 	DefaultValue *value.Multiple
 }
@@ -36,6 +37,7 @@ type UpdateFieldParam struct {
 	Multiple     *bool
 	Unique       *bool
 	Required     *bool
+	IsTitle      *bool
 	TypeProperty *schema.TypeProperty
 	DefaultValue *value.Multiple
 }

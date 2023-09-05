@@ -21,12 +21,13 @@ func ToSchema(s *schema.Schema) *Schema {
 		ID:        IDFrom(s.ID()),
 		ProjectID: IDFrom(s.Project()),
 		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) *SchemaField {
-			return ToSchemaField(sf)
+			return ToSchemaField(sf, s.TitleField())
 		}),
+		TitleFieldID: IDFromRef(s.TitleField()),
 	}
 }
 
-func ToSchemaField(sf *schema.Field) *SchemaField {
+func ToSchemaField(sf *schema.Field, titleField *id.FieldID) *SchemaField {
 	if sf == nil {
 		return nil
 	}
@@ -42,6 +43,7 @@ func ToSchemaField(sf *schema.Field) *SchemaField {
 		Multiple:     sf.Multiple(),
 		Unique:       sf.Unique(),
 		Required:     sf.Required(),
+		IsTitle:      lo.FromPtr(titleField) == sf.ID(),
 		CreatedAt:    sf.CreatedAt(),
 		UpdatedAt:    sf.UpdatedAt(),
 	}
@@ -115,7 +117,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				return &SchemaFieldTagValue{
 					ID:    IDFrom(tag.ID()),
 					Name:  tag.Name(),
-					Color: tag.Color().String(),
+					Color: ToSchemaFieldTagColor(tag.Color()),
 				}
 			})
 			res = &SchemaFieldTag{
@@ -207,8 +209,9 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Reference: func(f *schema.FieldReference) {
 			res = &SchemaFieldReference{
-				ModelID:              IDFrom(f.Model()),
-				CorrespondingFieldID: IDFromRef(f.CorrespondingFieldID()),
+				ModelID:               IDFrom(f.Model()),
+				CorrespondingSchemaID: IDFromRef(f.CorrespondingSchema()),
+				CorrespondingFieldID:  IDFromRef(f.CorrespondingFieldID()),
 			}
 		},
 		URL: func(f *schema.FieldURL) {
@@ -376,10 +379,10 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		var tags schema.TagList
 		for _, t := range x.Tags {
 			var tag *schema.Tag
-			if t.TagID == nil {
+			if t.ID == nil {
 				tag = schema.NewTag(*t.Name, schema.TagColorFrom(t.Color.String()))
 			} else {
-				tid, err := ToID[id.Tag](*t.TagID)
+				tid, err := ToID[id.Tag](*t.ID)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -399,9 +402,22 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		}
 
 		if multiple {
-			dv = value.NewMultiple(value.TypeTag, unpackArray(x.DefaultValue))
+			values := unpackArray(x.DefaultValue)
+			valuesNames := lo.Map(values, func(v any, _ int) string {
+				return v.(string)
+			})
+			tagsIds := lo.Map(valuesNames, func(n string, _ int) any {
+				return tags.FindByName(n).ID().String()
+			})
+			dv = value.NewMultiple(value.TypeTag, tagsIds)
 		} else {
-			dv = FromValue(SchemaFieldTypeTag, x.DefaultValue).AsMultiple()
+			valueName, _ := x.DefaultValue.(string)
+			tag := tags.FindByName(valueName)
+			tagId := ""
+			if tag != nil {
+				tagId = tag.ID().String()
+			}
+			dv = FromValue(SchemaFieldTypeTag, tagId).AsMultiple()
 		}
 		tpRes = res.TypeProperty()
 	case SchemaFieldTypeInteger:
@@ -435,11 +451,15 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if err != nil {
 			return nil, nil, err
 		}
-		var fId *id.FieldID
+		var fid *id.FieldID
 		if x.CorrespondingField != nil {
-			fId = ToIDRef[id.Field](x.CorrespondingField.FieldID)
+			fid = ToIDRef[id.Field](x.CorrespondingField.FieldID)
 		}
-		tpRes = schema.NewReference(mId, FromCorrespondingField(x.CorrespondingField), fId).TypeProperty()
+		var sid *id.SchemaID
+		if x.CorrespondingSchemaID != nil {
+			sid = ToIDRef[id.Schema](x.CorrespondingSchemaID)
+		}
+		tpRes = schema.NewReference(mId, sid, FromCorrespondingField(x.CorrespondingField), fid).TypeProperty()
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {

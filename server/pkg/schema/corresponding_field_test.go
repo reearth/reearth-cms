@@ -16,17 +16,20 @@ func TestGetCorrespondingFields(t *testing.T) {
 	mid1 := id.NewModelID()
 	mid2 := id.NewModelID()
 	fid1 := id.NewFieldID()
+	sid1 := id.NewSchemaID()
+	sid2 := id.NewSchemaID()
 	cf1 := &CorrespondingField{
 		Title:       lo.ToPtr("title"),
 		Key:         lo.ToPtr("key"),
 		Description: lo.ToPtr("description"),
 		Required:    lo.ToPtr(true),
 	}
-	f1 := NewField(NewReference(mid2, cf1, cf1.FieldID).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
-	s1 := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(FieldList{f1}).MustBuild()
-	s2 := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(FieldList{}).MustBuild()
+	f1 := NewField(NewReference(mid2, sid1.Ref(), cf1, cf1.FieldID).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
+	s1 := New().ID(sid1).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(FieldList{f1}).MustBuild()
+	s2 := New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(FieldList{}).MustBuild()
 	fr1, _ := FieldReferenceFromTypeProperty(f1.TypeProperty())
 	fields, _ := GetCorrespondingFields(s1, s2, mid1, f1, fr1)
+	fr1.SetCorrespondingSchema(sid2.Ref())
 
 	// check that fields are not nil
 	assert.NotNil(t, fields.Schema1)
@@ -35,13 +38,17 @@ func TestGetCorrespondingFields(t *testing.T) {
 	assert.NotNil(t, fields.Field2)
 
 	// check that model ids are correct
-	assert.Equal(t, fields.Field2.typeProperty.reference.modelId, mid1)
-	assert.Equal(t, fields.Field1.typeProperty.reference.modelId, mid2)
+	rf1, _ := FieldReferenceFromTypeProperty(fields.Field2.TypeProperty())
+	assert.Equal(t, rf1.modelID, mid1)
+	rf2, _ := FieldReferenceFromTypeProperty(fields.Field1.TypeProperty())
+	assert.Equal(t, rf2.modelID, mid2)
 
 	// check that corresponding field ids are correct
-	assert.Equal(t, fields.Field1.typeProperty.reference.correspondingFieldId, fields.Field2.ID().Ref())
-	assert.Equal(t, fields.Field2.typeProperty.reference.correspondingFieldId, fields.Field1.ID().Ref())
+	assert.Equal(t, fields.Field1.typeProperty.reference.correspondingFieldID, fields.Field2.ID().Ref())
+	assert.Equal(t, fields.Field2.typeProperty.reference.correspondingFieldID, fields.Field1.ID().Ref())
 
+	assert.Equal(t, fields.Field1.typeProperty.reference.correspondingSchemaID, fields.Schema2.ID().Ref())
+	assert.Equal(t, fields.Field2.typeProperty.reference.correspondingSchemaID, fields.Schema1.ID().Ref())
 	// check that corresponding field is set correctly
 	wantcf2 := &CorrespondingField{
 		FieldID:     f1.ID().Ref(),
@@ -53,7 +60,7 @@ func TestGetCorrespondingFields(t *testing.T) {
 	fr2, ok := FieldReferenceFromTypeProperty(fields.Field2.TypeProperty())
 	assert.True(t, ok)
 	assert.Equal(t, wantcf2, fr2.correspondingField)
-	
+
 	// check invalid key
 	cf3 := &CorrespondingField{
 		Title:       lo.ToPtr("title"),
@@ -61,7 +68,7 @@ func TestGetCorrespondingFields(t *testing.T) {
 		Description: lo.ToPtr("description"),
 		Required:    lo.ToPtr(true),
 	}
-	f3 := NewField(NewReference(mid2, cf3, cf3.FieldID).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	f3 := NewField(NewReference(mid2, id.NewSchemaID().Ref(), cf3, cf3.FieldID).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	s3 := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(FieldList{f3}).MustBuild()
 	s4 := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(FieldList{}).MustBuild()
 
@@ -70,10 +77,10 @@ func TestGetCorrespondingFields(t *testing.T) {
 	fields, err := GetCorrespondingFields(s3, s4, mid3, f3, fr3)
 	assert.Nil(t, fields)
 	assert.Equal(t, err, ErrInvalidKey)
-	
+
 	// check one way reference
 	mid4 := id.NewModelID()
-	f4 := NewField(NewReference(mid2, nil, nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	f4 := NewField(NewReference(mid2, nil, nil, nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	fr4, _ := FieldReferenceFromTypeProperty(f4.TypeProperty())
 	fields, err = GetCorrespondingFields(s3, s4, mid4, f4, fr4)
 	assert.Nil(t, fields)
@@ -84,12 +91,13 @@ func TestFieldReferenceFromTypeProperty(t *testing.T) {
 	// check that it returns true and correct field reference if type is reference
 	mid1 := id.NewModelID()
 	fid1 := id.NewFieldID()
-	f1 := NewField(NewReference(mid1, nil, nil).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
+	f1 := NewField(NewReference(mid1, nil, nil, nil).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
 	got1, ok := FieldReferenceFromTypeProperty(f1.TypeProperty())
 	want1 := &FieldReference{
-		modelId  : mid1,
-		correspondingFieldId: nil,
-		correspondingField : nil,
+		modelID:               mid1,
+		correspondingSchemaID: nil,
+		correspondingFieldID:  nil,
+		correspondingField:    nil,
 	}
 	assert.True(t, ok)
 	assert.Equal(t, want1, got1)
