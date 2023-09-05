@@ -262,16 +262,24 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Model:  m,
 			Schema: s,
 		}
-		if fields[0].Type() == value.TypeReference {
-			value, ok := fields[0].Value().First().ValueReference()
-			if ok {
-				ii, err := i.repos.Item.FindByID(ctx, value, nil)
-				if err != nil {
-					return nil, err
+		var vil []*item.Item
+		for _, f := range fields {
+			if f.Type() != value.TypeReference {
+				continue
+			}
+			for _, v := range f.Value().Values() {
+				iid, ok := v.Value().(id.ItemID)
+				if !ok {
+					continue
 				}
-				wo.ReferencedItems = ii.Value()
+				ii, err := i.repos.Item.FindByID(ctx, iid, nil)
+				if err != nil {
+					continue
+				}
+				vil = append(vil, ii.Value())
 			}
 		}
+		wo.ReferencedItems = vil
 
 		if err := i.event(ctx, Event{
 			Project:       prj,
@@ -353,16 +361,24 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Schema:  s,
 			Changes: item.CompareFields(newFields, oldFields),
 		}
-		if newFields[0].Type() == value.TypeReference {
-			value, ok := newFields[0].Value().First().ValueReference()
-			if ok {
-				ii, err := i.repos.Item.FindByID(ctx, value, nil)
-				if err != nil {
-					return nil, err
+		var vil []*item.Item
+		for _, f := range fields {
+			if f.Type() != value.TypeReference {
+				continue
+			}
+			for _, v := range f.Value().Values() {
+				iid, ok := v.Value().(id.ItemID)
+				if !ok {
+					continue
 				}
-				wo.ReferencedItem = ii.Value()
+				ii, err := i.repos.Item.FindByID(ctx, iid, nil)
+				if err != nil {
+					continue
+				}
+				vil = append(vil, ii.Value())
 			}
 		}
+		wo.ReferencedItems = vil
 
 		if err := i.event(ctx, Event{
 			Project:       prj,

@@ -12,7 +12,7 @@ import (
 
 type ItemModelSchema struct {
 	Item            Item          `json:"item"`
-	ReferencedItems Item          `json:"referencedItem,omitempty"`
+	ReferencedItems []VersionedItem        `json:"referencedItem,omitempty"`
 	Model           Model         `json:"model"`
 	Schema          Schema        `json:"schema"`
 	ItemChange      []FieldChange `json:"itemChange,omitempty"`
@@ -33,9 +33,12 @@ type ItemModelSchemaItemChange struct {
 }
 
 func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
+	// ri := lo.Map(i.ReferencedItems, func(itm *item.Item, _ int) Item {
+	// 	return NewItem(itm, nil, nil)
+	// })
 	return ItemModelSchema{
 		Item:            NewItem(i.Item, i.Schema, assets),
-		ReferencedItems: NewItem(i.ReferencedItem, nil, nil),
+		// ReferencedItems: ri,
 		Model:           NewModel(i.Model, time.Time{}),
 		Schema:          NewSchema(i.Schema),
 		ItemChange:      NewItemFieldChanges(i.Changes),
