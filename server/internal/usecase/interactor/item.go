@@ -307,12 +307,13 @@ func (i Item) checkReferenceFields(ctx context.Context, s *schema.Schema, fields
 			return err
 		}
 		_, fid2, ok := item.AreItemsReferenced(it, itm2.Value(), s, s2)
-		if ok {
-			vv := value.New(value.TypeReference, it.ID().String())
-			itm2.Value().UpdateField(fid2, vv.AsMultiple())
-			if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
-				return err
-			}
+		if !ok {
+			continue
+		}
+		vv := value.New(value.TypeReference, it.ID().String()).AsMultiple()
+		itm2.Value().UpdateFields([]*item.Field{item.NewField(*fid2, vv)})
+		if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
+			return err
 		}
 	}
 	return nil
