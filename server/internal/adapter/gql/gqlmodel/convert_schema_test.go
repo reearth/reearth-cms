@@ -327,6 +327,17 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			argsT:     SchemaFieldTypeSelect,
 			wantError: ErrEmptyOptions,
 		},
+		{
+			name: "tags empty",
+			argsInp: &SchemaFieldTypePropertyInput{
+				Tag: &SchemaFieldTagInput{
+					Tags:         []*SchemaFieldTagValueInput{},
+					DefaultValue: nil,
+				},
+			},
+			argsT:     SchemaFieldTypeTag,
+			wantError: ErrEmptyOptions,
+		},
 	}
 
 	for _, tt := range tests {
