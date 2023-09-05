@@ -112,16 +112,22 @@ Unpublish: 非公開
 New Request: 新規リクエスト
 Publish: 公開
 Please input field!: フィールドを入力してください。
+Refer to item: ''
 Enter Information: ''
 Updated At: 更新日時
 Publish State: ''
+This item has been referenced: ''
+Are you going to refer to it? The previous reference will be canceled automatically: ''
+Link item: ''
 State: ステータス
 Reviewers: レビュワー
 New Item: 新規アイテム
+We found some referenced items that not been published yet. Please select to publish the items.: ''
 Please input the title of your request!: リクエストのタイトルを入力してください。
 Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
+We found some referenced items that not published yet. Please select to add the items to the same request.: ''
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -206,6 +212,7 @@ Text: テキスト
 Boolean: ''
 Select: セレクト
 Number: 数値
+Relation: ''
 Add Field: フィールドを追加
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
@@ -222,6 +229,19 @@ Make field required: このフィールドを必須項目にする
 Ensures that a multiple entries can't have the same value for this field: 複数のアイテム間でこのフィールドの値がユニークであることを担保します
 Set field as unique: ユニーク制約
 Default value: デフォルト値
+Field: ''
+Previous: ''
+Next: ''
+Confirm: ''
+Reference setting: ''
+Corresponding field: ''
+Select the model to reference: ''
+Please select the model!: ''
+Reference direction: ''
+One-way reference: ''
+A unidirectional relationship where an item refers to another item: ''
+Two-way reference: ''
+A bidirectional relationship where two items refer to each other: ''
 Set default value: デフォルト値を設定
 Default value must be a valid URL and start with 'http://' or 'https://'.: デフォルト値はhttp://もしくはhttps://で始まる有効なURLである必要があります。
 Field key must be unique and at least 1 characters long. It can only contain letters, numbers, underscores and dashes.: フィールドのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
@@ -242,6 +262,8 @@ Multiple select: 複数選択
 Int: 整数値
 Integer: 整数値
 http/https URL: URL
+Reference: ''
+Reference field: ''
 Date: ''
 Date picker: ''
 Select from a list of tags: ''
