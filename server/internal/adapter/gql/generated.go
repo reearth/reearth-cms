@@ -4560,7 +4560,7 @@ type SchemaFieldTag {
 type SchemaFieldTagValue {
   id: ID!
   name: String!
-  color: String!
+  color: SchemaFieldTagColor!
 }
 
 type SchemaFieldInteger {
@@ -4634,8 +4634,8 @@ input SchemaFieldTagInput {
 }
 
 input SchemaFieldTagValueInput {
-  tagId: ID # if you want to create a new tag, it is not required
-  name: String # if you want to delete a tag, it should be an empty string
+  id: ID
+  name: String
   color: SchemaFieldTagColor
 }
 
@@ -21416,9 +21416,9 @@ func (ec *executionContext) _SchemaFieldTagValue_color(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(gqlmodel.SchemaFieldTagColor)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldTagValue_color(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21428,7 +21428,7 @@ func (ec *executionContext) fieldContext_SchemaFieldTagValue_color(ctx context.C
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type SchemaFieldTagColor does not have child fields")
 		},
 	}
 	return fc, nil
@@ -27775,22 +27775,22 @@ func (ec *executionContext) unmarshalInputSchemaFieldTagValueInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"tagId", "name", "color"}
+	fieldsInOrder := [...]string{"id", "name", "color"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "tagId":
+		case "id":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tagId"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TagID = data
+			it.ID = data
 		case "name":
 			var err error
 
@@ -37195,6 +37195,16 @@ func (ec *executionContext) marshalNSchemaField2ᚖgithubᚗcomᚋreearthᚋreea
 		return graphql.Null
 	}
 	return ec._SchemaField(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, v interface{}) (gqlmodel.SchemaFieldTagColor, error) {
+	var res gqlmodel.SchemaFieldTagColor
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSchemaFieldTagColor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagColor(ctx context.Context, sel ast.SelectionSet, v gqlmodel.SchemaFieldTagColor) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNSchemaFieldTagValue2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldTagValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.SchemaFieldTagValue) graphql.Marshaler {
