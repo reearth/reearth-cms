@@ -20,6 +20,11 @@ type CreateModelParam struct {
 	Key         *string
 	Public      *bool
 }
+type FindOrCreateSchemaParam struct {
+	ModelId  id.ModelID
+	Metadata *bool
+	Create   bool
+}
 
 type UpdateModelParam struct {
 	ModelId     id.ModelID
@@ -39,7 +44,7 @@ type Model interface {
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*model.Model, error)
 	FindByIDOrKey(context.Context, id.ProjectID, model.IDOrKey, *usecase.Operator) (*model.Model, error)
-	FindOrCreateSchema(context.Context, id.ModelID, *bool, *usecase.Operator) (*schema.Schema, error)
+	FindOrCreateSchema(context.Context, FindOrCreateSchemaParam, *usecase.Operator) (*schema.Schema, error)
 	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)

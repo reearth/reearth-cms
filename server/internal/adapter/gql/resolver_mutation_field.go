@@ -7,8 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -19,7 +17,11 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 		return nil, err
 	}
 
-	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, mId, input.Metadata, getOperator(ctx))
+	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
+		ModelId:  mId,
+		Metadata: input.Metadata,
+		Create:   true,
+	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -62,15 +64,10 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 		return nil, err
 	}
 
-	m, err := usecases(ctx).Model.FindByID(ctx, mId, getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := usecases(ctx).Schema.GetSchemaOrMetadata(ctx, interfaces.GetSchemaOrMetadataParam{
-		SchemaId:   m.Schema(),
-		MetadataId: m.Metadata(),
-		IsMetadata: input.Metadata,
+	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
+		ModelId:  mId,
+		Metadata: input.Metadata,
+		Create:   true,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -84,7 +81,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	f, err := usecases(ctx).Schema.UpdateField(ctx, interfaces.UpdateFieldParam{
-		SchemaId:     m.Schema(),
+		SchemaId:     s.ID(),
 		FieldId:      fId,
 		Name:         input.Title,
 		Description:  input.Description,
@@ -137,22 +134,15 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 		return nil, err
 	}
 
-	ms, err := usecases(ctx).Model.FindByIDs(ctx, []id.ModelID{mId}, getOperator(ctx))
-	if err != nil || len(ms) != 1 || ms[0].ID() != mId {
-		if err == nil {
-			return nil, rerror.NewE(i18n.T("not found"))
-		}
-		return nil, err
-	}
-
-	s, err := usecases(ctx).Schema.FindByID(ctx, ms[0].Schema(), getOperator(ctx))
+	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
+		ModelId:  mId,
+		Metadata: input[0].Metadata,
+		Create:   true,
+	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
 	params, err := util.TryMap(input, func(ipt *gqlmodel.UpdateFieldInput) (interfaces.UpdateFieldParam, error) {
 		fid, err := gqlmodel.ToID[id.Field](ipt.FieldID)
 		if err != nil {
@@ -183,7 +173,7 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 		return nil, err
 	}
 
-	fl, err := usecases(ctx).Schema.UpdateFields(ctx, ms[0].Schema(), params, getOperator(ctx))
+	fl, err := usecases(ctx).Schema.UpdateFields(ctx, s.ID(), params, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
