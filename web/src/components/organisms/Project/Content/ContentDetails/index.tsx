@@ -10,11 +10,13 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    linkedItemsModalList,
     showPublishAction,
     requests,
     itemId,
     currentModel,
     currentItem,
+    formItemsData,
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
@@ -24,6 +26,11 @@ const ContentDetails: React.FC = () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTotalCount,
+    linkItemModalPage,
+    linkItemModalPageSize,
+    handleReferenceModelUpdate,
+    handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
@@ -69,6 +76,13 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      formItemsData={formItemsData}
+      linkItemModalTotalCount={linkItemModalTotalCount}
+      linkItemModalPage={linkItemModalPage}
+      linkItemModalPageSize={linkItemModalPageSize}
+      onLinkItemTableChange={handleLinkItemTableChange}
+      onReferenceModelUpdate={handleReferenceModelUpdate}
+      linkedItemsModalList={linkedItemsModalList}
       showPublishAction={showPublishAction}
       requests={requests}
       requestCreationLoading={requestCreationLoading}

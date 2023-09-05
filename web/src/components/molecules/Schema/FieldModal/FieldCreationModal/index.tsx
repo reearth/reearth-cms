@@ -19,6 +19,7 @@ import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
@@ -26,15 +27,16 @@ import { fieldTypes } from "../../fieldTypes";
 import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType } from "../../types";
 
 export type FormValues = {
+  fieldId?: string;
   title: string;
-  description: string;
+  description?: string;
   key: string;
   multiple: boolean;
   unique: boolean;
   isTitle: boolean;
   required: boolean;
-  type: FieldType;
-  typeProperty: CreationFieldTypePropertyInput;
+  type?: FieldType;
+  typeProperty: CreationFieldTypePropertyInput | SchemaFieldTypePropertyInput;
 };
 
 export type Props = {

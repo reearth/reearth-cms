@@ -1,9 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Item } from "@reearth-cms/components/molecules/Content/types";
+import { FormItem, Item, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import {
   RequestUpdatePayload,
   RequestState,
@@ -22,6 +22,8 @@ import {
   useGetMeQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
+  useGetItemsQuery,
+  useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -47,10 +49,18 @@ export default () => {
   const location = useLocation();
   const { data: userData } = useGetMeQuery();
 
-  const { itemId } = useParams();
+  const { itemId, modelId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
+  const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
+  const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
+  const [refernceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
+
+  useEffect(() => {
+    setLinkItemModalPage(+linkItemModalPage);
+    setLinkItemModalPageSize(+linkItemModalPageSize);
+  }, [setLinkItemModalPage, setLinkItemModalPageSize, linkItemModalPage, linkItemModalPageSize]);
   const t = useT();
 
   const { data } = useGetItemQuery({
@@ -58,6 +68,39 @@ export default () => {
     variables: { id: itemId ?? "" },
     skip: !itemId,
   });
+
+  const { data: itemsData } = useGetItemsQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      modelId: refernceModelId ?? "",
+      pagination: {
+        first: linkItemModalPageSize,
+        offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+      },
+    },
+    skip: !refernceModelId,
+  });
+
+  const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
+    setLinkItemModalPage(page);
+    setLinkItemModalPageSize(pageSize);
+  }, []);
+
+  const linkedItemsModalList: FormItem[] | undefined = useMemo(() => {
+    return itemsData?.items.nodes
+      ?.map(item =>
+        item
+          ? {
+              id: item.id,
+              schemaId: item.schemaId,
+              status: item.status as ItemStatus,
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
+            }
+          : undefined,
+      )
+      .filter((contentTableField): contentTableField is FormItem => !!contentTableField);
+  }, [itemsData?.items.nodes]);
 
   const me: User | undefined = useMemo(() => {
     return userData?.me
@@ -83,6 +126,27 @@ export default () => {
   const currentItem: Item | undefined = useMemo(
     () => convertItem(data?.node as GQLItem),
     [data?.node],
+  );
+
+  const formReferenceItemsIds = useMemo(
+    () =>
+      currentItem?.fields
+        ?.filter(field => field.value && field.type === "Reference")
+        .map(field => field.value) ?? [],
+    [currentItem?.fields],
+  );
+
+  const { data: gqlFormItemsData } = useGetItemsByIdsQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      id: formReferenceItemsIds,
+    },
+    skip: formReferenceItemsIds.length === 0,
+  });
+
+  const formItemsData: FormItem[] | undefined = useMemo(
+    () => gqlFormItemsData?.nodes as FormItem[],
+    [gqlFormItemsData?.nodes],
   );
 
   const handleNavigateToModel = useCallback(
@@ -258,13 +322,19 @@ export default () => {
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
+  const handleReferenceModelUpdate = useCallback((modelId?: string) => {
+    setReferenceModelId(modelId);
+  }, []);
+
   return {
+    linkedItemsModalList,
     showPublishAction,
     requests,
     itemId,
     requestCreationLoading,
     currentModel,
     currentItem,
+    formItemsData,
     initialFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
@@ -273,6 +343,11 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTotalCount: itemsData?.items.totalCount || 0,
+    linkItemModalPage,
+    linkItemModalPageSize,
+    handleReferenceModelUpdate,
+    handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,

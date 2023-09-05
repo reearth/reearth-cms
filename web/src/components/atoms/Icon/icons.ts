@@ -48,6 +48,7 @@ import {
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
+import ArrowUpRight from "./Icons/arrowUpRight.svg";
 import Asset from "./Icons/asset.svg";
 import Boolean from "./Icons/boolean.svg";
 import CheckSquare from "./Icons/checkSquare.svg";
@@ -100,6 +101,7 @@ export default {
   markdown: MarkDown,
   asset: Asset,
   listBullets: ListBullets,
+  arrowUpRight: ArrowUpRight,
   numberNine: NumberNine,
   link: Link,
   linkSolid: LinkSolid,

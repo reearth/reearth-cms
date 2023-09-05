@@ -3,8 +3,8 @@ import { gql } from "@apollo/client";
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_ITEMS = gql`
-  query GetItems($schemaId: ID!, $pagination: Pagination) {
-    items(schemaId: $schemaId, pagination: $pagination) {
+  query GetItems($modelId: ID!, $pagination: Pagination) {
+    items(modelId: $modelId, pagination: $pagination) {
       nodes {
         id
         schemaId
@@ -26,6 +26,7 @@ export const GET_ITEMS = gql`
           ...threadFragment
         }
       }
+      totalCount
     }
   }
 
@@ -60,6 +61,26 @@ export const GET_ITEM_NODE = gql`
         thread {
           ...threadFragment
         }
+      }
+    }
+  }
+`;
+
+export const IS_ITEM_REFERENCED = gql`
+  query IsItemReferenced($itemId: ID!, $correspondingFieldId: ID!) {
+    isItemReferenced(itemId: $itemId, correspondingFieldId: $correspondingFieldId)
+  }
+`;
+
+export const GET_ITEMS_BY_IDS = gql`
+  query GetItemsByIds($id: [ID!]!) {
+    nodes(id: $id, type: Item) {
+      ... on Item {
+        id
+        schemaId
+        createdAt
+        updatedAt
+        status
       }
     }
   }

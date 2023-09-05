@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
@@ -21,9 +21,11 @@ import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
+import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
+import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
-import { ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -35,9 +37,11 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
+  linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
   itemId?: string;
+  formItemsData: FormItem[];
   initialFormValues: any;
   loading: boolean;
   model?: Model;
@@ -59,6 +63,11 @@ export interface Props {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  linkItemModalTotalCount: number;
+  linkItemModalPage: number;
+  linkItemModalPageSize: number;
+  onReferenceModelUpdate: (modelId?: string) => void;
+  onLinkItemTableChange: (page: number, pageSize: number) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -96,10 +105,12 @@ export interface Props {
 }
 
 const ContentForm: React.FC<Props> = ({
+  linkedItemsModalList,
   showPublishAction,
   requests,
   itemId,
   model,
+  formItemsData,
   initialFormValues,
   loading,
   assetList,
@@ -121,6 +132,11 @@ const ContentForm: React.FC<Props> = ({
   requestModalPage,
   requestModalPageSize,
   requestCreationLoading,
+  linkItemModalTotalCount,
+  linkItemModalPage,
+  linkItemModalPageSize,
+  onReferenceModelUpdate,
+  onLinkItemTableChange,
   onPublish,
   onUnpublish,
   onAssetTableChange,
@@ -146,6 +162,7 @@ const ContentForm: React.FC<Props> = ({
   const t = useT();
   const { Option } = Select;
   const [form] = Form.useForm();
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
@@ -154,6 +171,11 @@ const ContentForm: React.FC<Props> = ({
   const handleBack = useCallback(() => {
     onBack(model?.id);
   }, [onBack, model]);
+
+  const unpublishedItems = useMemo(
+    () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
+    [formItemsData],
+  );
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -200,10 +222,17 @@ const ContentForm: React.FC<Props> = ({
   }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
 
   const handlePublishSubmit = useCallback(async () => {
-    // TODO: fix this
-    if (!itemId) return;
-    onPublish([itemId]);
-  }, [itemId, onPublish]);
+    if (!itemId || !unpublishedItems) return;
+    if (unpublishedItems.length === 0) {
+      onPublish([itemId]);
+    } else {
+      setPublishModalOpen(true);
+    }
+  }, [itemId, unpublishedItems, onPublish, setPublishModalOpen]);
+
+  const handlePublishItemClose = useCallback(() => {
+    setPublishModalOpen(false);
+  }, [setPublishModalOpen]);
 
   return (
     <>
@@ -411,6 +440,25 @@ const ContentForm: React.FC<Props> = ({
                 }>
                 {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
               </Form.Item>
+            ) : field.type === "Reference" ? (
+              <Form.Item
+                key={field.id}
+                extra={field.description}
+                name={field.id}
+                label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
+                <ReferenceFormItem
+                  key={field.id}
+                  correspondingFieldId={field.id}
+                  formItemsData={formItemsData}
+                  modelId={field.typeProperty.modelId}
+                  onReferenceModelUpdate={onReferenceModelUpdate}
+                  linkedItemsModalList={linkedItemsModalList}
+                  linkItemModalTotalCount={linkItemModalTotalCount}
+                  linkItemModalPage={linkItemModalPage}
+                  linkItemModalPageSize={linkItemModalPageSize}
+                  onLinkItemTableChange={onLinkItemTableChange}
+                />
+              </Form.Item>
             ) : field.type === "URL" ? (
               <Form.Item
                 key={field.id}
@@ -483,6 +531,7 @@ const ContentForm: React.FC<Props> = ({
       {itemId && (
         <>
           <RequestCreationModal
+            unpublishedItems={unpublishedItems}
             itemId={itemId}
             open={requestModalShown}
             onClose={onModalClose}
@@ -502,6 +551,13 @@ const ContentForm: React.FC<Props> = ({
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
+          />
+          <PublishItemModal
+            unpublishedItems={unpublishedItems}
+            itemId={itemId}
+            open={publishModalOpen}
+            onClose={handlePublishItemClose}
+            onSubmit={onPublish}
           />
         </>
       )}

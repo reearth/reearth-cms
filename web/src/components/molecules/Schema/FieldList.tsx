@@ -44,6 +44,10 @@ const FieldList: React.FC<Props> = ({ addField }) => {
       fields: ["Integer"],
     },
     {
+      title: t("Relation"),
+      fields: ["Reference"],
+    },
+    {
       title: t("URL"),
       fields: ["URL"],
     },

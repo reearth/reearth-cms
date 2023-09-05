@@ -133,6 +133,14 @@ export type CommentPayload = {
   thread: Thread;
 };
 
+export type CorrespondingFieldInput = {
+  description?: InputMaybe<Scalars['String']>;
+  fieldId?: InputMaybe<Scalars['ID']>;
+  key?: InputMaybe<Scalars['String']>;
+  required?: InputMaybe<Scalars['Boolean']>;
+  title?: InputMaybe<Scalars['String']>;
+};
+
 export type CreateAssetInput = {
   file?: InputMaybe<Scalars['Upload']>;
   projectId: Scalars['ID'];
@@ -933,6 +941,7 @@ export type Query = {
   assets: AssetConnection;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
+  isItemReferenced: Scalars['Boolean'];
   items: ItemConnection;
   me?: Maybe<Me>;
   models: ModelConnection;
@@ -970,9 +979,15 @@ export type QueryCheckProjectAliasArgs = {
 };
 
 
+export type QueryIsItemReferencedArgs = {
+  correspondingFieldId: Scalars['ID'];
+  itemId: Scalars['ID'];
+};
+
+
 export type QueryItemsArgs = {
+  modelId: Scalars['ID'];
   pagination?: InputMaybe<Pagination>;
-  schemaId: Scalars['ID'];
   sort?: InputMaybe<ItemSort>;
 };
 
@@ -1201,10 +1216,16 @@ export type SchemaFieldMarkdown = {
 
 export type SchemaFieldReference = {
   __typename?: 'SchemaFieldReference';
+  correspondingField?: Maybe<SchemaField>;
+  correspondingFieldId?: Maybe<Scalars['ID']>;
+  correspondingSchema?: Maybe<Schema>;
+  correspondingSchemaId?: Maybe<Scalars['ID']>;
   modelId: Scalars['ID'];
 };
 
 export type SchemaFieldReferenceInput = {
+  correspondingField?: InputMaybe<CorrespondingFieldInput>;
+  correspondingSchemaId?: InputMaybe<Scalars['ID']>;
   modelId: Scalars['ID'];
 };
 
@@ -1780,12 +1801,12 @@ export type DeleteIntegrationMutationVariables = Exact<{
 export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration?: { __typename?: 'DeleteIntegrationPayload', integrationId: string } | null };
 
 export type GetItemsQueryVariables = Exact<{
-  schemaId: Scalars['ID'];
+  modelId: Scalars['ID'];
   pagination?: InputMaybe<Pagination>;
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type GetItemQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -1793,6 +1814,21 @@ export type GetItemQueryVariables = Exact<{
 
 
 export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null };
+
+export type IsItemReferencedQueryVariables = Exact<{
+  itemId: Scalars['ID'];
+  correspondingFieldId: Scalars['ID'];
+}>;
+
+
+export type IsItemReferencedQuery = { __typename?: 'Query', isItemReferenced: boolean };
+
+export type GetItemsByIdsQueryVariables = Exact<{
+  id: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type GetItemsByIdsQuery = { __typename?: 'Query', nodes: Array<{ __typename?: 'Asset' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null> };
 
 export type SearchItemQueryVariables = Exact<{
   query: ItemQuery;
@@ -1848,7 +1884,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -3250,8 +3286,8 @@ export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteInt
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
 export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
 export const GetItemsDocument = gql`
-    query GetItems($schemaId: ID!, $pagination: Pagination) {
-  items(schemaId: $schemaId, pagination: $pagination) {
+    query GetItems($modelId: ID!, $pagination: Pagination) {
+  items(modelId: $modelId, pagination: $pagination) {
     nodes {
       id
       schemaId
@@ -3273,6 +3309,7 @@ export const GetItemsDocument = gql`
         ...threadFragment
       }
     }
+    totalCount
   }
 }
     ${ThreadFragmentFragmentDoc}`;
@@ -3289,7 +3326,7 @@ export const GetItemsDocument = gql`
  * @example
  * const { data, loading, error } = useGetItemsQuery({
  *   variables: {
- *      schemaId: // value for 'schemaId'
+ *      modelId: // value for 'modelId'
  *      pagination: // value for 'pagination'
  *   },
  * });
@@ -3365,6 +3402,81 @@ export function useGetItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ge
 export type GetItemQueryHookResult = ReturnType<typeof useGetItemQuery>;
 export type GetItemLazyQueryHookResult = ReturnType<typeof useGetItemLazyQuery>;
 export type GetItemQueryResult = Apollo.QueryResult<GetItemQuery, GetItemQueryVariables>;
+export const IsItemReferencedDocument = gql`
+    query IsItemReferenced($itemId: ID!, $correspondingFieldId: ID!) {
+  isItemReferenced(itemId: $itemId, correspondingFieldId: $correspondingFieldId)
+}
+    `;
+
+/**
+ * __useIsItemReferencedQuery__
+ *
+ * To run a query within a React component, call `useIsItemReferencedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIsItemReferencedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIsItemReferencedQuery({
+ *   variables: {
+ *      itemId: // value for 'itemId'
+ *      correspondingFieldId: // value for 'correspondingFieldId'
+ *   },
+ * });
+ */
+export function useIsItemReferencedQuery(baseOptions: Apollo.QueryHookOptions<IsItemReferencedQuery, IsItemReferencedQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IsItemReferencedQuery, IsItemReferencedQueryVariables>(IsItemReferencedDocument, options);
+      }
+export function useIsItemReferencedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IsItemReferencedQuery, IsItemReferencedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IsItemReferencedQuery, IsItemReferencedQueryVariables>(IsItemReferencedDocument, options);
+        }
+export type IsItemReferencedQueryHookResult = ReturnType<typeof useIsItemReferencedQuery>;
+export type IsItemReferencedLazyQueryHookResult = ReturnType<typeof useIsItemReferencedLazyQuery>;
+export type IsItemReferencedQueryResult = Apollo.QueryResult<IsItemReferencedQuery, IsItemReferencedQueryVariables>;
+export const GetItemsByIdsDocument = gql`
+    query GetItemsByIds($id: [ID!]!) {
+  nodes(id: $id, type: Item) {
+    ... on Item {
+      id
+      schemaId
+      createdAt
+      updatedAt
+      status
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetItemsByIdsQuery__
+ *
+ * To run a query within a React component, call `useGetItemsByIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetItemsByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetItemsByIdsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetItemsByIdsQuery(baseOptions: Apollo.QueryHookOptions<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>(GetItemsByIdsDocument, options);
+      }
+export function useGetItemsByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>(GetItemsByIdsDocument, options);
+        }
+export type GetItemsByIdsQueryHookResult = ReturnType<typeof useGetItemsByIdsQuery>;
+export type GetItemsByIdsLazyQueryHookResult = ReturnType<typeof useGetItemsByIdsLazyQuery>;
+export type GetItemsByIdsQueryResult = Apollo.QueryResult<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>;
 export const SearchItemDocument = gql`
     query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
   searchItem(query: $query, sort: $sort, pagination: $pagination) {
@@ -3682,6 +3794,20 @@ export const GetModelsDocument = gql`
             }
             ... on SchemaFieldURL {
               defaultValue
+            }
+            ... on SchemaFieldReference {
+              modelId
+              correspondingField {
+                id
+                type
+                title
+                key
+                description
+                required
+                unique
+                multiple
+                order
+              }
             }
           }
         }

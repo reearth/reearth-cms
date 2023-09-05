@@ -51,6 +51,12 @@ export const fieldTypes: {
     description: i18next.t("http/https URL"),
     color: "#9254DE",
   },
+  Reference: {
+    icon: "arrowUpRight",
+    title: i18next.t("Reference"),
+    description: i18next.t("Reference field"),
+    color: "#597EF7",
+  },
   Date: {
     icon: "date",
     title: i18next.t("Date"),
