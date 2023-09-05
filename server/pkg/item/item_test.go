@@ -207,9 +207,12 @@ func TestItem_GetTitle(t *testing.T) {
 	if2 := NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple())
 	i1 := New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Fields([]*Field{if1, if2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 
+	title := i1.GetTitle(s1)
+	assert.Nil(t, title)
+
 	err := s1.SetTitleField(sf2.ID().Ref())
 	assert.NoError(t, err)
 
-	title := i1.GetTitle(s1)
+	title = i1.GetTitle(s1)
 	assert.Equal(t, "test", *title)
 }
