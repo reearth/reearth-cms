@@ -24,6 +24,7 @@ export default () => {
   const [currentModel] = useModel();
 
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
+  const [isMeta, setIsMeta] = useState<boolean | undefined>();
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
@@ -96,6 +97,7 @@ export default () => {
       title: string;
       description?: string;
       key: string;
+      metadata: boolean;
       multiple: boolean;
       unique: boolean;
       isTitle: boolean;
@@ -109,6 +111,7 @@ export default () => {
           modelId,
           fieldId: data.fieldId,
           title: data.title,
+          metadata: data.metadata,
           description: data.description,
           key: data.key,
           multiple: data.multiple,
@@ -159,6 +162,7 @@ export default () => {
       title: string;
       description?: string;
       key: string;
+      metadata: boolean;
       multiple: boolean;
       unique: boolean;
       isTitle: boolean;
@@ -171,6 +175,7 @@ export default () => {
         variables: {
           modelId,
           title: data.title,
+          metadata: data.metadata,
           description: data.description,
           key: data.key,
           multiple: data.multiple,
@@ -193,9 +198,10 @@ export default () => {
   );
 
   const handleFieldCreationModalOpen = useCallback(
-    (fieldType: FieldType) => {
+    (fieldType: FieldType, meta?: boolean) => {
       setSelectedType(fieldType);
       if (modelId) setFieldCreationModalShown(true);
+      setIsMeta(meta);
     },
     [modelId],
   );
@@ -221,6 +227,7 @@ export default () => {
 
   return {
     models,
+    isMeta,
     fieldCreationModalShown,
     fieldUpdateModalShown,
     selectedField,

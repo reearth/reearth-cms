@@ -31,6 +31,7 @@ export type FormValues = {
   title: string;
   description?: string;
   key: string;
+  meta: boolean;
   multiple: boolean;
   unique: boolean;
   isTitle: boolean;
@@ -41,6 +42,7 @@ export type FormValues = {
 
 export type Props = {
   open?: boolean;
+  isMeta?: boolean;
   fieldCreationLoading: boolean;
   selectedType: FieldType;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
@@ -76,6 +78,7 @@ const initialValues: FormValues = {
   title: "",
   description: "",
   key: "",
+  meta: false,
   multiple: false,
   unique: false,
   isTitle: false,
@@ -86,6 +89,7 @@ const initialValues: FormValues = {
 
 const FieldCreationModal: React.FC<Props> = ({
   open,
+  isMeta,
   fieldCreationLoading,
   selectedType,
   onClose,
@@ -210,14 +214,14 @@ const FieldCreationModal: React.FC<Props> = ({
             url: { defaultValue: values.defaultValue },
           };
         }
-
+        values.metadata = isMeta;
         await onSubmit?.(values);
         onClose?.(true);
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit, selectedType]);
+  }, [form, onClose, onSubmit, selectedType, isMeta]);
 
   const handleModalReset = useCallback(() => {
     form.resetFields();

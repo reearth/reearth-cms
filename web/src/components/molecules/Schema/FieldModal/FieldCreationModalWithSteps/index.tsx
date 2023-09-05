@@ -86,6 +86,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       unique: false,
       required: false,
       isTitle: false,
+      meta: false,
       type: "Text",
       typeProperty: {
         reference: {
