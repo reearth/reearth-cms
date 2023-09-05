@@ -37,8 +37,6 @@ const Schema: React.FC<Props> = ({
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
 
-  const metaData = useMemo(() => [], []);
-
   const items: TabsProps["items"] = [
     {
       key: "fields",
@@ -60,7 +58,7 @@ const Schema: React.FC<Props> = ({
       children: (
         <div>
           <ModelFieldList
-            fields={metaData}
+            fields={model?.metadataSchema?.fields}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}

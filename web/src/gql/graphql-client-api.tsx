@@ -1898,7 +1898,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -3759,6 +3759,81 @@ export const GetModelsDocument = gql`
       description
       key
       public
+      metadataSchema {
+        id
+        fields {
+          id
+          type
+          title
+          key
+          description
+          required
+          unique
+          isTitle
+          multiple
+          order
+          typeProperty {
+            ... on SchemaFieldText {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldTextArea {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldMarkdown {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldAsset {
+              assetDefaultValue: defaultValue
+            }
+            ... on SchemaFieldSelect {
+              selectDefaultValue: defaultValue
+              values
+            }
+            ... on SchemaFieldInteger {
+              integerDefaultValue: defaultValue
+              min
+              max
+            }
+            ... on SchemaFieldBool {
+              defaultValue
+            }
+            ... on SchemaFieldCheckbox {
+              defaultValue
+            }
+            ... on SchemaFieldTag {
+              selectDefaultValue: defaultValue
+              tags {
+                id
+                name
+                color
+              }
+            }
+            ... on SchemaFieldDate {
+              defaultValue
+            }
+            ... on SchemaFieldURL {
+              defaultValue
+            }
+            ... on SchemaFieldReference {
+              modelId
+              correspondingField {
+                id
+                type
+                title
+                key
+                description
+                required
+                unique
+                multiple
+                order
+              }
+            }
+          }
+        }
+      }
       schema {
         id
         fields {

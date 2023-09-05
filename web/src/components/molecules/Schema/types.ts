@@ -4,6 +4,7 @@ export type Model = {
   description?: string;
   key: string;
   schema: Schema;
+  metadataSchema?: Schema;
   public: boolean;
 };
 
