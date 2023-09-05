@@ -12,6 +12,7 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
+import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import {
@@ -115,6 +116,7 @@ const FieldCreationModal: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+  const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
   const multipleValue: boolean = Form.useWatch("multiple", form);
 
   const handleTabChange = useCallback(
@@ -127,7 +129,7 @@ const FieldCreationModal: React.FC<Props> = ({
   useEffect(() => {
     if (selectedType === "Asset" || selectedType === "Select") {
       form.setFieldValue("defaultValue", null);
-    } else if (selectedType === "Bool") {
+    } else if (selectedType === "Bool" || selectedType === "Checkbox") {
       form.setFieldValue("defaultValue", false);
     }
   }, [form, selectedType, multipleValue]);
@@ -141,6 +143,16 @@ const FieldCreationModal: React.FC<Props> = ({
       }
     }
   }, [form, selectedValues, selectedType]);
+
+  useEffect(() => {
+    if (selectedType === "Tag") {
+      if (
+        !selectedTags?.some(selectedTag => selectedTag.name === form.getFieldValue("defaultValue"))
+      ) {
+        form.setFieldValue("defaultValue", null);
+      }
+    }
+  }, [form, selectedTags, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -178,6 +190,18 @@ const FieldCreationModal: React.FC<Props> = ({
         } else if (selectedType === "Bool") {
           values.typeProperty = {
             bool: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Date") {
+          values.typeProperty = {
+            date: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Tag") {
+          values.typeProperty = {
+            tag: { defaultValue: values.defaultValue, tags: values.tags },
+          };
+        } else if (selectedType === "Checkbox") {
+          values.typeProperty = {
+            checkbox: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "URL") {
           values.typeProperty = {
@@ -290,6 +314,29 @@ const FieldCreationModal: React.FC<Props> = ({
                 <MultiValueField FieldInput={Input} />
               </Form.Item>
             )}
+            {selectedType === "Tag" && (
+              <Form.Item
+                name="tags"
+                label={t("Set Tags")}
+                rules={[
+                  {
+                    validator: async (_, values) => {
+                      if (!values || values.length < 1) {
+                        return Promise.reject(new Error("At least 1 option"));
+                      }
+                      if (values.some((value: string) => value.length === 0)) {
+                        return Promise.reject(new Error("Empty values are not allowed"));
+                      }
+                      const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
+                      if (uniqueNames.size !== values.length) {
+                        return Promise.reject(new Error("Labels must be unique"));
+                      }
+                    },
+                  },
+                ]}>
+                <MultiValueColoredTag />
+              </Form.Item>
+            )}
             <Form.Item
               name="multiple"
               valuePropName="checked"
@@ -322,6 +369,7 @@ const FieldCreationModal: React.FC<Props> = ({
             <FieldDefaultInputs
               multiple={multipleValue}
               selectedValues={selectedValues}
+              selectedTags={selectedTags}
               selectedType={selectedType}
               assetList={assetList}
               fileList={fileList}
