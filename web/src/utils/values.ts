@@ -2,6 +2,7 @@ import { Maybe, Model } from "@reearth-cms/gql/graphql-client-api";
 
 export const fromGraphQLModel = (model: Maybe<Model>) => {
   if (!model) return;
+
   return {
     id: model.id,
     description: model.description,

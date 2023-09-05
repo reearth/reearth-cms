@@ -28,7 +28,7 @@ import { fieldTypes } from "../../fieldTypes";
 import { Field, FieldModalTabs, FieldType } from "../../types";
 
 export interface FormValues {
-  fieldId: string;
+  fieldId?: string;
   title: string;
   description: string;
   key: string;
@@ -36,6 +36,7 @@ export interface FormValues {
   unique: boolean;
   isTitle: boolean;
   required: boolean;
+  type?: FieldType;
   typeProperty: SchemaFieldTypePropertyInput;
 }
 
