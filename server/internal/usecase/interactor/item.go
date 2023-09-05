@@ -248,7 +248,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err = i.CheckReferenceFields(ctx, s, param.Fields, it, operator); err != nil {
+		if err = i.checkReferenceFields(ctx, s, param.Fields, it, operator); err != nil {
 			return nil, err
 		}
 
@@ -280,7 +280,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
-func (i Item) CheckReferenceFields(ctx context.Context, s *schema.Schema, fields []interfaces.ItemFieldParam, it *item.Item, op *usecase.Operator) error {
+func (i Item) checkReferenceFields(ctx context.Context, s *schema.Schema, fields []interfaces.ItemFieldParam, it *item.Item, op *usecase.Operator) error {
 	var rf []*interfaces.ItemFieldParam
 	for _, f := range fields {
 		if f.Type == value.TypeReference {
