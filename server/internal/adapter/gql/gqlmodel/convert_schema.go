@@ -117,7 +117,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				return &SchemaFieldTagValue{
 					ID:    IDFrom(tag.ID()),
 					Name:  tag.Name(),
-					Color: tag.Color().String(),
+					Color: ToSchemaFieldTagColor(tag.Color()),
 				}
 			})
 			res = &SchemaFieldTag{
@@ -209,7 +209,9 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Reference: func(f *schema.FieldReference) {
 			res = &SchemaFieldReference{
-				ModelID: IDFrom(f.Model()),
+				ModelID:               IDFrom(f.Model()),
+				CorrespondingSchemaID: IDFromRef(f.CorrespondingSchema()),
+				CorrespondingFieldID:  IDFromRef(f.CorrespondingFieldID()),
 			}
 		},
 		URL: func(f *schema.FieldURL) {
@@ -246,6 +248,20 @@ func valueString(dv *value.Multiple, multiple bool) any {
 
 var ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
 var ErrEmptyOptions = rerror.NewE(i18n.T("Options could not be empty!"))
+
+func FromCorrespondingField(cf *CorrespondingFieldInput) *schema.CorrespondingField {
+	if cf == nil {
+		return nil
+	}
+
+	return &schema.CorrespondingField{
+		FieldID:     ToIDRef[id.Field](cf.FieldID),
+		Title:       cf.Title,
+		Key:         cf.Key,
+		Description: cf.Description,
+		Required:    cf.Required,
+	}
+}
 
 func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType, multiple bool) (tpRes *schema.TypeProperty, dv *value.Multiple, err error) {
 	if tp == nil {
@@ -363,10 +379,10 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		var tags schema.TagList
 		for _, t := range x.Tags {
 			var tag *schema.Tag
-			if t.TagID == nil {
+			if t.ID == nil {
 				tag = schema.NewTag(*t.Name, schema.TagColorFrom(t.Color.String()))
 			} else {
-				tid, err := ToID[id.Tag](*t.TagID)
+				tid, err := ToID[id.Tag](*t.ID)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -386,9 +402,22 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		}
 
 		if multiple {
-			dv = value.NewMultiple(value.TypeTag, unpackArray(x.DefaultValue))
+			values := unpackArray(x.DefaultValue)
+			valuesNames := lo.Map(values, func(v any, _ int) string {
+				return v.(string)
+			})
+			tagsIds := lo.Map(valuesNames, func(n string, _ int) any {
+				return tags.FindByName(n).ID().String()
+			})
+			dv = value.NewMultiple(value.TypeTag, tagsIds)
 		} else {
-			dv = FromValue(SchemaFieldTypeTag, x.DefaultValue).AsMultiple()
+			valueName, _ := x.DefaultValue.(string)
+			tag := tags.FindByName(valueName)
+			tagId := ""
+			if tag != nil {
+				tagId = tag.ID().String()
+			}
+			dv = FromValue(SchemaFieldTypeTag, tagId).AsMultiple()
 		}
 		tpRes = res.TypeProperty()
 	case SchemaFieldTypeInteger:
@@ -422,7 +451,15 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if err != nil {
 			return nil, nil, err
 		}
-		tpRes = schema.NewReference(mId).TypeProperty()
+		var fid *id.FieldID
+		if x.CorrespondingField != nil {
+			fid = ToIDRef[id.Field](x.CorrespondingField.FieldID)
+		}
+		var sid *id.SchemaID
+		if x.CorrespondingSchemaID != nil {
+			sid = ToIDRef[id.Schema](x.CorrespondingSchemaID)
+		}
+		tpRes = schema.NewReference(mId, sid, FromCorrespondingField(x.CorrespondingField), fid).TypeProperty()
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {

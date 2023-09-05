@@ -20,6 +20,10 @@ const FieldList: React.FC<Props> = ({ addField }) => {
 
   const data: FieldListItem[] = [
     {
+      title: t("Meta Data"),
+      fields: ["Tag", "Bool", "Checkbox", "Date", "Text", "URL"],
+    },
+    {
       title: t("Text"),
       fields: ["Text", "TextArea", "MarkdownText"],
     },

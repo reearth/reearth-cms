@@ -57,4 +57,22 @@ export const fieldTypes: {
     description: i18next.t("Reference field"),
     color: "#597EF7",
   },
+  Date: {
+    icon: "date",
+    title: i18next.t("Date"),
+    description: i18next.t("Date picker"),
+    color: "#FFC069",
+  },
+  Tag: {
+    icon: "tag",
+    title: i18next.t("Tag"),
+    description: i18next.t("Select from a list of tags"),
+    color: "#7CB305",
+  },
+  Checkbox: {
+    icon: "checkSquare",
+    title: i18next.t("Check Box"),
+    description: i18next.t("Select from a list of checkboxes"),
+    color: "#FFC069",
+  },
 };

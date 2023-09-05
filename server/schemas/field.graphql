@@ -110,7 +110,7 @@ type SchemaFieldTag {
 type SchemaFieldTagValue {
   id: ID!
   name: String!
-  color: String!
+  color: SchemaFieldTagColor!
 }
 
 type SchemaFieldInteger {
@@ -121,6 +121,10 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  correspondingSchemaId: ID
+  correspondingSchema: Schema
+  correspondingFieldId: ID
+  correspondingField: SchemaField
 }
 
 type SchemaFieldURL {
@@ -180,8 +184,8 @@ input SchemaFieldTagInput {
 }
 
 input SchemaFieldTagValueInput {
-  tagId: ID # if you want to create a new tag, it is not required
-  name: String # if you want to delete a tag, it should be an empty string
+  id: ID
+  name: String
   color: SchemaFieldTagColor
 }
 
@@ -191,8 +195,18 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input CorrespondingFieldInput {
+  fieldId: ID
+  title: String
+  key: String
+  description: String
+  required: Boolean
+} 
+
 input SchemaFieldReferenceInput {
   modelId: ID!
+  correspondingSchemaId: ID
+  correspondingField: CorrespondingFieldInput
 }
 
 input SchemaFieldURLInput {

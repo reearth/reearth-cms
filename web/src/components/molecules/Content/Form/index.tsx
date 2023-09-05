@@ -18,8 +18,8 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
+import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
-import MultiValueSwitch from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSwitch";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
@@ -438,7 +438,7 @@ const ContentForm: React.FC<Props> = ({
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
-                {field.multiple ? <MultiValueSwitch /> : <Switch />}
+                {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
               </Form.Item>
             ) : field.type === "Reference" ? (
               <Form.Item

@@ -123,6 +123,14 @@ type CommentPayload struct {
 	Comment *Comment `json:"comment"`
 }
 
+type CorrespondingFieldInput struct {
+	FieldID     *ID     `json:"fieldId,omitempty"`
+	Title       *string `json:"title,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Required    *bool   `json:"required,omitempty"`
+}
+
 type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file,omitempty"`
@@ -710,13 +718,19 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID ID `json:"modelId"`
+	ModelID               ID           `json:"modelId"`
+	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
+	CorrespondingSchema   *Schema      `json:"correspondingSchema,omitempty"`
+	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
+	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID ID `json:"modelId"`
+	ModelID               ID                       `json:"modelId"`
+	CorrespondingSchemaID *ID                      `json:"correspondingSchemaId,omitempty"`
+	CorrespondingField    *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
@@ -756,13 +770,13 @@ type SchemaFieldTagInput struct {
 }
 
 type SchemaFieldTagValue struct {
-	ID    ID     `json:"id"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
+	ID    ID                  `json:"id"`
+	Name  string              `json:"name"`
+	Color SchemaFieldTagColor `json:"color"`
 }
 
 type SchemaFieldTagValueInput struct {
-	TagID *ID                  `json:"tagId,omitempty"`
+	ID    *ID                  `json:"id,omitempty"`
 	Name  *string              `json:"name,omitempty"`
 	Color *SchemaFieldTagColor `json:"color,omitempty"`
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/language"
 )
 
 var (
@@ -33,6 +34,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 		Name("e2e").
 		Email("e2e@e2e.com").
 		Workspace(wId).
+		Lang(language.English).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
 		return err
@@ -91,10 +93,6 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 	}
 
 	return nil
-}
-
-type GraphQLRequest struct {
-	Query string `json:"query"`
 }
 
 func TestCreateWorkspace(t *testing.T) {

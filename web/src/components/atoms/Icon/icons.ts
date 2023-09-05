@@ -51,6 +51,9 @@ import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import ArrowUpRight from "./Icons/arrowUpRight.svg";
 import Asset from "./Icons/asset.svg";
 import Boolean from "./Icons/boolean.svg";
+import CheckSquare from "./Icons/checkSquare.svg";
+import ColorPalette from "./Icons/colorPalette.svg";
+import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import Key from "./Icons/key.svg";
 import Link from "./Icons/link.svg";
@@ -61,6 +64,7 @@ import ListBullets from "./Icons/listBullets.svg";
 import MarkDown from "./Icons/markDown.svg";
 import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
+import Tag from "./Icons/tag.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
 import Unzip from "./Icons/unzip.svg";
@@ -129,4 +133,8 @@ export default {
   unzip: Unzip,
   eyeInvisible: EyeInvisibleOutlined,
   copy: CopyOutlined,
+  date: Date,
+  tag: Tag,
+  checkSquare: CheckSquare,
+  colorPalette: ColorPalette,
 };

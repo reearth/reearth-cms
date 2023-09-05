@@ -9593,8 +9593,8 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
+                "kind": "ENUM",
+                "name": "SchemaFieldTagColor",
                 "ofType": null
               }
             },
@@ -9658,11 +9658,11 @@
             "deprecationReason": null
           },
           {
-            "name": "name",
+            "name": "id",
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "ID",
               "ofType": null
             },
             "defaultValue": null,
@@ -9670,11 +9670,11 @@
             "deprecationReason": null
           },
           {
-            "name": "tagId",
+            "name": "name",
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "ID",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null,
