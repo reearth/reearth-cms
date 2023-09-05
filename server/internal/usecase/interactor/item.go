@@ -248,7 +248,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err = i.checkReferenceFields(ctx, s, param.Fields, it, operator); err != nil {
+		if err = i.handleReferenceFieldsCreate(ctx, s, param.Fields, it, operator); err != nil {
 			return nil, err
 		}
 
@@ -280,7 +280,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 	})
 }
 
-func (i Item) checkReferenceFields(ctx context.Context, s *schema.Schema, fields []interfaces.ItemFieldParam, it *item.Item, op *usecase.Operator) error {
+func (i Item) handleReferenceFieldsCreate(ctx context.Context, s *schema.Schema, fields []interfaces.ItemFieldParam, it *item.Item, op *usecase.Operator) error {
 	var rf []*interfaces.ItemFieldParam
 	for _, f := range fields {
 		if f.Type == value.TypeReference {
@@ -408,13 +408,53 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		if err != nil {
 			return err
 		}
-
+		s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
+		if err != nil {
+			return err
+		}
 		if !operator.CanUpdate(itm.Value()) {
 			return interfaces.ErrOperationDenied
+		}
+		if err := i.handleReferenceFieldsDelete(ctx, itm, s, operator); err != nil {
+			return err
 		}
 
 		return i.repos.Item.Remove(ctx, itemID)
 	})
+}
+
+func (i Item) handleReferenceFieldsDelete(ctx context.Context, itm *version.Value[*item.Item], s *schema.Schema,op *usecase.Operator) error {
+	for _, f := range itm.Value().Fields() {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+
+		for _, v := range f.Value().Values() {
+			iid2, ok := v.ValueReference()
+			if !ok {
+				continue
+			}
+			itm2, err := i.repos.Item.FindByID(ctx, iid2, nil)
+			if err != nil {
+				return err
+			}
+			s2, err := i.repos.Schema.FindByID(ctx, itm2.Value().Schema())
+			if err != nil {
+				return err
+			}
+			_, fid2, ok := item.AreItemsReferenced(itm.Value(), itm2.Value(), s, s2)
+			if !ok {
+				continue
+			}
+			vv := value.New(value.TypeReference, nil).AsMultiple()
+			itm2.Value().UpdateFields([]*item.Field{item.NewField(*fid2, vv)})
+			if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
+				return err
+			}
+		}
+	}
+ 
+	return nil
 }
 
 func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
