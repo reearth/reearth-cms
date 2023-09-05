@@ -55,4 +55,9 @@ func Test_AreItemsReferenced(t *testing.T) {
 	assert.False(t, ok)
 	assert.Nil(t, ff1)
 	assert.Nil(t, ff3)
+
+	ff4, ff5, ok := AreItemsReferenced(nil, nil, nil, nil)
+	assert.False(t, ok)
+	assert.Nil(t, ff4)
+	assert.Nil(t, ff5)
 }

@@ -80,6 +80,9 @@ func (i *Item) UpdateField(fid *id.FieldID, v *value.Multiple) {
 	if !ok {
 		return
 	}
+	if v.Type() != i.Field(*fid).Type() {
+		return
+	}
 	i.fields[ii].value = v
 }
 

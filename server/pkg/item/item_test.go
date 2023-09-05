@@ -12,11 +12,9 @@ import (
 )
 
 func TestItem_UpdateField(t *testing.T) {
-	iid := id.NewItemID()
 	sfid1 := id.NewFieldID()
 	f1 := &Field{field: sfid1, value: value.TypeText.Value("test").AsMultiple()}
 	item:= &Item{
-		id : iid,
 		fields: []*Field{f1},
 	}
 	fields := item.fields
@@ -29,6 +27,15 @@ func TestItem_UpdateField(t *testing.T) {
 	want = value.TypeText.Value("test1").AsMultiple()
 	got = fields[0].Value()
 	assert.Equal(t, want, got)
+
+	item.UpdateField(&f1.field, value.TypeNumber.Value(5).AsMultiple())
+	assert.Equal(t, []*Field{f1}, fields)
+
+	item.UpdateField(id.NewFieldID().Ref(), value.TypeText.Value("test1").AsMultiple())
+	assert.Equal(t, []*Field{f1}, fields)
+
+	item.UpdateField(nil, nil)
+	assert.Equal(t, []*Field{f1}, fields)
 }
 
 func TestItem_UpdateFields(t *testing.T) {
