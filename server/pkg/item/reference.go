@@ -24,7 +24,10 @@ func AreItemsReferenced(i1, i2 *Item, s1, s2 *schema.Schema) (*id.FieldID, *id.F
 			if sf1 == nil || sf2 == nil {
 				continue
 			}
-			fr2, _ := schema.FieldReferenceFromTypeProperty(sf2.TypeProperty())
+			fr2, ok := schema.FieldReferenceFromTypeProperty(sf2.TypeProperty())
+			if !ok {
+				continue
+			}
 			if fr2.CorrespondingFieldID() != nil && sf1.ID() == *fr2.CorrespondingFieldID() {
 				return sf1.ID().Ref(), sf2.ID().Ref(), true
 			}
