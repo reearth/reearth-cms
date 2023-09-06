@@ -488,13 +488,6 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			return nil, interfaces.ErrItemMissing
 		}
 
-		// check all items on the same models
-		if !lo.EveryBy(items, func(itm item.Versioned) bool {
-			return itm.Value().Model() == items[0].Value().Model()
-		}) {
-			return nil, interfaces.ErrItemsShouldBeOnSameModel
-		}
-
 		m, err := i.repos.Model.FindByID(ctx, items[0].Value().Model())
 		if err != nil {
 			return nil, err
