@@ -85,7 +85,7 @@ func (i *Item) UpdateFields(fields []*Field) {
 		ff, found := lo.Find(fields, func(g *Field) bool {
 			if g == nil || f == nil {
 				return false
-			} 
+			}
 			return g.FieldID() == f.FieldID()
 		})
 

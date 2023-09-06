@@ -15,7 +15,7 @@ import (
 
 func Test_AreItemsReferenced(t *testing.T) {
 	prj := project.New().NewID().MustBuild()
-	mid1, mid2, mid3  := id.NewModelID(), id.NewModelID(), id.NewModelID()
+	mid1, mid2, mid3 := id.NewModelID(), id.NewModelID(), id.NewModelID()
 	fid1, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
 	sid1, sid2, sid3 := id.NewSchemaID(), id.NewSchemaID(), id.NewSchemaID()
 	cf1 := &schema.CorrespondingField{

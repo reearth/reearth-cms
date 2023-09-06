@@ -7,7 +7,7 @@ import (
 )
 
 func AreItemsReferenced(i1, i2 *Item, s1, s2 *schema.Schema) (*id.FieldID, *id.FieldID, bool) {
-	if i1 == nil || i2 == nil || s1 == nil || s2 == nil{
+	if i1 == nil || i2 == nil || s1 == nil || s2 == nil {
 		return nil, nil, false
 	}
 
@@ -35,4 +35,4 @@ func AreItemsReferenced(i1, i2 *Item, s1, s2 *schema.Schema) (*id.FieldID, *id.F
 	}
 
 	return nil, nil, false
-} 
+}

@@ -307,11 +307,7 @@ func (i Item) handleReferenceFieldsCreateOrUpdate(ctx context.Context, s *schema
 			continue
 		}
 		vv := value.New(value.TypeReference, it.ID().String()).AsMultiple()
-		fields2 := lo.Filter(itm2.Value().Fields(), func(f2 *item.Field, _ int) bool {
-			return f2.FieldID() != *fid2
-		})
-		fields2 = append(fields2, item.NewField(*fid2, vv))
-		itm2.Value().UpdateFields(fields2)
+		itm2.Value().UpdateFields([]*item.Field{item.NewField(*fid2, vv)})
 		if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
 			return err
 		}
