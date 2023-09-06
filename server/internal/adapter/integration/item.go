@@ -146,7 +146,6 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 	}
 
 	vi := getReferencedItems(ctx, i)
-
 	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, vi)), nil
 }
 
@@ -237,7 +236,6 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 	}
 
 	vi := getReferencedItems(ctx, i)
-
 	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), vi)), nil
 }
 
@@ -269,8 +267,6 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return nil, err
 	}
 
-	vi := getReferencedItems(ctx, i)
-
 	ss, err := uc.Schema.FindByID(ctx, i.Value().Schema(), op)
 	if err != nil {
 		return ItemGet400Response{}, err
@@ -281,6 +277,7 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return ItemGet500Response{}, err
 	}
 
+	vi := getReferencedItems(ctx, i)
 	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), vi)), nil
 }
 

@@ -1,8 +1,9 @@
 package item
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
 
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -151,7 +152,7 @@ func (i *Item) AssetIDs() AssetIDList {
 
 type ItemModelSchema struct {
 	Item            *Item
-	ReferencedItems []*Item
+	ReferencedItems []*Versioned
 	Model           *model.Model
 	Schema          *schema.Schema
 	Changes         FieldChanges

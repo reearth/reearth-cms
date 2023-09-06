@@ -268,37 +268,18 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		wo := item.ItemModelSchema{
-			Item:   vi.Value(),
-			Model:  m,
-			Schema: s,
-		}
-		var vil []*item.Item
-		for _, f := range fields {
-			if f.Type() != value.TypeReference {
-				continue
-			}
-			for _, v := range f.Value().Values() {
-				iid, ok := v.Value().(id.ItemID)
-				if !ok {
-					continue
-				}
-				ii, err := i.repos.Item.FindByID(ctx, iid, nil)
-				if err != nil {
-					continue
-				}
-				vil = append(vil, ii.Value())
-			}
-		}
-		wo.ReferencedItems = vil
-
 		if err := i.event(ctx, Event{
-			Project:       prj,
-			Workspace:     s.Workspace(),
-			Type:          event.ItemCreate,
-			Object:        vi,
-			WebhookObject: wo,
-			Operator:      operator.Operator(),
+			Project:   prj,
+			Workspace: s.Workspace(),
+			Type:      event.ItemCreate,
+			Object:    vi,
+			WebhookObject: item.ItemModelSchema{
+				Item:            vi.Value(),
+				Model:           m,
+				Schema:          s,
+				ReferencedItems: i.getReferencedItems(ctx, fields),
+			},
+			Operator: operator.Operator(),
 		}); err != nil {
 			return nil, err
 		}
@@ -384,44 +365,46 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 
 		newFields := itv.Fields()
 
-		wo := item.ItemModelSchema{
-			Item:    itv,
-			Model:   m,
-			Schema:  s,
-			Changes: item.CompareFields(newFields, oldFields),
-		}
-		var vil []*item.Item
-		for _, f := range fields {
-			if f.Type() != value.TypeReference {
-				continue
-			}
-			for _, v := range f.Value().Values() {
-				iid, ok := v.Value().(id.ItemID)
-				if !ok {
-					continue
-				}
-				ii, err := i.repos.Item.FindByID(ctx, iid, nil)
-				if err != nil {
-					continue
-				}
-				vil = append(vil, ii.Value())
-			}
-		}
-		wo.ReferencedItems = vil
-
 		if err := i.event(ctx, Event{
-			Project:       prj,
-			Workspace:     s.Workspace(),
-			Type:          event.ItemUpdate,
-			Object:        itm,
-			WebhookObject: wo,
-			Operator:      operator.Operator(),
+			Project:   prj,
+			Workspace: s.Workspace(),
+			Type:      event.ItemUpdate,
+			Object:    itm,
+			WebhookObject: item.ItemModelSchema{
+				Item:            itv,
+				Model:           m,
+				Schema:          s,
+				ReferencedItems: i.getReferencedItems(ctx, fields),
+				Changes:         item.CompareFields(newFields, oldFields),
+			},
+			Operator: operator.Operator(),
 		}); err != nil {
 			return nil, err
 		}
 
 		return itm, nil
 	})
+}
+
+func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) []*item.Versioned {
+	var vil []*item.Versioned
+	for _, f := range fields {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+		for _, v := range f.Value().Values() {
+			iid, ok := v.Value().(id.ItemID)
+			if !ok {
+				continue
+			}
+			ii, err := i.repos.Item.FindByID(ctx, iid, nil)
+			if err != nil {
+				continue
+			}
+			vil = append(vil, &ii)
+		}
+	}
+	return vil
 }
 
 func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
