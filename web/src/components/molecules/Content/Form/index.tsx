@@ -619,7 +619,11 @@ const ContentForm: React.FC<Props> = ({
                     />
                   }>
                   {field.multiple ? (
-                    <Select mode="multiple" showArrow style={{ width: "100%" }}>
+                    <Select
+                      onBlur={handleMetaUpdate}
+                      mode="multiple"
+                      showArrow
+                      style={{ width: "100%" }}>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
@@ -629,7 +633,11 @@ const ContentForm: React.FC<Props> = ({
                       )}
                     </Select>
                   ) : (
-                    <Select showArrow style={{ width: "100%" }} allowClear>
+                    <Select
+                      onBlur={handleMetaUpdate}
+                      showArrow
+                      style={{ width: "100%" }}
+                      allowClear>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
@@ -660,9 +668,9 @@ const ContentForm: React.FC<Props> = ({
                     />
                   }>
                   {field.multiple ? (
-                    <MultiValueField FieldInput={StyledDatePicker} />
+                    <MultiValueField onBlur={handleMetaUpdate} FieldInput={StyledDatePicker} />
                   ) : (
-                    <StyledDatePicker />
+                    <StyledDatePicker onBlur={handleMetaUpdate} />
                   )}
                 </Form.Item>
               </MetaFormItemWrapper>
@@ -679,7 +687,11 @@ const ContentForm: React.FC<Props> = ({
                       isTitle={field.isTitle}
                     />
                   }>
-                  {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
+                  {field.multiple ? (
+                    <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Switch} />
+                  ) : (
+                    <Switch onChange={handleMetaUpdate} />
+                  )}
                 </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "Checkbox" ? (
@@ -695,7 +707,11 @@ const ContentForm: React.FC<Props> = ({
                       isTitle={field.isTitle}
                     />
                   }>
-                  {field.multiple ? <MultiValueBooleanField FieldInput={Checkbox} /> : <Checkbox />}
+                  {field.multiple ? (
+                    <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Checkbox} />
+                  ) : (
+                    <Checkbox onChange={handleMetaUpdate} />
+                  )}
                 </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "URL" ? (
@@ -740,12 +756,17 @@ const ContentForm: React.FC<Props> = ({
                   ]}>
                   {field.multiple ? (
                     <MultiValueField
+                      onBlur={handleMetaUpdate}
                       showCount={true}
                       maxLength={field.typeProperty.maxLength ?? 500}
                       FieldInput={Input}
                     />
                   ) : (
-                    <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                    <Input
+                      onBlur={handleMetaUpdate}
+                      showCount={true}
+                      maxLength={field.typeProperty.maxLength ?? 500}
+                    />
                   )}
                 </Form.Item>
               </MetaFormItemWrapper>
@@ -769,6 +790,7 @@ const ContentForm: React.FC<Props> = ({
                   }>
                   {field.multiple ? (
                     <MultiValueField
+                      onBlur={handleMetaUpdate}
                       showCount={true}
                       maxLength={field.typeProperty.maxLength ?? 500}
                       FieldInput={Input}
