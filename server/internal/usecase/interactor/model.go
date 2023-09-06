@@ -113,7 +113,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
-			m, err := i.repos.Model.FindByID(ctx, param.ModelId)
+			m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 			if err != nil {
 				return nil, err
 			}
@@ -201,7 +201,7 @@ func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator
 func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *schema.Schema, err error) {
-			m, err := i.repos.Model.FindByID(ctx, param.ModelId)
+			m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 			if err != nil {
 				return nil, err
 			}

@@ -20,14 +20,17 @@ type CreateModelParam struct {
 	Key         *string
 	Public      *bool
 }
+
 type FindOrCreateSchemaParam struct {
-	ModelId  id.ModelID
+	ModelID id.ModelID
+	// boolean that identify if it is a metadata
 	Metadata *bool
-	Create   bool
+	// boolean to identify if we want to create a metadata schema or just return an error if metadata schema is nil
+	Create bool
 }
 
 type UpdateModelParam struct {
-	ModelId     id.ModelID
+	ModelID     id.ModelID
 	Name        *string
 	Description *string
 	Key         *string

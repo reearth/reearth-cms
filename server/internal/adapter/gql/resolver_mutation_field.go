@@ -19,7 +19,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 	}
 
 	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
-		ModelId:  mid,
+		ModelID:  mid,
 		Metadata: input.Metadata,
 		Create:   true,
 	}, getOperator(ctx))
@@ -67,7 +67,7 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 	}
 
 	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
-		ModelId:  mid,
+		ModelID:  mid,
 		Metadata: input.Metadata,
 		Create:   false,
 	}, getOperator(ctx))
@@ -138,7 +138,7 @@ func (r *mutationResolver) UpdateFields(ctx context.Context, input []*gqlmodel.U
 	}
 
 	s, err := usecases(ctx).Model.FindOrCreateSchema(ctx, interfaces.FindOrCreateSchemaParam{
-		ModelId:  mid,
+		ModelID:  mid,
 		Metadata: input[0].Metadata,
 		Create:   false,
 	}, getOperator(ctx))
