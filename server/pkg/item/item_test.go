@@ -235,13 +235,20 @@ func TestItem_GetTitle(t *testing.T) {
 	if1 := NewField(sf1.ID(), value.TypeBool.Value(false).AsMultiple())
 	if2 := NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple())
 	i1 := New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Fields([]*Field{if1, if2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-
-	title := i1.GetTitle(s1)
+	// schema is nil
+	title := i1.GetTitle(nil)
 	assert.Nil(t, title)
-
-	err := s1.SetTitleField(sf2.ID().Ref())
+	// schema is not nil but no title field
+	title = i1.GetTitle(s1)
+	assert.Nil(t, title)
+	// invalid type
+	err := s1.SetTitleField(sf1.ID().Ref())
 	assert.NoError(t, err)
-
+	title = i1.GetTitle(s1)
+	assert.Nil(t, title)
+	// test title
+	err = s1.SetTitleField(sf2.ID().Ref())
+	assert.NoError(t, err)
 	title = i1.GetTitle(s1)
 	assert.Equal(t, "test", *title)
 }

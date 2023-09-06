@@ -1,8 +1,9 @@
 package item
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
 
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -150,7 +151,7 @@ func (i *Item) AssetIDs() AssetIDList {
 }
 
 func (i *Item) GetTitle(s *schema.Schema) *string {
-	if s.TitleField() == nil {
+	if s == nil || s.TitleField() == nil {
 		return nil
 	}
 	sf := s.Field(*s.TitleField())
