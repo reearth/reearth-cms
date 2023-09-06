@@ -12,6 +12,7 @@ import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -37,6 +38,7 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
+import { capitalizeFirstLetter } from "@reearth-cms/utils/stringUtils";
 
 import TagField from "../../Schema/FieldModal/FieldDefaultInputs/TagField";
 
@@ -591,7 +593,27 @@ const ContentForm: React.FC<Props> = ({
                       isTitle={field.isTitle}
                     />
                   }>
-                  <TagField selectedTags={field.typeProperty?.tags} multiple={field.multiple} />
+                  {field.multiple ? (
+                    <Select mode="multiple" showArrow style={{ width: "100%" }}>
+                      {field.typeProperty?.tags?.map(
+                        (tag: { id: string; name: string; color: string }) => (
+                          <Select.Option key={tag.name} value={tag.id}>
+                            <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+                          </Select.Option>
+                        ),
+                      )}
+                    </Select>
+                  ) : (
+                    <Select showArrow style={{ width: "100%" }} allowClear>
+                      {field.typeProperty?.tags?.map(
+                        (tag: { id: string; name: string; color: string }) => (
+                          <Select.Option key={tag.name} value={tag.id}>
+                            <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+                          </Select.Option>
+                        ),
+                      )}
+                    </Select>
+                  )}
                 </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "Date" ? (
