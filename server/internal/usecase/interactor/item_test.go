@@ -1024,15 +1024,17 @@ func TestItem_Update(t *testing.T) {
 
 func TestItem_Delete(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
-	sid := id.NewSchemaID()
+	s1 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	s2 := schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
 	id1 := id.NewItemID()
 	id2 := id.NewItemID()
 	id3 := id.NewItemID()
 	id4 := id.NewItemID()
-	i1 := item.New().ID(id1).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().ID(id2).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().ID(id3).User(u.ID()).Schema(sid).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(id1).User(u.ID()).Schema(s1.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(id2).User(u.ID()).Schema(s2.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().ID(id3).User(u.ID()).Schema(s1.ID()).Model(id.NewModelID()).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -1045,6 +1047,14 @@ func TestItem_Delete(t *testing.T) {
 	db := memory.New()
 	err := db.Item.Save(ctx, i1)
 	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i2)
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s1)
+	assert.NoError(t, err)
+	err = db.Schema.Save(ctx, s2)
+	assert.NoError(t, err)
+	err = db.Item.Save(ctx, i3)
+	assert.NoError(t, err)
 
 	itemUC := NewItem(db, nil)
 	itemUC.ignoreEvent = true
@@ -1052,14 +1062,10 @@ func TestItem_Delete(t *testing.T) {
 	assert.NoError(t, err)
 
 	// invalid operator
-	err = db.Item.Save(ctx, i2)
-	assert.NoError(t, err)
 	err = itemUC.Delete(ctx, id2, &usecase.Operator{AcOperator: &accountusecase.Operator{}})
 	assert.Equal(t, interfaces.ErrInvalidOperator, err)
 
 	// operation denied
-	err = db.Item.Save(ctx, i3)
-	assert.NoError(t, err)
 	err = itemUC.Delete(ctx, id3, &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User: lo.ToPtr(u.ID()),
