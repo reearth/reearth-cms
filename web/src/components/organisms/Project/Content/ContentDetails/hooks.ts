@@ -248,9 +248,12 @@ export default () => {
   const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
     if (!currentItem) {
-      currentModel?.metadataSchema?.fields.forEach(field => {
+      currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {
           case "Select":
+            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            break;
+          case "Tag":
             initialValues[field.id] = field.typeProperty.selectDefaultValue;
             break;
           case "Integer":

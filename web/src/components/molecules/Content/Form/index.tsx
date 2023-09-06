@@ -37,6 +37,8 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
+import TagField from "../../Schema/FieldModal/FieldDefaultInputs/TagField";
+
 export interface Props {
   item?: Item;
   linkedItemsModalList?: FormItem[];
@@ -571,8 +573,23 @@ const ContentForm: React.FC<Props> = ({
       <SideBarWrapper>
         <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
           <ContentSidebarWrapper item={item} />
-          {model?.metadataSchema?.fields.map(field =>
-            field.type === "Bool" ? (
+          {model?.metadataSchema?.fields?.map(field =>
+            field.type === "Tag" ? (
+              <MetaFormItemWrapper key={field.id}>
+                <Form.Item
+                  extra={field.description}
+                  name={field.id}
+                  label={
+                    <FieldTitle
+                      title={field.title}
+                      isUnique={field.unique}
+                      isTitle={field.isTitle}
+                    />
+                  }>
+                  <TagField selectedTags={field.typeProperty?.tags} multiple={field.multiple} />
+                </Form.Item>
+              </MetaFormItemWrapper>
+            ) : field.type === "Bool" ? (
               <MetaFormItemWrapper key={field.id}>
                 <Form.Item
                   extra={field.description}
