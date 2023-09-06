@@ -243,6 +243,17 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			ib = ib.Integration(*operator.Integration)
 		}
 
+		if param.MetadataID != nil {
+			mi, err := i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+			if err != nil {
+				return nil, err
+			}
+			if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
+				return nil, interfaces.ErrMetadataMismatch
+			}
+			ib = ib.MetadataItem(param.MetadataID)
+		}
+
 		it, err := ib.Build()
 		if err != nil {
 			return nil, err
@@ -329,6 +340,24 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		oldFields := itv.Fields()
 
 		itv.UpdateFields(fields)
+
+		if operator.AcOperator.User != nil {
+			itv.SetUpdatedByUser(*operator.AcOperator.User)
+		} else if operator.Integration != nil {
+			itv.SetUpdatedByIntegration(*operator.Integration)
+		}
+
+		if param.MetadataID != nil {
+			mi, err := i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+			if err != nil {
+				return nil, err
+			}
+			if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
+				return nil, interfaces.ErrMetadataMismatch
+			}
+			itv.SetMetadataItem(*param.MetadataID)
+		}
+
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
 		}

@@ -13,7 +13,7 @@ import (
 
 func TestModelDocument_Model(t *testing.T) {
 	now := time.Now()
-	mId, pId, sId := model.NewID(), project.NewID(), schema.NewID()
+	mId, pId, sId, smId := model.NewID(), project.NewID(), schema.NewID(), schema.NewID()
 	tests := []struct {
 		name    string
 		mDoc    *ModelDocument
@@ -28,6 +28,7 @@ func TestModelDocument_Model(t *testing.T) {
 				Description: "xyz",
 				Key:         "mmm123",
 				Public:      true,
+				Metadata:    smId.StringRef(),
 				Project:     pId.String(),
 				Schema:      sId.String(),
 				UpdatedAt:   now,
@@ -38,6 +39,7 @@ func TestModelDocument_Model(t *testing.T) {
 				Key(key.New("mmm123")).
 				Public(true).
 				Project(pId).
+				Metadata(smId.Ref()).
 				Schema(sId).
 				UpdatedAt(now).
 				MustBuild(),

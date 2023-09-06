@@ -17,15 +17,18 @@ func ToItem(vi item.Versioned, s *schema.Schema) *Item {
 
 	i := vi.Value()
 	return &Item{
-		ID:            IDFrom(i.ID()),
-		ProjectID:     IDFrom(i.Project()),
-		SchemaID:      IDFrom(i.Schema()),
-		ModelID:       IDFrom(i.Model()),
-		UserID:        IDFromRef(i.User()),
-		IntegrationID: IDFromRef(i.Integration()),
-		ThreadID:      IDFrom(i.Thread()),
-		CreatedAt:     i.ID().Timestamp(),
-		UpdatedAt:     i.Timestamp(),
+		ID:                     IDFrom(i.ID()),
+		ProjectID:              IDFrom(i.Project()),
+		SchemaID:               IDFrom(i.Schema()),
+		ModelID:                IDFrom(i.Model()),
+		UserID:                 IDFromRef(i.User()),
+		IntegrationID:          IDFromRef(i.Integration()),
+		ThreadID:               IDFrom(i.Thread()),
+		MetadataID:             IDFromRef(i.MetadataItem()),
+		UpdatedByIntegrationID: IDFromRef(i.UpdatedByIntegration()),
+		UpdatedByUserID:        IDFromRef(i.UpdatedByUser()),
+		CreatedAt:              i.ID().Timestamp(),
+		UpdatedAt:              i.Timestamp(),
 		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) *ItemField {
 			f := i.Field(sf.ID())
 			var v any = nil

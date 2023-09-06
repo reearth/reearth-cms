@@ -197,6 +197,35 @@ func TestItem_Integration(t *testing.T) {
 	assert.Equal(t, &iid, i1.Integration())
 }
 
+func TestItem_SetUpdatedByIntegration(t *testing.T) {
+	uid := accountdomain.NewUserID()
+	iid := id.NewIntegrationID()
+	itm := &Item{
+		updatedByUser: uid.Ref(),
+	}
+	itm.SetUpdatedByIntegration(iid)
+	assert.Equal(t, iid.Ref(), itm.UpdatedByIntegration())
+	assert.Nil(t, itm.UpdatedByUser())
+}
+
+func TestItem_SetUpdatedByUser(t *testing.T) {
+	uid := accountdomain.NewUserID()
+	iid := id.NewIntegrationID()
+	itm := &Item{
+		updatedByIntegration: iid.Ref(),
+	}
+	itm.SetUpdatedByUser(uid)
+	assert.Equal(t, uid.Ref(), itm.UpdatedByUser())
+	assert.Nil(t, itm.UpdatedByIntegration())
+}
+
+func TestItem_SetMetadataItem(t *testing.T) {
+	mid := NewID()
+	itm := &Item{}
+	itm.SetMetadataItem(mid)
+	assert.Equal(t, mid.Ref(), itm.MetadataItem())
+}
+
 func TestItem_GetTitle(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()
