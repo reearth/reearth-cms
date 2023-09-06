@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -651,6 +652,22 @@ const ContentForm: React.FC<Props> = ({
                     />
                   }>
                   {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
+                </Form.Item>
+              </MetaFormItemWrapper>
+            ) : field.type === "Checkbox" ? (
+              <MetaFormItemWrapper key={field.id}>
+                <Form.Item
+                  extra={field.description}
+                  name={field.id}
+                  valuePropName="checked"
+                  label={
+                    <FieldTitle
+                      title={field.title}
+                      isUnique={field.unique}
+                      isTitle={field.isTitle}
+                    />
+                  }>
+                  {field.multiple ? <MultiValueBooleanField FieldInput={Checkbox} /> : <Checkbox />}
                 </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "URL" ? (
