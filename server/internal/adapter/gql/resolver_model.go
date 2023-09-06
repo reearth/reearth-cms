@@ -12,7 +12,10 @@ func (r *Resolver) Model() ModelResolver {
 type modelResolver struct{ *Resolver }
 
 func (m modelResolver) MetadataSchema(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Schema, error) {
-	return dataloaders(ctx).Schema.Load(obj.MetadataSchema.ID)
+	if obj.MetadataSchemaID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).Schema.Load(*obj.MetadataSchemaID)
 }
 
 func (m modelResolver) Project(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Project, error) {
