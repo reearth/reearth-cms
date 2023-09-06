@@ -318,6 +318,9 @@ func (i Item) handleReferenceFieldsCreateOrUpdate(ctx context.Context, s *schema
 			continue
 		}
 		vv := value.New(value.TypeReference, it.ID().String()).AsMultiple()
+		if vv == nil {
+			continue
+		}
 		itm2.Value().UpdateFields([]*item.Field{item.NewField(*fid2, vv)})
 		if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
 			return err
