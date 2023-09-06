@@ -31,7 +31,7 @@ type Input struct {
 }
 
 func TestBuilder_Build(t *testing.T) {
-	var aid ID = NewID()
+	var aid = NewID()
 	pid := NewProjectID()
 	uid := accountdomain.NewUserID()
 	iid := NewIntegrationID()
@@ -236,7 +236,7 @@ func TestBuilder_Build(t *testing.T) {
 }
 
 func TestBuilder_MustBuild(t *testing.T) {
-	var aid ID = NewID()
+	var aid = NewID()
 	pid := NewProjectID()
 	uid := accountdomain.NewUserID()
 	thid := NewThreadID()
