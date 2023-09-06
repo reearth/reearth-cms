@@ -44,6 +44,7 @@ const ContentDetails: React.FC = () => {
     collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
+    handleMetaItemUpdate,
     handleNavigateToModel,
     handleRequestCreate,
     handleModalClose,
@@ -112,6 +113,7 @@ const ContentDetails: React.FC = () => {
       loading={itemCreationLoading || itemUpdatingLoading}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
+      onMetaItemUpdate={handleMetaItemUpdate}
       onBack={handleNavigateToModel}
       modelsMenu={
         <ModelsMenu

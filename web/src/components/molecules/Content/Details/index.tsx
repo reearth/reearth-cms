@@ -70,6 +70,11 @@ export type Props = {
     metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
+  onMetaItemUpdate: (data: {
+    itemId: string;
+    metaItemId: string;
+    fields: ItemField[];
+  }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
@@ -139,6 +144,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   setUploadType,
   onItemCreate,
   onItemUpdate,
+  onMetaItemUpdate,
   onBack,
   onAssetsCreate,
   onAssetCreateFromUrl,
@@ -209,6 +215,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           onBack={onBack}
           onItemCreate={onItemCreate}
           onItemUpdate={onItemUpdate}
+          onMetaItemUpdate={onMetaItemUpdate}
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
           onAssetsReload={onAssetsReload}

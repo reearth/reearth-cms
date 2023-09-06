@@ -91,6 +91,11 @@ export interface Props {
     metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
+  onMetaItemUpdate: (data: {
+    itemId: string;
+    metaItemId: string;
+    fields: ItemField[];
+  }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
@@ -161,6 +166,7 @@ const ContentForm: React.FC<Props> = ({
   onAssetCreateFromUrl,
   onItemCreate,
   onItemUpdate,
+  onMetaItemUpdate,
   onBack,
   onAssetsReload,
   onAssetSearchTerm,
@@ -243,6 +249,28 @@ const ContentForm: React.FC<Props> = ({
     onItemCreate,
     onItemUpdate,
   ]);
+
+  const handleMetaUpdate = useCallback(async () => {
+    if (!item?.metadata?.id || !itemId) return;
+    try {
+      const metaValues = await metaForm.validateFields();
+      const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
+      for (const [key, value] of Object.entries(metaValues)) {
+        metaFields.push({
+          value: (value || "") as string,
+          schemaFieldId: key,
+          type: model?.metadataSchema?.fields.find(field => field.id === key)?.type as FieldType,
+        });
+      }
+      await onMetaItemUpdate?.({
+        itemId: itemId,
+        metaItemId: item.metadata.id as string,
+        fields: metaFields,
+      });
+    } catch (info) {
+      console.log("Validate Failed:", info);
+    }
+  }, [item?.metadata?.id, itemId, metaForm, model?.metadataSchema?.fields, onMetaItemUpdate]);
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
@@ -746,7 +774,11 @@ const ContentForm: React.FC<Props> = ({
                       FieldInput={Input}
                     />
                   ) : (
-                    <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                    <Input
+                      onBlur={handleMetaUpdate}
+                      showCount={true}
+                      maxLength={field.typeProperty.maxLength ?? 500}
+                    />
                   )}
                 </Form.Item>
               </MetaFormItemWrapper>

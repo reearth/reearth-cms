@@ -17,6 +17,7 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
     schemaId: GQLItem.schemaId,
     threadId: GQLItem.thread?.id ?? "",
     metadata: {
+      id: GQLItem.metadata?.id,
       fields: GQLItem.metadata?.fields.map(field => ({
         schemaFieldId: field.schemaFieldId,
         type: field.type,

@@ -28,6 +28,7 @@ export const GET_ITEMS = gql`
           ...threadFragment
         }
         metadata {
+          id
           fields {
             schemaFieldId
             type
@@ -70,6 +71,7 @@ export const GET_ITEM_NODE = gql`
           value
         }
         metadata {
+          id
           fields {
             schemaFieldId
             type

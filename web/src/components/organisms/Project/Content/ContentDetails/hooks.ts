@@ -236,6 +236,29 @@ export default () => {
     [updateItem, currentItem, t],
   );
 
+  const handleMetaItemUpdate = useCallback(
+    async (data: {
+      itemId: string;
+      metaItemId: string;
+      fields: { schemaFieldId: string; type: FieldType; value: string }[];
+    }) => {
+      const item = await updateItem({
+        variables: {
+          itemId: data.metaItemId,
+          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
+          version: currentItem?.version ?? "",
+        },
+      });
+      if (item.errors || !item.data?.updateItem) {
+        Notification.error({ message: t("Failed to update item.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully updated Item!") });
+    },
+    [updateItem, currentItem, t],
+  );
+
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
     if (!currentItem) {
@@ -434,6 +457,7 @@ export default () => {
     collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
+    handleMetaItemUpdate,
     handleNavigateToModel,
     handleRequestCreate,
     handleRequestUpdate,

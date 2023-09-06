@@ -17,6 +17,7 @@ export type Item = {
   status: ItemStatus;
   fields: ItemField[] | undefined | null;
   metadata: {
+    id?: string;
     fields: ItemField[] | undefined | null;
   };
   threadId: string;
