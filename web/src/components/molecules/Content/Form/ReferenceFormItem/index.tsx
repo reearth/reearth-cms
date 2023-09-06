@@ -66,6 +66,7 @@ const ReferenceFormItem: React.FC<Props> = ({
         <ReferenceItemWrapper>
           <ReferenceItem
             value={value}
+            title={currentItem?.title ?? ""}
             status={currentItem?.status}
             workspaceId={workspaceId}
             projectId={projectId}

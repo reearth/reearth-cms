@@ -95,6 +95,7 @@ export default () => {
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
               createdAt: item.createdAt,
+              title: item.title,
               updatedAt: item.updatedAt,
             }
           : undefined,
