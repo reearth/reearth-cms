@@ -102,11 +102,17 @@ func (i *Item) UpdateFields(fields []*Field) {
 	}
 
 	newFields := lo.Filter(fields, func(field *Field, _ int) bool {
+		if field == nil {
+			return false
+		}
 		return i.Field(field.field) == nil
 	})
 
 	i.fields = append(lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
 		ff, found := lo.Find(fields, func(g *Field) bool {
+			if g == nil || f == nil {
+				return false
+			}
 			return g.FieldID() == f.FieldID()
 		})
 
