@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
