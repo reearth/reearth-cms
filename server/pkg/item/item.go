@@ -156,6 +156,6 @@ type ItemModelSchema struct {
 	Changes FieldChanges
 }
 
-func (i *Item) SetMetadataItem(iid *id.ItemID) {
-	i.metadataItem = iid
+func (i *Item) SetMetadataItem(iid id.ItemID) {
+	i.metadataItem = &iid
 }

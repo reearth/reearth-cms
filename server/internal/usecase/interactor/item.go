@@ -355,7 +355,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			if m.Metadata() == nil || *m.Metadata() != mi.Value().Schema() {
 				return nil, interfaces.ErrMetadataMismatch
 			}
-			itv.SetMetadataItem(param.MetadataID)
+			itv.SetMetadataItem(*param.MetadataID)
 		}
 
 		if err := i.repos.Item.Save(ctx, itv); err != nil {

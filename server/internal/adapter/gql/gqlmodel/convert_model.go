@@ -10,16 +10,17 @@ func ToModel(m *model.Model) *Model {
 	}
 
 	return &Model{
-		ID:          IDFrom(m.ID()),
-		ProjectID:   IDFrom(m.Project()),
-		SchemaID:    IDFrom(m.Schema()),
-		Name:        m.Name(),
-		Description: m.Description(),
-		Key:         m.Key().String(),
-		Project:     nil,
-		Schema:      nil,
-		Public:      m.Public(),
-		CreatedAt:   m.ID().Timestamp(),
-		UpdatedAt:   m.UpdatedAt(),
+		ID:               IDFrom(m.ID()),
+		ProjectID:        IDFrom(m.Project()),
+		SchemaID:         IDFrom(m.Schema()),
+		Name:             m.Name(),
+		Description:      m.Description(),
+		Key:              m.Key().String(),
+		Project:          nil,
+		Schema:           nil,
+		MetadataSchemaID: IDFromRef(m.Metadata()),
+		Public:           m.Public(),
+		CreatedAt:        m.ID().Timestamp(),
+		UpdatedAt:        m.UpdatedAt(),
 	}
 }
