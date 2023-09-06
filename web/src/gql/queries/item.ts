@@ -11,11 +11,13 @@ export const GET_ITEMS = gql`
         createdAt
         updatedAt
         status
-        user {
-          name
-        }
-        integration {
-          name
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
         fields {
           schemaFieldId
@@ -47,11 +49,13 @@ export const GET_ITEM_NODE = gql`
           id
           url
         }
-        user {
-          name
-        }
-        integration {
-          name
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
         fields {
           schemaFieldId
@@ -99,11 +103,13 @@ export const SEARCH_ITEM = gql`
           id
           url
         }
-        user {
-          name
-        }
-        integration {
-          name
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
         fields {
           schemaFieldId
