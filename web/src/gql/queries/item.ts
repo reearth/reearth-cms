@@ -27,6 +27,13 @@ export const GET_ITEMS = gql`
         thread {
           ...threadFragment
         }
+        metadata {
+          fields {
+            schemaFieldId
+            type
+            value
+          }
+        }
       }
       totalCount
     }
@@ -61,6 +68,13 @@ export const GET_ITEM_NODE = gql`
           schemaFieldId
           type
           value
+        }
+        metadata {
+          fields {
+            schemaFieldId
+            type
+            value
+          }
         }
         thread {
           ...threadFragment

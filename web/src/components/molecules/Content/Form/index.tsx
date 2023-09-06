@@ -40,8 +40,6 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 import { capitalizeFirstLetter } from "@reearth-cms/utils/stringUtils";
 
-import TagField from "../../Schema/FieldModal/FieldDefaultInputs/TagField";
-
 export interface Props {
   item?: Item;
   linkedItemsModalList?: FormItem[];
@@ -87,8 +85,9 @@ export interface Props {
   setUploadType: (type: UploadType) => void;
   onItemCreate: (data: {
     schemaId: string;
+    metaSchemaId: string;
     fields: ItemField[];
-    metadataId?: string;
+    metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: {
     itemId: string;
@@ -205,6 +204,7 @@ const ContentForm: React.FC<Props> = ({
       const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
       const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
+      const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(values)) {
         fields.push({
           value: (value || "") as string,
@@ -213,7 +213,7 @@ const ContentForm: React.FC<Props> = ({
         });
       }
       for (const [key, value] of Object.entries(metaValues)) {
-        fields.push({
+        metaFields.push({
           value: (value || "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields.find(field => field.id === key)?.type as FieldType,
@@ -222,7 +222,8 @@ const ContentForm: React.FC<Props> = ({
       if (!itemId) {
         await onItemCreate?.({
           schemaId: model?.schema.id as string,
-          metadataId: model?.metadataSchema?.id,
+          metaSchemaId: model?.metadataSchema?.id as string,
+          metaFields,
           fields,
         });
       } else {

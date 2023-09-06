@@ -16,6 +16,9 @@ export type Item = {
   updatedAt: Date;
   status: ItemStatus;
   fields: ItemField[] | undefined | null;
+  metadata: {
+    fields: ItemField[] | undefined | null;
+  };
   threadId: string;
   comments: Comment[];
 };

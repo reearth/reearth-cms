@@ -167,16 +167,35 @@ export default () => {
   const handleItemCreate = useCallback(
     async (data: {
       schemaId: string;
+      metaSchemaId: string;
       fields: { schemaFieldId: string; type: FieldType; value: string }[];
-      metadataId?: string;
+      metaFields: { schemaFieldId: string; type: FieldType; value: string }[];
     }) => {
       if (!currentModel?.id) return;
+      let metaItemId = null;
+      if (data.metaSchemaId) {
+        const metaItem = await createNewItem({
+          variables: {
+            modelId: currentModel.id,
+            schemaId: data.metaSchemaId,
+            fields: data.metaFields.map(field => ({
+              ...field,
+              type: field.type as SchemaFieldType,
+            })),
+          },
+        });
+        if (metaItem.errors || !metaItem.data?.createItem) {
+          Notification.error({ message: t("Failed to create item.") });
+          return;
+        }
+        metaItemId = metaItem?.data.createItem.item.id;
+      }
       const item = await createNewItem({
         variables: {
           modelId: currentModel.id,
           schemaId: data.schemaId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
-          metadataId: data.metadataId,
+          metadataId: metaItemId ?? null,
         },
       });
       if (item.errors || !item.data?.createItem) {
@@ -278,8 +297,18 @@ export default () => {
         }
       });
     } else {
-      currentItem?.fields?.forEach(field => {
-        initialValues[field.schemaFieldId] = field.value;
+      currentItem?.metadata.fields?.forEach(field => {
+        if (field.type === "Date") {
+          if (Array.isArray(field.value)) {
+            initialValues[field.schemaFieldId] = field.value.map((valueItem: string) =>
+              moment(valueItem),
+            );
+          } else {
+            initialValues[field.schemaFieldId] = moment(field.value);
+          }
+        } else {
+          initialValues[field.schemaFieldId] = field.value;
+        }
       });
     }
     console.log(initialValues);
