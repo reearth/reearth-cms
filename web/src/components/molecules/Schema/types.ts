@@ -4,8 +4,13 @@ export type Model = {
   description?: string;
   key: string;
   schema: Schema;
-  metadataSchema?: Schema;
+  metadataSchema?: MetaDataSchema;
   public: boolean;
+};
+
+export type MetaDataSchema = {
+  id?: string;
+  fields?: Field[];
 };
 
 export type Schema = {

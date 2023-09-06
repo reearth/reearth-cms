@@ -219,7 +219,7 @@ const ContentForm: React.FC<Props> = ({
         metaFields.push({
           value: (value || "") as string,
           schemaFieldId: key,
-          type: model?.metadataSchema?.fields.find(field => field.id === key)?.type as FieldType,
+          type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
       }
       if (!itemId) {
@@ -259,7 +259,7 @@ const ContentForm: React.FC<Props> = ({
         metaFields.push({
           value: (value || "") as string,
           schemaFieldId: key,
-          type: model?.metadataSchema?.fields.find(field => field.id === key)?.type as FieldType,
+          type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
       }
       await onMetaItemUpdate?.({
