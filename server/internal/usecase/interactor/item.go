@@ -313,8 +313,8 @@ func (i Item) handleReferenceFieldsCreateOrUpdate(ctx context.Context, s *schema
 		if err != nil {
 			return err
 		}
-		_, fid2, ok := item.AreItemsReferenced(it, itm2.Value(), s, s2)
-		if !ok {
+		fid1, fid2 := item.AreItemsReferenced(it, itm2.Value(), s, s2)
+		if fid1 == nil || fid2 == nil {
 			continue
 		}
 		vv := value.New(value.TypeReference, it.ID().String()).AsMultiple()
@@ -471,8 +471,8 @@ func (i Item) handleReferenceFieldsDelete(ctx context.Context, itm *version.Valu
 		if err != nil {
 			continue
 		}
-		_, fid2, ok := item.AreItemsReferenced(itm.Value(), itm2.Value(), s, s2)
-		if !ok {
+		fid1, fid2 := item.AreItemsReferenced(itm.Value(), itm2.Value(), s, s2)
+		if fid1 == nil || fid2 == nil {
 			continue
 		}
 		fields2 := []*item.Field{item.NewField(*fid2, value.NewMultiple(value.TypeReference, []any{}))}

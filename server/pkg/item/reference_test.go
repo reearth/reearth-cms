@@ -46,18 +46,15 @@ func Test_AreItemsReferenced(t *testing.T) {
 	i2 := New().ID(iid2).Schema(sid2).Model(mid2).Project(prj.ID()).Fields([]*Field{if2}).Thread(id.NewThreadID()).MustBuild()
 	i3 := New().ID(iid3).Schema(sid3).Model(mid3).Project(prj.ID()).Fields([]*Field{if3}).Thread(id.NewThreadID()).MustBuild()
 
-	ff1, ff2, ok := AreItemsReferenced(i1, i2, s1, s2)
-	assert.True(t, ok)
+	ff1, ff2 := AreItemsReferenced(i1, i2, s1, s2)
 	assert.Equal(t, fid1, *ff1)
 	assert.Equal(t, fid2, *ff2)
 
-	ff1, ff3, ok := AreItemsReferenced(i1, i3, s1, s3)
-	assert.False(t, ok)
+	ff1, ff3 := AreItemsReferenced(i1, i3, s1, s3)
 	assert.Nil(t, ff1)
 	assert.Nil(t, ff3)
 
-	ff4, ff5, ok := AreItemsReferenced(nil, nil, nil, nil)
-	assert.False(t, ok)
+	ff4, ff5 := AreItemsReferenced(nil, nil, nil, nil)
 	assert.Nil(t, ff4)
 	assert.Nil(t, ff5)
 }

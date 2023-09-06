@@ -6,9 +6,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
-func AreItemsReferenced(i1, i2 *Item, s1, s2 *schema.Schema) (*id.FieldID, *id.FieldID, bool) {
+func AreItemsReferenced(i1, i2 *Item, s1, s2 *schema.Schema) (*id.FieldID, *id.FieldID) {
 	if i1 == nil || i2 == nil || s1 == nil || s2 == nil {
-		return nil, nil, false
+		return nil, nil
 	}
 
 	for _, if1 := range i1.Fields() {
@@ -29,10 +29,10 @@ func AreItemsReferenced(i1, i2 *Item, s1, s2 *schema.Schema) (*id.FieldID, *id.F
 				continue
 			}
 			if fr2.CorrespondingFieldID() != nil && sf1.ID() == *fr2.CorrespondingFieldID() {
-				return sf1.ID().Ref(), sf2.ID().Ref(), true
+				return sf1.ID().Ref(), sf2.ID().Ref()
 			}
 		}
 	}
 
-	return nil, nil, false
+	return nil, nil
 }
