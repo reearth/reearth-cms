@@ -127,10 +127,8 @@ func (i *Item) GetTitle(s *schema.Schema) *string {
 	if s.TitleField() == nil {
 		return nil
 	}
-	sf, ok := lo.Find(s.Fields(), func(f *schema.Field) bool {
-		return f.ID() == *s.TitleField()
-	})
-	if !ok {
+	sf := s.Field(*s.TitleField())
+	if sf == nil {
 		return nil
 	}
 	f := i.Field(sf.ID())
