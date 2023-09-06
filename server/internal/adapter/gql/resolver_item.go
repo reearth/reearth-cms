@@ -13,6 +13,23 @@ func (r *Resolver) Item() ItemResolver {
 
 type itemResolver struct{ *Resolver }
 
+func (i itemResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error) {
+	if obj.UserID != nil {
+		return dataloaders(ctx).User.Load(*obj.UserID)
+	}
+	return dataloaders(ctx).Integration.Load(*obj.IntegrationID)
+}
+
+func (i itemResolver) UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error) {
+	if obj.UpdatedByUserID != nil {
+		return dataloaders(ctx).User.Load(*obj.UpdatedByUserID)
+	}
+	if obj.UpdatedByIntegrationID != nil {
+		return dataloaders(ctx).Integration.Load(*obj.UpdatedByIntegrationID)
+	}
+	return nil, nil
+}
+
 func (i itemResolver) Project(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Project, error) {
 	return dataloaders(ctx).Project.Load(obj.ProjectID)
 }
@@ -27,20 +44,6 @@ func (i itemResolver) Thread(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel
 
 func (i itemResolver) Model(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Model, error) {
 	return dataloaders(ctx).Model.Load(obj.ModelID)
-}
-
-func (i itemResolver) User(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.User, error) {
-	if obj.UserID != nil {
-		return dataloaders(ctx).User.Load(*obj.UserID)
-	}
-	return nil, nil
-}
-
-func (i itemResolver) Integration(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Integration, error) {
-	if obj.IntegrationID != nil {
-		return dataloaders(ctx).Integration.Load(*obj.IntegrationID)
-	}
-	return nil, nil
 }
 
 func (i itemResolver) Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemStatus, error) {
@@ -70,4 +73,11 @@ func (i itemResolver) Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmod
 		return nil, err[0]
 	}
 	return assets, nil
+}
+
+func (i itemResolver) Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Item, error) {
+	if obj.MetadataID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).Item.Load(*obj.MetadataID)
 }

@@ -16,6 +16,7 @@ import (
 
 func TestItemDocument_Model(t *testing.T) {
 	iId, pId, sId, tId, mId, uId, gId := item.NewID(), project.NewID(), schema.NewID(), thread.NewID(), model.NewID(), user.NewID(), integration.NewID()
+	upId, ipId, miId := user.NewID().Ref(), integration.NewID().Ref(), item.NewID().Ref()
 	now := time.Now()
 	tests := []struct {
 		name    string
@@ -26,17 +27,20 @@ func TestItemDocument_Model(t *testing.T) {
 		{
 			name: "model",
 			iDoc: &ItemDocument{
-				ID:          iId.String(),
-				Project:     pId.String(),
-				Schema:      sId.String(),
-				Thread:      tId.String(),
-				ModelID:     mId.String(),
-				Fields:      nil,
-				Timestamp:   now,
-				User:        uId.StringRef(),
-				Integration: nil,
+				ID:                   iId.String(),
+				Project:              pId.String(),
+				Schema:               sId.String(),
+				Thread:               tId.String(),
+				ModelID:              mId.String(),
+				MetadataItem:         miId.StringRef(),
+				UpdatedByUser:        upId.StringRef(),
+				UpdatedByIntegration: ipId.StringRef(),
+				Fields:               nil,
+				Timestamp:            now,
+				User:                 uId.StringRef(),
+				Integration:          nil,
 			},
-			want:    item.New().ID(iId).Project(pId).Schema(sId).Thread(tId).Model(mId).Timestamp(now).User(uId).MustBuild(),
+			want:    item.New().ID(iId).Project(pId).Schema(sId).UpdatedByUser(upId).UpdatedByIntegration(ipId).MetadataItem(miId).Thread(tId).Model(mId).Timestamp(now).User(uId).MustBuild(),
 			wantErr: false,
 		},
 		{
