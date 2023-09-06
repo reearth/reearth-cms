@@ -167,6 +167,7 @@ export default () => {
     async (data: {
       schemaId: string;
       fields: { schemaFieldId: string; type: FieldType; value: string }[];
+      metadataId?: string;
     }) => {
       if (!currentModel?.id) return;
       const item = await createNewItem({
@@ -174,6 +175,7 @@ export default () => {
           modelId: currentModel.id,
           schemaId: data.schemaId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
+          metadataId: data.metadataId,
         },
       });
       if (item.errors || !item.data?.createItem) {
@@ -196,11 +198,13 @@ export default () => {
     async (data: {
       itemId: string;
       fields: { schemaFieldId: string; type: FieldType; value: string }[];
+      metadataId?: string;
     }) => {
       const item = await updateItem({
         variables: {
           itemId: data.itemId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
+          metadataId: data.metadataId,
           version: currentItem?.version ?? "",
         },
       });
@@ -240,6 +244,33 @@ export default () => {
     }
     return initialValues;
   }, [currentItem, currentModel?.schema.fields]);
+
+  const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
+    const initialValues: { [key: string]: any } = {};
+    if (!currentItem) {
+      currentModel?.metadataSchema?.fields.forEach(field => {
+        switch (field.type) {
+          case "Select":
+            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            break;
+          case "Integer":
+            initialValues[field.id] = field.typeProperty.integerDefaultValue;
+            break;
+          case "Asset":
+            initialValues[field.id] = field.typeProperty.assetDefaultValue;
+            break;
+          default:
+            initialValues[field.id] = field.typeProperty.defaultValue;
+            break;
+        }
+      });
+    } else {
+      currentItem?.fields?.forEach(field => {
+        initialValues[field.schemaFieldId] = field.value;
+      });
+    }
+    return initialValues;
+  }, [currentItem, currentModel?.metadataSchema?.fields]);
 
   const workspaceUserMembers = useMemo((): Member[] => {
     return (
@@ -336,6 +367,7 @@ export default () => {
     currentItem,
     formItemsData,
     initialFormValues,
+    initialMetaFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
     collapsedModelMenu,

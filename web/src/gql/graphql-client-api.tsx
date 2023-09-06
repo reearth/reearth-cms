@@ -1856,6 +1856,7 @@ export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?:
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
   schemaId: Scalars['ID'];
+  metadataId?: InputMaybe<Scalars['ID']>;
   fields: Array<ItemFieldInput> | ItemFieldInput;
 }>;
 
@@ -1872,6 +1873,7 @@ export type DeleteItemMutation = { __typename?: 'Mutation', deleteItem?: { __typ
 export type UpdateItemMutationVariables = Exact<{
   itemId: Scalars['ID'];
   fields: Array<ItemFieldInput> | ItemFieldInput;
+  metadataId?: InputMaybe<Scalars['ID']>;
   version: Scalars['String'];
 }>;
 
@@ -3562,8 +3564,10 @@ export type SearchItemQueryHookResult = ReturnType<typeof useSearchItemQuery>;
 export type SearchItemLazyQueryHookResult = ReturnType<typeof useSearchItemLazyQuery>;
 export type SearchItemQueryResult = Apollo.QueryResult<SearchItemQuery, SearchItemQueryVariables>;
 export const CreateItemDocument = gql`
-    mutation CreateItem($modelId: ID!, $schemaId: ID!, $fields: [ItemFieldInput!]!) {
-  createItem(input: {modelId: $modelId, schemaId: $schemaId, fields: $fields}) {
+    mutation CreateItem($modelId: ID!, $schemaId: ID!, $metadataId: ID, $fields: [ItemFieldInput!]!) {
+  createItem(
+    input: {modelId: $modelId, schemaId: $schemaId, metadataId: $metadataId, fields: $fields}
+  ) {
     item {
       id
       schemaId
@@ -3593,6 +3597,7 @@ export type CreateItemMutationFn = Apollo.MutationFunction<CreateItemMutation, C
  *   variables: {
  *      modelId: // value for 'modelId'
  *      schemaId: // value for 'schemaId'
+ *      metadataId: // value for 'metadataId'
  *      fields: // value for 'fields'
  *   },
  * });
@@ -3638,8 +3643,10 @@ export type DeleteItemMutationHookResult = ReturnType<typeof useDeleteItemMutati
 export type DeleteItemMutationResult = Apollo.MutationResult<DeleteItemMutation>;
 export type DeleteItemMutationOptions = Apollo.BaseMutationOptions<DeleteItemMutation, DeleteItemMutationVariables>;
 export const UpdateItemDocument = gql`
-    mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $version: String!) {
-  updateItem(input: {itemId: $itemId, fields: $fields, version: $version}) {
+    mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $metadataId: ID, $version: String!) {
+  updateItem(
+    input: {itemId: $itemId, fields: $fields, metadataId: $metadataId, version: $version}
+  ) {
     item {
       id
       schemaId
@@ -3669,6 +3676,7 @@ export type UpdateItemMutationFn = Apollo.MutationFunction<UpdateItemMutation, U
  *   variables: {
  *      itemId: // value for 'itemId'
  *      fields: // value for 'fields'
+ *      metadataId: // value for 'metadataId'
  *      version: // value for 'version'
  *   },
  * });

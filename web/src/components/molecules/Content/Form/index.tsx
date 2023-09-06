@@ -22,10 +22,11 @@ import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/Mul
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
+import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
-import { FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
@@ -37,12 +38,14 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
+  item?: Item;
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
   itemId?: string;
   formItemsData: FormItem[];
   initialFormValues: any;
+  initialMetaFormValues: any;
   loading: boolean;
   model?: Model;
   assetList: Asset[];
@@ -77,8 +80,16 @@ export interface Props {
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
-  onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
-  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
+  onItemCreate: (data: {
+    schemaId: string;
+    fields: ItemField[];
+    metadataId?: string;
+  }) => Promise<void>;
+  onItemUpdate: (data: {
+    itemId: string;
+    fields: ItemField[];
+    metadataId?: string;
+  }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
@@ -105,6 +116,7 @@ export interface Props {
 }
 
 const ContentForm: React.FC<Props> = ({
+  item,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -112,6 +124,7 @@ const ContentForm: React.FC<Props> = ({
   model,
   formItemsData,
   initialFormValues,
+  initialMetaFormValues,
   loading,
   assetList,
   fileList,
@@ -162,6 +175,7 @@ const ContentForm: React.FC<Props> = ({
   const t = useT();
   const { Option } = Select;
   const [form] = Form.useForm();
+  const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
 
   useEffect(() => {
@@ -180,6 +194,7 @@ const ContentForm: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
+      const metaValues = await metaForm.validateFields();
       const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(values)) {
         fields.push({
@@ -188,15 +203,40 @@ const ContentForm: React.FC<Props> = ({
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
+      for (const [key, value] of Object.entries(metaValues)) {
+        fields.push({
+          value: (value || "") as string,
+          schemaFieldId: key,
+          type: model?.metadataSchema?.fields.find(field => field.id === key)?.type as FieldType,
+        });
+      }
       if (!itemId) {
-        await onItemCreate?.({ schemaId: model?.schema.id as string, fields });
+        await onItemCreate?.({
+          schemaId: model?.schema.id as string,
+          metadataId: model?.metadataSchema?.id,
+          fields,
+        });
       } else {
-        await onItemUpdate?.({ itemId: itemId as string, fields });
+        await onItemUpdate?.({
+          itemId: itemId as string,
+          metadataId: model?.metadataSchema?.id,
+          fields,
+        });
       }
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [form, model?.schema.fields, model?.schema.id, itemId, onItemCreate, onItemUpdate]);
+  }, [
+    form,
+    metaForm,
+    model?.schema.fields,
+    model?.metadataSchema?.id,
+    model?.metadataSchema?.fields,
+    model?.schema.id,
+    itemId,
+    onItemCreate,
+    onItemUpdate,
+  ]);
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
@@ -528,6 +568,110 @@ const ContentForm: React.FC<Props> = ({
           )}
         </FormItemsWrapper>
       </StyledForm>
+      <SideBarWrapper>
+        <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
+          <ContentSidebarWrapper item={item} />
+          {model?.metadataSchema?.fields.map(field =>
+            field.type === "Bool" ? (
+              <MetaFormItemWrapper key={field.id}>
+                <Form.Item
+                  extra={field.description}
+                  name={field.id}
+                  valuePropName="checked"
+                  label={
+                    <FieldTitle
+                      title={field.title}
+                      isUnique={field.unique}
+                      isTitle={field.isTitle}
+                    />
+                  }>
+                  {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
+                </Form.Item>
+              </MetaFormItemWrapper>
+            ) : field.type === "URL" ? (
+              <MetaFormItemWrapper key={field.id}>
+                <Form.Item
+                  extra={field.description}
+                  name={field.id}
+                  label={
+                    <FieldTitle
+                      title={field.title}
+                      isUnique={field.unique}
+                      isTitle={field.isTitle}
+                    />
+                  }
+                  rules={[
+                    {
+                      required: field.required,
+                      message: t("Please input field!"),
+                    },
+                    {
+                      message: "URL is not valid",
+                      validator: async (_, value) => {
+                        if (value) {
+                          if (
+                            Array.isArray(value) &&
+                            value.some(
+                              (valueItem: string) =>
+                                !validateURL(valueItem) && valueItem.length > 0,
+                            )
+                          )
+                            return Promise.reject();
+                          else if (
+                            !Array.isArray(value) &&
+                            !validateURL(value) &&
+                            value?.length > 0
+                          )
+                            return Promise.reject();
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}>
+                  {field.multiple ? (
+                    <MultiValueField
+                      showCount={true}
+                      maxLength={field.typeProperty.maxLength ?? 500}
+                      FieldInput={Input}
+                    />
+                  ) : (
+                    <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                  )}
+                </Form.Item>
+              </MetaFormItemWrapper>
+            ) : (
+              <MetaFormItemWrapper key={field.id}>
+                <Form.Item
+                  extra={field.description}
+                  rules={[
+                    {
+                      required: field.required,
+                      message: t("Please input field!"),
+                    },
+                  ]}
+                  name={field.id}
+                  label={
+                    <FieldTitle
+                      title={field.title}
+                      isUnique={field.unique}
+                      isTitle={field.isTitle}
+                    />
+                  }>
+                  {field.multiple ? (
+                    <MultiValueField
+                      showCount={true}
+                      maxLength={field.typeProperty.maxLength ?? 500}
+                      FieldInput={Input}
+                    />
+                  ) : (
+                    <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                  )}
+                </Form.Item>
+              </MetaFormItemWrapper>
+            ),
+          )}
+        </Form>
+      </SideBarWrapper>
       {itemId && (
         <>
           <RequestCreationModal
@@ -582,6 +726,23 @@ const FormItemsWrapper = styled.div`
   @media (max-width: 1200px) {
     width: 100%;
   }
+`;
+
+const SideBarWrapper = styled.div`
+  background-color: #fafafa;
+  padding: 8px;
+  width: 400px;
+`;
+
+const MetaFormItemWrapper = styled.div`
+  padding: 12px;
+  margin-bottom: 8px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 2px;
 `;
 
 export default ContentForm;

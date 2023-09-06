@@ -18,6 +18,7 @@ const ContentDetails: React.FC = () => {
     currentItem,
     formItemsData,
     initialFormValues,
+    initialMetaFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
     requestCreationLoading,
@@ -107,6 +108,7 @@ const ContentDetails: React.FC = () => {
       itemId={itemId}
       model={currentModel}
       initialFormValues={initialFormValues}
+      initialMetaFormValues={initialMetaFormValues}
       loading={itemCreationLoading || itemUpdatingLoading}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
