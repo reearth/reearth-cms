@@ -218,13 +218,11 @@ export default () => {
     async (data: {
       itemId: string;
       fields: { schemaFieldId: string; type: FieldType; value: string }[];
-      metadataId?: string;
     }) => {
       const item = await updateItem({
         variables: {
           itemId: data.itemId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
-          metadataId: data.metadataId,
           version: currentItem?.version ?? "",
         },
       });

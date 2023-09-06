@@ -89,11 +89,7 @@ export interface Props {
     fields: ItemField[];
     metaFields: ItemField[];
   }) => Promise<void>;
-  onItemUpdate: (data: {
-    itemId: string;
-    fields: ItemField[];
-    metadataId?: string;
-  }) => Promise<void>;
+  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
@@ -229,7 +225,6 @@ const ContentForm: React.FC<Props> = ({
       } else {
         await onItemUpdate?.({
           itemId: itemId as string,
-          metadataId: model?.metadataSchema?.id,
           fields,
         });
       }
