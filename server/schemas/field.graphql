@@ -233,6 +233,7 @@ input CreateFieldInput {
   modelId: ID!
   type: SchemaFieldType!
   title: String!
+  metadata: Boolean
   description: String
   key: String!
   multiple: Boolean!
@@ -248,6 +249,7 @@ input UpdateFieldInput {
   title: String
   description: String
   order: Int
+  metadata: Boolean
   key: String
   required: Boolean
   unique: Boolean

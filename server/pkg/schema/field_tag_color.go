@@ -5,17 +5,17 @@ import "strings"
 type TagColor string
 
 const (
-	TagColorMagenta TagColor = "magenta"
-	TagColorRed TagColor = "red"
-	TagColorVolcano TagColor = "volcano"
-	TagColorOrange TagColor = "orange"
-	TagColorGold TagColor = "gold"
-	TagColorLime TagColor = "lime"
-	TagColorGreen TagColor = "green"
-	TagColorCyan TagColor = "cyan"
-	TagColorBlue TagColor = "blue"
+	TagColorMagenta  TagColor = "magenta"
+	TagColorRed      TagColor = "red"
+	TagColorVolcano  TagColor = "volcano"
+	TagColorOrange   TagColor = "orange"
+	TagColorGold     TagColor = "gold"
+	TagColorLime     TagColor = "lime"
+	TagColorGreen    TagColor = "green"
+	TagColorCyan     TagColor = "cyan"
+	TagColorBlue     TagColor = "blue"
 	TagColorGeekblue TagColor = "geekblue"
-	TagColorPurple TagColor = "purple"
+	TagColorPurple   TagColor = "purple"
 )
 
 func (s TagColor) String() string {

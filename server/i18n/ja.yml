@@ -77,3 +77,5 @@ unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。
 workspace id is required: ワークスペースIDは必須です。
+metadata schema not found: メタデータのスキーマが見つかりません。
+metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。

@@ -60,6 +60,11 @@ func (b *Builder) Schema(s id.SchemaID) *Builder {
 	return b
 }
 
+func (b *Builder) Metadata(m *id.SchemaID) *Builder {
+	b.model.metadata = m
+	return b
+}
+
 func (b *Builder) Name(name string) *Builder {
 	b.model.name = name
 	return b

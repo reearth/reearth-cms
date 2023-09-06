@@ -38,13 +38,13 @@ func TestThread_Comments(t *testing.T) {
 
 func TestThread_HasComment(t *testing.T) {
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
-	thread := (&Thread{
+	thread := &Thread{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()}, c,
 		},
-	})
+	}
 
 	ok := thread.HasComment(c.id)
 	assert.True(t, ok)
@@ -58,10 +58,10 @@ func TestThread_HasComment(t *testing.T) {
 }
 
 func TestThread_AddComment(t *testing.T) {
-	thread := (&Thread{
+	thread := &Thread{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
-	})
+	}
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
 	err := thread.AddComment(c)
 	assert.NoError(t, err)
@@ -73,13 +73,13 @@ func TestThread_AddComment(t *testing.T) {
 
 func TestThread_UpdateComment(t *testing.T) {
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
-	thread := (&Thread{
+	thread := &Thread{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()}, c,
 		},
-	})
+	}
 
 	err := thread.UpdateComment(NewCommentID(), "updated")
 	assert.ErrorIs(t, err, ErrCommentDoesNotExist)
@@ -92,13 +92,13 @@ func TestThread_UpdateComment(t *testing.T) {
 
 func TestThread_DeleteComment(t *testing.T) {
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
-	thread := (&Thread{
+	thread := &Thread{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()}, c,
 		},
-	})
+	}
 
 	err := thread.DeleteComment(NewCommentID())
 	assert.ErrorIs(t, err, ErrCommentDoesNotExist)
@@ -110,13 +110,13 @@ func TestThread_DeleteComment(t *testing.T) {
 
 func TestThread_Comment(t *testing.T) {
 	c := NewComment(NewCommentID(), operator.OperatorFromUser(NewUserID()), "test")
-	thread := (&Thread{
+	thread := &Thread{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()}, c,
 		},
-	})
+	}
 
 	cc := thread.Comment(c.id)
 	assert.Equal(t, c, cc)
@@ -124,13 +124,13 @@ func TestThread_Comment(t *testing.T) {
 }
 
 func TestThread_Clone(t *testing.T) {
-	thread := (&Thread{
+	thread := &Thread{
 		id:        NewID(),
 		workspace: accountdomain.NewWorkspaceID(),
 		comments: []*Comment{
 			{id: NewCommentID()},
 		},
-	})
+	}
 	assert.Nil(t, (*Thread)(nil).Clone())
 	assert.Equal(t, thread, thread.Clone())
 	assert.NotSame(t, thread, thread.Clone())

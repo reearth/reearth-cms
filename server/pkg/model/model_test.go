@@ -489,3 +489,13 @@ func TestModel_UpdatedAt(t *testing.T) {
 		})
 	}
 }
+
+func TestModel_Metadata(t *testing.T) {
+	msId := id.NewSchemaID().Ref()
+	m := &Model{metadata: msId}
+	assert.Equal(t, msId, m.Metadata())
+
+	msId2 := id.NewSchemaID()
+	m.SetMetadata(msId2)
+	assert.Equal(t, &msId2, m.Metadata())
+}

@@ -37,7 +37,7 @@ func (r *mutationResolver) UpdateModel(ctx context.Context, input gqlmodel.Updat
 	}
 
 	res, err := usecases(ctx).Model.Update(ctx, interfaces.UpdateModelParam{
-		ModelId:     mId,
+		ModelID:     mId,
 		Name:        input.Name,
 		Description: input.Description,
 		Key:         input.Key,

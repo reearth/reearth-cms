@@ -207,3 +207,9 @@ func TestBuilder_NewThread(t *testing.T) {
 	b := New().NewThread()
 	assert.NotNil(t, b.i.thread)
 }
+
+func TestBuilder_MetadataItem(t *testing.T) {
+	iId := id.NewItemID().Ref()
+	b := New().MetadataItem(iId)
+	assert.Equal(t, iId, b.i.metadataItem)
+}

@@ -2,11 +2,13 @@ type Model implements Node {
   id: ID!
   projectId: ID!
   schemaId: ID!
+  metadataSchemaId: ID
   name: String!
   description: String!
   key: String!
   project: Project!
   schema: Schema!
+  metadataSchema: Schema
   public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!

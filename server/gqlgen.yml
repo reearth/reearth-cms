@@ -55,19 +55,23 @@ models:
         resolver: true
       model:
         resolver: true
-      user:
+      createdBy:
         resolver: true
-      integration:
+      metadata:
         resolver: true
       status:
         resolver: true
       assets:
+        resolver: true
+      updatedBy:
         resolver: true
   Model:
     fields:
       project:
         resolver: true
       schema:
+        resolver: true
+      metadataSchema:
         resolver: true
   Schema:
     fields:
