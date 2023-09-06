@@ -450,13 +450,7 @@ func (i Item) handleReferenceFieldsDelete(ctx context.Context, itm *version.Valu
 		if !ok {
 			continue
 		}
-		// TODO: should find a way to set reference field to nil
-		// setting the reference field to the item itself for now
-		vv := value.New(value.TypeReference, itm2.Value().ID()).AsMultiple()
-		fields2 := lo.Filter(itm2.Value().Fields(), func(f2 *item.Field, _ int) bool {
-			return f2.FieldID() != *fid2
-		})
-		fields2 = append(fields2, item.NewField(*fid2, vv))
+		fields2 := []*item.Field{item.NewField(*fid2, value.NewMultiple(value.TypeReference, []any{}))}
 		itm2.Value().UpdateFields(fields2)
 		if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
 			return err
