@@ -170,6 +170,7 @@ export type CreateFieldInput = {
   description?: InputMaybe<Scalars['String']>;
   isTitle: Scalars['Boolean'];
   key: Scalars['String'];
+  metadata?: InputMaybe<Scalars['Boolean']>;
   modelId: Scalars['ID'];
   multiple: Scalars['Boolean'];
   required: Scalars['Boolean'];
@@ -188,6 +189,7 @@ export type CreateIntegrationInput = {
 
 export type CreateItemInput = {
   fields: Array<ItemFieldInput>;
+  metadataId?: InputMaybe<Scalars['ID']>;
   modelId: Scalars['ID'];
   schemaId: Scalars['ID'];
 };
@@ -395,10 +397,12 @@ export type Item = Node & {
   __typename?: 'Item';
   assets: Array<Maybe<Asset>>;
   createdAt: Scalars['DateTime'];
+  createdBy?: Maybe<ItemEditor>;
   fields: Array<ItemField>;
   id: Scalars['ID'];
-  integration?: Maybe<Integration>;
   integrationId?: Maybe<Scalars['ID']>;
+  metadata?: Maybe<Item>;
+  metadataId?: Maybe<Scalars['ID']>;
   model: Model;
   modelId: Scalars['ID'];
   project: Project;
@@ -409,7 +413,9 @@ export type Item = Node & {
   thread: Thread;
   threadId: Scalars['ID'];
   updatedAt: Scalars['DateTime'];
-  user?: Maybe<User>;
+  updatedBy?: Maybe<ItemEditor>;
+  updatedByIntegrationId?: Maybe<Scalars['ID']>;
+  updatedByUserId?: Maybe<Scalars['ID']>;
   userId?: Maybe<Scalars['ID']>;
   version: Scalars['String'];
 };
@@ -427,6 +433,8 @@ export type ItemEdge = {
   cursor: Scalars['Cursor'];
   node?: Maybe<Item>;
 };
+
+export type ItemEditor = Integration | User;
 
 export type ItemField = {
   __typename?: 'ItemField';
@@ -501,6 +509,8 @@ export type Model = Node & {
   description: Scalars['String'];
   id: Scalars['ID'];
   key: Scalars['String'];
+  metadataSchema?: Maybe<Schema>;
+  metadataSchemaId?: Maybe<Scalars['ID']>;
   name: Scalars['String'];
   project: Project;
   projectId: Scalars['ID'];
@@ -1418,6 +1428,7 @@ export type UpdateFieldInput = {
   fieldId: Scalars['ID'];
   isTitle?: InputMaybe<Scalars['Boolean']>;
   key?: InputMaybe<Scalars['String']>;
+  metadata?: InputMaybe<Scalars['Boolean']>;
   modelId: Scalars['ID'];
   multiple?: InputMaybe<Scalars['Boolean']>;
   order?: InputMaybe<Scalars['Int']>;
@@ -1443,6 +1454,7 @@ export type UpdateIntegrationOfWorkspaceInput = {
 export type UpdateItemInput = {
   fields: Array<ItemFieldInput>;
   itemId: Scalars['ID'];
+  metadataId?: InputMaybe<Scalars['ID']>;
   version?: InputMaybe<Scalars['String']>;
 };
 
@@ -1806,14 +1818,14 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type GetItemQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null };
+export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'Workspace' } | null };
 
 export type IsItemReferencedQueryVariables = Exact<{
   itemId: Scalars['ID'];
@@ -1837,7 +1849,7 @@ export type SearchItemQueryVariables = Exact<{
 }>;
 
 
-export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, user?: { __typename?: 'User', name: string } | null, integration?: { __typename?: 'Integration', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -3294,11 +3306,13 @@ export const GetItemsDocument = gql`
       createdAt
       updatedAt
       status
-      user {
-        name
-      }
-      integration {
-        name
+      createdBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
       }
       fields {
         schemaFieldId
@@ -3356,11 +3370,13 @@ export const GetItemDocument = gql`
         id
         url
       }
-      user {
-        name
-      }
-      integration {
-        name
+      createdBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
       }
       fields {
         schemaFieldId
@@ -3490,11 +3506,13 @@ export const SearchItemDocument = gql`
         id
         url
       }
-      user {
-        name
-      }
-      integration {
-        name
+      createdBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
       }
       fields {
         schemaFieldId
