@@ -11,8 +11,6 @@ export interface Props {
 }
 
 const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
-  console.log(selectedTags);
-
   const t = useT();
 
   const capitalizeFirstLetter = (input: string) => {

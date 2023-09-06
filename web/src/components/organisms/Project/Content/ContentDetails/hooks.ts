@@ -1,3 +1,4 @@
+import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -262,6 +263,15 @@ export default () => {
           case "Asset":
             initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
+          case "Date":
+            if (Array.isArray(field.typeProperty.defaultValue)) {
+              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
+                moment(valueItem),
+              );
+            } else {
+              initialValues[field.id] = moment(field.typeProperty.defaultValue);
+            }
+            break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
             break;
@@ -272,6 +282,8 @@ export default () => {
         initialValues[field.schemaFieldId] = field.value;
       });
     }
+    console.log(initialValues);
+
     return initialValues;
   }, [currentItem, currentModel?.metadataSchema?.fields]);
 

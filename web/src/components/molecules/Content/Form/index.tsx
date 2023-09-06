@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -183,6 +184,10 @@ const ContentForm: React.FC<Props> = ({
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
   }, [form, initialFormValues]);
+
+  useEffect(() => {
+    metaForm.setFieldsValue(initialMetaFormValues);
+  }, [metaForm, initialMetaFormValues]);
 
   const handleBack = useCallback(() => {
     onBack(model?.id);
@@ -589,6 +594,31 @@ const ContentForm: React.FC<Props> = ({
                   <TagField selectedTags={field.typeProperty?.tags} multiple={field.multiple} />
                 </Form.Item>
               </MetaFormItemWrapper>
+            ) : field.type === "Date" ? (
+              <MetaFormItemWrapper key={field.id}>
+                <Form.Item
+                  extra={field.description}
+                  rules={[
+                    {
+                      required: field.required,
+                      message: t("Please input field!"),
+                    },
+                  ]}
+                  name={field.id}
+                  label={
+                    <FieldTitle
+                      title={field.title}
+                      isUnique={field.unique}
+                      isTitle={field.isTitle}
+                    />
+                  }>
+                  {field.multiple ? (
+                    <MultiValueField FieldInput={StyledDatePicker} />
+                  ) : (
+                    <StyledDatePicker />
+                  )}
+                </Form.Item>
+              </MetaFormItemWrapper>
             ) : field.type === "Bool" ? (
               <MetaFormItemWrapper key={field.id}>
                 <Form.Item
@@ -760,6 +790,10 @@ const MetaFormItemWrapper = styled.div`
   background: #ffffff;
   border: 1px solid #f0f0f0;
   border-radius: 2px;
+`;
+
+const StyledDatePicker = styled(DatePicker)`
+  width: 100%;
 `;
 
 export default ContentForm;
