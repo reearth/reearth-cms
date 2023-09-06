@@ -97,7 +97,7 @@ export default () => {
       title: string;
       description?: string;
       key: string;
-      metadata: boolean;
+      metadata?: boolean;
       multiple: boolean;
       unique: boolean;
       isTitle: boolean;
@@ -162,7 +162,7 @@ export default () => {
       title: string;
       description?: string;
       key: string;
-      metadata: boolean;
+      metadata?: boolean;
       multiple: boolean;
       unique: boolean;
       isTitle: boolean;
