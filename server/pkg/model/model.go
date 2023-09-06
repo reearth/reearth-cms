@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
@@ -19,6 +20,7 @@ type Model struct {
 	id          ID
 	project     ProjectID
 	schema      SchemaID
+	metadata    *SchemaID
 	name        string
 	description string
 	key         key.Key
@@ -34,6 +36,10 @@ func (p *Model) Schema() SchemaID {
 	return p.schema
 }
 
+func (p *Model) Metadata() *SchemaID {
+	return p.metadata
+}
+
 func (p *Model) Project() ProjectID {
 	return p.project
 }
@@ -44,6 +50,10 @@ func (p *Model) Name() string {
 
 func (p *Model) SetName(name string) {
 	p.name = name
+}
+
+func (p *Model) SetMetadata(id id.SchemaID) {
+	p.metadata = id.Ref()
 }
 
 func (p *Model) Description() string {

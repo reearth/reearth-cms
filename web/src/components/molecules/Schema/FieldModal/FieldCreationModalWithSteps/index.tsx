@@ -110,19 +110,17 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const handleSelectModel = useCallback(
     (modelId: string) => {
       setSelectedModel(modelId);
-      const selectedModelObj = models?.find(model => model.id === modelId);
-      field1Form.setFieldValue("title", selectedModelObj?.name);
-      field1Form.setFieldValue("key", selectedModelObj?.key);
     },
-    [setSelectedModel, field1Form, models],
+    [setSelectedModel],
   );
 
   const clearFormFields = useCallback(() => {
     modelForm.resetFields();
     field1Form.resetFields();
     field2Form.resetFields();
+    setCurrentStep(0);
     setField1FormValues(initialValues);
-  }, [modelForm, field1Form, field2Form, initialValues]);
+  }, [modelForm, field1Form, field2Form, initialValues, setCurrentStep]);
 
   const handleFirstField = useCallback(async () => {
     field1Form
@@ -160,10 +158,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const nextStep = useCallback(() => {
     if (currentStep == 0) setCurrentStep(currentStep + 1);
   }, [currentStep]);
-
-  const handleModalReset = useCallback(() => {
-    setCurrentStep(0);
-  }, []);
 
   const handleSecondField = useCallback(() => {
     console.log("here 2");
@@ -219,9 +213,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         onClose?.(true);
         clearFormFields();
       }}
+      afterClose={() => {
+        clearFormFields();
+      }}
       width={700}
       open={open}
-      afterClose={handleModalReset}
       footer={
         <>
           {currentStep === 2 ? (

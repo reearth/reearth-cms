@@ -17,6 +17,7 @@ type ModelDocument struct {
 	Public      bool
 	Project     string
 	Schema      string
+	Metadata    *string
 	UpdatedAt   time.Time
 }
 
@@ -28,6 +29,7 @@ func NewModel(model *model.Model) (*ModelDocument, string) {
 		Description: model.Description(),
 		Key:         model.Key().String(),
 		Public:      model.Public(),
+		Metadata:    model.Metadata().StringRef(),
 		Project:     model.Project().String(),
 		Schema:      model.Schema().String(),
 		UpdatedAt:   model.UpdatedAt(),
@@ -56,6 +58,7 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 		Key(key.New(d.Key)).
 		Public(d.Public).
 		Project(pId).
+		Metadata(id.SchemaIDFromRef(d.Metadata)).
 		Schema(sId).
 		Build()
 }

@@ -14,16 +14,19 @@ import (
 )
 
 type ItemDocument struct {
-	ID          string
-	Project     string
-	Schema      string
-	Thread      string
-	ModelID     string
-	Fields      []ItemFieldDocument
-	Timestamp   time.Time
-	User        *string
-	Integration *string
-	Assets      []string `bson:"assets,omitempty"`
+	ID                   string
+	Project              string
+	Schema               string
+	Thread               string
+	ModelID              string
+	Fields               []ItemFieldDocument
+	Timestamp            time.Time
+	User                 *string
+	Integration          *string
+	Assets               []string `bson:"assets,omitempty"`
+	MetadataItem         *string
+	UpdatedByUser        *string
+	UpdatedByIntegration *string
 }
 
 type ItemFieldDocument struct {
@@ -57,11 +60,12 @@ func NewVersionedItemConsumer() *VersionedItemConsumer {
 func NewItem(i *item.Item) (*ItemDocument, string) {
 	itmId := i.ID().String()
 	return &ItemDocument{
-		ID:      itmId,
-		Schema:  i.Schema().String(),
-		ModelID: i.Model().String(),
-		Project: i.Project().String(),
-		Thread:  i.Thread().String(),
+		ID:           itmId,
+		Schema:       i.Schema().String(),
+		ModelID:      i.Model().String(),
+		Project:      i.Project().String(),
+		Thread:       i.Thread().String(),
+		MetadataItem: i.MetadataItem().StringRef(),
 		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
 			v := NewMultipleValue(f.Value())
 			if v == nil {
@@ -73,10 +77,12 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 				V: *v,
 			}, true
 		}),
-		Timestamp:   i.Timestamp(),
-		User:        i.User().StringRef(),
-		Integration: i.Integration().StringRef(),
-		Assets:      i.AssetIDs().Strings(),
+		Timestamp:            i.Timestamp(),
+		User:                 i.User().StringRef(),
+		UpdatedByUser:        i.UpdatedByUser().StringRef(),
+		UpdatedByIntegration: i.UpdatedByIntegration().StringRef(),
+		Integration:          i.Integration().StringRef(),
+		Assets:               i.AssetIDs().Strings(),
 	}, itmId
 }
 
@@ -135,7 +141,10 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		ID(itmId).
 		Project(pid).
 		Schema(sid).
+		UpdatedByUser(accountdomain.UserIDFromRef(d.UpdatedByUser)).
+		UpdatedByIntegration(id.IntegrationIDFromRef(d.UpdatedByIntegration)).
 		Model(mid).
+		MetadataItem(id.ItemIDFromRef(d.MetadataItem)).
 		Thread(tid).
 		Fields(fields).
 		Timestamp(d.Timestamp)
