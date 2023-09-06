@@ -14,7 +14,7 @@ type Props = {
   linkedItemsModalList?: FormItem[];
   className?: string;
   value?: string;
-  disabled: boolean;
+  disabled?: boolean;
   correspondingFieldId: string;
   modelId?: string;
   formItemsData?: FormItem[];
