@@ -1,6 +1,7 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/model"
@@ -13,15 +14,18 @@ import (
 )
 
 type Item struct {
-	id          ID
-	schema      SchemaID
-	model       ModelID
-	project     ProjectID
-	fields      []*Field
-	timestamp   time.Time
-	thread      ThreadID
-	user        *UserID
-	integration *IntegrationID
+	id                   ID
+	schema               SchemaID
+	model                ModelID
+	project              ProjectID
+	fields               []*Field
+	timestamp            time.Time
+	thread               ThreadID
+	user                 *UserID
+	updatedByUser        *UserID
+	updatedByIntegration *IntegrationID
+	metadataItem         *id.ItemID
+	integration          *IntegrationID
 }
 
 type Versioned = *version.Value[*Item]
@@ -58,6 +62,10 @@ func (i *Item) Timestamp() time.Time {
 	return i.timestamp
 }
 
+func (i *Item) MetadataItem() *ID {
+	return i.metadataItem
+}
+
 func (i *Item) Field(f FieldID) *Field {
 	ff, _ := lo.Find(i.fields, func(g *Field) bool {
 		return g.FieldID() == f
@@ -67,6 +75,24 @@ func (i *Item) Field(f FieldID) *Field {
 
 func (i *Item) Thread() ThreadID {
 	return i.thread
+}
+
+func (i *Item) UpdatedByUser() *UserID {
+	return i.updatedByUser
+}
+
+func (i *Item) UpdatedByIntegration() *IntegrationID {
+	return i.updatedByIntegration
+}
+
+func (i *Item) SetUpdatedByIntegration(u IntegrationID) {
+	i.updatedByIntegration = &u
+	i.updatedByUser = nil
+}
+
+func (i *Item) SetUpdatedByUser(u UserID) {
+	i.updatedByUser = &u
+	i.updatedByIntegration = nil
 }
 
 func (i *Item) UpdateFields(fields []*Field) {
@@ -134,4 +160,8 @@ type ItemModelSchema struct {
 	Model   *model.Model
 	Schema  *schema.Schema
 	Changes FieldChanges
+}
+
+func (i *Item) SetMetadataItem(iid id.ItemID) {
+	i.metadataItem = &iid
 }

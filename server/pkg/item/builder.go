@@ -58,6 +58,16 @@ func (b *Builder) User(id UserID) *Builder {
 	return b
 }
 
+func (b *Builder) UpdatedByUser(id *UserID) *Builder {
+	b.i.updatedByUser = id
+	return b
+}
+
+func (b *Builder) UpdatedByIntegration(id *IntegrationID) *Builder {
+	b.i.updatedByIntegration = id
+	return b
+}
+
 func (b *Builder) Integration(id IntegrationID) *Builder {
 	b.i.integration = &id
 	return b
@@ -94,6 +104,11 @@ func (b *Builder) Thread(tid ThreadID) *Builder {
 
 func (b *Builder) NewThread() *Builder {
 	b.i.thread = NewThreadID()
+	return b
+}
+
+func (b *Builder) MetadataItem(id *ID) *Builder {
+	b.i.metadataItem = id
 	return b
 }
 
