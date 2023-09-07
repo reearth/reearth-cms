@@ -240,24 +240,64 @@ export default () => {
   const handleMetaItemUpdate = useCallback(
     async (data: {
       itemId: string;
-      metaItemId: string;
+      metaSchemaId: string;
+      metaItemId?: string;
+      metaFields: { schemaFieldId: string; type: FieldType; value: string }[];
       fields: { schemaFieldId: string; type: FieldType; value: string }[];
     }) => {
-      const item = await updateItem({
-        variables: {
-          itemId: data.metaItemId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
-          version: currentItem?.version ?? "",
-        },
-      });
-      if (item.errors || !item.data?.updateItem) {
-        Notification.error({ message: t("Failed to update item.") });
-        return;
+      if (!currentModel?.id) return;
+      let metaItemId = null;
+      if (data.metaSchemaId && !data.metaItemId) {
+        const metaItem = await createNewItem({
+          variables: {
+            modelId: currentModel.id,
+            schemaId: data.metaSchemaId,
+            fields: data.metaFields.map(field => ({
+              ...field,
+              type: field.type as SchemaFieldType,
+            })),
+          },
+        });
+        if (metaItem.errors || !metaItem.data?.createItem) {
+          Notification.error({ message: t("Failed to create item.") });
+          return;
+        }
+        metaItemId = metaItem?.data.createItem.item.id;
+        const item = await updateItem({
+          variables: {
+            itemId: data.itemId,
+            fields: data.fields.map(field => ({
+              ...field,
+              type: field.type as SchemaFieldType,
+            })),
+            metadataId: metaItemId,
+            version: currentItem?.version ?? "",
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+      } else {
+        const item = await updateItem({
+          variables: {
+            itemId: data.metaItemId as string,
+            fields: data.metaFields.map(field => ({
+              ...field,
+              type: field.type as SchemaFieldType,
+            })),
+            version: currentItem?.version ?? "",
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
       }
 
       Notification.success({ message: t("Successfully updated Item!") });
     },
-    [updateItem, currentItem, t],
+    [updateItem, createNewItem, currentItem, currentModel?.id, t],
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {

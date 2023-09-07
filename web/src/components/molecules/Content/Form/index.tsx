@@ -93,8 +93,10 @@ export interface Props {
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onMetaItemUpdate: (data: {
     itemId: string;
-    metaItemId: string;
+    metaItemId?: string;
+    metaSchemaId: string;
     fields: ItemField[];
+    metaFields: ItemField[];
   }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
@@ -251,10 +253,19 @@ const ContentForm: React.FC<Props> = ({
   ]);
 
   const handleMetaUpdate = useCallback(async () => {
-    if (!item?.metadata?.id || !itemId) return;
+    if (!itemId) return;
     try {
+      const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
+      const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
+      for (const [key, value] of Object.entries(values)) {
+        fields.push({
+          value: (value || "") as string,
+          schemaFieldId: key,
+          type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
+        });
+      }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
           value: (value || "") as string,
@@ -264,13 +275,24 @@ const ContentForm: React.FC<Props> = ({
       }
       await onMetaItemUpdate?.({
         itemId: itemId,
-        metaItemId: item.metadata.id as string,
-        fields: metaFields,
+        metaSchemaId: model?.metadataSchema?.id as string,
+        metaItemId: item?.metadata.id,
+        fields,
+        metaFields,
       });
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [item?.metadata?.id, itemId, metaForm, model?.metadataSchema?.fields, onMetaItemUpdate]);
+  }, [
+    form,
+    model?.schema.fields,
+    item?.metadata?.id,
+    model?.metadataSchema?.id,
+    itemId,
+    metaForm,
+    model?.metadataSchema?.fields,
+    onMetaItemUpdate,
+  ]);
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
