@@ -14,20 +14,22 @@ type Props = {
   linkedItemsModalList?: FormItem[];
   className?: string;
   value?: string;
+  disabled?: boolean;
   correspondingFieldId: string;
   modelId?: string;
   formItemsData?: FormItem[];
-  linkItemModalTotalCount: number;
-  linkItemModalPage: number;
-  linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId?: string) => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
+  linkItemModalTotalCount?: number;
+  linkItemModalPage?: number;
+  linkItemModalPageSize?: number;
+  onReferenceModelUpdate?: (modelId?: string) => void;
+  onLinkItemTableChange?: (page: number, pageSize: number) => void;
   onChange?: (value?: string) => void;
 };
 
 const ReferenceFormItem: React.FC<Props> = ({
   linkedItemsModalList,
   value,
+  disabled,
   correspondingFieldId,
   onChange,
   modelId,
@@ -45,13 +47,15 @@ const ReferenceFormItem: React.FC<Props> = ({
   const [currentItem, setCurrentItem] = useState<FormItem | undefined>();
 
   const handleClick = useCallback(() => {
+    if (!onReferenceModelUpdate) return;
     onReferenceModelUpdate(modelId);
     setVisible(true);
   }, [setVisible, onReferenceModelUpdate, modelId]);
 
   const handleLinkItemModalCancel = useCallback(() => {
+    if (disabled) return;
     setVisible(false);
-  }, [setVisible]);
+  }, [disabled, setVisible]);
 
   useEffect(() => {
     const item = [...(linkedItemsModalList ?? []), ...(formItemsData ?? [])]?.find(
@@ -66,12 +70,14 @@ const ReferenceFormItem: React.FC<Props> = ({
         <ReferenceItemWrapper>
           <ReferenceItem
             value={value}
+            title={currentItem?.title ?? ""}
             status={currentItem?.status}
             workspaceId={workspaceId}
             projectId={projectId}
             modelId={modelId}
           />
           <Button
+            disabled={disabled}
             type="link"
             icon={<Icon icon={"unlinkSolid"} size={16} />}
             onClick={() => {
@@ -80,22 +86,26 @@ const ReferenceFormItem: React.FC<Props> = ({
           />
         </ReferenceItemWrapper>
       )}
-      <StyledButton onClick={handleClick} type="primary">
+      <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
-
-      <LinkItemModal
-        linkItemModalTotalCount={linkItemModalTotalCount}
-        linkItemModalPage={linkItemModalPage}
-        correspondingFieldId={correspondingFieldId}
-        linkItemModalPageSize={linkItemModalPageSize}
-        onLinkItemTableChange={onLinkItemTableChange}
-        linkedItemsModalList={linkedItemsModalList}
-        visible={visible}
-        onLinkItemModalCancel={handleLinkItemModalCancel}
-        linkedItem={value}
-        onChange={onChange}
-      />
+      {linkItemModalTotalCount &&
+        linkItemModalPage &&
+        linkItemModalPageSize &&
+        onLinkItemTableChange && (
+          <LinkItemModal
+            linkItemModalTotalCount={linkItemModalTotalCount}
+            linkItemModalPage={linkItemModalPage}
+            correspondingFieldId={correspondingFieldId}
+            linkItemModalPageSize={linkItemModalPageSize}
+            onLinkItemTableChange={onLinkItemTableChange}
+            linkedItemsModalList={linkedItemsModalList}
+            visible={visible}
+            onLinkItemModalCancel={handleLinkItemModalCancel}
+            linkedItem={value}
+            onChange={onChange}
+          />
+        )}
     </>
   );
 };
@@ -103,7 +113,7 @@ const ReferenceFormItem: React.FC<Props> = ({
 const StyledButton = styled(Button)`
   display: flex;
   align-items: center;
-  margin-top: 4px;
+  margin-top: 8px;
   > span {
     padding: 4px;
   }
