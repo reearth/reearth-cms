@@ -19,6 +19,8 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 
+import ReferenceFormItem from "../../Content/Form/ReferenceFormItem";
+
 export interface Props {
   initialFormValues: any;
   schema?: any;
@@ -203,6 +205,19 @@ const RequestItemForm: React.FC<Props> = ({
                   setUploadModalVisibility={setUploadModalVisibility}
                 />
               )}
+            </Form.Item>
+          ) : field.type === "Reference" ? (
+            <Form.Item
+              key={field.id}
+              extra={field.description}
+              name={field.id}
+              label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
+              <ReferenceFormItem
+                key={field.id}
+                correspondingFieldId={field.id}
+                modelId={field.typeProperty.modelId}
+                disabled
+              />
             </Form.Item>
           ) : field.type === "Select" ? (
             <Form.Item

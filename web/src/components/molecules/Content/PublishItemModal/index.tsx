@@ -87,7 +87,7 @@ const PublishItemModal: React.FC<Props> = ({
             <StyledCheckbox
               value={selectedItems[item.id]}
               onChange={e => handleCheckboxChange(item.id, e.target.checked)}>
-              <ReferenceItem value={item.id} status={item.status} />
+              <ReferenceItem value={item.id} status={item.status} title={item.title} />
             </StyledCheckbox>
           </StyledRow>
         ))}
