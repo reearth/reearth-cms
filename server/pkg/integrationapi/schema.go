@@ -6,16 +6,17 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
 type ItemModelSchema struct {
-	Item            Item          `json:"item"`
-	ReferencedItems []VersionedItem        `json:"referencedItem,omitempty"`
-	Model           Model         `json:"model"`
-	Schema          Schema        `json:"schema"`
-	ItemChange      []FieldChange `json:"itemChange,omitempty"`
+	Item            Item             `json:"item"`
+	ReferencedItems []*VersionedItem `json:"referencedItems,omitempty"`
+	Model           Model            `json:"model"`
+	Schema          Schema           `json:"schema"`
+	ItemChange      []FieldChange    `json:"itemChange,omitempty"`
 }
 
 type FieldChange struct {
@@ -33,15 +34,14 @@ type ItemModelSchemaItemChange struct {
 }
 
 func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
-	// ri := lo.Map(i.ReferencedItems, func(itm *item.Item, _ int) Item {
-	// 	return NewItem(itm, nil, nil)
-	// })
 	return ItemModelSchema{
-		Item:            NewItem(i.Item, i.Schema, assets),
-		// ReferencedItems: ri,
-		Model:           NewModel(i.Model, time.Time{}),
-		Schema:          NewSchema(i.Schema),
-		ItemChange:      NewItemFieldChanges(i.Changes),
+		Item: NewItem(i.Item, i.Schema, assets),
+		ReferencedItems: lo.Map(i.ReferencedItems, func(itm *version.Value[*item.Item], _ int) *VersionedItem {
+			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil))
+		}),
+		Model:      NewModel(i.Model, time.Time{}),
+		Schema:     NewSchema(i.Schema),
+		ItemChange: NewItemFieldChanges(i.Changes),
 	}
 }
 

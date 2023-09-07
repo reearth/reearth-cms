@@ -158,7 +158,7 @@ func (i *Item) AssetIDs() AssetIDList {
 
 type ItemModelSchema struct {
 	Item            *Item
-	ReferencedItems []*Versioned
+	ReferencedItems []Versioned
 	Model           *model.Model
 	Schema          *schema.Schema
 	Changes         FieldChanges
