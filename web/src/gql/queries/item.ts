@@ -7,6 +7,7 @@ export const GET_ITEMS = gql`
     items(modelId: $modelId, pagination: $pagination) {
       nodes {
         id
+        title
         schemaId
         createdAt
         updatedAt
@@ -40,6 +41,7 @@ export const GET_ITEM_NODE = gql`
     node(id: $id, type: Item) {
       ... on Item {
         id
+        title
         schemaId
         createdAt
         updatedAt
@@ -81,6 +83,7 @@ export const GET_ITEMS_BY_IDS = gql`
     nodes(id: $id, type: Item) {
       ... on Item {
         id
+        title
         schemaId
         createdAt
         updatedAt
@@ -95,6 +98,7 @@ export const SEARCH_ITEM = gql`
     searchItem(query: $query, sort: $sort, pagination: $pagination) {
       nodes {
         id
+        title
         schemaId
         createdAt
         updatedAt
