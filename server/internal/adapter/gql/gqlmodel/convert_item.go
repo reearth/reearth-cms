@@ -42,6 +42,7 @@ func ToItem(vi item.Versioned, s *schema.Schema) *Item {
 			}
 		}),
 		Version: vi.Version().String(),
+		Title:   i.GetTitle(s),
 	}
 }
 

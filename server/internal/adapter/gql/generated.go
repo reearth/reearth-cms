@@ -239,6 +239,7 @@ type ComplexityRoot struct {
 		Status                 func(childComplexity int) int
 		Thread                 func(childComplexity int) int
 		ThreadID               func(childComplexity int) int
+		Title                  func(childComplexity int) int
 		UpdatedAt              func(childComplexity int) int
 		UpdatedBy              func(childComplexity int) int
 		UpdatedByIntegrationID func(childComplexity int) int
@@ -1466,6 +1467,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.ThreadID(childComplexity), true
+
+	case "Item.title":
+		if e.complexity.Item.Title == nil {
+			break
+		}
+
+		return e.complexity.Item.Title(childComplexity), true
 
 	case "Item.updatedAt":
 		if e.complexity.Item.UpdatedAt == nil {
@@ -4813,6 +4821,7 @@ extend type Mutation {
   updatedBy: ItemEditor
   version: String!
   metadata: Item
+  title: String
 }
 
 union ItemEditor = User | Integration
@@ -10981,8 +10990,51 @@ func (ec *executionContext) fieldContext_Item_metadata(ctx context.Context, fiel
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
 				return ec.fieldContext_Item_metadata(ctx, field)
+			case "title":
+				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Item_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -11123,6 +11175,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
 				return ec.fieldContext_Item_metadata(ctx, field)
+			case "title":
+				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -11354,6 +11408,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
 				return ec.fieldContext_Item_metadata(ctx, field)
+			case "title":
+				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -11575,6 +11631,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
 				return ec.fieldContext_Item_metadata(ctx, field)
+			case "title":
+				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -17082,6 +17140,8 @@ func (ec *executionContext) fieldContext_PublishItemPayload_items(ctx context.Co
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
 				return ec.fieldContext_Item_metadata(ctx, field)
+			case "title":
+				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -22373,6 +22433,8 @@ func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
 				return ec.fieldContext_Item_metadata(ctx, field)
+			case "title":
+				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -22978,6 +23040,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_version(ctx, field)
 			case "metadata":
 				return ec.fieldContext_Item_metadata(ctx, field)
+			case "title":
+				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -31888,6 +31952,8 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "title":
+			out.Values[i] = ec._Item_title(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

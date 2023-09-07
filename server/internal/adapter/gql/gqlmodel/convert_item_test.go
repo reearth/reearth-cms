@@ -26,14 +26,14 @@ func TestToItem(t *testing.T) {
 	nid := id.NewIntegrationID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
-	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
-	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).Project(pid).MustBuild()
+	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
 	i := item.New().
 		ID(iid).
 		Schema(sid).
 		Project(pid).
-		Fields([]*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple())}).
+		Fields([]*item.Field{item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple())}).
 		Model(mid).
 		Thread(tid).
 		User(uid).
@@ -63,11 +63,12 @@ func TestToItem(t *testing.T) {
 				Fields: []*ItemField{
 					{
 						SchemaFieldID: IDFrom(sf1.ID()),
-						Type:          SchemaFieldTypeBool,
-						Value:         true,
+						Type:          SchemaFieldTypeText,
+						Value:         "test",
 					},
 				},
 				Version: v.String(),
+				Title:   lo.ToPtr("test"),
 			},
 		},
 		{

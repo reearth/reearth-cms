@@ -1,8 +1,9 @@
 package item
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
 
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -153,6 +154,25 @@ func (i *Item) AssetIDs() AssetIDList {
 	return lo.FilterMap(fm, func(v *value.Value, _ int) (AssetID, bool) {
 		return v.ValueAsset()
 	})
+}
+
+func (i *Item) GetTitle(s *schema.Schema) *string {
+	if s == nil || s.TitleField() == nil {
+		return nil
+	}
+	sf := s.Field(*s.TitleField())
+	if sf == nil {
+		return nil
+	}
+	f := i.Field(sf.ID())
+	if f == nil {
+		return nil
+	}
+	vv, ok := f.Value().First().Value().(string)
+	if !ok {
+		return nil
+	}
+	return &vv
 }
 
 type ItemModelSchema struct {

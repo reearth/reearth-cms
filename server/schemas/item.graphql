@@ -22,6 +22,7 @@ type Item implements Node {
   updatedBy: ItemEditor
   version: String!
   metadata: Item
+  title: String
 }
 
 union ItemEditor = User | Integration
