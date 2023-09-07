@@ -433,8 +433,8 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 	})
 }
 
-func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) []*item.Versioned {
-	var vil []*item.Versioned
+func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) []item.Versioned {
+	var vil []item.Versioned
 	for _, f := range fields {
 		if f.Type() != value.TypeReference {
 			continue
@@ -448,7 +448,7 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) []*i
 			if err != nil {
 				continue
 			}
-			vil = append(vil, &ii)
+			vil = append(vil, ii)
 		}
 	}
 	return vil
