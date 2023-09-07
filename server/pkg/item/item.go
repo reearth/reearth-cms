@@ -156,6 +156,25 @@ func (i *Item) AssetIDs() AssetIDList {
 	})
 }
 
+func (i *Item) GetTitle(s *schema.Schema) *string {
+	if s == nil || s.TitleField() == nil {
+		return nil
+	}
+	sf := s.Field(*s.TitleField())
+	if sf == nil {
+		return nil
+	}
+	f := i.Field(sf.ID())
+	if f == nil {
+		return nil
+	}
+	vv, ok := f.Value().First().Value().(string)
+	if !ok {
+		return nil
+	}
+	return &vv
+}
+
 type ItemModelSchema struct {
 	Item            *Item
 	ReferencedItems []Versioned
