@@ -28,6 +28,14 @@ export const GET_ITEMS = gql`
         thread {
           ...threadFragment
         }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            type
+            value
+          }
+        }
       }
       totalCount
     }
@@ -63,6 +71,14 @@ export const GET_ITEM_NODE = gql`
           schemaFieldId
           type
           value
+        }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            type
+            value
+          }
         }
         thread {
           ...threadFragment
@@ -132,8 +148,10 @@ export const SEARCH_ITEM = gql`
 `;
 
 export const CREATE_ITEM = gql`
-  mutation CreateItem($modelId: ID!, $schemaId: ID!, $fields: [ItemFieldInput!]!) {
-    createItem(input: { modelId: $modelId, schemaId: $schemaId, fields: $fields }) {
+  mutation CreateItem($modelId: ID!, $schemaId: ID!, $metadataId: ID, $fields: [ItemFieldInput!]!) {
+    createItem(
+      input: { modelId: $modelId, schemaId: $schemaId, metadataId: $metadataId, fields: $fields }
+    ) {
       item {
         id
         schemaId
@@ -156,8 +174,15 @@ export const DELETE_ITEM = gql`
 `;
 
 export const UPDATE_ITEM = gql`
-  mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $version: String!) {
-    updateItem(input: { itemId: $itemId, fields: $fields, version: $version }) {
+  mutation UpdateItem(
+    $itemId: ID!
+    $fields: [ItemFieldInput!]!
+    $metadataId: ID
+    $version: String!
+  ) {
+    updateItem(
+      input: { itemId: $itemId, fields: $fields, metadataId: $metadataId, version: $version }
+    ) {
       item {
         id
         schemaId
