@@ -393,6 +393,7 @@ type Item struct {
 	UpdatedBy              ItemEditor   `json:"updatedBy,omitempty"`
 	Version                string       `json:"version"`
 	Metadata               *Item        `json:"metadata,omitempty"`
+	Title                  *string      `json:"title,omitempty"`
 }
 
 func (Item) IsNode()        {}

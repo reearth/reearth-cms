@@ -26,6 +26,7 @@ export type Item = {
 
 export type FormItem = {
   id: string;
+  title: string;
   schemaId: string;
   author?: string;
   status: ItemStatus;

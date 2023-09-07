@@ -9,13 +9,21 @@ import { ItemStatus } from "../types";
 
 type Props = {
   value: string;
+  title: string;
   modelId?: string;
   status?: ItemStatus;
   workspaceId?: string;
   projectId?: string;
 };
 
-const ReferenceItem: React.FC<Props> = ({ value, modelId, status, projectId, workspaceId }) => {
+const ReferenceItem: React.FC<Props> = ({
+  value,
+  title,
+  modelId,
+  status,
+  projectId,
+  workspaceId,
+}) => {
   const linkTo = useMemo(
     () =>
       workspaceId && projectId && modelId
@@ -26,7 +34,8 @@ const ReferenceItem: React.FC<Props> = ({ value, modelId, status, projectId, wor
 
   return (
     <StyledReferenceItem>
-      <Tooltip>
+      <Tooltip title={title}>
+        <StlyedReferenceTitle>{title}</StlyedReferenceTitle>
         {linkTo ? (
           <Link to={linkTo} target="_blank">
             <ReferenceItemName>{value}</ReferenceItemName>
@@ -49,6 +58,10 @@ const ReferenceItem: React.FC<Props> = ({ value, modelId, status, projectId, wor
     </StyledReferenceItem>
   );
 };
+
+const StlyedReferenceTitle = styled.div`
+  margin-bottom: 4px;
+`;
 
 const StyledReferenceItem = styled.div`
   display: flex;

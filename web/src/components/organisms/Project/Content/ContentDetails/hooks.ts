@@ -96,6 +96,7 @@ export default () => {
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
               createdAt: item.createdAt,
+              title: item.title,
               updatedAt: item.updatedAt,
             }
           : undefined,
@@ -115,7 +116,7 @@ export default () => {
   }, [userData]);
 
   const myRole: Role = useMemo(
-    () => currentWorkspace?.members?.find(m => m.userId === me?.id).role,
+    () => currentWorkspace?.members?.find(m => m.userId === me?.id)?.role,
     [currentWorkspace?.members, me?.id],
   );
 
