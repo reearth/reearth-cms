@@ -101,6 +101,11 @@ const LinkItemModal: React.FC<Props> = ({
       key: "id",
     },
     {
+      title: t("Title"),
+      dataIndex: "title",
+      key: "title",
+    },
+    {
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
