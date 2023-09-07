@@ -86,6 +86,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       unique: false,
       required: false,
       isTitle: false,
+      meta: false,
       type: "Text",
       typeProperty: {
         reference: {
@@ -133,8 +134,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             correspondingField: null,
           },
         };
-        console.log(values);
-
         setField1FormValues(values);
         if (currentStep < numSteps) setCurrentStep(currentStep + 1);
         else {

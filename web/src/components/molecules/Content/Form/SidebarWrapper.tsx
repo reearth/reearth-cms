@@ -8,7 +8,7 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 export type Props = {
-  item: Item;
+  item?: Item;
 };
 
 const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
@@ -35,35 +35,33 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
   };
 
   return (
-    <SideBarWrapper>
-      <SidebarCard title={t("Enter Information")}>
-        <DataRow>
-          <DataTitle>ID</DataTitle>
-          <StyledTag>{item.id}</StyledTag>
-        </DataRow>
-        <DataRow>
-          <DataTitle>{t("Created At")}</DataTitle>
-          <DataText>{dateTimeFormat(item.createdAt)}</DataText>
-        </DataRow>
-        <DataRow>
-          <DataTitle>{t("Updated At")}</DataTitle>
-          <DataText>{dateTimeFormat(item.updatedAt)}</DataText>
-        </DataRow>
-      </SidebarCard>
-      <SidebarCard title={t("Publish State")}>
-        <DataRow>
-          <DataTitle>{getStatusBadge(item.status)}</DataTitle>
-        </DataRow>
-      </SidebarCard>
-    </SideBarWrapper>
+    <>
+      {item && (
+        <>
+          <SidebarCard title={t("Enter Information")}>
+            <DataRow>
+              <DataTitle>ID</DataTitle>
+              <StyledTag>{item.id}</StyledTag>
+            </DataRow>
+            <DataRow>
+              <DataTitle>{t("Created At")}</DataTitle>
+              <DataText>{dateTimeFormat(item.createdAt)}</DataText>
+            </DataRow>
+            <DataRow>
+              <DataTitle>{t("Updated At")}</DataTitle>
+              <DataText>{dateTimeFormat(item.updatedAt)}</DataText>
+            </DataRow>
+          </SidebarCard>
+          <SidebarCard title={t("Publish State")}>
+            <DataRow>
+              <DataTitle>{getStatusBadge(item.status)}</DataTitle>
+            </DataRow>
+          </SidebarCard>
+        </>
+      )}
+    </>
   );
 };
-
-const SideBarWrapper = styled.div`
-  background-color: #fafafa;
-  padding: 8px;
-  width: 272px;
-`;
 
 const DataRow = styled.div`
   display: flex;

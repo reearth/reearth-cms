@@ -32,6 +32,7 @@ export interface FormValues {
   title: string;
   description: string;
   key: string;
+  meta: boolean;
   multiple: boolean;
   unique: boolean;
   isTitle: boolean;
@@ -80,6 +81,7 @@ const initialValues: FormValues = {
   description: "",
   key: "",
   multiple: false,
+  meta: false,
   unique: false,
   isTitle: false,
   required: false,

@@ -4,6 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
+import { capitalizeFirstLetter } from "@reearth-cms/utils/stringUtils";
 
 export interface Props {
   selectedTags: { id: string; name: string; color: string }[];
@@ -12,10 +13,6 @@ export interface Props {
 
 const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
   const t = useT();
-
-  const capitalizeFirstLetter = (input: string) => {
-    return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
-  };
 
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>

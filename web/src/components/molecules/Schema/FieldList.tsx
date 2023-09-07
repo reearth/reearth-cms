@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useMemo } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
@@ -8,62 +8,80 @@ import { useT } from "@reearth-cms/i18n";
 import { fieldTypes } from "./fieldTypes";
 import { FieldType } from "./types";
 
+import { Tab } from ".";
+
 export interface Props {
   className?: string;
-  addField: (fieldType: FieldType) => void;
+  currentTab?: Tab;
+  addField: (fieldType: FieldType, meta?: boolean) => void;
 }
 
 type FieldListItem = { title: string; fields: string[] };
 
-const FieldList: React.FC<Props> = ({ addField }) => {
+const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
   const t = useT();
 
-  const data: FieldListItem[] = [
-    // {
-    //   title: t("Meta Data"),
-    //   fields: ["Tag", "Bool", "Checkbox", "Date", "Text", "URL"],
-    // },
-    {
-      title: t("Text"),
-      fields: ["Text", "TextArea", "MarkdownText"],
-    },
-    {
-      title: t("Asset"),
-      fields: ["Asset"],
-    },
-    {
-      title: t("Boolean"),
-      fields: ["Bool"],
-    },
-    {
-      title: t("Select"),
-      fields: ["Select"],
-    },
-    {
-      title: t("Number"),
-      fields: ["Integer"],
-    },
-    {
-      title: t("Relation"),
-      fields: ["Reference"],
-    },
-    {
-      title: t("URL"),
-      fields: ["URL"],
-    },
-  ];
+  const data: FieldListItem[] = useMemo(
+    () => [
+      {
+        title: t("Text"),
+        fields: ["Text", "TextArea", "MarkdownText"],
+      },
+      {
+        title: t("Asset"),
+        fields: ["Asset"],
+      },
+      {
+        title: t("Boolean"),
+        fields: ["Bool"],
+      },
+      {
+        title: t("Select"),
+        fields: ["Select"],
+      },
+      {
+        title: t("Number"),
+        fields: ["Integer"],
+      },
+      {
+        title: t("Relation"),
+        fields: ["Reference"],
+      },
+      {
+        title: t("URL"),
+        fields: ["URL"],
+      },
+    ],
+    [t],
+  );
+
+  const meta: FieldListItem[] = useMemo(
+    () => [
+      {
+        title: t("Meta Data"),
+        fields: ["Tag", "Bool", "Checkbox", "Date", "Text", "URL"],
+      },
+    ],
+    [t],
+  );
+
+  const isMeta = useMemo(() => currentTab === "meta-data", [currentTab]);
+  const dataSource = useMemo(
+    () => (currentTab === "meta-data" ? meta : data),
+    [currentTab, meta, data],
+  );
 
   return (
     <>
       <h1>{t("Add Field")}</h1>
       <FieldStyledList
         itemLayout="horizontal"
-        dataSource={data}
+        dataSource={dataSource}
         renderItem={item => (
           <>
             <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>
             {(item as FieldListItem).fields?.map((field: string) => (
-              <List.Item key={field} onClick={() => addField(field as FieldType)}>
+              <List.Item key={field} onClick={() => addField(field as FieldType, isMeta)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}

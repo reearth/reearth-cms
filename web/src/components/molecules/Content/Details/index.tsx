@@ -5,7 +5,6 @@ import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
-import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
@@ -24,6 +23,7 @@ export type Props = {
   modelsMenu: React.ReactNode;
   formItemsData: FormItem[];
   initialFormValues: { [key: string]: any };
+  initialMetaFormValues: { [key: string]: any };
   item?: Item;
   itemId?: string;
   loading: boolean;
@@ -63,8 +63,20 @@ export type Props = {
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
-  onItemCreate: (data: { schemaId: string; fields: ItemField[] }) => Promise<void>;
+  onItemCreate: (data: {
+    schemaId: string;
+    metaSchemaId: string;
+    fields: ItemField[];
+    metaFields: ItemField[];
+  }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
+  onMetaItemUpdate: (data: {
+    itemId: string;
+    metaItemId?: string;
+    metaSchemaId: string;
+    fields: ItemField[];
+    metaFields: ItemField[];
+  }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
@@ -97,6 +109,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   modelsMenu,
   formItemsData,
   initialFormValues,
+  initialMetaFormValues,
   item,
   itemId,
   loading,
@@ -133,6 +146,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   setUploadType,
   onItemCreate,
   onItemUpdate,
+  onMetaItemUpdate,
   onBack,
   onAssetsCreate,
   onAssetCreateFromUrl,
@@ -162,6 +176,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       }
       center={
         <ContentForm
+          item={item}
           linkItemModalTotalCount={linkItemModalTotalCount}
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}
@@ -181,6 +196,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           model={model}
           formItemsData={formItemsData}
           initialFormValues={initialFormValues}
+          initialMetaFormValues={initialMetaFormValues}
           assetList={assetList}
           onAssetTableChange={onAssetTableChange}
           totalCount={totalCount}
@@ -201,6 +217,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           onBack={onBack}
           onItemCreate={onItemCreate}
           onItemUpdate={onItemUpdate}
+          onMetaItemUpdate={onMetaItemUpdate}
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
           onAssetsReload={onAssetsReload}
@@ -217,12 +234,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           workspaceUserMembers={workspaceUserMembers}
         />
       }
-      right={
-        <>
-          {item && <ContentSidebarWrapper item={item} />}
-          {commentsPanel}
-        </>
-      }
+      right={commentsPanel}
     />
   );
 };

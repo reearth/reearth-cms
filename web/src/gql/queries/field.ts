@@ -5,6 +5,7 @@ export const CREATE_FIELD = gql`
     $modelId: ID!
     $type: SchemaFieldType!
     $title: String!
+    $metadata: Boolean
     $description: String
     $key: String!
     $multiple: Boolean!
@@ -18,6 +19,7 @@ export const CREATE_FIELD = gql`
         modelId: $modelId
         type: $type
         title: $title
+        metadata: $metadata
         description: $description
         key: $key
         multiple: $multiple
@@ -39,6 +41,7 @@ export const UPDATE_FIELD = gql`
     $modelId: ID!
     $fieldId: ID!
     $title: String!
+    $metadata: Boolean
     $description: String
     $order: Int
     $key: String!
@@ -53,6 +56,7 @@ export const UPDATE_FIELD = gql`
         modelId: $modelId
         fieldId: $fieldId
         title: $title
+        metadata: $metadata
         description: $description
         order: $order
         key: $key

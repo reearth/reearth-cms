@@ -1,3 +1,4 @@
+import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -167,14 +168,35 @@ export default () => {
   const handleItemCreate = useCallback(
     async (data: {
       schemaId: string;
+      metaSchemaId: string;
       fields: { schemaFieldId: string; type: FieldType; value: string }[];
+      metaFields: { schemaFieldId: string; type: FieldType; value: string }[];
     }) => {
       if (!currentModel?.id) return;
+      let metaItemId = null;
+      if (data.metaSchemaId) {
+        const metaItem = await createNewItem({
+          variables: {
+            modelId: currentModel.id,
+            schemaId: data.metaSchemaId,
+            fields: data.metaFields.map(field => ({
+              ...field,
+              type: field.type as SchemaFieldType,
+            })),
+          },
+        });
+        if (metaItem.errors || !metaItem.data?.createItem) {
+          Notification.error({ message: t("Failed to create item.") });
+          return;
+        }
+        metaItemId = metaItem?.data.createItem.item.id;
+      }
       const item = await createNewItem({
         variables: {
           modelId: currentModel.id,
           schemaId: data.schemaId,
           fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
+          metadataId: metaItemId ?? null,
         },
       });
       if (item.errors || !item.data?.createItem) {
@@ -215,6 +237,69 @@ export default () => {
     [updateItem, currentItem, t],
   );
 
+  const handleMetaItemUpdate = useCallback(
+    async (data: {
+      itemId: string;
+      metaSchemaId: string;
+      metaItemId?: string;
+      metaFields: { schemaFieldId: string; type: FieldType; value: string }[];
+      fields: { schemaFieldId: string; type: FieldType; value: string }[];
+    }) => {
+      if (!currentModel?.id) return;
+      let metaItemId = null;
+      if (data.metaSchemaId && !data.metaItemId) {
+        const metaItem = await createNewItem({
+          variables: {
+            modelId: currentModel.id,
+            schemaId: data.metaSchemaId,
+            fields: data.metaFields.map(field => ({
+              ...field,
+              type: field.type as SchemaFieldType,
+            })),
+          },
+        });
+        if (metaItem.errors || !metaItem.data?.createItem) {
+          Notification.error({ message: t("Failed to create item.") });
+          return;
+        }
+        metaItemId = metaItem?.data.createItem.item.id;
+        const item = await updateItem({
+          variables: {
+            itemId: data.itemId,
+            fields: data.fields.map(field => ({
+              ...field,
+              type: field.type as SchemaFieldType,
+            })),
+            metadataId: metaItemId,
+            version: currentItem?.version ?? "",
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+      } else {
+        const item = await updateItem({
+          variables: {
+            itemId: data.metaItemId as string,
+            fields: data.metaFields.map(field => ({
+              ...field,
+              type: field.type as SchemaFieldType,
+            })),
+            version: currentItem?.version ?? "",
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+      }
+
+      Notification.success({ message: t("Successfully updated Item!") });
+    },
+    [updateItem, createNewItem, currentItem, currentModel?.id, t],
+  );
+
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
     if (!currentItem) {
@@ -241,6 +326,57 @@ export default () => {
     }
     return initialValues;
   }, [currentItem, currentModel?.schema.fields]);
+
+  const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
+    const initialValues: { [key: string]: any } = {};
+    if (!currentItem) {
+      currentModel?.metadataSchema?.fields?.forEach(field => {
+        switch (field.type) {
+          case "Select":
+            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            break;
+          case "Tag":
+            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            break;
+          case "Integer":
+            initialValues[field.id] = field.typeProperty.integerDefaultValue;
+            break;
+          case "Asset":
+            initialValues[field.id] = field.typeProperty.assetDefaultValue;
+            break;
+          case "Date":
+            if (Array.isArray(field.typeProperty.defaultValue)) {
+              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
+                moment(valueItem),
+              );
+            } else {
+              initialValues[field.id] = moment(field.typeProperty.defaultValue);
+            }
+            break;
+          default:
+            initialValues[field.id] = field.typeProperty.defaultValue;
+            break;
+        }
+      });
+    } else {
+      currentItem?.metadata.fields?.forEach(field => {
+        if (field.type === "Date") {
+          if (Array.isArray(field.value)) {
+            initialValues[field.schemaFieldId] = field.value.map((valueItem: string) =>
+              moment(valueItem),
+            );
+          } else {
+            initialValues[field.schemaFieldId] = moment(field.value);
+          }
+        } else {
+          initialValues[field.schemaFieldId] = field.value;
+        }
+      });
+    }
+    console.log(initialValues);
+
+    return initialValues;
+  }, [currentItem, currentModel?.metadataSchema?.fields]);
 
   const workspaceUserMembers = useMemo((): Member[] => {
     return (
@@ -337,6 +473,7 @@ export default () => {
     currentItem,
     formItemsData,
     initialFormValues,
+    initialMetaFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
     collapsedModelMenu,
@@ -361,6 +498,7 @@ export default () => {
     collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
+    handleMetaItemUpdate,
     handleNavigateToModel,
     handleRequestCreate,
     handleRequestUpdate,

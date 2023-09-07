@@ -24,5 +24,20 @@ export const fromGraphQLModel = (model: Maybe<Model>) => {
         typeProperty: field.typeProperty,
       })),
     },
+    metadataSchema: {
+      id: model.metadataSchema?.id,
+      fields: model.metadataSchema?.fields.map(field => ({
+        id: field.id,
+        description: field.description,
+        title: field.title,
+        type: field.type,
+        key: field.key,
+        unique: field.unique,
+        isTitle: field.isTitle,
+        multiple: field.multiple,
+        required: field.required,
+        typeProperty: field.typeProperty,
+      })),
+    },
   };
 };
