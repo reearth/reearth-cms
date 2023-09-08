@@ -9,6 +9,81 @@ export const GET_MODELS = gql`
         description
         key
         public
+        metadataSchema {
+          id
+          fields {
+            id
+            type
+            title
+            key
+            description
+            required
+            unique
+            isTitle
+            multiple
+            order
+            typeProperty {
+              ... on SchemaFieldText {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldTextArea {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldMarkdown {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldAsset {
+                assetDefaultValue: defaultValue
+              }
+              ... on SchemaFieldSelect {
+                selectDefaultValue: defaultValue
+                values
+              }
+              ... on SchemaFieldInteger {
+                integerDefaultValue: defaultValue
+                min
+                max
+              }
+              ... on SchemaFieldBool {
+                defaultValue
+              }
+              ... on SchemaFieldCheckbox {
+                defaultValue
+              }
+              ... on SchemaFieldTag {
+                selectDefaultValue: defaultValue
+                tags {
+                  id
+                  name
+                  color
+                }
+              }
+              ... on SchemaFieldDate {
+                defaultValue
+              }
+              ... on SchemaFieldURL {
+                defaultValue
+              }
+              ... on SchemaFieldReference {
+                modelId
+                correspondingField {
+                  id
+                  type
+                  title
+                  key
+                  description
+                  required
+                  unique
+                  multiple
+                  order
+                }
+              }
+            }
+          }
+        }
         schema {
           id
           fields {

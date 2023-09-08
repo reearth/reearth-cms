@@ -41,6 +41,7 @@ const ProjectSchema: React.FC = () => {
 
   const {
     models,
+    isMeta,
     fieldCreationModalShown,
     fieldUpdateModalShown,
     selectedField,
@@ -81,6 +82,7 @@ const ProjectSchema: React.FC = () => {
           models={models}
           selectedType={selectedType}
           selectedField={selectedField}
+          isUpdate={fieldUpdateModalShown}
           open={fieldCreationModalShown || fieldUpdateModalShown}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldCreationModalClose}
@@ -91,6 +93,7 @@ const ProjectSchema: React.FC = () => {
       {selectedType && selectedType !== "Reference" && (
         <FieldCreationModal
           selectedType={selectedType}
+          isMeta={isMeta}
           open={fieldCreationModalShown}
           fieldCreationLoading={fieldCreationLoading}
           handleFieldKeyUnique={handleFieldKeyUnique}

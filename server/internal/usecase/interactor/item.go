@@ -171,14 +171,27 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 		return false, err
 	}
 
-	if s.Field(correspondingFieldID) == nil {
+	if itm == nil || s == nil {
 		return false, nil
 	}
 
-	fields := itm.Value().Fields()
-	for _, f := range fields {
-		if f != nil && f.FieldID() == correspondingFieldID && f.Value() != nil {
-			return true, nil
+	for _, f := range s.Fields() {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+		fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+		if !ok {
+			continue
+		}
+		if fr.CorrespondingFieldID() != nil && *fr.CorrespondingFieldID() == correspondingFieldID {
+			itmf := itm.Value().Field(f.ID())
+			if itmf == nil {
+				continue
+			}
+			vr, ok := itmf.Value().First().ValueReference() 
+			if ok && !vr.IsEmpty() {
+				return true, nil
+			}
 		}
 	}
 
@@ -348,10 +361,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-
-		if param.Version != nil && itm.Version() != *param.Version {
-			return nil, interfaces.ErrItemConflicted
-		}
 		itv := itm.Value()
 		if !operator.CanUpdate(itv) {
 			return nil, interfaces.ErrOperationDenied
@@ -360,6 +369,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		m, err := i.repos.Model.FindByID(ctx, itv.Model())
 		if err != nil {
 			return nil, err
+		}
+
+		isMetadata := m.Metadata() != nil && itv.Schema() == *m.Metadata()
+		if !isMetadata && param.Version != nil && itm.Version() != *param.Version {
+			return nil, interfaces.ErrItemConflicted
 		}
 
 		s, err := i.repos.Schema.FindByID(ctx, itv.Schema())
