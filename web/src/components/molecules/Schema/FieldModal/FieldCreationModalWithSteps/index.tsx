@@ -31,6 +31,7 @@ const { Step } = Steps;
 export type Props = {
   selectedField?: Field | null;
   open?: boolean;
+  isUpdate?: boolean;
   selectedType: FieldType;
   models?: Model[];
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
@@ -42,6 +43,7 @@ export type Props = {
 const FieldCreationModalWithSteps: React.FC<Props> = ({
   selectedField,
   open,
+  isUpdate,
   models,
   selectedType,
   handleFieldKeyUnique,
@@ -202,7 +204,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               color={fieldTypes[selectedType].color}
             />
             <h3>
-              {t("Create")} {t(fieldTypes[selectedType].title)} {t("Field")}
+              <span>{isUpdate ? t("Update") : t("Create")} </span>
+              <span>
+                {t(fieldTypes[selectedType].title)} {t("Field")}
+              </span>
             </h3>
           </FieldThumbnail>
         ) : null
@@ -267,11 +272,15 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           <StyledFormItem name="direction" label={t("Reference direction")}>
             <Radio.Group onChange={e => setNumSteps(e.target.value)} value={numSteps}>
               <Space direction="vertical" size={0}>
-                <Radio value={1}>{t("One-way reference")}</Radio>
+                <Radio value={1} disabled={isUpdate}>
+                  {t("One-way reference")}
+                </Radio>
                 <div className="ant-form-item-extra">
                   {t("A unidirectional relationship where an item refers to another item")}
                 </div>
-                <Radio value={2}>{t("Two-way reference")}</Radio>
+                <Radio value={2} disabled={isUpdate}>
+                  {t("Two-way reference")}
+                </Radio>
                 <div className="ant-form-item-extra">
                   {t("A bidirectional relationship where two items refer to each other")}
                 </div>
