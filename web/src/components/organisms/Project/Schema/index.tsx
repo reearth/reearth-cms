@@ -82,6 +82,7 @@ const ProjectSchema: React.FC = () => {
           models={models}
           selectedType={selectedType}
           selectedField={selectedField}
+          isUpdate={fieldUpdateModalShown}
           open={fieldCreationModalShown || fieldUpdateModalShown}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldCreationModalClose}
