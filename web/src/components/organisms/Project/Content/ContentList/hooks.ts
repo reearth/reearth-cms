@@ -5,7 +5,6 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import {
   convertItem,
   convertComment,
@@ -126,6 +125,8 @@ export default () => {
                               (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)
                                 ?.url,
                             )
+                        : field.type === "Reference"
+                        ? item?.title || field.value
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -143,19 +144,6 @@ export default () => {
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
   }, [data?.searchItem.nodes]);
 
-  const getFieldTitle = useCallback(
-    (field: Field) => {
-      if (field.type !== "Reference") return field.title;
-
-      const item = data?.searchItem.nodes?.find(item =>
-        item?.fields.some(f => f.schemaFieldId === field.id),
-      );
-
-      return item?.title || field.title;
-    },
-    [data?.searchItem.nodes],
-  );
-
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
     return [
@@ -168,7 +156,7 @@ export default () => {
         ellipsis: true,
       },
       ...currentModel.schema.fields.map(field => ({
-        title: getFieldTitle(field),
+        title: field.title,
         dataIndex: ["fields", field.id],
         key: field.id,
         width: 128,
@@ -176,7 +164,7 @@ export default () => {
         ellipsis: true,
       })),
     ];
-  }, [currentModel, getFieldTitle, t]);
+  }, [currentModel, t]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
