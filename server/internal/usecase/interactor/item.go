@@ -184,11 +184,11 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 			continue
 		}
 		if fr.CorrespondingFieldID() != nil && *fr.CorrespondingFieldID() == correspondingFieldID {
-			if1 := itm.Value().Field(f.ID())
-			if if1 == nil {
+			itmf := itm.Value().Field(f.ID())
+			if itmf == nil {
 				continue
 			}
-			vr, ok := if1.Value().First().ValueReference() 
+			vr, ok := itmf.Value().First().ValueReference() 
 			if ok && !vr.IsEmpty() {
 				return true, nil
 			}
