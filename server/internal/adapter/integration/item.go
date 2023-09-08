@@ -50,7 +50,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 
 	return ItemFilter200JSONResponse{
 		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
-			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), nil)
+			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))
 		})),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
@@ -100,7 +100,7 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 
 	return ItemFilterWithProject200JSONResponse{
 		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
-			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), nil)
+			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))
 		})),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
@@ -145,8 +145,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, err
 	}
 
-	vi := getReferencedItems(ctx, i)
-	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, vi)), nil
+	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i))), nil
 }
 
 func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error) {
@@ -194,7 +193,7 @@ func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWit
 		return ItemCreateWithProject400Response{}, err
 	}
 
-	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, nil)), nil
+	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i))), nil
 }
 
 func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
@@ -235,8 +234,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate500Response{}, err
 	}
 
-	vi := getReferencedItems(ctx, i)
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), vi)), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), getReferencedItems(ctx, i))), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -277,8 +275,7 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return ItemGet500Response{}, err
 	}
 
-	vi := getReferencedItems(ctx, i)
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), vi)), nil
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))), nil
 }
 
 func assetContext(ctx context.Context, m asset.Map, asset *integrationapi.AssetEmbedding) *integrationapi.AssetContext {
