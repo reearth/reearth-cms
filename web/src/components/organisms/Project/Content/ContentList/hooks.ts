@@ -5,6 +5,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import {
   convertItem,
   convertComment,
@@ -142,6 +143,19 @@ export default () => {
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
   }, [data?.searchItem.nodes]);
 
+  const getFieldTitle = useCallback(
+    (field: Field) => {
+      if (field.type !== "Reference") return field.title;
+
+      const item = data?.searchItem.nodes?.find(item =>
+        item?.fields.some(f => f.schemaFieldId === field.id),
+      );
+
+      return item?.title || field.title;
+    },
+    [data?.searchItem.nodes],
+  );
+
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
     return [
@@ -154,7 +168,7 @@ export default () => {
         ellipsis: true,
       },
       ...currentModel.schema.fields.map(field => ({
-        title: field.title,
+        title: getFieldTitle(field),
         dataIndex: ["fields", field.id],
         key: field.id,
         width: 128,
@@ -162,7 +176,7 @@ export default () => {
         ellipsis: true,
       })),
     ];
-  }, [currentModel, t]);
+  }, [currentModel, getFieldTitle, t]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
