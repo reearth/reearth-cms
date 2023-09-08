@@ -161,24 +161,35 @@ func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p 
 }
 
 func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspondingFieldID id.FieldID, _ *usecase.Operator) (bool, error) {
-	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
+	ii, err := i.repos.Item.FindByID(ctx, itemID, nil)
 	if err != nil {
 		return false, err
 	}
-
-	s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
+	s, err := i.repos.Schema.FindByID(ctx, ii.Value().Schema())
 	if err != nil {
 		return false, err
 	}
-
-	if s.Field(correspondingFieldID) == nil {
+	if ii == nil || s == nil {
 		return false, nil
 	}
 
-	fields := itm.Value().Fields()
-	for _, f := range fields {
-		if f != nil && f.FieldID() == correspondingFieldID && f.Value() != nil {
-			return true, nil
+	for _, f := range s.Fields() {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+		fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+		if !ok {
+			continue
+		}
+		if fr.CorrespondingFieldID() != nil && *fr.CorrespondingFieldID() == correspondingFieldID {
+			if1 := ii.Value().Field(f.ID())
+			if if1 == nil {
+				continue
+			}
+			vr, ok := if1.Value().First().ValueReference() 
+			if ok && !vr.IsEmpty() {
+				return true, nil
+			}
 		}
 	}
 
