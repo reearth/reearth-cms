@@ -161,15 +161,17 @@ func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p 
 }
 
 func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspondingFieldID id.FieldID, _ *usecase.Operator) (bool, error) {
-	ii, err := i.repos.Item.FindByID(ctx, itemID, nil)
+	itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
 	if err != nil {
 		return false, err
 	}
-	s, err := i.repos.Schema.FindByID(ctx, ii.Value().Schema())
+
+	s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
 	if err != nil {
 		return false, err
 	}
-	if ii == nil || s == nil {
+
+	if itm == nil || s == nil {
 		return false, nil
 	}
 
@@ -182,7 +184,7 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 			continue
 		}
 		if fr.CorrespondingFieldID() != nil && *fr.CorrespondingFieldID() == correspondingFieldID {
-			if1 := ii.Value().Field(f.ID())
+			if1 := itm.Value().Field(f.ID())
 			if if1 == nil {
 				continue
 			}
