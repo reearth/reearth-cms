@@ -664,8 +664,13 @@ func TestItem_IsItemReferenced(t *testing.T) {
 	}
 
 	// reference item
-	b, err := itemUC.IsItemReferenced(ctx, i1.ID(), fid1, op)
+	b, err := itemUC.IsItemReferenced(ctx, i1.ID(), fid2, op)
 	assert.True(t, b)
+	assert.Nil(t, err)
+
+	// reference item different field
+	b, err = itemUC.IsItemReferenced(ctx, i1.ID(), sf3.ID(), op)
+	assert.False(t, b)
 	assert.Nil(t, err)
 
 	// not reference item 1

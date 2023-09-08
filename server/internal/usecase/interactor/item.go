@@ -171,14 +171,27 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 		return false, err
 	}
 
-	if s.Field(correspondingFieldID) == nil {
+	if itm == nil || s == nil {
 		return false, nil
 	}
 
-	fields := itm.Value().Fields()
-	for _, f := range fields {
-		if f != nil && f.FieldID() == correspondingFieldID && f.Value() != nil {
-			return true, nil
+	for _, f := range s.Fields() {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+		fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+		if !ok {
+			continue
+		}
+		if fr.CorrespondingFieldID() != nil && *fr.CorrespondingFieldID() == correspondingFieldID {
+			itmf := itm.Value().Field(f.ID())
+			if itmf == nil {
+				continue
+			}
+			vr, ok := itmf.Value().First().ValueReference() 
+			if ok && !vr.IsEmpty() {
+				return true, nil
+			}
 		}
 	}
 
