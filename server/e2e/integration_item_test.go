@@ -35,19 +35,26 @@ var (
 	uId    = accountdomain.NewUserID()
 	iId    = id.NewIntegrationID()
 	mId    = id.NewModelID()
+	mId2   = id.NewModelID()
 	aid    = id.NewAssetID()
 	auuid  = uuid.NewString()
 	itmId  = id.NewItemID()
+	itmId2 = id.NewItemID()
 	fId    = id.NewFieldID()
 	fId2   = id.NewFieldID()
+	fId3   = id.NewFieldID()
 	thId   = id.NewThreadID()
+	thId2  = id.NewThreadID()
 	icId   = id.NewCommentID()
 	ikey   = key.Random()
+	ikey2  = key.Random()
 	pid    = id.NewProjectID()
 	sid    = id.NewSchemaID()
+	sid2   = id.NewSchemaID()
 	palias = "PROJECT_ALIAS"
 	sfKey  = key.Random()
 	sfKey2 = id.NewKey("asset")
+	sfKey3 = key.Random()
 
 	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
@@ -103,6 +110,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 
 	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).Key(sfKey).MustBuild()
 	sf2 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
+	sf3 := schema.NewField(schema.NewReference(mId, nil, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
 	s := schema.New().ID(sid).
 		Workspace(w.ID()).
 		Project(p.ID()).
@@ -110,6 +118,14 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		TitleField(sf.ID().Ref()).
 		MustBuild()
 	if err := r.Schema.Save(ctx, s); err != nil {
+		return err
+	}
+	s2 := schema.New().ID(sid2).
+		Workspace(w.ID()).
+		Project(p.ID()).
+		Fields([]*schema.Field{sf3}).
+		MustBuild()
+	if err := r.Schema.Save(ctx, s2); err != nil {
 		return err
 	}
 
@@ -126,6 +142,19 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
+	m2 := model.New().
+		ID(mId2).
+		Name("m2").
+		Description("m2 desc").
+		Public(true).
+		Key(ikey2).
+		Project(p.ID()).
+		Schema(s2.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m2); err != nil {
+		return err
+	}
+
 	itm := item.New().ID(itmId).
 		Schema(s.ID()).
 		Model(m.ID()).
@@ -136,6 +165,19 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm); err != nil {
+		return err
+	}
+
+	itm2 := item.New().ID(itmId2).
+		Schema(s2.ID()).
+		Model(m2.ID()).
+		Project(p.ID()).
+		Thread(thId2).
+		Fields([]*item.Field{
+			item.NewField(fId3, value.TypeReference.Value(itmId).AsMultiple()),
+		}).
+		MustBuild()
+	if err := r.Item.Save(ctx, itm2); err != nil {
 		return err
 	}
 
@@ -232,6 +274,38 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusBadRequest)
+
+	r2 := e.POST("/api/models/{modelId}/items", mId2).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey3.String(),
+					"type":  "reference",
+					"value": itmId.String(),
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r2.
+		Value("fields").
+		Equal([]any{
+			map[string]string{
+				"id":    fId3.String(),
+				"type":  "reference",
+				"value": itmId.String(),
+				"key":   sfKey3.String(),
+			},
+		})
+	r2.Value("referencedItems").Array().First().Object().Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	raw := r2.Value("referencedItems").Array().First().Object().Raw()
+	raw["id"] = itmId.String()
+	raw["modelId"] = mId.String()
 }
 
 // POST /models/{modelId}/items
@@ -312,6 +386,38 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 				"key":   sfKey.String(),
 			},
 		})
+
+	r2 := e.POST("/api/models/{modelId}/items", mId2).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey3.String(),
+					"type":  "reference",
+					"value": itmId.String(),
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r2.
+		Value("fields").
+		Equal([]any{
+			map[string]string{
+				"id":    fId3.String(),
+				"type":  "reference",
+				"value": itmId.String(),
+				"key":   sfKey3.String(),
+			},
+		})
+	r2.Value("referencedItems").Array().First().Object().Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	raw := r2.Value("referencedItems").Array().First().Object().Raw()
+	raw["id"] = itmId.String()
+	raw["modelId"] = mId.String()
 }
 
 // PATCH /items/{itemId}
@@ -405,6 +511,38 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"key":   sfKey.String(),
 			},
 		})
+
+	r2 := e.POST("/api/models/{modelId}/items", mId2).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey3.String(),
+					"type":  "reference",
+					"value": itmId.String(),
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r2.
+		Value("fields").
+		Equal([]any{
+			map[string]string{
+				"id":    fId3.String(),
+				"type":  "reference",
+				"value": itmId.String(),
+				"key":   sfKey3.String(),
+			},
+		})
+	r2.Value("referencedItems").Array().First().Object().Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	raw := r2.Value("referencedItems").Array().First().Object().Raw()
+	raw["id"] = itmId.String()
+	raw["modelId"] = mId.String()
 }
 
 // GET /items/{itemId}
@@ -437,6 +575,38 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		JSON().
 		Object().Keys().
 		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+
+	r2 := e.POST("/api/models/{modelId}/items", mId2).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey3.String(),
+					"type":  "reference",
+					"value": itmId.String(),
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r2.
+		Value("fields").
+		Equal([]any{
+			map[string]string{
+				"id":    fId3.String(),
+				"type":  "reference",
+				"value": itmId.String(),
+				"key":   sfKey3.String(),
+			},
+		})
+	r2.Value("referencedItems").Array().First().Object().Keys().
+		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	raw := r2.Value("referencedItems").Array().First().Object().Raw()
+	raw["id"] = itmId.String()
+	raw["modelId"] = mId.String()
 }
 
 // DELETE /items/{itemId}
