@@ -3,6 +3,7 @@ package integrationapi
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -69,12 +70,16 @@ func NewSchema(i *schema.Schema) Schema {
 			Required: lo.ToPtr(f.Required()),
 		}
 	})
+	var tf *id.FieldID
+	if i.TitleField() != nil {
+		tf = i.TitleField().Ref()
+	}
 
 	return Schema{
 		Id:         i.ID().Ref(),
 		ProjectId:  i.Project().Ref(),
 		Fields:     &fs,
-		TitleField: i.TitleField().Ref(),
+		TitleField: tf,
 		CreatedAt:  lo.ToPtr(i.ID().Timestamp()),
 	}
 }
