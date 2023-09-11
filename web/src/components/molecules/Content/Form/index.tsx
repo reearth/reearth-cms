@@ -366,7 +366,7 @@ const ContentForm: React.FC<Props> = ({
         <FormItemsWrapper>
           {model?.schema.fields.map(field =>
             field.type === "TextArea" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -389,9 +389,9 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "MarkdownText" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -412,9 +412,9 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Integer" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -441,9 +441,9 @@ const ContentForm: React.FC<Props> = ({
                     max={field.typeProperty.max}
                   />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Asset" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -504,9 +504,9 @@ const ContentForm: React.FC<Props> = ({
                     setUploadModalVisibility={setUploadModalVisibility}
                   />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Select" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 name={field.id}
@@ -524,9 +524,9 @@ const ContentForm: React.FC<Props> = ({
                     ))}
                   </Select>
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Bool" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 name={field.id}
@@ -535,9 +535,9 @@ const ContentForm: React.FC<Props> = ({
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
                 {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Reference" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 name={field.id}
@@ -554,9 +554,9 @@ const ContentForm: React.FC<Props> = ({
                   linkItemModalPageSize={linkItemModalPageSize}
                   onLinkItemTableChange={onLinkItemTableChange}
                 />
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "URL" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 name={field.id}
@@ -595,9 +595,9 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -619,7 +619,7 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ),
           )}
         </FormItemsWrapper>
@@ -630,7 +630,7 @@ const ContentForm: React.FC<Props> = ({
           {model?.metadataSchema?.fields?.map(field =>
             field.type === "Tag" ? (
               <MetaFormItemWrapper key={field.id}>
-                <Form.Item
+                <StyledFormItem
                   extra={field.description}
                   name={field.id}
                   label={
@@ -669,11 +669,11 @@ const ContentForm: React.FC<Props> = ({
                       )}
                     </Select>
                   )}
-                </Form.Item>
+                </StyledFormItem>
               </MetaFormItemWrapper>
             ) : field.type === "Date" ? (
               <MetaFormItemWrapper key={field.id}>
-                <Form.Item
+                <StyledFormItem
                   extra={field.description}
                   rules={[
                     {
@@ -694,11 +694,11 @@ const ContentForm: React.FC<Props> = ({
                   ) : (
                     <StyledDatePicker onBlur={handleMetaUpdate} />
                   )}
-                </Form.Item>
+                </StyledFormItem>
               </MetaFormItemWrapper>
             ) : field.type === "Bool" ? (
               <MetaFormItemWrapper key={field.id}>
-                <Form.Item
+                <StyledFormItem
                   extra={field.description}
                   name={field.id}
                   valuePropName="checked"
@@ -714,11 +714,11 @@ const ContentForm: React.FC<Props> = ({
                   ) : (
                     <Switch onChange={handleMetaUpdate} />
                   )}
-                </Form.Item>
+                </StyledFormItem>
               </MetaFormItemWrapper>
             ) : field.type === "Checkbox" ? (
               <MetaFormItemWrapper key={field.id}>
-                <Form.Item
+                <StyledFormItem
                   extra={field.description}
                   name={field.id}
                   valuePropName="checked"
@@ -734,11 +734,11 @@ const ContentForm: React.FC<Props> = ({
                   ) : (
                     <Checkbox onChange={handleMetaUpdate} />
                   )}
-                </Form.Item>
+                </StyledFormItem>
               </MetaFormItemWrapper>
             ) : field.type === "URL" ? (
               <MetaFormItemWrapper key={field.id}>
-                <Form.Item
+                <StyledFormItem
                   extra={field.description}
                   name={field.id}
                   label={
@@ -790,11 +790,11 @@ const ContentForm: React.FC<Props> = ({
                       maxLength={field.typeProperty.maxLength ?? 500}
                     />
                   )}
-                </Form.Item>
+                </StyledFormItem>
               </MetaFormItemWrapper>
             ) : (
               <MetaFormItemWrapper key={field.id}>
-                <Form.Item
+                <StyledFormItem
                   extra={field.description}
                   rules={[
                     {
@@ -824,7 +824,7 @@ const ContentForm: React.FC<Props> = ({
                       maxLength={field.typeProperty.maxLength ?? 500}
                     />
                   )}
-                </Form.Item>
+                </StyledFormItem>
               </MetaFormItemWrapper>
             ),
           )}
@@ -866,6 +866,11 @@ const ContentForm: React.FC<Props> = ({
     </>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+  width: 500px;
+  word-wrap: break-word;
+`;
 
 const StyledForm = styled(Form)`
   padding: 16px;
