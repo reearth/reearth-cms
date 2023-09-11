@@ -176,10 +176,11 @@ func (i *Item) GetTitle(s *schema.Schema) *string {
 }
 
 type ItemModelSchema struct {
-	Item    *Item
-	Model   *model.Model
-	Schema  *schema.Schema
-	Changes FieldChanges
+	Item            *Item
+	ReferencedItems []Versioned
+	Model           *model.Model
+	Schema          *schema.Schema
+	Changes         FieldChanges
 }
 
 func (i *Item) SetMetadataItem(iid id.ItemID) {

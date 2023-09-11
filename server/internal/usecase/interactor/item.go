@@ -188,7 +188,7 @@ func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspond
 			if itmf == nil {
 				continue
 			}
-			vr, ok := itmf.Value().First().ValueReference() 
+			vr, ok := itmf.Value().First().ValueReference()
 			if ok && !vr.IsEmpty() {
 				return true, nil
 			}
@@ -291,9 +291,10 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			Type:      event.ItemCreate,
 			Object:    vi,
 			WebhookObject: item.ItemModelSchema{
-				Item:   vi.Value(),
-				Model:  m,
-				Schema: s,
+				Item:            vi.Value(),
+				Model:           m,
+				Schema:          s,
+				ReferencedItems: i.getReferencedItems(ctx, fields),
 			},
 			Operator: operator.Operator(),
 		}); err != nil {
@@ -431,10 +432,11 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			Type:      event.ItemUpdate,
 			Object:    itm,
 			WebhookObject: item.ItemModelSchema{
-				Item:    itv,
-				Model:   m,
-				Schema:  s,
-				Changes: item.CompareFields(newFields, oldFields),
+				Item:            itv,
+				Model:           m,
+				Schema:          s,
+				ReferencedItems: i.getReferencedItems(ctx, fields),
+				Changes:         item.CompareFields(newFields, oldFields),
 			},
 			Operator: operator.Operator(),
 		}); err != nil {
@@ -558,9 +560,10 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 				Type:      event.ItemUnpublish,
 				Object:    itm,
 				WebhookObject: item.ItemModelSchema{
-					Item:   itm.Value(),
-					Model:  m,
-					Schema: sch,
+					Item:            itm.Value(),
+					Model:           m,
+					Schema:          sch,
+					ReferencedItems: i.getReferencedItems(ctx, itm.Value().Fields()),
 				},
 				Operator: operator.Operator(),
 			}); err != nil {
@@ -620,9 +623,10 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 				Type:      event.ItemPublish,
 				Object:    itm,
 				WebhookObject: item.ItemModelSchema{
-					Item:   itm.Value(),
-					Model:  m,
-					Schema: sch,
+					Item:            itm.Value(),
+					Model:           m,
+					Schema:          sch,
+					ReferencedItems: i.getReferencedItems(ctx, itm.Value().Fields()),
 				},
 				Operator: operator.Operator(),
 			}); err != nil {
@@ -704,4 +708,25 @@ func (i Item) event(ctx context.Context, e Event) error {
 
 	_, err := createEvent(ctx, i.repos, i.gateways, e)
 	return err
+}
+
+func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) []item.Versioned {
+	var vil []item.Versioned
+	for _, f := range fields {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+		for _, v := range f.Value().Values() {
+			iid, ok := v.Value().(id.ItemID)
+			if !ok {
+				continue
+			}
+			ii, err := i.repos.Item.FindByID(ctx, iid, nil)
+			if err != nil {
+				continue
+			}
+			vil = append(vil, ii)
+		}
+	}
+	return vil
 }

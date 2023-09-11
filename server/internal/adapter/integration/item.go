@@ -10,6 +10,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
@@ -48,7 +50,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 
 	return ItemFilter200JSONResponse{
 		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
-			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset))
+			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))
 		})),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
@@ -98,7 +100,7 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 
 	return ItemFilterWithProject200JSONResponse{
 		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
-			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset))
+			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))
 		})),
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
@@ -143,7 +145,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, err
 	}
 
-	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil)), nil
+	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i))), nil
 }
 
 func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error) {
@@ -191,7 +193,7 @@ func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWit
 		return ItemCreateWithProject400Response{}, err
 	}
 
-	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil)), nil
+	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i))), nil
 }
 
 func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
@@ -232,7 +234,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate500Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset))), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), getReferencedItems(ctx, i))), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -273,7 +275,7 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return ItemGet500Response{}, err
 	}
 
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset))), nil
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))), nil
 }
 
 func assetContext(ctx context.Context, m asset.Map, asset *integrationapi.AssetEmbedding) *integrationapi.AssetContext {
@@ -300,4 +302,33 @@ func getAssetsFromItems(ctx context.Context, items item.VersionedList, ap *integ
 
 	res, err := uc.Asset.FindByIDs(ctx, assets, op)
 	return res.Map(), err
+}
+
+func getReferencedItems(ctx context.Context, i *version.Value[*item.Item]) *[]integrationapi.VersionedItem {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	if i == nil {
+		return nil
+	}
+
+	var vi []integrationapi.VersionedItem
+	for _, f := range i.Value().Fields() {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+		for _, v := range f.Value().Values() {
+			iid, ok := v.Value().(id.ItemID)
+			if !ok {
+				continue
+			}
+			ii, err := uc.Item.FindByID(ctx, iid, op)
+			if err != nil {
+				continue
+			}
+			vi = append(vi, integrationapi.NewVersionedItem(ii, nil, nil, nil))
+		}
+	}
+
+	return &vi
 }
