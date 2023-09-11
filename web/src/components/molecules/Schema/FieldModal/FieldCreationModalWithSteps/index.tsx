@@ -311,7 +311,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     required: true,
                     validator: async (_, value) => {
                       if (!validateKey(value)) return Promise.reject();
-                      const isKeyAvailable = handleFieldKeyUnique(value);
+                      const isKeyAvailable = handleFieldKeyUnique(
+                        value,
+                        isUpdate ? selectedField?.id : undefined,
+                      );
                       if (isKeyAvailable) {
                         return Promise.resolve();
                       } else {
