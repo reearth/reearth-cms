@@ -67,6 +67,14 @@ export const GET_ITEM_NODE = gql`
             name
           }
         }
+        updatedBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
         fields {
           schemaFieldId
           type

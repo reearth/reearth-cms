@@ -12,6 +12,8 @@ export type Item = {
   id: string;
   version: string;
   schemaId: string;
+  createdBy?: string;
+  updatedBy?: string;
   createdAt: Date;
   updatedAt: Date;
   status: ItemStatus;
