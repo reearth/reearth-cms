@@ -63,7 +63,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldReference
   | SchemaFieldURL
   | SchemaFieldCheckbox
-
+  | SchemaFieldComplex
 
 type SchemaFieldText {
   defaultValue: Any
@@ -133,6 +133,10 @@ type SchemaFieldURL {
 
 type SchemaFieldCheckbox {
   defaultValue: Any
+}
+
+type SchemaFieldComplex {
+  groupId: ID!
 }
 
 # Inputs

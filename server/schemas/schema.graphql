@@ -7,6 +7,25 @@ type Schema implements Node {
   project: Project!
 }
 
+type SchemaGroup implements Node {
+  id: ID!
+  schemaId: ID!
+  projectId: ID!
+  name: String!
+  description: String!
+  key: String!
+  fields: [SchemaField!]!
+}
+
+# inputs
+#input CreateSchemaGroupInput {
+#
+#}
 # extend type Query {}
 
-# extend type Mutation {}
+
+# extend type Mutation {
+#   createSchemaGroup(input: CreateSchemaGroupInput!): SchemaGroupPayload
+#   updateSchemaGroup(input: UpdateSchemaGroupInput!): SchemaGroupPayload
+#   deleteSchemaGroup(input: DeleteSchemaGroupInput!): DeleteSchemaGroupPayload
+# }
