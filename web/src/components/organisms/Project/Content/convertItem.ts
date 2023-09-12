@@ -12,6 +12,8 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
       value: field.value,
     })),
     status: GQLItem.status,
+    createdBy: GQLItem.createdBy?.name,
+    updatedBy: GQLItem.createdBy?.name,
     createdAt: GQLItem.createdAt,
     updatedAt: GQLItem.updatedAt,
     schemaId: GQLItem.schemaId,

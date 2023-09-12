@@ -49,13 +49,15 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
       "GEEKBLUE",
       "PURPLE",
     ];
-
+    colors.map((color: TagColor) => {
+      console.log(color);
+    });
     return colors.map((color: TagColor) => ({
-      key: color.toUpperCase(),
+      key: color,
       label: (
         <div onClick={() => handleColorChange(color, key)}>
-          <Tag color={color}>{t("Tag")}</Tag>
-          {t(color.charAt(0).toUpperCase() + color.slice(1))}
+          <Tag color={color.toLowerCase()}>{t("Tag")}</Tag>
+          {t(color.toLowerCase())}
         </div>
       ),
     }));
