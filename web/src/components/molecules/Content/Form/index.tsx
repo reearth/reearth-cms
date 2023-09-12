@@ -39,7 +39,6 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
-import { capitalizeFirstLetter } from "@reearth-cms/utils/stringUtils";
 
 export interface Props {
   item?: Item;
