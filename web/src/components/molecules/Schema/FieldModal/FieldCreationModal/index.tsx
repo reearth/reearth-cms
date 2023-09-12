@@ -155,7 +155,7 @@ const FieldCreationModal: React.FC<Props> = ({
       if (
         !selectedTags?.some(selectedTag => selectedTag.name === form.getFieldValue("defaultValue"))
       ) {
-        form.setFieldValue("defaultValue", null);
+        form.setFieldValue("defaultValue", []);
       }
     }
   }, [form, selectedTags, selectedType]);
