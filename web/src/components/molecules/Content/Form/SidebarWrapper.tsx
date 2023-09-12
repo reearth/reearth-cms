@@ -48,8 +48,16 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
               <DataText>{dateTimeFormat(item.createdAt)}</DataText>
             </DataRow>
             <DataRow>
+              <DataTitle>{t("Created By")}</DataTitle>
+              <DataText>{item.createdBy}</DataText>
+            </DataRow>
+            <DataRow>
               <DataTitle>{t("Updated At")}</DataTitle>
               <DataText>{dateTimeFormat(item.updatedAt)}</DataText>
+            </DataRow>
+            <DataRow>
+              <DataTitle>{t("Updated By")}</DataTitle>
+              <DataText>{item.updatedBy}</DataText>
             </DataRow>
           </SidebarCard>
           <SidebarCard title={t("Publish State")}>
