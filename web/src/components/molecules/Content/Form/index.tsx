@@ -39,7 +39,6 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
-import { capitalizeFirstLetter } from "@reearth-cms/utils/stringUtils";
 
 export interface Props {
   item?: Item;
@@ -649,7 +648,7 @@ const ContentForm: React.FC<Props> = ({
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
-                            <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+                            <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
                           </Select.Option>
                         ),
                       )}
@@ -663,7 +662,7 @@ const ContentForm: React.FC<Props> = ({
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
-                            <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+                            <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
                           </Select.Option>
                         ),
                       )}

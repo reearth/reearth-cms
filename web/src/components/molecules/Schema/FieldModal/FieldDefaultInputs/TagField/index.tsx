@@ -4,7 +4,6 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
-import { capitalizeFirstLetter } from "@reearth-cms/utils/stringUtils";
 
 export interface Props {
   selectedTags: { id: string; name: string; color: string }[];
@@ -20,7 +19,7 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
         <Select mode="multiple" showArrow style={{ width: "100%" }}>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
-              <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+              <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
             </Select.Option>
           ))}
         </Select>
@@ -28,7 +27,7 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
         <Select showArrow style={{ width: "100%" }} allowClear>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
-              <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+              <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
             </Select.Option>
           ))}
         </Select>
