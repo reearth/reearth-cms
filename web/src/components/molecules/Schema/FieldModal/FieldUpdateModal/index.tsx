@@ -148,7 +148,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       if (
         !selectedTags?.some(selectedTag => selectedTag.id === form.getFieldValue("defaultValue"))
       ) {
-        form.setFieldValue("defaultValue", null);
+        form.setFieldValue("defaultValue", []);
       }
     }
   }, [form, selectedTags, selectedType]);
