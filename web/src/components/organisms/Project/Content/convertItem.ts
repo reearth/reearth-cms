@@ -13,7 +13,7 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
     })),
     status: GQLItem.status,
     createdBy: GQLItem.createdBy?.name,
-    updatedBy: GQLItem.createdBy?.name,
+    updatedBy: GQLItem.updatedBy?.name,
     createdAt: GQLItem.createdAt,
     updatedAt: GQLItem.updatedAt,
     schemaId: GQLItem.schemaId,
