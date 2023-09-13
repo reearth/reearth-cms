@@ -629,7 +629,7 @@ const ContentForm: React.FC<Props> = ({
           {model?.metadataSchema?.fields?.map(field =>
             field.type === "Tag" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   name={field.id}
                   label={
@@ -668,11 +668,11 @@ const ContentForm: React.FC<Props> = ({
                       )}
                     </Select>
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "Date" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   rules={[
                     {
@@ -693,11 +693,11 @@ const ContentForm: React.FC<Props> = ({
                   ) : (
                     <StyledDatePicker onBlur={handleMetaUpdate} />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "Bool" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   name={field.id}
                   valuePropName="checked"
@@ -713,11 +713,11 @@ const ContentForm: React.FC<Props> = ({
                   ) : (
                     <Switch onChange={handleMetaUpdate} />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "Checkbox" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   name={field.id}
                   valuePropName="checked"
@@ -733,11 +733,11 @@ const ContentForm: React.FC<Props> = ({
                   ) : (
                     <Checkbox onChange={handleMetaUpdate} />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "URL" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   name={field.id}
                   label={
@@ -789,11 +789,11 @@ const ContentForm: React.FC<Props> = ({
                       maxLength={field.typeProperty.maxLength ?? 500}
                     />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   rules={[
                     {
@@ -823,7 +823,7 @@ const ContentForm: React.FC<Props> = ({
                       maxLength={field.typeProperty.maxLength ?? 500}
                     />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ),
           )}
