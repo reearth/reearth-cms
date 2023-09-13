@@ -89,10 +89,10 @@ const ReferenceFormItem: React.FC<Props> = ({
       <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
-      {linkItemModalTotalCount &&
-        linkItemModalPage &&
-        linkItemModalPageSize &&
-        onLinkItemTableChange && (
+      {!!linkItemModalTotalCount &&
+        !!linkItemModalPage &&
+        !!linkItemModalPageSize &&
+        !!onLinkItemTableChange && (
           <LinkItemModal
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}
