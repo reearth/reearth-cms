@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import React from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
@@ -16,13 +17,13 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>
       {multiple ? (
-        <Select mode="multiple" showArrow style={{ width: "100%" }}>
+        <StyledMultipleSelect mode="multiple" showArrow style={{ width: "100%" }}>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
             </Select.Option>
           ))}
-        </Select>
+        </StyledMultipleSelect>
       ) : (
         <Select showArrow style={{ width: "100%" }} allowClear>
           {selectedTags?.map(tag => (
@@ -35,5 +36,25 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
     </Form.Item>
   );
 };
+
+const StyledMultipleSelect = styled(Select)`
+  .ant-select-selection-overflow-item {
+    margin-right: 4px;
+  }
+  .ant-select-selection-item {
+    padding: 0;
+    margin-right: 0;
+    border: 0;
+  }
+  .ant-select-selection-item-content {
+    margin-right: 0;
+  }
+  .ant-select-selection-item-remove {
+    display: none;
+  }
+  .ant-tag {
+    margin-right: 0;
+  }
+`;
 
 export default TagField;
