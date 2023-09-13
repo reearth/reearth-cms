@@ -58,7 +58,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   }, [disabled, setVisible]);
 
   useEffect(() => {
-    const item = [...(linkedItemsModalList ?? []), ...(formItemsData ?? [])]?.find(
+    const item = [...(formItemsData ?? []), ...(linkedItemsModalList ?? [])]?.find(
       item => item.id === value,
     );
     setCurrentItem(item);
