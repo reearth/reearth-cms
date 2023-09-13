@@ -83,7 +83,7 @@ export default () => {
         variables: {
           itemIds: itemIds,
         },
-        refetchQueries: ["SearchItem", "GetItem"],
+        refetchQueries: ["SearchItem", "GetItem", "GetItemsByIds"],
       });
       if (item.errors || !item.data?.publishItem) {
         Notification.error({ message: t("Failed to publish items.") });
