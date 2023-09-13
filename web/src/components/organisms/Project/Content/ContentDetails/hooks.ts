@@ -373,7 +373,6 @@ export default () => {
         }
       });
     }
-    console.log(initialValues);
 
     return initialValues;
   }, [currentItem, currentModel?.metadataSchema?.fields]);

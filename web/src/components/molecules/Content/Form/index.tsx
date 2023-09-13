@@ -640,7 +640,7 @@ const ContentForm: React.FC<Props> = ({
                     />
                   }>
                   {field.multiple ? (
-                    <Select
+                    <StyledMultipleSelect
                       onBlur={handleMetaUpdate}
                       mode="multiple"
                       showArrow
@@ -652,7 +652,7 @@ const ContentForm: React.FC<Props> = ({
                           </Select.Option>
                         ),
                       )}
-                    </Select>
+                    </StyledMultipleSelect>
                   ) : (
                     <Select
                       onBlur={handleMetaUpdate}
@@ -909,6 +909,26 @@ const MetaFormItemWrapper = styled.div`
 
 const StyledDatePicker = styled(DatePicker)`
   width: 100%;
+`;
+
+const StyledMultipleSelect = styled(Select)`
+  .ant-select-selection-overflow-item {
+    margin-right: 4px;
+  }
+  .ant-select-selection-item {
+    padding: 0;
+    margin-right: 0;
+    border: 0;
+  }
+  .ant-select-selection-item-content {
+    margin-right: 0;
+  }
+  .ant-select-selection-item-remove {
+    display: none;
+  }
+  .ant-tag {
+    margin-right: 0;
+  }
 `;
 
 export default ContentForm;

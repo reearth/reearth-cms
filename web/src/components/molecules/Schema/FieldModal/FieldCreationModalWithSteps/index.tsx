@@ -128,7 +128,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     field1Form
       .validateFields()
       .then(async values => {
-        console.log("here");
         values.type = "Reference";
         values.typeProperty = {
           reference: {
@@ -160,8 +159,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   }, [currentStep]);
 
   const handleSecondField = useCallback(() => {
-    console.log("here 2");
-
     if (selectedField) {
       field2Form.validateFields().then(async fields2Values => {
         field1FormValues.typeProperty = {
@@ -173,7 +170,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             },
           },
         };
-        console.log({ ...field1FormValues, fieldId: selectedField.id });
         await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
         onClose?.(true);
       });
