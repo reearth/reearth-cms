@@ -14,18 +14,43 @@ type SchemaGroup implements Node {
   name: String!
   description: String!
   key: String!
+  schema: Schema!
+  project: Project!
   fields: [SchemaField!]!
 }
 
 # inputs
-#input CreateSchemaGroupInput {
-#
-#}
+input CreateSchemaGroupInput {
+  projectId: ID!
+  name: String
+  description: String
+  key: String
+}
+
+input UpdateSchemaGroupInput {
+  schemaGroupId: ID!
+  name: String
+  description: String
+  key: String
+}
+
+input DeleteSchemaGroupInput {
+  schemaGroupId: ID!
+}
+
+# Payloads
+type SchemaGroupPayload {
+  schemaGroup: SchemaGroup!
+}
+
+type DeleteSchemaGroupPayload {
+  schemaGroupId: ID!
+}
+
 # extend type Query {}
 
-
-# extend type Mutation {
-#   createSchemaGroup(input: CreateSchemaGroupInput!): SchemaGroupPayload
-#   updateSchemaGroup(input: UpdateSchemaGroupInput!): SchemaGroupPayload
-#   deleteSchemaGroup(input: DeleteSchemaGroupInput!): DeleteSchemaGroupPayload
-# }
+extend type Mutation {
+  createSchemaGroup(input: CreateSchemaGroupInput!): SchemaGroupPayload
+  updateSchemaGroup(input: UpdateSchemaGroupInput!): SchemaGroupPayload
+  deleteSchemaGroup(input: DeleteSchemaGroupInput!): DeleteSchemaGroupPayload
+}
