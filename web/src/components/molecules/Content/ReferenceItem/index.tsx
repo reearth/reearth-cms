@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 
 import { ItemStatus } from "../types";
 
@@ -15,8 +16,6 @@ type Props = {
   workspaceId?: string;
   projectId?: string;
 };
-type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
-type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
 
 const ReferenceItem: React.FC<Props> = ({
   value,
