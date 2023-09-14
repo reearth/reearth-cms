@@ -2,6 +2,8 @@ package interactor
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -92,6 +94,21 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 	// check if reference direction is two way
 	if fr.CorrespondingField() != nil {
 		mid2 := fr.Model()
+		if mid2 == param.ModelID {
+			fmt.Println("same model")
+			fr.SetCorrespondingSchema(s1.ID().Ref())
+			fields, err := schema.GetCorrespondingFields(s1, s1, param.ModelID, f1, fr)
+			if err != nil {
+				return err
+			}
+			s1.AddField(fields.Field2)
+	
+			if err := i.repos.Schema.Save(ctx, fields.Schema2); err != nil {
+				return err
+			}
+			return nil
+		}
+
 		m2, err := i.repos.Model.FindByID(ctx, mid2)
 		if err != nil {
 			return err
@@ -172,9 +189,15 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		if err != nil {
 			return err
 		}
-		s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
-		if err != nil {
-			return err
+		var s2 *schema.Schema
+		if(mId2 == param.ModelID) {
+			// same model
+			s2 = s1
+		} else {
+			s2, err = i.repos.Schema.FindByID(ctx, m2.Schema())
+			if err != nil {
+				return err
+			}
 		}
 
 		if !operator.IsMaintainingProject(s2.Project()) {
@@ -254,6 +277,9 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 			}
 
 			f := s.Field(fieldID)
+			if f == nil {
+				return interfaces.ErrFieldNotFound
+			}
 			if f.Type() == value.TypeReference {
 				err := i.deleteCorrespondingField(ctx, s, f, operator)
 				if err != nil {
@@ -285,10 +311,16 @@ func (i Schema) deleteCorrespondingField(ctx context.Context, s *schema.Schema, 
 		if err != nil {
 			return err
 		}
-
-		s2.RemoveField(*cfid)
-		if err := i.repos.Schema.Save(ctx, s2); err != nil {
-			return err
+		if s2.ID() == s.ID() {
+			s.RemoveField(*cfid)
+			if err := i.repos.Schema.Save(ctx, s); err != nil {
+				return err
+			}
+		} else {
+			s2.RemoveField(*cfid)
+			if err := i.repos.Schema.Save(ctx, s2); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
