@@ -143,6 +143,7 @@ export default () => {
           updateFieldInput: fields.map((field, index) => ({
             modelId,
             fieldId: field.id,
+            metadata: field.metadata,
             order: index,
           })),
         },
