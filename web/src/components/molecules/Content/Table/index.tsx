@@ -15,6 +15,7 @@ import {
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
+import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -126,8 +127,6 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "itemRequestState",
         key: "itemRequestState",
         render: (_, item) => {
-          type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
-          type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
           const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
           const itemStatus: StateType[] = item.status.split("_") as StateType[];
           return (
