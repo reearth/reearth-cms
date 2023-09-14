@@ -351,6 +351,7 @@ const FieldCreationModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
+              hidden={isMeta}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>
