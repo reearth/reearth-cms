@@ -52,7 +52,11 @@ const ModelFieldList: React.FC<Props> = ({
 
   const reorder = (list: Field[] | undefined, startIndex: number, endIndex: number) => {
     if (!list) return;
-    const result = Array.from(list);
+    let result = Array.from(list);
+    if (isMeta) {
+      result = result.map(field => ({ ...field, metadata: true }));
+    }
+
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
     onFieldReorder(result);
