@@ -58,6 +58,7 @@ const Schema: React.FC<Props> = ({
       children: (
         <div>
           <ModelFieldList
+            isMeta={true}
             fields={model?.metadataSchema?.fields}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
