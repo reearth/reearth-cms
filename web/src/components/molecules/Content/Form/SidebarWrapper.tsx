@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Tag from "@reearth-cms/components/atoms/Tag";
+import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { Item, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
 import { useT } from "@reearth-cms/i18n";
@@ -15,8 +16,6 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
   const t = useT();
 
   const getStatusBadge = (status: ItemStatus) => {
-    type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
-    type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
     const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
     const itemStatus: StateType[] = status.split("_") as StateType[];
     return (
