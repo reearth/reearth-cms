@@ -164,6 +164,17 @@ export const GET_MODELS = gql`
   }
 `;
 
+export const GET_MODEL_NODE = gql`
+  query GetModel($id: ID!) {
+    node(id: $id, type: Model) {
+      ... on Model {
+        id
+        schemaId
+      }
+    }
+  }
+`;
+
 export const CREATE_MODEL = gql`
   mutation CreateModel($projectId: ID!, $name: String, $description: String, $key: String) {
     createModel(
