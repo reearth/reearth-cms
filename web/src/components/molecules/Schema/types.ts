@@ -28,6 +28,7 @@ export type Field = {
   unique: boolean;
   multiple: boolean;
   isTitle: boolean;
+  metadata?: boolean;
   typeProperty?: TypeProperty;
 };
 
