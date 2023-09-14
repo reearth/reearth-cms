@@ -125,6 +125,7 @@ const ProjectSchema: React.FC = () => {
         <FieldUpdateModal
           fieldUpdateLoading={fieldUpdateLoading}
           selectedType={selectedType}
+          isMeta={isMeta}
           open={fieldUpdateModalShown}
           selectedField={selectedField}
           handleFieldKeyUnique={handleFieldKeyUnique}
