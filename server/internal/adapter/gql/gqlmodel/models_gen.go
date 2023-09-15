@@ -258,8 +258,9 @@ type DeleteCommentPayload struct {
 }
 
 type DeleteFieldInput struct {
-	ModelID ID `json:"modelId"`
-	FieldID ID `json:"fieldId"`
+	ModelID  ID    `json:"modelId"`
+	FieldID  ID    `json:"fieldId"`
+	Metadata *bool `json:"metadata,omitempty"`
 }
 
 type DeleteFieldPayload struct {
