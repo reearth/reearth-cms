@@ -122,7 +122,19 @@ func (r *mutationResolver) DeleteField(ctx context.Context, input gqlmodel.Delet
 		return nil, err
 	}
 
-	if err := usecases(ctx).Schema.DeleteField(ctx, m[0].Schema(), fid, getOperator(ctx)); err != nil {
+	var sid id.SchemaID
+	if input.Metadata != nil && *input.Metadata {
+		if m[0].Metadata() != nil {
+			ss, err := usecases(ctx).Schema.FindByID(ctx, *m[0].Metadata(), getOperator(ctx))
+			if err != nil {
+				return nil, err
+			}
+			sid = ss.ID()
+		}
+	} else {
+		sid = m[0].Schema()
+	}
+	if err := usecases(ctx).Schema.DeleteField(ctx, sid, fid, getOperator(ctx)); err != nil {
 		return nil, err
 	}
 
