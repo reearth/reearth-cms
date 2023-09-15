@@ -271,6 +271,7 @@ export type DeleteCommentPayload = {
 
 export type DeleteFieldInput = {
   fieldId: Scalars['ID'];
+  metadata?: InputMaybe<Scalars['Boolean']>;
   modelId: Scalars['ID'];
 };
 
@@ -1783,6 +1784,7 @@ export type UpdateFieldsMutation = { __typename?: 'Mutation', updateFields?: { _
 export type DeleteFieldMutationVariables = Exact<{
   modelId: Scalars['ID'];
   fieldId: Scalars['ID'];
+  metadata?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
@@ -3157,8 +3159,8 @@ export type UpdateFieldsMutationHookResult = ReturnType<typeof useUpdateFieldsMu
 export type UpdateFieldsMutationResult = Apollo.MutationResult<UpdateFieldsMutation>;
 export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
 export const DeleteFieldDocument = gql`
-    mutation DeleteField($modelId: ID!, $fieldId: ID!) {
-  deleteField(input: {modelId: $modelId, fieldId: $fieldId}) {
+    mutation DeleteField($modelId: ID!, $fieldId: ID!, $metadata: Boolean) {
+  deleteField(input: {modelId: $modelId, fieldId: $fieldId, metadata: $metadata}) {
     fieldId
   }
 }
@@ -3180,6 +3182,7 @@ export type DeleteFieldMutationFn = Apollo.MutationFunction<DeleteFieldMutation,
  *   variables: {
  *      modelId: // value for 'modelId'
  *      fieldId: // value for 'fieldId'
+ *      metadata: // value for 'metadata'
  *   },
  * });
  */
