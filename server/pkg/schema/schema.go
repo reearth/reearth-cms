@@ -90,6 +90,10 @@ func (s *Schema) TitleField() *FieldID {
 }
 
 func (s *Schema) SetTitleField(tf *FieldID) error {
+	if tf == nil {
+		s.titleField = nil
+		return nil
+	}
 	if !s.HasField(*tf) || s.Fields() == nil || len(s.Fields()) == 0 {
 		s.titleField = nil
 		return ErrInvalidTitleField
