@@ -91,17 +91,23 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 	// check if reference direction is two way
 	if fr.CorrespondingField() != nil {
 		mid2 := fr.Model()
-		m2, err := i.repos.Model.FindByID(ctx, mid2)
-		if err != nil {
-			return err
-		}
-		s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
-		if err != nil {
-			return err
-		}
+		var s2 *schema.Schema
+		// check self reference
+		if mid2 == param.ModelID {
+			s2 = s1
+		} else {
+			m2, err := i.repos.Model.FindByID(ctx, mid2)
+			if err != nil {
+				return err
+			}
+			s2, err = i.repos.Schema.FindByID(ctx, m2.Schema())
+			if err != nil {
+				return err
+			}
 
-		if !operator.IsMaintainingProject(s2.Project()) {
-			return interfaces.ErrOperationDenied
+			if !operator.IsMaintainingProject(s2.Project()) {
+				return interfaces.ErrOperationDenied
+			}
 		}
 
 		fr.SetCorrespondingSchema(s2.ID().Ref())
@@ -184,14 +190,20 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 	newFr, _ := schema.FieldReferenceFromTypeProperty(param.TypeProperty)
 	// check if reference direction is two way
 	if newFr.CorrespondingField() != nil {
-		mId2 := oldFr.Model()
-		m2, err := i.repos.Model.FindByID(ctx, mId2)
+		mid2 := oldFr.Model()
+		m2, err := i.repos.Model.FindByID(ctx, mid2)
 		if err != nil {
 			return err
 		}
-		s2, err := i.repos.Schema.FindByID(ctx, m2.Schema())
-		if err != nil {
-			return err
+		var s2 *schema.Schema
+		// check self reference
+		if mid2 == param.ModelID {
+			s2 = s1
+		} else {
+			s2, err = i.repos.Schema.FindByID(ctx, m2.Schema())
+			if err != nil {
+				return err
+			}
 		}
 
 		if !operator.IsMaintainingProject(s2.Project()) {
@@ -207,7 +219,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 				return interfaces.ErrFieldNotFound
 			}
 			if err := updateField(interfaces.UpdateFieldParam{
-				ModelID:     mId2,
+				ModelID:     mid2,
 				SchemaID:    m2.Schema(),
 				FieldID:     *cf1.FieldID,
 				Name:        cf1.Title,
@@ -271,6 +283,9 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 			}
 
 			f := s.Field(fieldID)
+			if f == nil {
+				return interfaces.ErrFieldNotFound
+			}
 			if f.Type() == value.TypeReference {
 				err := i.deleteCorrespondingField(ctx, s, f, operator)
 				if err != nil {
@@ -302,7 +317,10 @@ func (i Schema) deleteCorrespondingField(ctx context.Context, s *schema.Schema, 
 		if err != nil {
 			return err
 		}
-
+		// check self reference
+		if s2.ID() == s.ID() {
+			s2 = s
+		}
 		s2.RemoveField(*cfid)
 		if err := i.repos.Schema.Save(ctx, s2); err != nil {
 			return err
