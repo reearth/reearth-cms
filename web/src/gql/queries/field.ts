@@ -85,8 +85,8 @@ export const UPDATE_FIELDS = gql`
 `;
 
 export const DELETE_FIELD = gql`
-  mutation DeleteField($modelId: ID!, $fieldId: ID!) {
-    deleteField(input: { modelId: $modelId, fieldId: $fieldId }) {
+  mutation DeleteField($modelId: ID!, $fieldId: ID!, $metadata: Boolean) {
+    deleteField(input: { modelId: $modelId, fieldId: $fieldId, metadata: $metadata }) {
       fieldId
     }
   }

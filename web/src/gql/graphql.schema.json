@@ -2333,6 +2333,18 @@
             "deprecationReason": null
           },
           {
+            "name": "metadata",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "modelId",
             "description": null,
             "type": {
