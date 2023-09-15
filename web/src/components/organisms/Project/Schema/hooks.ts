@@ -81,14 +81,16 @@ export default () => {
   const handleFieldDelete = useCallback(
     async (fieldId: string) => {
       if (!modelId) return;
-      const results = await deleteFieldMutation({ variables: { modelId, fieldId } });
+      const results = await deleteFieldMutation({
+        variables: { modelId, fieldId, metadata: isMeta },
+      });
       if (results.errors) {
         Notification.error({ message: t("Failed to delete field.") });
         return;
       }
       Notification.success({ message: t("Successfully deleted field!") });
     },
-    [modelId, deleteFieldMutation, t],
+    [modelId, deleteFieldMutation, isMeta, t],
   );
 
   const handleFieldUpdate = useCallback(

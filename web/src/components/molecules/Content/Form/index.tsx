@@ -633,11 +633,7 @@ const ContentForm: React.FC<Props> = ({
                   extra={field.description}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <StyledMultipleSelect
@@ -682,11 +678,7 @@ const ContentForm: React.FC<Props> = ({
                   ]}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueField onBlur={handleMetaUpdate} FieldInput={StyledDatePicker} />
@@ -702,11 +694,7 @@ const ContentForm: React.FC<Props> = ({
                   name={field.id}
                   valuePropName="checked"
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Switch} />
@@ -722,11 +710,7 @@ const ContentForm: React.FC<Props> = ({
                   name={field.id}
                   valuePropName="checked"
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Checkbox} />
@@ -740,13 +724,7 @@ const ContentForm: React.FC<Props> = ({
                 <Form.Item
                   extra={field.description}
                   name={field.id}
-                  label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
-                  }
+                  label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}
                   rules={[
                     {
                       required: field.required,
@@ -803,11 +781,7 @@ const ContentForm: React.FC<Props> = ({
                   ]}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueField
