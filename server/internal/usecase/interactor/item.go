@@ -323,9 +323,14 @@ func (i Item) handleReferenceFieldsCreateOrUpdate(ctx context.Context, s *schema
 		if err != nil {
 			return err
 		}
-		s2, err := i.repos.Schema.FindByID(ctx, itm2.Value().Schema())
-		if err != nil {
-			return err
+		var s2 *schema.Schema
+		if itm2.Value().Schema() == s.ID() {
+			s2 = s
+		} else {
+			s2, err = i.repos.Schema.FindByID(ctx, itm2.Value().Schema())
+			if err != nil {
+				return err
+			}
 		}
 		fid1, fid2 := item.AreItemsReferenced(it, itm2.Value(), s, s2)
 		if fid1 == nil || fid2 == nil {
@@ -486,9 +491,14 @@ func (i Item) handleReferenceFieldsDelete(ctx context.Context, itm *version.Valu
 		if err != nil {
 			continue
 		}
-		s2, err := i.repos.Schema.FindByID(ctx, itm2.Value().Schema())
-		if err != nil {
-			continue
+		var s2 *schema.Schema
+		if itm2.Value().Schema() == s.ID() {
+			s2 = s
+		} else {
+			s2, err = i.repos.Schema.FindByID(ctx, itm2.Value().Schema())
+			if err != nil {
+				continue
+			}
 		}
 		fid1, fid2 := item.AreItemsReferenced(itm.Value(), itm2.Value(), s, s2)
 		if fid1 == nil || fid2 == nil {
