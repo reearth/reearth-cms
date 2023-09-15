@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -73,10 +74,8 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 
 		s1.AddField(f1)
 
-		if param.IsTitle {
-			if err := s1.SetTitleField(f1.ID().Ref()); err != nil {
-				return nil, err
-			}
+		if err := setTitleField(&param.IsTitle, s1, f1.ID().Ref()); err != nil {
+			return nil, err
 		}
 
 		if err := i.repos.Schema.Save(ctx, s1); err != nil {
@@ -148,10 +147,8 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 			return nil, err
 		}
 
-		if param.IsTitle != nil {
-			if err := s1.SetTitleField(f1.ID().Ref()); err != nil {
-				return nil, err
-			}
+		if err := setTitleField(param.IsTitle, s1, f1.ID().Ref()); err != nil {
+			return nil, err
 		}
 
 		if err := i.repos.Schema.Save(ctx, s1); err != nil {
@@ -160,6 +157,26 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 
 		return f1, nil
 	})
+}
+
+func setTitleField(isTitle *bool, s *schema.Schema, fid *id.FieldID) error {
+	if isTitle == nil || s == nil || fid == nil {
+		return nil
+	}
+
+	if *isTitle {
+		// Set title field if isTitle is true
+		if err := s.SetTitleField(fid.Ref()); err != nil {
+			return err
+		}
+	} else if s.TitleField() != nil && *s.TitleField() == *fid {
+		// Unset title field if isTitle is false and the current field is the title field
+		if err := s.SetTitleField(nil); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema, f1 *schema.Field, param interfaces.UpdateFieldParam, operator *usecase.Operator) error {
