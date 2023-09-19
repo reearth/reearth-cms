@@ -1,18 +1,19 @@
 ## data Types: string, number, boolean, date, reference, asset, group, groupField
 
-#string op: is, is not, contains, not contains
-#number op: is, is not, greater than, less than
-#boolean op: is, is not
-#date op: is, is not, after, before, of this week, of this month, of this year
+#basic op: equals, not equals
+#string op: contains, not contains
+#number op: greater than, less than, greater than or equal to, less than or equal to
+#boolean op: equals, not equals
+#date op: after, before, of this week, of this month, of this year
+#asset op: (use string op on asset name)
 #reference: not supported
-#asset: (like string)
 #group: not supported
 #groupField: not supported
 
 ## field options: nullable, multiple
 
-#nullabel: empty, not empty
-#multiple: includes any, not includes any, includes all, not includes all
+#nullabel op: empty, not empty
+#multiple op: includes any, not includes any, includes all, not includes all
 
 ## filtering strategy: both filed value and filter value can be multiple
 
