@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
@@ -15,6 +15,7 @@ export type Props = {
   collapsed?: boolean;
   model?: Model;
   modelsMenu?: JSX.Element;
+  setIsMeta?: (isMeta: boolean) => void;
   onCollapse?: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void> | void;
   onFieldUpdateModalOpen: (field: Field) => void;
@@ -28,6 +29,7 @@ const Schema: React.FC<Props> = ({
   collapsed,
   model,
   modelsMenu,
+  setIsMeta,
   onCollapse,
   onFieldReorder,
   onFieldUpdateModalOpen,
@@ -58,6 +60,7 @@ const Schema: React.FC<Props> = ({
       children: (
         <div>
           <ModelFieldList
+            isMeta={true}
             fields={model?.metadataSchema?.fields}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
@@ -68,9 +71,13 @@ const Schema: React.FC<Props> = ({
     },
   ];
 
-  const handleTabChange = (key: string) => {
-    setTab(key as Tab);
-  };
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setTab(key as Tab);
+      setIsMeta?.(key === "meta-data");
+    },
+    [setIsMeta],
+  );
 
   return (
     <ComplexInnerContents

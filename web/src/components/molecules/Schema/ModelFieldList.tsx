@@ -14,6 +14,7 @@ import { Field } from "./types";
 export interface Props {
   className?: string;
   fields?: Field[];
+  isMeta?: boolean;
   onFieldReorder: (data: Field[]) => Promise<void> | void;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
@@ -22,6 +23,7 @@ export interface Props {
 const ModelFieldList: React.FC<Props> = ({
   className,
   fields,
+  isMeta,
   onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
@@ -50,7 +52,11 @@ const ModelFieldList: React.FC<Props> = ({
 
   const reorder = (list: Field[] | undefined, startIndex: number, endIndex: number) => {
     if (!list) return;
-    const result = Array.from(list);
+    let result = Array.from(list);
+    if (isMeta) {
+      result = result.map(field => ({ ...field, metadata: true }));
+    }
+
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
     onFieldReorder(result);
@@ -63,50 +69,76 @@ const ModelFieldList: React.FC<Props> = ({
   };
 
   return (
-    <ReactDragListView
-      nodeSelector=".ant-list-item"
-      lineClassName="dragLine"
-      onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
-      <FieldStyledList className={className} itemLayout="horizontal">
-        {data?.map((item, index) => (
-          <List.Item
-            className="draggable-item"
-            key={index}
-            actions={[
-              <Icon
-                icon="delete"
-                onClick={() => handleFieldDeleteConfirmation((item as Field).id)}
-                key="delete"
-              />,
-              <Icon
-                icon="ellipsis"
-                onClick={() => handleFieldUpdateModalOpen(item as Field)}
-                key="edit"
-              />,
-            ]}>
+    <>
+      {isMeta && data && data.length > 0 && (
+        <FieldStyledList className={className} itemLayout="horizontal">
+          <List.Item key="entryInformation" actions={[<></>]}>
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <DragIcon icon="menu" className="grabbable" />
-                  <StyledIcon
-                    icon={fieldTypes[(item as Field).type].icon}
-                    color={fieldTypes[(item as Field).type].color}
-                  />
+                  <StyledIcon icon="terminalWindow" color="#40A9FF" />
                 </FieldThumbnail>
               }
-              title={
-                <ItemTitle>
-                  {(item as Field).title} {(item as Field).required ? " *" : ""}
-                  <ItemKey>#{(item as Field).key}</ItemKey>
-                  {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
-                  {(item as Field).isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
-                </ItemTitle>
-              }
+              title={<ItemTitle>{t("Entry Information")}</ItemTitle>}
             />
           </List.Item>
-        ))}
-      </FieldStyledList>
-    </ReactDragListView>
+          <List.Item key="publishStatus" actions={[<></>]}>
+            <List.Item.Meta
+              avatar={
+                <FieldThumbnail>
+                  <StyledIcon icon="LineSegments" color="#FF9C6E" />
+                </FieldThumbnail>
+              }
+              title={<ItemTitle>{t("Publish Status")}</ItemTitle>}
+            />
+          </List.Item>
+        </FieldStyledList>
+      )}
+      <ReactDragListView
+        nodeSelector=".ant-list-item"
+        lineClassName="dragLine"
+        onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
+        <FieldStyledList className={className} itemLayout="horizontal">
+          {data?.map((item, index) => (
+            <List.Item
+              className="draggable-item"
+              key={index}
+              actions={[
+                <Icon
+                  icon="delete"
+                  onClick={() => handleFieldDeleteConfirmation((item as Field).id)}
+                  key="delete"
+                />,
+                <Icon
+                  icon="ellipsis"
+                  onClick={() => handleFieldUpdateModalOpen(item as Field)}
+                  key="edit"
+                />,
+              ]}>
+              <List.Item.Meta
+                avatar={
+                  <FieldThumbnail>
+                    <DragIcon icon="menu" className="grabbable" />
+                    <StyledIcon
+                      icon={fieldTypes[(item as Field).type].icon}
+                      color={fieldTypes[(item as Field).type].color}
+                    />
+                  </FieldThumbnail>
+                }
+                title={
+                  <ItemTitle>
+                    {(item as Field).title} {(item as Field).required ? " *" : ""}
+                    <ItemKey>#{(item as Field).key}</ItemKey>
+                    {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
+                    {(item as Field).isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
+                  </ItemTitle>
+                }
+              />
+            </List.Item>
+          ))}
+        </FieldStyledList>
+      </ReactDragListView>
+    </>
   );
 };
 

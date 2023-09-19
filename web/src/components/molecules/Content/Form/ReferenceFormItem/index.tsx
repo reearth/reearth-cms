@@ -58,7 +58,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   }, [disabled, setVisible]);
 
   useEffect(() => {
-    const item = [...(linkedItemsModalList ?? []), ...(formItemsData ?? [])]?.find(
+    const item = [...(formItemsData ?? []), ...(linkedItemsModalList ?? [])]?.find(
       item => item.id === value,
     );
     setCurrentItem(item);
@@ -89,10 +89,10 @@ const ReferenceFormItem: React.FC<Props> = ({
       <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
-      {linkItemModalTotalCount &&
-        linkItemModalPage &&
-        linkItemModalPageSize &&
-        onLinkItemTableChange && (
+      {!!linkItemModalTotalCount &&
+        !!linkItemModalPage &&
+        !!linkItemModalPageSize &&
+        !!onLinkItemTableChange && (
           <LinkItemModal
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}

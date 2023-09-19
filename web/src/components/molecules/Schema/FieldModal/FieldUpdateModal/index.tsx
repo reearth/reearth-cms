@@ -45,6 +45,7 @@ export interface Props {
   open?: boolean;
   fieldUpdateLoading: boolean;
   selectedType: FieldType;
+  isMeta?: boolean;
   selectedField?: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
@@ -95,6 +96,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   onSubmit,
   handleFieldKeyUnique,
   selectedType,
+  isMeta,
   selectedField,
   assetList,
   fileList,
@@ -252,7 +254,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             url: { defaultValue: values.defaultValue },
           };
         }
-
+        values.metadata = isMeta;
         await onSubmit?.({
           ...values,
           fieldId: selectedField?.id,
@@ -262,7 +264,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit, selectedType, selectedField?.id]);
+  }, [form, selectedType, isMeta, onSubmit, selectedField?.id, onClose]);
 
   const handleModalReset = useCallback(() => {
     form.resetFields();
@@ -392,6 +394,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
+              hidden={isMeta}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>

@@ -42,6 +42,7 @@ const ProjectSchema: React.FC = () => {
   const {
     models,
     isMeta,
+    setIsMeta,
     fieldCreationModalShown,
     fieldUpdateModalShown,
     selectedField,
@@ -71,6 +72,7 @@ const ProjectSchema: React.FC = () => {
         modelsMenu={
           <ModelsMenu title={t("Schema")} collapsed={collapsed} onModelSelect={handleModelSelect} />
         }
+        setIsMeta={setIsMeta}
         onCollapse={collapse}
         onFieldUpdateModalOpen={handleFieldUpdateModalOpen}
         onFieldCreationModalOpen={handleFieldCreationModalOpen}
@@ -125,6 +127,7 @@ const ProjectSchema: React.FC = () => {
         <FieldUpdateModal
           fieldUpdateLoading={fieldUpdateLoading}
           selectedType={selectedType}
+          isMeta={isMeta}
           open={fieldUpdateModalShown}
           selectedField={selectedField}
           handleFieldKeyUnique={handleFieldKeyUnique}

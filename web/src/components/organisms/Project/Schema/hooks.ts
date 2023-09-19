@@ -24,7 +24,7 @@ export default () => {
   const [currentModel] = useModel();
 
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
-  const [isMeta, setIsMeta] = useState<boolean | undefined>();
+  const [isMeta, setIsMeta] = useState<boolean | undefined>(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
@@ -81,14 +81,16 @@ export default () => {
   const handleFieldDelete = useCallback(
     async (fieldId: string) => {
       if (!modelId) return;
-      const results = await deleteFieldMutation({ variables: { modelId, fieldId } });
+      const results = await deleteFieldMutation({
+        variables: { modelId, fieldId, metadata: isMeta },
+      });
       if (results.errors) {
         Notification.error({ message: t("Failed to delete field.") });
         return;
       }
       Notification.success({ message: t("Successfully deleted field!") });
     },
-    [modelId, deleteFieldMutation, t],
+    [modelId, deleteFieldMutation, isMeta, t],
   );
 
   const handleFieldUpdate = useCallback(
@@ -143,6 +145,7 @@ export default () => {
           updateFieldInput: fields.map((field, index) => ({
             modelId,
             fieldId: field.id,
+            metadata: field.metadata,
             order: index,
           })),
         },
@@ -198,10 +201,9 @@ export default () => {
   );
 
   const handleFieldCreationModalOpen = useCallback(
-    (fieldType: FieldType, meta?: boolean) => {
+    (fieldType: FieldType) => {
       setSelectedType(fieldType);
       if (modelId) setFieldCreationModalShown(true);
-      setIsMeta(meta);
     },
     [modelId],
   );
@@ -228,6 +230,7 @@ export default () => {
   return {
     models,
     isMeta,
+    setIsMeta,
     fieldCreationModalShown,
     fieldUpdateModalShown,
     selectedField,

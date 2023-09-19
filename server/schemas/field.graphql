@@ -270,6 +270,7 @@ input UpdateFieldInput {
 input DeleteFieldInput {
   modelId: ID!
   fieldId: ID!
+  metadata: Boolean
 }
 
 # Payloads

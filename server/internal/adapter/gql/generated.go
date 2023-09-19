@@ -5026,6 +5026,7 @@ input UpdateFieldInput {
 input DeleteFieldInput {
   modelId: ID!
   fieldId: ID!
+  metadata: Boolean
 }
 
 # Payloads
@@ -28932,7 +28933,7 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId"}
+	fieldsInOrder := [...]string{"modelId", "fieldId", "metadata"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -28957,6 +28958,15 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.FieldID = data
+		case "metadata":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metadata"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Metadata = data
 		}
 	}
 

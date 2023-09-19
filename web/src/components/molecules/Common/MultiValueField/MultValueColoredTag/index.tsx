@@ -49,9 +49,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
       "GEEKBLUE",
       "PURPLE",
     ];
-    colors.map((color: TagColor) => {
-      console.log(color);
-    });
+
     return colors.map((color: TagColor) => ({
       key: color,
       label: (

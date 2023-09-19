@@ -629,18 +629,14 @@ const ContentForm: React.FC<Props> = ({
           {model?.metadataSchema?.fields?.map(field =>
             field.type === "Tag" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
-                    <Select
+                    <StyledMultipleSelect
                       onBlur={handleMetaUpdate}
                       mode="multiple"
                       showArrow
@@ -652,7 +648,7 @@ const ContentForm: React.FC<Props> = ({
                           </Select.Option>
                         ),
                       )}
-                    </Select>
+                    </StyledMultipleSelect>
                   ) : (
                     <Select
                       onBlur={handleMetaUpdate}
@@ -668,11 +664,11 @@ const ContentForm: React.FC<Props> = ({
                       )}
                     </Select>
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "Date" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   rules={[
                     {
@@ -682,71 +678,53 @@ const ContentForm: React.FC<Props> = ({
                   ]}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueField onBlur={handleMetaUpdate} FieldInput={StyledDatePicker} />
                   ) : (
                     <StyledDatePicker onBlur={handleMetaUpdate} />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "Bool" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   name={field.id}
                   valuePropName="checked"
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Switch} />
                   ) : (
                     <Switch onChange={handleMetaUpdate} />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "Checkbox" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   name={field.id}
                   valuePropName="checked"
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Checkbox} />
                   ) : (
                     <Checkbox onChange={handleMetaUpdate} />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : field.type === "URL" ? (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   name={field.id}
-                  label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
-                  }
+                  label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}
                   rules={[
                     {
                       required: field.required,
@@ -789,11 +767,11 @@ const ContentForm: React.FC<Props> = ({
                       maxLength={field.typeProperty.maxLength ?? 500}
                     />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ) : (
               <MetaFormItemWrapper key={field.id}>
-                <StyledFormItem
+                <Form.Item
                   extra={field.description}
                   rules={[
                     {
@@ -803,11 +781,7 @@ const ContentForm: React.FC<Props> = ({
                   ]}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueField
@@ -823,7 +797,7 @@ const ContentForm: React.FC<Props> = ({
                       maxLength={field.typeProperty.maxLength ?? 500}
                     />
                   )}
-                </StyledFormItem>
+                </Form.Item>
               </MetaFormItemWrapper>
             ),
           )}
@@ -909,6 +883,26 @@ const MetaFormItemWrapper = styled.div`
 
 const StyledDatePicker = styled(DatePicker)`
   width: 100%;
+`;
+
+const StyledMultipleSelect = styled(Select)`
+  .ant-select-selection-overflow-item {
+    margin-right: 4px;
+  }
+  .ant-select-selection-item {
+    padding: 0;
+    margin-right: 0;
+    border: 0;
+  }
+  .ant-select-selection-item-content {
+    margin-right: 0;
+  }
+  .ant-select-selection-item-remove {
+    display: none;
+  }
+  .ant-tag {
+    margin-right: 0;
+  }
 `;
 
 export default ContentForm;
