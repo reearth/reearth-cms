@@ -48,81 +48,9 @@ enum ItemStatus {
   PUBLIC_DRAFT
 }
 
-enum BasicFieldType {
-  ID
-  CREATION_DATE
-  CREATION_USER
-  MODIFICATION_DATE
-  MODIFICATION_USER
-  STATUS
-
-  FIELD
-  META_FIELD
-}
-
-## data Types: string, number, boolean, date, reference, asset, group, groupField
-
-#string: is, is not, contains, not contains
-#number: is, is not, greater than, less than
-#boolean: is, is not
-#date: is, is not, after, before, of this week, of this month, of this year
-#reference: not supported
-#asset: (like string)
-#group: not supported
-#groupField: not supported
-
-## field options: nullable, multiple
-
-#nullabel: empty, not empty
-#multiple: includes any, not includes any, includes all, not includes all
-
-#ItemFiedls, Filter
-#  single    single
-#  multiple  single     (not supported)
-#  single    multiple   (not supported)
-#  multiple  multiple
-
-
-
-enum FilterOperator {
-  IS
-  IS_NOT
-  CONTAINS
-  NOT_CONTAINS
-  EMPTY
-  NOT_EMPTY
-
-  # for multiple value fields
-  INCLUDES_ANY
-  NOT_INCLUDES_ANY
-  INCLUDES_ALL
-  NOT_INCLUDES_ALL
-}
-
-type FieldSelector{
-  id: ID
-  type: BasicFieldType!
-}
-
-type ItemFilter {
-  field: FieldSelector!
-  op: FilterOperator!
-  value: Any
-}
-
 type ItemSort {
   field: FieldSelector!
   direction: SortDirection
-}
-
-type View implements Node {
-  id: ID!
-  name: String!
-  modelId: ID!
-  projectId: ID!
-  sort: ItemSort
-  filter: [ItemFilter!]
-  columns: [FieldSelector!]
 }
 
 # Inputs
@@ -158,22 +86,6 @@ input PublishItemInput {
   itemIds: [ID!]!
 }
 
-input FieldSelectorInput{
-  id: ID
-  type: BasicFieldType!
-}
-
-input ItemSortInput {
-  field: FieldSelectorInput!
-  direction: SortDirection
-}
-
-input ItemFilterInput {
-  field: FieldSelectorInput!
-  op: FilterOperator!
-  value: Any
-}
-
 input ItemQueryInput {
   project: ID!
   schema: ID
@@ -184,27 +96,8 @@ input ItemQueryInput {
 input SearchItemInput {
   query: ItemQueryInput!
   sort: ItemSortInput
-  filter: [ItemFilterInput!]
+  filter: ConditionInput
   pagination: Pagination
-}
-
-input CreateViewInput {
-  name: String!
-  sort: ItemSortInput
-  filter: [ItemFilterInput!]
-  columns: [FieldSelectorInput!]
-}
-
-input UpdateViewInput {
-  id: ID!
-  name: String
-  sort: ItemSortInput
-  filter: [ItemFilterInput!]
-  columns: [FieldSelectorInput!]
-}
-
-input DeleteViewInput {
-  id: ID!
 }
 
 # Payloads
@@ -236,20 +129,10 @@ type ItemEdge {
   node: Item
 }
 
-type ViewPayload {
-  view: View!
-}
-
-type DeleteViewPayload {
-  viewID: ID!
-}
-
 extend type Query {
   versionsByItem(itemId: ID!): [VersionedItem!]!
   searchItem(input: SearchItemInput): ItemConnection!
   isItemReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean!
-
-  view(modelId: ID!): [View!]!
 }
 
 extend type Mutation {
@@ -258,8 +141,4 @@ extend type Mutation {
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
-
-  createView(input: CreateViewInput!): ViewPayload
-  updateView(input: UpdateViewInput!): ViewPayload
-  deleteView(input: DeleteViewInput!): DeleteViewPayload
 }
