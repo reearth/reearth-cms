@@ -26,7 +26,6 @@ type TypeProperty struct {
 	number    *FieldNumber
 	reference *FieldReference
 	url       *FieldURL
-	group     *FieldGroup
 }
 
 type TypePropertyMatch struct {
@@ -44,7 +43,6 @@ type TypePropertyMatch struct {
 	Number    func(*FieldNumber)
 	Reference func(*FieldReference)
 	URL       func(*FieldURL)
-	Group     func(*FieldGroup)
 	Default   func()
 }
 
@@ -63,7 +61,6 @@ type TypePropertyMatch1[T any] struct {
 	Number    func(*FieldNumber) T
 	Reference func(*FieldReference) T
 	URL       func(*FieldURL) T
-	Group     func(*FieldGroup) T
 	Default   func() T
 }
 
@@ -115,9 +112,6 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		URL: func(f *FieldURL) error {
 			return f.Validate(v)
 		},
-		Group: func(f *FieldGroup) error {
-			return f.Validate(v)
-		},
 	})
 }
 
@@ -160,9 +154,6 @@ func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
 			return f.ValidateMultiple(v)
 		},
 		URL: func(f *FieldURL) error {
-			return f.ValidateMultiple(v)
-		},
-		Group: func(f *FieldGroup) error {
 			return f.ValidateMultiple(v)
 		},
 	})
