@@ -14,6 +14,7 @@ const TypeRichText Type = "richText"
 const TypeMarkdown Type = "markdown"
 const TypeSelect Type = "select"
 const TypeTag Type = "tag"
+const TypeGroup Type = "group"
 
 type propertyString struct{}
 
