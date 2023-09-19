@@ -63,7 +63,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldReference
   | SchemaFieldURL
   | SchemaFieldCheckbox
-  | SchemaFieldComplex
+  | SchemaFieldGroup
 
 type SchemaFieldText {
   defaultValue: Any
@@ -135,8 +135,8 @@ type SchemaFieldCheckbox {
   defaultValue: Any
 }
 
-type SchemaFieldComplex {
-  groupId: ID!
+type SchemaFieldGroup {
+  groupId: ID
 }
 
 # Inputs
@@ -217,6 +217,10 @@ input SchemaFieldURLInput {
   defaultValue: Any
 }
 
+input SchemaFieldGroupInput {
+  groupId: ID!
+}
+
 input SchemaFieldTypePropertyInput @onlyOne {
   text: SchemaFieldTextInput
   textArea: SchemaFieldTextAreaInput
@@ -231,6 +235,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   integer: SchemaFieldIntegerInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
+  group: SchemaFieldGroupInput
 }
 
 input CreateFieldInput {

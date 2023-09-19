@@ -25,19 +25,6 @@ type Item implements Node {
   title: String
 }
 
-type ItemGroup {
-  id: ID!
-  schemaGroupId: ID!
-  schemaId: ID!
-  modelId: ID!
-  projectId: ID!
-  schema: Schema!
-  schemaGroup: SchemaGroup!
-  model: Model!
-  project: Project!
-  fields: [ItemField!]!
-}
-
 union ItemEditor = User | Integration
 
 union ItemField = ItemValueField | ItemGroupField
@@ -49,10 +36,16 @@ type ItemValueField {
 }
 
 type ItemGroupField {
+  id: ID!
   groupId: ID!
-  schemaGroupId: ID!
-  group: ItemGroup!
-  schemaGroup: SchemaGroup!
+  schemaId: ID!
+  modelId: ID!
+  projectId: ID!
+  schema: Schema!
+  group: Group!
+  model: Model!
+  project: Project!
+  fields: [ItemField!]!
 }
 
 type VersionedItem {

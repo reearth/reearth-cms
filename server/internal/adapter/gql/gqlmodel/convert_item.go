@@ -29,13 +29,13 @@ func ToItem(vi item.Versioned, s *schema.Schema) *Item {
 		UpdatedByUserID:        IDFromRef(i.UpdatedByUser()),
 		CreatedAt:              i.ID().Timestamp(),
 		UpdatedAt:              i.Timestamp(),
-		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) *ItemField {
+		Fields: lo.Map(s.Fields(), func(sf *schema.Field, _ int) ItemField {
 			f := i.Field(sf.ID())
 			var v any = nil
 			if f != nil {
 				v = ToValue(f.Value(), sf.Multiple())
 			}
-			return &ItemField{
+			return &ItemValueField{
 				SchemaFieldID: IDFrom(sf.ID()),
 				Type:          ToValueType(sf.Type()),
 				Value:         v,
