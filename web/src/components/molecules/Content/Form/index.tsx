@@ -39,7 +39,6 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
-import { capitalizeFirstLetter } from "@reearth-cms/utils/stringUtils";
 
 export interface Props {
   item?: Item;
@@ -366,7 +365,7 @@ const ContentForm: React.FC<Props> = ({
         <FormItemsWrapper>
           {model?.schema.fields.map(field =>
             field.type === "TextArea" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -389,9 +388,9 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "MarkdownText" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -412,9 +411,9 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Integer" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -441,9 +440,9 @@ const ContentForm: React.FC<Props> = ({
                     max={field.typeProperty.max}
                   />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Asset" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -504,9 +503,9 @@ const ContentForm: React.FC<Props> = ({
                     setUploadModalVisibility={setUploadModalVisibility}
                   />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Select" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 name={field.id}
@@ -524,9 +523,9 @@ const ContentForm: React.FC<Props> = ({
                     ))}
                   </Select>
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Bool" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 name={field.id}
@@ -535,9 +534,9 @@ const ContentForm: React.FC<Props> = ({
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
                 {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "Reference" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 name={field.id}
@@ -554,9 +553,9 @@ const ContentForm: React.FC<Props> = ({
                   linkItemModalPageSize={linkItemModalPageSize}
                   onLinkItemTableChange={onLinkItemTableChange}
                 />
-              </Form.Item>
+              </StyledFormItem>
             ) : field.type === "URL" ? (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 name={field.id}
@@ -595,9 +594,9 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ) : (
-              <Form.Item
+              <StyledFormItem
                 key={field.id}
                 extra={field.description}
                 rules={[
@@ -619,7 +618,7 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
                 )}
-              </Form.Item>
+              </StyledFormItem>
             ),
           )}
         </FormItemsWrapper>
@@ -634,14 +633,10 @@ const ContentForm: React.FC<Props> = ({
                   extra={field.description}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
-                    <Select
+                    <StyledMultipleSelect
                       onBlur={handleMetaUpdate}
                       mode="multiple"
                       showArrow
@@ -649,11 +644,11 @@ const ContentForm: React.FC<Props> = ({
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
-                            <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+                            <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
                           </Select.Option>
                         ),
                       )}
-                    </Select>
+                    </StyledMultipleSelect>
                   ) : (
                     <Select
                       onBlur={handleMetaUpdate}
@@ -663,7 +658,7 @@ const ContentForm: React.FC<Props> = ({
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
-                            <Tag color={capitalizeFirstLetter(tag.color)}>{tag.name}</Tag>
+                            <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
                           </Select.Option>
                         ),
                       )}
@@ -683,11 +678,7 @@ const ContentForm: React.FC<Props> = ({
                   ]}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueField onBlur={handleMetaUpdate} FieldInput={StyledDatePicker} />
@@ -703,11 +694,7 @@ const ContentForm: React.FC<Props> = ({
                   name={field.id}
                   valuePropName="checked"
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Switch} />
@@ -723,11 +710,7 @@ const ContentForm: React.FC<Props> = ({
                   name={field.id}
                   valuePropName="checked"
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Checkbox} />
@@ -741,13 +724,7 @@ const ContentForm: React.FC<Props> = ({
                 <Form.Item
                   extra={field.description}
                   name={field.id}
-                  label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
-                  }
+                  label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}
                   rules={[
                     {
                       required: field.required,
@@ -804,11 +781,7 @@ const ContentForm: React.FC<Props> = ({
                   ]}
                   name={field.id}
                   label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
                     <MultiValueField
@@ -867,6 +840,11 @@ const ContentForm: React.FC<Props> = ({
   );
 };
 
+const StyledFormItem = styled(Form.Item)`
+  width: 500px;
+  word-wrap: break-word;
+`;
+
 const StyledForm = styled(Form)`
   padding: 16px;
   width: 100%;
@@ -905,6 +883,26 @@ const MetaFormItemWrapper = styled.div`
 
 const StyledDatePicker = styled(DatePicker)`
   width: 100%;
+`;
+
+const StyledMultipleSelect = styled(Select)`
+  .ant-select-selection-overflow-item {
+    margin-right: 4px;
+  }
+  .ant-select-selection-item {
+    padding: 0;
+    margin-right: 0;
+    border: 0;
+  }
+  .ant-select-selection-item-content {
+    margin-right: 0;
+  }
+  .ant-select-selection-item-remove {
+    display: none;
+  }
+  .ant-tag {
+    margin-right: 0;
+  }
 `;
 
 export default ContentForm;

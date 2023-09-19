@@ -13,7 +13,7 @@ import { Tab } from ".";
 export interface Props {
   className?: string;
   currentTab?: Tab;
-  addField: (fieldType: FieldType, meta?: boolean) => void;
+  addField: (fieldType: FieldType) => void;
 }
 
 type FieldListItem = { title: string; fields: string[] };
@@ -65,7 +65,6 @@ const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
     [t],
   );
 
-  const isMeta = useMemo(() => currentTab === "meta-data", [currentTab]);
   const dataSource = useMemo(
     () => (currentTab === "meta-data" ? meta : data),
     [currentTab, meta, data],
@@ -81,7 +80,7 @@ const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
           <>
             <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>
             {(item as FieldListItem).fields?.map((field: string) => (
-              <List.Item key={field} onClick={() => addField(field as FieldType, isMeta)}>
+              <List.Item key={field} onClick={() => addField(field as FieldType)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}

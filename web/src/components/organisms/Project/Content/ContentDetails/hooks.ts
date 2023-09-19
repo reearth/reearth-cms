@@ -13,17 +13,20 @@ import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/convertItem";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
+import { convertModel } from "@reearth-cms/components/organisms/Project/ModelsMenu/convertModel";
 import {
   Item as GQLItem,
+  Model as GQLModel,
   RequestState as GQLRequestState,
   SchemaFieldType,
   useCreateItemMutation,
   useCreateRequestMutation,
   useGetItemQuery,
+  useGetModelQuery,
   useGetMeQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
-  useGetItemsQuery,
+  useSearchItemQuery,
   useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
@@ -56,7 +59,7 @@ export default () => {
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
-  const [refernceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
+  const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
 
   useEffect(() => {
     setLinkItemModalPage(+linkItemModalPage);
@@ -70,16 +73,25 @@ export default () => {
     skip: !itemId,
   });
 
-  const { data: itemsData } = useGetItemsQuery({
+  const { data: modelData } = useGetModelQuery({
+    fetchPolicy: "no-cache",
+    variables: { id: referenceModelId ?? "" },
+    skip: !referenceModelId,
+  });
+  const model = useMemo(() => convertModel(modelData?.node as GQLModel), [modelData?.node]);
+  const { data: itemsData } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
-      modelId: refernceModelId ?? "",
+      query: {
+        project: currentProject?.id as string,
+        schema: model?.schemaId ?? "",
+      },
       pagination: {
         first: linkItemModalPageSize,
         offset: (linkItemModalPage - 1) * linkItemModalPageSize,
       },
     },
-    skip: !refernceModelId,
+    skip: !currentProject?.id,
   });
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
@@ -88,7 +100,7 @@ export default () => {
   }, []);
 
   const linkedItemsModalList: FormItem[] | undefined = useMemo(() => {
-    return itemsData?.items.nodes
+    return itemsData?.searchItem.nodes
       ?.map(item =>
         item
           ? {
@@ -102,7 +114,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is FormItem => !!contentTableField);
-  }, [itemsData?.items.nodes]);
+  }, [itemsData?.searchItem.nodes]);
 
   const me: User | undefined = useMemo(() => {
     return userData?.me
@@ -373,7 +385,6 @@ export default () => {
         }
       });
     }
-    console.log(initialValues);
 
     return initialValues;
   }, [currentItem, currentModel?.metadataSchema?.fields]);
@@ -481,7 +492,7 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTotalCount: itemsData?.items.totalCount || 0,
+    linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,

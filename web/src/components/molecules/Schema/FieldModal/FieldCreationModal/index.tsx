@@ -136,7 +136,7 @@ const FieldCreationModal: React.FC<Props> = ({
     if (selectedType === "Asset" || selectedType === "Select") {
       form.setFieldValue("defaultValue", null);
     } else if (selectedType === "Bool" || selectedType === "Checkbox") {
-      form.setFieldValue("defaultValue", false);
+      form.setFieldValue("defaultValue", []);
     }
   }, [form, selectedType, multipleValue]);
 
@@ -155,7 +155,7 @@ const FieldCreationModal: React.FC<Props> = ({
       if (
         !selectedTags?.some(selectedTag => selectedTag.name === form.getFieldValue("defaultValue"))
       ) {
-        form.setFieldValue("defaultValue", null);
+        form.setFieldValue("defaultValue", []);
       }
     }
   }, [form, selectedTags, selectedType]);
@@ -194,6 +194,7 @@ const FieldCreationModal: React.FC<Props> = ({
             },
           };
         } else if (selectedType === "Bool") {
+          console.log(values.defaultValue);
           values.typeProperty = {
             bool: { defaultValue: values.defaultValue },
           };
@@ -206,6 +207,7 @@ const FieldCreationModal: React.FC<Props> = ({
             tag: { defaultValue: values.defaultValue, tags: values.tags },
           };
         } else if (selectedType === "Checkbox") {
+          console.log(values.defaultValue);
           values.typeProperty = {
             checkbox: { defaultValue: values.defaultValue },
           };
@@ -351,6 +353,7 @@ const FieldCreationModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
+              hidden={isMeta}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>

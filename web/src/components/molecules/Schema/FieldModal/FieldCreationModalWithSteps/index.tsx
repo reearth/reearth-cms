@@ -128,7 +128,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     field1Form
       .validateFields()
       .then(async values => {
-        console.log("here");
         values.type = "Reference";
         values.typeProperty = {
           reference: {
@@ -160,8 +159,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   }, [currentStep]);
 
   const handleSecondField = useCallback(() => {
-    console.log("here 2");
-
     if (selectedField) {
       field2Form.validateFields().then(async fields2Values => {
         field1FormValues.typeProperty = {
@@ -173,7 +170,6 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             },
           },
         };
-        console.log({ ...field1FormValues, fieldId: selectedField.id });
         await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
         onClose?.(true);
       });
@@ -311,7 +307,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     required: true,
                     validator: async (_, value) => {
                       if (!validateKey(value)) return Promise.reject();
-                      const isKeyAvailable = handleFieldKeyUnique(value);
+                      const isKeyAvailable = handleFieldKeyUnique(
+                        value,
+                        isUpdate ? selectedField?.id : undefined,
+                      );
                       if (isKeyAvailable) {
                         return Promise.resolve();
                       } else {

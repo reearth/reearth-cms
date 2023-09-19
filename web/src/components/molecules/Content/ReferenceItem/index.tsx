@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 
 import { ItemStatus } from "../types";
 
@@ -24,6 +25,9 @@ const ReferenceItem: React.FC<Props> = ({
   projectId,
   workspaceId,
 }) => {
+  const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
+  const itemStatus: StateType[] = useMemo(() => status?.split("_") as StateType[], [status]);
+
   const linkTo = useMemo(
     () =>
       workspaceId && projectId && modelId
@@ -44,17 +48,11 @@ const ReferenceItem: React.FC<Props> = ({
           <ReferenceItemName>{value}</ReferenceItemName>
         )}
       </Tooltip>
-      <Badge
-        color={
-          status === "PUBLIC"
-            ? "#52C41A"
-            : status === "REVIEW"
-            ? "#F5222D"
-            : status === "DRAFT"
-            ? "#BFBFBF"
-            : ""
-        }
-      />
+      <div>
+        {itemStatus?.map((state, index) => (
+          <StyledBadge key={index} color={stateColors[state] as ColorType} />
+        ))}
+      </div>
     </StyledReferenceItem>
   );
 };
@@ -77,6 +75,12 @@ const StyledReferenceItem = styled.div`
 const ReferenceItemName = styled.p`
   margin: 0;
   color: #1890ff;
+`;
+
+const StyledBadge = styled(Badge)`
+  + * {
+    margin-left: 4px;
+  }
 `;
 
 export default ReferenceItem;
