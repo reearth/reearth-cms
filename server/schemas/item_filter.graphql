@@ -109,11 +109,6 @@ enum BoolOperator {
 }
 
 enum StringOperator {
-  EQUALS
-  NOT_EQUALS
-  EMPTY
-  NOT_EMPTY
-
   CONTAINS
   NOT_CONTAINS
   STARTS_WITH
@@ -123,11 +118,6 @@ enum StringOperator {
 }
 
 enum NumberOperator {
-  EQUALS
-  NOT_EQUALS
-  EMPTY
-  NOT_EMPTY
-
   GREATER_THAN
   LESS_THAN
   GREATER_THAN_OR_EQUAL_TO
