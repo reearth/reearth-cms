@@ -28,6 +28,7 @@ const ModelsMenu: React.FC<Props> = ({
   const {
     model,
     models,
+    group,
     groups,
     modelModalShown,
     groupModalShown,
@@ -38,6 +39,7 @@ const ModelsMenu: React.FC<Props> = ({
     handleGroupModalOpen,
     handleGroupModalClose,
     handleModelCreate,
+    handleGroupCreate,
     handleModelKeyCheck,
     handleGroupKeyCheck,
   } = useHooks({
@@ -66,7 +68,7 @@ const ModelsMenu: React.FC<Props> = ({
           className={className}
           title={title}
           collapsed={collapsed}
-          selectedKey={model?.id}
+          selectedKey={group?.id}
           groups={groups}
           onGroupSelect={onGroupSelect}
           onModalOpen={handleGroupModalOpen}
@@ -74,7 +76,7 @@ const ModelsMenu: React.FC<Props> = ({
           open={groupModalShown}
           onGroupKeyCheck={handleGroupKeyCheck}
           onClose={handleGroupModalClose}
-          onCreate={handleModelCreate}
+          onCreate={handleGroupCreate}
         />
       )}
     </>

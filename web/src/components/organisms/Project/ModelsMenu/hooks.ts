@@ -28,9 +28,6 @@ export default ({ modelId }: Params) => {
   const [modelModalShown, setModelModalShown] = useState(false);
   const [isModelKeyAvailable, setIsModelKeyAvailable] = useState(false);
 
-  const [groupModalShown, setGroupModalShown] = useState(false);
-  const [isGroupKeyAvailable, _setIsGroupKeyAvailable] = useState(false);
-
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
@@ -44,10 +41,6 @@ export default ({ modelId }: Params) => {
     },
     [projectId, CheckModelKeyAvailability],
   );
-
-  const handleGroupKeyCheck = useCallback(async (_key: string, _ignoredKey?: string) => {
-    return false;
-  }, []);
 
   useEffect(() => {
     setIsModelKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
@@ -63,17 +56,6 @@ export default ({ modelId }: Params) => {
       ?.map<Model | undefined>(model => (model ? fromGraphQLModel(model as GQLModel) : undefined))
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
-
-  const groups = useMemo(() => {
-    return [
-      {
-        id: "group1",
-        name: "group1",
-        key: "group1",
-        description: "Group 1 description",
-      },
-    ];
-  }, []);
 
   const rawModel = useMemo(
     () => data?.models.nodes?.find(node => node?.id === modelId),
@@ -120,12 +102,42 @@ export default ({ modelId }: Params) => {
   const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
+  // Group hooks
+  const [groupModalShown, setGroupModalShown] = useState(false);
+  const [isGroupKeyAvailable, _setIsGroupKeyAvailable] = useState(false);
+
+  const groups = useMemo(() => {
+    return [
+      {
+        id: "group1",
+        name: "group1",
+        key: "group1",
+        description: "Group 1 description",
+      },
+    ];
+  }, []);
+
+  const group = useMemo(() => {
+    return groups[0];
+  }, [groups]);
+
   const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
 
+  const handleGroupKeyCheck = useCallback(async (_key: string, _ignoredKey?: string) => {
+    return false;
+  }, []);
+
+  const handleGroupCreate = useCallback(
+    async (data: { name: string; description: string; key: string }) => {
+      console.log(data);
+    },
+    [],
+  );
   return {
     model,
     models,
+    group,
     groups,
     modelModalShown,
     groupModalShown,
@@ -133,10 +145,11 @@ export default ({ modelId }: Params) => {
     isGroupKeyAvailable,
     handleModelModalOpen,
     handleModelModalClose,
-    handleGroupModalOpen,
-    handleGroupModalClose,
     handleModelCreate,
     handleModelKeyCheck,
+    handleGroupModalOpen,
+    handleGroupModalClose,
+    handleGroupCreate,
     handleGroupKeyCheck,
   };
 };
