@@ -5,9 +5,12 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -192,4 +195,60 @@ func TestItem_Integration(t *testing.T) {
 	i1 := New().NewID().Integration(iid).Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	assert.Equal(t, &iid, i1.Integration())
+}
+
+func TestItem_SetUpdatedByIntegration(t *testing.T) {
+	uid := accountdomain.NewUserID()
+	iid := id.NewIntegrationID()
+	itm := &Item{
+		updatedByUser: uid.Ref(),
+	}
+	itm.SetUpdatedByIntegration(iid)
+	assert.Equal(t, iid.Ref(), itm.UpdatedByIntegration())
+	assert.Nil(t, itm.UpdatedByUser())
+}
+
+func TestItem_SetUpdatedByUser(t *testing.T) {
+	uid := accountdomain.NewUserID()
+	iid := id.NewIntegrationID()
+	itm := &Item{
+		updatedByIntegration: iid.Ref(),
+	}
+	itm.SetUpdatedByUser(uid)
+	assert.Equal(t, uid.Ref(), itm.UpdatedByUser())
+	assert.Nil(t, itm.UpdatedByIntegration())
+}
+
+func TestItem_SetMetadataItem(t *testing.T) {
+	mid := NewID()
+	itm := &Item{}
+	itm.SetMetadataItem(mid)
+	assert.Equal(t, mid.Ref(), itm.MetadataItem())
+}
+
+func TestItem_GetTitle(t *testing.T) {
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
+	if1 := NewField(sf1.ID(), value.TypeBool.Value(false).AsMultiple())
+	if2 := NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple())
+	i1 := New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Fields([]*Field{if1, if2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	// schema is nil
+	title := i1.GetTitle(nil)
+	assert.Nil(t, title)
+	// schema is not nil but no title field
+	title = i1.GetTitle(s1)
+	assert.Nil(t, title)
+	// invalid type
+	err := s1.SetTitleField(sf1.ID().Ref())
+	assert.NoError(t, err)
+	title = i1.GetTitle(s1)
+	assert.Nil(t, title)
+	// test title
+	err = s1.SetTitleField(sf2.ID().Ref())
+	assert.NoError(t, err)
+	title = i1.GetTitle(s1)
+	assert.Equal(t, "test", *title)
 }

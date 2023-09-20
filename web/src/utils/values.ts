@@ -2,6 +2,7 @@ import { Maybe, Model } from "@reearth-cms/gql/graphql-client-api";
 
 export const fromGraphQLModel = (model: Maybe<Model>) => {
   if (!model) return;
+
   return {
     id: model.id,
     description: model.description,
@@ -17,6 +18,22 @@ export const fromGraphQLModel = (model: Maybe<Model>) => {
         type: field.type,
         key: field.key,
         unique: field.unique,
+        isTitle: field.isTitle,
+        multiple: field.multiple,
+        required: field.required,
+        typeProperty: field.typeProperty,
+      })),
+    },
+    metadataSchema: {
+      id: model.metadataSchema?.id,
+      fields: model.metadataSchema?.fields.map(field => ({
+        id: field.id,
+        description: field.description,
+        title: field.title,
+        type: field.type,
+        key: field.key,
+        unique: field.unique,
+        isTitle: field.isTitle,
         multiple: field.multiple,
         required: field.required,
         typeProperty: field.typeProperty,

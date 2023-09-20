@@ -55,13 +55,15 @@ models:
         resolver: true
       model:
         resolver: true
-      user:
+      createdBy:
         resolver: true
-      integration:
+      metadata:
         resolver: true
       status:
         resolver: true
       assets:
+        resolver: true
+      updatedBy:
         resolver: true
   Model:
     fields:
@@ -69,9 +71,13 @@ models:
         resolver: true
       schema:
         resolver: true
+      metadataSchema:
+        resolver: true
   Schema:
     fields:
       project:
+        resolver: true
+      titleField:
         resolver: true
   Request:
     fields:
@@ -92,6 +98,12 @@ models:
   SchemaField:
     fields:
       model:
+        resolver: true
+  SchemaFieldReference:
+    fields:
+      correspondingField:
+        resolver: true
+      correspondingSchema:
         resolver: true
   Asset:
     fields:

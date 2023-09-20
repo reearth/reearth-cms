@@ -5,10 +5,12 @@ export const CREATE_FIELD = gql`
     $modelId: ID!
     $type: SchemaFieldType!
     $title: String!
+    $metadata: Boolean
     $description: String
     $key: String!
     $multiple: Boolean!
     $unique: Boolean!
+    $isTitle: Boolean!
     $required: Boolean!
     $typeProperty: SchemaFieldTypePropertyInput!
   ) {
@@ -17,10 +19,12 @@ export const CREATE_FIELD = gql`
         modelId: $modelId
         type: $type
         title: $title
+        metadata: $metadata
         description: $description
         key: $key
         multiple: $multiple
         unique: $unique
+        isTitle: $isTitle
         required: $required
         typeProperty: $typeProperty
       }
@@ -37,11 +41,13 @@ export const UPDATE_FIELD = gql`
     $modelId: ID!
     $fieldId: ID!
     $title: String!
+    $metadata: Boolean
     $description: String
     $order: Int
     $key: String!
     $multiple: Boolean!
     $unique: Boolean!
+    $isTitle: Boolean!
     $required: Boolean!
     $typeProperty: SchemaFieldTypePropertyInput!
   ) {
@@ -50,11 +56,13 @@ export const UPDATE_FIELD = gql`
         modelId: $modelId
         fieldId: $fieldId
         title: $title
+        metadata: $metadata
         description: $description
         order: $order
         key: $key
         multiple: $multiple
         unique: $unique
+        isTitle: $isTitle
         required: $required
         typeProperty: $typeProperty
       }
@@ -77,8 +85,8 @@ export const UPDATE_FIELDS = gql`
 `;
 
 export const DELETE_FIELD = gql`
-  mutation DeleteField($modelId: ID!, $fieldId: ID!) {
-    deleteField(input: { modelId: $modelId, fieldId: $fieldId }) {
+  mutation DeleteField($modelId: ID!, $fieldId: ID!, $metadata: Boolean) {
+    deleteField(input: { modelId: $modelId, fieldId: $fieldId, metadata: $metadata }) {
       fieldId
     }
   }

@@ -229,10 +229,11 @@ type RefOrVersionRef string
 
 // Schema defines model for schema.
 type Schema struct {
-	CreatedAt *time.Time     `json:"createdAt,omitempty"`
-	Fields    *[]SchemaField `json:"fields,omitempty"`
-	Id        *id.SchemaID   `json:"id,omitempty"`
-	ProjectId *id.ProjectID  `json:"projectId,omitempty"`
+	TitleField *id.FieldID    `json:"TitleField,omitempty"`
+	CreatedAt  *time.Time     `json:"createdAt,omitempty"`
+	Fields     *[]SchemaField `json:"fields,omitempty"`
+	Id         *id.SchemaID   `json:"id,omitempty"`
+	ProjectId  *id.ProjectID  `json:"projectId,omitempty"`
 }
 
 // SchemaField defines model for schemaField.
@@ -255,14 +256,15 @@ type Version struct {
 
 // VersionedItem defines model for versionedItem.
 type VersionedItem struct {
-	CreatedAt *time.Time            `json:"createdAt,omitempty"`
-	Fields    *[]Field              `json:"fields,omitempty"`
-	Id        *id.ItemID            `json:"id,omitempty"`
-	ModelId   *string               `json:"modelId,omitempty"`
-	Parents   *[]openapi_types.UUID `json:"parents,omitempty"`
-	Refs      *[]string             `json:"refs,omitempty"`
-	UpdatedAt *time.Time            `json:"updatedAt,omitempty"`
-	Version   *openapi_types.UUID   `json:"version,omitempty"`
+	CreatedAt       *time.Time            `json:"createdAt,omitempty"`
+	Fields          *[]Field              `json:"fields,omitempty"`
+	Id              *id.ItemID            `json:"id,omitempty"`
+	ModelId         *string               `json:"modelId,omitempty"`
+	Parents         *[]openapi_types.UUID `json:"parents,omitempty"`
+	ReferencedItems *[]VersionedItem      `json:"referencedItems,omitempty"`
+	Refs            *[]string             `json:"refs,omitempty"`
+	UpdatedAt       *time.Time            `json:"updatedAt,omitempty"`
+	Version         *openapi_types.UUID   `json:"version,omitempty"`
 }
 
 // AssetIdParam defines model for assetIdParam.

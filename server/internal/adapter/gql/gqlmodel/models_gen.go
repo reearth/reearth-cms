@@ -14,6 +14,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+type ItemEditor interface {
+	IsItemEditor()
+}
+
 type Node interface {
 	IsNode()
 	GetID() ID
@@ -123,6 +127,14 @@ type CommentPayload struct {
 	Comment *Comment `json:"comment"`
 }
 
+type CorrespondingFieldInput struct {
+	FieldID     *ID     `json:"fieldId,omitempty"`
+	Title       *string `json:"title,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Required    *bool   `json:"required,omitempty"`
+}
+
 type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
 	File              *graphql.Upload `json:"file,omitempty"`
@@ -150,11 +162,13 @@ type CreateFieldInput struct {
 	ModelID      ID                            `json:"modelId"`
 	Type         SchemaFieldType               `json:"type"`
 	Title        string                        `json:"title"`
+	Metadata     *bool                         `json:"metadata,omitempty"`
 	Description  *string                       `json:"description,omitempty"`
 	Key          string                        `json:"key"`
 	Multiple     bool                          `json:"multiple"`
 	Unique       bool                          `json:"unique"`
 	Required     bool                          `json:"required"`
+	IsTitle      bool                          `json:"isTitle"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
 }
 
@@ -166,9 +180,10 @@ type CreateIntegrationInput struct {
 }
 
 type CreateItemInput struct {
-	SchemaID ID                `json:"schemaId"`
-	ModelID  ID                `json:"modelId"`
-	Fields   []*ItemFieldInput `json:"fields"`
+	SchemaID   ID                `json:"schemaId"`
+	ModelID    ID                `json:"modelId"`
+	MetadataID *ID               `json:"metadataId,omitempty"`
+	Fields     []*ItemFieldInput `json:"fields"`
 }
 
 type CreateModelInput struct {
@@ -243,8 +258,9 @@ type DeleteCommentPayload struct {
 }
 
 type DeleteFieldInput struct {
-	ModelID ID `json:"modelId"`
-	FieldID ID `json:"fieldId"`
+	ModelID  ID    `json:"modelId"`
+	FieldID  ID    `json:"fieldId"`
+	Metadata *bool `json:"metadata,omitempty"`
 }
 
 type DeleteFieldPayload struct {
@@ -340,6 +356,8 @@ type Integration struct {
 
 func (Integration) IsOperator() {}
 
+func (Integration) IsItemEditor() {}
+
 func (Integration) IsNode()        {}
 func (this Integration) GetID() ID { return this.ID }
 
@@ -353,25 +371,30 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID            ID           `json:"id"`
-	SchemaID      ID           `json:"schemaId"`
-	ThreadID      ID           `json:"threadId"`
-	ModelID       ID           `json:"modelId"`
-	ProjectID     ID           `json:"projectId"`
-	IntegrationID *ID          `json:"integrationId,omitempty"`
-	UserID        *ID          `json:"userId,omitempty"`
-	Integration   *Integration `json:"integration,omitempty"`
-	User          *User        `json:"user,omitempty"`
-	Schema        *Schema      `json:"schema"`
-	Model         *Model       `json:"model"`
-	Status        ItemStatus   `json:"status"`
-	Project       *Project     `json:"project"`
-	Thread        *Thread      `json:"thread"`
-	Fields        []*ItemField `json:"fields"`
-	Assets        []*Asset     `json:"assets"`
-	CreatedAt     time.Time    `json:"createdAt"`
-	UpdatedAt     time.Time    `json:"updatedAt"`
-	Version       string       `json:"version"`
+	ID                     ID           `json:"id"`
+	SchemaID               ID           `json:"schemaId"`
+	ThreadID               ID           `json:"threadId"`
+	ModelID                ID           `json:"modelId"`
+	ProjectID              ID           `json:"projectId"`
+	IntegrationID          *ID          `json:"integrationId,omitempty"`
+	UpdatedByUserID        *ID          `json:"updatedByUserId,omitempty"`
+	UpdatedByIntegrationID *ID          `json:"updatedByIntegrationId,omitempty"`
+	UserID                 *ID          `json:"userId,omitempty"`
+	MetadataID             *ID          `json:"metadataId,omitempty"`
+	CreatedBy              ItemEditor   `json:"createdBy,omitempty"`
+	Schema                 *Schema      `json:"schema"`
+	Model                  *Model       `json:"model"`
+	Status                 ItemStatus   `json:"status"`
+	Project                *Project     `json:"project"`
+	Thread                 *Thread      `json:"thread"`
+	Fields                 []*ItemField `json:"fields"`
+	Assets                 []*Asset     `json:"assets"`
+	CreatedAt              time.Time    `json:"createdAt"`
+	UpdatedAt              time.Time    `json:"updatedAt"`
+	UpdatedBy              ItemEditor   `json:"updatedBy,omitempty"`
+	Version                string       `json:"version"`
+	Metadata               *Item        `json:"metadata,omitempty"`
+	Title                  *string      `json:"title,omitempty"`
 }
 
 func (Item) IsNode()        {}
@@ -440,17 +463,19 @@ type MemberInput struct {
 }
 
 type Model struct {
-	ID          ID        `json:"id"`
-	ProjectID   ID        `json:"projectId"`
-	SchemaID    ID        `json:"schemaId"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Key         string    `json:"key"`
-	Project     *Project  `json:"project"`
-	Schema      *Schema   `json:"schema"`
-	Public      bool      `json:"public"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID               ID        `json:"id"`
+	ProjectID        ID        `json:"projectId"`
+	SchemaID         ID        `json:"schemaId"`
+	MetadataSchemaID *ID       `json:"metadataSchemaId,omitempty"`
+	Name             string    `json:"name"`
+	Description      string    `json:"description"`
+	Key              string    `json:"key"`
+	Project          *Project  `json:"project"`
+	Schema           *Schema   `json:"schema"`
+	MetadataSchema   *Schema   `json:"metadataSchema,omitempty"`
+	Public           bool      `json:"public"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
 }
 
 func (Model) IsNode()        {}
@@ -618,10 +643,12 @@ type RequestPayload struct {
 }
 
 type Schema struct {
-	ID        ID             `json:"id"`
-	ProjectID ID             `json:"projectId"`
-	Fields    []*SchemaField `json:"fields"`
-	Project   *Project       `json:"project"`
+	ID           ID             `json:"id"`
+	ProjectID    ID             `json:"projectId"`
+	Fields       []*SchemaField `json:"fields"`
+	TitleFieldID *ID            `json:"titleFieldId,omitempty"`
+	TitleField   *SchemaField   `json:"titleField,omitempty"`
+	Project      *Project       `json:"project"`
 }
 
 func (Schema) IsNode()        {}
@@ -640,6 +667,7 @@ type SchemaField struct {
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
 	Required     bool                    `json:"required"`
+	IsTitle      bool                    `json:"isTitle"`
 	CreatedAt    time.Time               `json:"createdAt"`
 	UpdatedAt    time.Time               `json:"updatedAt"`
 }
@@ -706,13 +734,19 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID ID `json:"modelId"`
+	ModelID               ID           `json:"modelId"`
+	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
+	CorrespondingSchema   *Schema      `json:"correspondingSchema,omitempty"`
+	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
+	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID ID `json:"modelId"`
+	ModelID               ID                       `json:"modelId"`
+	CorrespondingSchemaID *ID                      `json:"correspondingSchemaId,omitempty"`
+	CorrespondingField    *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
@@ -740,15 +774,27 @@ type SchemaFieldSelectInput struct {
 }
 
 type SchemaFieldTag struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Tags         []*SchemaFieldTagValue `json:"tags"`
+	DefaultValue interface{}            `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTagInput struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Tags         []*SchemaFieldTagValueInput `json:"tags"`
+	DefaultValue interface{}                 `json:"defaultValue,omitempty"`
+}
+
+type SchemaFieldTagValue struct {
+	ID    ID                  `json:"id"`
+	Name  string              `json:"name"`
+	Color SchemaFieldTagColor `json:"color"`
+}
+
+type SchemaFieldTagValueInput struct {
+	ID    *ID                  `json:"id,omitempty"`
+	Name  *string              `json:"name,omitempty"`
+	Color *SchemaFieldTagColor `json:"color,omitempty"`
 }
 
 type SchemaFieldText struct {
@@ -851,10 +897,12 @@ type UpdateFieldInput struct {
 	Title        *string                       `json:"title,omitempty"`
 	Description  *string                       `json:"description,omitempty"`
 	Order        *int                          `json:"order,omitempty"`
+	Metadata     *bool                         `json:"metadata,omitempty"`
 	Key          *string                       `json:"key,omitempty"`
 	Required     *bool                         `json:"required,omitempty"`
 	Unique       *bool                         `json:"unique,omitempty"`
 	Multiple     *bool                         `json:"multiple,omitempty"`
+	IsTitle      *bool                         `json:"isTitle,omitempty"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty,omitempty"`
 }
 
@@ -872,9 +920,10 @@ type UpdateIntegrationOfWorkspaceInput struct {
 }
 
 type UpdateItemInput struct {
-	ItemID  ID                `json:"itemId"`
-	Fields  []*ItemFieldInput `json:"fields"`
-	Version *string           `json:"version,omitempty"`
+	ItemID     ID                `json:"itemId"`
+	MetadataID *ID               `json:"metadataId,omitempty"`
+	Fields     []*ItemFieldInput `json:"fields"`
+	Version    *string           `json:"version,omitempty"`
 }
 
 type UpdateMeInput struct {
@@ -960,6 +1009,8 @@ func (User) IsOperator() {}
 
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
+
+func (User) IsItemEditor() {}
 
 type VersionedItem struct {
 	Version string   `json:"version"`
@@ -1530,6 +1581,65 @@ func (e *Role) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Role) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type SchemaFieldTagColor string
+
+const (
+	SchemaFieldTagColorMagenta  SchemaFieldTagColor = "MAGENTA"
+	SchemaFieldTagColorRed      SchemaFieldTagColor = "RED"
+	SchemaFieldTagColorVolcano  SchemaFieldTagColor = "VOLCANO"
+	SchemaFieldTagColorOrange   SchemaFieldTagColor = "ORANGE"
+	SchemaFieldTagColorGold     SchemaFieldTagColor = "GOLD"
+	SchemaFieldTagColorLime     SchemaFieldTagColor = "LIME"
+	SchemaFieldTagColorGreen    SchemaFieldTagColor = "GREEN"
+	SchemaFieldTagColorCyan     SchemaFieldTagColor = "CYAN"
+	SchemaFieldTagColorBlue     SchemaFieldTagColor = "BLUE"
+	SchemaFieldTagColorGeekblue SchemaFieldTagColor = "GEEKBLUE"
+	SchemaFieldTagColorPurple   SchemaFieldTagColor = "PURPLE"
+)
+
+var AllSchemaFieldTagColor = []SchemaFieldTagColor{
+	SchemaFieldTagColorMagenta,
+	SchemaFieldTagColorRed,
+	SchemaFieldTagColorVolcano,
+	SchemaFieldTagColorOrange,
+	SchemaFieldTagColorGold,
+	SchemaFieldTagColorLime,
+	SchemaFieldTagColorGreen,
+	SchemaFieldTagColorCyan,
+	SchemaFieldTagColorBlue,
+	SchemaFieldTagColorGeekblue,
+	SchemaFieldTagColorPurple,
+}
+
+func (e SchemaFieldTagColor) IsValid() bool {
+	switch e {
+	case SchemaFieldTagColorMagenta, SchemaFieldTagColorRed, SchemaFieldTagColorVolcano, SchemaFieldTagColorOrange, SchemaFieldTagColorGold, SchemaFieldTagColorLime, SchemaFieldTagColorGreen, SchemaFieldTagColorCyan, SchemaFieldTagColorBlue, SchemaFieldTagColorGeekblue, SchemaFieldTagColorPurple:
+		return true
+	}
+	return false
+}
+
+func (e SchemaFieldTagColor) String() string {
+	return string(e)
+}
+
+func (e *SchemaFieldTagColor) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SchemaFieldTagColor(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SchemaFieldTagColor", str)
+	}
+	return nil
+}
+
+func (e SchemaFieldTagColor) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

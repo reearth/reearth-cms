@@ -12,9 +12,28 @@ export type Item = {
   id: string;
   version: string;
   schemaId: string;
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  status: ItemStatus;
   fields: ItemField[] | undefined | null;
+  metadata: {
+    id?: string;
+    fields: ItemField[] | undefined | null;
+  };
   threadId: string;
   comments: Comment[];
+};
+
+export type FormItem = {
+  id: string;
+  title: string;
+  schemaId: string;
+  author?: string;
+  status: ItemStatus;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type ContentTableField = {

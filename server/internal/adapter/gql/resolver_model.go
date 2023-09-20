@@ -2,7 +2,6 @@ package gql
 
 import (
 	"context"
-
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 )
 
@@ -11,6 +10,13 @@ func (r *Resolver) Model() ModelResolver {
 }
 
 type modelResolver struct{ *Resolver }
+
+func (m modelResolver) MetadataSchema(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Schema, error) {
+	if obj.MetadataSchemaID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).Schema.Load(*obj.MetadataSchemaID)
+}
 
 func (m modelResolver) Project(ctx context.Context, obj *gqlmodel.Model) (*gqlmodel.Project, error) {
 	return dataloaders(ctx).Project.Load(obj.ProjectID)

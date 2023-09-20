@@ -4,7 +4,13 @@ export type Model = {
   description?: string;
   key: string;
   schema: Schema;
+  metadataSchema?: MetaDataSchema;
   public: boolean;
+};
+
+export type MetaDataSchema = {
+  id?: string;
+  fields?: Field[];
 };
 
 export type Schema = {
@@ -21,6 +27,8 @@ export type Field = {
   required: boolean;
   unique: boolean;
   multiple: boolean;
+  isTitle: boolean;
+  metadata?: boolean;
   typeProperty?: TypeProperty;
 };
 
@@ -36,6 +44,7 @@ export type FieldType =
   | "Tag"
   | "Integer"
   | "Reference"
+  | "Checkbox"
   | "URL";
 
 export type TypeProperty =
@@ -47,6 +56,8 @@ export type TypeProperty =
       integerDefaultValue?: number;
       min?: number;
       max?: number;
+      correspondingField?: any;
+      modelId?: string;
     }
   | any;
 
@@ -58,6 +69,10 @@ export type CreationFieldTypePropertyInput = {
   text?: { defaultValue: string; maxLength: number };
   textArea?: { defaultValue: string; maxLength: number };
   url?: { defaultValue: string };
+  reference?: {
+    modelId: string;
+    correspondingField: any;
+  };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";

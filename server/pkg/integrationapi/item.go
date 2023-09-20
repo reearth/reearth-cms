@@ -9,7 +9,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext) VersionedItem {
+func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext, f *[]VersionedItem) VersionedItem {
 	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
 		return types.UUID(v)
 	})
@@ -19,14 +19,15 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 
 	ii := NewItem(ver.Value(), s, assets)
 	return VersionedItem{
-		Id:        ii.Id,
-		CreatedAt: ii.CreatedAt,
-		UpdatedAt: ii.UpdatedAt,
-		Fields:    ii.Fields,
-		ModelId:   ii.ModelId,
-		Parents:   &ps,
-		Refs:      &rs,
-		Version:   lo.ToPtr(types.UUID(ver.Version())),
+		Id:              ii.Id,
+		CreatedAt:       ii.CreatedAt,
+		UpdatedAt:       ii.UpdatedAt,
+		Fields:          ii.Fields,
+		ModelId:         ii.ModelId,
+		Parents:         &ps,
+		Refs:            &rs,
+		Version:         lo.ToPtr(types.UUID(ver.Version())),
+		ReferencedItems: f,
 	}
 }
 

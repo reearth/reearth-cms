@@ -1,17 +1,22 @@
 package schema
 
 import (
+	"errors"
+
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
+var ErrInvalidTitleField = errors.New("title field must be one of schema fields")
+
 type Schema struct {
-	id        ID
-	project   ProjectID
-	workspace accountdomain.WorkspaceID
-	fields    []*Field
+	id         ID
+	project    ProjectID
+	workspace  accountdomain.WorkspaceID
+	fields     []*Field
+	titleField *FieldID
 }
 
 func (s *Schema) ID() ID {
@@ -77,15 +82,36 @@ func (s *Schema) RemoveField(fid FieldID) {
 	}
 }
 
+func (s *Schema) TitleField() *FieldID {
+	if s.Fields() == nil || len(s.Fields()) == 0 {
+		return nil
+	}
+	return s.titleField.CloneRef()
+}
+
+func (s *Schema) SetTitleField(tf *FieldID) error {
+	if tf == nil {
+		s.titleField = nil
+		return nil
+	}
+	if !s.HasField(*tf) || s.Fields() == nil || len(s.Fields()) == 0 {
+		s.titleField = nil
+		return ErrInvalidTitleField
+	}
+	s.titleField = tf.CloneRef()
+	return nil
+}
+
 func (s *Schema) Clone() *Schema {
 	if s == nil {
 		return nil
 	}
 
 	return &Schema{
-		id:        s.ID(),
-		project:   s.Project().Clone(),
-		workspace: s.Workspace().Clone(),
-		fields:    slices.Clone(s.fields),
+		id:         s.ID(),
+		project:    s.Project().Clone(),
+		workspace:  s.Workspace().Clone(),
+		fields:     slices.Clone(s.fields),
+		titleField: s.TitleField().CloneRef(),
 	}
 }

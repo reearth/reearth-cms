@@ -106,7 +106,7 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              author: item.user?.name ?? item.integration?.name,
+              author: item.createdBy?.name,
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
@@ -125,6 +125,8 @@ export default () => {
                               (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)
                                 ?.url,
                             )
+                        : field.type === "Reference"
+                        ? item?.title || field.value
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value

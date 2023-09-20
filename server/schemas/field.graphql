@@ -14,6 +14,21 @@ enum SchemaFieldType {
   URL
 }
 
+enum SchemaFieldTagColor {
+  MAGENTA
+  RED
+  VOLCANO
+  ORANGE
+  GOLD
+  LIME
+  GREEN
+  CYAN
+  BLUE
+  GEEKBLUE
+  PURPLE
+}
+
+
 type SchemaField {
   id: ID!
   modelId: ID!
@@ -28,6 +43,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -87,8 +103,14 @@ type SchemaFieldSelect {
 }
 
 type SchemaFieldTag {
-  values: [String!]!
+  tags: [SchemaFieldTagValue!]!
   defaultValue: Any
+}
+
+type SchemaFieldTagValue {
+  id: ID!
+  name: String!
+  color: SchemaFieldTagColor!
 }
 
 type SchemaFieldInteger {
@@ -99,6 +121,10 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  correspondingSchemaId: ID
+  correspondingSchema: Schema
+  correspondingFieldId: ID
+  correspondingField: SchemaField
 }
 
 type SchemaFieldURL {
@@ -153,8 +179,14 @@ input SchemaFieldSelectInput {
 }
 
 input SchemaFieldTagInput {
-  values: [String!]!
+  tags: [SchemaFieldTagValueInput!]!
   defaultValue: Any
+}
+
+input SchemaFieldTagValueInput {
+  id: ID
+  name: String
+  color: SchemaFieldTagColor
 }
 
 input SchemaFieldIntegerInput {
@@ -163,8 +195,18 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input CorrespondingFieldInput {
+  fieldId: ID
+  title: String
+  key: String
+  description: String
+  required: Boolean
+} 
+
 input SchemaFieldReferenceInput {
   modelId: ID!
+  correspondingSchemaId: ID
+  correspondingField: CorrespondingFieldInput
 }
 
 input SchemaFieldURLInput {
@@ -191,11 +233,13 @@ input CreateFieldInput {
   modelId: ID!
   type: SchemaFieldType!
   title: String!
+  metadata: Boolean
   description: String
   key: String!
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
@@ -205,16 +249,19 @@ input UpdateFieldInput {
   title: String
   description: String
   order: Int
+  metadata: Boolean
   key: String
   required: Boolean
   unique: Boolean
   multiple: Boolean
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
 input DeleteFieldInput {
   modelId: ID!
   fieldId: ID!
+  metadata: Boolean
 }
 
 # Payloads

@@ -3,19 +3,22 @@ import { gql } from "@apollo/client";
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_ITEMS = gql`
-  query GetItems($schemaId: ID!, $pagination: Pagination) {
-    items(schemaId: $schemaId, pagination: $pagination) {
+  query GetItems($modelId: ID!, $pagination: Pagination) {
+    items(modelId: $modelId, pagination: $pagination) {
       nodes {
         id
+        title
         schemaId
         createdAt
         updatedAt
         status
-        user {
-          name
-        }
-        integration {
-          name
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
         fields {
           schemaFieldId
@@ -25,7 +28,16 @@ export const GET_ITEMS = gql`
         thread {
           ...threadFragment
         }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            type
+            value
+          }
+        }
       }
+      totalCount
     }
   }
 
@@ -37,6 +49,7 @@ export const GET_ITEM_NODE = gql`
     node(id: $id, type: Item) {
       ... on Item {
         id
+        title
         schemaId
         createdAt
         updatedAt
@@ -46,20 +59,59 @@ export const GET_ITEM_NODE = gql`
           id
           url
         }
-        user {
-          name
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
-        integration {
-          name
+        updatedBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
         fields {
           schemaFieldId
           type
           value
         }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            type
+            value
+          }
+        }
         thread {
           ...threadFragment
         }
+      }
+    }
+  }
+`;
+
+export const IS_ITEM_REFERENCED = gql`
+  query IsItemReferenced($itemId: ID!, $correspondingFieldId: ID!) {
+    isItemReferenced(itemId: $itemId, correspondingFieldId: $correspondingFieldId)
+  }
+`;
+
+export const GET_ITEMS_BY_IDS = gql`
+  query GetItemsByIds($id: [ID!]!) {
+    nodes(id: $id, type: Item) {
+      ... on Item {
+        id
+        title
+        schemaId
+        createdAt
+        updatedAt
+        status
       }
     }
   }
@@ -70,6 +122,7 @@ export const SEARCH_ITEM = gql`
     searchItem(query: $query, sort: $sort, pagination: $pagination) {
       nodes {
         id
+        title
         schemaId
         createdAt
         updatedAt
@@ -78,11 +131,13 @@ export const SEARCH_ITEM = gql`
           id
           url
         }
-        user {
-          name
-        }
-        integration {
-          name
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
         fields {
           schemaFieldId
@@ -101,8 +156,10 @@ export const SEARCH_ITEM = gql`
 `;
 
 export const CREATE_ITEM = gql`
-  mutation CreateItem($modelId: ID!, $schemaId: ID!, $fields: [ItemFieldInput!]!) {
-    createItem(input: { modelId: $modelId, schemaId: $schemaId, fields: $fields }) {
+  mutation CreateItem($modelId: ID!, $schemaId: ID!, $metadataId: ID, $fields: [ItemFieldInput!]!) {
+    createItem(
+      input: { modelId: $modelId, schemaId: $schemaId, metadataId: $metadataId, fields: $fields }
+    ) {
       item {
         id
         schemaId
@@ -125,8 +182,15 @@ export const DELETE_ITEM = gql`
 `;
 
 export const UPDATE_ITEM = gql`
-  mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $version: String!) {
-    updateItem(input: { itemId: $itemId, fields: $fields, version: $version }) {
+  mutation UpdateItem(
+    $itemId: ID!
+    $fields: [ItemFieldInput!]!
+    $metadataId: ID
+    $version: String!
+  ) {
+    updateItem(
+      input: { itemId: $itemId, fields: $fields, metadataId: $metadataId, version: $version }
+    ) {
       item {
         id
         schemaId
