@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
@@ -38,6 +40,25 @@ const Schema: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
+
+  const dropdownItems = [
+    {
+      key: "edit",
+      label: t("Edit"),
+      // onClick: () => onModelUpdateModalOpen(model),
+    },
+    {
+      key: "delete",
+      label: t("Delete"),
+      // onClick: () => onModelDeletionModalOpen(model),
+    },
+  ];
+
+  const DropdownMenu = () => (
+    <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
+      <Button type="text" icon={<Icon icon="more" size={20} />} />
+    </Dropdown>
+  );
 
   const items: TabsProps["items"] = [
     {
@@ -93,8 +114,13 @@ const Schema: React.FC<Props> = ({
       }
       center={
         <Content>
-          <PageHeader title={model?.name} subTitle={model?.key ? `#${model.key}` : null} />
+          <PageHeader
+            title={model?.name}
+            subTitle={model?.key ? `#${model.key}` : null}
+            extra={[<DropdownMenu key="more" />]}
+          />
           <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
+          {/* TODO: add groups support */}
         </Content>
       }
       right={
