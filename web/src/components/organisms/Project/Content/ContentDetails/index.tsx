@@ -120,6 +120,7 @@ const ContentDetails: React.FC = () => {
           collapsed={collapsedModelMenu}
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
+          displayGroups={false}
         />
       }
       onChange={handleAddItemToRequest}

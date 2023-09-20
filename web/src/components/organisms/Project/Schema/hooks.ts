@@ -57,6 +57,13 @@ export default () => {
     [navigate, workspaceId, projectId],
   );
 
+  const handleGroupSelect = useCallback(
+    (groupId: string) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${groupId}`);
+    },
+    [navigate, workspaceId, projectId],
+  );
+
   const handleFieldKeyUnique = useCallback(
     (key: string, fieldId?: string): boolean => {
       return !currentModel?.schema.fields.some(
@@ -241,6 +248,7 @@ export default () => {
     fieldUpdateLoading,
     collapse,
     handleModelSelect,
+    handleGroupSelect,
     handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,

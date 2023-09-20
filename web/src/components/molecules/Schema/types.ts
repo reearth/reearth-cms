@@ -76,3 +76,5 @@ export type CreationFieldTypePropertyInput = {
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
+
+export type Group = any;

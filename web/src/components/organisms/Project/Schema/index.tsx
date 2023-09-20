@@ -53,6 +53,7 @@ const ProjectSchema: React.FC = () => {
     fieldUpdateLoading,
     collapse,
     handleModelSelect,
+    handleGroupSelect,
     handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
@@ -70,7 +71,13 @@ const ProjectSchema: React.FC = () => {
         collapsed={collapsed}
         model={currentModel}
         modelsMenu={
-          <ModelsMenu title={t("Schema")} collapsed={collapsed} onModelSelect={handleModelSelect} />
+          <ModelsMenu
+            title={t("Schema")}
+            collapsed={collapsed}
+            onModelSelect={handleModelSelect}
+            onGroupSelect={handleGroupSelect}
+            displayGroups
+          />
         }
         setIsMeta={setIsMeta}
         onCollapse={collapse}

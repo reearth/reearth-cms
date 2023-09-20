@@ -26,7 +26,10 @@ export default ({ modelId }: Params) => {
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const [modelModalShown, setModelModalShown] = useState(false);
-  const [isKeyAvailable, setIsKeyAvailable] = useState(false);
+  const [isModelKeyAvailable, setIsModelKeyAvailable] = useState(false);
+
+  const [groupModalShown, setGroupModalShown] = useState(false);
+  const [isGroupKeyAvailable, _setIsGroupKeyAvailable] = useState(false);
 
   const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
@@ -42,8 +45,12 @@ export default ({ modelId }: Params) => {
     [projectId, CheckModelKeyAvailability],
   );
 
+  const handleGroupKeyCheck = useCallback(async (_key: string, _ignoredKey?: string) => {
+    return false;
+  }, []);
+
   useEffect(() => {
-    setIsKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
+    setIsModelKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
   }, [keyData?.checkModelKeyAvailability]);
 
   const { data } = useGetModelsQuery({
@@ -56,6 +63,17 @@ export default ({ modelId }: Params) => {
       ?.map<Model | undefined>(model => (model ? fromGraphQLModel(model as GQLModel) : undefined))
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
+
+  const groups = useMemo(() => {
+    return [
+      {
+        id: "group1",
+        name: "group1",
+        key: "group1",
+        description: "Group 1 description",
+      },
+    ];
+  }, []);
 
   const rawModel = useMemo(
     () => data?.models.nodes?.find(node => node?.id === modelId),
@@ -99,18 +117,26 @@ export default ({ modelId }: Params) => {
     [currentWorkspace?.id, projectId, createNewModel, navigate, t],
   );
 
-  const handleModalClose = useCallback(() => setModelModalShown(false), []);
+  const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
+  const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
-  const handleModalOpen = useCallback(() => setModelModalShown(true), []);
+  const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
+  const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
 
   return {
     model,
     models,
+    groups,
     modelModalShown,
-    isKeyAvailable,
-    handleModalOpen,
-    handleModalClose,
+    groupModalShown,
+    isModelKeyAvailable,
+    isGroupKeyAvailable,
+    handleModelModalOpen,
+    handleModelModalClose,
+    handleGroupModalOpen,
+    handleGroupModalClose,
     handleModelCreate,
     handleModelKeyCheck,
+    handleGroupKeyCheck,
   };
 };
