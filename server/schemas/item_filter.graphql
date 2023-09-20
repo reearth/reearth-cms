@@ -19,7 +19,7 @@
 
 # field value, filter value,  operators
 #  single       single         [according to field type]
-#  single       multiple       [according to field type] + [multiple operators]
+#  single       multiple       [multiple operators]
 #  multiple     single         (not supported)
 #  multiple     multiple       (not supported)
 
