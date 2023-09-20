@@ -75,4 +75,10 @@ export const fieldTypes: {
     description: i18next.t("Select from a list of checkboxes"),
     color: "#FFC069",
   },
+  Group: {
+    icon: "group",
+    title: i18next.t("Group"),
+    description: i18next.t("Customize a group of fields"),
+    color: "#36CFC9",
+  },
 };

@@ -51,6 +51,10 @@ const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
         title: t("URL"),
         fields: ["URL"],
       },
+      {
+        title: t("Group"),
+        fields: ["Group"],
+      },
     ],
     [t],
   );
