@@ -26,7 +26,6 @@ const GroupsList: React.FC<Props> = ({
   const t = useT();
 
   const handleClick = (e: MenuInfo) => {
-    console.log(e);
     onGroupSelect?.(e.key);
   };
 
