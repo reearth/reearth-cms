@@ -204,7 +204,6 @@ const FieldCreationModal: React.FC<Props> = ({
           values.typeProperty = {
             date: { defaultValue: values.defaultValue ?? "" },
           };
-          console.log(values);
         } else if (selectedType === "Tag") {
           values.typeProperty = {
             tag: { defaultValue: values.defaultValue, tags: values.tags },

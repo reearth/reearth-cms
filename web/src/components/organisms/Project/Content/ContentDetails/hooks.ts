@@ -326,10 +326,6 @@ export default () => {
           case "Asset":
             initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
-          case "Date":
-            console.log(field.typeProperty.dateDefaultValue);
-            initialValues[field.id] = field.typeProperty.dateDefaultValue;
-            break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
             break;
