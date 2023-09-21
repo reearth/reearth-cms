@@ -43,6 +43,7 @@ const MultiValueField: React.FC<Props> = ({
 
   useEffect(() => {
     if (!value) onChange?.([]);
+    if (moment.isMoment(value)) onChange?.([value]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(
@@ -97,14 +98,13 @@ const MultiValueField: React.FC<Props> = ({
           icon={<Icon icon="plus" />}
           type="primary"
           onClick={() => {
-            if (!value) value = [];
-            let defaultValue;
-            if (props.type === "date") {
-              defaultValue = moment(); // or any other default date you want
+            const currentValues = value || [];
+            const defaultValue = props.type === "date" ? moment() : "";
+            if (Array.isArray(currentValues)) {
+              onChange?.([...currentValues, defaultValue]);
             } else {
-              defaultValue = "";
+              onChange?.([currentValues, defaultValue]);
             }
-            onChange?.([...value, defaultValue]);
           }}>
           {t("New")}
         </Button>
