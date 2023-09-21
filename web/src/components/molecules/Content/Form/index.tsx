@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -265,7 +266,10 @@ const ContentForm: React.FC<Props> = ({
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
-      for (const [key, value] of Object.entries(metaValues)) {
+      for (let [key, value] of Object.entries(metaValues)) {
+        if (moment.isMoment(value) && !value.isValid()) {
+          value = "";
+        }
         metaFields.push({
           value: (value || "") as string,
           schemaFieldId: key,
@@ -681,9 +685,13 @@ const ContentForm: React.FC<Props> = ({
                     <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
-                    <MultiValueField onBlur={handleMetaUpdate} FieldInput={StyledDatePicker} />
+                      <MultiValueField
+                        onBlur={handleMetaUpdate}
+                        FieldInput={StyledDatePicker}
+                        allowClear
+                      />
                   ) : (
-                    <StyledDatePicker onBlur={handleMetaUpdate} />
+                        <StyledDatePicker onBlur={handleMetaUpdate} allowClear />
                   )}
                 </Form.Item>
               </MetaFormItemWrapper>

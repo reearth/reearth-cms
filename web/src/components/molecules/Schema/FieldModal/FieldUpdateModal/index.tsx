@@ -160,13 +160,15 @@ const FieldUpdateModal: React.FC<Props> = ({
       selectedField?.typeProperty.defaultValue ||
       selectedField?.typeProperty.selectDefaultValue ||
       selectedField?.typeProperty.integerDefaultValue ||
-      selectedField?.typeProperty.assetDefaultValue;
+      selectedField?.typeProperty.assetDefaultValue ||
+      selectedField?.typeProperty.dateDefaultValue;
 
     if (selectedType === "Date") {
+      console.log(value);
       if (Array.isArray(value)) {
-        value = value.map(valueItem => moment(valueItem));
+        value = value.map(valueItem => (valueItem ? moment(valueItem) : ""));
       } else {
-        value = moment(value);
+        value = value ? moment(value) : "";
       }
     }
     if (selectedType === "Tag") {
@@ -233,8 +235,9 @@ const FieldUpdateModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            date: { defaultValue: values.defaultValue },
+            date: { defaultValue: values.defaultValue ?? "" },
           };
+          console.log(values);
         } else if (selectedType === "Tag") {
           values.typeProperty = {
             tag: {

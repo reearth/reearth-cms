@@ -54,6 +54,7 @@ export type TypeProperty =
       assetDefaultValue?: string;
       selectDefaultValue?: string;
       integerDefaultValue?: number;
+    dateDefaultValue?: string;
       min?: number;
       max?: number;
       correspondingField?: any;
@@ -73,6 +74,7 @@ export type CreationFieldTypePropertyInput = {
     modelId: string;
     correspondingField: any;
   };
+  date?: { defaultValue: string };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";

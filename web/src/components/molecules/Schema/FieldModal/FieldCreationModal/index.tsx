@@ -137,6 +137,8 @@ const FieldCreationModal: React.FC<Props> = ({
       form.setFieldValue("defaultValue", null);
     } else if (selectedType === "Bool" || selectedType === "Checkbox") {
       form.setFieldValue("defaultValue", []);
+    } else if (selectedType === "Date") {
+      form.setFieldValue("defaultValue", "");
     }
   }, [form, selectedType, multipleValue]);
 
@@ -200,14 +202,14 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            date: { defaultValue: values.defaultValue },
+            date: { defaultValue: values.defaultValue ?? "" },
           };
+          console.log(values);
         } else if (selectedType === "Tag") {
           values.typeProperty = {
             tag: { defaultValue: values.defaultValue, tags: values.tags },
           };
         } else if (selectedType === "Checkbox") {
-          console.log(values.defaultValue);
           values.typeProperty = {
             checkbox: { defaultValue: values.defaultValue },
           };
