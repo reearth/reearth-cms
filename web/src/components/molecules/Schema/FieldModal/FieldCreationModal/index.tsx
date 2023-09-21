@@ -207,7 +207,6 @@ const FieldCreationModal: React.FC<Props> = ({
             tag: { defaultValue: values.defaultValue, tags: values.tags },
           };
         } else if (selectedType === "Checkbox") {
-          console.log(values.defaultValue);
           values.typeProperty = {
             checkbox: { defaultValue: values.defaultValue },
           };
