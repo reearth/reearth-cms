@@ -443,6 +443,10 @@ github.com/ravilushqa/otelgqlgen v0.13.1 h1:V+zFE75iDd2/CSzy5kKnb+Fi09SsE5535wv9
 github.com/ravilushqa/otelgqlgen v0.13.1/go.mod h1:ZIyWykK2paCuNi9k8gk5edcNSwDJuxZaW90vZXpafxw=
 github.com/reearth/reearthx v0.0.0-20230803135203-6fb13c1d7d8b h1:EmpPvS/fC0w3qF7vI9MTfBqa7ch5CgpEIzSyq/v/2J0=
 github.com/reearth/reearthx v0.0.0-20230803135203-6fb13c1d7d8b/go.mod h1:O4zFr6ks8jDKfgy9NBpZKp31jpmAPnfOtMQK9B6xX54=
+github.com/reearth/reearthx v0.0.0-20230825072907-543ac159f33b h1:7IsqB7KdGzp0hwlOIGb2imQW8mWJ9Ua9Ad5pAGNYaRs=
+github.com/reearth/reearthx v0.0.0-20230825072907-543ac159f33b/go.mod h1:b8EygPZ9VcMv9vTbnl/oz3PU/wHz3wpBa4rc7W7URjw=
+github.com/reearth/reearthx v0.0.0-20230921095435-ee497ccf3f7e h1:WaKfv4akNs2OI2vh2d6YIf/W812Y2/4tVv3HtC4xstU=
+github.com/reearth/reearthx v0.0.0-20230921095435-ee497ccf3f7e/go.mod h1:b8EygPZ9VcMv9vTbnl/oz3PU/wHz3wpBa4rc7W7URjw=
 github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68 h1:Jknsfy5cqCH6qAuoU1qNZ51hfBJfMSJYwsH9j9mdVnw=
 github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68/go.mod h1:9CDhL7uDVy8vEVDNPJzxq89dPaPBWP6hxQcC8woBHus=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
