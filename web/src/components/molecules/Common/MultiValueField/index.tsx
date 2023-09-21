@@ -98,7 +98,13 @@ const MultiValueField: React.FC<Props> = ({
           type="primary"
           onClick={() => {
             if (!value) value = [];
-            onChange?.([...value, ""]);
+            let defaultValue;
+            if (props.type === "date") {
+              defaultValue = moment(); // or any other default date you want
+            } else {
+              defaultValue = "";
+            }
+            onChange?.([...value, defaultValue]);
           }}>
           {t("New")}
         </Button>
