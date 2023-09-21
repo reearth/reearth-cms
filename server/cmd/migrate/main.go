@@ -27,6 +27,7 @@ type cmsWorkspaceID string
 type accountWorkspaceID string
 
 const (
+	reearth        = "reearth"
 	reearthAccount = "reearth-account"
 	reearthCMS     = "reearth_cms"
 )
@@ -36,10 +37,46 @@ func run() error {
 	flag.Parse()
 
 	ctx := context.Background()
-	dbURI := os.Getenv("DB_URI")
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURI))
+
+	databaseURI := os.Getenv("DB_URI")
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(databaseURI))
 	if err != nil {
 		return fmt.Errorf("connect: %w", err)
+	}
+
+	var migrateUserWrites []mongo.WriteModel
+	{
+		users, err := allUsers(ctx, client, reearth)
+		if err != nil {
+			return fmt.Errorf("reearth all users: %w", err)
+		}
+		for _, u := range users {
+			migrateUserWrites = append(migrateUserWrites, mongo.NewInsertOneModel().SetDocument(u))
+		}
+	}
+	var migrateWorkspaceWrites []mongo.WriteModel
+	{
+		ws, err := allWorkspaces(ctx, client, reearth, "team")
+		if err != nil {
+			return fmt.Errorf("reearth all teams: %w", err)
+		}
+		for _, w := range ws {
+			migrateWorkspaceWrites = append(migrateWorkspaceWrites, mongo.NewInsertOneModel().SetDocument(w))
+		}
+	}
+	if !*dry {
+		if _, err := client.Database(reearthAccount).Collection("user").BulkWrite(ctx, migrateUserWrites); err != nil {
+			return fmt.Errorf("write users: %w", err)
+		}
+		if _, err := client.Database(reearthAccount).Collection("workspace").BulkWrite(ctx, migrateWorkspaceWrites); err != nil {
+			return fmt.Errorf("write workspaces: %w", err)
+		}
+	}
+
+	cmsDatabaseURI := os.Getenv("CMS_DB_URI")
+	cmsClient, err := mongo.Connect(ctx, options.Client().ApplyURI(cmsDatabaseURI))
+	if err != nil {
+		return fmt.Errorf("connect cms: %w", err)
 	}
 
 	// subject => account user_id
@@ -49,7 +86,7 @@ func run() error {
 
 	// reearth-account 側の全ユーザーから subject とユーザーIDの紐づけ, 個人ワークスペースの紐づけを作る
 	{
-		accountUsers, err := allUsers(ctx, client, reearthAccount)
+		accountUsers, err := allUsers(ctx, cmsClient, reearthAccount)
 		if err != nil {
 			return fmt.Errorf("reearth-account all accountUsers: %w", err)
 		}
@@ -71,7 +108,7 @@ func run() error {
 	// subject が同一のユーザーが存在した場合 reearth-account 側のユーザに統合する
 	var userWrites []mongo.WriteModel
 	{
-		cmsUsers, err := allUsers(ctx, client, reearthCMS)
+		cmsUsers, err := allUsers(ctx, cmsClient, reearthCMS)
 		if err != nil {
 			return fmt.Errorf("reearth_cms all accountUsers: %w", err)
 		}
@@ -113,7 +150,7 @@ func run() error {
 	// すべてのワークスペースはユーザーへの参照を保持しているので書き換える必要がある
 	var wsWrites []mongo.WriteModel
 	{
-		cmsWSs, err := allWorkspaces(ctx, client, reearthCMS)
+		cmsWSs, err := allWorkspaces(ctx, cmsClient, reearthCMS, "workspace")
 		if err != nil {
 			return fmt.Errorf("reearth_cms all workspaces: %w", err)
 		}
@@ -128,8 +165,7 @@ func run() error {
 				members[string(auID)] = v
 			}
 
-			if awsID, ok := migratedWorkspace[cwsID]; ok {
-				// TODO: reearth_cms 側の個人ワークスペースと reearth-account 側の個人ワークスペースのメンバーが異なる場合どうするか？
+			if awsID, ok := migratedWorkspace[cwsID]; !ok {
 				wsWrites = append(wsWrites, mongo.NewUpdateOneModel().
 					SetFilter(bson.M{"id": awsID}).
 					SetUpdate(bson.M{"$set": bson.M{"members": members}}),
@@ -147,7 +183,7 @@ func run() error {
 	// ワークスペースの統合に伴って reearth_cms 側でワークスペースを参照しているプロジェクトを書き換える
 	var projectWrites []mongo.WriteModel
 	{
-		ps, err := allProjects(ctx, client)
+		ps, err := allProjects(ctx, cmsClient)
 		if err != nil {
 			return fmt.Errorf("reearth_cms all projects: %w", err)
 		}
@@ -167,14 +203,14 @@ func run() error {
 		}
 	}
 	if !*dry {
-		if _, err := client.Database(reearthAccount).Collection("user").BulkWrite(ctx, userWrites); err != nil {
+		if _, err := cmsClient.Database(reearthAccount).Collection("user").BulkWrite(ctx, userWrites); err != nil {
 			return fmt.Errorf("write user: %w", err)
 		}
-		if _, err := client.Database(reearthAccount).Collection("workspace").BulkWrite(ctx, wsWrites); err != nil {
+		if _, err := cmsClient.Database(reearthAccount).Collection("workspace").BulkWrite(ctx, wsWrites); err != nil {
 			return fmt.Errorf("write workspace: %w", err)
 		}
 		// プロジェクトだけ reearth_cms 側の更新が必要になる
-		if _, err := client.Database(reearthCMS).Collection("project").BulkWrite(ctx, projectWrites); err != nil {
+		if _, err := cmsClient.Database(reearthCMS).Collection("project").BulkWrite(ctx, projectWrites); err != nil {
 			return fmt.Errorf("write project: %w", err)
 		}
 	}
@@ -198,20 +234,55 @@ func fromCMSWorkspace(ws *mongodoc.WorkspaceDocument) (cmsWorkspaceID, map[cmsUs
 	return cmsWorkspaceID(ws.ID), members
 }
 
+type UserDocument struct {
+	ID            string
+	Name          string
+	Email         string
+	Auth0Sublist  []string
+	Subs          []string
+	Workspace     string
+	Team          string
+	Lang          string
+	Theme         string
+	Password      []byte
+	PasswordReset *mongodoc.PasswordResetDocument
+	Verification  *mongodoc.UserVerificationDoc
+}
+
 func allUsers(ctx context.Context, c *mongo.Client, db string) ([]*mongodoc.UserDocument, error) {
 	cur, err := c.Database(db).Collection("user").Find(ctx, bson.M{})
 	if err != nil {
 		return nil, fmt.Errorf("find: %w", err)
 	}
-	var users []*mongodoc.UserDocument
+	var users []UserDocument
 	if err := cur.All(ctx, &users); err != nil {
 		return nil, fmt.Errorf("all: %w", err)
 	}
-	return users, nil
+	var newUsers []*mongodoc.UserDocument
+	for _, u := range users {
+		subs := u.Subs
+		if len(subs) == 0 {
+			subs = u.Auth0Sublist
+		}
+		newUsers = append(newUsers, &mongodoc.UserDocument{
+			ID:            u.ID,
+			Name:          u.Name,
+			Email:         u.Email,
+			Subs:          subs,
+			Workspace:     u.Workspace,
+			Team:          u.Team,
+			Lang:          u.Lang,
+			Theme:         u.Theme,
+			Password:      u.Password,
+			PasswordReset: u.PasswordReset,
+			Verification:  u.Verification,
+		})
+	}
+	return newUsers, nil
 }
 
-func allWorkspaces(ctx context.Context, c *mongo.Client, db string) ([]*mongodoc.WorkspaceDocument, error) {
-	cur, err := c.Database(db).Collection("workspace").Find(ctx, bson.M{})
+func allWorkspaces(ctx context.Context, c *mongo.Client, db string, name string) ([]*mongodoc.WorkspaceDocument, error) {
+	cur, err := c.Database(db).Collection(name).Find(ctx, bson.M{})
 	if err != nil {
 		return nil, fmt.Errorf("find: %w", err)
 	}
