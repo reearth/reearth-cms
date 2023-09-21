@@ -681,7 +681,11 @@ const ContentForm: React.FC<Props> = ({
                     <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
                   {field.multiple ? (
-                    <MultiValueField onBlur={handleMetaUpdate} FieldInput={StyledDatePicker} />
+                    <MultiValueField
+                      onBlur={handleMetaUpdate}
+                      type="date"
+                      FieldInput={StyledDatePicker}
+                    />
                   ) : (
                     <StyledDatePicker onBlur={handleMetaUpdate} />
                   )}
