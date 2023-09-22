@@ -14,6 +14,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+type Container interface {
+	IsContainer()
+}
+
 type ItemField interface {
 	IsItemField()
 }
@@ -159,7 +163,8 @@ type CreateAssetUploadPayload struct {
 }
 
 type CreateFieldInput struct {
-	ModelID      ID                            `json:"modelId"`
+	ModelID      *ID                           `json:"modelId,omitempty"`
+	GroupID      *ID                           `json:"groupId,omitempty"`
 	Type         SchemaFieldType               `json:"type"`
 	Title        string                        `json:"title"`
 	Metadata     *bool                         `json:"metadata,omitempty"`
@@ -265,7 +270,8 @@ type DeleteCommentPayload struct {
 }
 
 type DeleteFieldInput struct {
-	ModelID  ID    `json:"modelId"`
+	ModelID  *ID   `json:"modelId,omitempty"`
+	GroupID  *ID   `json:"groupId,omitempty"`
 	FieldID  ID    `json:"fieldId"`
 	Metadata *bool `json:"metadata,omitempty"`
 }
@@ -367,6 +373,8 @@ type Group struct {
 	Project     *Project       `json:"project"`
 	Fields      []*SchemaField `json:"fields"`
 }
+
+func (Group) IsContainer() {}
 
 func (Group) IsNode()        {}
 func (this Group) GetID() ID { return this.ID }
@@ -522,6 +530,8 @@ type Model struct {
 
 func (Model) IsNode()        {}
 func (this Model) GetID() ID { return this.ID }
+
+func (Model) IsContainer() {}
 
 type ModelConnection struct {
 	Edges      []*ModelEdge `json:"edges"`
@@ -698,8 +708,10 @@ func (this Schema) GetID() ID { return this.ID }
 
 type SchemaField struct {
 	ID           ID                      `json:"id"`
-	ModelID      ID                      `json:"modelId"`
-	Model        *Model                  `json:"model"`
+	ModelID      *ID                     `json:"modelId,omitempty"`
+	GroupID      *ID                     `json:"groupId,omitempty"`
+	Model        *Model                  `json:"model,omitempty"`
+	Group        *Group                  `json:"group,omitempty"`
 	Type         SchemaFieldType         `json:"type"`
 	TypeProperty SchemaFieldTypeProperty `json:"typeProperty,omitempty"`
 	Key          string                  `json:"key"`
@@ -945,7 +957,8 @@ type UpdateCommentInput struct {
 }
 
 type UpdateFieldInput struct {
-	ModelID      ID                            `json:"modelId"`
+	ModelID      *ID                           `json:"modelId,omitempty"`
+	GroupID      *ID                           `json:"groupId,omitempty"`
 	FieldID      ID                            `json:"fieldId"`
 	Title        *string                       `json:"title,omitempty"`
 	Description  *string                       `json:"description,omitempty"`
