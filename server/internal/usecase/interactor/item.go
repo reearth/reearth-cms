@@ -306,17 +306,12 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 }
 
 func (i Item) handleReferenceFieldsCreateOrUpdate(ctx context.Context, s *schema.Schema, fields []*item.Field, oldFields *[]*item.Field, it *item.Item, op *usecase.Operator) error {
-	rf := lo.Filter(fields, func(f *item.Field, _ int) bool {
-		return f.Type() == value.TypeReference
-	})
-
-	for _, ff := range rf {
+    for _, ff := range lo.Filter(fields, func(f *item.Field, _ int) bool {
+        return f.Type() == value.TypeReference
+    }) {
 		iid, ok := ff.Value().First().ValueReference()
 		if iid.IsEmpty() && oldFields != nil {
 			of, ok := lo.Find(*oldFields, func(f *item.Field) bool {
-				fid1 := f.FieldID().String() 
-				fid2 := ff.FieldID().String()
-				fmt.Println(fid1, fid2)
 				return f.FieldID().String() == ff.FieldID().String()
 			})
 			if !ok {
@@ -383,11 +378,6 @@ func (i Item) handleReferenceFieldsCreateOrUpdate(ctx context.Context, s *schema
 			if err != nil {
 				return err
 			}
-			f2 := oitm.Value().Field(*fid2)
-			if f2 != nil {
-				fmt.Println(f2)
-			}
-			// delete the old reference
 			updateFields := lo.Filter(oitm.Value().Fields(), func(f *item.Field, _ int) bool {
 				return f.FieldID().String() != fid2.String()
 			})
