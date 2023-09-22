@@ -19,7 +19,7 @@ input CreateViewInput {
 }
 
 input UpdateViewInput {
-  id: ID!
+  viewId: ID!
   name: String
   sort: ItemSortInput
   filter: ConditionInput
@@ -27,7 +27,7 @@ input UpdateViewInput {
 }
 
 input DeleteViewInput {
-  id: ID!
+  viewId: ID!
 }
 
 # payloads
@@ -37,7 +37,7 @@ type ViewPayload {
 }
 
 type DeleteViewPayload {
-  viewID: ID!
+  viewId: ID!
 }
 
 extend type Query {
