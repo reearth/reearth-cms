@@ -14,10 +14,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-type ItemEditor interface {
-	IsItemEditor()
-}
-
 type ItemField interface {
 	IsItemField()
 }
@@ -394,8 +390,6 @@ type Integration struct {
 
 func (Integration) IsOperator() {}
 
-func (Integration) IsItemEditor() {}
-
 func (Integration) IsNode()        {}
 func (this Integration) GetID() ID { return this.ID }
 
@@ -419,7 +413,7 @@ type Item struct {
 	UpdatedByIntegrationID *ID         `json:"updatedByIntegrationId,omitempty"`
 	UserID                 *ID         `json:"userId,omitempty"`
 	MetadataID             *ID         `json:"metadataId,omitempty"`
-	CreatedBy              ItemEditor  `json:"createdBy,omitempty"`
+	CreatedBy              Operator    `json:"createdBy,omitempty"`
 	Schema                 *Schema     `json:"schema"`
 	Model                  *Model      `json:"model"`
 	Status                 ItemStatus  `json:"status"`
@@ -429,7 +423,7 @@ type Item struct {
 	Assets                 []*Asset    `json:"assets"`
 	CreatedAt              time.Time   `json:"createdAt"`
 	UpdatedAt              time.Time   `json:"updatedAt"`
-	UpdatedBy              ItemEditor  `json:"updatedBy,omitempty"`
+	UpdatedBy              Operator    `json:"updatedBy,omitempty"`
 	Version                string      `json:"version"`
 	Metadata               *Item       `json:"metadata,omitempty"`
 	Title                  *string     `json:"title,omitempty"`
@@ -1075,8 +1069,6 @@ func (User) IsOperator() {}
 
 func (User) IsNode()        {}
 func (this User) GetID() ID { return this.ID }
-
-func (User) IsItemEditor() {}
 
 type VersionedItem struct {
 	Version string   `json:"version"`

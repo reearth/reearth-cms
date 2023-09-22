@@ -9,7 +9,7 @@ type Item implements Node {
   updatedByIntegrationId: ID
   userId: ID
   metadataId: ID
-  createdBy: ItemEditor
+  createdBy: Operator
   schema: Schema!
   model: Model!
   status: ItemStatus!
@@ -19,13 +19,11 @@ type Item implements Node {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
-  updatedBy: ItemEditor
+  updatedBy: Operator
   version: String!
   metadata: Item
   title: String
 }
-
-union ItemEditor = User | Integration
 
 union ItemField = ItemValueField | ItemGroupField
 
