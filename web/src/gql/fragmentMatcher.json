@@ -1,9 +1,5 @@
 {
   "possibleTypes": {
-    "ItemEditor": [
-      "Integration",
-      "User"
-    ],
     "Node": [
       "Asset",
       "Integration",

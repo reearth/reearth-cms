@@ -698,7 +698,7 @@ type IntegrationResolver interface {
 	Developer(ctx context.Context, obj *gqlmodel.Integration) (*gqlmodel.User, error)
 }
 type ItemResolver interface {
-	CreatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error)
+	CreatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.Operator, error)
 	Schema(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Schema, error)
 	Model(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Model, error)
 	Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemStatus, error)
@@ -707,7 +707,7 @@ type ItemResolver interface {
 
 	Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Asset, error)
 
-	UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error)
+	UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.Operator, error)
 
 	Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Item, error)
 }
@@ -4809,7 +4809,7 @@ extend type Mutation {
   updatedByIntegrationId: ID
   userId: ID
   metadataId: ID
-  createdBy: ItemEditor
+  createdBy: Operator
   schema: Schema!
   model: Model!
   status: ItemStatus!
@@ -4819,13 +4819,11 @@ extend type Mutation {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
-  updatedBy: ItemEditor
+  updatedBy: Operator
   version: String!
   metadata: Item
   title: String
 }
-
-union ItemEditor = User | Integration
 
 type ItemField {
   schemaFieldId: ID!
@@ -10294,9 +10292,9 @@ func (ec *executionContext) _Item_createdBy(ctx context.Context, field graphql.C
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ItemEditor)
+	res := resTmp.(gqlmodel.Operator)
 	fc.Result = res
-	return ec.marshalOItemEditor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemEditor(ctx, field.Selections, res)
+	return ec.marshalOOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10306,7 +10304,7 @@ func (ec *executionContext) fieldContext_Item_createdBy(ctx context.Context, fie
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ItemEditor does not have child fields")
+			return nil, errors.New("field of type Operator does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10847,9 +10845,9 @@ func (ec *executionContext) _Item_updatedBy(ctx context.Context, field graphql.C
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ItemEditor)
+	res := resTmp.(gqlmodel.Operator)
 	fc.Result = res
-	return ec.marshalOItemEditor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemEditor(ctx, field.Selections, res)
+	return ec.marshalOOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐOperator(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10859,7 +10857,7 @@ func (ec *executionContext) fieldContext_Item_updatedBy(ctx context.Context, fie
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ItemEditor does not have child fields")
+			return nil, errors.New("field of type Operator does not have child fields")
 		},
 	}
 	return fc, nil
@@ -29863,29 +29861,6 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _ItemEditor(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.ItemEditor) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case gqlmodel.User:
-		return ec._User(ctx, sel, &obj)
-	case *gqlmodel.User:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._User(ctx, sel, obj)
-	case gqlmodel.Integration:
-		return ec._Integration(ctx, sel, &obj)
-	case *gqlmodel.Integration:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Integration(ctx, sel, obj)
-	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
-	}
-}
-
 func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Node) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -31389,7 +31364,7 @@ func (ec *executionContext) _FieldsPayload(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var integrationImplementors = []string{"Integration", "Operator", "ItemEditor", "Node"}
+var integrationImplementors = []string{"Integration", "Operator", "Node"}
 
 func (ec *executionContext) _Integration(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Integration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, integrationImplementors)
@@ -35459,7 +35434,7 @@ func (ec *executionContext) _UpdateWorkspacePayload(ctx context.Context, sel ast
 	return out
 }
 
-var userImplementors = []string{"User", "Operator", "Node", "ItemEditor"}
+var userImplementors = []string{"User", "Operator", "Node"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
@@ -39079,13 +39054,6 @@ func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋreearthᚋreearthᚑc
 		return graphql.Null
 	}
 	return ec._Item(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOItemEditor2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemEditor(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemEditor) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._ItemEditor(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOItemPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ItemPayload) graphql.Marshaler {

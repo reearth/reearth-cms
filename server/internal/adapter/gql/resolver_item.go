@@ -13,14 +13,14 @@ func (r *Resolver) Item() ItemResolver {
 
 type itemResolver struct{ *Resolver }
 
-func (i itemResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error) {
+func (i itemResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.Operator, error) {
 	if obj.UserID != nil {
 		return dataloaders(ctx).User.Load(*obj.UserID)
 	}
 	return dataloaders(ctx).Integration.Load(*obj.IntegrationID)
 }
 
-func (i itemResolver) UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error) {
+func (i itemResolver) UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.Operator, error) {
 	if obj.UpdatedByUserID != nil {
 		return dataloaders(ctx).User.Load(*obj.UpdatedByUserID)
 	}
