@@ -398,7 +398,7 @@ export type Item = Node & {
   __typename?: 'Item';
   assets: Array<Maybe<Asset>>;
   createdAt: Scalars['DateTime'];
-  createdBy?: Maybe<ItemEditor>;
+  createdBy?: Maybe<Operator>;
   fields: Array<ItemField>;
   id: Scalars['ID'];
   integrationId?: Maybe<Scalars['ID']>;
@@ -415,7 +415,7 @@ export type Item = Node & {
   threadId: Scalars['ID'];
   title?: Maybe<Scalars['String']>;
   updatedAt: Scalars['DateTime'];
-  updatedBy?: Maybe<ItemEditor>;
+  updatedBy?: Maybe<Operator>;
   updatedByIntegrationId?: Maybe<Scalars['ID']>;
   updatedByUserId?: Maybe<Scalars['ID']>;
   userId?: Maybe<Scalars['ID']>;
@@ -435,8 +435,6 @@ export type ItemEdge = {
   cursor: Scalars['Cursor'];
   node?: Maybe<Item>;
 };
-
-export type ItemEditor = Integration | User;
 
 export type ItemField = {
   __typename?: 'ItemField';
