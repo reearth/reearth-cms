@@ -79,7 +79,7 @@ const ModelFieldList: React.FC<Props> = ({
                   <StyledIcon icon="terminalWindow" color="#40A9FF" />
                 </FieldThumbnail>
               }
-              title={<ItemTitle>{t("Entry Information")}</ItemTitle>}
+              title={<ItemTitle>{t("Item Information")}</ItemTitle>}
             />
           </List.Item>
           <List.Item key="publishStatus" actions={[<></>]}>

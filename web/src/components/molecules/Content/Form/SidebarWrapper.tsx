@@ -37,7 +37,7 @@ const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
     <>
       {item && (
         <>
-          <SidebarCard title={t("Entry Information")}>
+          <SidebarCard title={t("Item Information")}>
             <DataRow>
               <DataTitle>ID</DataTitle>
               <StyledTag>{item.id}</StyledTag>
