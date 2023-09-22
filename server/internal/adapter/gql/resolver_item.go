@@ -85,29 +85,3 @@ func (i itemResolver) Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmod
 	}
 	return dataloaders(ctx).Item.Load(*obj.MetadataID)
 }
-
-func (r *Resolver) ItemGroupField() ItemGroupFieldResolver {
-	return &itemGroupFieldResolver{r}
-}
-
-type itemGroupFieldResolver struct{ *Resolver }
-
-func (i itemGroupFieldResolver) Schema(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Schema, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i itemGroupFieldResolver) Project(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Project, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i itemGroupFieldResolver) Model(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Model, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i itemGroupFieldResolver) Group(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Group, error) {
-	//TODO implement me
-	panic("implement me")
-}
