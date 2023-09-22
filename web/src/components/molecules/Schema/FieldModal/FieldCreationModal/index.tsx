@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -123,7 +125,20 @@ const FieldCreationModal: React.FC<Props> = ({
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
   const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
-  const multipleValue: boolean = Form.useWatch("multiple", form);
+  const [multipleValue, setMultipleValue] = useState(false);
+
+  const handleMultipleChange = useCallback(
+    (e: CheckboxChangeEvent) => {
+      if (selectedType === "Date") {
+        if (!e.target.checked) {
+          form.setFieldValue("defaultValue", null);
+        }
+      }
+
+      setMultipleValue(e.target.checked);
+    },
+    [form, selectedType],
+  );
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -160,6 +175,18 @@ const FieldCreationModal: React.FC<Props> = ({
     }
   }, [form, selectedTags, selectedType]);
 
+  const transformMomentToString = (value: any) => {
+    if (moment.isMoment(value)) {
+      return value.format("YYYY-MM-DDTHH:mm:ssZ");
+    }
+
+    if (Array.isArray(value) && value.every(item => moment.isMoment(item))) {
+      return value.map(item => item.format("YYYY-MM-DDTHH:mm:ssZ"));
+    }
+
+    return value; // return the original value if it's neither a moment object nor an array of moment objects
+  };
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -194,20 +221,18 @@ const FieldCreationModal: React.FC<Props> = ({
             },
           };
         } else if (selectedType === "Bool") {
-          console.log(values.defaultValue);
           values.typeProperty = {
             bool: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            date: { defaultValue: values.defaultValue },
+            date: { defaultValue: transformMomentToString(values.defaultValue) },
           };
         } else if (selectedType === "Tag") {
           values.typeProperty = {
             tag: { defaultValue: values.defaultValue, tags: values.tags },
           };
         } else if (selectedType === "Checkbox") {
-          console.log(values.defaultValue);
           values.typeProperty = {
             checkbox: { defaultValue: values.defaultValue },
           };
@@ -349,7 +374,9 @@ const FieldCreationModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox>{t("Support multiple values")}</Checkbox>
+              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+                {t("Support multiple values")}
+              </Checkbox>
             </Form.Item>
             <Form.Item
               name="isTitle"
