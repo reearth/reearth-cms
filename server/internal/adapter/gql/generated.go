@@ -45,7 +45,6 @@ type ResolverRoot interface {
 	Group() GroupResolver
 	Integration() IntegrationResolver
 	Item() ItemResolver
-	ItemGroupField() ItemGroupFieldResolver
 	Me() MeResolver
 	Model() ModelResolver
 	Mutation() MutationResolver
@@ -283,16 +282,9 @@ type ComplexityRoot struct {
 	}
 
 	ItemGroupField struct {
-		Fields    func(childComplexity int) int
-		Group     func(childComplexity int) int
-		GroupID   func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Model     func(childComplexity int) int
-		ModelID   func(childComplexity int) int
-		Project   func(childComplexity int) int
-		ProjectID func(childComplexity int) int
-		Schema    func(childComplexity int) int
-		SchemaID  func(childComplexity int) int
+		Fields        func(childComplexity int) int
+		GroupID       func(childComplexity int) int
+		SchemaFieldID func(childComplexity int) int
 	}
 
 	ItemPayload struct {
@@ -756,12 +748,6 @@ type ItemResolver interface {
 	UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error)
 
 	Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Item, error)
-}
-type ItemGroupFieldResolver interface {
-	Schema(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Schema, error)
-	Group(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Group, error)
-	Model(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Model, error)
-	Project(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Project, error)
 }
 type MeResolver interface {
 	Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Workspace, error)
@@ -1698,13 +1684,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ItemGroupField.Fields(childComplexity), true
 
-	case "ItemGroupField.group":
-		if e.complexity.ItemGroupField.Group == nil {
-			break
-		}
-
-		return e.complexity.ItemGroupField.Group(childComplexity), true
-
 	case "ItemGroupField.groupId":
 		if e.complexity.ItemGroupField.GroupID == nil {
 			break
@@ -1712,54 +1691,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ItemGroupField.GroupID(childComplexity), true
 
-	case "ItemGroupField.id":
-		if e.complexity.ItemGroupField.ID == nil {
+	case "ItemGroupField.schemaFieldId":
+		if e.complexity.ItemGroupField.SchemaFieldID == nil {
 			break
 		}
 
-		return e.complexity.ItemGroupField.ID(childComplexity), true
-
-	case "ItemGroupField.model":
-		if e.complexity.ItemGroupField.Model == nil {
-			break
-		}
-
-		return e.complexity.ItemGroupField.Model(childComplexity), true
-
-	case "ItemGroupField.modelId":
-		if e.complexity.ItemGroupField.ModelID == nil {
-			break
-		}
-
-		return e.complexity.ItemGroupField.ModelID(childComplexity), true
-
-	case "ItemGroupField.project":
-		if e.complexity.ItemGroupField.Project == nil {
-			break
-		}
-
-		return e.complexity.ItemGroupField.Project(childComplexity), true
-
-	case "ItemGroupField.projectId":
-		if e.complexity.ItemGroupField.ProjectID == nil {
-			break
-		}
-
-		return e.complexity.ItemGroupField.ProjectID(childComplexity), true
-
-	case "ItemGroupField.schema":
-		if e.complexity.ItemGroupField.Schema == nil {
-			break
-		}
-
-		return e.complexity.ItemGroupField.Schema(childComplexity), true
-
-	case "ItemGroupField.schemaId":
-		if e.complexity.ItemGroupField.SchemaID == nil {
-			break
-		}
-
-		return e.complexity.ItemGroupField.SchemaID(childComplexity), true
+		return e.complexity.ItemGroupField.SchemaFieldID(childComplexity), true
 
 	case "ItemPayload.item":
 		if e.complexity.ItemPayload.Item == nil {
@@ -5089,15 +5026,8 @@ type ItemValueField {
 }
 
 type ItemGroupField {
-  id: ID!
+  schemaFieldId: ID!
   groupId: ID!
-  schemaId: ID!
-  modelId: ID!
-  projectId: ID!
-  schema: Schema!
-  group: Group!
-  model: Model!
-  project: Project!
   fields: [ItemField!]!
 }
 
@@ -12342,8 +12272,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _ItemGroupField_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_id(ctx, field)
+func (ec *executionContext) _ItemGroupField_schemaFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemGroupField_schemaFieldId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12356,7 +12286,7 @@ func (ec *executionContext) _ItemGroupField_id(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.SchemaFieldID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12373,7 +12303,7 @@ func (ec *executionContext) _ItemGroupField_id(ctx context.Context, field graphq
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemGroupField_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemGroupField_schemaFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ItemGroupField",
 		Field:      field,
@@ -12425,398 +12355,6 @@ func (ec *executionContext) fieldContext_ItemGroupField_groupId(ctx context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemGroupField_schemaId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_schemaId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SchemaID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemGroupField_schemaId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemGroupField_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_modelId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ModelID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemGroupField_modelId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemGroupField_projectId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_projectId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ProjectID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemGroupField_projectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemGroupField_schema(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_schema(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ItemGroupField().Schema(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Schema)
-	fc.Result = res
-	return ec.marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemGroupField_schema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Schema_id(ctx, field)
-			case "projectId":
-				return ec.fieldContext_Schema_projectId(ctx, field)
-			case "fields":
-				return ec.fieldContext_Schema_fields(ctx, field)
-			case "titleFieldId":
-				return ec.fieldContext_Schema_titleFieldId(ctx, field)
-			case "titleField":
-				return ec.fieldContext_Schema_titleField(ctx, field)
-			case "project":
-				return ec.fieldContext_Schema_project(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Schema", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemGroupField_group(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_group(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ItemGroupField().Group(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Group)
-	fc.Result = res
-	return ec.marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemGroupField_group(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Group_id(ctx, field)
-			case "schemaId":
-				return ec.fieldContext_Group_schemaId(ctx, field)
-			case "projectId":
-				return ec.fieldContext_Group_projectId(ctx, field)
-			case "name":
-				return ec.fieldContext_Group_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Group_description(ctx, field)
-			case "key":
-				return ec.fieldContext_Group_key(ctx, field)
-			case "schema":
-				return ec.fieldContext_Group_schema(ctx, field)
-			case "project":
-				return ec.fieldContext_Group_project(ctx, field)
-			case "fields":
-				return ec.fieldContext_Group_fields(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemGroupField_model(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_model(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ItemGroupField().Model(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Model)
-	fc.Result = res
-	return ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemGroupField_model(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Model_id(ctx, field)
-			case "projectId":
-				return ec.fieldContext_Model_projectId(ctx, field)
-			case "schemaId":
-				return ec.fieldContext_Model_schemaId(ctx, field)
-			case "metadataSchemaId":
-				return ec.fieldContext_Model_metadataSchemaId(ctx, field)
-			case "name":
-				return ec.fieldContext_Model_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Model_description(ctx, field)
-			case "key":
-				return ec.fieldContext_Model_key(ctx, field)
-			case "project":
-				return ec.fieldContext_Model_project(ctx, field)
-			case "schema":
-				return ec.fieldContext_Model_schema(ctx, field)
-			case "metadataSchema":
-				return ec.fieldContext_Model_metadataSchema(ctx, field)
-			case "public":
-				return ec.fieldContext_Model_public(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Model_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Model_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemGroupField_project(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_project(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ItemGroupField().Project(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Project)
-	fc.Result = res
-	return ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemGroupField_project(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Project_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Project_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Project_description(ctx, field)
-			case "alias":
-				return ec.fieldContext_Project_alias(ctx, field)
-			case "workspaceId":
-				return ec.fieldContext_Project_workspaceId(ctx, field)
-			case "workspace":
-				return ec.fieldContext_Project_workspace(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Project_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Project_updatedAt(ctx, field)
-			case "publication":
-				return ec.fieldContext_Project_publication(ctx, field)
-			case "requestRoles":
-				return ec.fieldContext_Project_requestRoles(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
 		},
 	}
 	return fc, nil
@@ -34202,179 +33740,20 @@ func (ec *executionContext) _ItemGroupField(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ItemGroupField")
-		case "id":
-			out.Values[i] = ec._ItemGroupField_id(ctx, field, obj)
+		case "schemaFieldId":
+			out.Values[i] = ec._ItemGroupField_schemaFieldId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "groupId":
 			out.Values[i] = ec._ItemGroupField_groupId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
-		case "schemaId":
-			out.Values[i] = ec._ItemGroupField_schemaId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "modelId":
-			out.Values[i] = ec._ItemGroupField_modelId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "projectId":
-			out.Values[i] = ec._ItemGroupField_projectId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "schema":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ItemGroupField_schema(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "group":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ItemGroupField_group(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "model":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ItemGroupField_model(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "project":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ItemGroupField_project(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "fields":
 			out.Values[i] = ec._ItemGroupField_fields(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -39093,10 +38472,6 @@ func (ec *executionContext) marshalNFileSize2int64(ctx context.Context, sel ast.
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNGroup2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Group) graphql.Marshaler {
-	return ec._Group(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Group) graphql.Marshaler {

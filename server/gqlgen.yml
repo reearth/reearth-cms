@@ -67,17 +67,6 @@ models:
       updatedBy:
         resolver: true
 
-  ItemGroupField:
-    fields:
-      schema:
-        resolver: true
-      project:
-        resolver: true
-      model:
-        resolver: true
-      group:
-        resolver: true
-
   Model:
     fields:
       project:

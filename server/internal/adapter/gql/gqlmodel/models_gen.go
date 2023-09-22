@@ -457,16 +457,9 @@ type ItemFieldInput struct {
 }
 
 type ItemGroupField struct {
-	ID        ID          `json:"id"`
-	GroupID   ID          `json:"groupId"`
-	SchemaID  ID          `json:"schemaId"`
-	ModelID   ID          `json:"modelId"`
-	ProjectID ID          `json:"projectId"`
-	Schema    *Schema     `json:"schema"`
-	Group     *Group      `json:"group"`
-	Model     *Model      `json:"model"`
-	Project   *Project    `json:"project"`
-	Fields    []ItemField `json:"fields"`
+	SchemaFieldID ID          `json:"schemaFieldId"`
+	GroupID       ID          `json:"groupId"`
+	Fields        []ItemField `json:"fields"`
 }
 
 func (ItemGroupField) IsItemField() {}

@@ -36,15 +36,8 @@ type ItemValueField {
 }
 
 type ItemGroupField {
-  id: ID!
+  schemaFieldId: ID!
   groupId: ID!
-  schemaId: ID!
-  modelId: ID!
-  projectId: ID!
-  schema: Schema!
-  group: Group!
-  model: Model!
-  project: Project!
   fields: [ItemField!]!
 }
 
