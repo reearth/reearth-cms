@@ -32,21 +32,36 @@ func (r *Group) Filtered(filter repo.ProjectFilter) repo.Group {
 }
 
 func (r *Group) FindByID(ctx context.Context, groupID id.GroupID) (*group.Group, error) {
-	//TODO implement me
-	panic("implement me")
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	m := r.data.Find(func(k id.GroupID, m *group.Group) bool {
+		return k == groupID && r.f.CanRead(m.Project())
+	})
+
+	if m != nil {
+		return m, nil
+	}
+	return nil, rerror.ErrNotFound
 }
 
 func (r *Group) FindByIDs(ctx context.Context, list id.GroupIDList) (group.List, error) {
-	//TODO implement me
-	panic("implement me")
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	result := r.data.FindAll(func(k id.GroupID, m *group.Group) bool {
+		return list.Has(k) && r.f.CanRead(m.Project())
+	})
+
+	return group.List(result).SortByID(), nil
 }
 
 func (r *Group) FindByProject(ctx context.Context, pid id.ProjectID) (group.List, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
-
-	// TODO: implement pagination
 
 	if !r.f.CanRead(pid) {
 		return nil, nil
