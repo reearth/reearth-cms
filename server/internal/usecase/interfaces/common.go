@@ -24,4 +24,5 @@ type Container struct {
 	Schema      Schema
 	Integration Integration
 	Thread      Thread
+	Group       Group
 }
