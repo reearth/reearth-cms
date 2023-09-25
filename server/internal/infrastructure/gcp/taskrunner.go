@@ -101,7 +101,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		Steps: []*cloudbuild.BuildStep{
 			{
 				Name: t.conf.DecompressorImage,
-				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + t.conf.DecompressorGzipExt, src, dest},
+				Args: []string{"-v", "-n=192", "-gc=5000", "-chunk=1m", "-disk-limit=20g", "-gzip-ext=" + t.conf.DecompressorGzipExt, "-skip-top", src, dest},
 				Env: []string{
 					"GOOGLE_CLOUD_PROJECT=" + project,
 					"REEARTH_CMS_DECOMPRESSOR_TOPIC=" + t.conf.DecompressorTopic,
