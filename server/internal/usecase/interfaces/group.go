@@ -5,7 +5,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/usecasex"
 )
 
 type CreateGroupParam struct {
@@ -25,7 +24,7 @@ type UpdateGroupParam struct {
 type Group interface {
 	FindByID(context.Context, id.GroupID, *usecase.Operator) (*group.Group, error)
 	FindByIDs(context.Context, id.GroupIDList, *usecase.Operator) (group.List, error)
-	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (group.List, *usecasex.PageInfo, error)
+	FindByProject(context.Context, id.ProjectID, *usecase.Operator) (group.List, error)
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*group.Group, error)
 	Create(context.Context, CreateGroupParam, *usecase.Operator) (*group.Group, error)
 	Update(context.Context, UpdateGroupParam, *usecase.Operator) (*group.Group, error)

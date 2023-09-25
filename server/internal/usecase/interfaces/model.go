@@ -11,8 +11,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
-var ErrDuplicatedKey = rerror.NewE(i18n.T("duplicated key"))
-
 type CreateModelParam struct {
 	ProjectId   id.ProjectID
 	Name        *string
