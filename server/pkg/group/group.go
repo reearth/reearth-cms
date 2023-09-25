@@ -1,6 +1,11 @@
 package group
 
-import "github.com/reearth/reearth-cms/server/pkg/key"
+import (
+	"fmt"
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearthx/rerror"
+)
 
 type Group struct {
 	id          ID
@@ -44,4 +49,23 @@ func (g *Group) Clone() *Group {
 		description: g.description,
 		key:         g.key,
 	}
+}
+
+func (g *Group) SetName(name string) {
+	g.name = name
+}
+
+func (g *Group) SetDescription(des string) {
+	g.description = des
+}
+
+func (g *Group) SetKey(key key.Key) error {
+	if !key.IsValid() {
+		return &rerror.Error{
+			Label: id.ErrInvalidKey,
+			Err:   fmt.Errorf("%s", key.String()),
+		}
+	}
+	g.key = key
+	return nil
 }
