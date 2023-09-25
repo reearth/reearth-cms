@@ -1730,6 +1730,7 @@ const (
 	SchemaFieldTypeReference    SchemaFieldType = "Reference"
 	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
+	SchemaFieldTypeGroup        SchemaFieldType = "GROUP"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
@@ -1746,11 +1747,12 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeReference,
 	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
+	SchemaFieldTypeGroup,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup:
 		return true
 	}
 	return false

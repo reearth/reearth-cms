@@ -12,6 +12,7 @@ enum SchemaFieldType {
   Reference
   Checkbox
   URL
+  GROUP
 }
 
 enum SchemaFieldTagColor {

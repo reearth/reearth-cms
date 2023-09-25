@@ -4721,6 +4721,7 @@ extend type Mutation {
   Reference
   Checkbox
   URL
+  GROUP
 }
 
 enum SchemaFieldTagColor {
