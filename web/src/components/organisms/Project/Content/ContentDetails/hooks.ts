@@ -359,10 +359,12 @@ export default () => {
           case "Date":
             if (Array.isArray(field.typeProperty.defaultValue)) {
               initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
-                moment(valueItem),
+                valueItem ? moment(valueItem) : "",
               );
             } else {
-              initialValues[field.id] = moment(field.typeProperty.defaultValue);
+              initialValues[field.id] = field.typeProperty.defaultValue
+                ? moment(field.typeProperty.defaultValue)
+                : "";
             }
             break;
           default:
@@ -375,10 +377,10 @@ export default () => {
         if (field.type === "Date") {
           if (Array.isArray(field.value)) {
             initialValues[field.schemaFieldId] = field.value.map((valueItem: string) =>
-              moment(valueItem),
+              field.value ? moment(valueItem) : "",
             );
           } else {
-            initialValues[field.schemaFieldId] = moment(field.value);
+            initialValues[field.schemaFieldId] = field.value ? moment(field.value) : "";
           }
         } else {
           initialValues[field.schemaFieldId] = field.value;
