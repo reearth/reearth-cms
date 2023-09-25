@@ -179,9 +179,9 @@ type CreateFieldInput struct {
 
 type CreateGroupInput struct {
 	ProjectID   ID      `json:"projectId"`
-	Name        *string `json:"name,omitempty"`
+	Name        string  `json:"name"`
+	Key         string  `json:"key"`
 	Description *string `json:"description,omitempty"`
-	Key         *string `json:"key,omitempty"`
 }
 
 type CreateIntegrationInput struct {

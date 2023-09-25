@@ -13,9 +13,9 @@ type Group implements Node {
 # inputs
 input CreateGroupInput {
     projectId: ID!
-    name: String
+    name: String!
+    key: String!
     description: String
-    key: String
 }
 
 input UpdateGroupInput {
