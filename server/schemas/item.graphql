@@ -9,7 +9,7 @@ type Item implements Node {
   updatedByIntegrationId: ID
   userId: ID
   metadataId: ID
-  createdBy: ItemEditor
+  createdBy: Operator
   schema: Schema!
   model: Model!
   status: ItemStatus!
@@ -19,13 +19,11 @@ type Item implements Node {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
-  updatedBy: ItemEditor
+  updatedBy: Operator
   version: String!
   metadata: Item
   title: String
 }
-
-union ItemEditor = User | Integration
 
 union ItemField = ItemValueField | ItemGroupField
 
@@ -36,15 +34,8 @@ type ItemValueField {
 }
 
 type ItemGroupField {
-  id: ID!
+  schemaFieldId: ID!
   groupId: ID!
-  schemaId: ID!
-  modelId: ID!
-  projectId: ID!
-  schema: Schema!
-  group: Group!
-  model: Model!
-  project: Project!
   fields: [ItemField!]!
 }
 
@@ -64,10 +55,22 @@ enum ItemStatus {
 }
 
 # Inputs
-input ItemFieldInput {
+
+input ItemValueFieldInput {
   schemaFieldId: ID!
   type: SchemaFieldType!
   value: Any!
+}
+
+input ItemGroupFieldInput {
+  schemaFieldId: ID!
+  groupId: ID!
+  fields: [ItemFieldInput!]!
+}
+
+input ItemFieldInput @onlyOne{
+  valueField: ItemValueFieldInput
+  groupField: ItemGroupFieldInput
 }
 
 input CreateItemInput {

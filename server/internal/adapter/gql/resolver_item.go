@@ -13,14 +13,14 @@ func (r *Resolver) Item() ItemResolver {
 
 type itemResolver struct{ *Resolver }
 
-func (i itemResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error) {
+func (i itemResolver) CreatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.Operator, error) {
 	if obj.UserID != nil {
 		return dataloaders(ctx).User.Load(*obj.UserID)
 	}
 	return dataloaders(ctx).Integration.Load(*obj.IntegrationID)
 }
 
-func (i itemResolver) UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemEditor, error) {
+func (i itemResolver) UpdatedBy(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.Operator, error) {
 	if obj.UpdatedByUserID != nil {
 		return dataloaders(ctx).User.Load(*obj.UpdatedByUserID)
 	}
@@ -84,30 +84,4 @@ func (i itemResolver) Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmod
 		return nil, nil
 	}
 	return dataloaders(ctx).Item.Load(*obj.MetadataID)
-}
-
-func (r *Resolver) ItemGroupField() ItemGroupFieldResolver {
-	return &itemGroupFieldResolver{r}
-}
-
-type itemGroupFieldResolver struct{ *Resolver }
-
-func (i itemGroupFieldResolver) Schema(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Schema, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i itemGroupFieldResolver) Project(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Project, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i itemGroupFieldResolver) Model(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Model, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i itemGroupFieldResolver) Group(ctx context.Context, obj *gqlmodel.ItemGroupField) (*gqlmodel.Group, error) {
-	//TODO implement me
-	panic("implement me")
 }
