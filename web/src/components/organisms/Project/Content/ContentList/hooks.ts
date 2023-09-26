@@ -18,6 +18,7 @@ import {
   ItemSortType as GQLItemSortType,
   useSearchItemQuery,
   Asset as GQLAsset,
+  useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -98,6 +99,36 @@ export default () => {
     selectedRowKeys: [],
   });
 
+  const referencedItemsIds = useMemo(
+    () =>
+      data?.searchItem?.nodes
+        ? data.searchItem.nodes
+            .filter(item => item?.fields && item?.fields.length > 0)
+            .flatMap(item =>
+              item?.fields
+                .filter(field => field.type === "Reference" && field.value)
+                .map(field => field.value),
+            )
+        : [],
+    [data],
+  );
+
+  const { data: referencedItems } = useGetItemsByIdsQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      id: referencedItemsIds,
+    },
+    skip: !referencedItemsIds.length,
+  });
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const referencedItemsMap = new Map<string, any>();
+  (referencedItems?.nodes ?? []).forEach(item => {
+    if (item && item.__typename === "Item") {
+      referencedItemsMap.set(item.id, item);
+    }
+  });
+
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.searchItem.nodes
       ?.map(item =>
@@ -126,7 +157,7 @@ export default () => {
                                 ?.url,
                             )
                         : field.type === "Reference"
-                        ? item?.title || field.value
+                        ? referencedItemsMap.get(field.value)?.title ?? ""
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -142,7 +173,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [data?.searchItem.nodes]);
+  }, [data?.searchItem.nodes, referencedItemsMap]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
