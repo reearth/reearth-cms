@@ -272,7 +272,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err = i.handleReferenceFieldsCreateOrUpdate(ctx, s, fields, nil, it, operator); err != nil {
+		if err = i.handleReferenceFields(ctx, *s, it, fields); err != nil {
 			return nil, err
 		}
 
@@ -303,149 +303,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		return vi, nil
 	})
-}
-
-func (i Item) handleReferenceFieldsCreateOrUpdate(ctx context.Context, s *schema.Schema, fields []*item.Field, oldFields *[]*item.Field, it *item.Item, op *usecase.Operator) error {
-	rf := lo.Filter(fields, func(f *item.Field, _ int) bool {
-		return f.Type() == value.TypeReference
-	})
-	for _, ff := range rf {
-		iid, ok := ff.Value().First().ValueReference()
-		if iid.IsEmpty() && oldFields != nil {
-			if err := i.handleEmptyReference(ctx, s, oldFields, it, ff.FieldID().Ref()); err != nil {
-				return err
-			}
-			continue
-		} else if !ok {
-			continue
-		}
-		itm2, err := i.repos.Item.FindByID(ctx, iid, nil)
-		if err != nil {
-			return err
-		}
-		// ok, err = i.IsItemReferenced(ctx, itm2.Value().ID(), ff.FieldID(), op)
-		// if err != nil {
-		// 	return err
-		// }
-		// if ok {
-		// 	itm3, err := i.getReferencedItem(ctx, it, ff.FieldID().Ref())
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// 	if itm3 == nil {
-		// 		continue
-		// 	}
-		// 	// remove reference from item
-		// }
-		var s2 *schema.Schema
-		if itm2.Value().Schema() == s.ID() {
-			s2 = s
-		} else {
-			s2, err = i.repos.Schema.FindByID(ctx, itm2.Value().Schema())
-			if err != nil {
-				return err
-			}
-		}
-		fid1, fid2 := item.AreItemsReferenced(it, itm2.Value(), s, s2)
-		if fid1 == nil || fid2 == nil {
-			continue
-		}
-		if oldFields != nil {
-			if err := i.removeOldReference(ctx, s, oldFields, fid1, fid2); err != nil {
-				return err
-			}
-		}
-		vv := value.New(value.TypeReference, it.ID().String()).AsMultiple()
-		if vv == nil {
-			continue
-		}
-		itm2.Value().UpdateFields([]*item.Field{item.NewField(*fid2, vv)})
-		if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// func (i Item) getReferencedItem(ctx context.Context, itm *item.Item, fid *id.FieldID) (*item.Item, error) {
-// 	of, ok := lo.Find(itm.Fields(), func(f *item.Field) bool {
-// 		return f.FieldID().String() == fid.String()
-// 	})
-// 	if !ok {
-// 		return nil, nil
-// 	}
-// 	iid, ok := of.Value().First().ValueReference()
-// 	if !ok {
-// 		return nil, nil
-// 	}
-// 	ii, err := i.repos.Item.FindByID(ctx, iid, nil)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return ii.Value(), nil
-// }
-
-func (i Item) handleEmptyReference(ctx context.Context, s *schema.Schema, oldFields *[]*item.Field, it *item.Item, fid *id.FieldID) error {
-	of, ok := lo.Find(*oldFields, func(f *item.Field) bool {
-		return f.FieldID().String() == fid.String()
-	})
-	if !ok {
-		return nil
-	}
-	oiid, ok := of.Value().First().ValueReference()
-	if !ok {
-		return nil
-	}
-	oitm, err := i.repos.Item.FindByID(ctx, oiid, nil)
-	if err != nil {
-		return err
-	}
-	os, err := i.repos.Schema.FindByID(ctx, oitm.Value().Schema())
-	if err != nil {
-		return err
-	}
-	fid1, fid2 := item.AreItemsReferenced(it, oitm.Value(), s, os)
-	if fid1 == nil || fid2 == nil {
-		return nil
-	}
-	updateFields := lo.Filter(oitm.Value().Fields(), func(f *item.Field, _ int) bool {
-		return f.FieldID().String() != fid2.String()
-	})
-	newField := item.NewField(*fid2, value.NewMultiple(value.TypeReference, []any{}))
-	updateFields = append(updateFields, newField)
-	oitm.Value().UpdateFields(updateFields)
-	if err := i.repos.Item.Save(ctx, oitm.Value()); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (i Item) removeOldReference(ctx context.Context, s *schema.Schema, oldFields *[]*item.Field, fid1 *id.FieldID, fid2 *id.FieldID) error {
-	of, ok := lo.Find(*oldFields, func(f *item.Field) bool {
-		return f.FieldID().String() == fid1.String()
-	})
-	if !ok {
-		return nil
-	}
-	oiid, ok := of.Value().First().ValueReference()
-	if !ok {
-		return nil
-	}
-	oitm, err := i.repos.Item.FindByID(ctx, oiid, nil)
-	if err != nil {
-		return err
-	}
-	updateFields := lo.Filter(oitm.Value().Fields(), func(f *item.Field, _ int) bool {
-		return f.FieldID().String() != fid2.String()
-	})
-	newField := item.NewField(*fid2, value.NewMultiple(value.TypeReference, []any{}))
-	updateFields = append(updateFields, newField)
-	oitm.Value().UpdateFields(updateFields)
-	if err := i.repos.Item.Save(ctx, oitm.Value()); err != nil {
-		return err
-	}
-	return nil
 }
 
 func (i Item) LastModifiedByModel(ctx context.Context, model id.ModelID, op *usecase.Operator) (time.Time, error) {
@@ -524,9 +381,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		newFields := itv.Fields()
-
-		if err = i.handleReferenceFieldsCreateOrUpdate(ctx, s, newFields, &oldFields, itv, operator); err != nil {
+		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return nil, err
 		}
 
@@ -540,7 +395,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Model:           m,
 				Schema:          s,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
-				Changes:         item.CompareFields(newFields, oldFields),
+				Changes:         item.CompareFields(itv.Fields(), oldFields),
 			},
 			Operator: operator.Operator(),
 		}); err != nil {
@@ -568,49 +423,15 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		if !operator.CanUpdate(itm.Value()) {
 			return interfaces.ErrOperationDenied
 		}
-		if err := i.handleReferenceFieldsDelete(ctx, itm, s, operator); err != nil {
+
+		oldFields := itm.Value().Fields()
+		itm.Value().ClearReferenceFields()
+		if err := i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return err
 		}
 
 		return i.repos.Item.Remove(ctx, itemID)
 	})
-}
-
-func (i Item) handleReferenceFieldsDelete(ctx context.Context, itm *version.Value[*item.Item], s *schema.Schema, op *usecase.Operator) error {
-	rf := lo.Filter(itm.Value().Fields(), func(f *item.Field, _ int) bool {
-		return f.Type() == value.TypeReference
-	})
-
-	for _, f := range rf {
-		iid2, ok := f.Value().First().ValueReference()
-		if !ok {
-			continue
-		}
-		itm2, err := i.repos.Item.FindByID(ctx, iid2, nil)
-		if err != nil {
-			continue
-		}
-		var s2 *schema.Schema
-		if itm2.Value().Schema() == s.ID() {
-			s2 = s
-		} else {
-			s2, err = i.repos.Schema.FindByID(ctx, itm2.Value().Schema())
-			if err != nil {
-				continue
-			}
-		}
-		fid1, fid2 := item.AreItemsReferenced(itm.Value(), itm2.Value(), s, s2)
-		if fid1 == nil || fid2 == nil {
-			continue
-		}
-		fields2 := []*item.Field{item.NewField(*fid2, value.NewMultiple(value.TypeReference, []any{}))}
-		itm2.Value().UpdateFields(fields2)
-		if err := i.repos.Item.Save(ctx, itm2.Value()); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
@@ -780,6 +601,96 @@ func (i Item) checkUnique(ctx context.Context, itemFields []*item.Field, s *sche
 
 	if len(exists) > 0 && (itm == nil || len(exists) != 1 || exists[0].Value().ID() != itm.ID()) {
 		return interfaces.ErrDuplicatedItemValue
+	}
+
+	return nil
+}
+
+func (i Item) getItemCorrespondingItems(ctx context.Context, s schema.Schema, itm *item.Item, oldFields item.Fields, fid id.FieldID) (item.List, error) {
+	var ci = make([]*item.Item, 0)
+
+	oldF := oldFields.Field(fid)
+	oldRefId, _ := oldF.Value().First().ValueReference()
+	if !oldRefId.IsEmpty() {
+		oldRefItm, err := i.repos.Item.FindByID(ctx, oldRefId, nil)
+		if err != nil {
+			return nil, err
+		}
+		ci = append(ci, oldRefItm.Value())
+	}
+
+	// if the is no change in reference item then there is no more corresponding item
+	newF := itm.Field(fid)
+	newRefId, _ := newF.Value().First().ValueReference()
+	if newRefId == oldRefId {
+		return ci, nil
+	}
+
+	// in case of dereference there is no more corresponding items
+	if newRefId.IsEmpty() {
+		return ci, nil
+	}
+
+	newRefItm, err := i.repos.Item.FindByID(ctx, newRefId, nil)
+	if err != nil {
+		return nil, err
+	}
+	ci = append(ci, newRefItm.Value())
+
+	// if the new referenced item has reference item get it
+	crf, ok := schema.FieldReferenceFromTypeProperty(s.Field(fid).TypeProperty())
+	if !ok || crf.CorrespondingFieldID() == nil {
+		return ci, nil
+	}
+	newRefRefF := newRefItm.Value().Field(*crf.CorrespondingFieldID())
+	newRefRefId, _ := newRefRefF.Value().First().ValueReference()
+	if !newRefRefId.IsEmpty() {
+		newRefRefItm, err := i.repos.Item.FindByID(ctx, newRefRefId, nil)
+		if err != nil {
+			return nil, err
+		}
+		ci = append(ci, newRefRefItm.Value())
+	}
+	return ci, nil
+}
+
+func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, it *item.Item, oldFields item.Fields) error {
+	sf := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
+		return f.Type() == value.TypeReference
+	})
+	for _, f := range sf {
+		rf, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+		if !ok {
+			continue
+		}
+		items, err := i.getItemCorrespondingItems(ctx, s, it, oldFields, f.ID())
+		if err != nil {
+			return err
+		}
+
+		for _, itm := range items {
+			itm.ClearField(f.ID())
+			if rf.CorrespondingFieldID() != nil {
+				itm.ClearField(*rf.CorrespondingFieldID())
+			}
+			if err := i.repos.Item.Save(ctx, itm); err != nil {
+				return err
+			}
+		}
+
+		if rf.CorrespondingFieldID() == nil {
+			continue
+		}
+		refItmId, ok := it.Field(f.ID()).Value().First().ValueReference()
+		if !ok || refItmId.IsEmpty() {
+			continue
+		}
+		refItm, _ := items.Item(refItmId)
+		idValue := value.NewMultiple(value.TypeReference, []any{it.ID().String()})
+		refItm.UpdateFields([]*item.Field{item.NewField(*rf.CorrespondingFieldID(), idValue)})
+		if err := i.repos.Item.Save(ctx, refItm); err != nil {
+			return err
+		}
 	}
 
 	return nil
