@@ -55,10 +55,22 @@ enum ItemStatus {
 }
 
 # Inputs
-input ItemFieldInput {
+
+input ItemValueFieldInput {
   schemaFieldId: ID!
   type: SchemaFieldType!
   value: Any!
+}
+
+input ItemGroupFieldInput {
+  schemaFieldId: ID!
+  groupId: ID!
+  fields: [ItemFieldInput!]!
+}
+
+input ItemFieldInput @onlyOne{
+  valueField: ItemValueFieldInput
+  groupField: ItemGroupFieldInput
 }
 
 input CreateItemInput {
