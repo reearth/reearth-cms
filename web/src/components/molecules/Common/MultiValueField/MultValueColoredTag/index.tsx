@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ChangeEvent, useCallback, useEffect, useState, FocusEvent } from "react";
+import { ChangeEvent, useCallback, useEffect, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
@@ -33,8 +33,9 @@ type Props = {
 
 const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange, ...props }) => {
   const t = useT();
-  const [showTag, setShowTag] = useState(true);
   const [lastColorIndex, setLastColorIndex] = useState(0);
+  const [focusedTagIndex, setFocusedTagIndex] = useState<number | null>(null); // New State to hold the focused tag index
+  const divRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const generateMenuItems = (key: number) => {
     const colors: TagColor[] = [
@@ -82,11 +83,6 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
     setLastColorIndex((lastColorIndex + 1) % colors.length);
   };
 
-  const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
-    event.stopPropagation();
-    setShowTag(true);
-  };
-
   const handleInput = useCallback(
     (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {
       onChange?.(
@@ -122,6 +118,20 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
     [onChange, value],
   );
 
+  const handleTagClick = (index: number) => {
+    setFocusedTagIndex(index);
+  };
+
+  useEffect(() => {
+    if (focusedTagIndex !== null) {
+      const inputElem = divRefs.current[focusedTagIndex]?.querySelector("input");
+      inputElem?.focus();
+    }
+  }, [focusedTagIndex]);
+  const handleInputBlur = () => {
+    setFocusedTagIndex(null);
+  };
+
   return (
     <div className={className}>
       {Array.isArray(value) &&
@@ -143,19 +153,21 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
                 />
               </>
             )}
-            <Input
-              style={{ flex: 1 }}
-              {...props}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
-              value={valueItem.name}
-              onBlur={handleBlur}
-              hidden={showTag}
-            />
+            <div
+              hidden={focusedTagIndex !== key}
+              style={{ width: "100%" }}
+              ref={el => (divRefs.current[key] = el)}>
+              <Input
+                style={{ flex: 1 }}
+                {...props}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
+                value={valueItem.name}
+                onBlur={() => handleInputBlur()}
+              />
+            </div>
             <StyledTag
-              hidden={!showTag}
-              onClick={() => {
-                setShowTag(false);
-              }}>
+              hidden={focusedTagIndex === key} // Hide tag when it is focused
+              onClick={() => handleTagClick(key)}>
               <Tag color={valueItem.color.toLowerCase()} style={{ flex: 1, marginRight: 8 }}>
                 {valueItem.name}
               </Tag>
