@@ -162,12 +162,19 @@ const FieldUpdateModal: React.FC<Props> = ({
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
-    if (selectedType === "Tag") {
-      if (
-        !selectedTags?.some(selectedTag => selectedTag.id === form.getFieldValue("defaultValue"))
-      ) {
-        form.setFieldValue("defaultValue", []);
-      }
+    if (selectedType === "Tag" && form.getFieldValue("defaultValue") && selectedTags) {
+      const defaultValues = form.getFieldValue("defaultValue");
+      const isDefaultValueArray = Array.isArray(defaultValues);
+
+      const result = selectedTags
+        .filter(selectedTag =>
+          isDefaultValueArray
+            ? defaultValues.includes(selectedTag.name) || defaultValues.includes(selectedTag.id)
+            : selectedTag.name === defaultValues || selectedTag.id === defaultValues,
+        )
+        .map(item => item.name);
+
+      form.setFieldValue("defaultValue", result);
     }
   }, [form, selectedTags, selectedType]);
 
@@ -180,7 +187,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       return value.map(item => item.format("YYYY-MM-DDTHH:mm:ssZ"));
     }
 
-    return value; // return the original value if it's neither a moment object nor an array of moment objects
+    return value;
   };
 
   useEffect(() => {
@@ -199,9 +206,16 @@ const FieldUpdateModal: React.FC<Props> = ({
     }
     if (selectedType === "Tag") {
       if (Array.isArray(value)) {
-        value = value.map(valueItem => selectedTags?.find(tag => tag.id === valueItem)?.name);
+        value = value.map(
+          valueItem =>
+            selectedField?.typeProperty.tags?.find(
+              (tag: { id: string; name: string }) => tag.id === valueItem,
+            )?.name,
+        );
       } else {
-        value = selectedTags?.find(tag => tag.id === value)?.name;
+        value = selectedField?.typeProperty.tags?.find(
+          (tag: { id: string; name: string }) => tag.id === value,
+        )?.name;
       }
     }
 
@@ -221,7 +235,13 @@ const FieldUpdateModal: React.FC<Props> = ({
       values: selectedField?.typeProperty.values,
       tags: selectedField?.typeProperty.tags,
     });
-  }, [form, selectedField, selectedType, selectedTags]);
+  }, [
+    form,
+    selectedField,
+    selectedType,
+    selectedField?.typeProperty.selectDefaultValue,
+    selectedField?.typeProperty.tags,
+  ]);
 
   const handleSubmit = useCallback(() => {
     form
