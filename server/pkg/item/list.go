@@ -20,9 +20,9 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 	})
 }
 
-func (l List) Item(vv id.ItemID) (*Item, bool) {
+func (l List) Item(iID id.ItemID) (*Item, bool) {
 	return lo.Find(l, func(i *Item) bool {
-		return i.ID() == vv
+		return i.ID() == iID
 	})
 }
 
