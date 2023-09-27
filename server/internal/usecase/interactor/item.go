@@ -272,7 +272,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		if err = i.handleReferenceFields(ctx, *s, it, fields); err != nil {
+		if err = i.handleReferenceFields(ctx, *s, it, item.Fields{}); err != nil {
 			return nil, err
 		}
 

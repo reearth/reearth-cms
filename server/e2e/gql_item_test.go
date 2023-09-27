@@ -341,4 +341,34 @@ func TestTwoWayReferenceFields(t *testing.T) {
 
 	_, res = getItem(e, m1i1id)
 	res.Path("$.data.node.fields[-1:].value").Array().Equal([]any{nil})
+
+	deleteItem(e, m2i2id)
+	deleteItem(e, m1i1id)
+	deleteItem(e, m1i2id)
+
+	m1i1id, _ = createItem(e, m1Id, s1Id, []map[string]any{
+		{"schemaFieldId": m1fids.textFId, "value": "M1-I1", "type": "Text"},
+	})
+
+	m2i1id, _ = createItem(e, m2Id, s2Id, []map[string]any{
+		{"schemaFieldId": m2fids.textFId, "value": "M2-I1", "type": "Text"},
+		{"schemaFieldId": m2refFId, "value": m1i1id, "type": "Reference"},
+	})
+
+	_, res = getItem(e, m1i1id)
+	res.Path("$.data.node.fields[-1:].value").Array().Equal([]string{m2i1id})
+	_, res = getItem(e, m2i1id)
+	res.Path("$.data.node.fields[-1:].value").Array().Equal([]string{m1i1id})
+
+	m2i2id, _ = createItem(e, m2Id, s2Id, []map[string]any{
+		{"schemaFieldId": m2fids.textFId, "value": "M2-I2", "type": "Text"},
+		{"schemaFieldId": m2refFId, "value": m1i1id, "type": "Reference"},
+	})
+
+	_, res = getItem(e, m1i1id)
+	res.Path("$.data.node.fields[-1:].value").Array().Equal([]string{m2i2id})
+	_, res = getItem(e, m2i1id)
+	res.Path("$.data.node.fields[-1:].value").Array().Equal([]any{nil})
+	_, res = getItem(e, m2i2id)
+	res.Path("$.data.node.fields[-1:].value").Array().Equal([]string{m1i1id})
 }
