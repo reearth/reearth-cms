@@ -72,6 +72,36 @@ func TestItem_UpdateFields(t *testing.T) {
 	}
 }
 
+func TestItem_ClearField(t *testing.T) {
+	now := time.Now()
+	defer util.MockNow(now)()
+
+	fid1, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
+	f1 := NewField(fid1, value.TypeText.Value("test").AsMultiple())
+	f2 := NewField(fid2, value.TypeText.Value("test").AsMultiple())
+	f3 := NewField(fid3, value.TypeText.Value("test").AsMultiple())
+
+	i := &Item{fields: []*Field{f1, f2, f3}}
+
+	i.ClearField(fid2)
+	assert.Equal(t, []*Field{f1, f3}, i.fields)
+}
+
+func TestItem_ClearReferenceFields(t *testing.T) {
+	now := time.Now()
+	defer util.MockNow(now)()
+
+	fid1, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
+	f1 := NewField(fid1, value.TypeText.Value("test").AsMultiple())
+	f2 := NewField(fid2, value.TypeText.Value("test").AsMultiple())
+	f3 := NewField(fid3, value.TypeReference.Value(id.NewItemID()).AsMultiple())
+
+	i := &Item{fields: []*Field{f1, f2, f3}}
+
+	i.ClearReferenceFields()
+	assert.Equal(t, []*Field{f1, f2}, i.fields)
+}
+
 func TestItem_Filtered(t *testing.T) {
 	sfid1 := id.NewFieldID()
 	sfid2 := id.NewFieldID()

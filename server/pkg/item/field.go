@@ -26,19 +26,8 @@ func (f *Field) Type() value.Type {
 }
 
 func (f *Field) Value() *value.Multiple {
-	return f.value
-}
-
-type Fields []*Field
-
-type FieldMap map[FieldID]*Field
-
-func (f Fields) Map() FieldMap {
-	m := make(map[FieldID]*Field)
-	for _, field := range f {
-		if field != nil {
-			m[field.FieldID()] = field
-		}
+	if f == nil {
+		return nil
 	}
-	return m
+	return f.value
 }

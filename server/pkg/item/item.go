@@ -126,6 +126,22 @@ func (i *Item) UpdateFields(fields []*Field) {
 	i.timestamp = util.Now()
 }
 
+func (i *Item) ClearField(fid FieldID) {
+	i.fields = lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
+		return f, f.FieldID() != fid
+	})
+
+	i.timestamp = util.Now()
+}
+
+func (i *Item) ClearReferenceFields() {
+	i.fields = lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
+		return f, f.Type() != value.TypeReference
+	})
+
+	i.timestamp = util.Now()
+}
+
 func (i *Item) FilterFields(list FieldIDList) *Item {
 	if i == nil || list == nil {
 		return nil

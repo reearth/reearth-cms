@@ -20,6 +20,12 @@ func (l List) FilterFields(lids id.FieldIDList) List {
 	})
 }
 
+func (l List) Item(iID id.ItemID) (*Item, bool) {
+	return lo.Find(l, func(i *Item) bool {
+		return i.ID() == iID
+	})
+}
+
 type VersionedList []Versioned
 
 func (l VersionedList) FilterFields(fields id.FieldIDList) VersionedList {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/stretchr/testify/assert"
 )
 
 func createField(e *httpexpect.Expect, mID, title, desc, key string, multiple, unique, isTitle, required bool, fType string, fTypeProp map[string]any) (string, *httpexpect.Value) {
@@ -82,6 +83,105 @@ func updateField(e *httpexpect.Expect, mID, fID, title, desc, key string, multip
 		JSON()
 
 	return res.Path("$.data.updateField.field.id").Raw().(string), res
+}
+
+type fIds struct {
+	textFId     string
+	textAreaFId string
+	markdownFId string
+	assetFId    string
+	boolFId     string
+	selectFId   string
+	integerFId  string
+	urlFId      string
+}
+
+func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds {
+	textFId, _ := createField(e, mId, "text", "text", "text",
+		false, false, false, false, "Text",
+		map[string]any{
+			"text": map[string]any{},
+		})
+
+	textAreaFId, _ := createField(e, mId, "textArea", "textArea", "textArea",
+		false, false, false, false, "TextArea",
+		map[string]any{
+			"textArea": map[string]any{},
+		})
+
+	markdownFId, _ := createField(e, mId, "markdown", "markdown", "markdown",
+		false, false, false, false, "MarkdownText",
+		map[string]any{
+			"markdownText": map[string]any{},
+		})
+
+	assetFId, _ := createField(e, mId, "asset", "asset", "asset",
+		false, false, false, false, "Asset",
+		map[string]any{
+			"asset": map[string]any{},
+		})
+
+	boolFId, _ := createField(e, mId, "bool", "bool", "bool",
+		false, false, false, false, "Bool",
+		map[string]any{
+			"bool": map[string]any{},
+		})
+
+	selectFId, _ := createField(e, mId, "select", "select", "select",
+		false, false, false, false, "Select",
+		map[string]any{
+			"select": map[string]any{
+				"defaultValue": nil,
+				"values":       []any{"s1", "s2", "s3"},
+			},
+		})
+
+	integerFId, _ := createField(e, mId, "integer", "integer", "integer",
+		false, false, false, false, "Integer",
+		map[string]any{
+			"integer": map[string]any{
+				"defaultValue": nil,
+				"min":          nil,
+				"max":          nil,
+			},
+		})
+
+	urlFId, _ := createField(e, mId, "url", "url", "url",
+		false, false, false, false, "URL",
+		map[string]any{
+			"url": map[string]any{},
+		})
+
+	_, res := getModel(e, mId)
+
+	res.Object().
+		Value("data").Object().
+		Value("node").Object().
+		ValueEqual("id", mId)
+
+	ids := res.Path("$.data.node.schema.fields[:].id").Raw().([]any)
+
+	assert.Equal(t, []any{
+		textFId,
+		textAreaFId,
+		markdownFId,
+		assetFId,
+		boolFId,
+		selectFId,
+		integerFId,
+		urlFId,
+	}, ids)
+
+	return fIds{
+		textFId:     textFId,
+		textAreaFId: textAreaFId,
+		markdownFId: markdownFId,
+		assetFId:    assetFId,
+		boolFId:     boolFId,
+		selectFId:   selectFId,
+		integerFId:  integerFId,
+		urlFId:      urlFId,
+	}
 }
 
 func TestCreateField(t *testing.T) {

@@ -139,7 +139,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, *httpexpect.Value) {
 		Status(http.StatusOK).
 		JSON()
 
-	return res.Path("$.data.node.id").Raw().(string), res
+	return res.Path("$.data.node.schema.id").Raw().(string), res
 }
 
 func TestCreateModel(t *testing.T) {
