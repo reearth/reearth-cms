@@ -26,8 +26,8 @@ export type TagColor =
 
 type Props = {
   className?: string;
-  value?: { name: string; color: TagColor }[];
-  onChange?: (value: { name: string; color: TagColor }[]) => void;
+  value?: { id?: string; name: string; color: TagColor }[];
+  onChange?: (value: { id?: string; name: string; color: TagColor }[]) => void;
 } & TextAreaProps &
   InputProps;
 
@@ -87,7 +87,9 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
     (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {
       onChange?.(
         value?.map((valueItem, index) =>
-          index === id ? { color: valueItem.color, name: e?.target.value } : valueItem,
+          index === id
+            ? { id: valueItem?.id, color: valueItem.color, name: e?.target.value }
+            : valueItem,
         ),
       );
     },
