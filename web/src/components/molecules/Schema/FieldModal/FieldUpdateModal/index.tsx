@@ -288,6 +288,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             tag: {
               defaultValue: values.defaultValue,
               tags: values.tags.map((tag: any) => ({
+                id: tag.id,
                 name: tag.name,
                 color: tag.color.toUpperCase(),
               })),
