@@ -34,6 +34,7 @@ type Props = {
 const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange, ...props }) => {
   const t = useT();
   const [showTag, setShowTag] = useState(true);
+  const [lastColorIndex, setLastColorIndex] = useState(0);
 
   const generateMenuItems = (key: number) => {
     const colors: TagColor[] = [
@@ -59,6 +60,26 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
         </div>
       ),
     }));
+  };
+
+  const handleNewTag = () => {
+    if (!value) value = [];
+    const colors: TagColor[] = [
+      "MAGENTA",
+      "RED",
+      "VOLCANO",
+      "ORANGE",
+      "GOLD",
+      "LIME",
+      "GREEN",
+      "CYAN",
+      "BLUE",
+      "GEEKBLUE",
+      "PURPLE",
+    ];
+    const newColor = colors[lastColorIndex];
+    onChange?.([...value, { color: newColor, name: "Tag" }]);
+    setLastColorIndex((lastColorIndex + 1) % colors.length);
   };
 
   const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
@@ -152,13 +173,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
           </FieldWrapper>
         ))}
       {!props.disabled && (
-        <Button
-          icon={<Icon icon="plus" />}
-          type="primary"
-          onClick={() => {
-            if (!value) value = [];
-            onChange?.([...value, { color: "MAGENTA", name: "Tag" }]);
-          }}>
+        <Button icon={<Icon icon="plus" />} type="primary" onClick={handleNewTag}>
           {t("New")}
         </Button>
       )}
