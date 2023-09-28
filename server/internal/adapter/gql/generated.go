@@ -281,20 +281,14 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	ItemGroupField struct {
-		Fields        func(childComplexity int) int
-		GroupID       func(childComplexity int) int
+	ItemField struct {
 		SchemaFieldID func(childComplexity int) int
+		Type          func(childComplexity int) int
+		Value         func(childComplexity int) int
 	}
 
 	ItemPayload struct {
 		Item func(childComplexity int) int
-	}
-
-	ItemValueField struct {
-		SchemaFieldID func(childComplexity int) int
-		Type          func(childComplexity int) int
-		Value         func(childComplexity int) int
 	}
 
 	KeyAvailability struct {
@@ -1679,26 +1673,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ItemEdge.Node(childComplexity), true
 
-	case "ItemGroupField.fields":
-		if e.complexity.ItemGroupField.Fields == nil {
+	case "ItemField.schemaFieldId":
+		if e.complexity.ItemField.SchemaFieldID == nil {
 			break
 		}
 
-		return e.complexity.ItemGroupField.Fields(childComplexity), true
+		return e.complexity.ItemField.SchemaFieldID(childComplexity), true
 
-	case "ItemGroupField.groupId":
-		if e.complexity.ItemGroupField.GroupID == nil {
+	case "ItemField.type":
+		if e.complexity.ItemField.Type == nil {
 			break
 		}
 
-		return e.complexity.ItemGroupField.GroupID(childComplexity), true
+		return e.complexity.ItemField.Type(childComplexity), true
 
-	case "ItemGroupField.schemaFieldId":
-		if e.complexity.ItemGroupField.SchemaFieldID == nil {
+	case "ItemField.value":
+		if e.complexity.ItemField.Value == nil {
 			break
 		}
 
-		return e.complexity.ItemGroupField.SchemaFieldID(childComplexity), true
+		return e.complexity.ItemField.Value(childComplexity), true
 
 	case "ItemPayload.item":
 		if e.complexity.ItemPayload.Item == nil {
@@ -1706,27 +1700,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ItemPayload.Item(childComplexity), true
-
-	case "ItemValueField.schemaFieldId":
-		if e.complexity.ItemValueField.SchemaFieldID == nil {
-			break
-		}
-
-		return e.complexity.ItemValueField.SchemaFieldID(childComplexity), true
-
-	case "ItemValueField.type":
-		if e.complexity.ItemValueField.Type == nil {
-			break
-		}
-
-		return e.complexity.ItemValueField.Type(childComplexity), true
-
-	case "ItemValueField.value":
-		if e.complexity.ItemValueField.Value == nil {
-			break
-		}
-
-		return e.complexity.ItemValueField.Value(childComplexity), true
 
 	case "KeyAvailability.available":
 		if e.complexity.KeyAvailability.Available == nil {
@@ -5039,18 +5012,10 @@ extend type Mutation {
   title: String
 }
 
-union ItemField = ItemValueField | ItemGroupField
-
-type ItemValueField {
+type ItemField {
   schemaFieldId: ID!
   type: SchemaFieldType!
   value: Any
-}
-
-type ItemGroupField {
-  schemaFieldId: ID!
-  groupId: ID!
-  fields: [ItemField!]!
 }
 
 type VersionedItem {
@@ -11528,9 +11493,9 @@ func (ec *executionContext) _Item_fields(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]gqlmodel.ItemField)
+	res := resTmp.([]*gqlmodel.ItemField)
 	fc.Result = res
-	return ec.marshalNItemField2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldᚄ(ctx, field.Selections, res)
+	return ec.marshalNItemField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_fields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11540,7 +11505,15 @@ func (ec *executionContext) fieldContext_Item_fields(ctx context.Context, field 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ItemField does not have child fields")
+			switch field.Name {
+			case "schemaFieldId":
+				return ec.fieldContext_ItemField_schemaFieldId(ctx, field)
+			case "type":
+				return ec.fieldContext_ItemField_type(ctx, field)
+			case "value":
+				return ec.fieldContext_ItemField_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ItemField", field.Name)
 		},
 	}
 	return fc, nil
@@ -12306,8 +12279,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _ItemGroupField_schemaFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_schemaFieldId(ctx, field)
+func (ec *executionContext) _ItemField_schemaFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemField_schemaFieldId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12337,9 +12310,9 @@ func (ec *executionContext) _ItemGroupField_schemaFieldId(ctx context.Context, f
 	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemGroupField_schemaFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemField_schemaFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
+		Object:     "ItemField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -12350,8 +12323,8 @@ func (ec *executionContext) fieldContext_ItemGroupField_schemaFieldId(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ItemGroupField_groupId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_groupId(ctx, field)
+func (ec *executionContext) _ItemField_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemField_type(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12364,7 +12337,7 @@ func (ec *executionContext) _ItemGroupField_groupId(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.GroupID, nil
+		return obj.Type, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12376,26 +12349,26 @@ func (ec *executionContext) _ItemGroupField_groupId(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ID)
+	res := resTmp.(gqlmodel.SchemaFieldType)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemGroupField_groupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
+		Object:     "ItemField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type SchemaFieldType does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ItemGroupField_fields(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemGroupField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemGroupField_fields(ctx, field)
+func (ec *executionContext) _ItemField_value(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemField_value(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12408,31 +12381,28 @@ func (ec *executionContext) _ItemGroupField_fields(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Fields, nil
+		return obj.Value, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.([]gqlmodel.ItemField)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalNItemField2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldᚄ(ctx, field.Selections, res)
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ItemGroupField_fields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ItemField_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ItemGroupField",
+		Object:     "ItemField",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ItemField does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12527,135 +12497,6 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_title(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemValueField_schemaFieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemValueField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemValueField_schemaFieldId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SchemaFieldID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemValueField_schemaFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemValueField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemValueField_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemValueField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemValueField_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.SchemaFieldType)
-	fc.Result = res
-	return ec.marshalNSchemaFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemValueField_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemValueField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SchemaFieldType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemValueField_value(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemValueField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemValueField_value(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Value, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(interface{})
-	fc.Result = res
-	return ec.marshalOAny2interface(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemValueField_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemValueField",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -31446,29 +31287,6 @@ func (ec *executionContext) _Container(ctx context.Context, sel ast.SelectionSet
 	}
 }
 
-func (ec *executionContext) _ItemField(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.ItemField) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case gqlmodel.ItemValueField:
-		return ec._ItemValueField(ctx, sel, &obj)
-	case *gqlmodel.ItemValueField:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ItemValueField(ctx, sel, obj)
-	case gqlmodel.ItemGroupField:
-		return ec._ItemGroupField(ctx, sel, &obj)
-	case *gqlmodel.ItemGroupField:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ItemGroupField(ctx, sel, obj)
-	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
-	}
-}
-
 func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Node) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -33898,32 +33716,29 @@ func (ec *executionContext) _ItemEdge(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var itemGroupFieldImplementors = []string{"ItemGroupField", "ItemField"}
+var itemFieldImplementors = []string{"ItemField"}
 
-func (ec *executionContext) _ItemGroupField(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ItemGroupField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, itemGroupFieldImplementors)
+func (ec *executionContext) _ItemField(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ItemField) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, itemFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ItemGroupField")
+			out.Values[i] = graphql.MarshalString("ItemField")
 		case "schemaFieldId":
-			out.Values[i] = ec._ItemGroupField_schemaFieldId(ctx, field, obj)
+			out.Values[i] = ec._ItemField_schemaFieldId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "groupId":
-			out.Values[i] = ec._ItemGroupField_groupId(ctx, field, obj)
+		case "type":
+			out.Values[i] = ec._ItemField_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "fields":
-			out.Values[i] = ec._ItemGroupField_fields(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+		case "value":
+			out.Values[i] = ec._ItemField_value(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -33963,52 +33778,6 @@ func (ec *executionContext) _ItemPayload(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var itemValueFieldImplementors = []string{"ItemValueField", "ItemField"}
-
-func (ec *executionContext) _ItemValueField(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ItemValueField) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, itemValueFieldImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ItemValueField")
-		case "schemaFieldId":
-			out.Values[i] = ec._ItemValueField_schemaFieldId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "type":
-			out.Values[i] = ec._ItemValueField_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "value":
-			out.Values[i] = ec._ItemValueField_value(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -38938,17 +38707,7 @@ func (ec *executionContext) marshalNItemEdge2ᚖgithubᚗcomᚋreearthᚋreearth
 	return ec._ItemEdge(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNItemField2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemField(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemField) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ItemField(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNItemField2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.ItemField) graphql.Marshaler {
+func (ec *executionContext) marshalNItemField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.ItemField) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -38972,7 +38731,7 @@ func (ec *executionContext) marshalNItemField2ᚕgithubᚗcomᚋreearthᚋreeart
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNItemField2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemField(ctx, sel, v[i])
+			ret[i] = ec.marshalNItemField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemField(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -38990,6 +38749,16 @@ func (ec *executionContext) marshalNItemField2ᚕgithubᚗcomᚋreearthᚋreeart
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNItemField2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemField(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ItemField) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ItemField(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNItemFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemFieldInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.ItemFieldInput, error) {

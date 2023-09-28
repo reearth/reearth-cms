@@ -18,10 +18,6 @@ type Container interface {
 	IsContainer()
 }
 
-type ItemField interface {
-	IsItemField()
-}
-
 type Node interface {
 	IsNode()
 	GetID() ID
@@ -411,30 +407,30 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID                     ID          `json:"id"`
-	SchemaID               ID          `json:"schemaId"`
-	ThreadID               ID          `json:"threadId"`
-	ModelID                ID          `json:"modelId"`
-	ProjectID              ID          `json:"projectId"`
-	IntegrationID          *ID         `json:"integrationId,omitempty"`
-	UpdatedByUserID        *ID         `json:"updatedByUserId,omitempty"`
-	UpdatedByIntegrationID *ID         `json:"updatedByIntegrationId,omitempty"`
-	UserID                 *ID         `json:"userId,omitempty"`
-	MetadataID             *ID         `json:"metadataId,omitempty"`
-	CreatedBy              Operator    `json:"createdBy,omitempty"`
-	Schema                 *Schema     `json:"schema"`
-	Model                  *Model      `json:"model"`
-	Status                 ItemStatus  `json:"status"`
-	Project                *Project    `json:"project"`
-	Thread                 *Thread     `json:"thread"`
-	Fields                 []ItemField `json:"fields"`
-	Assets                 []*Asset    `json:"assets"`
-	CreatedAt              time.Time   `json:"createdAt"`
-	UpdatedAt              time.Time   `json:"updatedAt"`
-	UpdatedBy              Operator    `json:"updatedBy,omitempty"`
-	Version                string      `json:"version"`
-	Metadata               *Item       `json:"metadata,omitempty"`
-	Title                  *string     `json:"title,omitempty"`
+	ID                     ID           `json:"id"`
+	SchemaID               ID           `json:"schemaId"`
+	ThreadID               ID           `json:"threadId"`
+	ModelID                ID           `json:"modelId"`
+	ProjectID              ID           `json:"projectId"`
+	IntegrationID          *ID          `json:"integrationId,omitempty"`
+	UpdatedByUserID        *ID          `json:"updatedByUserId,omitempty"`
+	UpdatedByIntegrationID *ID          `json:"updatedByIntegrationId,omitempty"`
+	UserID                 *ID          `json:"userId,omitempty"`
+	MetadataID             *ID          `json:"metadataId,omitempty"`
+	CreatedBy              Operator     `json:"createdBy,omitempty"`
+	Schema                 *Schema      `json:"schema"`
+	Model                  *Model       `json:"model"`
+	Status                 ItemStatus   `json:"status"`
+	Project                *Project     `json:"project"`
+	Thread                 *Thread      `json:"thread"`
+	Fields                 []*ItemField `json:"fields"`
+	Assets                 []*Asset     `json:"assets"`
+	CreatedAt              time.Time    `json:"createdAt"`
+	UpdatedAt              time.Time    `json:"updatedAt"`
+	UpdatedBy              Operator     `json:"updatedBy,omitempty"`
+	Version                string       `json:"version"`
+	Metadata               *Item        `json:"metadata,omitempty"`
+	Title                  *string      `json:"title,omitempty"`
 }
 
 func (Item) IsNode()        {}
@@ -452,19 +448,17 @@ type ItemEdge struct {
 	Node   *Item           `json:"node,omitempty"`
 }
 
+type ItemField struct {
+	SchemaFieldID ID              `json:"schemaFieldId"`
+	Type          SchemaFieldType `json:"type"`
+	Value         interface{}     `json:"value,omitempty"`
+}
+
 type ItemFieldInput struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
 	Type          SchemaFieldType `json:"type"`
 	Value         interface{}     `json:"value"`
 }
-
-type ItemGroupField struct {
-	SchemaFieldID ID          `json:"schemaFieldId"`
-	GroupID       ID          `json:"groupId"`
-	Fields        []ItemField `json:"fields"`
-}
-
-func (ItemGroupField) IsItemField() {}
 
 type ItemPayload struct {
 	Item *Item `json:"item"`
@@ -480,14 +474,6 @@ type ItemSort struct {
 	SortBy    ItemSortType   `json:"sortBy"`
 	Direction *SortDirection `json:"direction,omitempty"`
 }
-
-type ItemValueField struct {
-	SchemaFieldID ID              `json:"schemaFieldId"`
-	Type          SchemaFieldType `json:"type"`
-	Value         interface{}     `json:"value,omitempty"`
-}
-
-func (ItemValueField) IsItemField() {}
 
 type KeyAvailability struct {
 	Key       string `json:"key"`

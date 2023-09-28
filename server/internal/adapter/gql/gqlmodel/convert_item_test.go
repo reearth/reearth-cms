@@ -28,11 +28,6 @@ func TestToItem(t *testing.T) {
 	pid := id.NewProjectID()
 	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
-	ivf := &ItemValueField{
-		SchemaFieldID: IDFrom(sf1.ID()),
-		Type:          SchemaFieldTypeText,
-		Value:         "test",
-	}
 	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
 	i := item.New().
 		ID(iid).
@@ -65,8 +60,12 @@ func TestToItem(t *testing.T) {
 				IntegrationID: IDFromRef(nid.Ref()),
 				CreatedAt:     i.ID().Timestamp(),
 				UpdatedAt:     i.Timestamp(),
-				Fields: []ItemField{
-					ivf,
+				Fields: []*ItemField{
+					{
+						SchemaFieldID: IDFrom(sf1.ID()),
+						Type:          SchemaFieldTypeText,
+						Value:         "test",
+					},
 				},
 				Version: v.String(),
 				Title:   lo.ToPtr("test"),
