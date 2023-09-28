@@ -25,18 +25,10 @@ type Item implements Node {
   title: String
 }
 
-union ItemField = ItemValueField | ItemGroupField
-
-type ItemValueField {
+type ItemField {
   schemaFieldId: ID!
   type: SchemaFieldType!
   value: Any
-}
-
-type ItemGroupField {
-  schemaFieldId: ID!
-  groupId: ID!
-  fields: [ItemField!]!
 }
 
 type VersionedItem {
@@ -55,22 +47,10 @@ enum ItemStatus {
 }
 
 # Inputs
-
-input ItemValueFieldInput {
+input ItemFieldInput {
   schemaFieldId: ID!
   type: SchemaFieldType!
   value: Any!
-}
-
-input ItemGroupFieldInput {
-  schemaFieldId: ID!
-  groupId: ID!
-  fields: [ItemFieldInput!]!
-}
-
-input ItemFieldInput @onlyOne{
-  valueField: ItemValueFieldInput
-  groupField: ItemGroupFieldInput
 }
 
 input CreateItemInput {

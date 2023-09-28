@@ -41,6 +41,9 @@ func (g *Group) Key() key.Key {
 }
 
 func (g *Group) Clone() *Group {
+	if g == nil {
+		return nil
+	}
 	return &Group{
 		id:          g.id,
 		schema:      g.schema,
@@ -60,7 +63,7 @@ func (g *Group) SetDescription(des string) {
 }
 
 func (g *Group) SetKey(key key.Key) error {
-	if !key.IsValid() {
+	if !validateGroupKey(key) {
 		return &rerror.Error{
 			Label: id.ErrInvalidKey,
 			Err:   fmt.Errorf("%s", key.String()),
@@ -68,4 +71,8 @@ func (g *Group) SetKey(key key.Key) error {
 	}
 	g.key = key
 	return nil
+}
+
+func validateGroupKey(key key.Key) bool {
+	return key.IsValid() && len(key.String()) > 2
 }

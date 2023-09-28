@@ -22,7 +22,7 @@ func (b *Builder) Build() (*Group, error) {
 	if b.group.schema.IsNil() {
 		return nil, ErrInvalidID
 	}
-	if !b.group.key.IsValid() {
+	if !validateGroupKey(b.group.key) {
 		return nil, &rerror.Error{
 			Label: id.ErrInvalidKey,
 			Err:   fmt.Errorf("%s", b.group.key.String()),
@@ -71,10 +71,5 @@ func (b *Builder) Description(description string) *Builder {
 
 func (b *Builder) Key(key key.Key) *Builder {
 	b.group.key = key
-	return b
-}
-
-func (b *Builder) RandomKey() *Builder {
-	b.group.key = key.Random()
 	return b
 }
