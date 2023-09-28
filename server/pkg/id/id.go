@@ -171,19 +171,6 @@ var ItemIDFrom = idx.From[Item]
 var ItemIDFromRef = idx.FromRef[Item]
 var ItemIDListFrom = idx.ListFrom[Item]
 
-type GroupField struct{}
-
-func (GroupField) Type() string { return "group_field" }
-
-type GroupFieldID = idx.ID[GroupField]
-type GroupFieldIDList = idx.List[GroupField]
-
-var MustGroupFieldID = idx.Must[GroupField]
-var NewGroupFieldID = idx.New[GroupField]
-var GroupFieldIDFrom = idx.From[GroupField]
-var GroupFieldIDFromRef = idx.FromRef[GroupField]
-var GroupFieldIDListFrom = idx.ListFrom[GroupField]
-
 type Integration struct{}
 
 func (Integration) Type() string { return "integration" }

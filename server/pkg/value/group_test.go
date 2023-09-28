@@ -7,7 +7,7 @@ import (
 )
 
 func Test_propertyGroup_ToValue(t *testing.T) {
-	a := id.NewFieldID()
+	a := id.FieldIDList{id.NewFieldID()}
 
 	tests := []struct {
 		name  string
@@ -17,13 +17,13 @@ func Test_propertyGroup_ToValue(t *testing.T) {
 	}{
 		{
 			name:  "string",
-			args:  []any{a.String(), a.StringRef()},
+			args:  []any{[]string{a[0].String()}, []*string{a[0].StringRef()}},
 			want1: a,
 			want2: true,
 		},
 		{
 			name:  "id",
-			args:  []any{a, &a},
+			args:  []any{a},
 			want1: a,
 			want2: true,
 		},
@@ -51,36 +51,36 @@ func Test_propertyGroup_ToValue(t *testing.T) {
 
 func Test_propertyGroup_ToInterface(t *testing.T) {
 	a := id.NewFieldID()
-	tt, ok := (&propertyGroup{}).ToInterface(a)
-	assert.Equal(t, a.String(), tt)
+	tt, ok := (&propertyGroup{}).ToInterface(id.FieldIDList{a})
+	assert.Equal(t, []string{a.String()}, tt)
 	assert.Equal(t, true, ok)
 }
 
 func Test_propertyGroup_IsEmpty(t *testing.T) {
-	assert.True(t, (&propertyGroup{}).IsEmpty(id.FieldID{}))
-	assert.False(t, (&propertyGroup{}).IsEmpty(id.NewFieldID()))
+	assert.True(t, (&propertyGroup{}).IsEmpty(id.FieldIDList{}))
+	assert.False(t, (&propertyGroup{}).IsEmpty(id.FieldIDList{id.NewFieldID()}))
 }
 
 func Test_propertyGroup_Validate(t *testing.T) {
 	a := id.NewFieldID()
-	assert.True(t, (&propertyGroup{}).Validate(a))
+	assert.True(t, (&propertyGroup{}).Validate(id.FieldIDList{a}))
 }
 
 func Test_propertyGroup_Equal(t *testing.T) {
 	pr := &propertyGroup{}
 	iid1 := id.NewFieldID()
 	iid2, _ := id.FieldIDFrom(iid1.String())
-	assert.True(t, pr.Equal(iid1, iid2))
+	assert.True(t, pr.Equal(id.FieldIDList{iid1}, id.FieldIDList{iid2}))
 }
 
 func TestValue_ValueGroup(t *testing.T) {
 	var v *Value
-	var iid id.FieldID
+	var iid id.FieldIDList
 	got, ok := v.ValueGroup()
 	assert.Equal(t, iid, got)
 	assert.Equal(t, false, ok)
 
-	iid = id.NewFieldID()
+	iid = id.FieldIDList{id.NewFieldID()}
 	v = &Value{
 		v: iid,
 	}
@@ -99,8 +99,8 @@ func TestMultiple_ValuesGroup(t *testing.T) {
 	iid1 := id.NewFieldID()
 	iid2 := id.NewFieldID()
 	iid3 := id.NewFieldID()
-	m = NewMultiple(TypeGroup, []any{iid1, iid2, iid3})
-	expected = []Group{iid1, iid2, iid3}
+	m = NewMultiple(TypeGroup, []any{id.FieldIDList{iid1, iid2, iid3}})
+	expected = []Group{{iid1, iid2, iid3}}
 	got, _ = m.ValuesGroup()
 	assert.Equal(t, expected, got)
 }

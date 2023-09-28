@@ -39,16 +39,6 @@ func TestFieldGroup_Clone(t *testing.T) {
 
 func TestFieldGroup_Validate(t *testing.T) {
 	fid := id.NewFieldID()
-	assert.NoError(t, (&FieldGroup{}).Validate(value.TypeGroup.Value(fid)))
-	assert.Equal(t, ErrInvalidValue, (&FieldGroup{}).Validate(value.TypeText.Value("")))
-}
-
-func TestFieldGroup_ValidateMultiple(t *testing.T) {
-	fid1 := id.NewFieldID()
-	fid2 := id.NewFieldID()
-	fid3 := id.NewFieldID()
-	vm1 := value.NewMultiple(value.TypeGroup, []any{fid1, fid2, fid3})
-	vm2 := value.NewMultiple(value.TypeGroup, []any{fid1, fid2, fid2})
-	assert.NoError(t, (&FieldGroup{}).ValidateMultiple(vm1))
-	assert.Error(t, (&FieldGroup{}).ValidateMultiple(vm2))
+	assert.NoError(t, (&FieldGroup{}).Validate(value.TypeGroup.Value(id.FieldIDList{fid})))
+	assert.Error(t, (&FieldGroup{}).Validate(value.TypeGroup.Value([]string{""})))
 }

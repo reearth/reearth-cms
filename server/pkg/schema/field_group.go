@@ -54,16 +54,5 @@ func (f *FieldGroup) Validate(v *value.Value) (err error) {
 }
 
 func (f *FieldGroup) ValidateMultiple(v *value.Multiple) error {
-	vs, ok := v.ValuesGroup()
-	if !ok {
-		return ErrInvalidValue
-	}
-	tmap := make(map[value.Group]struct{})
-	for _, i := range vs {
-		if _, ok := tmap[i]; ok {
-			return ErrInvalidValue
-		}
-		tmap[i] = struct{}{}
-	}
 	return nil
 }
