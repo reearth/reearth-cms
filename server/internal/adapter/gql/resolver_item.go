@@ -52,11 +52,7 @@ func (i itemResolver) Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.
 
 func (i itemResolver) Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Asset, error) {
 
-	aIds := lo.FlatMap(obj.Fields, func(itf gqlmodel.ItemField, _ int) []gqlmodel.ID {
-		f, ok := itf.(*gqlmodel.ItemValueField)
-		if !ok {
-			return nil
-		}
+	aIds := lo.FlatMap(obj.Fields, func(f *gqlmodel.ItemField, _ int) []gqlmodel.ID {
 		if f.Type != gqlmodel.SchemaFieldTypeAsset || f.Value == nil {
 			return nil
 		}
