@@ -33,6 +33,38 @@ func TestList_Filtered(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
+func TestList_Item(t *testing.T) {
+	sfid1 := id.NewFieldID()
+	sfid2 := id.NewFieldID()
+	sfid3 := id.NewFieldID()
+	sfid4 := id.NewFieldID()
+	f1 := &Field{field: sfid1}
+	f2 := &Field{field: sfid2}
+	f3 := &Field{field: sfid3}
+	f4 := &Field{field: sfid4}
+
+	i1Id := id.NewItemID()
+	i1 := &Item{
+		id:     i1Id,
+		fields: []*Field{f1, f3},
+	}
+
+	i2Id := id.NewItemID()
+	i2 := &Item{
+		id:     i2Id,
+		fields: []*Field{f2, f4},
+	}
+	il := List{i1, i2}
+
+	got, ok := il.Item(i1Id)
+	assert.True(t, ok)
+	assert.Equal(t, i1, got)
+
+	got, ok = il.Item(id.NewItemID())
+	assert.False(t, ok)
+	assert.Nil(t, got)
+}
+
 func TestList_ItemsByField(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
