@@ -8,6 +8,7 @@ type FieldID = id.FieldID
 type WorkspaceID = id.WorkspaceID
 type TagID = id.TagID
 type TagIDList = id.TagIDList
+type GroupID = id.GroupID
 
 var NewTagID = id.NewTagID
 var MustTagID = id.MustTagID

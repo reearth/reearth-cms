@@ -42,6 +42,7 @@ type Config struct {
 type ResolverRoot interface {
 	Asset() AssetResolver
 	Comment() CommentResolver
+	Group() GroupResolver
 	Integration() IntegrationResolver
 	Item() ItemResolver
 	Me() MeResolver
@@ -159,6 +160,10 @@ type ComplexityRoot struct {
 		FieldID func(childComplexity int) int
 	}
 
+	DeleteGroupPayload struct {
+		GroupID func(childComplexity int) int
+	}
+
 	DeleteIntegrationPayload struct {
 		IntegrationID func(childComplexity int) int
 	}
@@ -197,6 +202,22 @@ type ComplexityRoot struct {
 
 	FieldsPayload struct {
 		Fields func(childComplexity int) int
+	}
+
+	Group struct {
+		Description func(childComplexity int) int
+		Fields      func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Key         func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Project     func(childComplexity int) int
+		ProjectID   func(childComplexity int) int
+		Schema      func(childComplexity int) int
+		SchemaID    func(childComplexity int) int
+	}
+
+	GroupPayload struct {
+		Group func(childComplexity int) int
 	}
 
 	Integration struct {
@@ -328,6 +349,7 @@ type ComplexityRoot struct {
 		CreateAsset                    func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateAssetUpload              func(childComplexity int, input gqlmodel.CreateAssetUploadInput) int
 		CreateField                    func(childComplexity int, input gqlmodel.CreateFieldInput) int
+		CreateGroup                    func(childComplexity int, input gqlmodel.CreateGroupInput) int
 		CreateIntegration              func(childComplexity int, input gqlmodel.CreateIntegrationInput) int
 		CreateItem                     func(childComplexity int, input gqlmodel.CreateItemInput) int
 		CreateModel                    func(childComplexity int, input gqlmodel.CreateModelInput) int
@@ -340,6 +362,7 @@ type ComplexityRoot struct {
 		DeleteAsset                    func(childComplexity int, input gqlmodel.DeleteAssetInput) int
 		DeleteComment                  func(childComplexity int, input gqlmodel.DeleteCommentInput) int
 		DeleteField                    func(childComplexity int, input gqlmodel.DeleteFieldInput) int
+		DeleteGroup                    func(childComplexity int, input gqlmodel.DeleteGroupInput) int
 		DeleteIntegration              func(childComplexity int, input gqlmodel.DeleteIntegrationInput) int
 		DeleteItem                     func(childComplexity int, input gqlmodel.DeleteItemInput) int
 		DeleteMe                       func(childComplexity int, input gqlmodel.DeleteMeInput) int
@@ -358,6 +381,7 @@ type ComplexityRoot struct {
 		UpdateComment                  func(childComplexity int, input gqlmodel.UpdateCommentInput) int
 		UpdateField                    func(childComplexity int, input gqlmodel.UpdateFieldInput) int
 		UpdateFields                   func(childComplexity int, input []*gqlmodel.UpdateFieldInput) int
+		UpdateGroup                    func(childComplexity int, input gqlmodel.UpdateGroupInput) int
 		UpdateIntegration              func(childComplexity int, input gqlmodel.UpdateIntegrationInput) int
 		UpdateIntegrationOfWorkspace   func(childComplexity int, input gqlmodel.UpdateIntegrationOfWorkspaceInput) int
 		UpdateItem                     func(childComplexity int, input gqlmodel.UpdateItemInput) int
@@ -504,6 +528,8 @@ type ComplexityRoot struct {
 	SchemaField struct {
 		CreatedAt    func(childComplexity int) int
 		Description  func(childComplexity int) int
+		Group        func(childComplexity int) int
+		GroupID      func(childComplexity int) int
 		ID           func(childComplexity int) int
 		IsTitle      func(childComplexity int) int
 		Key          func(childComplexity int) int
@@ -533,6 +559,10 @@ type ComplexityRoot struct {
 
 	SchemaFieldDate struct {
 		DefaultValue func(childComplexity int) int
+	}
+
+	SchemaFieldGroup struct {
+		GroupID func(childComplexity int) int
 	}
 
 	SchemaFieldInteger struct {
@@ -694,6 +724,10 @@ type AssetResolver interface {
 type CommentResolver interface {
 	Author(ctx context.Context, obj *gqlmodel.Comment) (gqlmodel.Operator, error)
 }
+type GroupResolver interface {
+	Schema(ctx context.Context, obj *gqlmodel.Group) (*gqlmodel.Schema, error)
+	Project(ctx context.Context, obj *gqlmodel.Group) (*gqlmodel.Project, error)
+}
 type IntegrationResolver interface {
 	Developer(ctx context.Context, obj *gqlmodel.Integration) (*gqlmodel.User, error)
 }
@@ -769,6 +803,9 @@ type MutationResolver interface {
 	AddComment(ctx context.Context, input gqlmodel.AddCommentInput) (*gqlmodel.CommentPayload, error)
 	UpdateComment(ctx context.Context, input gqlmodel.UpdateCommentInput) (*gqlmodel.CommentPayload, error)
 	DeleteComment(ctx context.Context, input gqlmodel.DeleteCommentInput) (*gqlmodel.DeleteCommentPayload, error)
+	CreateGroup(ctx context.Context, input gqlmodel.CreateGroupInput) (*gqlmodel.GroupPayload, error)
+	UpdateGroup(ctx context.Context, input gqlmodel.UpdateGroupInput) (*gqlmodel.GroupPayload, error)
+	DeleteGroup(ctx context.Context, input gqlmodel.DeleteGroupInput) (*gqlmodel.DeleteGroupPayload, error)
 }
 type ProjectResolver interface {
 	Workspace(ctx context.Context, obj *gqlmodel.Project) (*gqlmodel.Workspace, error)
@@ -1188,6 +1225,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteFieldPayload.FieldID(childComplexity), true
 
+	case "DeleteGroupPayload.groupId":
+		if e.complexity.DeleteGroupPayload.GroupID == nil {
+			break
+		}
+
+		return e.complexity.DeleteGroupPayload.GroupID(childComplexity), true
+
 	case "DeleteIntegrationPayload.integrationId":
 		if e.complexity.DeleteIntegrationPayload.IntegrationID == nil {
 			break
@@ -1257,6 +1301,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.FieldsPayload.Fields(childComplexity), true
+
+	case "Group.description":
+		if e.complexity.Group.Description == nil {
+			break
+		}
+
+		return e.complexity.Group.Description(childComplexity), true
+
+	case "Group.fields":
+		if e.complexity.Group.Fields == nil {
+			break
+		}
+
+		return e.complexity.Group.Fields(childComplexity), true
+
+	case "Group.id":
+		if e.complexity.Group.ID == nil {
+			break
+		}
+
+		return e.complexity.Group.ID(childComplexity), true
+
+	case "Group.key":
+		if e.complexity.Group.Key == nil {
+			break
+		}
+
+		return e.complexity.Group.Key(childComplexity), true
+
+	case "Group.name":
+		if e.complexity.Group.Name == nil {
+			break
+		}
+
+		return e.complexity.Group.Name(childComplexity), true
+
+	case "Group.project":
+		if e.complexity.Group.Project == nil {
+			break
+		}
+
+		return e.complexity.Group.Project(childComplexity), true
+
+	case "Group.projectId":
+		if e.complexity.Group.ProjectID == nil {
+			break
+		}
+
+		return e.complexity.Group.ProjectID(childComplexity), true
+
+	case "Group.schema":
+		if e.complexity.Group.Schema == nil {
+			break
+		}
+
+		return e.complexity.Group.Schema(childComplexity), true
+
+	case "Group.schemaId":
+		if e.complexity.Group.SchemaID == nil {
+			break
+		}
+
+		return e.complexity.Group.SchemaID(childComplexity), true
+
+	case "GroupPayload.group":
+		if e.complexity.GroupPayload.Group == nil {
+			break
+		}
+
+		return e.complexity.GroupPayload.Group(childComplexity), true
 
 	case "Integration.config":
 		if e.complexity.Integration.Config == nil {
@@ -1895,6 +2009,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateField(childComplexity, args["input"].(gqlmodel.CreateFieldInput)), true
 
+	case "Mutation.createGroup":
+		if e.complexity.Mutation.CreateGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateGroup(childComplexity, args["input"].(gqlmodel.CreateGroupInput)), true
+
 	case "Mutation.createIntegration":
 		if e.complexity.Mutation.CreateIntegration == nil {
 			break
@@ -2038,6 +2164,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteField(childComplexity, args["input"].(gqlmodel.DeleteFieldInput)), true
+
+	case "Mutation.deleteGroup":
+		if e.complexity.Mutation.DeleteGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteGroup(childComplexity, args["input"].(gqlmodel.DeleteGroupInput)), true
 
 	case "Mutation.deleteIntegration":
 		if e.complexity.Mutation.DeleteIntegration == nil {
@@ -2254,6 +2392,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateFields(childComplexity, args["input"].([]*gqlmodel.UpdateFieldInput)), true
+
+	case "Mutation.updateGroup":
+		if e.complexity.Mutation.UpdateGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateGroup(childComplexity, args["input"].(gqlmodel.UpdateGroupInput)), true
 
 	case "Mutation.updateIntegration":
 		if e.complexity.Mutation.UpdateIntegration == nil {
@@ -3019,6 +3169,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaField.Description(childComplexity), true
 
+	case "SchemaField.group":
+		if e.complexity.SchemaField.Group == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.Group(childComplexity), true
+
+	case "SchemaField.groupId":
+		if e.complexity.SchemaField.GroupID == nil {
+			break
+		}
+
+		return e.complexity.SchemaField.GroupID(childComplexity), true
+
 	case "SchemaField.id":
 		if e.complexity.SchemaField.ID == nil {
 			break
@@ -3137,6 +3301,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SchemaFieldDate.DefaultValue(childComplexity), true
+
+	case "SchemaFieldGroup.groupId":
+		if e.complexity.SchemaFieldGroup.GroupID == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldGroup.GroupID(childComplexity), true
 
 	case "SchemaFieldInteger.defaultValue":
 		if e.complexity.SchemaFieldInteger.DefaultValue == nil {
@@ -3652,6 +3823,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateAssetInput,
 		ec.unmarshalInputCreateAssetUploadInput,
 		ec.unmarshalInputCreateFieldInput,
+		ec.unmarshalInputCreateGroupInput,
 		ec.unmarshalInputCreateIntegrationInput,
 		ec.unmarshalInputCreateItemInput,
 		ec.unmarshalInputCreateModelInput,
@@ -3664,6 +3836,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteAssetInput,
 		ec.unmarshalInputDeleteCommentInput,
 		ec.unmarshalInputDeleteFieldInput,
+		ec.unmarshalInputDeleteGroupInput,
 		ec.unmarshalInputDeleteIntegrationInput,
 		ec.unmarshalInputDeleteItemInput,
 		ec.unmarshalInputDeleteMeInput,
@@ -3687,6 +3860,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldBoolInput,
 		ec.unmarshalInputSchemaFieldCheckboxInput,
 		ec.unmarshalInputSchemaFieldDateInput,
+		ec.unmarshalInputSchemaFieldGroupInput,
 		ec.unmarshalInputSchemaFieldIntegerInput,
 		ec.unmarshalInputSchemaFieldReferenceInput,
 		ec.unmarshalInputSchemaFieldRichTextInput,
@@ -3703,6 +3877,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateAssetInput,
 		ec.unmarshalInputUpdateCommentInput,
 		ec.unmarshalInputUpdateFieldInput,
+		ec.unmarshalInputUpdateGroupInput,
 		ec.unmarshalInputUpdateIntegrationInput,
 		ec.unmarshalInputUpdateIntegrationOfWorkspaceInput,
 		ec.unmarshalInputUpdateItemInput,
@@ -4504,12 +4679,7 @@ extend type Mutation {
   titleFieldId: ID
   titleField: SchemaField
   project: Project!
-}
-
-# extend type Query {}
-
-# extend type Mutation {}
-`, BuiltIn: false},
+}`, BuiltIn: false},
 	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFieldType {
   Text
   TextArea
@@ -4524,6 +4694,7 @@ extend type Mutation {
   Reference
   Checkbox
   URL
+  GROUP
 }
 
 enum SchemaFieldTagColor {
@@ -4543,8 +4714,10 @@ enum SchemaFieldTagColor {
 
 type SchemaField {
   id: ID!
-  modelId: ID!
-  model: Model!
+  modelId: ID
+  groupId: ID
+  model: Model
+  group: Group
   type: SchemaFieldType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
@@ -4561,6 +4734,8 @@ type SchemaField {
   updatedAt: DateTime!
 }
 
+union Container = Model | Group
+
 union SchemaFieldTypeProperty =
   SchemaFieldText
   | SchemaFieldTextArea
@@ -4575,7 +4750,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldReference
   | SchemaFieldURL
   | SchemaFieldCheckbox
-
+  | SchemaFieldGroup
 
 type SchemaFieldText {
   defaultValue: Any
@@ -4645,6 +4820,10 @@ type SchemaFieldURL {
 
 type SchemaFieldCheckbox {
   defaultValue: Any
+}
+
+type SchemaFieldGroup {
+  groupId: ID
 }
 
 # Inputs
@@ -4725,6 +4904,10 @@ input SchemaFieldURLInput {
   defaultValue: Any
 }
 
+input SchemaFieldGroupInput {
+  groupId: ID!
+}
+
 input SchemaFieldTypePropertyInput @onlyOne {
   text: SchemaFieldTextInput
   textArea: SchemaFieldTextAreaInput
@@ -4739,10 +4922,12 @@ input SchemaFieldTypePropertyInput @onlyOne {
   integer: SchemaFieldIntegerInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
+  group: SchemaFieldGroupInput
 }
 
 input CreateFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   type: SchemaFieldType!
   title: String!
   metadata: Boolean
@@ -4756,7 +4941,8 @@ input CreateFieldInput {
 }
 
 input UpdateFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   fieldId: ID!
   title: String
   description: String
@@ -4771,7 +4957,8 @@ input UpdateFieldInput {
 }
 
 input DeleteFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   fieldId: ID!
   metadata: Boolean
 }
@@ -5138,6 +5325,53 @@ extend type Mutation {
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
 }
 `, BuiltIn: false},
+	{Name: "../../../schemas/group.graphql", Input: `type Group implements Node {
+    id: ID!
+    schemaId: ID!
+    projectId: ID!
+    name: String!
+    description: String!
+    key: String!
+    schema: Schema!
+    project: Project!
+    fields: [SchemaField!]!
+}
+
+# inputs
+input CreateGroupInput {
+    projectId: ID!
+    name: String!
+    key: String!
+    description: String
+}
+
+input UpdateGroupInput {
+    groupId: ID!
+    name: String
+    description: String
+    key: String
+}
+
+input DeleteGroupInput {
+    groupId: ID!
+}
+
+# Payloads
+type GroupPayload {
+    group: Group!
+}
+
+type DeleteGroupPayload {
+    groupId: ID!
+}
+
+# extend type Query {}
+
+extend type Mutation {
+    createGroup(input: CreateGroupInput!): GroupPayload
+    updateGroup(input: UpdateGroupInput!): GroupPayload
+    deleteGroup(input: DeleteGroupInput!): DeleteGroupPayload
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -5242,6 +5476,21 @@ func (ec *executionContext) field_Mutation_createField_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateFieldInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.CreateGroupInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateGroupInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5422,6 +5671,21 @@ func (ec *executionContext) field_Mutation_deleteField_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNDeleteFieldInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteFieldInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.DeleteGroupInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDeleteGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5692,6 +5956,21 @@ func (ec *executionContext) field_Mutation_updateFields_args(ctx context.Context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNUpdateFieldInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateFieldInputᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.UpdateGroupInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateGroupInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -8720,6 +8999,50 @@ func (ec *executionContext) fieldContext_DeleteFieldPayload_fieldId(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteGroupPayload_groupId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteGroupPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteGroupPayload_groupId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroupID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteGroupPayload_groupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteGroupPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeleteIntegrationPayload_integrationId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteIntegrationPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeleteIntegrationPayload_integrationId(ctx, field)
 	if err != nil {
@@ -9115,8 +9438,12 @@ func (ec *executionContext) fieldContext_FieldPayload_field(ctx context.Context,
 				return ec.fieldContext_SchemaField_id(ctx, field)
 			case "modelId":
 				return ec.fieldContext_SchemaField_modelId(ctx, field)
+			case "groupId":
+				return ec.fieldContext_SchemaField_groupId(ctx, field)
 			case "model":
 				return ec.fieldContext_SchemaField_model(ctx, field)
+			case "group":
+				return ec.fieldContext_SchemaField_group(ctx, field)
 			case "type":
 				return ec.fieldContext_SchemaField_type(ctx, field)
 			case "typeProperty":
@@ -9191,8 +9518,12 @@ func (ec *executionContext) fieldContext_FieldsPayload_fields(ctx context.Contex
 				return ec.fieldContext_SchemaField_id(ctx, field)
 			case "modelId":
 				return ec.fieldContext_SchemaField_modelId(ctx, field)
+			case "groupId":
+				return ec.fieldContext_SchemaField_groupId(ctx, field)
 			case "model":
 				return ec.fieldContext_SchemaField_model(ctx, field)
+			case "group":
+				return ec.fieldContext_SchemaField_group(ctx, field)
 			case "type":
 				return ec.fieldContext_SchemaField_type(ctx, field)
 			case "typeProperty":
@@ -9219,6 +9550,538 @@ func (ec *executionContext) fieldContext_FieldsPayload_fields(ctx context.Contex
 				return ec.fieldContext_SchemaField_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SchemaField", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_schemaId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_schemaId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SchemaID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_schemaId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_projectId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_projectId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_projectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_description(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_key(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_schema(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_schema(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Group().Schema(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Schema)
+	fc.Result = res
+	return ec.marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_schema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Schema_id(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Schema_projectId(ctx, field)
+			case "fields":
+				return ec.fieldContext_Schema_fields(ctx, field)
+			case "titleFieldId":
+				return ec.fieldContext_Schema_titleFieldId(ctx, field)
+			case "titleField":
+				return ec.fieldContext_Schema_titleField(ctx, field)
+			case "project":
+				return ec.fieldContext_Schema_project(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_project(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_project(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Group().Project(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Project)
+	fc.Result = res
+	return ec.marshalNProject2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProject(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_project(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Project_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Project_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Project_description(ctx, field)
+			case "alias":
+				return ec.fieldContext_Project_alias(ctx, field)
+			case "workspaceId":
+				return ec.fieldContext_Project_workspaceId(ctx, field)
+			case "workspace":
+				return ec.fieldContext_Project_workspace(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Project_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Project_updatedAt(ctx, field)
+			case "publication":
+				return ec.fieldContext_Project_publication(ctx, field)
+			case "requestRoles":
+				return ec.fieldContext_Project_requestRoles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Project", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Group_fields(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Group) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Group_fields(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fields, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.SchemaField)
+	fc.Result = res
+	return ec.marshalNSchemaField2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Group_fields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Group",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SchemaField_id(ctx, field)
+			case "modelId":
+				return ec.fieldContext_SchemaField_modelId(ctx, field)
+			case "groupId":
+				return ec.fieldContext_SchemaField_groupId(ctx, field)
+			case "model":
+				return ec.fieldContext_SchemaField_model(ctx, field)
+			case "group":
+				return ec.fieldContext_SchemaField_group(ctx, field)
+			case "type":
+				return ec.fieldContext_SchemaField_type(ctx, field)
+			case "typeProperty":
+				return ec.fieldContext_SchemaField_typeProperty(ctx, field)
+			case "key":
+				return ec.fieldContext_SchemaField_key(ctx, field)
+			case "title":
+				return ec.fieldContext_SchemaField_title(ctx, field)
+			case "order":
+				return ec.fieldContext_SchemaField_order(ctx, field)
+			case "description":
+				return ec.fieldContext_SchemaField_description(ctx, field)
+			case "multiple":
+				return ec.fieldContext_SchemaField_multiple(ctx, field)
+			case "unique":
+				return ec.fieldContext_SchemaField_unique(ctx, field)
+			case "required":
+				return ec.fieldContext_SchemaField_required(ctx, field)
+			case "isTitle":
+				return ec.fieldContext_SchemaField_isTitle(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_SchemaField_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_SchemaField_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SchemaField", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroupPayload_group(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.GroupPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroupPayload_group(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Group, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Group)
+	fc.Result = res
+	return ec.marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroupPayload_group(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroupPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Group_id(ctx, field)
+			case "schemaId":
+				return ec.fieldContext_Group_schemaId(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Group_projectId(ctx, field)
+			case "name":
+				return ec.fieldContext_Group_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Group_description(ctx, field)
+			case "key":
+				return ec.fieldContext_Group_key(ctx, field)
+			case "schema":
+				return ec.fieldContext_Group_schema(ctx, field)
+			case "project":
+				return ec.fieldContext_Group_project(ctx, field)
+			case "fields":
+				return ec.fieldContext_Group_fields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
 		},
 	}
 	return fc, nil
@@ -15874,6 +16737,174 @@ func (ec *executionContext) fieldContext_Mutation_deleteComment(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateGroup(rctx, fc.Args["input"].(gqlmodel.CreateGroupInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.GroupPayload)
+	fc.Result = res
+	return ec.marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "group":
+				return ec.fieldContext_GroupPayload_group(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroupPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateGroup(rctx, fc.Args["input"].(gqlmodel.UpdateGroupInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.GroupPayload)
+	fc.Result = res
+	return ec.marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "group":
+				return ec.fieldContext_GroupPayload_group(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroupPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteGroup(rctx, fc.Args["input"].(gqlmodel.DeleteGroupInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.DeleteGroupPayload)
+	fc.Result = res
+	return ec.marshalODeleteGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "groupId":
+				return ec.fieldContext_DeleteGroupPayload_groupId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteGroupPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PageInfo_startCursor(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.PageInfo) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PageInfo_startCursor(ctx, field)
 	if err != nil {
@@ -19980,8 +21011,12 @@ func (ec *executionContext) fieldContext_Schema_fields(ctx context.Context, fiel
 				return ec.fieldContext_SchemaField_id(ctx, field)
 			case "modelId":
 				return ec.fieldContext_SchemaField_modelId(ctx, field)
+			case "groupId":
+				return ec.fieldContext_SchemaField_groupId(ctx, field)
 			case "model":
 				return ec.fieldContext_SchemaField_model(ctx, field)
+			case "group":
+				return ec.fieldContext_SchemaField_group(ctx, field)
 			case "type":
 				return ec.fieldContext_SchemaField_type(ctx, field)
 			case "typeProperty":
@@ -20094,8 +21129,12 @@ func (ec *executionContext) fieldContext_Schema_titleField(ctx context.Context, 
 				return ec.fieldContext_SchemaField_id(ctx, field)
 			case "modelId":
 				return ec.fieldContext_SchemaField_modelId(ctx, field)
+			case "groupId":
+				return ec.fieldContext_SchemaField_groupId(ctx, field)
 			case "model":
 				return ec.fieldContext_SchemaField_model(ctx, field)
+			case "group":
+				return ec.fieldContext_SchemaField_group(ctx, field)
 			case "type":
 				return ec.fieldContext_SchemaField_type(ctx, field)
 			case "typeProperty":
@@ -20258,17 +21297,55 @@ func (ec *executionContext) _SchemaField_modelId(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(gqlmodel.ID)
+	res := resTmp.(*gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaField_modelId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaField_groupId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_groupId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroupID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaField_groupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SchemaField",
 		Field:      field,
@@ -20302,14 +21379,11 @@ func (ec *executionContext) _SchemaField_model(ctx context.Context, field graphq
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.Model)
 	fc.Result = res
-	return ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
+	return ec.marshalOModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaField_model(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20348,6 +21422,67 @@ func (ec *executionContext) fieldContext_SchemaField_model(ctx context.Context, 
 				return ec.fieldContext_Model_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaField_group(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaField_group(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Group, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Group)
+	fc.Result = res
+	return ec.marshalOGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaField_group(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Group_id(ctx, field)
+			case "schemaId":
+				return ec.fieldContext_Group_schemaId(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Group_projectId(ctx, field)
+			case "name":
+				return ec.fieldContext_Group_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Group_description(ctx, field)
+			case "key":
+				return ec.fieldContext_Group_key(ctx, field)
+			case "schema":
+				return ec.fieldContext_Group_schema(ctx, field)
+			case "project":
+				return ec.fieldContext_Group_project(ctx, field)
+			case "fields":
+				return ec.fieldContext_Group_fields(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
 		},
 	}
 	return fc, nil
@@ -21036,6 +22171,47 @@ func (ec *executionContext) fieldContext_SchemaFieldDate_defaultValue(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldGroup_groupId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldGroup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldGroup_groupId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroupID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldGroup_groupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldInteger_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldInteger) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldInteger_defaultValue(ctx, field)
 	if err != nil {
@@ -21462,8 +22638,12 @@ func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingField
 				return ec.fieldContext_SchemaField_id(ctx, field)
 			case "modelId":
 				return ec.fieldContext_SchemaField_modelId(ctx, field)
+			case "groupId":
+				return ec.fieldContext_SchemaField_groupId(ctx, field)
 			case "model":
 				return ec.fieldContext_SchemaField_model(ctx, field)
+			case "group":
+				return ec.fieldContext_SchemaField_group(ctx, field)
 			case "type":
 				return ec.fieldContext_SchemaField_type(ctx, field)
 			case "typeProperty":
@@ -26547,7 +27727,7 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "type", "title", "metadata", "description", "key", "multiple", "unique", "required", "isTitle", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "groupId", "type", "title", "metadata", "description", "key", "multiple", "unique", "required", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26558,11 +27738,20 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ModelID = data
+		case "groupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GroupID = data
 		case "type":
 			var err error
 
@@ -26670,6 +27859,62 @@ func (ec *executionContext) unmarshalInputCreateFieldInput(ctx context.Context, 
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTypePropertyInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateGroupInput(ctx context.Context, obj interface{}) (gqlmodel.CreateGroupInput, error) {
+	var it gqlmodel.CreateGroupInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"projectId", "name", "key", "description"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "projectId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProjectID = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "key":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
 		}
 	}
 
@@ -27218,7 +28463,7 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "metadata"}
+	fieldsInOrder := [...]string{"modelId", "groupId", "fieldId", "metadata"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27229,11 +28474,20 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ModelID = data
+		case "groupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GroupID = data
 		case "fieldId":
 			var err error
 
@@ -27252,6 +28506,35 @@ func (ec *executionContext) unmarshalInputDeleteFieldInput(ctx context.Context, 
 				return it, err
 			}
 			it.Metadata = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeleteGroupInput(ctx context.Context, obj interface{}) (gqlmodel.DeleteGroupInput, error) {
+	var it gqlmodel.DeleteGroupInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"groupId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "groupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GroupID = data
 		}
 	}
 
@@ -28060,6 +29343,35 @@ func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSchemaFieldGroupInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldGroupInput, error) {
+	var it gqlmodel.SchemaFieldGroupInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"groupId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "groupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GroupID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldIntegerInput, error) {
 	var it gqlmodel.SchemaFieldIntegerInput
 	asMap := map[string]interface{}{}
@@ -28398,7 +29710,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url"}
+	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url", "group"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -28743,6 +30055,32 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldURLInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
+		case "group":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("group"))
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGroupInput(ctx, v)
+			}
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.OnlyOne == nil {
+					return nil, errors.New("directive onlyOne is not implemented")
+				}
+				return ec.directives.OnlyOne(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*gqlmodel.SchemaFieldGroupInput); ok {
+				it.Group = data
+			} else if tmp == nil {
+				it.Group = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldGroupInput`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28975,7 +30313,7 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "fieldId", "title", "description", "order", "metadata", "key", "required", "unique", "multiple", "isTitle", "typeProperty"}
+	fieldsInOrder := [...]string{"modelId", "groupId", "fieldId", "title", "description", "order", "metadata", "key", "required", "unique", "multiple", "isTitle", "typeProperty"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -28986,11 +30324,20 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ModelID = data
+		case "groupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GroupID = data
 		case "fieldId":
 			var err error
 
@@ -29107,6 +30454,62 @@ func (ec *executionContext) unmarshalInputUpdateFieldInput(ctx context.Context, 
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldTypePropertyInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateGroupInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateGroupInput, error) {
+	var it gqlmodel.UpdateGroupInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"groupId", "name", "description", "key"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "groupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GroupID = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "key":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
 		}
 	}
 
@@ -29861,6 +31264,29 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _Container(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Container) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case gqlmodel.Model:
+		return ec._Model(ctx, sel, &obj)
+	case *gqlmodel.Model:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Model(ctx, sel, obj)
+	case gqlmodel.Group:
+		return ec._Group(ctx, sel, &obj)
+	case *gqlmodel.Group:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Group(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Node) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -29928,6 +31354,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Integration(ctx, sel, obj)
+	case gqlmodel.Group:
+		return ec._Group(ctx, sel, &obj)
+	case *gqlmodel.Group:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Group(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -30051,6 +31484,13 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldCheckbox(ctx, sel, obj)
+	case gqlmodel.SchemaFieldGroup:
+		return ec._SchemaFieldGroup(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldGroup:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldGroup(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -30974,6 +32414,45 @@ func (ec *executionContext) _DeleteFieldPayload(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var deleteGroupPayloadImplementors = []string{"DeleteGroupPayload"}
+
+func (ec *executionContext) _DeleteGroupPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteGroupPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteGroupPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteGroupPayload")
+		case "groupId":
+			out.Values[i] = ec._DeleteGroupPayload_groupId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var deleteIntegrationPayloadImplementors = []string{"DeleteIntegrationPayload"}
 
 func (ec *executionContext) _DeleteIntegrationPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteIntegrationPayload) graphql.Marshaler {
@@ -31338,6 +32817,186 @@ func (ec *executionContext) _FieldsPayload(ctx context.Context, sel ast.Selectio
 			out.Values[i] = graphql.MarshalString("FieldsPayload")
 		case "fields":
 			out.Values[i] = ec._FieldsPayload_fields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var groupImplementors = []string{"Group", "Container", "Node"}
+
+func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Group) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, groupImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Group")
+		case "id":
+			out.Values[i] = ec._Group_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "schemaId":
+			out.Values[i] = ec._Group_schemaId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "projectId":
+			out.Values[i] = ec._Group_projectId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._Group_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "description":
+			out.Values[i] = ec._Group_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "key":
+			out.Values[i] = ec._Group_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "schema":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Group_schema(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "project":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Group_project(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "fields":
+			out.Values[i] = ec._Group_fields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var groupPayloadImplementors = []string{"GroupPayload"}
+
+func (ec *executionContext) _GroupPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.GroupPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, groupPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GroupPayload")
+		case "group":
+			out.Values[i] = ec._GroupPayload_group(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -32363,7 +34022,7 @@ func (ec *executionContext) _Me(ctx context.Context, sel ast.SelectionSet, obj *
 	return out
 }
 
-var modelImplementors = []string{"Model", "Node"}
+var modelImplementors = []string{"Model", "Node", "Container"}
 
 func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Model) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, modelImplementors)
@@ -32889,6 +34548,18 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteComment":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteComment(ctx, field)
+			})
+		case "createGroup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createGroup(ctx, field)
+			})
+		case "updateGroup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateGroup(ctx, field)
+			})
+		case "deleteGroup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteGroup(ctx, field)
 			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -34393,9 +36064,8 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			}
 		case "modelId":
 			out.Values[i] = ec._SchemaField_modelId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
+		case "groupId":
+			out.Values[i] = ec._SchemaField_groupId(ctx, field, obj)
 		case "model":
 			field := field
 
@@ -34406,9 +36076,6 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._SchemaField_model(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -34432,6 +36099,8 @@ func (ec *executionContext) _SchemaField(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "group":
+			out.Values[i] = ec._SchemaField_group(ctx, field, obj)
 		case "type":
 			out.Values[i] = ec._SchemaField_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -34627,6 +36296,42 @@ func (ec *executionContext) _SchemaFieldDate(ctx context.Context, sel ast.Select
 			out.Values[i] = graphql.MarshalString("SchemaFieldDate")
 		case "defaultValue":
 			out.Values[i] = ec._SchemaFieldDate_defaultValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var schemaFieldGroupImplementors = []string{"SchemaFieldGroup", "SchemaFieldTypeProperty"}
+
+func (ec *executionContext) _SchemaFieldGroup(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldGroup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldGroupImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldGroup")
+		case "groupId":
+			out.Values[i] = ec._SchemaFieldGroup_groupId(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -36549,6 +38254,11 @@ func (ec *executionContext) unmarshalNCreateFieldInput2githubᚗcomᚋreearthᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateGroupInput(ctx context.Context, v interface{}) (gqlmodel.CreateGroupInput, error) {
+	res, err := ec.unmarshalInputCreateGroupInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCreateIntegrationInput(ctx context.Context, v interface{}) (gqlmodel.CreateIntegrationInput, error) {
 	res, err := ec.unmarshalInputCreateIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -36640,6 +38350,11 @@ func (ec *executionContext) unmarshalNDeleteFieldInput2githubᚗcomᚋreearthᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNDeleteGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupInput(ctx context.Context, v interface{}) (gqlmodel.DeleteGroupInput, error) {
+	res, err := ec.unmarshalInputDeleteGroupInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNDeleteIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationInput(ctx context.Context, v interface{}) (gqlmodel.DeleteIntegrationInput, error) {
 	res, err := ec.unmarshalInputDeleteIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -36693,6 +38408,16 @@ func (ec *executionContext) marshalNFileSize2int64(ctx context.Context, sel ast.
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Group) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Group(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (gqlmodel.ID, error) {
@@ -38020,6 +39745,11 @@ func (ec *executionContext) unmarshalNUpdateFieldInput2ᚖgithubᚗcomᚋreearth
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNUpdateGroupInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateGroupInput(ctx context.Context, v interface{}) (gqlmodel.UpdateGroupInput, error) {
+	res, err := ec.unmarshalInputUpdateGroupInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNUpdateIntegrationInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateIntegrationInput(ctx context.Context, v interface{}) (gqlmodel.UpdateIntegrationInput, error) {
 	res, err := ec.unmarshalInputUpdateIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -38887,6 +40617,13 @@ func (ec *executionContext) marshalODeleteFieldPayload2ᚖgithubᚗcomᚋreearth
 	return ec._DeleteFieldPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalODeleteGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteGroupPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteGroupPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalODeleteIntegrationPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteIntegrationPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteIntegrationPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -38955,6 +40692,20 @@ func (ec *executionContext) marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋre
 		return graphql.Null
 	}
 	return ec._FieldsPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Group) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Group(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.GroupPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._GroupPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx context.Context, v interface{}) ([]gqlmodel.ID, error) {
@@ -39431,6 +41182,14 @@ func (ec *executionContext) unmarshalOSchemaFieldDateInput2ᚖgithubᚗcomᚋree
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputSchemaFieldDateInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGroupInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldGroupInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSchemaFieldGroupInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
