@@ -1,7 +1,6 @@
 package schema
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 )
 
@@ -41,9 +40,9 @@ func (f *FieldGroup) Clone() *FieldGroup {
 
 func (f *FieldGroup) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
-		Group: func(a value.String) {
-			_, err2 := id.SchemaIDFrom(a)
-			if err2 != nil {
+		Group: func(a value.Group) {
+			_, ok := v.ValueGroup()
+			if !ok {
 				err = ErrInvalidValue
 			}
 		},
@@ -55,16 +54,5 @@ func (f *FieldGroup) Validate(v *value.Value) (err error) {
 }
 
 func (f *FieldGroup) ValidateMultiple(v *value.Multiple) error {
-	vs, ok := v.ValuesString()
-	if !ok {
-		return ErrInvalidValue
-	}
-	tmap := make(map[string]struct{})
-	for _, i := range vs {
-		if _, ok := tmap[i]; ok {
-			return ErrInvalidValue
-		}
-		tmap[i] = struct{}{}
-	}
 	return nil
 }

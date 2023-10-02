@@ -16,12 +16,10 @@ type UserID = accountdomain.UserID
 type IntegrationID = id.IntegrationID
 type AssetID = id.AssetID
 type AssetIDList = id.AssetIDList
-type GroupFieldID = id.GroupFieldID
 type GroupID = id.GroupID
 
 var NewID = id.NewItemID
 var NewThreadID = id.NewThreadID
-var NewGroupFieldID = id.NewGroupFieldID
 
 var MustID = id.MustItemID
 var MustThreadID = id.MustThreadID

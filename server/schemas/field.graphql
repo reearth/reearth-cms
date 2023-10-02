@@ -12,6 +12,7 @@ enum SchemaFieldType {
   Reference
   Checkbox
   URL
+  GROUP
 }
 
 enum SchemaFieldTagColor {
@@ -31,8 +32,10 @@ enum SchemaFieldTagColor {
 
 type SchemaField {
   id: ID!
-  modelId: ID!
-  model: Model!
+  modelId: ID
+  groupId: ID
+  model: Model
+  group: Group
   type: SchemaFieldType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
@@ -48,6 +51,8 @@ type SchemaField {
   createdAt: DateTime!
   updatedAt: DateTime!
 }
+
+union Container = Model | Group
 
 union SchemaFieldTypeProperty =
   SchemaFieldText
@@ -239,7 +244,8 @@ input SchemaFieldTypePropertyInput @onlyOne {
 }
 
 input CreateFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   type: SchemaFieldType!
   title: String!
   metadata: Boolean
@@ -253,7 +259,8 @@ input CreateFieldInput {
 }
 
 input UpdateFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   fieldId: ID!
   title: String
   description: String
@@ -268,7 +275,8 @@ input UpdateFieldInput {
 }
 
 input DeleteFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   fieldId: ID!
   metadata: Boolean
 }

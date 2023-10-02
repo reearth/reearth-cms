@@ -98,7 +98,7 @@ func TestToSchemaField(t *testing.T) {
 				MustBuild(),
 			want: &SchemaField{
 				ID:           IDFrom(fid),
-				ModelID:      "",
+				ModelID:      nil,
 				Model:        nil,
 				Type:         SchemaFieldTypeText,
 				TypeProperty: &SchemaFieldText{},
