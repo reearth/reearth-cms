@@ -1,6 +1,8 @@
 package id
 
 import (
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"regexp"
 	"strings"
 
@@ -9,6 +11,8 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
+
+var ErrInvalidKey = rerror.NewE(i18n.T("invalid key"))
 
 var keyRegexp = regexp.MustCompile("^[a-zA-Z0-9_-]{1,32}$")
 

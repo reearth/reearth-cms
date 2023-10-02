@@ -14,6 +14,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+type Container interface {
+	IsContainer()
+}
+
 type Node interface {
 	IsNode()
 	GetID() ID
@@ -155,7 +159,8 @@ type CreateAssetUploadPayload struct {
 }
 
 type CreateFieldInput struct {
-	ModelID      ID                            `json:"modelId"`
+	ModelID      *ID                           `json:"modelId,omitempty"`
+	GroupID      *ID                           `json:"groupId,omitempty"`
 	Type         SchemaFieldType               `json:"type"`
 	Title        string                        `json:"title"`
 	Metadata     *bool                         `json:"metadata,omitempty"`
@@ -166,6 +171,13 @@ type CreateFieldInput struct {
 	Required     bool                          `json:"required"`
 	IsTitle      bool                          `json:"isTitle"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
+}
+
+type CreateGroupInput struct {
+	ProjectID   ID      `json:"projectId"`
+	Name        string  `json:"name"`
+	Key         string  `json:"key"`
+	Description *string `json:"description,omitempty"`
 }
 
 type CreateIntegrationInput struct {
@@ -254,13 +266,22 @@ type DeleteCommentPayload struct {
 }
 
 type DeleteFieldInput struct {
-	ModelID  ID    `json:"modelId"`
+	ModelID  *ID   `json:"modelId,omitempty"`
+	GroupID  *ID   `json:"groupId,omitempty"`
 	FieldID  ID    `json:"fieldId"`
 	Metadata *bool `json:"metadata,omitempty"`
 }
 
 type DeleteFieldPayload struct {
 	FieldID ID `json:"fieldId"`
+}
+
+type DeleteGroupInput struct {
+	GroupID ID `json:"groupId"`
+}
+
+type DeleteGroupPayload struct {
+	GroupID ID `json:"groupId"`
 }
 
 type DeleteIntegrationInput struct {
@@ -335,6 +356,27 @@ type FieldPayload struct {
 
 type FieldsPayload struct {
 	Fields []*SchemaField `json:"fields"`
+}
+
+type Group struct {
+	ID          ID             `json:"id"`
+	SchemaID    ID             `json:"schemaId"`
+	ProjectID   ID             `json:"projectId"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Key         string         `json:"key"`
+	Schema      *Schema        `json:"schema"`
+	Project     *Project       `json:"project"`
+	Fields      []*SchemaField `json:"fields"`
+}
+
+func (Group) IsContainer() {}
+
+func (Group) IsNode()        {}
+func (this Group) GetID() ID { return this.ID }
+
+type GroupPayload struct {
+	Group *Group `json:"group"`
 }
 
 type Integration struct {
@@ -474,6 +516,8 @@ type Model struct {
 
 func (Model) IsNode()        {}
 func (this Model) GetID() ID { return this.ID }
+
+func (Model) IsContainer() {}
 
 type ModelConnection struct {
 	Edges      []*ModelEdge `json:"edges"`
@@ -650,8 +694,10 @@ func (this Schema) GetID() ID { return this.ID }
 
 type SchemaField struct {
 	ID           ID                      `json:"id"`
-	ModelID      ID                      `json:"modelId"`
-	Model        *Model                  `json:"model"`
+	ModelID      *ID                     `json:"modelId,omitempty"`
+	GroupID      *ID                     `json:"groupId,omitempty"`
+	Model        *Model                  `json:"model,omitempty"`
+	Group        *Group                  `json:"group,omitempty"`
 	Type         SchemaFieldType         `json:"type"`
 	TypeProperty SchemaFieldTypeProperty `json:"typeProperty,omitempty"`
 	Key          string                  `json:"key"`
@@ -704,6 +750,16 @@ func (SchemaFieldDate) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldDateInput struct {
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+type SchemaFieldGroup struct {
+	GroupID *ID `json:"groupId,omitempty"`
+}
+
+func (SchemaFieldGroup) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldGroupInput struct {
+	GroupID ID `json:"groupId"`
 }
 
 type SchemaFieldInteger struct {
@@ -829,6 +885,7 @@ type SchemaFieldTypePropertyInput struct {
 	Integer      *SchemaFieldIntegerInput   `json:"integer,omitempty"`
 	Reference    *SchemaFieldReferenceInput `json:"reference,omitempty"`
 	URL          *SchemaFieldURLInput       `json:"url,omitempty"`
+	Group        *SchemaFieldGroupInput     `json:"group,omitempty"`
 }
 
 type SchemaFieldURL struct {
@@ -886,7 +943,8 @@ type UpdateCommentInput struct {
 }
 
 type UpdateFieldInput struct {
-	ModelID      ID                            `json:"modelId"`
+	ModelID      *ID                           `json:"modelId,omitempty"`
+	GroupID      *ID                           `json:"groupId,omitempty"`
 	FieldID      ID                            `json:"fieldId"`
 	Title        *string                       `json:"title,omitempty"`
 	Description  *string                       `json:"description,omitempty"`
@@ -898,6 +956,13 @@ type UpdateFieldInput struct {
 	Multiple     *bool                         `json:"multiple,omitempty"`
 	IsTitle      *bool                         `json:"isTitle,omitempty"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty,omitempty"`
+}
+
+type UpdateGroupInput struct {
+	GroupID     ID      `json:"groupId"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
 }
 
 type UpdateIntegrationInput struct {
@@ -1651,6 +1716,7 @@ const (
 	SchemaFieldTypeReference    SchemaFieldType = "Reference"
 	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
+	SchemaFieldTypeGroup        SchemaFieldType = "GROUP"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
@@ -1667,11 +1733,12 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeReference,
 	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
+	SchemaFieldTypeGroup,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup:
 		return true
 	}
 	return false

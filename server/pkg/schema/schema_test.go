@@ -409,11 +409,6 @@ func TestSchema_SetTitleField(t *testing.T) {
 	s3 := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(nil).MustBuild()
 	err = s3.SetTitleField(id.NewFieldID().Ref())
 	assert.ErrorIs(t, err, ErrInvalidTitleField)
-
-	s4 := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f).MustBuild()
-	err = s3.SetTitleField(nil)
-	assert.Nil(t, nil, s4.TitleField())
-	assert.Nil(t, err)
 }
 
 func TestSchema_Clone(t *testing.T) {

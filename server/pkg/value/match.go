@@ -16,6 +16,7 @@ type Match struct {
 	Tag       func(String)
 	Reference func(Reference)
 	URL       func(URL)
+	Group     func(Group)
 	Default   func()
 }
 
@@ -95,6 +96,11 @@ func (v *Value) Match(m Match) {
 	case TypeURL:
 		if m.URL != nil {
 			m.URL(v.v.(URL))
+			return
+		}
+	case TypeGroup:
+		if m.Group != nil {
+			m.Group(v.v.(Group))
 			return
 		}
 	}
