@@ -20,7 +20,7 @@ func createField(e *httpexpect.Expect, mID, title, desc, key string, multiple, u
 				  }
 				}`,
 		Variables: map[string]any{
-			"modelId":      &mID,
+			"modelId":      mID,
 			"title":        title,
 			"description":  desc,
 			"key":          key,
@@ -57,7 +57,7 @@ func updateField(e *httpexpect.Expect, mID, fID, title, desc, key string, multip
 				  }
 				}`,
 		Variables: map[string]any{
-			"modelId":      &mID,
+			"modelId":      mID,
 			"fieldId":      fID,
 			"title":        title,
 			"description":  desc,
