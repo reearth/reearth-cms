@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -38,7 +37,7 @@ func (r *mutationResolver) CreateField(ctx context.Context, input gqlmodel.Creat
 	f, err := usecases(ctx).Schema.CreateField(ctx, interfaces.CreateFieldParam{
 		ModelID:      mid,
 		SchemaID:     s.ID(),
-		Type:         value.Type(input.Type),
+		Type:         gqlmodel.FromValueType(input.Type),
 		Name:         input.Title,
 		Description:  input.Description,
 		Key:          input.Key,
