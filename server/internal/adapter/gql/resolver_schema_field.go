@@ -13,5 +13,8 @@ func (r *Resolver) SchemaField() SchemaFieldResolver {
 type schemaFieldResolver struct{ *Resolver }
 
 func (s schemaFieldResolver) Model(ctx context.Context, obj *gqlmodel.SchemaField) (*gqlmodel.Model, error) {
-	return dataloaders(ctx).Model.Load(obj.ModelID)
+	if obj.ModelID != nil {
+		return dataloaders(ctx).Model.Load(*obj.ModelID)
+	}
+	return nil, nil
 }

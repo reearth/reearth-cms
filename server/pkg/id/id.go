@@ -121,6 +121,19 @@ var SchemaIDFrom = idx.From[Schema]
 var SchemaIDFromRef = idx.FromRef[Schema]
 var SchemaIDListFrom = idx.ListFrom[Schema]
 
+type Group struct{}
+
+func (Group) Type() string { return "group" }
+
+type GroupID = idx.ID[Group]
+type GroupIDList = idx.List[Group]
+
+var MustGroupID = idx.Must[Group]
+var NewGroupID = idx.New[Group]
+var GroupIDFrom = idx.From[Group]
+var GroupIDFromRef = idx.FromRef[Group]
+var GroupIDListFrom = idx.ListFrom[Group]
+
 type Thread struct{}
 
 func (Thread) Type() string { return "thread" }
