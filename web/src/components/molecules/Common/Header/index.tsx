@@ -12,6 +12,7 @@ import { useT } from "@reearth-cms/i18n";
 import { Project, Workspace } from "@reearth-cms/state";
 
 import HeaderDropdown from "./Dropdown";
+import { MenuProps } from "antd";
 
 export type { User } from "./types";
 
@@ -56,76 +57,68 @@ const HeaderMolecule: React.FC<Props> = ({
     navigate(`/workspace/${currentWorkspace?.id}`);
   }, [currentWorkspace?.id, navigate]);
 
-  const WorkspacesMenu = (
-    <HeaderMenu
-      items={[
-        {
-          label: t("Personal Account"),
-          key: "personal-account",
-          type: "group",
-          children: workspaces
-            ?.filter(workspace => workspace.id === personalWorkspace?.id)
-            ?.map(workspace => ({
-              label: (
-                <Tooltip title={workspace.name} placement="right">
-                  <MenuText>{workspace.name}</MenuText>
-                </Tooltip>
-              ),
-              key: workspace.id,
-              icon: <UserAvatar username={workspace.name} size="small" />,
-              style: { paddingLeft: 0, paddingRight: 0 },
-              onClick: () => handleWorkspaceNavigation(workspace.id),
-            })),
-        },
-        {
-          type: "divider",
-        },
-        {
-          label: t("Workspaces"),
-          key: "workspaces",
-          type: "group",
-          children: workspaces
-            ?.filter(workspace => workspace.id !== personalWorkspace?.id)
-            ?.map(workspace => ({
-              label: (
-                <Tooltip title={workspace.name} placement="right">
-                  <MenuText>{workspace.name}</MenuText>
-                </Tooltip>
-              ),
-              key: workspace.id,
-              icon: <UserAvatar username={workspace.name} size="small" shape="square" />,
-              style: { paddingLeft: 0, paddingRight: 0 },
-              onClick: () => handleWorkspaceNavigation(workspace.id),
-            })),
-        },
-        {
-          label: t("Create Workspace"),
-          key: "new-workspace",
-          icon: <Icon icon="userGroupAdd" />,
-          onClick: onWorkspaceModalOpen,
-        },
-      ]}
-    />
-  );
+  const WorkspacesItems: MenuProps['items']  = [
+    {
+      label: t("Personal Account"),
+      key: "personal-account",
+      type: "group",
+      children: workspaces
+        ?.filter(workspace => workspace.id === personalWorkspace?.id)
+        ?.map(workspace => ({
+          label: (
+            <Tooltip title={workspace.name} placement="right">
+              <MenuText>{workspace.name}</MenuText>
+            </Tooltip>
+          ),
+          key: workspace.id,
+          icon: <UserAvatar username={workspace.name} size="small" />,
+          style: { paddingLeft: 0, paddingRight: 0 },
+          onClick: () => handleWorkspaceNavigation(workspace.id),
+        })),
+    },
+    {
+      type: "divider",
+    },
+    {
+      label: t("Workspaces"),
+      key: "workspaces",
+      type: "group",
+      children: workspaces
+        ?.filter(workspace => workspace.id !== personalWorkspace?.id)
+        ?.map(workspace => ({
+          label: (
+            <Tooltip title={workspace.name} placement="right">
+              <MenuText>{workspace.name}</MenuText>
+            </Tooltip>
+          ),
+          key: workspace.id,
+          icon: <UserAvatar username={workspace.name} size="small" shape="square" />,
+          style: { paddingLeft: 0, paddingRight: 0 },
+          onClick: () => handleWorkspaceNavigation(workspace.id),
+        })),
+    },
+    {
+      label: t("Create Workspace"),
+      key: "new-workspace",
+      icon: <Icon icon="userGroupAdd" />,
+      onClick: onWorkspaceModalOpen,
+    },
+  ];
 
-  const AccountMenu = (
-    <HeaderMenu
-      items={[
-        {
-          label: t("Account Settings"),
-          key: "account-settings",
-          icon: <Icon icon="user" />,
-          onClick: onNavigateToSettings,
-        },
-        {
-          label: t("Logout"),
-          key: "logout",
-          icon: <Icon icon="logout" />,
-          onClick: logout,
-        },
-      ]}
-    />
-  );
+  const AccountItems: MenuProps['items'] = [
+    {
+      label: t("Account Settings"),
+      key: "account-settings",
+      icon: <Icon icon="user" />,
+      onClick: onNavigateToSettings,
+    },
+    {
+      label: t("Logout"),
+      key: "logout",
+      icon: <Icon icon="logout" />,
+      onClick: logout,
+    },
+  ]
 
   return (
     <MainHeader>
@@ -137,7 +130,7 @@ const HeaderMolecule: React.FC<Props> = ({
       <VerticalDivider />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
-        menu={WorkspacesMenu}
+        items={WorkspacesItems}
         personal={currentIsPersonal}
       />
       {currentProject?.name && (
@@ -147,7 +140,7 @@ const HeaderMolecule: React.FC<Props> = ({
         </CurrentProject>
       )}
       <Spacer />
-      <AccountDropdown name={username} menu={AccountMenu} personal={true} />
+      <AccountDropdown name={username} items={AccountItems} personal={true} />
     </MainHeader>
   );
 };
