@@ -223,12 +223,19 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		fields, err := itemFieldsFromParams(param.Fields, s)
+		modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
+
+		fields, err := itemFieldsFromParams(modelSchemaFields, s)
 		if err != nil {
 			return nil, err
 		}
 
 		if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
+			return nil, err
+		}
+
+		groupFields, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
+		if err != nil {
 			return nil, err
 		}
 
@@ -241,6 +248,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		fields = append(fields, groupFields...)
 		ib := item.New().
 			NewID().
 			Schema(s.ID()).
@@ -347,7 +355,12 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		fields, err := itemFieldsFromParams(param.Fields, s)
+		modelSchemaFields, otherFields := filterFieldParamsBySchema(param.Fields, s)
+
+		fields, err := itemFieldsFromParams(modelSchemaFields, s)
+		if err != nil {
+			return nil, err
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -356,8 +369,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		groupFields, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
+		if err != nil {
+			return nil, err
+		}
+
 		oldFields := itv.Fields()
 
+		fields = append(fields, groupFields...)
 		itv.UpdateFields(fields)
 
 		if operator.AcOperator.User != nil {
@@ -696,12 +715,69 @@ func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, it *it
 	return nil
 }
 
-func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) ([]*item.Field, error) {
+func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFieldParam, s *schema.Schema, mId id.ModelID, itemFields item.Fields) (item.Fields, error) {
+	var res item.Fields
+	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
+		sf := s.Field(field.FieldID())
+		var sg *schema.FieldGroup
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Group: func(f *schema.FieldGroup) {
+				sg = f
+			},
+		})
+
+		mvg, ok := field.Value().ValuesGroup()
+		if !ok {
+			return nil, interfaces.ErrInvalidField
+		}
+
+		groupItemParams := lo.Filter(params, func(param interfaces.ItemFieldParam, _ int) bool {
+			if param.Field == nil {
+				return false
+			}
+			for _, groupValue := range mvg {
+				return groupValue.Has(*param.Field)
+			}
+			return false
+		})
+
+		group, err := i.repos.Group.FindByID(ctx, sg.Group())
+		if err != nil {
+			return nil, err
+		}
+
+		groupSchema, err := i.repos.Schema.FindByID(ctx, group.Schema())
+		if err != nil {
+			return nil, err
+		}
+		fields, err := itemFieldsFromParams(groupItemParams, groupSchema)
+		if err != nil {
+			return nil, err
+		}
+		if err := i.checkUnique(ctx, fields, s, mId, nil); err != nil {
+			return nil, err
+		}
+
+		res = append(res, fields...)
+	}
+	return res, nil
+}
+
+func filterFieldParamsBySchema(params []interfaces.ItemFieldParam, s *schema.Schema) (res []interfaces.ItemFieldParam, other []interfaces.ItemFieldParam) {
+	for _, param := range params {
+		sf := s.FieldByIDOrKey(param.Field, param.Key)
+		if sf != nil {
+			res = append(res, param)
+		} else {
+			other = append(other, param)
+		}
+	}
+	return
+}
+
+func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) (item.Fields, error) {
 	return util.TryMap(fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
 		sf := s.FieldByIDOrKey(f.Field, f.Key)
-		if sf == nil {
-			return nil, interfaces.ErrFieldNotFound
-		}
 
 		if !sf.Multiple() {
 			f.Value = []any{f.Value}
