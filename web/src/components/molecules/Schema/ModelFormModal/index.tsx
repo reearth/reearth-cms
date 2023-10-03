@@ -64,7 +64,7 @@ const ModelFormModal: React.FC<Props> = ({
 
   return (
     <Modal
-      visible={open}
+      open={open}
       onCancel={handleClose}
       onOk={handleSubmit}
       okButtonProps={{ disabled: buttonDisabled }}
