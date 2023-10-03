@@ -1,5 +1,15 @@
 import { gql } from "@apollo/client";
 
+import { groupFragment } from "@reearth-cms/gql/fragments";
+
+export const GET_GROUPS = gql`
+  query GetGroups($projectId: ID!) {
+    groups(projectId: $projectId) {
+      ${groupFragment}
+    }
+  }
+`;
+
 export const CREATE_GROUP = gql`
   mutation createGroup($projectId: ID!, $name: String!, $key: String!, $description: String) {
     createGroup(
