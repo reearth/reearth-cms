@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@reearth-cms/auth";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { useT } from "@reearth-cms/i18n";
@@ -176,35 +175,6 @@ const LogoIcon = styled.img`
 
 const Spacer = styled.div`
   flex: 1;
-`;
-
-const HeaderMenu = styled(Menu)`
-  background-color: #141414;
-  width: 190px;
-
-  .ant-dropdown-menu-item-divider {
-    background-color: #303030;
-  }
-  .ant-dropdown-menu-item-group-title,
-  .ant-dropdown-menu-item,
-  .ant-dropdown-menu-submenu-title {
-    color: #fff;
-  }
-  .ant-dropdown-menu-item-group-title {
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 22px;
-    user-select: none;
-    color: #dbdbdb;
-  }
-  .ant-dropdown-menu-item-active {
-    background-color: #1d1d1d;
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
 `;
 
 const VerticalDivider = styled.div`

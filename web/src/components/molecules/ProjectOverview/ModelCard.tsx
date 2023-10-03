@@ -3,7 +3,6 @@ import styled from "@emotion/styled";
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
 export type Model = {
