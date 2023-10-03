@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 
@@ -122,11 +123,26 @@ const FieldUpdateModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
-  const multipleValue: boolean = Form.useWatch("multiple", form);
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
   const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
+  const [multipleValue, setMultipleValue] = useState(selectedField?.multiple);
+
+  const handleMultipleChange = useCallback(
+    (e: CheckboxChangeEvent) => {
+      if (selectedType === "Date") {
+        if (e.target.checked) {
+          form.setFieldValue("defaultValue", []);
+        } else {
+          form.setFieldValue("defaultValue", null);
+        }
+      }
+
+      setMultipleValue(e.target.checked);
+    },
+    [form, selectedType],
+  );
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -146,14 +162,33 @@ const FieldUpdateModal: React.FC<Props> = ({
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
-    if (selectedType === "Tag") {
-      if (
-        !selectedTags?.some(selectedTag => selectedTag.id === form.getFieldValue("defaultValue"))
-      ) {
-        form.setFieldValue("defaultValue", []);
-      }
+    if (selectedType === "Tag" && form.getFieldValue("defaultValue") && selectedTags) {
+      const defaultValues = form.getFieldValue("defaultValue");
+      const isDefaultValueArray = Array.isArray(defaultValues);
+
+      const result = selectedTags
+        .filter(selectedTag =>
+          isDefaultValueArray
+            ? defaultValues.includes(selectedTag.name) || defaultValues.includes(selectedTag.id)
+            : selectedTag.name === defaultValues || selectedTag.id === defaultValues,
+        )
+        .map(item => item.name);
+
+      form.setFieldValue("defaultValue", result);
     }
   }, [form, selectedTags, selectedType]);
+
+  const transformMomentToString = (value: any) => {
+    if (moment.isMoment(value)) {
+      return value.format("YYYY-MM-DDTHH:mm:ssZ");
+    }
+
+    if (Array.isArray(value) && value.every(item => moment.isMoment(item))) {
+      return value.map(item => item.format("YYYY-MM-DDTHH:mm:ssZ"));
+    }
+
+    return value;
+  };
 
   useEffect(() => {
     let value =
@@ -171,9 +206,16 @@ const FieldUpdateModal: React.FC<Props> = ({
     }
     if (selectedType === "Tag") {
       if (Array.isArray(value)) {
-        value = value.map(valueItem => selectedTags?.find(tag => tag.id === valueItem)?.name);
+        value = value.map(
+          valueItem =>
+            selectedField?.typeProperty.tags?.find(
+              (tag: { id: string; name: string }) => tag.id === valueItem,
+            )?.name,
+        );
       } else {
-        value = selectedTags?.find(tag => tag.id === value)?.name;
+        value = selectedField?.typeProperty.tags?.find(
+          (tag: { id: string; name: string }) => tag.id === value,
+        )?.name;
       }
     }
 
@@ -193,7 +235,13 @@ const FieldUpdateModal: React.FC<Props> = ({
       values: selectedField?.typeProperty.values,
       tags: selectedField?.typeProperty.tags,
     });
-  }, [form, selectedField, selectedType, selectedTags]);
+  }, [
+    form,
+    selectedField,
+    selectedType,
+    selectedField?.typeProperty.selectDefaultValue,
+    selectedField?.typeProperty.tags,
+  ]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -233,13 +281,14 @@ const FieldUpdateModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            date: { defaultValue: values.defaultValue },
+            date: { defaultValue: transformMomentToString(values.defaultValue) },
           };
         } else if (selectedType === "Tag") {
           values.typeProperty = {
             tag: {
               defaultValue: values.defaultValue,
               tags: values.tags.map((tag: any) => ({
+                id: tag.id,
                 name: tag.name,
                 color: tag.color.toUpperCase(),
               })),
@@ -390,7 +439,9 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox>{t("Support multiple values")}</Checkbox>
+              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+                {t("Support multiple values")}
+              </Checkbox>
             </Form.Item>
             <Form.Item
               name="isTitle"
