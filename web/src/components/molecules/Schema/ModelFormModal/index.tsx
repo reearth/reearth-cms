@@ -38,12 +38,14 @@ const ModelFormModal: React.FC<Props> = ({
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
   useEffect(() => {
-    if (!model) {
-      form.resetFields();
-    } else {
-      form.setFieldsValue(model);
+    if(open === true) {
+      if (!model) {
+        form.resetFields();
+      } else {
+        form.setFieldsValue(model);
+      }
     }
-  }, [form, model]);
+  }, [form, model, open]);
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
