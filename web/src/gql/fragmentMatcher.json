@@ -1,11 +1,12 @@
 {
   "possibleTypes": {
-    "ItemEditor": [
-      "Integration",
-      "User"
+    "Container": [
+      "Group",
+      "Model"
     ],
     "Node": [
       "Asset",
+      "Group",
       "Integration",
       "Item",
       "Model",
@@ -24,6 +25,7 @@
       "SchemaFieldBool",
       "SchemaFieldCheckbox",
       "SchemaFieldDate",
+      "SchemaFieldGroup",
       "SchemaFieldInteger",
       "SchemaFieldMarkdown",
       "SchemaFieldReference",

@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 export const CREATE_FIELD = gql`
   mutation CreateField(
     $modelId: ID!
+    $groupId: ID!
     $type: SchemaFieldType!
     $title: String!
     $metadata: Boolean
@@ -17,6 +18,7 @@ export const CREATE_FIELD = gql`
     createField(
       input: {
         modelId: $modelId
+        groupId: $groupId
         type: $type
         title: $title
         metadata: $metadata
@@ -39,6 +41,7 @@ export const CREATE_FIELD = gql`
 export const UPDATE_FIELD = gql`
   mutation UpdateField(
     $modelId: ID!
+    $groupId: ID!
     $fieldId: ID!
     $title: String!
     $metadata: Boolean
@@ -54,6 +57,7 @@ export const UPDATE_FIELD = gql`
     updateField(
       input: {
         modelId: $modelId
+        groupId: $groupId
         fieldId: $fieldId
         title: $title
         metadata: $metadata
