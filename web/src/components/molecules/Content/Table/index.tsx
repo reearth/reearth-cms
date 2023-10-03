@@ -1,11 +1,14 @@
+// import { LightFilter } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
-import { Key, useMemo } from "react";
+import { Key, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
+import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import {
   ProColumns,
   TableRowSelection,
@@ -24,6 +27,8 @@ import {
 } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+
+import FilterDropdown from "./filterDropdown";
 
 export type Props = {
   className?: string;
@@ -209,6 +214,37 @@ const ContentTable: React.FC<Props> = ({
     );
   };
 
+  const [filters, setFilters] = useState<any[]>([]);
+
+  const items: MenuProps["items"] = useMemo(
+    () => [
+      {
+        key: "0",
+        label: <Input placeholder="Filter by..." />,
+        disabled: true,
+      },
+      ...((actionsColumn ?? [])
+        .filter(column => !!column.title && typeof column.title === "string")
+        .map(column => ({
+          key: column.key,
+          label: column.title,
+          onClick: () => {
+            setFilters(prevState => [...prevState, column.title]);
+          },
+        })) as any),
+      ...((contentTableColumns ?? [])
+        .filter(column => !!column.title && typeof column.title === "string")
+        .map(column => ({
+          key: column.key,
+          label: column.title,
+          onClick: () => {
+            setFilters(prevState => [...prevState, column.title]);
+          },
+        })) as any),
+    ],
+    [actionsColumn, contentTableColumns],
+  );
+
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
       defaultValue: searchTerm,
@@ -220,6 +256,22 @@ const ContentTable: React.FC<Props> = ({
         }
       },
     },
+    filter: (
+      <StyledLightFilter>
+        <Space
+          size={[0, 8]}
+          style={{ maxWidth: 700, overflowX: "scroll", marginTop: 0, paddingRight: 10 }}>
+          {filters.map(filter => (
+            <FilterDropdown key={filter} filter={filter} />
+          ))}
+        </Space>
+        <Dropdown menu={{ items }} placement="bottomLeft" trigger={["click"]} arrow>
+          <Button type="text" style={{ color: "rgba(0, 0, 0, 0.25)" }} icon={<Icon icon="plus" />}>
+            Filter
+          </Button>
+        </Dropdown>
+      </StyledLightFilter>
+    ),
   };
 
   const pagination: TablePaginationConfig = {
@@ -233,6 +285,7 @@ const ContentTable: React.FC<Props> = ({
     search: true,
     fullScreen: true,
     reload: onItemsReload,
+    // edit here
     setting: true,
   };
 
@@ -293,5 +346,19 @@ const DeleteButton = styled.a`
 const StyledBadge = styled(Badge)`
   + * {
     margin-left: 4px;
+  }
+`;
+
+const StyledLightFilter = styled.div`
+  display: flex;
+  text-align: left;
+  ant-space {
+    flex: 1;
+    align-self: start:
+    justify-self: start;
+    text-align: start;
+  }
+  .ant-pro-form-light-filter-item {
+    margin: 0;
   }
 `;
