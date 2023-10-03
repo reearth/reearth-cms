@@ -31,29 +31,25 @@ const ModelCard: React.FC<Props> = ({
   const { Meta } = Card;
   const t = useT();
 
-  const ModelMenu = (
-    <Menu
-      items={[
-        {
-          key: "edit",
-          label: t("Edit"),
-          onClick: () => onModelUpdateModalOpen(model),
-        },
-        {
-          key: "delete",
-          label: t("Delete"),
-          onClick: () => onModelDeletionModalOpen(model),
-        },
-      ]}
-    />
-  );
+  const MenuItems = [
+    {
+      key: "edit",
+      label: t("Edit"),
+      onClick: () => onModelUpdateModalOpen(model),
+    },
+    {
+      key: "delete",
+      label: t("Delete"),
+      onClick: () => onModelDeletionModalOpen(model),
+    },
+  ];
 
   return (
     <StyledCard
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate?.(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate?.(model.id)} />,
-        <Dropdown key="options" overlay={ModelMenu} trigger={["click"]}>
+        <Dropdown key="options" menu={{ items: MenuItems}} trigger={["click"]}>
           <Icon icon="ellipsis" />
         </Dropdown>,
       ]}>
