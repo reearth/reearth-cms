@@ -39,6 +39,9 @@ type DeleteGroupPayload {
 }
 
 # extend type Query {}
+extend type Query {
+    groups(projectId: ID!): [Group]!
+}
 
 extend type Mutation {
     createGroup(input: CreateGroupInput!): GroupPayload
