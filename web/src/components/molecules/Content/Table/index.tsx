@@ -220,7 +220,7 @@ const ContentTable: React.FC<Props> = ({
     () => [
       {
         key: "0",
-        label: <Input placeholder="Filter by..." />,
+        label: <Input placeholder={t("Filter by...")} />,
         disabled: true,
       },
       ...((actionsColumn ?? [])
@@ -242,7 +242,7 @@ const ContentTable: React.FC<Props> = ({
           },
         })) as any),
     ],
-    [actionsColumn, contentTableColumns],
+    [actionsColumn, contentTableColumns, t],
   );
 
   const handleToolbarEvents: ListToolBarProps | undefined = {

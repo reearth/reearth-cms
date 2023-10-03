@@ -31,15 +31,17 @@ const ViewsMenu: React.FC = () => {
       content: (
         <div>
           <p style={{ marginBottom: 0 }}>
-            Deleting the view is a permanent action. However, the contents will remain unaffected.
+            {t(
+              "Deleting the view is a permanent action. However, the contents will remain unaffected.",
+            )}
           </p>
           <p style={{ marginBottom: 0 }}>
-            Please proceed with caution as this action cannot be undone.
+            {t("Please proceed with caution as this action cannot be undone.")}
           </p>
         </div>
       ),
       icon: <Icon icon="exclamationCircle" />,
-      okText: "Remove",
+      okText: t("Remove"),
       okButtonProps: { danger: true },
       onOk() {
         console.log(e);
@@ -49,19 +51,19 @@ const ViewsMenu: React.FC = () => {
 
   const children = [
     {
-      label: "Update View",
+      label: t("Update View"),
       key: "update",
       icon: <Icon icon="reload" />,
       onClick: handleUpdate,
     },
     {
-      label: "Rename",
+      label: t("Rename"),
       key: "rename",
       icon: <Icon icon="edit" />,
       onClick: handleRename,
     },
     {
-      label: "Remove View",
+      label: t("Remove View"),
       key: "remove",
       icon: <Icon icon="delete" />,
       danger: true,
@@ -138,9 +140,9 @@ const ViewsMenu: React.FC = () => {
         <Form form={form} layout="vertical" autoComplete="off">
           <Form.Item
             name="view-name"
-            label="View Name"
-            extra="This is the title of the view"
-            rules={[{ required: true, message: "Please input the view name!" }]}>
+            label={t("View Name")}
+            extra={t("This is the title of the view")}
+            rules={[{ required: true, message: t("Please input the view name!") }]}>
             <Input />
           </Form.Item>
         </Form>

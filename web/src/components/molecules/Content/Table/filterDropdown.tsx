@@ -7,21 +7,24 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
+import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   filter: string;
 };
 
-const options = [
-  { value: "is", label: "is" },
-  { value: "is not", label: "is not" },
-  { value: "contains", label: "contains" },
-  { value: "doesn't contain", label: "doesn't contain" },
-  { value: "is empty", label: "is empty" },
-  { value: "is not empty", label: "is not empty" },
-];
-
 const FilterDropdown: React.FC<Props> = ({ filter }) => {
+  const t = useT();
+
+  const options = [
+    { value: "is", label: t("is") },
+    { value: "is not", label: t("is not") },
+    { value: "contains", label: t("contains") },
+    { value: "doesn't contain", label: t("doesn't contain") },
+    { value: "is empty", label: t("is empty") },
+    { value: "is not empty", label: t("is not empty") },
+  ];
+
   return (
     <Dropdown
       key={filter}
@@ -37,10 +40,10 @@ const FilterDropdown: React.FC<Props> = ({ filter }) => {
             <Form.Item style={{ textAlign: "right" }}>
               <Space size="small">
                 <Button type="default" style={{ marginRight: 10 }}>
-                  Cancel
+                  {t("Cancel")}
                 </Button>
                 <Button type="primary" htmlType="submit">
-                  Confirm
+                  {t("Confirm")}
                 </Button>
               </Space>
             </Form.Item>
