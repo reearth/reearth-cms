@@ -16,6 +16,8 @@ import {
 } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
+import ViewsMenu from "./viewsMenu";
+
 export type Props = {
   commentsPanel?: JSX.Element;
   collapsed?: boolean;
@@ -124,6 +126,7 @@ const ContentListMolecule: React.FC<Props> = ({
               </Button>
             }
           />
+          <ViewsMenu />
           <ContentTable
             totalCount={totalCount}
             sort={sort}
