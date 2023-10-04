@@ -4,4 +4,3 @@ export { default as threadFragment } from "./thread";
 export { default as assetFragment } from "./asset";
 export { default as assetFileFragment } from "./file";
 export { default as requestFragment } from "./request";
-export { default as groupFragment } from "./group";

@@ -1878,7 +1878,7 @@ export type GetGroupsQueryVariables = Exact<{
 }>;
 
 
-export type GetGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string } | null> };
+export type GetGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> };
 
 export type CreateGroupMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -3321,6 +3321,52 @@ export const GetGroupsDocument = gql`
     name
     description
     key
+    schema {
+      id
+      fields {
+        id
+        type
+        title
+        key
+        description
+        required
+        unique
+        isTitle
+        multiple
+        typeProperty {
+          ... on SchemaFieldText {
+            defaultValue
+            maxLength
+          }
+          ... on SchemaFieldTextArea {
+            defaultValue
+            maxLength
+          }
+          ... on SchemaFieldMarkdown {
+            defaultValue
+            maxLength
+          }
+          ... on SchemaFieldAsset {
+            assetDefaultValue: defaultValue
+          }
+          ... on SchemaFieldSelect {
+            selectDefaultValue: defaultValue
+            values
+          }
+          ... on SchemaFieldInteger {
+            integerDefaultValue: defaultValue
+            min
+            max
+          }
+          ... on SchemaFieldBool {
+            defaultValue
+          }
+          ... on SchemaFieldURL {
+            defaultValue
+          }
+        }
+      }
+    }
   }
 }
     `;
