@@ -755,7 +755,7 @@ type SchemaFieldDateInput struct {
 }
 
 type SchemaFieldGroup struct {
-	GroupID *ID `json:"groupId,omitempty"`
+	GroupID ID `json:"groupId"`
 }
 
 func (SchemaFieldGroup) IsSchemaFieldTypeProperty() {}

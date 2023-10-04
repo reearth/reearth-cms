@@ -141,7 +141,7 @@ type SchemaFieldCheckbox {
 }
 
 type SchemaFieldGroup {
-  groupId: ID
+  groupId: ID!
 }
 
 # Inputs
