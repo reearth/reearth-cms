@@ -4846,7 +4846,7 @@ type SchemaFieldCheckbox {
 }
 
 type SchemaFieldGroup {
-  groupId: ID
+  groupId: ID!
 }
 
 # Inputs
@@ -22353,11 +22353,14 @@ func (ec *executionContext) _SchemaFieldGroup_groupId(ctx context.Context, field
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ID)
+	res := resTmp.(gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SchemaFieldGroup_groupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -36526,6 +36529,9 @@ func (ec *executionContext) _SchemaFieldGroup(ctx context.Context, sel ast.Selec
 			out.Values[i] = graphql.MarshalString("SchemaFieldGroup")
 		case "groupId":
 			out.Values[i] = ec._SchemaFieldGroup_groupId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

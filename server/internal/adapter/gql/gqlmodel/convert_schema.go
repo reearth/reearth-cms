@@ -112,6 +112,11 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				Values:       f.Values(),
 			}
 		},
+		Group: func(f *schema.FieldGroup) {
+			res = &SchemaFieldGroup{
+				GroupID: IDFrom(f.Group()),
+			}
+		},
 		Tag: func(f *schema.FieldTag) {
 			tags := lo.Map(f.Tags(), func(tag *schema.Tag, _ int) *SchemaFieldTagValue {
 				return &SchemaFieldTagValue{
