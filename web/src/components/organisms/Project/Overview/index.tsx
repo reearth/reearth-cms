@@ -8,7 +8,7 @@ const ProjectOverview: React.FC = () => {
   const {
     currentProject,
     models,
-    isKeyAvailable,
+    isModelKeyAvailable,
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
@@ -39,7 +39,7 @@ const ProjectOverview: React.FC = () => {
       />
       <ModelFormModal
         model={selectedModel}
-        isKeyAvailable={isKeyAvailable}
+        isKeyAvailable={isModelKeyAvailable}
         onModelKeyCheck={handleModelKeyCheck}
         open={modelModalShown}
         onClose={handleModelModalReset}

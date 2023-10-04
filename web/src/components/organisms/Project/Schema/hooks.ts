@@ -103,6 +103,7 @@ export default () => {
   const handleFieldUpdate = useCallback(
     async (data: {
       fieldId?: string;
+      groupId?: string;
       title: string;
       description?: string;
       key: string;
@@ -114,11 +115,12 @@ export default () => {
       type?: FieldType;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
-      if (!modelId || !data.fieldId) return;
+      if ((!modelId && !data.groupId) || !data.fieldId) return;
       const field = await updateField({
         variables: {
           modelId,
           fieldId: data.fieldId,
+          groupId: data.groupId,
           title: data.title,
           metadata: data.metadata,
           description: data.description,
@@ -169,6 +171,7 @@ export default () => {
 
   const handleFieldCreate = useCallback(
     async (data: {
+      groupId?: string;
       title: string;
       description?: string;
       key: string;
@@ -180,10 +183,11 @@ export default () => {
       type?: FieldType;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
-      if (!modelId) return;
+      if (!modelId && !data.groupId) return;
       const field = await createNewField({
         variables: {
           modelId,
+          groupId: data.groupId,
           title: data.title,
           metadata: data.metadata,
           description: data.description,

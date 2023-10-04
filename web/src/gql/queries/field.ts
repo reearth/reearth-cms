@@ -2,8 +2,8 @@ import { gql } from "@apollo/client";
 
 export const CREATE_FIELD = gql`
   mutation CreateField(
-    $modelId: ID!
-    $groupId: ID!
+    $modelId: ID
+    $groupId: ID
     $type: SchemaFieldType!
     $title: String!
     $metadata: Boolean
@@ -40,8 +40,8 @@ export const CREATE_FIELD = gql`
 
 export const UPDATE_FIELD = gql`
   mutation UpdateField(
-    $modelId: ID!
-    $groupId: ID!
+    $modelId: ID
+    $groupId: ID
     $fieldId: ID!
     $title: String!
     $metadata: Boolean

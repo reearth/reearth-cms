@@ -30,6 +30,7 @@ import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType } from "../..
 
 export type FormValues = {
   fieldId?: string;
+  groupId?: string;
   title: string;
   description?: string;
   key: string;
