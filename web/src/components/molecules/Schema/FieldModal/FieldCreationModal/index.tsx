@@ -122,7 +122,6 @@ const FieldCreationModal: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
-  const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
   const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
   const [multipleValue, setMultipleValue] = useState(false);
@@ -393,7 +392,7 @@ const FieldCreationModal: React.FC<Props> = ({
   const TabsItems=[
     {
       label: "Setting",
-      key: "setting",
+      key: "settings",
       children: SettingPanel
     },
     {
@@ -447,7 +446,7 @@ const FieldCreationModal: React.FC<Props> = ({
               });
           });
         }}>
-        <Tabs items={TabsItems}/>
+        <Tabs activeKey={activeTab} items={TabsItems} onChange={handleTabChange}/>
       </Form>
     </Modal>
   );
