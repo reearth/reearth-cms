@@ -1,11 +1,14 @@
 import { gql } from "@apollo/client";
 
-import { groupFragment } from "@reearth-cms/gql/fragments";
-
 export const GET_GROUPS = gql`
   query GetGroups($projectId: ID!) {
     groups(projectId: $projectId) {
-      ${groupFragment}
+      id
+      schemaId
+      projectId
+      name
+      description
+      key
     }
   }
 `;

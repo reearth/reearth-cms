@@ -1271,7 +1271,7 @@ export type SchemaFieldDateInput = {
 
 export type SchemaFieldGroup = {
   __typename?: 'SchemaFieldGroup';
-  groupId?: Maybe<Scalars['ID']>;
+  groupId: Scalars['ID'];
 };
 
 export type SchemaFieldGroupInput = {
@@ -1872,6 +1872,40 @@ export type DeleteFieldMutationVariables = Exact<{
 
 
 export type DeleteFieldMutation = { __typename?: 'Mutation', deleteField?: { __typename?: 'DeleteFieldPayload', fieldId: string } | null };
+
+export type GetGroupsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+}>;
+
+
+export type GetGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string } | null> };
+
+export type CreateGroupMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  name: Scalars['String'];
+  key: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type CreateGroupMutation = { __typename?: 'Mutation', createGroup?: { __typename?: 'GroupPayload', group: { __typename?: 'Group', id: string } } | null };
+
+export type UpdateGroupMutationVariables = Exact<{
+  groupId: Scalars['ID'];
+  name: Scalars['String'];
+  key: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type UpdateGroupMutation = { __typename?: 'Mutation', updateGroup?: { __typename?: 'GroupPayload', group: { __typename?: 'Group', id: string } } | null };
+
+export type DeleteGroupMutationVariables = Exact<{
+  groupId: Scalars['ID'];
+}>;
+
+
+export type DeleteGroupMutation = { __typename?: 'Mutation', deleteGroup?: { __typename?: 'DeleteGroupPayload', groupId: string } | null };
 
 export type CreateIntegrationMutationVariables = Exact<{
   name: Scalars['String'];
@@ -3278,6 +3312,159 @@ export function useDeleteFieldMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteFieldMutationHookResult = ReturnType<typeof useDeleteFieldMutation>;
 export type DeleteFieldMutationResult = Apollo.MutationResult<DeleteFieldMutation>;
 export type DeleteFieldMutationOptions = Apollo.BaseMutationOptions<DeleteFieldMutation, DeleteFieldMutationVariables>;
+export const GetGroupsDocument = gql`
+    query GetGroups($projectId: ID!) {
+  groups(projectId: $projectId) {
+    id
+    schemaId
+    projectId
+    name
+    description
+    key
+  }
+}
+    `;
+
+/**
+ * __useGetGroupsQuery__
+ *
+ * To run a query within a React component, call `useGetGroupsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGroupsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGroupsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useGetGroupsQuery(baseOptions: Apollo.QueryHookOptions<GetGroupsQuery, GetGroupsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGroupsQuery, GetGroupsQueryVariables>(GetGroupsDocument, options);
+      }
+export function useGetGroupsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGroupsQuery, GetGroupsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGroupsQuery, GetGroupsQueryVariables>(GetGroupsDocument, options);
+        }
+export type GetGroupsQueryHookResult = ReturnType<typeof useGetGroupsQuery>;
+export type GetGroupsLazyQueryHookResult = ReturnType<typeof useGetGroupsLazyQuery>;
+export type GetGroupsQueryResult = Apollo.QueryResult<GetGroupsQuery, GetGroupsQueryVariables>;
+export const CreateGroupDocument = gql`
+    mutation createGroup($projectId: ID!, $name: String!, $key: String!, $description: String) {
+  createGroup(
+    input: {projectId: $projectId, name: $name, key: $key, description: $description}
+  ) {
+    group {
+      id
+    }
+  }
+}
+    `;
+export type CreateGroupMutationFn = Apollo.MutationFunction<CreateGroupMutation, CreateGroupMutationVariables>;
+
+/**
+ * __useCreateGroupMutation__
+ *
+ * To run a mutation, you first call `useCreateGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createGroupMutation, { data, loading, error }] = useCreateGroupMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      name: // value for 'name'
+ *      key: // value for 'key'
+ *      description: // value for 'description'
+ *   },
+ * });
+ */
+export function useCreateGroupMutation(baseOptions?: Apollo.MutationHookOptions<CreateGroupMutation, CreateGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateGroupMutation, CreateGroupMutationVariables>(CreateGroupDocument, options);
+      }
+export type CreateGroupMutationHookResult = ReturnType<typeof useCreateGroupMutation>;
+export type CreateGroupMutationResult = Apollo.MutationResult<CreateGroupMutation>;
+export type CreateGroupMutationOptions = Apollo.BaseMutationOptions<CreateGroupMutation, CreateGroupMutationVariables>;
+export const UpdateGroupDocument = gql`
+    mutation updateGroup($groupId: ID!, $name: String!, $key: String!, $description: String) {
+  updateGroup(
+    input: {groupId: $groupId, name: $name, key: $key, description: $description}
+  ) {
+    group {
+      id
+    }
+  }
+}
+    `;
+export type UpdateGroupMutationFn = Apollo.MutationFunction<UpdateGroupMutation, UpdateGroupMutationVariables>;
+
+/**
+ * __useUpdateGroupMutation__
+ *
+ * To run a mutation, you first call `useUpdateGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGroupMutation, { data, loading, error }] = useUpdateGroupMutation({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *      name: // value for 'name'
+ *      key: // value for 'key'
+ *      description: // value for 'description'
+ *   },
+ * });
+ */
+export function useUpdateGroupMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGroupMutation, UpdateGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGroupMutation, UpdateGroupMutationVariables>(UpdateGroupDocument, options);
+      }
+export type UpdateGroupMutationHookResult = ReturnType<typeof useUpdateGroupMutation>;
+export type UpdateGroupMutationResult = Apollo.MutationResult<UpdateGroupMutation>;
+export type UpdateGroupMutationOptions = Apollo.BaseMutationOptions<UpdateGroupMutation, UpdateGroupMutationVariables>;
+export const DeleteGroupDocument = gql`
+    mutation deleteGroup($groupId: ID!) {
+  deleteGroup(input: {groupId: $groupId}) {
+    groupId
+  }
+}
+    `;
+export type DeleteGroupMutationFn = Apollo.MutationFunction<DeleteGroupMutation, DeleteGroupMutationVariables>;
+
+/**
+ * __useDeleteGroupMutation__
+ *
+ * To run a mutation, you first call `useDeleteGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGroupMutation, { data, loading, error }] = useDeleteGroupMutation({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useDeleteGroupMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGroupMutation, DeleteGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument, options);
+      }
+export type DeleteGroupMutationHookResult = ReturnType<typeof useDeleteGroupMutation>;
+export type DeleteGroupMutationResult = Apollo.MutationResult<DeleteGroupMutation>;
+export type DeleteGroupMutationOptions = Apollo.BaseMutationOptions<DeleteGroupMutation, DeleteGroupMutationVariables>;
 export const CreateIntegrationDocument = gql`
     mutation CreateIntegration($name: String!, $description: String, $logoUrl: URL!, $type: IntegrationType!) {
   createIntegration(
