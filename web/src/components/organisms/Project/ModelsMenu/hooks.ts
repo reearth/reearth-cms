@@ -2,16 +2,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Model, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
+  useGetGroupsQuery,
   useCreateModelMutation,
+  useCreateGroupMutation,
   useCheckModelKeyAvailabilityLazyQuery,
   Model as GQLModel,
+  Group as GQLGroup,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useWorkspace, useProject } from "@reearth-cms/state";
-import { fromGraphQLModel } from "@reearth-cms/utils/values";
+import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 type Params = {
   modelId?: string;
@@ -106,20 +109,26 @@ export default ({ modelId }: Params) => {
   const [groupModalShown, setGroupModalShown] = useState(false);
   const [isGroupKeyAvailable, _setIsGroupKeyAvailable] = useState(false);
 
-  const groups = useMemo(() => {
-    return [
-      {
-        id: "group1",
-        name: "group1",
-        key: "group1",
-        description: "Group 1 description",
-      },
-    ];
-  }, []);
+  const { data: groupData } = useGetGroupsQuery({
+    variables: { projectId: projectId ?? "" },
+    skip: !projectId,
+  });
 
-  const group = useMemo(() => {
-    return groups[0];
-  }, [groups]);
+  const groups = useMemo(() => {
+    return groupData?.groups
+      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
+      .filter((group): group is Group => !!group);
+  }, [groupData?.groups]);
+
+  const rawGroup = useMemo(
+    () => groupData?.groups?.find(node => node?.id === modelId),
+    [groupData?.groups, modelId],
+  );
+
+  const group = useMemo<Group | undefined>(
+    () => (rawGroup?.id ? fromGraphQLGroup(rawGroup as GQLGroup) : undefined),
+    [rawGroup],
+  );
 
   const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
@@ -128,12 +137,34 @@ export default ({ modelId }: Params) => {
     return false;
   }, []);
 
+  const [createNewGroup] = useCreateGroupMutation({
+    refetchQueries: ["GetGroups"],
+  });
+
   const handleGroupCreate = useCallback(
     async (data: { name: string; description: string; key: string }) => {
-      console.log(data);
+      if (!projectId) return;
+      const group = await createNewGroup({
+        variables: {
+          projectId,
+          name: data.name,
+          description: data.description,
+          key: data.key,
+        },
+      });
+      if (group.errors || !group.data?.createGroup) {
+        Notification.error({ message: t("Failed to create group.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully created group!") });
+      setGroupModalShown(false);
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${projectId}/schema/${group.data?.createGroup.group.id}`,
+      );
     },
-    [],
+    [currentWorkspace?.id, projectId, createNewGroup, navigate, t],
   );
+
   return {
     model,
     models,

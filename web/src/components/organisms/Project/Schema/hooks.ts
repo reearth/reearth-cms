@@ -1,8 +1,9 @@
+import { Modal } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -11,14 +12,17 @@ import {
   useUpdateFieldMutation,
   useUpdateFieldsMutation,
   useGetModelsQuery,
+  useGetGroupsQuery,
   Model as GQLModel,
+  Group as GQLGroup,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
-import { fromGraphQLModel } from "@reearth-cms/utils/values";
+import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const t = useT();
+  const { confirm } = Modal;
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId } = useParams();
   const [currentModel] = useModel();
@@ -43,6 +47,19 @@ export default () => {
       ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
       .filter((model): model is Model => !!model);
   }, [modelsData?.models.nodes]);
+
+  const { data: groupsData } = useGetGroupsQuery({
+    variables: {
+      projectId: projectId ?? "",
+    },
+    skip: !projectId,
+  });
+
+  const groups = useMemo(() => {
+    return groupsData?.groups
+      ?.map<Group | undefined>(group => fromGraphQLGroup(group as GQLGroup))
+      .filter((group): group is Group => !!group);
+  }, [groupsData?.groups]);
 
   useEffect(() => {
     if (!modelId && currentModel) {
@@ -213,10 +230,26 @@ export default () => {
 
   const handleFieldCreationModalOpen = useCallback(
     (fieldType: FieldType) => {
-      setSelectedType(fieldType);
-      if (modelId) setFieldCreationModalShown(true);
+      if (fieldType === "Group" && groups?.length === 0) {
+        confirm({
+          title: "No available Group",
+          content: "Please create a Group first to use the field",
+          okText: "Create Group",
+          okType: "primary",
+          cancelText: "Cancel",
+          onOk() {
+            console.log("OK");
+          },
+          onCancel() {
+            console.log("Cancel");
+          },
+        });
+      } else {
+        setSelectedType(fieldType);
+        if (modelId) setFieldCreationModalShown(true);
+      }
     },
-    [modelId],
+    [confirm, groups, modelId],
   );
 
   const handleFieldUpdateModalClose = useCallback(() => {
@@ -240,6 +273,7 @@ export default () => {
 
   return {
     models,
+    groups,
     isMeta,
     setIsMeta,
     fieldCreationModalShown,

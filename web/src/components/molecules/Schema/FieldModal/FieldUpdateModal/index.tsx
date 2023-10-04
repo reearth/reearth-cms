@@ -43,6 +43,7 @@ export interface FormValues {
 }
 
 export interface Props {
+  groups?: any[];
   open?: boolean;
   fieldUpdateLoading: boolean;
   selectedType: FieldType;
@@ -445,7 +446,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
-              hidden={isMeta}
+              hidden={isMeta || selectedType === "Group"}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>

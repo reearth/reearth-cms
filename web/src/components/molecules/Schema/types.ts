@@ -78,4 +78,12 @@ export type CreationFieldTypePropertyInput = {
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
 
-export type Group = any;
+export type Group = {
+  id: string;
+  schemaId: string;
+  projectId: string;
+  name: string;
+  description: string;
+  key: string;
+  schema: Schema;
+};

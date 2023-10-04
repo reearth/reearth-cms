@@ -8,6 +8,7 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -17,6 +18,13 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
+import {
+  CreationFieldTypePropertyInput,
+  FieldModalTabs,
+  FieldType,
+  Group,
+} from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
@@ -24,9 +32,6 @@ import {
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
-
-import { fieldTypes } from "../../fieldTypes";
-import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType } from "../../types";
 
 export type FormValues = {
   fieldId?: string;
@@ -44,6 +49,7 @@ export type FormValues = {
 };
 
 export type Props = {
+  groups?: Group[];
   open?: boolean;
   isMeta?: boolean;
   fieldCreationLoading: boolean;
@@ -91,6 +97,7 @@ const initialValues: FormValues = {
 };
 
 const FieldCreationModal: React.FC<Props> = ({
+  groups,
   open,
   isMeta,
   fieldCreationLoading,
@@ -371,6 +378,23 @@ const FieldCreationModal: React.FC<Props> = ({
                 <MultiValueColoredTag />
               </Form.Item>
             )}
+            {selectedType === "Group" && (
+              <Form.Item
+                name="group"
+                label={t("Select Group")}
+                rules={[{ required: true, message: t("Please select the group!") }]}>
+                <Select /*value={selectedGroup} onChange={handleSelectGroup}*/>
+                  {groups?.map(group => (
+                    <Select.Option key={group.id} value={group.id}>
+                      {group.name}{" "}
+                      <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
+                        #{group.key}
+                      </span>
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            )}
             <Form.Item
               name="multiple"
               valuePropName="checked"
@@ -381,7 +405,7 @@ const FieldCreationModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
-              hidden={isMeta}
+              hidden={isMeta || selectedType === "Group"}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>
