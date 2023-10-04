@@ -46,6 +46,19 @@ const UploadModal: React.FC<Props> = ({
     setUploadType(key as UploadType);
   };
 
+  const TabsItems = [
+    {
+      label: t("Local"),
+      key: "local",
+      children: <LocalTab uploadProps={uploadProps} />
+    },
+    {
+      label: t("URL"),
+      key: "url",
+      children: <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
+    }
+  ];
+
   return (
     <Modal
       centered
@@ -62,16 +75,7 @@ const UploadModal: React.FC<Props> = ({
       <div>
         <h2>{t("Asset Uploader")}</h2>
       </div>
-      <Tabs activeKey={uploadType} onChange={handleTabChange}>
-        <TabPane tab={t("Local")} key="local">
-          <LocalTab uploadProps={uploadProps} />
-        </TabPane>
-        <TabPane tab={t("URL")} key="url">
-          <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
-        </TabPane>
-        {/* TODO: uncomment this once upload asset from google drive is implemented */}
-        {/* <TabPane tab={t("Google Drive")} key="3" /> */}
-      </Tabs>
+      <Tabs activeKey={uploadType} items={TabsItems} onChange={handleTabChange} />
       <Footer>
         <CancelButton type="default" disabled={uploading} onClick={onCancel}>
           {t("Cancel")}
