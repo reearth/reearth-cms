@@ -254,7 +254,7 @@ const FieldCreationModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
-  const SettingPanel = <>
+  const SettingsPanel = <>
     <Form.Item name="title" label={t("Display name")}
         rules={[{ required: true, message: t("Please input the display name of field!") }]}>
       <Input />
@@ -391,9 +391,9 @@ const FieldCreationModal: React.FC<Props> = ({
 
   const TabsItems=[
     {
-      label: "Setting",
+      label: "Settings",
       key: "settings",
-      children: SettingPanel
+      children: SettingsPanel
     },
     {
       label: "Validation",
@@ -401,7 +401,7 @@ const FieldCreationModal: React.FC<Props> = ({
       children: ValidationPanel
     },
     {
-      label: "DefaultValue",
+      label: "Default Value",
       key: "defaultValue",
       children: DefaultValuePanel
     },

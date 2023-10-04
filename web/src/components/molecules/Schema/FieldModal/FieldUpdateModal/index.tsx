@@ -320,6 +320,164 @@ const FieldUpdateModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
+  const SettingsPanel= 
+  <>
+    <Form.Item
+      name="title"
+      label={t("Display name")}
+      rules={[{ required: true, message: t("Please input the display name of field!") }]}>
+      <Input />
+    </Form.Item>
+    <Form.Item
+      name="key"
+      label="Field Key"
+      extra={t(
+        "Field key must be unique and at least 1 characters long. It can only contain letters, numbers, underscores and dashes.",
+      )}
+      rules={[
+        {
+          message: t("Key is not valid"),
+          required: true,
+          validator: async (_, value) => {
+            if (!validateKey(value)) return Promise.reject();
+            const isKeyAvailable = handleFieldKeyUnique(value, selectedField?.id);
+            if (isKeyAvailable) {
+              return Promise.resolve();
+            } else {
+              return Promise.reject();
+            }
+          },
+        },
+      ]}>
+      <Input />
+    </Form.Item>
+    <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+      <TextArea rows={3} showCount maxLength={1000} />
+    </Form.Item>
+    {selectedType === "Select" && (
+      <Form.Item
+        name="values"
+        label={t("Set Options")}
+        rules={[
+          {
+            validator: async (_, values) => {
+              if (!values || values.length < 1) {
+                return Promise.reject(new Error("At least 1 option"));
+              }
+              if (values.some((value: string) => value.length === 0)) {
+                return Promise.reject(new Error("Empty values are not allowed"));
+              }
+            },
+          },
+        ]}>
+        <MultiValueField FieldInput={Input} />
+      </Form.Item>
+    )}
+    {selectedType === "Tag" && (
+      <Form.Item
+        name="tags"
+        label={t("Set Tags")}
+        rules={[
+          {
+            validator: async (_, values) => {
+              if (!values || values.length < 1) {
+                return Promise.reject(new Error("At least 1 option"));
+              }
+              if (values.some((value: string) => value.length === 0)) {
+                return Promise.reject(new Error("Empty values are not allowed"));
+              }
+              const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
+              if (uniqueNames.size !== values.length) {
+                return Promise.reject(new Error("Labels must be unique"));
+              }
+            },
+          },
+        ]}>
+        <MultiValueColoredTag />
+      </Form.Item>
+    )}
+    <Form.Item
+      name="multiple"
+      valuePropName="checked"
+      extra={t("Stores a list of values instead of a single value")}>
+      <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+        {t("Support multiple values")}
+      </Checkbox>
+    </Form.Item>
+    <Form.Item
+      name="isTitle"
+      hidden={isMeta}
+      valuePropName="checked"
+      extra={t("Only one field can be used as the title")}>
+      <Checkbox>{t("Use as title")}</Checkbox>
+    </Form.Item>
+  </>
+
+  const ValidationPanel=
+  <>
+    <FieldValidationInputs selectedType={selectedType} />
+    <Form.Item
+      name="required"
+      valuePropName="checked"
+      extra={t("Prevents saving an entry if this field is empty")}>
+      <Checkbox>{t("Make field required")}</Checkbox>
+    </Form.Item>
+    <Form.Item
+      name="unique"
+      valuePropName="checked"
+      extra={t("Ensures that multiple entries can't have the same value for this field")}>
+      <Checkbox>{t("Set field as unique")}</Checkbox>
+    </Form.Item>
+  </>
+
+  const DefaultValuePanel=
+  <>
+    <FieldDefaultInputs
+      selectedValues={selectedValues}
+      selectedTags={selectedTags}
+      multiple={multipleValue}
+      selectedType={selectedType}
+      assetList={assetList}
+      fileList={fileList}
+      loadingAssets={loadingAssets}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      uploadUrl={uploadUrl}
+      uploadType={uploadType}
+      onAssetTableChange={onAssetTableChange}
+      totalCount={totalCount}
+      page={page}
+      pageSize={pageSize}
+      onUploadModalCancel={onUploadModalCancel}
+      setUploadUrl={setUploadUrl}
+      setUploadType={setUploadType}
+      onAssetsCreate={onAssetsCreate}
+      onAssetCreateFromUrl={onAssetCreateFromUrl}
+      onAssetSearchTerm={onAssetSearchTerm}
+      onAssetsReload={onAssetsReload}
+      setFileList={setFileList}
+      setUploadModalVisibility={setUploadModalVisibility}
+    />
+  </>
+
+  const TabsItems = [
+    {
+      label: "Settings",
+      key: "settings",
+      children: SettingsPanel
+    },
+    {
+      label: "Validation",
+      key: "validation",
+      children: ValidationPanel
+    },
+    {
+      label: "Default Value",
+      key: "defaultValue",
+      children: DefaultValuePanel
+    },
+  ]
+
   return (
     <Modal
       title={
@@ -359,141 +517,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               });
           });
         }}>
-        <Tabs activeKey={activeTab} onChange={handleTabChange}>
-          <TabPane tab={t("Settings")} key="settings" forceRender>
-            <Form.Item
-              name="title"
-              label={t("Display name")}
-              rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="key"
-              label="Field Key"
-              extra={t(
-                "Field key must be unique and at least 1 characters long. It can only contain letters, numbers, underscores and dashes.",
-              )}
-              rules={[
-                {
-                  message: t("Key is not valid"),
-                  required: true,
-                  validator: async (_, value) => {
-                    if (!validateKey(value)) return Promise.reject();
-                    const isKeyAvailable = handleFieldKeyUnique(value, selectedField?.id);
-                    if (isKeyAvailable) {
-                      return Promise.resolve();
-                    } else {
-                      return Promise.reject();
-                    }
-                  },
-                },
-              ]}>
-              <Input />
-            </Form.Item>
-            <Form.Item requiredMark="optional" name="description" label={t("Description")}>
-              <TextArea rows={3} showCount maxLength={1000} />
-            </Form.Item>
-            {selectedType === "Select" && (
-              <Form.Item
-                name="values"
-                label={t("Set Options")}
-                rules={[
-                  {
-                    validator: async (_, values) => {
-                      if (!values || values.length < 1) {
-                        return Promise.reject(new Error("At least 1 option"));
-                      }
-                      if (values.some((value: string) => value.length === 0)) {
-                        return Promise.reject(new Error("Empty values are not allowed"));
-                      }
-                    },
-                  },
-                ]}>
-                <MultiValueField FieldInput={Input} />
-              </Form.Item>
-            )}
-            {selectedType === "Tag" && (
-              <Form.Item
-                name="tags"
-                label={t("Set Tags")}
-                rules={[
-                  {
-                    validator: async (_, values) => {
-                      if (!values || values.length < 1) {
-                        return Promise.reject(new Error("At least 1 option"));
-                      }
-                      if (values.some((value: string) => value.length === 0)) {
-                        return Promise.reject(new Error("Empty values are not allowed"));
-                      }
-                      const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
-                      if (uniqueNames.size !== values.length) {
-                        return Promise.reject(new Error("Labels must be unique"));
-                      }
-                    },
-                  },
-                ]}>
-                <MultiValueColoredTag />
-              </Form.Item>
-            )}
-            <Form.Item
-              name="multiple"
-              valuePropName="checked"
-              extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
-                {t("Support multiple values")}
-              </Checkbox>
-            </Form.Item>
-            <Form.Item
-              name="isTitle"
-              hidden={isMeta}
-              valuePropName="checked"
-              extra={t("Only one field can be used as the title")}>
-              <Checkbox>{t("Use as title")}</Checkbox>
-            </Form.Item>
-          </TabPane>
-          <TabPane tab={t("Validation")} key="validation" forceRender>
-            <FieldValidationInputs selectedType={selectedType} />
-            <Form.Item
-              name="required"
-              valuePropName="checked"
-              extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox>{t("Make field required")}</Checkbox>
-            </Form.Item>
-            <Form.Item
-              name="unique"
-              valuePropName="checked"
-              extra={t("Ensures that multiple entries can't have the same value for this field")}>
-              <Checkbox>{t("Set field as unique")}</Checkbox>
-            </Form.Item>
-          </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
-            <FieldDefaultInputs
-              selectedValues={selectedValues}
-              selectedTags={selectedTags}
-              multiple={multipleValue}
-              selectedType={selectedType}
-              assetList={assetList}
-              fileList={fileList}
-              loadingAssets={loadingAssets}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              uploadUrl={uploadUrl}
-              uploadType={uploadType}
-              onAssetTableChange={onAssetTableChange}
-              totalCount={totalCount}
-              page={page}
-              pageSize={pageSize}
-              onUploadModalCancel={onUploadModalCancel}
-              setUploadUrl={setUploadUrl}
-              setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
-              onAssetCreateFromUrl={onAssetCreateFromUrl}
-              onAssetSearchTerm={onAssetSearchTerm}
-              onAssetsReload={onAssetsReload}
-              setFileList={setFileList}
-              setUploadModalVisibility={setUploadModalVisibility}
-            />
-          </TabPane>
+        <Tabs activeKey={activeTab} items = {TabsItems}onChange={handleTabChange}>
         </Tabs>
       </Form>
     </Modal>
