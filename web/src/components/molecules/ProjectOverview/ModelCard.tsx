@@ -49,7 +49,9 @@ const ModelCard: React.FC<Props> = ({
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate?.(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate?.(model.id)} />,
         <Dropdown key="options" menu={{ items: MenuItems}} trigger={["click"]}>
-          <Icon icon="ellipsis" />
+          <a onClick={e => e.preventDefault()}>
+            <Icon icon="ellipsis" /> 
+          </a>
         </Dropdown>,
       ]}>
       <Meta title={model.name} description={model.description} />
