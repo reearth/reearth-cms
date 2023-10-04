@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useCreateFieldMutation,
@@ -27,13 +28,14 @@ export default () => {
   const { projectId, workspaceId, modelId } = useParams();
   const [currentModel] = useModel();
 
+  const [groupId, setGroupId] = useState<string | undefined>(undefined);
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [isMeta, setIsMeta] = useState<boolean | undefined>(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [collapsed, collapse] = useState(false);
-
+  const [selectedSchemaType, setSelectedSchemaType] = useState<SelectedSchemaType>("model");
   const { data: modelsData } = useGetModelsQuery({
     variables: {
       projectId: projectId ?? "",
@@ -69,17 +71,16 @@ export default () => {
 
   const handleModelSelect = useCallback(
     (modelId: string) => {
+      setSelectedSchemaType("model");
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${modelId}`);
     },
     [navigate, workspaceId, projectId],
   );
 
-  const handleGroupSelect = useCallback(
-    (groupId: string) => {
-      navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${groupId}`);
-    },
-    [navigate, workspaceId, projectId],
-  );
+  const handleGroupSelect = useCallback((groupId: string) => {
+    setSelectedSchemaType("group");
+    setGroupId(groupId);
+  }, []);
 
   const handleFieldKeyUnique = useCallback(
     (key: string, fieldId?: string): boolean => {
@@ -132,12 +133,12 @@ export default () => {
       type?: FieldType;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
-      if ((!modelId && !data.groupId) || !data.fieldId) return;
+      if ((!modelId && !groupId) || !data.fieldId) return;
       const field = await updateField({
         variables: {
           modelId,
+          groupId,
           fieldId: data.fieldId,
-          groupId: data.groupId,
           title: data.title,
           metadata: data.metadata,
           description: data.description,
@@ -156,7 +157,7 @@ export default () => {
       Notification.success({ message: t("Successfully updated field!") });
       setFieldUpdateModalShown(false);
     },
-    [modelId, updateField, t],
+    [modelId, groupId, updateField, t],
   );
 
   const [updateFieldsOrder] = useUpdateFieldsMutation({
@@ -200,11 +201,11 @@ export default () => {
       type?: FieldType;
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
-      if (!modelId && !data.groupId) return;
+      if (!modelId && !groupId) return;
       const field = await createNewField({
         variables: {
           modelId,
-          groupId: data.groupId,
+          groupId,
           title: data.title,
           metadata: data.metadata,
           description: data.description,
@@ -225,7 +226,7 @@ export default () => {
       Notification.success({ message: t("Successfully created field!") });
       setFieldCreationModalShown(false);
     },
-    [modelId, createNewField, t],
+    [modelId, groupId, createNewField, t],
   );
 
   const handleFieldCreationModalOpen = useCallback(
@@ -274,6 +275,7 @@ export default () => {
   return {
     models,
     groups,
+    groupId,
     isMeta,
     setIsMeta,
     fieldCreationModalShown,
@@ -285,6 +287,7 @@ export default () => {
     fieldCreationLoading,
     fieldUpdateLoading,
     collapse,
+    selectedSchemaType,
     handleModelSelect,
     handleGroupSelect,
     handleFieldCreationModalClose,

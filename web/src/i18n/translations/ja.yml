@@ -223,6 +223,8 @@ Field key must be unique and at least 1 character long. It can only contain lett
 Key is not valid: 無効なキーです
 Set Options: オプションを設定
 Set Tags: タグを設定する
+Select Group: ''
+Please select the group!: ''
 Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
 Support multiple values: 複数値の設定を許可
 Only one field can be used as the title: タイトルとして使用できるフィールドは1つだけです。
@@ -342,6 +344,8 @@ Failed to unpublish items.: エラーによりアイテムを非公開にでき�
 Successfully unpublished items!: アイテムを非公開にしました。
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
+Failed to create group.: ''
+Successfully created group!: ''
 Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。

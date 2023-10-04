@@ -42,6 +42,7 @@ const ProjectSchema: React.FC = () => {
   const {
     models,
     groups,
+    groupId,
     isMeta,
     setIsMeta,
     fieldCreationModalShown,
@@ -53,6 +54,7 @@ const ProjectSchema: React.FC = () => {
     fieldCreationLoading,
     fieldUpdateLoading,
     collapse,
+    selectedSchemaType,
     handleModelSelect,
     handleGroupSelect,
     handleFieldCreationModalClose,
@@ -70,11 +72,13 @@ const ProjectSchema: React.FC = () => {
     <>
       <SchemaMolecule
         collapsed={collapsed}
+        selectedSchemaType={selectedSchemaType}
         model={currentModel}
         modelsMenu={
           <ModelsMenu
             title={t("Schema")}
             collapsed={collapsed}
+            groupId={groupId}
             onModelSelect={handleModelSelect}
             onGroupSelect={handleGroupSelect}
             displayGroups

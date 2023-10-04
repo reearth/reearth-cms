@@ -49,6 +49,7 @@ const GroupFormModal: React.FC<Props> = ({
     const values = await form.validateFields();
     await onGroupKeyCheck(values.key, group?.key);
     if (!group?.id) {
+      console.log(values);
       await onCreate?.(values);
     } else {
       await OnUpdate?.({ groupId: group.id, ...values });
@@ -64,7 +65,7 @@ const GroupFormModal: React.FC<Props> = ({
 
   return (
     <Modal
-      visible={open}
+      open={open}
       onCancel={handleClose}
       onOk={handleSubmit}
       okButtonProps={{ disabled: buttonDisabled }}

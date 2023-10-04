@@ -10,6 +10,7 @@ export interface Props {
   className?: string;
   title: string;
   collapsed?: boolean;
+  groupId?: string;
   displayGroups?: boolean;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
@@ -19,6 +20,7 @@ const ModelsMenu: React.FC<Props> = ({
   className,
   title,
   collapsed,
+  groupId,
   displayGroups,
   onModelSelect,
   onGroupSelect,
@@ -44,6 +46,7 @@ const ModelsMenu: React.FC<Props> = ({
     handleGroupKeyCheck,
   } = useHooks({
     modelId,
+    groupId,
   });
 
   return (

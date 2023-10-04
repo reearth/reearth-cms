@@ -17,6 +17,7 @@ export type Props = {
   collapsed?: boolean;
   model?: Model;
   modelsMenu?: JSX.Element;
+  selectedSchemaType?: SelectedSchemaType;
   setIsMeta?: (isMeta: boolean) => void;
   onCollapse?: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void> | void;
@@ -26,11 +27,13 @@ export type Props = {
 };
 
 export type Tab = "fields" | "meta-data";
+export type SelectedSchemaType = "model" | "group";
 
 const Schema: React.FC<Props> = ({
   collapsed,
   model,
   modelsMenu,
+  selectedSchemaType,
   setIsMeta,
   onCollapse,
   onFieldReorder,
@@ -119,8 +122,19 @@ const Schema: React.FC<Props> = ({
             subTitle={model?.key ? `#${model.key}` : null}
             extra={[<DropdownMenu key="more" />]}
           />
-          <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
-          {/* TODO: add groups support */}
+          {selectedSchemaType === "model" && (
+            <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
+          )}
+          {selectedSchemaType === "group" && (
+            <div>
+              <ModelFieldList
+                fields={model?.schema?.fields}
+                handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
+                onFieldReorder={onFieldReorder}
+                onFieldDelete={onFieldDelete}
+              />
+            </div>
+          )}
         </Content>
       }
       right={

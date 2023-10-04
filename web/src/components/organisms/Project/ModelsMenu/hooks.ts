@@ -18,9 +18,10 @@ import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 type Params = {
   modelId?: string;
+  groupId?: string;
 };
 
-export default ({ modelId }: Params) => {
+export default ({ modelId, groupId }: Params) => {
   const t = useT();
   const [currentModel, setCurrentModel] = useModel();
   const [currentWorkspace] = useWorkspace();
@@ -121,8 +122,8 @@ export default ({ modelId }: Params) => {
   }, [groupData?.groups]);
 
   const rawGroup = useMemo(
-    () => groupData?.groups?.find(node => node?.id === modelId),
-    [groupData?.groups, modelId],
+    () => groupData?.groups?.find(node => node?.id === groupId),
+    [groupData?.groups, groupId],
   );
 
   const group = useMemo<Group | undefined>(
@@ -134,7 +135,7 @@ export default ({ modelId }: Params) => {
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
 
   const handleGroupKeyCheck = useCallback(async (_key: string, _ignoredKey?: string) => {
-    return false;
+    return true; //should add a query to check group key availability
   }, []);
 
   const [createNewGroup] = useCreateGroupMutation({

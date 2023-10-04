@@ -1,12 +1,13 @@
 import GroupsList from "@reearth-cms/components/molecules/Model/ModelsList/GroupsList";
 import GroupFormModal from "@reearth-cms/components/molecules/Schema/GroupFormModal";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 
 export type Props = {
   className?: string;
   title: string;
   collapsed?: boolean;
   selectedKey?: string;
-  groups?: any;
+  groups?: Group[];
   isKeyAvailable: boolean;
   open?: boolean;
   onModalOpen: () => void;
