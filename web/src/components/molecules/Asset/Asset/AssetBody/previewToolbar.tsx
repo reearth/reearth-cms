@@ -43,7 +43,7 @@ const PreviewToolbar: React.FC<Props> = ({
           onClick={handleFullScreen}
         />
       )}
-      <PreviewModal url={url} visible={isModalVisible} handleCancel={handleModalCancel} />
+      <PreviewModal url={url} open={isModalVisible} handleCancel={handleModalCancel} />
     </>
   );
 };
