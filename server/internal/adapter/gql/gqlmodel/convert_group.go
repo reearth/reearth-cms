@@ -4,17 +4,17 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 )
 
-func ToGroup(m *group.Group) *Group {
-	if m == nil {
+func ToGroup(g *group.Group) *Group {
+	if g == nil {
 		return nil
 	}
 
 	return &Group{
-		ID:          IDFrom(m.ID()),
-		ProjectID:   IDFrom(m.Project()),
-		SchemaID:    IDFrom(m.Schema()),
-		Name:        m.Name(),
-		Description: m.Description(),
-		Key:         m.Key().String(),
+		ID:          IDFrom(g.ID()),
+		ProjectID:   IDFrom(g.Project()),
+		SchemaID:    IDFrom(g.Schema()),
+		Name:        g.Name(),
+		Description: g.Description(),
+		Key:         g.Key().String(),
 	}
 }
