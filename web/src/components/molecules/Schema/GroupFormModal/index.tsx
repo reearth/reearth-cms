@@ -4,7 +4,7 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-// import { Group } from "@reearth-cms/components/molecules/ProjectOverview";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
@@ -16,12 +16,12 @@ export interface FormValues {
 }
 
 export interface Props {
-  group?: any;
+  group?: Group;
   open?: boolean;
   isKeyAvailable: boolean;
   onClose: () => void;
   onCreate?: (values: FormValues) => Promise<void> | void;
-  OnUpdate?: (values: FormValues) => Promise<void> | void;
+  onUpdate?: (values: FormValues) => Promise<void> | void;
   onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
 }
 
@@ -30,7 +30,7 @@ const GroupFormModal: React.FC<Props> = ({
   open,
   onClose,
   onCreate,
-  OnUpdate,
+  onUpdate,
   onGroupKeyCheck,
 }) => {
   const t = useT();
@@ -51,16 +51,18 @@ const GroupFormModal: React.FC<Props> = ({
     if (!group?.id) {
       await onCreate?.(values);
     } else {
-      await OnUpdate?.({ groupId: group.id, ...values });
+      await onUpdate?.({ groupId: group.id, ...values });
     }
     onClose();
     form.resetFields();
-  }, [onGroupKeyCheck, group, form, onClose, onCreate, OnUpdate]);
+  }, [onGroupKeyCheck, group, form, onClose, onCreate, onUpdate]);
 
   const handleClose = useCallback(() => {
-    form.resetFields();
+    if (!group) {
+      form.resetFields();
+    }
     onClose();
-  }, [form, onClose]);
+  }, [form, group, onClose]);
 
   return (
     <Modal

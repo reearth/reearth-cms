@@ -16,6 +16,12 @@ import {
   useGetGroupsQuery,
   Model as GQLModel,
   Group as GQLGroup,
+  useCheckGroupKeyAvailabilityLazyQuery,
+  useDeleteGroupMutation,
+  useUpdateGroupMutation,
+  useUpdateModelMutation,
+  useDeleteModelMutation,
+  useCheckModelKeyAvailabilityLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
@@ -56,6 +62,16 @@ export default () => {
     },
     skip: !projectId,
   });
+
+  const rawModel = useMemo(
+    () => modelsData?.models?.nodes?.find(node => node?.id === modelId),
+    [modelsData?.models, modelId],
+  );
+
+  const model = useMemo<Model | undefined>(
+    () => (rawModel?.id ? fromGraphQLModel(rawModel as GQLModel) : undefined),
+    [rawModel],
+  );
 
   const groups = useMemo(() => {
     return groupsData?.groups
@@ -282,10 +298,168 @@ export default () => {
     [setSelectedField],
   );
 
+  // group hooks
+  const [groupUpdateModalShown, setGroupUpdateModalShown] = useState(false);
+  const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
+  const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
+
+  const handleGroupUpdateModalClose = useCallback(() => setGroupUpdateModalShown(false), []);
+  const handleGroupUpdateModalOpen = useCallback(() => setGroupUpdateModalShown(true), []);
+  const handleGroupDeletionModalOpen = useCallback(
+    () => setGroupDeletionModalShown(true),
+    [setGroupDeletionModalShown],
+  );
+  const handleGroupDeletionModalClose = useCallback(
+    () => setGroupDeletionModalShown(false),
+    [setGroupDeletionModalShown],
+  );
+  const [CheckGroupKeyAvailability, { data: groupKeyData }] = useCheckGroupKeyAvailabilityLazyQuery(
+    {
+      fetchPolicy: "no-cache",
+    },
+  );
+
+  const handleGroupKeyCheck = useCallback(
+    async (key: string, ignoredKey?: string) => {
+      if (!projectId || !key) return false;
+      if (ignoredKey && key === ignoredKey) return true;
+      const response = await CheckGroupKeyAvailability({ variables: { projectId, key } });
+      return response.data ? response.data.checkGroupKeyAvailability.available : false;
+    },
+    [projectId, CheckGroupKeyAvailability],
+  );
+
+  useEffect(() => {
+    setIsGroupKeyAvailable(!!groupKeyData?.checkGroupKeyAvailability.available);
+  }, [groupKeyData?.checkGroupKeyAvailability]);
+
+  const [deleteGroup] = useDeleteGroupMutation({
+    refetchQueries: ["GetGroups"],
+  });
+
+  const handleGroupDelete = useCallback(
+    async (groupId?: string) => {
+      if (!groupId) return;
+      const res = await deleteGroup({ variables: { groupId } });
+      if (res.errors || !res.data?.deleteGroup) {
+        Notification.error({ message: t("Failed to delete group.") });
+      } else {
+        Notification.success({ message: t("Successfully deleted group!") });
+        handleGroupDeletionModalClose();
+      }
+    },
+    [deleteGroup, handleGroupDeletionModalClose, t],
+  );
+
+  const [updateNewGroup] = useUpdateGroupMutation({
+    refetchQueries: ["GetGroups"],
+  });
+
+  const handleGroupUpdate = useCallback(
+    async (data: { groupId?: string; name: string; description: string; key: string }) => {
+      if (!data.groupId) return;
+      const group = await updateNewGroup({
+        variables: {
+          groupId: data.groupId,
+          name: data.name,
+          description: data.description,
+          key: data.key,
+        },
+      });
+      if (group.errors || !group.data?.updateGroup) {
+        Notification.error({ message: t("Failed to update group.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated group!") });
+      handleGroupUpdateModalClose();
+    },
+    [updateNewGroup, handleGroupUpdateModalClose, t],
+  );
+
+  // model hooks
+  const [modelUpdateModalShown, setModelUpdateModalShown] = useState(false);
+  const [isModelKeyAvailable, setIsModelKeyAvailable] = useState(false);
+  const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
+
+  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleModelKeyCheck = useCallback(
+    async (key: string, ignoredKey?: string) => {
+      if (!projectId || !key) return false;
+      if (ignoredKey && key === ignoredKey) return true;
+      const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
+      return response.data ? response.data.checkModelKeyAvailability.available : false;
+    },
+    [projectId, CheckModelKeyAvailability],
+  );
+
+  useEffect(() => {
+    setIsModelKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
+  }, [keyData?.checkModelKeyAvailability]);
+
+  const handleModelDeletionModalOpen = useCallback(
+    () => setModelDeletionModalShown(true),
+    [setModelDeletionModalShown],
+  );
+
+  const handleModelDeletionModalClose = useCallback(
+    () => setModelDeletionModalShown(false),
+    [setModelDeletionModalShown],
+  );
+
+  const [deleteModel] = useDeleteModelMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const handleModelDelete = useCallback(
+    async (modelId?: string) => {
+      if (!modelId) return;
+      const res = await deleteModel({ variables: { modelId } });
+      if (res.errors || !res.data?.deleteModel) {
+        Notification.error({ message: t("Failed to delete model.") });
+      } else {
+        Notification.success({ message: t("Successfully deleted model!") });
+        handleModelDeletionModalClose();
+      }
+    },
+    [deleteModel, handleModelDeletionModalClose, t],
+  );
+
+  const [updateNewModel] = useUpdateModelMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const handleModelUpdateModalClose = useCallback(() => setModelUpdateModalShown(false), []);
+  const handleModelUpdateModalOpen = useCallback(() => setModelUpdateModalShown(true), []);
+
+  const handleModelUpdate = useCallback(
+    async (data: { modelId?: string; name: string; description: string; key: string }) => {
+      if (!data.modelId) return;
+      const model = await updateNewModel({
+        variables: {
+          modelId: data.modelId,
+          name: data.name,
+          description: data.description,
+          key: data.key,
+          public: false,
+        },
+      });
+      if (model.errors || !model.data?.updateModel) {
+        Notification.error({ message: t("Failed to update model.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated model!") });
+      handleModelUpdateModalClose();
+    },
+    [updateNewModel, handleModelUpdateModalClose, t],
+  );
+
   return {
     models,
+    model,
     groups,
-    groupId,
     group,
     isMeta,
     setIsMeta,
@@ -310,5 +484,27 @@ export default () => {
     handleFieldUpdate,
     handleFieldOrder,
     handleFieldDelete,
+    // group
+    groupUpdateModalShown,
+    isGroupKeyAvailable,
+    groupDeletionModalShown,
+    handleGroupUpdateModalOpen,
+    handleGroupDeletionModalOpen,
+    handleGroupUpdateModalClose,
+    handleGroupDeletionModalClose,
+    handleGroupDelete,
+    handleGroupUpdate,
+    handleGroupKeyCheck,
+    // modal
+    modelUpdateModalShown,
+    isModelKeyAvailable,
+    modelDeletionModalShown,
+    handleModelUpdateModalOpen,
+    handleModelDeletionModalOpen,
+    handleModelUpdateModalClose,
+    handleModelDeletionModalClose,
+    handleModelDelete,
+    handleModelUpdate,
+    handleModelKeyCheck,
   };
 };

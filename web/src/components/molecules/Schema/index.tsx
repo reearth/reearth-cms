@@ -17,6 +17,10 @@ export type Props = {
   collapsed?: boolean;
   model?: Model;
   group?: Group;
+  onModelUpdateModalOpen: any;
+  onModelDeletionModalOpen: any;
+  onGroupUpdateModalOpen: any;
+  onGroupDeletionModalOpen: any;
   modelsMenu?: JSX.Element;
   selectedSchemaType?: SelectedSchemaType;
   setIsMeta?: (isMeta: boolean) => void;
@@ -34,6 +38,10 @@ const Schema: React.FC<Props> = ({
   collapsed,
   model,
   group,
+  onModelUpdateModalOpen,
+  onModelDeletionModalOpen,
+  onGroupUpdateModalOpen,
+  onGroupDeletionModalOpen,
   modelsMenu,
   selectedSchemaType,
   setIsMeta,
@@ -46,16 +54,24 @@ const Schema: React.FC<Props> = ({
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
 
+  const handleEdit = () => {
+    selectedSchemaType === "model" ? onModelUpdateModalOpen?.() : onGroupUpdateModalOpen?.();
+  };
+
+  const handleDelete = () => {
+    selectedSchemaType === "model" ? onModelDeletionModalOpen?.() : onGroupDeletionModalOpen?.();
+  };
+
   const dropdownItems = [
     {
       key: "edit",
       label: t("Edit"),
-      // onClick: () => onModelUpdateModalOpen(model),
+      onClick: handleEdit,
     },
     {
       key: "delete",
       label: t("Delete"),
-      // onClick: () => onModelDeletionModalOpen(model),
+      onClick: handleDelete,
     },
   ];
 
