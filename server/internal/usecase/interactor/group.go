@@ -73,7 +73,8 @@ func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, op
 				NewID().
 				Schema(s.ID()).
 				Key(key.New(param.Key)).
-				Project(param.ProjectId)
+				Project(param.ProjectId).
+				Name(param.Name)
 
 			if param.Description != nil {
 				mb = mb.Description(*param.Description)
