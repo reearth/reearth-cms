@@ -99,7 +99,7 @@ const MemberAddModal: React.FC<Props> = ({
   return (
     <Modal
       title={t("Add member")}
-      visible={open}
+      open={open}
       onCancel={handleClose}
       footer={[
         <Button key="back" onClick={handleClose}>

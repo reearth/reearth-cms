@@ -49,7 +49,7 @@ const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) =
   }, [form, onClose]);
 
   return (
-    <Modal title={t("Role Settings")} visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal title={t("Role Settings")} open={open} onCancel={handleClose} onOk={handleSubmit}>
       <Form
         form={form}
         layout="vertical"

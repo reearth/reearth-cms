@@ -45,7 +45,7 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
     onClose?.(true);
   }, [onClose]);
   return (
-    <Modal visible={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal open={open} onCancel={handleClose} onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
