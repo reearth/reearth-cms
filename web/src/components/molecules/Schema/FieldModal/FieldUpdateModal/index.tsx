@@ -17,6 +17,13 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
+import {
+  Field,
+  FieldModalTabs,
+  FieldType,
+  Group,
+} from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
@@ -24,9 +31,6 @@ import {
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
-
-import { fieldTypes } from "../../fieldTypes";
-import { Field, FieldModalTabs, FieldType } from "../../types";
 
 export interface FormValues {
   fieldId?: string;
@@ -43,7 +47,7 @@ export interface FormValues {
 }
 
 export interface Props {
-  groups?: any[];
+  groups?: Group[];
   open?: boolean;
   fieldUpdateLoading: boolean;
   selectedType: FieldType;
