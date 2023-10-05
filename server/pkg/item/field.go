@@ -40,5 +40,8 @@ func (f *Field) Value() *value.Multiple {
 }
 
 func (f *Field) ItemGroup() *ItemGroupID {
+	if f == nil {
+		return nil
+	}
 	return f.itemGroup
 }
