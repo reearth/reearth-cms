@@ -450,12 +450,14 @@ type ItemEdge struct {
 
 type ItemField struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
+	ItemGroupID   *ID             `json:"itemGroupId,omitempty"`
 	Type          SchemaFieldType `json:"type"`
 	Value         interface{}     `json:"value,omitempty"`
 }
 
 type ItemFieldInput struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
+	ItemGroupID   *ID             `json:"itemGroupId,omitempty"`
 	Type          SchemaFieldType `json:"type"`
 	Value         interface{}     `json:"value"`
 }

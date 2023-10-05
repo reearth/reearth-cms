@@ -719,29 +719,14 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 	var res item.Fields
 	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
 		sf := s.Field(field.FieldID())
-		var sg *schema.FieldGroup
+		var fieldGroup *schema.FieldGroup
 		sf.TypeProperty().Match(schema.TypePropertyMatch{
 			Group: func(f *schema.FieldGroup) {
-				sg = f
+				fieldGroup = f
 			},
 		})
 
-		mvg, ok := field.Value().ValuesGroup()
-		if !ok {
-			return nil, interfaces.ErrInvalidField
-		}
-
-		groupItemParams := lo.Filter(params, func(param interfaces.ItemFieldParam, _ int) bool {
-			if param.Field == nil {
-				return false
-			}
-			//for _, groupValue := range mvg {
-			//return groupValue.Has(*param.Field)
-			//}
-			return false
-		})
-
-		group, err := i.repos.Group.FindByID(ctx, sg.Group())
+		group, err := i.repos.Group.FindByID(ctx, fieldGroup.Group())
 		if err != nil {
 			return nil, err
 		}
@@ -750,6 +735,22 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 		if err != nil {
 			return nil, err
 		}
+
+		mvg, ok := field.Value().ValuesGroup()
+		if !ok {
+			return nil, interfaces.ErrInvalidField
+		}
+
+		groupItemParams := lo.Filter(params, func(param interfaces.ItemFieldParam, _ int) bool {
+			if param.ItemGroup == nil {
+				return false
+			}
+			for _, groupValue := range mvg {
+				return groupValue == *param.ItemGroup
+			}
+			return false
+		})
+
 		fields, err := itemFieldsFromParams(groupItemParams, groupSchema)
 		if err != nil {
 			return nil, err
