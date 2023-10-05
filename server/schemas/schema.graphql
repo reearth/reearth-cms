@@ -6,3 +6,25 @@ type Schema implements Node {
   titleField: SchemaField
   project: Project!
 }
+
+groupField{
+value: [gid1,gid2]
+}
+
+field1 {
+ID: AAA
+groupID: gid1
+}
+field2 {
+ID: BBB
+groupID: gid1
+}
+
+field3 {
+ID: AAA
+gid2
+}
+field4 {
+ID: BBB
+gid2
+}
