@@ -1872,7 +1872,8 @@ export type UpdateFieldsMutationVariables = Exact<{
 export type UpdateFieldsMutation = { __typename?: 'Mutation', updateFields?: { __typename?: 'FieldsPayload', fields: Array<{ __typename?: 'SchemaField', id: string }> } | null };
 
 export type DeleteFieldMutationVariables = Exact<{
-  modelId: Scalars['ID'];
+  modelId?: InputMaybe<Scalars['ID']>;
+  groupId?: InputMaybe<Scalars['ID']>;
   fieldId: Scalars['ID'];
   metadata?: InputMaybe<Scalars['Boolean']>;
 }>;
@@ -3293,8 +3294,10 @@ export type UpdateFieldsMutationHookResult = ReturnType<typeof useUpdateFieldsMu
 export type UpdateFieldsMutationResult = Apollo.MutationResult<UpdateFieldsMutation>;
 export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
 export const DeleteFieldDocument = gql`
-    mutation DeleteField($modelId: ID!, $fieldId: ID!, $metadata: Boolean) {
-  deleteField(input: {modelId: $modelId, fieldId: $fieldId, metadata: $metadata}) {
+    mutation DeleteField($modelId: ID, $groupId: ID, $fieldId: ID!, $metadata: Boolean) {
+  deleteField(
+    input: {modelId: $modelId, groupId: $groupId, fieldId: $fieldId, metadata: $metadata}
+  ) {
     fieldId
   }
 }
@@ -3315,6 +3318,7 @@ export type DeleteFieldMutationFn = Apollo.MutationFunction<DeleteFieldMutation,
  * const [deleteFieldMutation, { data, loading, error }] = useDeleteFieldMutation({
  *   variables: {
  *      modelId: // value for 'modelId'
+ *      groupId: // value for 'groupId'
  *      fieldId: // value for 'fieldId'
  *      metadata: // value for 'metadata'
  *   },
