@@ -9,6 +9,7 @@ import {
   useCreateModelMutation,
   useCreateGroupMutation,
   useCheckModelKeyAvailabilityLazyQuery,
+  useCheckGroupKeyAvailabilityLazyQuery,
   Model as GQLModel,
   Group as GQLGroup,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -108,7 +109,7 @@ export default ({ modelId, groupId }: Params) => {
 
   // Group hooks
   const [groupModalShown, setGroupModalShown] = useState(false);
-  const [isGroupKeyAvailable, _setIsGroupKeyAvailable] = useState(false);
+  const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
 
   const { data: groupData } = useGetGroupsQuery({
     variables: { projectId: projectId ?? "" },
@@ -134,9 +135,25 @@ export default ({ modelId, groupId }: Params) => {
   const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
 
-  const handleGroupKeyCheck = useCallback(async (_key: string, _ignoredKey?: string) => {
-    return true; //should add a query to check group key availability
-  }, []);
+  const [CheckGroupKeyAvailability, { data: groupKeyData }] = useCheckGroupKeyAvailabilityLazyQuery(
+    {
+      fetchPolicy: "no-cache",
+    },
+  );
+
+  const handleGroupKeyCheck = useCallback(
+    async (key: string, ignoredKey?: string) => {
+      if (!projectId || !key) return false;
+      if (ignoredKey && key === ignoredKey) return true;
+      const response = await CheckGroupKeyAvailability({ variables: { projectId, key } });
+      return response.data ? response.data.checkGroupKeyAvailability.available : false;
+    },
+    [projectId, CheckGroupKeyAvailability],
+  );
+
+  useEffect(() => {
+    setIsGroupKeyAvailable(!!groupKeyData?.checkGroupKeyAvailability.available);
+  }, [groupKeyData?.checkGroupKeyAvailability]);
 
   const [createNewGroup] = useCreateGroupMutation({
     refetchQueries: ["GetGroups"],

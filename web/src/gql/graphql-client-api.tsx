@@ -1005,6 +1005,7 @@ export type Query = {
   __typename?: 'Query';
   assetFile: AssetFile;
   assets: AssetConnection;
+  checkGroupKeyAvailability: KeyAvailability;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
   groups: Array<Maybe<Group>>;
@@ -1032,6 +1033,12 @@ export type QueryAssetsArgs = {
   pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID'];
   sort?: InputMaybe<AssetSort>;
+};
+
+
+export type QueryCheckGroupKeyAvailabilityArgs = {
+  key: Scalars['String'];
+  projectId: Scalars['ID'];
 };
 
 
@@ -1906,6 +1913,14 @@ export type DeleteGroupMutationVariables = Exact<{
 
 
 export type DeleteGroupMutation = { __typename?: 'Mutation', deleteGroup?: { __typename?: 'DeleteGroupPayload', groupId: string } | null };
+
+export type CheckGroupKeyAvailabilityQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  key: Scalars['String'];
+}>;
+
+
+export type CheckGroupKeyAvailabilityQuery = { __typename?: 'Query', checkGroupKeyAvailability: { __typename?: 'KeyAvailability', key: string, available: boolean } };
 
 export type CreateIntegrationMutationVariables = Exact<{
   name: Scalars['String'];
@@ -3511,6 +3526,43 @@ export function useDeleteGroupMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteGroupMutationHookResult = ReturnType<typeof useDeleteGroupMutation>;
 export type DeleteGroupMutationResult = Apollo.MutationResult<DeleteGroupMutation>;
 export type DeleteGroupMutationOptions = Apollo.BaseMutationOptions<DeleteGroupMutation, DeleteGroupMutationVariables>;
+export const CheckGroupKeyAvailabilityDocument = gql`
+    query CheckGroupKeyAvailability($projectId: ID!, $key: String!) {
+  checkGroupKeyAvailability(projectId: $projectId, key: $key) {
+    key
+    available
+  }
+}
+    `;
+
+/**
+ * __useCheckGroupKeyAvailabilityQuery__
+ *
+ * To run a query within a React component, call `useCheckGroupKeyAvailabilityQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckGroupKeyAvailabilityQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckGroupKeyAvailabilityQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      key: // value for 'key'
+ *   },
+ * });
+ */
+export function useCheckGroupKeyAvailabilityQuery(baseOptions: Apollo.QueryHookOptions<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>(CheckGroupKeyAvailabilityDocument, options);
+      }
+export function useCheckGroupKeyAvailabilityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>(CheckGroupKeyAvailabilityDocument, options);
+        }
+export type CheckGroupKeyAvailabilityQueryHookResult = ReturnType<typeof useCheckGroupKeyAvailabilityQuery>;
+export type CheckGroupKeyAvailabilityLazyQueryHookResult = ReturnType<typeof useCheckGroupKeyAvailabilityLazyQuery>;
+export type CheckGroupKeyAvailabilityQueryResult = Apollo.QueryResult<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>;
 export const CreateIntegrationDocument = gql`
     mutation CreateIntegration($name: String!, $description: String, $logoUrl: URL!, $type: IntegrationType!) {
   createIntegration(

@@ -88,3 +88,12 @@ export const DELETE_GROUP = gql`
     }
   }
 `;
+
+export const GET_GROUP_KEY_AVAILABILITY = gql`
+  query CheckGroupKeyAvailability($projectId: ID!, $key: String!) {
+    checkGroupKeyAvailability(projectId: $projectId, key: $key) {
+      key
+      available
+    }
+  }
+`;
