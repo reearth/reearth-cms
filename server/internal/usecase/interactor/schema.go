@@ -76,6 +76,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			var g *schema.FieldGroup
 			param.TypeProperty.Match(schema.TypePropertyMatch{
 				Group: func(f *schema.FieldGroup) {
+					g = f
 				},
 			})
 			_, err = i.repos.Group.FindByID(ctx, g.Group())

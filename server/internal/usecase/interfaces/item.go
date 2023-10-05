@@ -29,10 +29,11 @@ var (
 )
 
 type ItemFieldParam struct {
-	Field *item.FieldID
-	Key   *key.Key
-	Type  value.Type
-	Value any
+	Field     *item.FieldID
+	Key       *key.Key
+	Type      value.Type
+	Value     any
+	ItemGroup *id.ItemGroupID
 }
 
 type CreateItemParam struct {

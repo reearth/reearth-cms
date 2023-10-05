@@ -50,6 +50,7 @@ enum ItemStatus {
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any!
 }

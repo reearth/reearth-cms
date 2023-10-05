@@ -282,6 +282,7 @@ type ComplexityRoot struct {
 	}
 
 	ItemField struct {
+		ItemGroupID   func(childComplexity int) int
 		SchemaFieldID func(childComplexity int) int
 		Type          func(childComplexity int) int
 		Value         func(childComplexity int) int
@@ -1672,6 +1673,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ItemEdge.Node(childComplexity), true
+
+	case "ItemField.itemGroupId":
+		if e.complexity.ItemField.ItemGroupID == nil {
+			break
+		}
+
+		return e.complexity.ItemField.ItemGroupID(childComplexity), true
 
 	case "ItemField.schemaFieldId":
 		if e.complexity.ItemField.SchemaFieldID == nil {
@@ -4679,7 +4687,8 @@ extend type Mutation {
   titleFieldId: ID
   titleField: SchemaField
   project: Project!
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFieldType {
   Text
   TextArea
@@ -5014,6 +5023,7 @@ extend type Mutation {
 
 type ItemField {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any
 }
@@ -5036,6 +5046,7 @@ enum ItemStatus {
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any!
 }
@@ -11508,6 +11519,8 @@ func (ec *executionContext) fieldContext_Item_fields(ctx context.Context, field 
 			switch field.Name {
 			case "schemaFieldId":
 				return ec.fieldContext_ItemField_schemaFieldId(ctx, field)
+			case "itemGroupId":
+				return ec.fieldContext_ItemField_itemGroupId(ctx, field)
 			case "type":
 				return ec.fieldContext_ItemField_type(ctx, field)
 			case "value":
@@ -12311,6 +12324,47 @@ func (ec *executionContext) _ItemField_schemaFieldId(ctx context.Context, field 
 }
 
 func (ec *executionContext) fieldContext_ItemField_schemaFieldId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ItemField",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ItemField_itemGroupId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ItemField_itemGroupId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ItemGroupID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ItemField_itemGroupId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ItemField",
 		Field:      field,
@@ -28798,7 +28852,7 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"schemaFieldId", "type", "value"}
+	fieldsInOrder := [...]string{"schemaFieldId", "itemGroupId", "type", "value"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -28814,6 +28868,15 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 				return it, err
 			}
 			it.SchemaFieldID = data
+		case "itemGroupId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemGroupId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ItemGroupID = data
 		case "type":
 			var err error
 
@@ -33732,6 +33795,8 @@ func (ec *executionContext) _ItemField(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "itemGroupId":
+			out.Values[i] = ec._ItemField_itemGroupId(ctx, field, obj)
 		case "type":
 			out.Values[i] = ec._ItemField_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
