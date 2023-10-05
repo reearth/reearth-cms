@@ -43,6 +43,7 @@ const ProjectSchema: React.FC = () => {
     models,
     groups,
     groupId,
+    group,
     isMeta,
     setIsMeta,
     fieldCreationModalShown,
@@ -74,6 +75,7 @@ const ProjectSchema: React.FC = () => {
         collapsed={collapsed}
         selectedSchemaType={selectedSchemaType}
         model={currentModel}
+        group={group}
         modelsMenu={
           <ModelsMenu
             title={t("Schema")}

@@ -63,6 +63,16 @@ export default () => {
       .filter((group): group is Group => !!group);
   }, [groupsData?.groups]);
 
+  const rawGroup = useMemo(
+    () => groupsData?.groups?.find(node => node?.id === groupId),
+    [groupsData?.groups, groupId],
+  );
+
+  const group = useMemo<Group | undefined>(
+    () => (rawGroup?.id ? fromGraphQLGroup(rawGroup as GQLGroup) : undefined),
+    [rawGroup],
+  );
+
   useEffect(() => {
     if (!modelId && currentModel) {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
@@ -276,6 +286,7 @@ export default () => {
     models,
     groups,
     groupId,
+    group,
     isMeta,
     setIsMeta,
     fieldCreationModalShown,

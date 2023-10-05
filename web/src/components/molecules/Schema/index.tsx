@@ -10,12 +10,13 @@ import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
-import { Field, FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   collapsed?: boolean;
   model?: Model;
+  group?: Group;
   modelsMenu?: JSX.Element;
   selectedSchemaType?: SelectedSchemaType;
   setIsMeta?: (isMeta: boolean) => void;
@@ -32,6 +33,7 @@ export type SelectedSchemaType = "model" | "group";
 const Schema: React.FC<Props> = ({
   collapsed,
   model,
+  group,
   modelsMenu,
   selectedSchemaType,
   setIsMeta,
@@ -128,7 +130,7 @@ const Schema: React.FC<Props> = ({
           {selectedSchemaType === "group" && (
             <div>
               <ModelFieldList
-                fields={model?.schema?.fields}
+                fields={group?.schema?.fields}
                 handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
                 onFieldReorder={onFieldReorder}
                 onFieldDelete={onFieldDelete}
