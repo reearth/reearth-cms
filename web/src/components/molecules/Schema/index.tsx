@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
@@ -121,6 +121,19 @@ const Schema: React.FC<Props> = ({
     [setIsMeta],
   );
 
+  const title = useMemo(
+    () => (selectedSchemaType === "model" ? model?.name : group?.name),
+    [group?.name, model?.name, selectedSchemaType],
+  );
+
+  const subTitle = useMemo(() => {
+    if (selectedSchemaType === "model") {
+      return model?.key ? `#${model.key}` : null;
+    } else {
+      return group?.key ? `#${group.key}` : null;
+    }
+  }, [group?.key, model?.key, selectedSchemaType]);
+
   return (
     <ComplexInnerContents
       left={
@@ -135,11 +148,7 @@ const Schema: React.FC<Props> = ({
       }
       center={
         <Content>
-          <PageHeader
-            title={model?.name}
-            subTitle={model?.key ? `#${model.key}` : null}
-            extra={[<DropdownMenu key="more" />]}
-          />
+          <PageHeader title={title} subTitle={subTitle} extra={[<DropdownMenu key="more" />]} />
           {selectedSchemaType === "model" && (
             <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
           )}
