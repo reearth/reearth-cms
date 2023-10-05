@@ -3,7 +3,6 @@ import styled from "@emotion/styled";
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
 export type Model = {
@@ -31,30 +30,28 @@ const ModelCard: React.FC<Props> = ({
   const { Meta } = Card;
   const t = useT();
 
-  const ModelMenu = (
-    <Menu
-      items={[
-        {
-          key: "edit",
-          label: t("Edit"),
-          onClick: () => onModelUpdateModalOpen(model),
-        },
-        {
-          key: "delete",
-          label: t("Delete"),
-          onClick: () => onModelDeletionModalOpen(model),
-        },
-      ]}
-    />
-  );
+  const MenuItems = [
+    {
+      key: "edit",
+      label: t("Edit"),
+      onClick: () => onModelUpdateModalOpen(model),
+    },
+    {
+      key: "delete",
+      label: t("Delete"),
+      onClick: () => onModelDeletionModalOpen(model),
+    },
+  ];
 
   return (
     <StyledCard
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate?.(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate?.(model.id)} />,
-        <Dropdown key="options" overlay={ModelMenu} trigger={["click"]}>
-          <Icon icon="ellipsis" />
+        <Dropdown key="options" menu={{ items: MenuItems}} trigger={["click"]}>
+          <a onClick={e => e.preventDefault()}>
+            <Icon icon="ellipsis" /> 
+          </a>
         </Dropdown>,
       ]}>
       <Meta title={model.name} description={model.description} />
