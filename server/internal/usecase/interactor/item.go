@@ -735,9 +735,9 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 			if param.Field == nil {
 				return false
 			}
-			for _, groupValue := range mvg {
-				return groupValue.Has(*param.Field)
-			}
+			//for _, groupValue := range mvg {
+			//return groupValue.Has(*param.Field)
+			//}
 			return false
 		})
 
