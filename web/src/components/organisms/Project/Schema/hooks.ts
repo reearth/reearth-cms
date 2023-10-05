@@ -118,30 +118,34 @@ export default () => {
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
-    refetchQueries: ["GetModels"],
+    refetchQueries: ["GetModels", "GetGroups"],
   });
 
   const [updateField, { loading: fieldUpdateLoading }] = useUpdateFieldMutation({
-    refetchQueries: ["GetModels"],
+    refetchQueries: ["GetModels", "GetGroups"],
   });
 
   const [deleteFieldMutation] = useDeleteFieldMutation({
-    refetchQueries: ["GetModels"],
+    refetchQueries: ["GetModels", "GetGroups"],
   });
 
   const handleFieldDelete = useCallback(
     async (fieldId: string) => {
-      if (!modelId) return;
-      const results = await deleteFieldMutation({
-        variables: { modelId, fieldId, metadata: isMeta },
-      });
+      if (!modelId && !groupId) return;
+      const options = {
+        variables: { fieldId, metadata: isMeta } as any,
+      };
+      selectedSchemaType === "model"
+        ? (options.variables.modelId = modelId)
+        : (options.variables.groupId = groupId);
+      const results = await deleteFieldMutation(options);
       if (results.errors) {
         Notification.error({ message: t("Failed to delete field.") });
         return;
       }
       Notification.success({ message: t("Successfully deleted field!") });
     },
-    [modelId, deleteFieldMutation, isMeta, t],
+    [modelId, groupId, isMeta, selectedSchemaType, deleteFieldMutation, t],
   );
 
   const handleFieldUpdate = useCallback(
@@ -160,10 +164,8 @@ export default () => {
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
       if ((!modelId && !groupId) || !data.fieldId) return;
-      const field = await updateField({
+      const options = {
         variables: {
-          modelId,
-          groupId,
           fieldId: data.fieldId,
           title: data.title,
           metadata: data.metadata,
@@ -175,7 +177,11 @@ export default () => {
           required: data.required,
           typeProperty: data.typeProperty,
         },
-      });
+      } as any;
+      selectedSchemaType === "model"
+        ? (options.variables.modelId = modelId)
+        : (options.variables.groupId = groupId);
+      const field = await updateField(options);
       if (field.errors || !field.data?.updateField) {
         Notification.error({ message: t("Failed to update field.") });
         return;
@@ -183,7 +189,7 @@ export default () => {
       Notification.success({ message: t("Successfully updated field!") });
       setFieldUpdateModalShown(false);
     },
-    [modelId, groupId, updateField, t],
+    [modelId, groupId, selectedSchemaType, updateField, t],
   );
 
   const [updateFieldsOrder] = useUpdateFieldsMutation({
@@ -192,15 +198,20 @@ export default () => {
 
   const handleFieldOrder = useCallback(
     async (fields: Field[]) => {
-      if (!modelId) return;
+      if (!modelId && !groupId) return;
       const response = await updateFieldsOrder({
         variables: {
-          updateFieldInput: fields.map((field, index) => ({
-            modelId,
-            fieldId: field.id,
-            metadata: field.metadata,
-            order: index,
-          })),
+          updateFieldInput: fields.map((field, index) => {
+            const options = {
+              fieldId: field.id,
+              metadata: field.metadata,
+              order: index,
+            } as any;
+            selectedSchemaType === "model"
+              ? (options.modelId = modelId)
+              : (options.groupId = groupId);
+            return options;
+          }),
         },
       });
       if (response.errors || !response?.data?.updateFields) {
@@ -210,7 +221,7 @@ export default () => {
       Notification.success({ message: t("Successfully updated field!") });
       setFieldUpdateModalShown(false);
     },
-    [modelId, updateFieldsOrder, t],
+    [modelId, groupId, updateFieldsOrder, t, selectedSchemaType],
   );
 
   const handleFieldCreate = useCallback(
@@ -228,10 +239,8 @@ export default () => {
       typeProperty: SchemaFieldTypePropertyInput;
     }) => {
       if (!modelId && !groupId) return;
-      const field = await createNewField({
+      const options = {
         variables: {
-          modelId,
-          groupId,
           title: data.title,
           metadata: data.metadata,
           description: data.description,
@@ -242,8 +251,12 @@ export default () => {
           required: data.required,
           type: data.type as SchemaFieldType,
           typeProperty: data.typeProperty,
-        },
-      });
+        } as any,
+      };
+      selectedSchemaType === "model"
+        ? (options.variables.modelId = modelId)
+        : (options.variables.groupId = groupId);
+      const field = await createNewField(options);
       if (field.errors || !field.data?.createField) {
         Notification.error({ message: t("Failed to create field.") });
         setFieldCreationModalShown(false);
@@ -252,7 +265,7 @@ export default () => {
       Notification.success({ message: t("Successfully created field!") });
       setFieldCreationModalShown(false);
     },
-    [modelId, groupId, createNewField, t],
+    [modelId, groupId, selectedSchemaType, createNewField, t],
   );
 
   const handleFieldCreationModalOpen = useCallback(
