@@ -153,14 +153,14 @@ const Schema: React.FC<Props> = ({
             <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
           )}
           {selectedSchemaType === "group" && (
-            <div>
+            <GroupFieldsWrapper>
               <ModelFieldList
                 fields={group?.schema?.fields}
                 handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
                 onFieldReorder={onFieldReorder}
                 onFieldDelete={onFieldDelete}
               />
-            </div>
+            </GroupFieldsWrapper>
           )}
         </Content>
       }
@@ -190,5 +190,9 @@ const FieldListWrapper = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
+  padding: 24px;
+`;
+
+const GroupFieldsWrapper = styled.div`
   padding: 24px;
 `;
