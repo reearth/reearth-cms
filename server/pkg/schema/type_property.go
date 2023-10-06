@@ -212,6 +212,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.Reference(t.reference)
 			return
 		}
+	case value.TypeGroup:
+		if m.Group != nil {
+			m.Group(t.group)
+			return
+		}
 	case value.TypeNumber:
 		if m.Number != nil {
 			m.Number(t.number)
