@@ -1,4 +1,5 @@
 import ModelsList from "@reearth-cms/components/molecules/Model/ModelsList/ModelsList";
+import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
 
 export interface Props {
@@ -7,6 +8,7 @@ export interface Props {
   collapsed?: boolean;
   selectedKey?: string;
   models?: any;
+  selectedSchemaType?: SelectedSchemaType;
   isKeyAvailable: boolean;
   open?: boolean;
   onModalOpen: () => void;
@@ -21,6 +23,7 @@ const Models: React.FC<Props> = ({
   collapsed,
   selectedKey,
   models,
+  selectedSchemaType,
   isKeyAvailable,
   open,
   onModalOpen,
@@ -35,6 +38,7 @@ const Models: React.FC<Props> = ({
         className={className}
         selectedKey={selectedKey}
         models={models}
+        selectedSchemaType={selectedSchemaType}
         collapsed={collapsed}
         onModelSelect={onModelSelect}
         onModalOpen={onModalOpen}

@@ -1,8 +1,10 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -10,6 +12,7 @@ export type Props = {
   className?: string;
   selectedKey?: string;
   groups?: Group[];
+  selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
@@ -19,11 +22,16 @@ const GroupsList: React.FC<Props> = ({
   className,
   selectedKey,
   groups,
+  selectedSchemaType,
   collapsed,
   onModalOpen,
   onGroupSelect,
 }) => {
   const t = useT();
+
+  const selectedKeys = useMemo(() => {
+    return selectedSchemaType && selectedSchemaType === "group" && selectedKey ? [selectedKey] : [];
+  }, [selectedKey, selectedSchemaType]);
 
   const handleClick = (e: MenuInfo) => {
     onGroupSelect?.(e.key);
@@ -45,7 +53,7 @@ const GroupsList: React.FC<Props> = ({
       )}
       <MenuWrapper>
         <StyledMenu
-          selectedKeys={[selectedKey ?? ""]}
+          selectedKeys={selectedKeys}
           mode={collapsed ? "vertical" : "inline"}
           style={{
             color: collapsed ? "#C4C4C4" : undefined,

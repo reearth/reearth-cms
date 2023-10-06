@@ -109,6 +109,7 @@ const ProjectSchema: React.FC = () => {
             title={t("Schema")}
             collapsed={collapsed}
             groupId={group?.id}
+            selectedSchemaType={selectedSchemaType}
             onModelSelect={handleModelSelect}
             onGroupSelect={handleGroupSelect}
             displayGroups

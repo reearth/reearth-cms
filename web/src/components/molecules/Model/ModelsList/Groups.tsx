@@ -1,4 +1,5 @@
 import GroupsList from "@reearth-cms/components/molecules/Model/ModelsList/GroupsList";
+import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import GroupFormModal from "@reearth-cms/components/molecules/Schema/GroupFormModal";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 
@@ -8,6 +9,7 @@ export type Props = {
   collapsed?: boolean;
   selectedKey?: string;
   groups?: Group[];
+  selectedSchemaType?: SelectedSchemaType;
   isKeyAvailable: boolean;
   open?: boolean;
   onModalOpen: () => void;
@@ -22,6 +24,7 @@ const Groups: React.FC<Props> = ({
   collapsed,
   selectedKey,
   groups,
+  selectedSchemaType,
   isKeyAvailable,
   open,
   onModalOpen,
@@ -36,6 +39,7 @@ const Groups: React.FC<Props> = ({
         className={className}
         selectedKey={selectedKey}
         groups={groups}
+        selectedSchemaType={selectedSchemaType}
         collapsed={collapsed}
         onGroupSelect={onGroupSelect}
         onModalOpen={onModalOpen}
