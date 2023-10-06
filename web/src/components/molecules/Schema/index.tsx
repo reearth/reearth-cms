@@ -66,12 +66,15 @@ const Schema: React.FC<Props> = ({
     {
       key: "edit",
       label: t("Edit"),
+      icon: <StyledIcon icon="edit" />,
       onClick: handleEdit,
     },
     {
       key: "delete",
       label: t("Delete"),
+      icon: <StyledIcon icon="delete" />,
       onClick: handleDelete,
+      danger: true,
     },
   ];
 
@@ -195,4 +198,8 @@ const StyledTabs = styled(Tabs)`
 
 const GroupFieldsWrapper = styled.div`
   padding: 24px;
+`;
+
+const StyledIcon = styled(Icon)`
+  margin-right: 12px;
 `;
