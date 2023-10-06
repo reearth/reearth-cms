@@ -14,10 +14,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-type Container interface {
-	IsContainer()
-}
-
 type Node interface {
 	IsNode()
 	GetID() ID
@@ -370,8 +366,6 @@ type Group struct {
 	Fields      []*SchemaField `json:"fields"`
 }
 
-func (Group) IsContainer() {}
-
 func (Group) IsNode()        {}
 func (this Group) GetID() ID { return this.ID }
 
@@ -516,8 +510,6 @@ type Model struct {
 
 func (Model) IsNode()        {}
 func (this Model) GetID() ID { return this.ID }
-
-func (Model) IsContainer() {}
 
 type ModelConnection struct {
 	Edges      []*ModelEdge `json:"edges"`
@@ -1716,7 +1708,7 @@ const (
 	SchemaFieldTypeReference    SchemaFieldType = "Reference"
 	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
-	SchemaFieldTypeGroup        SchemaFieldType = "GROUP"
+	SchemaFieldTypeGroup        SchemaFieldType = "Group"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
