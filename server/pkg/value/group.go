@@ -3,33 +3,31 @@ package value
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 const TypeGroup Type = "group"
 
 type propertyGroup struct{}
 
-type Group = id.FieldIDList
+type Group = id.ItemGroupID
 
 func (p *propertyGroup) ToValue(i any) (any, bool) {
-	if v, ok := i.([]string); ok {
-		if u, err := id.FieldIDListFrom(v); err == nil {
+	if v, ok := i.(string); ok {
+		if u, err := id.ItemGroupIDFrom(v); err == nil {
 			return u, true
 		}
-	} else if v, ok := i.(id.FieldIDList); ok {
+	} else if v, ok := i.(id.ItemGroupID); ok {
 		return v, true
-	} else if v, ok := i.([]*string); ok && v != nil {
-		fl := lo.Map(v, func(s *string, _ int) string {
-			return *s
-		})
-		return p.ToValue(fl)
+	} else if v, ok := i.(*string); ok && v != nil {
+		return p.ToValue(*v)
+	} else if v, ok := i.(*id.ItemGroupID); ok && v != nil {
+		return p.ToValue(*v)
 	}
 	return nil, false
 }
 
 func (*propertyGroup) ToInterface(v any) (any, bool) {
-	return v.(Group).Strings(), true
+	return v.(Group).String(), true
 }
 
 func (*propertyGroup) Validate(i any) bool {
@@ -40,11 +38,11 @@ func (*propertyGroup) Validate(i any) bool {
 func (*propertyGroup) Equal(v, w any) bool {
 	vv := v.(Group)
 	ww := v.(Group)
-	return slices.Equal(vv, ww)
+	return vv == ww
 }
 
 func (*propertyGroup) IsEmpty(v any) bool {
-	return v.(Group).Len() == 0
+	return v.(Group).IsEmpty()
 }
 
 func (v *Value) ValueGroup() (vv Group, ok bool) {

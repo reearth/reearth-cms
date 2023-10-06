@@ -23,6 +23,7 @@ func New() *repo.Container {
 		Integration: NewIntegration(),
 		Thread:      NewThread(),
 		Event:       NewEvent(),
+		Group:       NewGroup(),
 		Transaction: &usecasex.NopTransaction{},
 	}
 }
