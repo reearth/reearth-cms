@@ -279,6 +279,7 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		tag:       t.tag.Clone(),
 		integer:   t.integer.Clone(),
 		reference: t.reference.Clone(),
+		group:     t.group.Clone(),
 		url:       t.url.Clone(),
 	}
 }
