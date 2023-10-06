@@ -39,10 +39,6 @@ type DeleteGroupPayload {
 }
 
 # extend type Query {}
-extend type Query {
-    groups(projectId: ID!): [Group]!
-    checkGroupKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
-}
 
 extend type Mutation {
     createGroup(input: CreateGroupInput!): GroupPayload

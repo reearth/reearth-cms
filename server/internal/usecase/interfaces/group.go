@@ -5,7 +5,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 )
+
+var ErrDelGroupUsed = rerror.NewE(i18n.T("can't delete a group as it's used by some models"))
 
 type CreateGroupParam struct {
 	ProjectId   id.ProjectID

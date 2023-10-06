@@ -212,11 +212,6 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.Reference(t.reference)
 			return
 		}
-	case value.TypeGroup:
-		if m.Group != nil {
-			m.Group(t.group)
-			return
-		}
 	case value.TypeNumber:
 		if m.Number != nil {
 			m.Number(t.number)
@@ -347,10 +342,6 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypeURL:
 		if m.URL != nil {
 			return m.URL(t.url)
-		}
-	case value.TypeGroup:
-		if m.Group != nil {
-			return m.Group(t.group)
 		}
 	}
 

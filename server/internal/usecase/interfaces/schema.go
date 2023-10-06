@@ -12,7 +12,7 @@ import (
 )
 
 type CreateFieldParam struct {
-	ModelID      *id.ModelID
+	ModelID      id.ModelID
 	SchemaID     id.SchemaID
 	Type         value.Type
 	Name         string
@@ -27,7 +27,7 @@ type CreateFieldParam struct {
 }
 
 type UpdateFieldParam struct {
-	ModelID      *id.ModelID
+	ModelID      id.ModelID
 	SchemaID     id.SchemaID
 	FieldID      id.FieldID
 	Name         *string
@@ -46,7 +46,6 @@ var (
 	ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
 	ErrFieldNotFound       = rerror.NewE(i18n.T("field not found"))
 	ErrInvalidValue        = rerror.NewE(i18n.T("invalid value"))
-	ErrEitherModelOrGroup  = rerror.NewE(i18n.T("either model or group should be provided"))
 )
 
 type Schema interface {

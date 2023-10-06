@@ -20,8 +20,7 @@ type CreateModelParam struct {
 }
 
 type FindOrCreateSchemaParam struct {
-	ModelID *id.ModelID
-	GroupID *id.GroupID
+	ModelID id.ModelID
 	// boolean that identify if it is a metadata
 	Metadata *bool
 	// boolean to identify if we want to create a metadata schema or just return an error if metadata schema is nil

@@ -8,6 +8,7 @@ archived: アーカイブ済み
 auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
+can't delete a group as it's used by some models: いくつかのモデルで使用されているため、グループを削除できません。
 can't update by approve: このメソッドでApproveすることはできません
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
@@ -16,7 +17,6 @@ createdBy is required: createdByは必須です。
 duplicated item: 重複したアイテム
 duplicated key: キーが重複しています。
 duplicated value: 値が重複すています。
-either model or group should be provided: ""
 failed to auth: 認証に失敗しました。
 failed to create asset: アセットの作成に失敗しました。
 failed to delete file: ファイルの削除に失敗しました。

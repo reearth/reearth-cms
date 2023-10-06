@@ -238,11 +238,3 @@ func (r *queryResolver) IsItemReferenced(ctx context.Context, itemID gqlmodel.ID
 func (r *queryResolver) Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, reviewer, createdBy *gqlmodel.ID, p *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error) {
 	return loaders(ctx).Request.FindByProject(ctx, projectID, key, state, reviewer, createdBy, p, sort)
 }
-
-func (r *queryResolver) Groups(ctx context.Context, projectID gqlmodel.ID) ([]*gqlmodel.Group, error) {
-	return loaders(ctx).Group.FindByProject(ctx, projectID)
-}
-
-func (r *queryResolver) CheckGroupKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error) {
-	return loaders(ctx).Group.CheckKey(ctx, projectID, key)
-}

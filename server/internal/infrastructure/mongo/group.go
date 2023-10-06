@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	groupIndexes       = []string{"project"}
+	groupIndexes       = []string{"project", "project,key"}
 	groupUniqueIndexes = []string{"id"}
 )
 

@@ -12,8 +12,10 @@ func (r *Resolver) Group() GroupResolver {
 type groupResolver struct{ *Resolver }
 
 func (g groupResolver) Schema(ctx context.Context, obj *gqlmodel.Group) (*gqlmodel.Schema, error) {
-	return dataloaders(ctx).Schema.Load(obj.SchemaID)
+	//TODO
+	panic("implement me")
 }
 func (g groupResolver) Project(ctx context.Context, obj *gqlmodel.Group) (*gqlmodel.Project, error) {
-	return dataloaders(ctx).Project.Load(obj.ProjectID)
+	//TODO
+	panic("implement me")
 }
