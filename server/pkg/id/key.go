@@ -14,6 +14,8 @@ import (
 
 var ErrInvalidKey = rerror.NewE(i18n.T("invalid key"))
 
+var ErrDuplicatedKey = rerror.NewE(i18n.T("duplicated key"))
+
 var keyRegexp = regexp.MustCompile("^[a-zA-Z0-9_-]{1,32}$")
 
 var ngKeys = []string{"id"}

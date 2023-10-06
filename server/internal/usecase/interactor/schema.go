@@ -65,8 +65,21 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			return nil, err
 		}
 
-		if param.Type == "Reference" {
+		if param.Type == value.TypeReference {
 			err = i.createCorrespondingField(ctx, s1, f1, param, operator)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if param.Type == value.TypeGroup {
+			var g *schema.FieldGroup
+			param.TypeProperty.Match(schema.TypePropertyMatch{
+				Group: func(f *schema.FieldGroup) {
+					g = f
+				},
+			})
+			_, err = i.repos.Group.FindByID(ctx, g.Group())
 			if err != nil {
 				return nil, err
 			}
@@ -144,6 +157,19 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 		// check if type is reference
 		if f1.Type() == value.TypeReference {
 			err := i.updateCorrespondingField(ctx, s1, f1, param, operator)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if f1.Type() == value.TypeGroup {
+			var g *schema.FieldGroup
+			param.TypeProperty.Match(schema.TypePropertyMatch{
+				Group: func(f *schema.FieldGroup) {
+					g = f
+				},
+			})
+			_, err = i.repos.Group.FindByID(ctx, g.Group())
 			if err != nil {
 				return nil, err
 			}

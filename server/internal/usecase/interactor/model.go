@@ -64,7 +64,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				return nil, err
 			}
 			if m != nil {
-				return nil, interfaces.ErrDuplicatedKey
+				return nil, id.ErrDuplicatedKey
 			}
 			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
 			if err != nil {
