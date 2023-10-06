@@ -10,8 +10,11 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 )
 
 type Group struct {
@@ -73,8 +76,7 @@ func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, op
 				NewID().
 				Schema(s.ID()).
 				Key(key.New(param.Key)).
-				Project(param.ProjectId).
-				Name(param.Name)
+				Project(param.ProjectId)
 
 			if param.Description != nil {
 				mb = mb.Description(*param.Description)
@@ -111,7 +113,14 @@ func (i Group) Update(ctx context.Context, param interfaces.UpdateGroupParam, op
 			if param.Description != nil {
 				g.SetDescription(*param.Description)
 			}
-			if param.Key != nil {
+			if param.Key != nil && g.Key().String() != *param.Key {
+				gg, err := i.repos.Group.FindByKey(ctx, g.Project(), *param.Key)
+				if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+					return nil, err
+				}
+				if gg != nil {
+					return nil, id.ErrDuplicatedKey
+				}
 				if err := g.SetKey(key.New(*param.Key)); err != nil {
 					return nil, err
 				}
@@ -150,10 +159,46 @@ func (i Group) Delete(ctx context.Context, groupID id.GroupID, operator *usecase
 			if !operator.IsMaintainingProject(g.Project()) {
 				return interfaces.ErrOperationDenied
 			}
-
+			ml, err := i.getModelsByGroup(ctx, g)
+			if err != nil {
+				return err
+			}
+			if len(ml) != 0 {
+				return interfaces.ErrDelGroupUsed
+			}
 			if err := i.repos.Group.Remove(ctx, groupID); err != nil {
 				return err
 			}
 			return nil
 		})
+}
+
+func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.List, err error) {
+	models, _, err := i.repos.Model.FindByProject(ctx, g.Project(), nil)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	msMap := make(map[id.SchemaID]*model.Model)
+	for _, m := range models {
+		msMap[m.Schema()] = m
+	}
+	sl, err := i.repos.Schema.FindByIDs(ctx, lo.Keys(msMap))
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range sl {
+		for _, field := range s.Fields() {
+			if field.Type() == value.TypeGroup {
+				field.TypeProperty().Match(schema.TypePropertyMatch{
+					Group: func(f *schema.FieldGroup) {
+						if f.Group() == g.ID() {
+							res = append(res, msMap[s.ID()])
+						}
+					},
+				})
+			}
+		}
+
+	}
+	return
 }

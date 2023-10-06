@@ -65,7 +65,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			return nil, err
 		}
 
-		if param.Type == value.TypeReference && param.ModelID != nil {
+		if param.Type == value.TypeReference {
 			err = i.createCorrespondingField(ctx, s1, f1, param, operator)
 			if err != nil {
 				return nil, err
@@ -155,7 +155,7 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 		}
 
 		// check if type is reference
-		if f1.Type() == value.TypeReference && param.ModelID != nil {
+		if f1.Type() == value.TypeReference {
 			err := i.updateCorrespondingField(ctx, s1, f1, param, operator)
 			if err != nil {
 				return nil, err

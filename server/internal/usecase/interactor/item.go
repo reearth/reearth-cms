@@ -361,9 +361,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-		if err != nil {
-			return nil, err
-		}
 
 		if err := i.checkUnique(ctx, fields, s, itv.Model(), itv); err != nil {
 			return nil, err
@@ -748,7 +745,10 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 			for _, groupValue := range mvg {
 				return groupValue == *param.ItemGroup
 			}
-			return false
+			_, ok := lo.Find(mvg, func(item value.Group) bool {
+				return item == *param.ItemGroup
+			})
+			return ok
 		})
 
 		fields, err := itemFieldsFromParams(groupItemParams, groupSchema)
