@@ -133,8 +133,6 @@ export type CommentPayload = {
   thread: Thread;
 };
 
-export type Container = Group | Model;
-
 export type CorrespondingFieldInput = {
   description?: InputMaybe<Scalars['String']>;
   fieldId?: InputMaybe<Scalars['ID']>;
@@ -1406,7 +1404,7 @@ export enum SchemaFieldType {
   Bool = 'Bool',
   Checkbox = 'Checkbox',
   Date = 'Date',
-  Group = 'GROUP',
+  Group = 'Group',
   Integer = 'Integer',
   MarkdownText = 'MarkdownText',
   Reference = 'Reference',

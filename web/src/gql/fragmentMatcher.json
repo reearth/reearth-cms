@@ -1,9 +1,5 @@
 {
   "possibleTypes": {
-    "Container": [
-      "Group",
-      "Model"
-    ],
     "Node": [
       "Asset",
       "Group",
