@@ -348,6 +348,10 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 		if m.URL != nil {
 			return m.URL(t.url)
 		}
+	case value.TypeGroup:
+		if m.Group != nil {
+			return m.Group(t.group)
+		}
 	}
 
 	if m.Default != nil {
