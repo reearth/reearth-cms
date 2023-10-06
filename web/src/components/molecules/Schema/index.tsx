@@ -119,9 +119,9 @@ const Schema: React.FC<Props> = ({
   const handleTabChange = useCallback(
     (key: string) => {
       setTab(key as Tab);
-      setIsMeta?.(key === "meta-data");
+      setIsMeta?.(key === "meta-data" && selectedSchemaType === "model");
     },
-    [setIsMeta],
+    [selectedSchemaType, setIsMeta],
   );
 
   const title = useMemo(
@@ -169,7 +169,11 @@ const Schema: React.FC<Props> = ({
       }
       right={
         <FieldListWrapper>
-          <FieldList currentTab={tab} addField={onFieldCreationModalOpen} />
+          <FieldList
+            currentTab={tab}
+            selectedSchemaType={selectedSchemaType}
+            addField={onFieldCreationModalOpen}
+          />
         </FieldListWrapper>
       }
     />
