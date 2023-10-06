@@ -81,4 +81,3 @@ metadata schema not found: メタデータのスキーマが見つかりませ�
 metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
 either model or group should be provided: モデルまたはグループのどちらかを指定してください。
 can't delete a group as it's used by some models: いくつかのモデルで使用されているため、グループを削除できません。
-
