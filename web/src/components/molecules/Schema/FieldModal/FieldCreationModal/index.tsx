@@ -248,6 +248,10 @@ const FieldCreationModal: React.FC<Props> = ({
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
           };
+        } else if (selectedType === "Group") {
+          values.typeProperty = {
+            group: { groupId: values.group },
+          };
         }
         values.metadata = isMeta;
         await onSubmit?.(values);
