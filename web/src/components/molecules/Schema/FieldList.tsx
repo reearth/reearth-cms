@@ -21,7 +21,7 @@ type FieldListItem = { title: string; fields: string[] };
 const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();
 
-  const data: FieldListItem[] = useMemo(
+  const group: FieldListItem[] = useMemo(
     () => [
       {
         title: t("Text"),
@@ -51,12 +51,19 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         title: t("URL"),
         fields: ["URL"],
       },
+    ],
+    [t],
+  );
+
+  const data: FieldListItem[] = useMemo(
+    () => [
+      ...group,
       {
         title: t("Group"),
         fields: ["Group"],
       },
     ],
-    [t],
+    [group, t],
   );
 
   const meta: FieldListItem[] = useMemo(
@@ -70,8 +77,8 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
   );
 
   const dataSource = useMemo(
-    () => (currentTab === "meta-data" && selectedSchemaType === "model" ? meta : data),
-    [currentTab, selectedSchemaType, meta, data],
+    () => (selectedSchemaType === "group" ? group : currentTab === "meta-data" ? meta : data),
+    [selectedSchemaType, group, currentTab, meta, data],
   );
 
   return (
