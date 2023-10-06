@@ -79,4 +79,4 @@ value is required: 値は必須です。
 workspace id is required: ワークスペースIDは必須です。
 metadata schema not found: メタデータのスキーマが見つかりません。
 metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
-either model or group should be provided: ""
+either model or group should be provided: モデルまたはグループのいずれかを提供すること
