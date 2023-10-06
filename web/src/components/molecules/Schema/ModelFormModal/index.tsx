@@ -38,7 +38,7 @@ const ModelFormModal: React.FC<Props> = ({
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
   useEffect(() => {
-    if(open === true) {
+    if (open) {
       if (!model) {
         form.resetFields();
       } else {

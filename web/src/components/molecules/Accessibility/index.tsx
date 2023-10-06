@@ -143,7 +143,7 @@ const Accessibility: React.FC<Props> = ({
   ];
 
   const dataSource: ModelDataType[] | undefined = useMemo(() => {
-    let columns : ModelDataType [] = [
+    let columns: ModelDataType[] = [
       {
         id: "assets",
         name: t("Assets"),

@@ -7,14 +7,18 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 
 export type Props = {
   className?: string;
-  items: MenuProps['items'];
+  items: MenuProps["items"];
   name?: string;
   personal?: boolean;
 };
 
 const Dropdown: React.FC<Props> = ({ className, items, name, personal }) => {
   return (
-    <StyledDropdown className={className} menu={{ items}} trigger={["click"]} dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}>
+    <StyledDropdown
+      className={className}
+      menu={{ items }}
+      trigger={["click"]}
+      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}>
       <a onClick={e => e.preventDefault()}>
         <Space>
           <UserAvatar username={name ?? ""} shape={personal ? "circle" : "square"} size={"small"} />
@@ -35,7 +39,7 @@ const StyledDropdown = styled(DropdownAtom)`
 `;
 const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
-    background-color: #141414!important;
+    background-color: #141414 !important;
     width: 190px;
   }
   .ant-dropdown-menu-item-divider {
