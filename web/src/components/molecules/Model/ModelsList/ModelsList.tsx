@@ -1,8 +1,10 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -10,6 +12,7 @@ export type Props = {
   className?: string;
   selectedKey?: string;
   models?: Model[];
+  selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
@@ -19,6 +22,7 @@ const ModelsList: React.FC<Props> = ({
   className,
   selectedKey,
   models,
+  selectedSchemaType,
   collapsed,
   onModalOpen,
   onModelSelect,
@@ -28,6 +32,14 @@ const ModelsList: React.FC<Props> = ({
   const handleClick = (e: MenuInfo) => {
     onModelSelect(e.key);
   };
+
+  const selectedKeys = useMemo(() => {
+    return !selectedSchemaType
+      ? [selectedKey ?? ""]
+      : selectedSchemaType === "model" && selectedKey
+      ? [selectedKey]
+      : [];
+  }, [selectedKey, selectedSchemaType]);
 
   return (
     <SchemaStyledMenu className={className}>
@@ -45,7 +57,7 @@ const ModelsList: React.FC<Props> = ({
       )}
       <MenuWrapper>
         <StyledMenu
-          selectedKeys={[selectedKey ?? ""]}
+          selectedKeys={selectedKeys}
           mode={collapsed ? "vertical" : "inline"}
           style={{
             color: collapsed ? "#C4C4C4" : undefined,
