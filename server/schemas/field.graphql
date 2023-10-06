@@ -12,7 +12,7 @@ enum SchemaFieldType {
   Reference
   Checkbox
   URL
-  GROUP
+  Group
 }
 
 enum SchemaFieldTagColor {
@@ -51,8 +51,6 @@ type SchemaField {
   createdAt: DateTime!
   updatedAt: DateTime!
 }
-
-union Container = Model | Group
 
 union SchemaFieldTypeProperty =
   SchemaFieldText
