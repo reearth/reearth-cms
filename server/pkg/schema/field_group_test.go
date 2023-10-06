@@ -38,7 +38,7 @@ func TestFieldGroup_Clone(t *testing.T) {
 }
 
 func TestFieldGroup_Validate(t *testing.T) {
-	fid := id.NewFieldID()
-	assert.NoError(t, (&FieldGroup{}).Validate(value.TypeGroup.Value(id.FieldIDList{fid})))
-	assert.Error(t, (&FieldGroup{}).Validate(value.TypeGroup.Value([]string{""})))
+	gid := id.NewItemGroupID()
+	assert.NoError(t, (&FieldGroup{}).Validate(value.TypeGroup.Value(gid)))
+	assert.Error(t, (&FieldGroup{}).Validate(value.TypeGroup.Value("")))
 }
