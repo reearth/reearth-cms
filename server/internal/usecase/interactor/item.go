@@ -745,7 +745,10 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 			for _, groupValue := range mvg {
 				return groupValue == *param.ItemGroup
 			}
-			return false
+			_, ok := lo.Find(mvg, func(item value.Group) bool {
+				return item == *param.ItemGroup
+			})
+			return ok
 		})
 
 		fields, err := itemFieldsFromParams(groupItemParams, groupSchema)

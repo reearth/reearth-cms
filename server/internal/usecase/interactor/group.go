@@ -112,7 +112,7 @@ func (i Group) Update(ctx context.Context, param interfaces.UpdateGroupParam, op
 			if param.Description != nil {
 				g.SetDescription(*param.Description)
 			}
-			if param.Key != nil {
+			if param.Key != nil && g.Key().String() != *param.Key {
 				gg, err := i.repos.Group.FindByKey(ctx, g.Project(), *param.Key)
 				if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 					return nil, err
@@ -177,22 +177,30 @@ func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
-	for _, model := range models {
-		s, err := i.repos.Schema.FindByID(ctx, model.Schema())
-		if err != nil {
-			return nil, err
-		}
+	msMap := make(map[id.SchemaID]*model.Model)
+	var schemas id.SchemaIDList
+	for _, m := range models {
+		msMap[m.Schema()] = m
+		schemas.Add(m.Schema())
+	}
+
+	sl, err := i.repos.Schema.FindByIDs(ctx, schemas)
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range sl {
 		for _, field := range s.Fields() {
 			if field.Type() == value.TypeGroup {
 				field.TypeProperty().Match(schema.TypePropertyMatch{
 					Group: func(f *schema.FieldGroup) {
 						if f.Group() == g.ID() {
-							res = append(res, model)
+							res = append(res, msMap[s.ID()])
 						}
 					},
 				})
 			}
 		}
+
 	}
 	return
 }
