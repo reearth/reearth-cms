@@ -10,7 +10,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 )
 
@@ -111,6 +113,13 @@ func (i Group) Update(ctx context.Context, param interfaces.UpdateGroupParam, op
 				g.SetDescription(*param.Description)
 			}
 			if param.Key != nil {
+				gg, err := i.repos.Group.FindByKey(ctx, g.Project(), *param.Key)
+				if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+					return nil, err
+				}
+				if gg != nil {
+					return nil, id.ErrDuplicatedKey
+				}
 				if err := g.SetKey(key.New(*param.Key)); err != nil {
 					return nil, err
 				}
@@ -149,10 +158,41 @@ func (i Group) Delete(ctx context.Context, groupID id.GroupID, operator *usecase
 			if !operator.IsMaintainingProject(g.Project()) {
 				return interfaces.ErrOperationDenied
 			}
-
+			ml, err := i.getModelsByGroup(ctx, g)
+			if err != nil {
+				return err
+			}
+			if len(ml) != 0 {
+				return interfaces.ErrDelGroupUsed
+			}
 			if err := i.repos.Group.Remove(ctx, groupID); err != nil {
 				return err
 			}
 			return nil
 		})
+}
+
+func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.List, err error) {
+	models, _, err := i.repos.Model.FindByProject(ctx, g.Project(), nil)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
+		return nil, err
+	}
+	for _, model := range models {
+		s, err := i.repos.Schema.FindByID(ctx, model.Schema())
+		if err != nil {
+			return nil, err
+		}
+		for _, field := range s.Fields() {
+			if field.Type() == value.TypeGroup {
+				field.TypeProperty().Match(schema.TypePropertyMatch{
+					Group: func(f *schema.FieldGroup) {
+						if f.Group() == g.ID() {
+							res = append(res, model)
+						}
+					},
+				})
+			}
+		}
+	}
+	return
 }

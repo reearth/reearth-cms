@@ -361,9 +361,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err != nil {
 			return nil, err
 		}
-		if err != nil {
-			return nil, err
-		}
 
 		if err := i.checkUnique(ctx, fields, s, itv.Model(), itv); err != nil {
 			return nil, err
