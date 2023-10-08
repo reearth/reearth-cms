@@ -6,7 +6,3 @@ type Schema implements Node {
   titleField: SchemaField
   project: Project!
 }
-
-# extend type Query {}
-
-# extend type Mutation {}

@@ -39,6 +39,7 @@ func New(r *repo.Container, g *gateway.Container,
 		Schema:      NewSchema(r, g),
 		Integration: NewIntegration(r, g),
 		Thread:      NewThread(r, g),
+		Group:       NewGroup(r, g),
 	}
 }
 

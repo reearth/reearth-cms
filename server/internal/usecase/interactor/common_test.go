@@ -138,5 +138,6 @@ func TestNew(t *testing.T) {
 		Schema:      NewSchema(nil, nil),
 		Integration: NewIntegration(nil, nil),
 		Thread:      NewThread(nil, nil),
+		Group:       NewGroup(nil, nil),
 	}, uc)
 }

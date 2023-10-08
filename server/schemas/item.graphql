@@ -27,6 +27,7 @@ type Item implements Node {
 
 type ItemField {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any
 }
@@ -54,6 +55,7 @@ type ItemSort {
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any!
 }

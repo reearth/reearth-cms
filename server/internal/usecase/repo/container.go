@@ -27,6 +27,7 @@ type Container struct {
 	Thread      Thread
 	Event       Event
 	Request     Request
+	Group       Group
 	Transaction usecasex.Transaction
 }
 

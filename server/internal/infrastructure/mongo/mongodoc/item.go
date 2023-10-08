@@ -35,6 +35,7 @@ type ItemFieldDocument struct {
 	Field     string        `bson:"schemafield,omitempty"` // compat
 	ValueType string        `bson:"valuetype,omitempty"`   // compat
 	Value     any           `bson:"value,omitempty"`       // compat
+	ItemGroup *string
 }
 
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
@@ -73,8 +74,9 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 			}
 
 			return ItemFieldDocument{
-				F: f.FieldID().String(),
-				V: *v,
+				ItemGroup: f.ItemGroup().StringRef(),
+				F:         f.FieldID().String(),
+				V:         *v,
 			}, true
 		}),
 		Timestamp:            i.Timestamp(),
@@ -130,8 +132,8 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 				V: f.Value,
 			}
 		}
-
-		return item.NewField(sf, f.V.MultipleValue()), nil
+		ig := id.ItemGroupIDFromRef(f.ItemGroup)
+		return item.NewFieldWithGroup(sf, ig, f.V.MultipleValue()), nil
 	})
 	if err != nil {
 		return nil, err
