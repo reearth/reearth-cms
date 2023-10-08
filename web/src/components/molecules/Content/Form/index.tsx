@@ -462,9 +462,9 @@ const ContentForm: React.FC<Props> = ({
               );
             }
             return (
-              <StyledFormItem key={field.id}>
+              <StyledFormItemWrapper key={field.id}>
                 <FieldComponent field={field} />
-              </StyledFormItem>
+              </StyledFormItemWrapper>
             );
           })}
         </FormItemsWrapper>
@@ -479,7 +479,7 @@ const ContentForm: React.FC<Props> = ({
               ] || DefaultField;
             return (
               <MetaFormItemWrapper key={field.id}>
-                <FieldComponent field={field} handleBlurUpdate={handleBlurUpdate} t={t} />
+                <FieldComponent field={field} handleBlurUpdate={handleBlurUpdate} />
               </MetaFormItemWrapper>
             );
           })}
@@ -523,6 +523,11 @@ const ContentForm: React.FC<Props> = ({
 };
 
 const StyledFormItem = styled(Form.Item)`
+  width: 500px;
+  word-wrap: break-word;
+`;
+
+const StyledFormItemWrapper = styled.div`
   width: 500px;
   word-wrap: break-word;
 `;
