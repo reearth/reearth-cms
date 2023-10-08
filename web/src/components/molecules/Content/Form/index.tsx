@@ -2,8 +2,6 @@ import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,7 +11,6 @@ import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import Tag from "@reearth-cms/components/atoms/Tag";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -39,6 +36,9 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
+
+import DefaultField from "./fields/FieldComponents/defaultField";
+import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 export interface Props {
   item?: Item;
@@ -626,185 +626,17 @@ const ContentForm: React.FC<Props> = ({
       <SideBarWrapper>
         <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
           <ContentSidebarWrapper item={item} />
-          {model?.metadataSchema?.fields?.map(field =>
-            field.type === "Tag" ? (
+          {model?.metadataSchema?.fields?.map(field => {
+            const FieldComponent =
+              FIELD_TYPE_COMPONENT_MAP[
+                field.type as "Tag" | "Date" | "Bool" | "Checkbox" | "URL"
+              ] || DefaultField;
+            return (
               <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  name={field.id}
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <StyledMultipleSelect
-                      onBlur={handleMetaUpdate}
-                      mode="multiple"
-                      showArrow
-                      style={{ width: "100%" }}>
-                      {field.typeProperty?.tags?.map(
-                        (tag: { id: string; name: string; color: string }) => (
-                          <Select.Option key={tag.name} value={tag.id}>
-                            <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-                          </Select.Option>
-                        ),
-                      )}
-                    </StyledMultipleSelect>
-                  ) : (
-                    <Select
-                      onBlur={handleMetaUpdate}
-                      showArrow
-                      style={{ width: "100%" }}
-                      allowClear>
-                      {field.typeProperty?.tags?.map(
-                        (tag: { id: string; name: string; color: string }) => (
-                          <Select.Option key={tag.name} value={tag.id}>
-                            <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-                          </Select.Option>
-                        ),
-                      )}
-                    </Select>
-                  )}
-                </Form.Item>
+                <FieldComponent field={field} handleMetaUpdate={handleMetaUpdate} t={t} />
               </MetaFormItemWrapper>
-            ) : field.type === "Date" ? (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  rules={[
-                    {
-                      required: field.required,
-                      message: t("Please input field!"),
-                    },
-                  ]}
-                  name={field.id}
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueField
-                      onBlur={handleMetaUpdate}
-                      type="date"
-                      FieldInput={StyledDatePicker}
-                    />
-                  ) : (
-                    <StyledDatePicker onBlur={handleMetaUpdate} />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ) : field.type === "Bool" ? (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  name={field.id}
-                  valuePropName="checked"
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Switch} />
-                  ) : (
-                    <Switch onChange={handleMetaUpdate} />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ) : field.type === "Checkbox" ? (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  name={field.id}
-                  valuePropName="checked"
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Checkbox} />
-                  ) : (
-                    <Checkbox onChange={handleMetaUpdate} />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ) : field.type === "URL" ? (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  name={field.id}
-                  label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}
-                  rules={[
-                    {
-                      required: field.required,
-                      message: t("Please input field!"),
-                    },
-                    {
-                      message: "URL is not valid",
-                      validator: async (_, value) => {
-                        if (value) {
-                          if (
-                            Array.isArray(value) &&
-                            value.some(
-                              (valueItem: string) =>
-                                !validateURL(valueItem) && valueItem.length > 0,
-                            )
-                          )
-                            return Promise.reject();
-                          else if (
-                            !Array.isArray(value) &&
-                            !validateURL(value) &&
-                            value?.length > 0
-                          )
-                            return Promise.reject();
-                        }
-                        return Promise.resolve();
-                      },
-                    },
-                  ]}>
-                  {field.multiple ? (
-                    <MultiValueField
-                      onBlur={handleMetaUpdate}
-                      showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
-                      FieldInput={Input}
-                    />
-                  ) : (
-                    <Input
-                      onBlur={handleMetaUpdate}
-                      showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
-                    />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ) : (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  rules={[
-                    {
-                      required: field.required,
-                      message: t("Please input field!"),
-                    },
-                  ]}
-                  name={field.id}
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueField
-                      onBlur={handleMetaUpdate}
-                      showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
-                      FieldInput={Input}
-                    />
-                  ) : (
-                    <Input
-                      onBlur={handleMetaUpdate}
-                      showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
-                    />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ),
-          )}
+            );
+          })}
         </Form>
       </SideBarWrapper>
       {itemId && (
@@ -883,30 +715,6 @@ const MetaFormItemWrapper = styled.div`
   background: #ffffff;
   border: 1px solid #f0f0f0;
   border-radius: 2px;
-`;
-
-const StyledDatePicker = styled(DatePicker)`
-  width: 100%;
-`;
-
-const StyledMultipleSelect = styled(Select)`
-  .ant-select-selection-overflow-item {
-    margin-right: 4px;
-  }
-  .ant-select-selection-item {
-    padding: 0;
-    margin-right: 0;
-    border: 0;
-  }
-  .ant-select-selection-item-content {
-    margin-right: 0;
-  }
-  .ant-select-selection-item-remove {
-    display: none;
-  }
-  .ant-tag {
-    margin-right: 0;
-  }
 `;
 
 export default ContentForm;
