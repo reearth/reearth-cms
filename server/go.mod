@@ -22,6 +22,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.10.2
+	github.com/oklog/ulid v1.3.1
 	github.com/ravilushqa/otelgqlgen v0.13.1
 	github.com/reearth/reearthx v0.0.0-20230803135203-6fb13c1d7d8b
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
@@ -122,7 +123,6 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.2.1 // indirect
-	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect

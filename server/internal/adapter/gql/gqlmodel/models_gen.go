@@ -14,12 +14,12 @@ import (
 	"golang.org/x/text/language"
 )
 
-type Container interface {
-	IsContainer()
-}
-
 type Condition interface {
 	IsCondition()
+}
+
+type Container interface {
+	IsContainer()
 }
 
 type Node interface {
@@ -603,10 +603,10 @@ type Model struct {
 	UpdatedAt        time.Time `json:"updatedAt"`
 }
 
+func (Model) IsContainer() {}
+
 func (Model) IsNode()        {}
 func (this Model) GetID() ID { return this.ID }
-
-func (Model) IsContainer() {}
 
 type ModelConnection struct {
 	Edges      []*ModelEdge `json:"edges"`

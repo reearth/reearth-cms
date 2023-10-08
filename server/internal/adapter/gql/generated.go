@@ -846,6 +846,9 @@ type MutationResolver interface {
 	UpdateField(ctx context.Context, input gqlmodel.UpdateFieldInput) (*gqlmodel.FieldPayload, error)
 	UpdateFields(ctx context.Context, input []*gqlmodel.UpdateFieldInput) (*gqlmodel.FieldsPayload, error)
 	DeleteField(ctx context.Context, input gqlmodel.DeleteFieldInput) (*gqlmodel.DeleteFieldPayload, error)
+	CreateGroup(ctx context.Context, input gqlmodel.CreateGroupInput) (*gqlmodel.GroupPayload, error)
+	UpdateGroup(ctx context.Context, input gqlmodel.UpdateGroupInput) (*gqlmodel.GroupPayload, error)
+	DeleteGroup(ctx context.Context, input gqlmodel.DeleteGroupInput) (*gqlmodel.DeleteGroupPayload, error)
 	CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	UpdateIntegration(ctx context.Context, input gqlmodel.UpdateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	DeleteIntegration(ctx context.Context, input gqlmodel.DeleteIntegrationInput) (*gqlmodel.DeleteIntegrationPayload, error)
@@ -887,9 +890,6 @@ type MutationResolver interface {
 	RemoveIntegrationFromWorkspace(ctx context.Context, input gqlmodel.RemoveIntegrationFromWorkspaceInput) (*gqlmodel.RemoveMemberFromWorkspacePayload, error)
 	UpdateUserOfWorkspace(ctx context.Context, input gqlmodel.UpdateUserOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
 	UpdateIntegrationOfWorkspace(ctx context.Context, input gqlmodel.UpdateIntegrationOfWorkspaceInput) (*gqlmodel.UpdateMemberOfWorkspacePayload, error)
-	CreateGroup(ctx context.Context, input gqlmodel.CreateGroupInput) (*gqlmodel.GroupPayload, error)
-	UpdateGroup(ctx context.Context, input gqlmodel.UpdateGroupInput) (*gqlmodel.GroupPayload, error)
-	DeleteGroup(ctx context.Context, input gqlmodel.DeleteGroupInput) (*gqlmodel.DeleteGroupPayload, error)
 }
 type ProjectResolver interface {
 	Workspace(ctx context.Context, obj *gqlmodel.Project) (*gqlmodel.Workspace, error)
@@ -4607,469 +4607,6 @@ extend type Mutation {
   createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/user.graphql", Input: `type User implements Node {
-  id: ID!
-  name: String!
-  email: String!
-}
-
-type Me {
-  id: ID!
-  name: String!
-  email: String!
-  lang: Lang!
-  theme: Theme!
-  myWorkspaceId: ID!
-  auths: [String!]!
-  workspaces: [Workspace!]!
-  myWorkspace: Workspace!
-  integrations: [Integration!]!
-}
-
-input UpdateMeInput {
-  name: String
-  email: String
-  lang: Lang
-  theme: Theme
-  password: String
-  passwordConfirmation: String
-}
-
-input RemoveMyAuthInput {
-  auth: String!
-}
-
-input DeleteMeInput {
-  userId: ID!
-}
-
-extend type Query {
-  me: Me
-  searchUser(nameOrEmail: String!): User
-}
-
-type UpdateMePayload {
-  me: Me!
-}
-
-type DeleteMePayload {
-  userId: ID!
-}
-
-extend type Mutation {
-  updateMe(input: UpdateMeInput!): UpdateMePayload
-  removeMyAuth(input: RemoveMyAuthInput!): UpdateMePayload
-  deleteMe(input: DeleteMeInput!): DeleteMePayload
-}
-`, BuiltIn: false},
-	{Name: "../../../schemas/workspace.graphql", Input: `type Workspace implements Node {
-    id: ID!
-    name: String!
-    members: [WorkspaceMember!]!
-    personal: Boolean!
-}
-
-union WorkspaceMember = WorkspaceUserMember | WorkspaceIntegrationMember
-
-type WorkspaceUserMember {
-    userId: ID!
-    role: Role!
-    user: User
-}
-
-type WorkspaceIntegrationMember {
-    integrationId: ID!
-    role: Role!
-    active: Boolean!
-    invitedById: ID!
-    invitedBy: User
-    integration: Integration
-}
-
-enum Role {
-    # a role who can read project
-    READER
-    # a role who can read and write project
-    WRITER
-    # a eole who can have full control of project
-    OWNER
-    # a eole who can maintain a project
-    MAINTAINER
-}
-
-input CreateWorkspaceInput {
-    name: String!
-}
-
-input UpdateWorkspaceInput {
-    workspaceId: ID!
-    name: String!
-}
-
-input MemberInput {
-    userId: ID!
-    role: Role!
-}
-
-input AddUsersToWorkspaceInput {
-    workspaceId: ID!
-    users: [MemberInput!]!
-}
-
-input AddIntegrationToWorkspaceInput {
-    workspaceId: ID!
-    integrationId: ID!
-    role: Role!
-}
-
-input RemoveUserFromWorkspaceInput {
-    workspaceId: ID!
-    userId: ID!
-}
-
-input RemoveIntegrationFromWorkspaceInput {
-    workspaceId: ID!
-    integrationId: ID!
-}
-
-input UpdateUserOfWorkspaceInput {
-    workspaceId: ID!
-    userId: ID!
-    role: Role!
-}
-
-input UpdateIntegrationOfWorkspaceInput {
-    workspaceId: ID!
-    integrationId: ID!
-    role: Role!
-}
-
-input DeleteWorkspaceInput {
-    workspaceId: ID!
-}
-
-# extend type Query { }
-
-type CreateWorkspacePayload {
-    workspace: Workspace!
-}
-
-type UpdateWorkspacePayload {
-    workspace: Workspace!
-}
-
-type AddUsersToWorkspacePayload {
-    workspace: Workspace!
-}
-
-type RemoveMemberFromWorkspacePayload {
-    workspace: Workspace!
-}
-
-type UpdateMemberOfWorkspacePayload {
-    workspace: Workspace!
-}
-
-type DeleteWorkspacePayload {
-    workspaceId: ID!
-}
-
-extend type Mutation {
-    createWorkspace(input: CreateWorkspaceInput!): CreateWorkspacePayload
-    deleteWorkspace(input: DeleteWorkspaceInput!): DeleteWorkspacePayload
-    updateWorkspace(input: UpdateWorkspaceInput!): UpdateWorkspacePayload
-    addUsersToWorkspace(input: AddUsersToWorkspaceInput!): AddUsersToWorkspacePayload
-    addIntegrationToWorkspace(input: AddIntegrationToWorkspaceInput!): AddUsersToWorkspacePayload
-    removeUserFromWorkspace(input: RemoveUserFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
-    removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
-    updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
-    updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
-}`, BuiltIn: false},
-	{Name: "../../../schemas/project.graphql", Input: `type ProjectAliasAvailability {
-  alias: String!
-  available: Boolean!
-}
-
-enum ProjectPublicationScope {
-  PUBLIC
-  LIMITED
-  PRIVATE
-}
-
-type ProjectPublication {
-  scope: ProjectPublicationScope!
-  assetPublic: Boolean!
-}
-
-type Project implements Node {
-  id: ID!
-  name: String!
-  description: String!
-  alias: String!
-  workspaceId: ID!
-  workspace: Workspace
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  publication: ProjectPublication
-  requestRoles: [Role!]
-}
-
-# Inputs
-input CreateProjectInput {
-  workspaceId: ID!
-  name: String
-  description: String
-  alias: String
-  requestRoles: [Role!]
-}
-
-input UpdateProjectPublicationInput {
-  scope: ProjectPublicationScope
-  assetPublic: Boolean
-}
-
-input UpdateProjectInput {
-  projectId: ID!
-  name: String
-  description: String
-  alias: String
-  publication: UpdateProjectPublicationInput
-  requestRoles: [Role!]
-}
-
-input DeleteProjectInput {
-  projectId: ID!
-}
-
-# Payload
-type ProjectPayload {
-  project: Project!
-}
-
-type DeleteProjectPayload {
-  projectId: ID!
-}
-
-type ProjectConnection {
-  edges: [ProjectEdge!]!
-  nodes: [Project]!
-  pageInfo: PageInfo!
-  totalCount: Int!
-}
-
-type ProjectEdge {
-  cursor: Cursor!
-  node: Project
-}
-
-extend type Query {
-  projects(workspaceId: ID!, pagination: Pagination): ProjectConnection!
-  checkProjectAlias(alias: String!): ProjectAliasAvailability!
-}
-
-extend type Mutation {
-  createProject(input: CreateProjectInput!): ProjectPayload
-  updateProject(input: UpdateProjectInput!): ProjectPayload
-  deleteProject(input: DeleteProjectInput!): DeleteProjectPayload
-}
-`, BuiltIn: false},
-	{Name: "../../../schemas/model.graphql", Input: `type Model implements Node {
-  id: ID!
-  projectId: ID!
-  schemaId: ID!
-  metadataSchemaId: ID
-  name: String!
-  description: String!
-  key: String!
-  project: Project!
-  schema: Schema!
-  metadataSchema: Schema
-  public: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-# Inputs
-input CreateModelInput {
-  projectId: ID!
-  name: String
-  description: String
-  key: String
-}
-
-input UpdateModelInput {
-  modelId: ID!
-  name: String
-  description: String
-  key: String
-  public: Boolean!
-}
-
-input DeleteModelInput {
-  modelId: ID!
-}
-
-input PublishModelInput {
-  modelId: ID!
-  status: Boolean!
-}
-
-# Payloads
-type ModelPayload {
-  model: Model!
-}
-
-type DeleteModelPayload {
-  modelId: ID!
-}
-
-type PublishModelPayload {
-  modelId: ID!
-  status: Boolean!
-}
-
-type ModelConnection {
-  edges: [ModelEdge!]!
-  nodes: [Model]!
-  pageInfo: PageInfo!
-  totalCount: Int!
-}
-
-type ModelEdge {
-  cursor: Cursor!
-  node: Model
-}
-
-extend type Query {
-  models(projectId: ID!, pagination: Pagination): ModelConnection!
-  checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
-}
-
-extend type Mutation {
-  createModel(input: CreateModelInput!): ModelPayload
-  updateModel(input: UpdateModelInput!): ModelPayload
-  deleteModel(input: DeleteModelInput!): DeleteModelPayload
-  publishModel(input: PublishModelInput!): PublishModelPayload
-}
-`, BuiltIn: false},
-	{Name: "../../../schemas/request.graphql", Input: `type Request implements Node {
-  id: ID!
-  items: [RequestItem!]!
-  title: String!
-  description: String
-  createdById: ID!
-  workspaceId: ID!
-  projectId: ID!
-  threadId: ID!
-  reviewersId: [ID!]!
-  state: RequestState!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  approvedAt: DateTime
-  closedAt: DateTime
-  thread: Thread
-  createdBy: User
-  workspace: Workspace
-  project: Project
-  reviewers: [User!]!
-}
-
-type RequestItem {
-  itemId: ID!
-  version: String
-  ref: String
-  item: VersionedItem
-}
-
-enum RequestState {
-  DRAFT
-  WAITING
-  CLOSED
-  APPROVED
-}
-
-# input
-input CreateRequestInput {
-  projectId: ID!
-  title: String!
-  description: String
-  state: RequestState
-  reviewersId: [ID!]
-  items: [RequestItemInput!]!
-}
-
-
-input UpdateRequestInput {
-  requestId: ID!
-  title: String
-  description: String
-  state: RequestState
-  reviewersId: [ID!]
-  items: [RequestItemInput!]
-}
-
-input RequestItemInput {
-  itemId: ID!
-}
-
-input DeleteRequestInput {
-  projectId: ID!
-  requestsId: [ID!]!
-}
-
-input ApproveRequestInput {
-  requestId: ID!
-}
-
-# Payload
-type RequestPayload {
-  request: Request!
-}
-
-type DeleteRequestPayload {
-  requests: [ID!]!
-}
-
-type RequestEdge {
-  cursor: Cursor!
-  node: Request
-}
-
-type RequestConnection {
-  edges: [RequestEdge!]!
-  nodes: [Request]!
-  pageInfo: PageInfo!
-  totalCount: Int!
-}
-
-extend type Query {
-  requests(
-    projectId: ID!
-    key: String
-    state: [RequestState!]
-    createdBy: ID
-    reviewer: ID
-    pagination: Pagination
-    sort: Sort
-  ): RequestConnection!
-}
-
-extend type Mutation {
-  createRequest(input: CreateRequestInput!): RequestPayload
-  updateRequest(input: UpdateRequestInput!): RequestPayload
-  approveRequest(input: ApproveRequestInput!): RequestPayload
-  deleteRequest(input: DeleteRequestInput!): DeleteRequestPayload
-}
-`, BuiltIn: false},
-	{Name: "../../../schemas/schema.graphql", Input: `type Schema implements Node {
-  id: ID!
-  projectId: ID!
-  fields: [SchemaField!]!
-  titleFieldId: ID
-  titleField: SchemaField
-  project: Project!
-}
-`, BuiltIn: false},
 	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFieldType {
   Text
   TextArea
@@ -5375,6 +4912,53 @@ extend type Mutation {
   deleteField(input: DeleteFieldInput!): DeleteFieldPayload
 }
 `, BuiltIn: false},
+	{Name: "../../../schemas/group.graphql", Input: `type Group implements Node {
+    id: ID!
+    schemaId: ID!
+    projectId: ID!
+    name: String!
+    description: String!
+    key: String!
+    schema: Schema!
+    project: Project!
+    fields: [SchemaField!]!
+}
+
+# inputs
+input CreateGroupInput {
+    projectId: ID!
+    name: String!
+    key: String!
+    description: String
+}
+
+input UpdateGroupInput {
+    groupId: ID!
+    name: String
+    description: String
+    key: String
+}
+
+input DeleteGroupInput {
+    groupId: ID!
+}
+
+# Payloads
+type GroupPayload {
+    group: Group!
+}
+
+type DeleteGroupPayload {
+    groupId: ID!
+}
+
+# extend type Query {}
+
+extend type Mutation {
+    createGroup(input: CreateGroupInput!): GroupPayload
+    updateGroup(input: UpdateGroupInput!): GroupPayload
+    deleteGroup(input: DeleteGroupInput!): DeleteGroupPayload
+}`, BuiltIn: false},
 	{Name: "../../../schemas/integration.graphql", Input: `enum IntegrationType {
   Public
   Private
@@ -6232,10 +5816,6 @@ extend type Mutation {
   titleField: SchemaField
   project: Project!
 }
-
-# extend type Query {}
-
-# extend type Mutation {}
 `, BuiltIn: false},
 	{Name: "../../../schemas/thread.graphql", Input: `type Thread {
   id: ID!
@@ -6473,53 +6053,6 @@ extend type Mutation {
     removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
-}`, BuiltIn: false},
-	{Name: "../../../schemas/group.graphql", Input: `type Group implements Node {
-    id: ID!
-    schemaId: ID!
-    projectId: ID!
-    name: String!
-    description: String!
-    key: String!
-    schema: Schema!
-    project: Project!
-    fields: [SchemaField!]!
-}
-
-# inputs
-input CreateGroupInput {
-    projectId: ID!
-    name: String!
-    key: String!
-    description: String
-}
-
-input UpdateGroupInput {
-    groupId: ID!
-    name: String
-    description: String
-    key: String
-}
-
-input DeleteGroupInput {
-    groupId: ID!
-}
-
-# Payloads
-type GroupPayload {
-    group: Group!
-}
-
-type DeleteGroupPayload {
-    groupId: ID!
-}
-
-# extend type Query {}
-
-extend type Mutation {
-    createGroup(input: CreateGroupInput!): GroupPayload
-    updateGroup(input: UpdateGroupInput!): GroupPayload
-    deleteGroup(input: DeleteGroupInput!): DeleteGroupPayload
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -16480,6 +16013,174 @@ func (ec *executionContext) fieldContext_Mutation_deleteField(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateGroup(rctx, fc.Args["input"].(gqlmodel.CreateGroupInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.GroupPayload)
+	fc.Result = res
+	return ec.marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "group":
+				return ec.fieldContext_GroupPayload_group(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroupPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateGroup(rctx, fc.Args["input"].(gqlmodel.UpdateGroupInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.GroupPayload)
+	fc.Result = res
+	return ec.marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "group":
+				return ec.fieldContext_GroupPayload_group(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroupPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteGroup(rctx, fc.Args["input"].(gqlmodel.DeleteGroupInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.DeleteGroupPayload)
+	fc.Result = res
+	return ec.marshalODeleteGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "groupId":
+				return ec.fieldContext_DeleteGroupPayload_groupId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteGroupPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createIntegration(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createIntegration(ctx, field)
 	if err != nil {
@@ -19056,174 +18757,6 @@ func (ec *executionContext) fieldContext_OrCondition_conditions(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Condition does not have child fields")
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_createGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createGroup(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateGroup(rctx, fc.Args["input"].(gqlmodel.CreateGroupInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.GroupPayload)
-	fc.Result = res
-	return ec.marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_createGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "group":
-				return ec.fieldContext_GroupPayload_group(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type GroupPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateGroup(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateGroup(rctx, fc.Args["input"].(gqlmodel.UpdateGroupInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.GroupPayload)
-	fc.Result = res
-	return ec.marshalOGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroupPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "group":
-				return ec.fieldContext_GroupPayload_group(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type GroupPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_deleteGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteGroup(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteGroup(rctx, fc.Args["input"].(gqlmodel.DeleteGroupInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.DeleteGroupPayload)
-	fc.Result = res
-	return ec.marshalODeleteGroupPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteGroupPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_deleteGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "groupId":
-				return ec.fieldContext_DeleteGroupPayload_groupId(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type DeleteGroupPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -35519,6 +35052,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Asset(ctx, sel, obj)
+	case gqlmodel.Group:
+		return ec._Group(ctx, sel, &obj)
+	case *gqlmodel.Group:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Group(ctx, sel, obj)
 	case gqlmodel.Integration:
 		return ec._Integration(ctx, sel, &obj)
 	case *gqlmodel.Integration:
@@ -35582,13 +35122,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Workspace(ctx, sel, obj)
-	case gqlmodel.Group:
-		return ec._Group(ctx, sel, &obj)
-	case *gqlmodel.Group:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Group(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -38510,7 +38043,7 @@ func (ec *executionContext) _Me(ctx context.Context, sel ast.SelectionSet, obj *
 	return out
 }
 
-var modelImplementors = []string{"Model", "Node", "Container"}
+var modelImplementors = []string{"Model", "Container", "Node"}
 
 func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Model) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, modelImplementors)
@@ -38934,6 +38467,18 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteField(ctx, field)
 			})
+		case "createGroup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createGroup(ctx, field)
+			})
+		case "updateGroup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateGroup(ctx, field)
+			})
+		case "deleteGroup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteGroup(ctx, field)
+			})
 		case "createIntegration":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createIntegration(ctx, field)
@@ -39230,30 +38775,6 @@ func (ec *executionContext) _OrCondition(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "addComment":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addComment(ctx, field)
-			})
-		case "updateComment":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateComment(ctx, field)
-			})
-		case "deleteComment":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteComment(ctx, field)
-			})
-		case "createGroup":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createGroup(ctx, field)
-			})
-		case "updateGroup":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateGroup(ctx, field)
-			})
-		case "deleteGroup":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteGroup(ctx, field)
-			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -43463,16 +42984,6 @@ func (ec *executionContext) marshalNFileSize2int64(ctx context.Context, sel ast.
 	return res
 }
 
-func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Group) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Group(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
 	res, err := graphql.UnmarshalFloatContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -43486,6 +42997,16 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Group) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Group(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx context.Context, v interface{}) (gqlmodel.ID, error) {
