@@ -108,53 +108,6 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 	return vis, nil
 }
 
-func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
-	op := getOperator(ctx)
-	mid, err := gqlmodel.ToID[id.Model](modelId)
-	if err != nil {
-		return nil, err
-	}
-
-	m, err := c.modelUsecase.FindByID(ctx, mid, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	s, err := c.schemaUsecase.FindByID(ctx, m.Schema(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	res, pi, err := c.usecase.FindByModel(ctx, mid, sort.Into(), p.Into(), op)
-	if err != nil {
-		return nil, err
-	}
-
-	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
-	nodes := make([]*gqlmodel.Item, 0, len(res))
-	for _, i := range res {
-		itm := gqlmodel.ToItem(i, s)
-		edges = append(edges, &gqlmodel.ItemEdge{
-			Node:   itm,
-			Cursor: usecasex.Cursor(itm.ID),
-		})
-		nodes = append(nodes, itm)
-	}
-
-	return &gqlmodel.ItemConnection{
-		Edges:      edges,
-		Nodes:      nodes,
-		PageInfo:   gqlmodel.ToPageInfo(pi),
-		TotalCount: int(pi.TotalCount),
-	}, nil
-}
-
 func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
 	pid, err := gqlmodel.ToID[id.Project](projectID)
@@ -198,7 +151,7 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p
 	}, nil
 }
 
-func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQueryInput, sort *gqlmodel.ItemSortInput, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
 	op := getOperator(ctx)
 	q := gqlmodel.ToItemQuery(query)
 	res, pi, err := c.usecase.Search(ctx, q, sort.Into(), p.Into(), op)

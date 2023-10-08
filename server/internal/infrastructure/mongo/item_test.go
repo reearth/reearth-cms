@@ -431,19 +431,19 @@ func TestItem_Search(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items (first 10)",
-			Input:    item.NewQuery(pid, nil, "foo", nil),
+			Input:    item.NewQuery(pid, nil, nil, "foo", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 2,
 		},
 		{
 			Name:     "must find all items",
-			Input:    item.NewQuery(pid, nil, "", nil),
+			Input:    item.NewQuery(pid, nil, nil, "", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 3,
 		},
 		{
 			Name:     "must find one item",
-			Input:    item.NewQuery(pid, sid2.Ref(), "foo", nil),
+			Input:    item.NewQuery(pid, sid2.Ref(), nil, "foo", nil),
 			RepoData: item.List{i1, i2, i3, i4},
 			Expected: 1,
 		},

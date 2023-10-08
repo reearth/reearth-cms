@@ -9,14 +9,16 @@ import (
 type Query struct {
 	project id.ProjectID
 	schema  *id.SchemaID
+	model   *id.ModelID
 	q       string
 	ref     *version.Ref
 }
 
-func NewQuery(project id.ProjectID, schema *id.SchemaID, q string, ref *version.Ref) *Query {
+func NewQuery(project id.ProjectID, schema *id.SchemaID, model *id.ModelID, q string, ref *version.Ref) *Query {
 	return &Query{
 		project: project,
 		schema:  schema,
+		model:   model,
 		q:       q,
 		ref:     ref,
 	}
@@ -33,6 +35,10 @@ func (q *Query) Project() id.ProjectID {
 
 func (q *Query) Schema() *id.SchemaID {
 	return q.schema
+}
+
+func (q *Query) Model() *id.ModelID {
+	return q.model
 }
 
 func (q *Query) Ref() *version.Ref {

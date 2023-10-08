@@ -104,7 +104,7 @@ type NumberFieldCondition {
 type TimeFieldCondition {
   fieldId: FieldSelector!
   operator: TimeOperator!
-  value: String!
+  value: DateTime!
 }
 
 enum BasicOperator {
@@ -234,5 +234,5 @@ input NumberFieldConditionInput {
 input TimeFieldConditionInput {
   fieldId: FieldSelectorInput!
   operator: TimeOperator!
-  value: String!
+  value: DateTime!
 }
