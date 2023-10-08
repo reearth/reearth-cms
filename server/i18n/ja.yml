@@ -59,6 +59,7 @@ metadata item and schema mismatch: メタデータのアイテムのスキーマ
 metadata schema not found: メタデータのスキーマが見つかりません。
 missing fields: フィールドが不足しています。
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
+model should have at least one view: モデルには少なくとも 1 つのビューが必要です
 not found: 見つかりませんでした。
 not implemented: 未実装です。
 not implemented yet: 未実装です。
