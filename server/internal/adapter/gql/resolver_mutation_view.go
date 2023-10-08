@@ -46,9 +46,10 @@ func (r *mutationResolver) UpdateView(ctx context.Context, input gqlmodel.Update
 
 	var columns *view.FieldSelectorList = nil
 	if input.Columns != nil {
-		*columns = lo.Map(input.Columns, func(fs *gqlmodel.FieldSelectorInput, _ int) view.FieldSelector {
+		l := lo.Map(input.Columns, func(fs *gqlmodel.FieldSelectorInput, _ int) view.FieldSelector {
 			return fs.Into()
 		})
+		columns = (*view.FieldSelectorList)(&l)
 	}
 	res, err := usecases(ctx).View.Update(ctx, vID, interfaces.UpdateViewParam{
 		ID:      vID,

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
-	"github.com/oklog/ulid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
@@ -226,9 +225,6 @@ func TestViewCRUD(t *testing.T) {
 	}
 	vID, res := createView(e, pId, mID, "test", sort, filter, columns)
 
-	iiid, _ := ulid.Parse(vID)
-	_ = iiid
-
 	res.Object().
 		Value("data").Object().
 		Value("createView").Object().
@@ -250,4 +246,24 @@ func TestViewCRUD(t *testing.T) {
 
 	res = deleteView(e, vID)
 	res.Path("$.errors[0].message").String().Equal("model should have at least one view")
+
+	// Test update
+	sort = map[string]any{
+		"field": map[string]any{
+			"type": "FIELD",
+			"id":   id.NewFieldID().String(),
+		},
+		"direction": "DESC",
+	}
+	updateView(e, vID, "test updated", sort, filter, columns)
+
+	res = getViews(e, mID)
+	res.Object().
+		Value("data").Object().
+		Value("view").Array().
+		First().Object().
+		ValueEqual("name", "test updated").
+		ValueEqual("sort", sort).
+		ValueEqual("columns", columns).
+		ValueEqual("filter", filter["bool"])
 }
