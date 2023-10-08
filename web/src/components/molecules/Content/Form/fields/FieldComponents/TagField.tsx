@@ -9,7 +9,7 @@ import FieldTitle from "../../FieldTitle";
 
 interface TagFieldProps {
   field: Field;
-  handleBlurUpdate: () => void;
+  handleBlurUpdate?: () => void;
 }
 
 const TagField: React.FC<TagFieldProps> = ({ field, handleBlurUpdate }) => {

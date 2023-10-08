@@ -1,5 +1,5 @@
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
+import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -8,14 +8,14 @@ import FieldTitle from "../../FieldTitle";
 
 interface DefaultFieldProps {
   field: Field;
-  handleBlurUpdate?: () => void;
 }
 
-const DefaultField: React.FC<DefaultFieldProps> = ({ field, handleBlurUpdate }) => {
+const IntegerField: React.FC<DefaultFieldProps> = ({ field }) => {
   const t = useT();
 
   return (
     <Form.Item
+      key={field.id}
       extra={field.description}
       rules={[
         {
@@ -24,23 +24,19 @@ const DefaultField: React.FC<DefaultFieldProps> = ({ field, handleBlurUpdate }) 
         },
       ]}
       name={field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
+      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
         <MultiValueField
-          onBlur={handleBlurUpdate}
-          showCount={true}
-          maxLength={field?.typeProperty?.maxLength ?? 500}
-          FieldInput={Input}
+          type="number"
+          min={field.typeProperty.min}
+          max={field.typeProperty.max}
+          FieldInput={InputNumber}
         />
       ) : (
-        <Input
-          onBlur={handleBlurUpdate}
-          showCount={true}
-          maxLength={field?.typeProperty?.maxLength ?? 500}
-        />
+        <InputNumber type="number" min={field.typeProperty.min} max={field.typeProperty.max} />
       )}
     </Form.Item>
   );
 };
 
-export default DefaultField;
+export default IntegerField;

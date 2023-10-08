@@ -1,5 +1,5 @@
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
+import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -8,10 +8,9 @@ import FieldTitle from "../../FieldTitle";
 
 interface DefaultFieldProps {
   field: Field;
-  handleBlurUpdate?: () => void;
 }
 
-const DefaultField: React.FC<DefaultFieldProps> = ({ field, handleBlurUpdate }) => {
+const TextareaField: React.FC<DefaultFieldProps> = ({ field }) => {
   const t = useT();
 
   return (
@@ -24,23 +23,19 @@ const DefaultField: React.FC<DefaultFieldProps> = ({ field, handleBlurUpdate }) 
         },
       ]}
       name={field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
+      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
         <MultiValueField
-          onBlur={handleBlurUpdate}
-          showCount={true}
-          maxLength={field?.typeProperty?.maxLength ?? 500}
-          FieldInput={Input}
+          rows={3}
+          showCount
+          maxLength={field.typeProperty.maxLength ?? false}
+          FieldInput={TextArea}
         />
       ) : (
-        <Input
-          onBlur={handleBlurUpdate}
-          showCount={true}
-          maxLength={field?.typeProperty?.maxLength ?? 500}
-        />
+        <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
       )}
     </Form.Item>
   );
 };
 
-export default DefaultField;
+export default TextareaField;

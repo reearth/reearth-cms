@@ -7,7 +7,7 @@ import FieldTitle from "../../FieldTitle";
 
 interface BoolFieldProps {
   field: Field;
-  handleBlurUpdate: () => void;
+  handleBlurUpdate?: () => void;
 }
 
 const BoolField: React.FC<BoolFieldProps> = ({ field, handleBlurUpdate }) => {

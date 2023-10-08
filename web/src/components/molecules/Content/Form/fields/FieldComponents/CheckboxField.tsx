@@ -8,7 +8,7 @@ import FieldTitle from "../../FieldTitle";
 
 interface CheckboxFieldProps {
   field: Field;
-  handleBlurUpdate: () => void; // Update to the actual type
+  handleBlurUpdate?: () => void; // Update to the actual type
 }
 
 const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, handleBlurUpdate }) => {

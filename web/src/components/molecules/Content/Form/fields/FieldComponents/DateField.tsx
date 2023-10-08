@@ -4,16 +4,18 @@ import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Form from "@reearth-cms/components/atoms/Form";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { useT } from "@reearth-cms/i18n";
 
 import FieldTitle from "../../FieldTitle";
 
 interface DateFieldProps {
   field: Field;
-  handleBlurUpdate: () => void;
-  t: (key: string) => string;
+  handleBlurUpdate?: () => void;
 }
 
-const DateField: React.FC<DateFieldProps> = ({ field, handleBlurUpdate, t }) => {
+const DateField: React.FC<DateFieldProps> = ({ field, handleBlurUpdate }) => {
+  const t = useT();
+
   return (
     <Form.Item
       extra={field.description}

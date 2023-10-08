@@ -10,7 +10,7 @@ import FieldTitle from "../../FieldTitle";
 
 interface URLFieldProps {
   field: Field;
-  handleBlurUpdate: () => void;
+  handleBlurUpdate?: () => void;
 }
 
 const URLField: React.FC<URLFieldProps> = ({ field, handleBlurUpdate }) => {
