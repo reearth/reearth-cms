@@ -251,7 +251,7 @@ const ContentForm: React.FC<Props> = ({
     onItemUpdate,
   ]);
 
-  const handleMetaUpdate = useCallback(async () => {
+  const handleBlurUpdate = useCallback(async () => {
     if (!itemId) return;
     try {
       const values = await form.validateFields();
@@ -633,7 +633,7 @@ const ContentForm: React.FC<Props> = ({
               ] || DefaultField;
             return (
               <MetaFormItemWrapper key={field.id}>
-                <FieldComponent field={field} handleMetaUpdate={handleMetaUpdate} t={t} />
+                <FieldComponent field={field} handleBlurUpdate={handleBlurUpdate} t={t} />
               </MetaFormItemWrapper>
             );
           })}

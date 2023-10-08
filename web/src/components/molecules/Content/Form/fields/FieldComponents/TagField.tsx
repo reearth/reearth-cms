@@ -9,10 +9,10 @@ import FieldTitle from "../../FieldTitle";
 
 interface TagFieldProps {
   field: Field;
-  handleMetaUpdate: () => void;
+  handleBlurUpdate: () => void;
 }
 
-const TagField: React.FC<TagFieldProps> = ({ field, handleMetaUpdate }) => {
+const TagField: React.FC<TagFieldProps> = ({ field, handleBlurUpdate }) => {
   return (
     <Form.Item
       extra={field.description}
@@ -20,7 +20,7 @@ const TagField: React.FC<TagFieldProps> = ({ field, handleMetaUpdate }) => {
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
         <StyledMultipleSelect
-          onBlur={handleMetaUpdate}
+          onBlur={handleBlurUpdate}
           mode="multiple"
           showArrow
           style={{ width: "100%" }}>
@@ -31,7 +31,7 @@ const TagField: React.FC<TagFieldProps> = ({ field, handleMetaUpdate }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select onBlur={handleMetaUpdate} showArrow style={{ width: "100%" }} allowClear>
+        <Select onBlur={handleBlurUpdate} showArrow style={{ width: "100%" }} allowClear>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
