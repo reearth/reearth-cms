@@ -1,6 +1,5 @@
-import { Form, Checkbox } from "antd"; // Import antd components
-import React from "react";
-
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
+import Form from "@reearth-cms/components/atoms/Form";
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 
@@ -8,7 +7,7 @@ import FieldTitle from "../../FieldTitle";
 
 interface CheckboxFieldProps {
   field: Field;
-  handleBlurUpdate?: () => void; // Update to the actual type
+  handleBlurUpdate?: () => void;
 }
 
 const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, handleBlurUpdate }) => {
