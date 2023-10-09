@@ -106,7 +106,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		mid2 := fr.Model()
 		var s2 *schema.Schema
 		// check self reference
-		if mid2 == *param.ModelID {
+		if param.ModelID != nil && mid2 == *param.ModelID {
 			s2 = s1
 		} else {
 			m2, err := i.repos.Model.FindByID(ctx, mid2)
@@ -223,7 +223,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		}
 		var s2 *schema.Schema
 		// check self reference
-		if mid2 == *param.ModelID {
+		if param.ModelID != nil && mid2 == *param.ModelID {
 			s2 = s1
 		} else {
 			s2, err = i.repos.Schema.FindByID(ctx, m2.Schema())
