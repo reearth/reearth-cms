@@ -32,6 +32,8 @@ func ToValueType(t value.Type) SchemaFieldType {
 		return SchemaFieldTypeReference
 	case value.TypeURL:
 		return SchemaFieldTypeURL
+	case value.TypeGroup:
+		return SchemaFieldTypeGroup
 	default:
 		return ""
 	}
@@ -43,6 +45,8 @@ func FromValueType(t SchemaFieldType) value.Type {
 		return value.TypeText
 	case SchemaFieldTypeTextArea:
 		return value.TypeTextArea
+	case SchemaFieldTypeGroup:
+		return value.TypeGroup
 	case SchemaFieldTypeRichText:
 		return value.TypeRichText
 	case SchemaFieldTypeMarkdownText:
