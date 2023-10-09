@@ -7,4 +7,4 @@ export { default as IntegerField } from "./IntegerField";
 export { default as MarkdownField } from "./MarkdownField";
 export { default as SelectField } from "./SelectField";
 export { default as TextAreaField } from "./TextareaField";
-export { default as DefaultField } from "./DefaultField";
+export { default as DefaultField } from "./defaultField";
