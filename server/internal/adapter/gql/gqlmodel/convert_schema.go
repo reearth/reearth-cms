@@ -112,6 +112,11 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				Values:       f.Values(),
 			}
 		},
+		Group: func(f *schema.FieldGroup) {
+			res = &SchemaFieldGroup{
+				GroupID: IDFrom(f.Group()),
+			}
+		},
 		Tag: func(f *schema.FieldTag) {
 			tags := lo.Map(f.Tags(), func(tag *schema.Tag, _ int) *SchemaFieldTagValue {
 				return &SchemaFieldTagValue{
@@ -460,6 +465,17 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			sid = ToIDRef[id.Schema](x.CorrespondingSchemaID)
 		}
 		tpRes = schema.NewReference(mId, sid, FromCorrespondingField(x.CorrespondingField), fid).TypeProperty()
+	case SchemaFieldTypeGroup:
+		x := tp.Group
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		gid, err := ToID[id.Group](x.GroupID)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		tpRes = schema.NewGroup(gid).TypeProperty()
 	case SchemaFieldTypeURL:
 		x := tp.URL
 		if x == nil {

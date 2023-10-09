@@ -106,7 +106,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		mid2 := fr.Model()
 		var s2 *schema.Schema
 		// check self reference
-		if mid2 == param.ModelID {
+		if param.ModelID != nil && mid2 == *param.ModelID {
 			s2 = s1
 		} else {
 			m2, err := i.repos.Model.FindByID(ctx, mid2)
@@ -124,7 +124,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		}
 
 		fr.SetCorrespondingSchema(s2.ID().Ref())
-		fields, err := schema.GetCorrespondingFields(s1, s2, param.ModelID, f1, fr)
+		fields, err := schema.GetCorrespondingFields(s1, s2, *param.ModelID, f1, fr)
 		if err != nil {
 			return err
 		}
@@ -223,7 +223,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		}
 		var s2 *schema.Schema
 		// check self reference
-		if mid2 == param.ModelID {
+		if param.ModelID != nil && mid2 == *param.ModelID {
 			s2 = s1
 		} else {
 			s2, err = i.repos.Schema.FindByID(ctx, m2.Schema())
@@ -245,7 +245,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 				return interfaces.ErrFieldNotFound
 			}
 			if err := updateField(interfaces.UpdateFieldParam{
-				ModelID:     mid2,
+				ModelID:     mid2.Ref(),
 				SchemaID:    m2.Schema(),
 				FieldID:     *cf1.FieldID,
 				Name:        cf1.Title,
@@ -279,7 +279,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 				return interfaces.ErrOperationDenied
 			}
 
-			fields, err := schema.GetCorrespondingFields(s1, s3, param.ModelID, f1, newFr)
+			fields, err := schema.GetCorrespondingFields(s1, s3, *param.ModelID, f1, newFr)
 			if err != nil {
 				return err
 			}

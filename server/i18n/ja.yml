@@ -17,6 +17,7 @@ createdBy is required: createdByは必須です。
 duplicated item: 重複したアイテム
 duplicated key: キーが重複しています。
 duplicated value: 値が重複すています。
+either model or group should be provided: モデルまたはグループのどちらかを指定してください。
 failed to auth: 認証に失敗しました。
 failed to create asset: アセットの作成に失敗しました。
 failed to delete file: ファイルの削除に失敗しました。
