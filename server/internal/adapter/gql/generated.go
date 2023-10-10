@@ -4460,6 +4460,7 @@ enum NodeType {
   Item
   View
   Integration
+  Group
 }
 
 input Pagination{

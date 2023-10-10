@@ -238,7 +238,7 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User, 
 	}, nil
 }
 
-func operatorProjects(ctx context.Context, cfg *ServerConfig, w workspace.WorkspaceList, rw, ww, mw, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
+func operatorProjects(ctx context.Context, cfg *ServerConfig, w workspace.List, rw, ww, mw, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
 	rp := id.ProjectIDList{}
 	wp := id.ProjectIDList{}
 	mp := id.ProjectIDList{}
