@@ -1367,6 +1367,7 @@ const (
 	NodeTypeSchema      NodeType = "Schema"
 	NodeTypeItem        NodeType = "Item"
 	NodeTypeIntegration NodeType = "Integration"
+	NodeTypeGroup       NodeType = "Group"
 )
 
 var AllNodeType = []NodeType{
@@ -1379,11 +1380,12 @@ var AllNodeType = []NodeType{
 	NodeTypeSchema,
 	NodeTypeItem,
 	NodeTypeIntegration,
+	NodeTypeGroup,
 }
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration, NodeTypeGroup:
 		return true
 	}
 	return false

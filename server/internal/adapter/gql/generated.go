@@ -4065,6 +4065,7 @@ enum NodeType {
   Schema
   Item
   Integration
+  Group
 }
 
 input Pagination{
