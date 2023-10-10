@@ -596,8 +596,6 @@ type Model struct {
 	UpdatedAt        time.Time `json:"updatedAt"`
 }
 
-func (Model) IsContainer() {}
-
 func (Model) IsNode()        {}
 func (this Model) GetID() ID { return this.ID }
 
