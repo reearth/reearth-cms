@@ -18,10 +18,6 @@ type Condition interface {
 	IsCondition()
 }
 
-type Container interface {
-	IsContainer()
-}
-
 type Node interface {
 	IsNode()
 	GetID() ID
@@ -450,8 +446,6 @@ type Group struct {
 	Project     *Project       `json:"project"`
 	Fields      []*SchemaField `json:"fields"`
 }
-
-func (Group) IsContainer() {}
 
 func (Group) IsNode()        {}
 func (this Group) GetID() ID { return this.ID }
@@ -905,7 +899,7 @@ type SchemaFieldDateInput struct {
 }
 
 type SchemaFieldGroup struct {
-	GroupID *ID `json:"groupId,omitempty"`
+	GroupID ID `json:"groupId"`
 }
 
 func (SchemaFieldGroup) IsSchemaFieldTypeProperty() {}
@@ -2189,7 +2183,7 @@ const (
 	SchemaFieldTypeReference    SchemaFieldType = "Reference"
 	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
-	SchemaFieldTypeGroup        SchemaFieldType = "GROUP"
+	SchemaFieldTypeGroup        SchemaFieldType = "Group"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
