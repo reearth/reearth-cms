@@ -1,13 +1,14 @@
 Comment already exist in this thread: コメントはすでにこのスレッドに存在します。
 Comment does not exist in this thread: コメントはこのスレッドに存在しません。
 File is missing: ファイルがありません
-Options could not be empty!: "選択フィールドは空にできません"
+Options could not be empty!: 選択フィールドは空にできません
 already locked: 既にロック済みです。
 already published: 既に公開済みです。
 archived: アーカイブ済み
 auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
+can't delete a group as it's used by some models: いくつかのモデルで使用されているため、グループを削除できません。
 can't update by approve: このメソッドでApproveすることはできません
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
@@ -16,6 +17,7 @@ createdBy is required: createdByは必須です。
 duplicated item: 重複したアイテム
 duplicated key: キーが重複しています。
 duplicated value: 値が重複すています。
+either model or group should be provided: モデルまたはグループのどちらかを指定してください。
 failed to auth: 認証に失敗しました。
 failed to create asset: アセットの作成に失敗しました。
 failed to delete file: ファイルの削除に失敗しました。
@@ -54,6 +56,8 @@ item has been changed before you change it: このアイテムを保存する前
 items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
 max must be larger then min: 最大値は最小値より大きい必要があります。
+metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
+metadata schema not found: メタデータのスキーマが見つかりません。
 missing fields: フィールドが不足しています。
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
 not found: 見つかりませんでした。
@@ -77,5 +81,3 @@ unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。
 workspace id is required: ワークスペースIDは必須です。
-metadata schema not found: メタデータのスキーマが見つかりません。
-metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。

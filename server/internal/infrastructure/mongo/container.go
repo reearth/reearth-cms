@@ -44,6 +44,7 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 		Schema:      NewSchema(client),
 		Thread:      NewThread(client),
 		Integration: NewIntegration(client),
+		Group:       NewGroup(client),
 		Event:       NewEvent(client),
 	}
 
@@ -72,6 +73,7 @@ func Init(r *repo.Container) error {
 		r.Request.(*Request).Init,
 		r.Project.(*ProjectRepo).Init,
 		r.Schema.(*Schema).Init,
+		r.Group.(*Group).Init,
 		r.Integration.(*Integration).Init,
 		r.Event.(*Event).Init,
 	)

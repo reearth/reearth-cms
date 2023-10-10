@@ -11,8 +11,6 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
-var ErrDuplicatedKey = rerror.NewE(i18n.T("duplicated key"))
-
 type CreateModelParam struct {
 	ProjectId   id.ProjectID
 	Name        *string
@@ -22,7 +20,8 @@ type CreateModelParam struct {
 }
 
 type FindOrCreateSchemaParam struct {
-	ModelID id.ModelID
+	ModelID *id.ModelID
+	GroupID *id.GroupID
 	// boolean that identify if it is a metadata
 	Metadata *bool
 	// boolean to identify if we want to create a metadata schema or just return an error if metadata schema is nil

@@ -46,6 +46,7 @@ type TypePropertyDocument struct {
 	Number    *FieldNumberPropertyDocument    `bson:",omitempty"`
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
+	Group     *FieldGroupPropertyDocument     `bson:",omitempty"`
 }
 
 type FieldTextPropertyDocument struct {
@@ -79,6 +80,10 @@ type FieldReferencePropertyDocument struct {
 	Model               string
 	CorrespondingSchema *string
 	CorrespondingField  *string
+}
+
+type FieldGroupPropertyDocument struct {
+	Group string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -161,6 +166,11 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 					CorrespondingField:  fp.CorrespondingFieldID().StringRef(),
 				}
 			},
+			Group: func(fp *schema.FieldGroup) {
+				fd.TypeProperty.Group = &FieldGroupPropertyDocument{
+					Group: fp.Group().String(),
+				}
+			},
 			URL: func(fp *schema.FieldURL) {},
 		})
 		return fd
@@ -200,6 +210,13 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 				}
 				return schema.NewTagWithID(tid, tag.Name, schema.TagColorFrom(tag.Color))
 			})
+			if err != nil {
+				return nil, err
+			}
+		}
+		var gid id.GroupID
+		if tpd.Group != nil {
+			gid, err = id.GroupIDFrom(tpd.Group.Group)
 			if err != nil {
 				return nil, err
 			}
@@ -259,6 +276,8 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			tp = schema.NewReference(mid, sid, nil, cfid).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
+		case value.TypeGroup:
+			tp = schema.NewGroup(gid).TypeProperty()
 		}
 
 		fid, err := id.FieldIDFrom(fd.ID)

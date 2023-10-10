@@ -36,6 +36,7 @@ func ToItem(vi item.Versioned, s *schema.Schema) *Item {
 				v = ToValue(f.Value(), sf.Multiple())
 			}
 			return &ItemField{
+				ItemGroupID:   IDFromRef(f.ItemGroup()),
 				SchemaFieldID: IDFrom(sf.ID()),
 				Type:          ToValueType(sf.Type()),
 				Value:         v,
@@ -76,9 +77,10 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 	}
 
 	return &interfaces.ItemFieldParam{
-		Field: &fid,
-		Type:  FromValueType(field.Type),
-		Value: field.Value,
+		ItemGroup: ToIDRef[id.ItemGroup](field.ItemGroupID),
+		Field:     &fid,
+		Type:      FromValueType(field.Type),
+		Value:     field.Value,
 	}
 }
 

@@ -6,8 +6,9 @@ import (
 )
 
 type Field struct {
-	field FieldID
-	value *value.Multiple
+	field     FieldID
+	itemGroup *ItemGroupID
+	value     *value.Multiple
 }
 
 func NewField(field FieldID, v *value.Multiple) *Field {
@@ -15,6 +16,12 @@ func NewField(field FieldID, v *value.Multiple) *Field {
 		return nil
 	}
 	return &Field{field: field, value: v}
+}
+
+func NewFieldWithGroup(field FieldID, ig *ItemGroupID, v *value.Multiple) *Field {
+	f := NewField(field, v)
+	f.itemGroup = ig
+	return f
 }
 
 func (f *Field) FieldID() schema.FieldID {
@@ -30,4 +37,11 @@ func (f *Field) Value() *value.Multiple {
 		return nil
 	}
 	return f.value
+}
+
+func (f *Field) ItemGroup() *ItemGroupID {
+	if f == nil {
+		return nil
+	}
+	return f.itemGroup
 }
