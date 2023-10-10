@@ -158,7 +158,7 @@ const LinkAssetModal: React.FC<Props> = ({
     <Modal
       title={t("Link Asset")}
       centered
-      visible={visible}
+      open={visible}
       onCancel={onLinkAssetModalCancel}
       footer={[
         <UploadAsset

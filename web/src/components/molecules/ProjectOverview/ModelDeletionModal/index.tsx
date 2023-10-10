@@ -19,7 +19,7 @@ const ModelDeletionModal: React.FC<Props> = ({ open, model, onClose, onDelete })
   return (
     <Modal
       title={t("Delete Model")}
-      visible={open}
+      open={open}
       onCancel={() => onClose()}
       footer={[
         <Button key="back" onClick={() => onClose()}>

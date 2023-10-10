@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
+import { MenuProps } from "antd";
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@reearth-cms/auth";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { useT } from "@reearth-cms/i18n";
@@ -56,75 +56,73 @@ const HeaderMolecule: React.FC<Props> = ({
     navigate(`/workspace/${currentWorkspace?.id}`);
   }, [currentWorkspace?.id, navigate]);
 
-  const WorkspacesMenu = (
-    <HeaderMenu
-      items={[
-        {
-          label: t("Personal Account"),
-          key: "personal-account",
-          type: "group",
-          children: workspaces
-            ?.filter(workspace => workspace.id === personalWorkspace?.id)
-            ?.map(workspace => ({
-              label: (
-                <Tooltip title={workspace.name} placement="right">
-                  <MenuText>{workspace.name}</MenuText>
-                </Tooltip>
-              ),
-              key: workspace.id,
-              icon: <UserAvatar username={workspace.name} size="small" />,
-              style: { paddingLeft: 0, paddingRight: 0 },
-              onClick: () => handleWorkspaceNavigation(workspace.id),
-            })),
-        },
-        {
-          type: "divider",
-        },
-        {
-          label: t("Workspaces"),
-          key: "workspaces",
-          type: "group",
-          children: workspaces
-            ?.filter(workspace => workspace.id !== personalWorkspace?.id)
-            ?.map(workspace => ({
-              label: (
-                <Tooltip title={workspace.name} placement="right">
-                  <MenuText>{workspace.name}</MenuText>
-                </Tooltip>
-              ),
-              key: workspace.id,
-              icon: <UserAvatar username={workspace.name} size="small" shape="square" />,
-              style: { paddingLeft: 0, paddingRight: 0 },
-              onClick: () => handleWorkspaceNavigation(workspace.id),
-            })),
-        },
-        {
-          label: t("Create Workspace"),
-          key: "new-workspace",
-          icon: <Icon icon="userGroupAdd" />,
-          onClick: onWorkspaceModalOpen,
-        },
-      ]}
-    />
+  const WorkspacesItems: MenuProps["items"] = useMemo(
+    () => [
+      {
+        label: t("Personal Account"),
+        key: "personal-account",
+        type: "group",
+        children: workspaces
+          ?.filter(workspace => workspace.id === personalWorkspace?.id)
+          ?.map(workspace => ({
+            label: (
+              <Tooltip title={workspace.name} placement="right">
+                <MenuText>{workspace.name}</MenuText>
+              </Tooltip>
+            ),
+            key: workspace.id,
+            icon: <UserAvatar username={workspace.name} size="small" />,
+            style: { paddingLeft: 0, paddingRight: 0 },
+            onClick: () => handleWorkspaceNavigation(workspace.id),
+          })),
+      },
+      {
+        type: "divider",
+      },
+      {
+        label: t("Workspaces"),
+        key: "workspaces",
+        type: "group",
+        children: workspaces
+          ?.filter(workspace => workspace.id !== personalWorkspace?.id)
+          ?.map(workspace => ({
+            label: (
+              <Tooltip title={workspace.name} placement="right">
+                <MenuText>{workspace.name}</MenuText>
+              </Tooltip>
+            ),
+            key: workspace.id,
+            icon: <UserAvatar username={workspace.name} size="small" shape="square" />,
+            style: { paddingLeft: 0, paddingRight: 0 },
+            onClick: () => handleWorkspaceNavigation(workspace.id),
+          })),
+      },
+      {
+        label: t("Create Workspace"),
+        key: "new-workspace",
+        icon: <Icon icon="userGroupAdd" />,
+        onClick: onWorkspaceModalOpen,
+      },
+    ],
+    [t, onWorkspaceModalOpen, handleWorkspaceNavigation, workspaces, personalWorkspace],
   );
 
-  const AccountMenu = (
-    <HeaderMenu
-      items={[
-        {
-          label: t("Account Settings"),
-          key: "account-settings",
-          icon: <Icon icon="user" />,
-          onClick: onNavigateToSettings,
-        },
-        {
-          label: t("Logout"),
-          key: "logout",
-          icon: <Icon icon="logout" />,
-          onClick: logout,
-        },
-      ]}
-    />
+  const AccountItems: MenuProps["items"] = useMemo(
+    () => [
+      {
+        label: t("Account Settings"),
+        key: "account-settings",
+        icon: <Icon icon="user" />,
+        onClick: onNavigateToSettings,
+      },
+      {
+        label: t("Logout"),
+        key: "logout",
+        icon: <Icon icon="logout" />,
+        onClick: logout,
+      },
+    ],
+    [t, onNavigateToSettings, logout],
   );
 
   return (
@@ -137,7 +135,7 @@ const HeaderMolecule: React.FC<Props> = ({
       <VerticalDivider />
       <WorkspaceDropdown
         name={currentWorkspace?.name}
-        menu={WorkspacesMenu}
+        items={WorkspacesItems}
         personal={currentIsPersonal}
       />
       {currentProject?.name && (
@@ -147,7 +145,7 @@ const HeaderMolecule: React.FC<Props> = ({
         </CurrentProject>
       )}
       <Spacer />
-      <AccountDropdown name={username} menu={AccountMenu} personal={true} />
+      <AccountDropdown name={username} items={AccountItems} personal={true} />
     </MainHeader>
   );
 };
@@ -183,35 +181,6 @@ const LogoIcon = styled.img`
 
 const Spacer = styled.div`
   flex: 1;
-`;
-
-const HeaderMenu = styled(Menu)`
-  background-color: #141414;
-  width: 190px;
-
-  .ant-dropdown-menu-item-divider {
-    background-color: #303030;
-  }
-  .ant-dropdown-menu-item-group-title,
-  .ant-dropdown-menu-item,
-  .ant-dropdown-menu-submenu-title {
-    color: #fff;
-  }
-  .ant-dropdown-menu-item-group-title {
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 22px;
-    user-select: none;
-    color: #dbdbdb;
-  }
-  .ant-dropdown-menu-item-active {
-    background-color: #1d1d1d;
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
 `;
 
 const VerticalDivider = styled.div`

@@ -49,7 +49,7 @@ const UploadModal: React.FC<Props> = ({
   return (
     <Modal
       centered
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       footer={null}
       width="50vw"

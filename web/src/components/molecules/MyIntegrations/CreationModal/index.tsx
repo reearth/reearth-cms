@@ -55,7 +55,7 @@ const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
 
   return (
     <Modal
-      visible={open}
+      open={open}
       onCancel={handleClose}
       onOk={handleSubmit}
       title={t("New Integration")}
