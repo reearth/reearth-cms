@@ -47,6 +47,11 @@ type FieldSelector{
   id: ID
 }
 
+type NewItemSort {
+  field: FieldSelector!
+  direction: SortDirection
+}
+
 union Condition =
   AndCondition
   | OrCondition

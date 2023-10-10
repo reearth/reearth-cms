@@ -37,9 +37,9 @@ func (v *View) Clone() *View {
 		schema:    v.schema.Clone(),
 		model:     v.model.Clone(),
 		project:   v.project.Clone(),
-		sort:      nil,
-		filter:    nil,
-		columns:   nil,
+		sort:      v.sort,
+		filter:    v.filter,
+		columns:   v.columns,
 		user:      v.user.Clone(),
 		updatedAt: lo.FromPtr(&v.updatedAt),
 	}

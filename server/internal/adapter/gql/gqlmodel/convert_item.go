@@ -84,29 +84,25 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 	}
 }
 
-func ToItemQuery(iq ItemQueryInput) *item.Query {
+func ToItemQuery(iq ItemQuery) *item.Query {
 	pid, err := ToID[id.Project](iq.Project)
 	if err != nil {
 		return nil
 	}
 
-	return item.NewQuery(pid, ToIDRef[id.Schema](iq.Schema), ToIDRef[id.Model](iq.Model), lo.FromPtr(iq.Q), nil)
+	return item.NewQuery(pid, ToIDRef[id.Schema](iq.Schema), lo.FromPtr(iq.Q), nil)
 }
 
-func (s *ItemSortInput) Into() *usecasex.Sort {
+func (s *ItemSort) Into() *usecasex.Sort {
 	if s == nil {
 		return nil
 	}
 	key := ""
-	switch s.Field.Type {
-	case FieldTypeID, FieldTypeCreationDate:
+	switch s.SortBy {
+	case ItemSortTypeCreationDate:
 		key = "id"
-	case FieldTypeModificationDate:
+	case ItemSortTypeModificationDate:
 		key = "timestamp"
-	case FieldTypeCreationUser:
-		key = "user"
-	case FieldTypeModificationUser:
-		key = "updatedByUser"
 	}
 	if key == "" {
 		return nil

@@ -47,11 +47,6 @@ enum ItemStatus {
   PUBLIC_DRAFT
 }
 
-type ItemSort {
-  field: FieldSelector!
-  direction: SortDirection
-}
-
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
@@ -86,20 +81,6 @@ input PublishItemInput {
   itemIds: [ID!]!
 }
 
-input ItemQueryInput {
-  project: ID!
-  schema: ID
-  model: ID
-  q: String
-}
-
-input SearchItemInput {
-  query: ItemQueryInput!
-  sort: ItemSortInput
-  filter: ConditionInput
-  pagination: Pagination
-}
-
 # Payloads
 type ItemPayload {
   item: Item!
@@ -129,9 +110,30 @@ type ItemEdge {
   node: Item
 }
 
+enum ItemSortType {
+  CREATION_DATE
+  MODIFICATION_DATE
+}
+
+input ItemSort {
+  sortBy: ItemSortType!
+  direction: SortDirection
+}
+
+input ItemQuery {
+  project: ID!
+  schema: ID
+  q: String
+}
+
 extend type Query {
+  items(modelId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
-  searchItem(input: SearchItemInput): ItemConnection!
+  searchItem(
+    query: ItemQuery!
+    sort: ItemSort
+    pagination: Pagination
+  ): ItemConnection!
   isItemReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean!
 }
 

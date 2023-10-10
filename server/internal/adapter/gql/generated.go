@@ -317,11 +317,6 @@ type ComplexityRoot struct {
 		Item func(childComplexity int) int
 	}
 
-	ItemSort struct {
-		Direction func(childComplexity int) int
-		Field     func(childComplexity int) int
-	}
-
 	KeyAvailability struct {
 		Available func(childComplexity int) int
 		Key       func(childComplexity int) int
@@ -434,6 +429,11 @@ type ComplexityRoot struct {
 		UpdateWorkspace                func(childComplexity int, input gqlmodel.UpdateWorkspaceInput) int
 	}
 
+	NewItemSort struct {
+		Direction func(childComplexity int) int
+		Field     func(childComplexity int) int
+	}
+
 	NullableFieldCondition struct {
 		FieldID  func(childComplexity int) int
 		Operator func(childComplexity int) int
@@ -510,13 +510,14 @@ type ComplexityRoot struct {
 		CheckModelKeyAvailability func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckProjectAlias         func(childComplexity int, alias string) int
 		IsItemReferenced          func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
+		Items                     func(childComplexity int, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) int
 		Me                        func(childComplexity int) int
 		Models                    func(childComplexity int, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) int
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) int
 		Requests                  func(childComplexity int, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) int
-		SearchItem                func(childComplexity int, input *gqlmodel.SearchItemInput) int
+		SearchItem                func(childComplexity int, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) int
 		SearchUser                func(childComplexity int, nameOrEmail string) int
 		VersionsByItem            func(childComplexity int, itemID gqlmodel.ID) int
 		View                      func(childComplexity int, modelID gqlmodel.ID) int
@@ -899,8 +900,9 @@ type QueryResolver interface {
 	Nodes(ctx context.Context, id []gqlmodel.ID, typeArg gqlmodel.NodeType) ([]gqlmodel.Node, error)
 	AssetFile(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.AssetFile, error)
 	Assets(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error)
+	Items(ctx context.Context, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
-	SearchItem(ctx context.Context, input *gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error)
+	SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
 	IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error)
 	View(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.View, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
@@ -1862,20 +1864,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ItemPayload.Item(childComplexity), true
 
-	case "ItemSort.direction":
-		if e.complexity.ItemSort.Direction == nil {
-			break
-		}
-
-		return e.complexity.ItemSort.Direction(childComplexity), true
-
-	case "ItemSort.field":
-		if e.complexity.ItemSort.Field == nil {
-			break
-		}
-
-		return e.complexity.ItemSort.Field(childComplexity), true
-
 	case "KeyAvailability.available":
 		if e.complexity.KeyAvailability.Available == nil {
 			break
@@ -2757,6 +2745,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateWorkspace(childComplexity, args["input"].(gqlmodel.UpdateWorkspaceInput)), true
 
+	case "NewItemSort.direction":
+		if e.complexity.NewItemSort.Direction == nil {
+			break
+		}
+
+		return e.complexity.NewItemSort.Direction(childComplexity), true
+
+	case "NewItemSort.field":
+		if e.complexity.NewItemSort.Field == nil {
+			break
+		}
+
+		return e.complexity.NewItemSort.Field(childComplexity), true
+
 	case "NullableFieldCondition.fieldId":
 		if e.complexity.NullableFieldCondition.FieldID == nil {
 			break
@@ -3055,6 +3057,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.IsItemReferenced(childComplexity, args["itemId"].(gqlmodel.ID), args["correspondingFieldId"].(gqlmodel.ID)), true
 
+	case "Query.items":
+		if e.complexity.Query.Items == nil {
+			break
+		}
+
+		args, err := ec.field_Query_items_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Items(childComplexity, args["modelId"].(gqlmodel.ID), args["sort"].(*gqlmodel.ItemSort), args["pagination"].(*gqlmodel.Pagination)), true
+
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
@@ -3132,7 +3146,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SearchItem(childComplexity, args["input"].(*gqlmodel.SearchItemInput)), true
+		return e.complexity.Query.SearchItem(childComplexity, args["query"].(gqlmodel.ItemQuery), args["sort"].(*gqlmodel.ItemSort), args["pagination"].(*gqlmodel.Pagination)), true
 
 	case "Query.searchUser":
 		if e.complexity.Query.SearchUser == nil {
@@ -4225,7 +4239,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteWorkspaceInput,
 		ec.unmarshalInputFieldSelectorInput,
 		ec.unmarshalInputItemFieldInput,
-		ec.unmarshalInputItemQueryInput,
+		ec.unmarshalInputItemQuery,
+		ec.unmarshalInputItemSort,
 		ec.unmarshalInputItemSortInput,
 		ec.unmarshalInputMemberInput,
 		ec.unmarshalInputMultipleFieldConditionInput,
@@ -4256,7 +4271,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldTypePropertyInput,
 		ec.unmarshalInputSchemaFieldURLInput,
 		ec.unmarshalInputSchemaMarkdownTextInput,
-		ec.unmarshalInputSearchItemInput,
 		ec.unmarshalInputSort,
 		ec.unmarshalInputStringFieldConditionInput,
 		ec.unmarshalInputTimeFieldConditionInput,
@@ -5144,11 +5158,6 @@ enum ItemStatus {
   PUBLIC_DRAFT
 }
 
-type ItemSort {
-  field: FieldSelector!
-  direction: SortDirection
-}
-
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
@@ -5183,20 +5192,6 @@ input PublishItemInput {
   itemIds: [ID!]!
 }
 
-input ItemQueryInput {
-  project: ID!
-  schema: ID
-  model: ID
-  q: String
-}
-
-input SearchItemInput {
-  query: ItemQueryInput!
-  sort: ItemSortInput
-  filter: ConditionInput
-  pagination: Pagination
-}
-
 # Payloads
 type ItemPayload {
   item: Item!
@@ -5226,9 +5221,30 @@ type ItemEdge {
   node: Item
 }
 
+enum ItemSortType {
+  CREATION_DATE
+  MODIFICATION_DATE
+}
+
+input ItemSort {
+  sortBy: ItemSortType!
+  direction: SortDirection
+}
+
+input ItemQuery {
+  project: ID!
+  schema: ID
+  q: String
+}
+
 extend type Query {
+  items(modelId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
-  searchItem(input: SearchItemInput): ItemConnection!
+  searchItem(
+    query: ItemQuery!
+    sort: ItemSort
+    pagination: Pagination
+  ): ItemConnection!
   isItemReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean!
 }
 
@@ -5287,6 +5303,11 @@ enum FieldType {
 type FieldSelector{
   type: FieldType!
   id: ID
+}
+
+type NewItemSort {
+  field: FieldSelector!
+  direction: SortDirection
 }
 
 union Condition =
@@ -5484,7 +5505,7 @@ input TimeFieldConditionInput {
   name: String!
   modelId: ID!
   projectId: ID!
-  sort: ItemSort
+  sort: NewItemSort
   filter: Condition
   columns: [FieldSelector!]
 }
@@ -6991,6 +7012,39 @@ func (ec *executionContext) field_Query_isItemReferenced_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_items_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.ID
+	if tmp, ok := rawArgs["modelId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["modelId"] = arg0
+	var arg1 *gqlmodel.ItemSort
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg1, err = ec.unmarshalOItemSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSort(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg1
+	var arg2 *gqlmodel.Pagination
+	if tmp, ok := rawArgs["pagination"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		arg2, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_models_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -7159,15 +7213,33 @@ func (ec *executionContext) field_Query_requests_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Query_searchItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *gqlmodel.SearchItemInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOSearchItemInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSearchItemInput(ctx, tmp)
+	var arg0 gqlmodel.ItemQuery
+	if tmp, ok := rawArgs["query"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+		arg0, err = ec.unmarshalNItemQuery2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemQuery(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["query"] = arg0
+	var arg1 *gqlmodel.ItemSort
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg1, err = ec.unmarshalOItemSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSort(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg1
+	var arg2 *gqlmodel.Pagination
+	if tmp, ok := rawArgs["pagination"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		arg2, err = ec.unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg2
 	return args, nil
 }
 
@@ -13685,97 +13757,6 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _ItemSort_field(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemSort) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemSort_field(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Field, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.FieldSelector)
-	fc.Result = res
-	return ec.marshalNFieldSelector2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelector(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemSort_field(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemSort",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "type":
-				return ec.fieldContext_FieldSelector_type(ctx, field)
-			case "id":
-				return ec.fieldContext_FieldSelector_id(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type FieldSelector", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ItemSort_direction(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ItemSort) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ItemSort_direction(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Direction, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.SortDirection)
-	fc.Result = res
-	return ec.marshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ItemSort_direction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ItemSort",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SortDirection does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _KeyAvailability_key(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.KeyAvailability) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_KeyAvailability_key(ctx, field)
 	if err != nil {
@@ -18485,6 +18466,97 @@ func (ec *executionContext) fieldContext_Mutation_updateIntegrationOfWorkspace(c
 	return fc, nil
 }
 
+func (ec *executionContext) _NewItemSort_field(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.NewItemSort) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NewItemSort_field(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Field, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.FieldSelector)
+	fc.Result = res
+	return ec.marshalNFieldSelector2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelector(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NewItemSort_field(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NewItemSort",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "type":
+				return ec.fieldContext_FieldSelector_type(ctx, field)
+			case "id":
+				return ec.fieldContext_FieldSelector_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FieldSelector", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NewItemSort_direction(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.NewItemSort) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NewItemSort_direction(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Direction, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.SortDirection)
+	fc.Result = res
+	return ec.marshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NewItemSort_direction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NewItemSort",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SortDirection does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NullableFieldCondition_fieldId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.NullableFieldCondition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NullableFieldCondition_fieldId(ctx, field)
 	if err != nil {
@@ -20362,6 +20434,71 @@ func (ec *executionContext) fieldContext_Query_assets(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_items(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Items(rctx, fc.Args["modelId"].(gqlmodel.ID), fc.Args["sort"].(*gqlmodel.ItemSort), fc.Args["pagination"].(*gqlmodel.Pagination))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ItemConnection)
+	fc.Result = res
+	return ec.marshalNItemConnection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "edges":
+				return ec.fieldContext_ItemConnection_edges(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ItemConnection_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_ItemConnection_pageInfo(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_ItemConnection_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ItemConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_items_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_versionsByItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_versionsByItem(ctx, field)
 	if err != nil {
@@ -20441,7 +20578,7 @@ func (ec *executionContext) _Query_searchItem(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchItem(rctx, fc.Args["input"].(*gqlmodel.SearchItemInput))
+		return ec.resolvers.Query().SearchItem(rctx, fc.Args["query"].(gqlmodel.ItemQuery), fc.Args["sort"].(*gqlmodel.ItemSort), fc.Args["pagination"].(*gqlmodel.Pagination))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -26565,9 +26702,9 @@ func (ec *executionContext) _View_sort(ctx context.Context, field graphql.Collec
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ItemSort)
+	res := resTmp.(*gqlmodel.NewItemSort)
 	fc.Result = res
-	return ec.marshalOItemSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSort(ctx, field.Selections, res)
+	return ec.marshalONewItemSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNewItemSort(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_View_sort(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -26579,11 +26716,11 @@ func (ec *executionContext) fieldContext_View_sort(ctx context.Context, field gr
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "field":
-				return ec.fieldContext_ItemSort_field(ctx, field)
+				return ec.fieldContext_NewItemSort_field(ctx, field)
 			case "direction":
-				return ec.fieldContext_ItemSort_direction(ctx, field)
+				return ec.fieldContext_NewItemSort_direction(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ItemSort", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type NewItemSort", field.Name)
 		},
 	}
 	return fc, nil
@@ -31908,14 +32045,14 @@ func (ec *executionContext) unmarshalInputItemFieldInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, obj interface{}) (gqlmodel.ItemQueryInput, error) {
-	var it gqlmodel.ItemQueryInput
+func (ec *executionContext) unmarshalInputItemQuery(ctx context.Context, obj interface{}) (gqlmodel.ItemQuery, error) {
+	var it gqlmodel.ItemQuery
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"project", "schema", "model", "q"}
+	fieldsInOrder := [...]string{"project", "schema", "q"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -31940,15 +32077,6 @@ func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, ob
 				return it, err
 			}
 			it.Schema = data
-		case "model":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("model"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Model = data
 		case "q":
 			var err error
 
@@ -31958,6 +32086,44 @@ func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, ob
 				return it, err
 			}
 			it.Q = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputItemSort(ctx context.Context, obj interface{}) (gqlmodel.ItemSort, error) {
+	var it gqlmodel.ItemSort
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"sortBy", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "sortBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sortBy"))
+			data, err := ec.unmarshalNItemSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SortBy = data
+		case "direction":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalOSortDirection2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSortDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
 		}
 	}
 
@@ -33581,79 +33747,6 @@ func (ec *executionContext) unmarshalInputSchemaMarkdownTextInput(ctx context.Co
 				return it, err
 			}
 			it.MaxLength = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputSearchItemInput(ctx context.Context, obj interface{}) (gqlmodel.SearchItemInput, error) {
-	var it gqlmodel.SearchItemInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"query", "sort", "filter", "pagination"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "query":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
-			data, err := ec.unmarshalNItemQueryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemQueryInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Query = data
-		case "sort":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
-			data, err := ec.unmarshalOItemSortInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Sort = data
-		case "filter":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			directive0 := func(ctx context.Context) (interface{}, error) {
-				return ec.unmarshalOConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐConditionInput(ctx, v)
-			}
-			directive1 := func(ctx context.Context) (interface{}, error) {
-				if ec.directives.OnlyOne == nil {
-					return nil, errors.New("directive onlyOne is not implemented")
-				}
-				return ec.directives.OnlyOne(ctx, obj, directive0)
-			}
-
-			tmp, err := directive1(ctx)
-			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-			if data, ok := tmp.(*gqlmodel.ConditionInput); ok {
-				it.Filter = data
-			} else if tmp == nil {
-				it.Filter = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ConditionInput`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
-		case "pagination":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Pagination = data
 		}
 	}
 
@@ -37781,47 +37874,6 @@ func (ec *executionContext) _ItemPayload(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var itemSortImplementors = []string{"ItemSort"}
-
-func (ec *executionContext) _ItemSort(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ItemSort) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, itemSortImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ItemSort")
-		case "field":
-			out.Values[i] = ec._ItemSort_field(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "direction":
-			out.Values[i] = ec._ItemSort_direction(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var keyAvailabilityImplementors = []string{"KeyAvailability"}
 
 func (ec *executionContext) _KeyAvailability(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.KeyAvailability) graphql.Marshaler {
@@ -38666,6 +38718,47 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var newItemSortImplementors = []string{"NewItemSort"}
+
+func (ec *executionContext) _NewItemSort(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.NewItemSort) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, newItemSortImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NewItemSort")
+		case "field":
+			out.Values[i] = ec._NewItemSort_field(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "direction":
+			out.Values[i] = ec._NewItemSort_direction(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var nullableFieldConditionImplementors = []string{"NullableFieldCondition", "Condition"}
 
 func (ec *executionContext) _NullableFieldCondition(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.NullableFieldCondition) graphql.Marshaler {
@@ -39349,6 +39442,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_assets(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "items":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_items(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -43372,9 +43487,19 @@ func (ec *executionContext) unmarshalNItemFieldInput2ᚖgithubᚗcomᚋreearth�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNItemQueryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemQueryInput(ctx context.Context, v interface{}) (*gqlmodel.ItemQueryInput, error) {
-	res, err := ec.unmarshalInputItemQueryInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) unmarshalNItemQuery2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemQuery(ctx context.Context, v interface{}) (gqlmodel.ItemQuery, error) {
+	res, err := ec.unmarshalInputItemQuery(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNItemSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortType(ctx context.Context, v interface{}) (gqlmodel.ItemSortType, error) {
+	var res gqlmodel.ItemSortType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNItemSortType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ItemSortType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNItemStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemStatus(ctx context.Context, v interface{}) (gqlmodel.ItemStatus, error) {
@@ -45647,11 +45772,12 @@ func (ec *executionContext) marshalOItemPayload2ᚖgithubᚗcomᚋreearthᚋreea
 	return ec._ItemPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOItemSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSort(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ItemSort) graphql.Marshaler {
+func (ec *executionContext) unmarshalOItemSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSort(ctx context.Context, v interface{}) (*gqlmodel.ItemSort, error) {
 	if v == nil {
-		return graphql.Null
+		return nil, nil
 	}
-	return ec._ItemSort(ctx, sel, v)
+	res, err := ec.unmarshalInputItemSort(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOItemSortInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐItemSortInput(ctx context.Context, v interface{}) (*gqlmodel.ItemSortInput, error) {
@@ -45705,6 +45831,13 @@ func (ec *executionContext) unmarshalOMultipleFieldConditionInput2ᚖgithubᚗco
 	}
 	res, err := ec.unmarshalInputMultipleFieldConditionInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalONewItemSort2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNewItemSort(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.NewItemSort) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._NewItemSort(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalONode2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐNode(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Node) graphql.Marshaler {
@@ -46197,14 +46330,6 @@ func (ec *executionContext) unmarshalOSchemaMarkdownTextInput2ᚖgithubᚗcomᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputSchemaMarkdownTextInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOSearchItemInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSearchItemInput(ctx context.Context, v interface{}) (*gqlmodel.SearchItemInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputSearchItemInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

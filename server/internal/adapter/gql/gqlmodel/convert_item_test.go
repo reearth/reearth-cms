@@ -169,21 +169,21 @@ func TestToItemQuery(t *testing.T) {
 	str := "foo"
 	tests := []struct {
 		name  string
-		input ItemQueryInput
+		input ItemQuery
 		want  *item.Query
 	}{
 		{
 			name: "should pass",
-			input: ItemQueryInput{
+			input: ItemQuery{
 				Project: IDFrom(pid),
 				Schema:  IDFromRef(sid.Ref()),
 				Q:       &str,
 			},
-			want: item.NewQuery(pid, sid.Ref(), nil, str, nil),
+			want: item.NewQuery(pid, sid.Ref(), str, nil),
 		},
 		{
 			name: "invalid project id",
-			input: ItemQueryInput{
+			input: ItemQuery{
 				Q: &str,
 			},
 		},
@@ -202,16 +202,13 @@ func TestToItemQuery(t *testing.T) {
 func TestItemSort_Into(t *testing.T) {
 	tests := []struct {
 		name string
-		sort *ItemSortInput
+		sort *ItemSort
 		want *usecasex.Sort
 	}{
 		{
 			name: "success",
-			sort: &ItemSortInput{
-				Field: &FieldSelectorInput{
-					ID:   nil,
-					Type: FieldTypeID,
-				},
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeCreationDate,
 				Direction: lo.ToPtr(SortDirectionAsc),
 			},
 			want: &usecasex.Sort{
@@ -221,11 +218,8 @@ func TestItemSort_Into(t *testing.T) {
 		},
 		{
 			name: "success",
-			sort: &ItemSortInput{
-				Field: &FieldSelectorInput{
-					ID:   nil,
-					Type: FieldTypeCreationDate,
-				},
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeCreationDate,
 				Direction: nil,
 			},
 			want: &usecasex.Sort{
@@ -235,11 +229,8 @@ func TestItemSort_Into(t *testing.T) {
 		},
 		{
 			name: "success",
-			sort: &ItemSortInput{
-				Field: &FieldSelectorInput{
-					ID:   nil,
-					Type: FieldTypeID,
-				},
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeCreationDate,
 				Direction: lo.ToPtr(SortDirectionDesc),
 			},
 			want: &usecasex.Sort{
@@ -249,11 +240,8 @@ func TestItemSort_Into(t *testing.T) {
 		},
 		{
 			name: "success",
-			sort: &ItemSortInput{
-				Field: &FieldSelectorInput{
-					ID:   nil,
-					Type: FieldTypeCreationDate,
-				},
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeCreationDate,
 				Direction: nil,
 			},
 			want: &usecasex.Sort{
@@ -263,11 +251,8 @@ func TestItemSort_Into(t *testing.T) {
 		},
 		{
 			name: "success",
-			sort: &ItemSortInput{
-				Field: &FieldSelectorInput{
-					ID:   nil,
-					Type: FieldTypeModificationDate,
-				},
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeModificationDate,
 				Direction: nil,
 			},
 			want: &usecasex.Sort{
@@ -277,11 +262,8 @@ func TestItemSort_Into(t *testing.T) {
 		},
 		{
 			name: "success",
-			sort: &ItemSortInput{
-				Field: &FieldSelectorInput{
-					ID:   nil,
-					Type: FieldTypeModificationDate,
-				},
+			sort: &ItemSort{
+				SortBy:    ItemSortTypeModificationDate,
 				Direction: nil,
 			},
 			want: &usecasex.Sort{
@@ -291,11 +273,8 @@ func TestItemSort_Into(t *testing.T) {
 		},
 		{
 			name: "success",
-			sort: &ItemSortInput{
-				Field: &FieldSelectorInput{
-					ID:   nil,
-					Type: "xxx",
-				},
+			sort: &ItemSort{
+				SortBy:    "xxx",
 				Direction: nil,
 			},
 			want: nil,

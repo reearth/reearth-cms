@@ -198,9 +198,6 @@ func (i *Item) Search(ctx context.Context, query *item.Query, sort *usecasex.Sor
 	if query.Schema() != nil {
 		filter["schema"] = query.Schema().String()
 	}
-	if query.Model() != nil {
-		filter["modelid"] = query.Model().String()
-	}
 	res, pi, err := i.paginate(ctx, filter, query.Ref(), sort, pagination)
 	return res, pi, err
 }

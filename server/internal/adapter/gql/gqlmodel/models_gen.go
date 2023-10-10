@@ -547,15 +547,14 @@ type ItemPayload struct {
 	Item *Item `json:"item"`
 }
 
-type ItemQueryInput struct {
+type ItemQuery struct {
 	Project ID      `json:"project"`
 	Schema  *ID     `json:"schema,omitempty"`
-	Model   *ID     `json:"model,omitempty"`
 	Q       *string `json:"q,omitempty"`
 }
 
 type ItemSort struct {
-	Field     *FieldSelector `json:"field"`
+	SortBy    ItemSortType   `json:"sortBy"`
 	Direction *SortDirection `json:"direction,omitempty"`
 }
 
@@ -636,6 +635,11 @@ type MultipleFieldConditionInput struct {
 	FieldID  *FieldSelectorInput `json:"fieldId"`
 	Operator MultipleOperator    `json:"operator"`
 	Value    []interface{}       `json:"value"`
+}
+
+type NewItemSort struct {
+	Field     *FieldSelector `json:"field"`
+	Direction *SortDirection `json:"direction,omitempty"`
 }
 
 type NullableFieldCondition struct {
@@ -1051,13 +1055,6 @@ type SchemaMarkdownTextInput struct {
 	MaxLength    *int        `json:"maxLength,omitempty"`
 }
 
-type SearchItemInput struct {
-	Query      *ItemQueryInput `json:"query"`
-	Sort       *ItemSortInput  `json:"sort,omitempty"`
-	Filter     *ConditionInput `json:"filter,omitempty"`
-	Pagination *Pagination     `json:"pagination,omitempty"`
-}
-
 type Sort struct {
 	Key      string `json:"key"`
 	Reverted *bool  `json:"reverted,omitempty"`
@@ -1272,7 +1269,7 @@ type View struct {
 	Name      string           `json:"name"`
 	ModelID   ID               `json:"modelId"`
 	ProjectID ID               `json:"projectId"`
-	Sort      *ItemSort        `json:"sort,omitempty"`
+	Sort      *NewItemSort     `json:"sort,omitempty"`
 	Filter    Condition        `json:"filter,omitempty"`
 	Columns   []*FieldSelector `json:"columns,omitempty"`
 }
@@ -1613,6 +1610,47 @@ func (e *IntegrationType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e IntegrationType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ItemSortType string
+
+const (
+	ItemSortTypeCreationDate     ItemSortType = "CREATION_DATE"
+	ItemSortTypeModificationDate ItemSortType = "MODIFICATION_DATE"
+)
+
+var AllItemSortType = []ItemSortType{
+	ItemSortTypeCreationDate,
+	ItemSortTypeModificationDate,
+}
+
+func (e ItemSortType) IsValid() bool {
+	switch e {
+	case ItemSortTypeCreationDate, ItemSortTypeModificationDate:
+		return true
+	}
+	return false
+}
+
+func (e ItemSortType) String() string {
+	return string(e)
+}
+
+func (e *ItemSortType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ItemSortType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ItemSortType", str)
+	}
+	return nil
+}
+
+func (e ItemSortType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

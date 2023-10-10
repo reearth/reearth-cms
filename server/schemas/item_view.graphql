@@ -3,7 +3,7 @@ type View implements Node {
   name: String!
   modelId: ID!
   projectId: ID!
-  sort: ItemSort
+  sort: NewItemSort
   filter: Condition
   columns: [FieldSelector!]
 }

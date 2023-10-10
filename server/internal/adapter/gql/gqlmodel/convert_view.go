@@ -75,11 +75,11 @@ func ToFieldSelectorList(columns *view.FieldSelectorList) []*FieldSelector {
 	})
 }
 
-func ToSort(i *view.Sort) *ItemSort {
+func ToSort(i *view.Sort) *NewItemSort {
 	if i == nil {
 		return nil
 	}
-	return &ItemSort{
+	return &NewItemSort{
 		Field:     ToFieldSelector(i.Field),
 		Direction: ToDirection(i.Direction),
 	}

@@ -22,10 +22,3 @@ type FieldSelector struct {
 }
 
 type FieldSelectorList []FieldSelector
-
-func (l *FieldSelectorList) FieldSelectors() []FieldSelector {
-	if l == nil {
-		return make([]FieldSelector, 0)
-	}
-	return *l
-}

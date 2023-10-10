@@ -231,6 +231,10 @@ func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) 
 	return loaders(ctx).Item.FindVersionedItems(ctx, itemID)
 }
 
+func (r *queryResolver) Items(ctx context.Context, modelId gqlmodel.ID, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.FindByModel(ctx, modelId, sort, p)
+}
+
 func (r *queryResolver) View(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.View, error) {
 	return loaders(ctx).View.FindByModel(ctx, modelID)
 }
@@ -243,8 +247,8 @@ func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.I
 	return loaders(ctx).Item.FindByProject(ctx, projectID, p)
 }
 
-func (r *queryResolver) SearchItem(ctx context.Context, inp *gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.Search(ctx, *inp.Query, inp.Sort, inp.Pagination)
+func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.Search(ctx, query, sort, p)
 }
 
 func (r *queryResolver) IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error) {
