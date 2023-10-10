@@ -181,6 +181,16 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []gqlmodel.ID, typeArg gq
 			nodes[i] = data[i]
 		}
 		return nodes, nil
+	case gqlmodel.NodeTypeGroup:
+		data, err := dataloaders.Group.LoadAll(ids)
+		if len(err) > 0 && err[0] != nil {
+			return nil, err[0]
+		}
+		nodes := make([]gqlmodel.Node, len(data))
+		for i := range data {
+			nodes[i] = data[i]
+		}
+		return nodes, nil
 	}
 	return nil, nil
 }
