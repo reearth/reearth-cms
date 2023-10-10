@@ -72,7 +72,7 @@ func (r *View) FindByIDs(_ context.Context, iIds id.ViewIDList) (view.List, erro
 		return iIds.Has(k) && r.f.CanRead(i.Project())
 	})
 
-	return result, nil
+	return view.List(result).SortByID(), nil
 }
 
 func (r *View) Save(_ context.Context, i *view.View) error {

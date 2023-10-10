@@ -220,7 +220,7 @@ func TestViewRepo_FindByIDs(t *testing.T) {
 		{
 			name:    "2 count with multi (reverse order)",
 			seeds:   view.List{i1, i2},
-			arg:     id.ViewIDList{iId1, iId2},
+			arg:     id.ViewIDList{iId2, iId1},
 			want:    view.List{i1, i2},
 			wantErr: nil,
 		},
