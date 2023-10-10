@@ -81,6 +81,9 @@ export const GET_MODELS = gql`
                   order
                 }
               }
+              ... on SchemaFieldGroup {
+                groupId
+              }
             }
           }
         }
