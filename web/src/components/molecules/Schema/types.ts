@@ -59,6 +59,7 @@ export type TypeProperty =
       max?: number;
       correspondingField?: any;
       modelId?: string;
+      groupId?: string;
     }
   | any;
 
@@ -73,6 +74,9 @@ export type CreationFieldTypePropertyInput = {
   reference?: {
     modelId: string;
     correspondingField: any;
+  };
+  group?: {
+    groupId: string;
   };
 };
 
