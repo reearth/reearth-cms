@@ -17,6 +17,7 @@ import (
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mailer"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/samber/lo"
@@ -41,6 +42,7 @@ func StartServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Se
 	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
+		log.Infof("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
@@ -116,6 +118,7 @@ func StartGQLServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder
 
 	if useMongo {
 		db := mongotest.Connect(t)(t)
+		log.Infof("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false))
 		repos = lo.Must(mongo.New(ctx, db.Client(), db.Name(), false, accountRepos))
 	} else {
