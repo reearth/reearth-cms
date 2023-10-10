@@ -59,6 +59,67 @@ export const GET_GROUPS = gql`
   }
 `;
 
+export const GET_GROUP = gql`
+  query GetGroup($id: ID!) {
+    node(id: $id, type: Group) {
+      ... on Group {
+        id
+        schemaId
+        projectId
+        name
+        description
+        key
+        schema {
+          id
+          fields {
+            id
+            type
+            title
+            key
+            description
+            required
+            unique
+            isTitle
+            multiple
+            typeProperty {
+              ... on SchemaFieldText {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldTextArea {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldMarkdown {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldAsset {
+                assetDefaultValue: defaultValue
+              }
+              ... on SchemaFieldSelect {
+                selectDefaultValue: defaultValue
+                values
+              }
+              ... on SchemaFieldInteger {
+                integerDefaultValue: defaultValue
+                min
+                max
+              }
+              ... on SchemaFieldBool {
+                defaultValue
+              }
+              ... on SchemaFieldURL {
+                defaultValue
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const CREATE_GROUP = gql`
   mutation createGroup($projectId: ID!, $name: String!, $key: String!, $description: String) {
     createGroup(
