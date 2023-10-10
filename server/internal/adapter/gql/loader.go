@@ -17,6 +17,7 @@ type Loaders struct {
 	Asset       *AssetLoader
 	Workspace   *WorkspaceLoader
 	Item        *ItemLoader
+	View        *ViewLoader
 	ItemStatus  *ItemStatusLoader
 	AssetItem   *AssetItemLoader
 	User        *UserLoader
@@ -35,6 +36,7 @@ type DataLoaders struct {
 	User        UserDataLoader
 	Project     ProjectDataLoader
 	Item        ItemDataLoader
+	View        ViewDataLoader
 	ItemStatus  ItemStatusDataLoader
 	AssetItems  AssetItemDataLoader
 	Model       ModelDataLoader
@@ -61,6 +63,7 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		AssetItem:   NewAssetItemLoader(usecases.Item),
 		Integration: NewIntegrationLoader(usecases.Integration),
 		Item:        NewItemLoader(usecases.Item, usecases.Schema, usecases.Model),
+		View:        NewViewLoader(usecases.View),
 		ItemStatus:  NewItemStatusLoader(usecases.Item),
 		Thread:      NewThreadLoader(usecases.Thread),
 		Group:       NewGroupLoader(usecases.Group),
@@ -86,6 +89,7 @@ func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 		Schema:      l.Schema.DataLoader(ctx),
 		Integration: l.Integration.DataLoader(ctx),
 		Item:        l.Item.DataLoader(ctx),
+		View:        l.View.DataLoader(ctx),
 		ItemStatus:  l.ItemStatus.DataLoader(ctx),
 		Thread:      l.Thread.DataLoader(ctx),
 		Group:       l.Group.DataLoader(ctx),
@@ -103,6 +107,7 @@ func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 		Request:     l.Request.OrdinaryDataLoader(ctx),
 		Schema:      l.Schema.OrdinaryDataLoader(ctx),
 		Item:        l.Item.OrdinaryDataLoader(ctx),
+		View:        l.View.OrdinaryDataLoader(ctx),
 		ItemStatus:  l.ItemStatus.OrdinaryDataLoader(ctx),
 		Integration: l.Integration.OrdinaryDataLoader(ctx),
 		Thread:      l.Thread.OrdinaryDataLoader(ctx),

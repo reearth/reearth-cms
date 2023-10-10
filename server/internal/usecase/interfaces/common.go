@@ -18,6 +18,7 @@ type Container struct {
 	Workspace   accountinterfaces.Workspace
 	User        accountinterfaces.User
 	Item        Item
+	View        View
 	Project     Project
 	Request     Request
 	Model       Model

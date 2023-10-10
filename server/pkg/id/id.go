@@ -240,3 +240,15 @@ var NewRequestID = idx.New[Request]
 var MustRequestID = idx.Must[Request]
 var RequestIDFrom = idx.From[Request]
 var RequestIDFromRef = idx.FromRef[Request]
+
+type View struct{}
+
+func (View) Type() string { return "request" }
+
+type ViewID = idx.ID[View]
+type ViewIDList = idx.List[View]
+
+var NewViewID = idx.New[View]
+var MustViewID = idx.Must[View]
+var ViewIDFrom = idx.From[View]
+var ViewIDFromRef = idx.FromRef[View]
