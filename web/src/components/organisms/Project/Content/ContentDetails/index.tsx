@@ -25,6 +25,7 @@ const ContentDetails: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
+    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
     linkItemModalTotalCount,
@@ -108,6 +109,7 @@ const ContentDetails: React.FC = () => {
       item={currentItem}
       itemId={itemId}
       model={currentModel}
+      groups={groups}
       initialFormValues={initialFormValues}
       initialMetaFormValues={initialMetaFormValues}
       loading={itemCreationLoading || itemUpdatingLoading}
