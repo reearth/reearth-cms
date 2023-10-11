@@ -55,7 +55,6 @@
     "@types/react-dom": "18.0.11",
     "@types/react-resizable": "3.0.4",
     "@types/react-router-dom": "5.3.3",
-    "@types/uuid": "^9.0.5",
     "@vitejs/plugin-react": "4.0.0",
     "eslint": "8.39.0",
     "eslint-config-reearth": "0.2.2",
@@ -112,6 +111,6 @@
     "react-router-dom": "6.10.0",
     "react-svg": "16.1.8",
     "resium": "1.16.1",
-    "uuid": "^9.0.1"
+    "ulid": "^2.3.0"
   }
 }
