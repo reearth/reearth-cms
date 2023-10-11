@@ -14,6 +14,7 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import Filter from "@reearth-cms/components/molecules/Content/Filter";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
@@ -220,6 +221,7 @@ const ContentTable: React.FC<Props> = ({
         }
       },
     },
+    filter: <Filter contentTableColumns={contentTableColumns} />,
   };
 
   const pagination: TablePaginationConfig = {
