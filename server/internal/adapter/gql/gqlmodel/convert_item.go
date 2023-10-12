@@ -16,10 +16,10 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 	}
 
 	i := vi.Value()
-	itemFields := toItemFields(i.Fields(), s)
+	itemFields := toItemFields(i.Fields(), s, false)
 	var groupFields []*ItemField
 	for _, s2 := range gsList {
-		groupFields = append(groupFields, toItemFields(i.Fields(), s2)...)
+		groupFields = append(groupFields, toItemFields(i.Fields(), s2, true)...)
 	}
 	return &Item{
 		ID:                     IDFrom(i.ID()),
@@ -39,12 +39,17 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 		Title:                  i.GetTitle(s),
 	}
 }
-func toItemFields(fields item.Fields, s *schema.Schema) []*ItemField {
+func toItemFields(fields item.Fields, s *schema.Schema, isGroupSchema bool) []*ItemField {
 	var res []*ItemField
 	for _, sf := range s.Fields() {
-		f := lo.Filter(fields, func(itf *item.Field, _ int) bool {
-			return itf.FieldID() == sf.ID()
-		})
+		var f item.Fields
+		if isGroupSchema {
+			f = lo.Filter(fields, func(itf *item.Field, _ int) bool {
+				return itf.FieldID() == sf.ID()
+			})
+		} else {
+			f = item.Fields{fields.Field(sf.ID())}
+		}
 		var v any = nil
 		for _, field := range f {
 			if f != nil {
