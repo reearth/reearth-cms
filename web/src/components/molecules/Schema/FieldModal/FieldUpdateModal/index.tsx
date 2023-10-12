@@ -8,6 +8,7 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -17,6 +18,13 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
+import {
+  Field,
+  FieldModalTabs,
+  FieldType,
+  Group,
+} from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
@@ -25,11 +33,9 @@ import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-ap
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { fieldTypes } from "../../fieldTypes";
-import { Field, FieldModalTabs, FieldType } from "../../types";
-
 export interface FormValues {
   fieldId?: string;
+  groupId?: string;
   title: string;
   description: string;
   key: string;
@@ -43,6 +49,7 @@ export interface FormValues {
 }
 
 export interface Props {
+  groups?: Group[];
   open?: boolean;
   fieldUpdateLoading: boolean;
   selectedType: FieldType;
@@ -91,6 +98,7 @@ const initialValues: FormValues = {
 };
 
 const FieldUpdateModal: React.FC<Props> = ({
+  groups,
   open,
   fieldUpdateLoading,
   onClose,
@@ -234,14 +242,9 @@ const FieldUpdateModal: React.FC<Props> = ({
       maxLength: selectedField?.typeProperty.maxLength,
       values: selectedField?.typeProperty.values,
       tags: selectedField?.typeProperty.tags,
+      group: selectedField?.typeProperty.groupId,
     });
-  }, [
-    form,
-    selectedField,
-    selectedType,
-    selectedField?.typeProperty.selectDefaultValue,
-    selectedField?.typeProperty.tags,
-  ]);
+  }, [form, selectedField, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -301,6 +304,10 @@ const FieldUpdateModal: React.FC<Props> = ({
         } else if (selectedType === "URL") {
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Group") {
+          values.typeProperty = {
+            group: { groupId: values.group },
           };
         }
         values.metadata = isMeta;
@@ -435,6 +442,23 @@ const FieldUpdateModal: React.FC<Props> = ({
                 <MultiValueColoredTag />
               </Form.Item>
             )}
+            {selectedType === "Group" && (
+              <Form.Item
+                name="group"
+                label={t("Select Group")}
+                rules={[{ required: true, message: t("Please select the group!") }]}>
+                <Select>
+                  {groups?.map(group => (
+                    <Select.Option key={group.id} value={group.id}>
+                      {group.name}{" "}
+                      <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
+                        #{group.key}
+                      </span>
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            )}
             <Form.Item
               name="multiple"
               valuePropName="checked"
@@ -445,7 +469,7 @@ const FieldUpdateModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
-              hidden={isMeta}
+              hidden={isMeta || selectedType === "Group"}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>

@@ -87,6 +87,7 @@ const ContentList: React.FC = () => {
           title={t("Content")}
           collapsed={collapsedModelMenu}
           onModelSelect={handleModelSelect}
+          displayGroups={false}
         />
       }
       setSelection={setSelection}

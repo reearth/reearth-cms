@@ -22,6 +22,7 @@ export const GET_ITEMS = gql`
         }
         fields {
           schemaFieldId
+          itemGroupId
           type
           value
         }
@@ -32,6 +33,7 @@ export const GET_ITEMS = gql`
           id
           fields {
             schemaFieldId
+            itemGroupId
             type
             value
           }
@@ -77,6 +79,7 @@ export const GET_ITEM_NODE = gql`
         }
         fields {
           schemaFieldId
+          itemGroupId
           type
           value
         }
@@ -141,6 +144,7 @@ export const SEARCH_ITEM = gql`
         }
         fields {
           schemaFieldId
+          itemGroupId
           type
           value
         }
@@ -167,6 +171,7 @@ export const CREATE_ITEM = gql`
           value
           type
           schemaFieldId
+          itemGroupId
         }
       }
     }
@@ -198,6 +203,7 @@ export const UPDATE_ITEM = gql`
           value
           type
           schemaFieldId
+          itemGroupId
         }
       }
     }

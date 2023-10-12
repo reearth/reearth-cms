@@ -1,4 +1,4 @@
-import { Item, Comment } from "@reearth-cms/components/molecules/Content/types";
+import { Item, Comment, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Item as GQLItem, Comment as GQLComment } from "@reearth-cms/gql/graphql-client-api";
 
 export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
@@ -6,11 +6,15 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
   return {
     id: GQLItem.id,
     version: GQLItem.version,
-    fields: GQLItem.fields.map(field => ({
-      schemaFieldId: field.schemaFieldId,
-      type: field.type,
-      value: field.value,
-    })),
+    fields: GQLItem.fields.map(
+      field =>
+        ({
+          schemaFieldId: field.schemaFieldId,
+          itemGroupId: field.itemGroupId,
+          type: field.type,
+          value: field.value,
+        } as ItemField),
+    ),
     status: GQLItem.status,
     createdBy: GQLItem.createdBy?.name,
     updatedBy: GQLItem.updatedBy?.name,
@@ -20,11 +24,14 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
     threadId: GQLItem.thread?.id ?? "",
     metadata: {
       id: GQLItem.metadata?.id,
-      fields: GQLItem.metadata?.fields.map(field => ({
-        schemaFieldId: field.schemaFieldId,
-        type: field.type,
-        value: field.value,
-      })),
+      fields: GQLItem.metadata?.fields.map(
+        field =>
+          ({
+            schemaFieldId: field.schemaFieldId,
+            type: field.type,
+            value: field.value,
+          } as ItemField),
+      ),
     },
     comments: GQLItem.thread?.comments?.map(comment => convertComment(comment)) ?? [],
   };

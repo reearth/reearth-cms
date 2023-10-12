@@ -16,6 +16,8 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import GroupItem from "@reearth-cms/components/molecules//Common/Form/GroupItem";
+import MultiValueGroup from "@reearth-cms/components/molecules//Common/MultiValueField/MultiValueGroup";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
@@ -31,7 +33,7 @@ import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishI
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
 import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldType, Group, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
@@ -42,6 +44,7 @@ import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
   item?: Item;
+  groups?: Group[];
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
@@ -124,6 +127,7 @@ export interface Props {
 
 const ContentForm: React.FC<Props> = ({
   item,
+  groups,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -207,9 +211,32 @@ const ContentForm: React.FC<Props> = ({
     try {
       const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
-      const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
+      const fields: {
+        schemaFieldId: string;
+        itemGroupId?: string;
+        type: FieldType;
+        value: string;
+      }[] = [];
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
+      // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
+        if (value && typeof value === "object" && !Array.isArray(value)) {
+          for (const [key1, value1] of Object.entries(value)) {
+            let type = "";
+            groups?.find(group => {
+              const field = group.schema.fields?.find(field1 => field1.id === key);
+              type = field?.type ?? "";
+              return field !== undefined;
+            });
+            fields.push({
+              value: (value1 || "") as string,
+              schemaFieldId: key,
+              itemGroupId: key1,
+              type: type as FieldType,
+            });
+          }
+          continue;
+        }
         fields.push({
           value: (value || "") as string,
           schemaFieldId: key,
@@ -247,6 +274,7 @@ const ContentForm: React.FC<Props> = ({
     model?.metadataSchema?.fields,
     model?.schema.id,
     itemId,
+    groups,
     onItemCreate,
     onItemUpdate,
   ]);
@@ -593,6 +621,78 @@ const ContentForm: React.FC<Props> = ({
                   />
                 ) : (
                   <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                )}
+              </StyledFormItem>
+            ) : field.type === "Group" ? (
+              <StyledFormItem
+                key={field.id}
+                extra={field.description}
+                name={field.id}
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
+                {field.multiple ? (
+                  <MultiValueGroup
+                    parentField={field}
+                    linkedItemsModalList={linkedItemsModalList}
+                    formItemsData={formItemsData}
+                    assetList={assetList}
+                    fileList={fileList}
+                    loadingAssets={loadingAssets}
+                    uploading={uploading}
+                    uploadModalVisibility={uploadModalVisibility}
+                    uploadUrl={uploadUrl}
+                    uploadType={uploadType}
+                    totalCount={totalCount}
+                    page={page}
+                    pageSize={pageSize}
+                    linkItemModalTotalCount={linkItemModalTotalCount}
+                    linkItemModalPage={linkItemModalPage}
+                    linkItemModalPageSize={linkItemModalPageSize}
+                    onReferenceModelUpdate={onReferenceModelUpdate}
+                    onLinkItemTableChange={onLinkItemTableChange}
+                    onAssetTableChange={onAssetTableChange}
+                    onUploadModalCancel={onUploadModalCancel}
+                    setUploadUrl={setUploadUrl}
+                    setUploadType={setUploadType}
+                    onAssetsCreate={onAssetsCreate}
+                    onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsReload={onAssetsReload}
+                    onAssetSearchTerm={onAssetSearchTerm}
+                    setFileList={setFileList}
+                    setUploadModalVisibility={setUploadModalVisibility}
+                  />
+                ) : (
+                  <GroupItem
+                    parentField={field}
+                    linkedItemsModalList={linkedItemsModalList}
+                    formItemsData={formItemsData}
+                    assetList={assetList}
+                    fileList={fileList}
+                    loadingAssets={loadingAssets}
+                    uploading={uploading}
+                    uploadModalVisibility={uploadModalVisibility}
+                    uploadUrl={uploadUrl}
+                    uploadType={uploadType}
+                    totalCount={totalCount}
+                    page={page}
+                    pageSize={pageSize}
+                    linkItemModalTotalCount={linkItemModalTotalCount}
+                    linkItemModalPage={linkItemModalPage}
+                    linkItemModalPageSize={linkItemModalPageSize}
+                    onReferenceModelUpdate={onReferenceModelUpdate}
+                    onLinkItemTableChange={onLinkItemTableChange}
+                    onAssetTableChange={onAssetTableChange}
+                    onUploadModalCancel={onUploadModalCancel}
+                    setUploadUrl={setUploadUrl}
+                    setUploadType={setUploadType}
+                    onAssetsCreate={onAssetsCreate}
+                    onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsReload={onAssetsReload}
+                    onAssetSearchTerm={onAssetSearchTerm}
+                    setFileList={setFileList}
+                    setUploadModalVisibility={setUploadModalVisibility}
+                  />
                 )}
               </StyledFormItem>
             ) : (

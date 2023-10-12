@@ -5,41 +5,37 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   className?: string;
   selectedKey?: string;
-  models?: Model[];
+  groups?: Group[];
   selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
-  onModelSelect: (modelId: string) => void;
+  onGroupSelect?: (groupId: string) => void;
 };
 
-const ModelsList: React.FC<Props> = ({
+const GroupsList: React.FC<Props> = ({
   className,
   selectedKey,
-  models,
+  groups,
   selectedSchemaType,
   collapsed,
   onModalOpen,
-  onModelSelect,
+  onGroupSelect,
 }) => {
   const t = useT();
 
-  const handleClick = (e: MenuInfo) => {
-    onModelSelect(e.key);
-  };
-
   const selectedKeys = useMemo(() => {
-    return !selectedSchemaType
-      ? [selectedKey ?? ""]
-      : selectedSchemaType === "model" && selectedKey
-      ? [selectedKey]
-      : [];
+    return selectedSchemaType && selectedSchemaType === "group" && selectedKey ? [selectedKey] : [];
   }, [selectedKey, selectedSchemaType]);
+
+  const handleClick = (e: MenuInfo) => {
+    onGroupSelect?.(e.key);
+  };
 
   return (
     <SchemaStyledMenu className={className}>
@@ -48,7 +44,7 @@ const ModelsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
+            <SchemaStyledMenuTitle>{t("Groups")}</SchemaStyledMenuTitle>
             <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
               {!collapsed && t("Add")}
             </SchemaAddButton>
@@ -62,9 +58,9 @@ const ModelsList: React.FC<Props> = ({
           style={{
             color: collapsed ? "#C4C4C4" : undefined,
           }}
-          items={models?.map(model => ({
-            label: collapsed ? <Icon icon="dot" /> : model.name,
-            key: model.id,
+          items={groups?.map(group => ({
+            label: collapsed ? <Icon icon="dot" /> : group.name,
+            key: group.id,
           }))}
           onClick={handleClick}
         />
@@ -123,4 +119,4 @@ const StyledMenu = styled(Menu)`
   }
 `;
 
-export default ModelsList;
+export default GroupsList;
