@@ -9,7 +9,9 @@ package gqldataloader
 //go:generate go run github.com/vektah/dataloaden FieldLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaField
 //go:generate go run github.com/vektah/dataloaden IntegrationLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Integration
 //go:generate go run github.com/vektah/dataloaden ItemLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Item
+//go:generate go run github.com/vektah/dataloaden ViewLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.View
 //go:generate go run github.com/vektah/dataloaden ThreadLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Thread
 //go:generate go run github.com/vektah/dataloaden RequestLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Request
 //go:generate go run github.com/vektah/dataloaden ItemStatusLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ItemStatus
 //go:generate go run github.com/vektah/dataloaden AssetItemLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID []*github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.AssetItem
+//go:generate go run github.com/vektah/dataloaden GroupLoader github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ID *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.Group

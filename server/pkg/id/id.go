@@ -134,6 +134,19 @@ var GroupIDFrom = idx.From[Group]
 var GroupIDFromRef = idx.FromRef[Group]
 var GroupIDListFrom = idx.ListFrom[Group]
 
+type ItemGroup struct{}
+
+func (ItemGroup) Type() string { return "item_group" }
+
+type ItemGroupID = idx.ID[ItemGroup]
+type ItemGroupIDList = idx.List[ItemGroup]
+
+var MustItemGroupID = idx.Must[ItemGroup]
+var NewItemGroupID = idx.New[ItemGroup]
+var ItemGroupIDFrom = idx.From[ItemGroup]
+var ItemGroupIDFromRef = idx.FromRef[ItemGroup]
+var ItemGroupIDListFrom = idx.ListFrom[ItemGroup]
+
 type Thread struct{}
 
 func (Thread) Type() string { return "thread" }
@@ -227,3 +240,15 @@ var NewRequestID = idx.New[Request]
 var MustRequestID = idx.Must[Request]
 var RequestIDFrom = idx.From[Request]
 var RequestIDFromRef = idx.FromRef[Request]
+
+type View struct{}
+
+func (View) Type() string { return "request" }
+
+type ViewID = idx.ID[View]
+type ViewIDList = idx.List[View]
+
+var NewViewID = idx.New[View]
+var MustViewID = idx.Must[View]
+var ViewIDFrom = idx.From[View]
+var ViewIDFromRef = idx.FromRef[View]

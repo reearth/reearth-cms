@@ -1,6 +1,10 @@
 package item
 
-import "github.com/samber/lo"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
+)
 
 type Fields []*Field
 
@@ -21,4 +25,11 @@ func (f Fields) Field(fID FieldID) *Field {
 		return g.FieldID() == fID
 	})
 	return ff
+}
+
+func (f Fields) FieldsByType(t value.Type) []*Field {
+	fields := slices.Clone(f)
+	return lo.Filter(fields, func(f *Field, _ int) bool {
+		return f.Type() == t
+	})
 }

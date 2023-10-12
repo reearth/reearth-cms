@@ -27,6 +27,7 @@ type Item implements Node {
 
 type ItemField {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any
 }
@@ -49,6 +50,7 @@ enum ItemStatus {
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any!
 }
@@ -142,3 +144,5 @@ extend type Mutation {
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
 }
+
+

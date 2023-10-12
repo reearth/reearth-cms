@@ -12,7 +12,7 @@ const PreviewModal: React.FC<Props> = ({ url, visible, handleCancel }) => {
   return (
     <Modal
       centered
-      visible={visible}
+      open={visible}
       onCancel={handleCancel}
       footer={null}
       width="90vw"

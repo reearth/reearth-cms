@@ -48,7 +48,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
   return (
     <Modal
       title={t("Integration Setting") + "  " + selectedIntegrationMember?.integration?.name}
-      visible={open}
+      open={open}
       onCancel={() => onClose?.()}
       footer={[
         <Button key="back" onClick={() => onClose?.()}>
