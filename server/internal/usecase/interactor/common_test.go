@@ -128,9 +128,10 @@ func TestNew(t *testing.T) {
 	assert.NotNil(t, uc)
 	assert.Equal(t, interfaces.Container{
 		Asset:       NewAsset(nil, nil),
-		Workspace:   accountinteractor.NewWorkspace(nil),
+		Workspace:   accountinteractor.NewWorkspace(nil, nil),
 		User:        accountinteractor.NewUser(nil, nil, "", ""),
 		Item:        NewItem(nil, nil),
+		View:        NewView(nil, nil),
 		Project:     NewProject(nil, nil),
 		Request:     NewRequest(nil, nil),
 		Model:       NewModel(nil, nil),
