@@ -8,6 +8,7 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -34,6 +35,7 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 export interface FormValues {
   fieldId?: string;
+  groupId?: string;
   title: string;
   description: string;
   key: string;
@@ -96,6 +98,7 @@ const initialValues: FormValues = {
 };
 
 const FieldUpdateModal: React.FC<Props> = ({
+  groups,
   open,
   fieldUpdateLoading,
   onClose,
@@ -239,14 +242,9 @@ const FieldUpdateModal: React.FC<Props> = ({
       maxLength: selectedField?.typeProperty.maxLength,
       values: selectedField?.typeProperty.values,
       tags: selectedField?.typeProperty.tags,
+      group: selectedField?.typeProperty.groupId,
     });
-  }, [
-    form,
-    selectedField,
-    selectedType,
-    selectedField?.typeProperty.selectDefaultValue,
-    selectedField?.typeProperty.tags,
-  ]);
+  }, [form, selectedField, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -306,6 +304,10 @@ const FieldUpdateModal: React.FC<Props> = ({
         } else if (selectedType === "URL") {
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
+          };
+        } else if (selectedType === "Group") {
+          values.typeProperty = {
+            group: { groupId: values.group },
           };
         }
         values.metadata = isMeta;
@@ -438,6 +440,23 @@ const FieldUpdateModal: React.FC<Props> = ({
                   },
                 ]}>
                 <MultiValueColoredTag />
+              </Form.Item>
+            )}
+            {selectedType === "Group" && (
+              <Form.Item
+                name="group"
+                label={t("Select Group")}
+                rules={[{ required: true, message: t("Please select the group!") }]}>
+                <Select>
+                  {groups?.map(group => (
+                    <Select.Option key={group.id} value={group.id}>
+                      {group.name}{" "}
+                      <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
+                        #{group.key}
+                      </span>
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
             )}
             <Form.Item
