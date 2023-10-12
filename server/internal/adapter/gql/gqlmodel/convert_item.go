@@ -40,19 +40,25 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 	}
 }
 func toItemFields(fields item.Fields, s *schema.Schema) []*ItemField {
-	return lo.Map(s.Fields(), func(sf *schema.Field, _ int) *ItemField {
-		f := fields.Field(sf.ID())
+	var res []*ItemField
+	for _, sf := range s.Fields() {
+		f := lo.Filter(fields, func(itf *item.Field, _ int) bool {
+			return itf.FieldID() == sf.ID()
+		})
 		var v any = nil
-		if f != nil {
-			v = ToValue(f.Value(), sf.Multiple())
+		for _, field := range f {
+			if f != nil {
+				v = ToValue(field.Value(), sf.Multiple())
+			}
+			res = append(res, &ItemField{
+				ItemGroupID:   IDFromRef(field.ItemGroup()),
+				SchemaFieldID: IDFrom(sf.ID()),
+				Type:          ToValueType(sf.Type()),
+				Value:         v,
+			})
 		}
-		return &ItemField{
-			ItemGroupID:   IDFromRef(f.ItemGroup()),
-			SchemaFieldID: IDFrom(sf.ID()),
-			Type:          ToValueType(sf.Type()),
-			Value:         v,
-		}
-	})
+	}
+	return res
 }
 
 func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema, gsList schema.List) *VersionedItem {
