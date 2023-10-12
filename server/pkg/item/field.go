@@ -11,17 +11,15 @@ type Field struct {
 	value     *value.Multiple
 }
 
-func NewField(field FieldID, v *value.Multiple) *Field {
+func NewField(field FieldID, v *value.Multiple, ig *ItemGroupID) *Field {
 	if v == nil {
 		return nil
 	}
-	return &Field{field: field, value: v}
-}
-
-func NewFieldWithGroup(field FieldID, ig *ItemGroupID, v *value.Multiple) *Field {
-	f := NewField(field, v)
-	f.itemGroup = ig
-	return f
+	return &Field{
+		field:     field,
+		value:     v,
+		itemGroup: ig,
+	}
 }
 
 func (f *Field) FieldID() schema.FieldID {

@@ -15,10 +15,10 @@ func TestFields_Map(t *testing.T) {
 	fId4 := id.NewFieldID()
 
 	f := Fields{
-		NewField(fId1, value.TypeText.Value("value1").AsMultiple()),
-		NewField(fId2, value.TypeText.Value("value2").AsMultiple()),
-		NewField(fId3, value.TypeText.Value("value3").AsMultiple()),
-		NewField(fId4, value.TypeText.Value("value4").AsMultiple()),
+		NewField(fId1, value.TypeText.Value("value1").AsMultiple(), nil),
+		NewField(fId2, value.TypeText.Value("value2").AsMultiple(), nil),
+		NewField(fId3, value.TypeText.Value("value3").AsMultiple(), nil),
+		NewField(fId4, value.TypeText.Value("value4").AsMultiple(), nil),
 	}
 
 	assert.Equal(t, FieldMap{
@@ -36,10 +36,10 @@ func TestFields_Field(t *testing.T) {
 	fId4 := id.NewFieldID()
 
 	f := Fields{
-		NewField(fId1, value.TypeText.Value("value1").AsMultiple()),
-		NewField(fId2, value.TypeText.Value("value2").AsMultiple()),
-		NewField(fId3, value.TypeText.Value("value3").AsMultiple()),
-		NewField(fId4, value.TypeText.Value("value4").AsMultiple()),
+		NewField(fId1, value.TypeText.Value("value1").AsMultiple(), nil),
+		NewField(fId2, value.TypeText.Value("value2").AsMultiple(), nil),
+		NewField(fId3, value.TypeText.Value("value3").AsMultiple(), nil),
+		NewField(fId4, value.TypeText.Value("value4").AsMultiple(), nil),
 	}
 
 	assert.Equal(t, f[0], f.Field(fId1))

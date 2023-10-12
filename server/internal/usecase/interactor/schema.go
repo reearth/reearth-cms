@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -429,4 +428,37 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 		f.SetMultiple(*param.Multiple)
 	}
 	return nil
+}
+
+func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.SchemaIDList, operator *usecase.Operator) (schemas schema.List, groupSchemas schema.List, err error) {
+	schemas, err = i.repos.Schema.FindByIDs(ctx, list)
+	if err != nil {
+		return
+	}
+	var gIds id.GroupIDList
+	for _, s := range schemas {
+		sg := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
+			return f.Type() == value.TypeGroup
+		})
+		gIds = lo.Map(sg, func(sf *schema.Field, _ int) id.GroupID {
+			var g id.GroupID
+			sf.TypeProperty().Match(schema.TypePropertyMatch{
+				Group: func(f *schema.FieldGroup) {
+					g = f.Group()
+				},
+			})
+			return g
+		})
+	}
+	groups, err1 := i.repos.Group.FindByIDs(ctx, gIds)
+	if err1 != nil {
+		return nil, nil, err1
+	}
+
+	gsl, err1 := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs())
+	if err1 != nil {
+		return nil, nil, err1
+	}
+	groupSchemas = append(groupSchemas, gsl...)
+	return
 }
