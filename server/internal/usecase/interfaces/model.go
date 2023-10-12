@@ -52,5 +52,4 @@ type Model interface {
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)
 	Delete(context.Context, id.ModelID, *usecase.Operator) error
 	Publish(context.Context, id.ModelID, bool, *usecase.Operator) (bool, error)
-	GetGroupSchemasByModel(context.Context, id.ModelID, *usecase.Operator) (id.SchemaIDList, error)
 }

@@ -39,22 +39,15 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	if err != nil {
 		return nil, []error{err}
 	}
-	gsIds, err := c.modelUsecase.GetGroupSchemasByModel(ctx, res[0].Value().Model(), op)
-	if err != nil {
-		return nil, []error{err}
-	}
 
 	sIds := lo.SliceToMap(res, func(v item.Versioned) (id.ItemID, id.SchemaID) {
 		return v.Value().ID(), v.Value().Schema()
 	})
-
-	ss, err := c.schemaUsecase.FindByIDs(ctx, lo.Uniq(append(gsIds, lo.Values(sIds)...)), op)
+	ss, gs, err := c.schemaUsecase.GetSchemasAndGroupSchemasByIDs(ctx, lo.Uniq(lo.Values(sIds)), op)
 	if err != nil {
 		return nil, []error{err}
 	}
-	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
-		return gsIds.Has(schm.ID())
-	})
+
 	return lo.Map(res, func(m item.Versioned, i int) *gqlmodel.Item {
 		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
 			return s.ID() == sIds[m.Value().ID()]
@@ -77,16 +70,12 @@ func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID) 
 		}
 		return nil, err
 	}
-
-	s, err := c.schemaUsecase.FindByID(ctx, itm.Value().Schema(), op)
+	ss, gs, err := c.schemaUsecase.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{itm.Value().Schema()}, op)
 	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
-	return gqlmodel.ToVersionedItem(itm, s, nil), nil
+	return gqlmodel.ToVersionedItem(itm, ss[0], gs), nil
 }
 
 func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error) {
@@ -101,17 +90,13 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 		return nil, err
 	}
 
-	s, err := c.schemaUsecase.FindByID(ctx, res[0].Value().Schema(), op)
+	ss, gs, err := c.schemaUsecase.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{res[0].Value().Schema()}, op)
 	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
-
 	vis := make([]*gqlmodel.VersionedItem, 0, len(res))
 	for _, t := range res {
-		vis = append(vis, gqlmodel.ToVersionedItem(t, s, nil))
+		vis = append(vis, gqlmodel.ToVersionedItem(t, ss[0], gs))
 	}
 	return vis, nil
 }
@@ -130,25 +115,9 @@ func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, sort 
 		}
 		return nil, err
 	}
-	gsIds, err := c.modelUsecase.GetGroupSchemasByModel(ctx, mid, op)
+	ss, gs, err := c.schemaUsecase.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{m.Schema()}, op)
 	if err != nil {
 		return nil, err
-	}
-	ss, err := c.schemaUsecase.FindByIDs(ctx, append(gsIds, m.Schema()), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
-		return gsIds.Has(schm.ID())
-	})
-	s, ok := lo.Find(ss, func(sch *schema.Schema) bool {
-		return sch.ID() == m.Schema()
-	})
-	if !ok {
-		return nil, nil
 	}
 	res, pi, err := c.usecase.FindByModel(ctx, mid, sort.Into(), p.Into(), op)
 	if err != nil {
@@ -158,7 +127,7 @@ func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, sort 
 	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
 	nodes := make([]*gqlmodel.Item, 0, len(res))
 	for _, i := range res {
-		itm := gqlmodel.ToItem(i, s, gs)
+		itm := gqlmodel.ToItem(i, ss[0], gs)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),
@@ -224,26 +193,15 @@ func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort 
 	if err != nil {
 		return nil, err
 	}
-	var gsIds id.SchemaIDList
-	if len(res) != 0 {
-
-		gsIds, err = c.modelUsecase.GetGroupSchemasByModel(ctx, res[0].Value().Model(), op)
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	sIds := lo.SliceToMap(res, func(v item.Versioned) (id.ItemID, id.SchemaID) {
 		return v.Value().ID(), v.Value().Schema()
 	})
 
-	ss, err := c.schemaUsecase.FindByIDs(ctx, lo.Uniq(append(gsIds, lo.Values(sIds)...)), op)
+	ss, gs, err := c.schemaUsecase.GetSchemasAndGroupSchemasByIDs(ctx, lo.Uniq(lo.Values(sIds)), op)
 	if err != nil {
 		return nil, err
 	}
-	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
-		return gsIds.Has(schm.ID())
-	})
 	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
 	nodes := make([]*gqlmodel.Item, 0, len(res))
 	for _, i := range res {

@@ -2,8 +2,6 @@ package gql
 
 import (
 	"context"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
-
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -29,7 +27,7 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 		return nil, err
 	}
 
-	gsIds, err := usecases(ctx).Model.GetGroupSchemasByModel(ctx, mid, op)
+	ss, gs, err := usecases(ctx).Schema.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{m.Schema()}, op)
 	if err != nil {
 		return nil, err
 	}
@@ -43,21 +41,8 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 		return nil, err
 	}
 
-	ss, err := usecases(ctx).Schema.FindByIDs(ctx, append(gsIds, sid), op)
-	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
-		return gsIds.Has(schm.ID())
-	})
-	s, ok := lo.Find(ss, func(sch *schema.Schema) bool {
-		return sch.ID() == m.Schema()
-	})
-	if !ok {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, s, gs),
+		Item: gqlmodel.ToItem(res, ss[0], gs),
 	}, nil
 }
 
@@ -83,32 +68,17 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 		Fields:     util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
 		Version:    &v,
 	}, op)
-	mid := res.Value().Model()
-	m, err := usecases(ctx).Model.FindByID(ctx, mid, op)
 	if err != nil {
 		return nil, err
 	}
 
-	gsIds, err := usecases(ctx).Model.GetGroupSchemasByModel(ctx, mid, op)
+	ss, gs, err := usecases(ctx).Schema.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{res.Value().Schema()}, op)
 	if err != nil {
 		return nil, err
-	}
-	if err != nil {
-		return nil, err
-	}
-	ss, err := usecases(ctx).Schema.FindByIDs(ctx, append(gsIds, res.Value().Schema()), op)
-	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
-		return gsIds.Has(schm.ID())
-	})
-	s, ok := lo.Find(ss, func(sch *schema.Schema) bool {
-		return sch.ID() == m.Schema()
-	})
-	if !ok {
-		return nil, nil
 	}
 
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, s, gs),
+		Item: gqlmodel.ToItem(res, ss[0], gs),
 	}, nil
 }
 
