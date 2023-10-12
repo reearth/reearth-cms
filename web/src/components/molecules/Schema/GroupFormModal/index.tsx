@@ -4,67 +4,65 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { Model } from "@reearth-cms/components/molecules/ProjectOverview";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 export interface FormValues {
-  modelId?: string;
+  groupId?: string;
   name: string;
   description: string;
   key: string;
 }
 
 export interface Props {
-  model?: Model;
+  group?: Group;
   open?: boolean;
   isKeyAvailable: boolean;
   onClose: () => void;
   onCreate?: (values: FormValues) => Promise<void> | void;
   onUpdate?: (values: FormValues) => Promise<void> | void;
-  onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
+  onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
 }
 
-const ModelFormModal: React.FC<Props> = ({
-  model,
+const GroupFormModal: React.FC<Props> = ({
+  group,
   open,
   onClose,
   onCreate,
   onUpdate,
-  onModelKeyCheck,
+  onGroupKeyCheck,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
   useEffect(() => {
-    if (open) {
-      if (!model) {
-        form.resetFields();
-      } else {
-        form.setFieldsValue(model);
-      }
+    if (!group) {
+      form.resetFields();
+    } else {
+      form.setFieldsValue(group);
     }
-  }, [form, model, open]);
+  }, [form, group]);
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
-    await onModelKeyCheck(values.key, model?.key);
-    if (!model?.id) {
+    await onGroupKeyCheck(values.key, group?.key);
+    if (!group?.id) {
       await onCreate?.(values);
     } else {
-      await onUpdate?.({ modelId: model.id, ...values });
+      await onUpdate?.({ groupId: group.id, ...values });
     }
     onClose();
     form.resetFields();
-  }, [onModelKeyCheck, model, form, onClose, onCreate, onUpdate]);
+  }, [onGroupKeyCheck, group, form, onClose, onCreate, onUpdate]);
 
   const handleClose = useCallback(() => {
-    if (!model) {
+    if (!group) {
       form.resetFields();
     }
     onClose();
-  }, [form, model, onClose]);
+  }, [form, group, onClose]);
 
   return (
     <Modal
@@ -72,7 +70,7 @@ const ModelFormModal: React.FC<Props> = ({
       onCancel={handleClose}
       onOk={handleSubmit}
       okButtonProps={{ disabled: buttonDisabled }}
-      title={!model?.id ? t("New Model") : t("Update Model")}>
+      title={!group?.id ? t("New Group") : t("Update Group")}>
       <Form
         form={form}
         layout="vertical"
@@ -90,18 +88,18 @@ const ModelFormModal: React.FC<Props> = ({
         }}>
         <Form.Item
           name="name"
-          label={t("Model name")}
-          rules={[{ required: true, message: t("Please input the name of the model!") }]}>
+          label={t("Group name")}
+          rules={[{ required: true, message: t("Please input the name of the group!") }]}>
           <Input />
         </Form.Item>
-        <Form.Item name="description" label={t("Model description")}>
+        <Form.Item name="description" label={t("Group description")}>
           <TextArea rows={4} />
         </Form.Item>
         <Form.Item
           name="key"
-          label={t("Model key")}
+          label={t("Group key")}
           extra={t(
-            "Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+            "Group key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
           )}
           rules={[
             {
@@ -109,7 +107,7 @@ const ModelFormModal: React.FC<Props> = ({
               required: true,
               validator: async (_, value) => {
                 if (!validateKey(value)) return Promise.reject();
-                const isKeyAvailable = await onModelKeyCheck(value, model?.key);
+                const isKeyAvailable = await onGroupKeyCheck(value, group?.key);
                 if (isKeyAvailable) {
                   return Promise.resolve();
                 } else {
@@ -125,4 +123,4 @@ const ModelFormModal: React.FC<Props> = ({
   );
 };
 
-export default ModelFormModal;
+export default GroupFormModal;

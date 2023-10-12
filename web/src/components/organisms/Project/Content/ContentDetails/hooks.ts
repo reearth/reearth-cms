@@ -9,7 +9,7 @@ import {
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/convertItem";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
@@ -17,6 +17,7 @@ import { convertModel } from "@reearth-cms/components/organisms/Project/ModelsMe
 import {
   Item as GQLItem,
   Model as GQLModel,
+  Group as GQLGroup,
   RequestState as GQLRequestState,
   SchemaFieldType,
   useCreateItemMutation,
@@ -28,8 +29,10 @@ import {
   useUpdateRequestMutation,
   useSearchItemQuery,
   useGetItemsByIdsQuery,
+  useGetGroupsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const {
@@ -60,6 +63,8 @@ export default () => {
   const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
   const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
+
+  const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   useEffect(() => {
     setLinkItemModalPage(+linkItemModalPage);
@@ -333,7 +338,20 @@ export default () => {
       });
     } else {
       currentItem?.fields?.forEach(field => {
-        initialValues[field.schemaFieldId] = field.value;
+        if (field.itemGroupId) {
+          if (
+            typeof initialValues[field.schemaFieldId] === "object" &&
+            !Array.isArray(initialValues[field.schemaFieldId])
+          ) {
+            initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
+          } else {
+            initialValues[field.schemaFieldId] = {
+              [field.itemGroupId]: field.value,
+            };
+          }
+        } else {
+          initialValues[field.schemaFieldId] = field.value;
+        }
       });
     }
     return initialValues;
@@ -476,6 +494,17 @@ export default () => {
     setReferenceModelId(modelId);
   }, []);
 
+  const { data: groupData } = useGetGroupsQuery({
+    variables: { projectId: projectId ?? "" },
+    skip: !projectId,
+  });
+
+  const groups = useMemo(() => {
+    return groupData?.groups
+      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
+      .filter((group): group is Group => !!group);
+  }, [groupData?.groups]);
+
   return {
     linkedItemsModalList,
     showPublishAction,
@@ -492,6 +521,7 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
+    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
