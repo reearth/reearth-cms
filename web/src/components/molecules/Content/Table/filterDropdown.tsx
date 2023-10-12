@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { InputRef } from "antd";
+import { useState, useRef } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -7,42 +9,66 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
+import { FilterOptions } from "@reearth-cms/components/molecules/Content/Table/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  filter: string;
+  filter: { dataIndex: string | string[]; title: string };
+  itemFilter: (dataIndex: string | string[], option: FilterOptions, reg: string) => void;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter }) => {
+const FilterDropdown: React.FC<Props> = ({ filter, itemFilter }) => {
   const t = useT();
-
   const options = [
-    { value: "is", label: t("is") },
-    { value: "is not", label: t("is not") },
-    { value: "contains", label: t("contains") },
-    { value: "doesn't contain", label: t("doesn't contain") },
-    { value: "is empty", label: t("is empty") },
-    { value: "is not empty", label: t("is not empty") },
+    { value: FilterOptions.Is, label: t("is") },
+    { value: FilterOptions.IsNot, label: t("is not") },
+    { value: FilterOptions.Contains, label: t("contains") },
+    { value: FilterOptions.NotContain, label: t("doesn't contain") },
+    { value: FilterOptions.IsEmpty, label: t("is empty") },
+    { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
   ];
+
+  const [open, setOpen] = useState(false);
+  const filterOption = useRef<FilterOptions>();
+  const inputRef = useRef<InputRef>(null);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+  };
+
+  const close = () => {
+    setOpen(false);
+  };
+
+  const confirm = () => {
+    if (filterOption.current === undefined) return;
+    setOpen(false);
+    const value = inputRef.current?.input?.value ?? "";
+    itemFilter(filter.dataIndex, filterOption.current, value);
+  };
+
+  const onSelect = (value: FilterOptions) => {
+    filterOption.current = value;
+  };
 
   return (
     <Dropdown
-      key={filter}
+      key={filter.title}
       dropdownRender={() => (
         <DropdownRender>
           <Form name="basic" autoComplete="off">
-            <Form.Item label={filter} name="condition">
-              <Select style={{ width: 160 }} options={options} />
+            <Form.Item label={filter.title} name="condition">
+              <Select style={{ width: 160 }} options={options} onSelect={onSelect} />
             </Form.Item>
             <Form.Item>
-              <Input />
+              <Input ref={inputRef} />
             </Form.Item>
             <Form.Item style={{ textAlign: "right" }}>
               <Space size="small">
-                <Button type="default" style={{ marginRight: 10 }}>
+                <Button type="default" style={{ marginRight: 10 }} onClick={close}>
                   {t("Cancel")}
                 </Button>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" onClick={confirm}>
                   {t("Confirm")}
                 </Button>
               </Space>
@@ -52,9 +78,11 @@ const FilterDropdown: React.FC<Props> = ({ filter }) => {
       )}
       trigger={["click"]}
       placement="bottomLeft"
-      arrow>
+      arrow
+      open={open}
+      onOpenChange={handleOpenChange}>
       <Badge offset={[-3, 3]} color="blue" dot>
-        <StyledButton type="text">{filter}</StyledButton>
+        <StyledButton type="text">{filter.title}</StyledButton>
       </Badge>
     </Dropdown>
   );

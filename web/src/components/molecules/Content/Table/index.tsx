@@ -1,6 +1,6 @@
 // import { LightFilter } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
-import { Key, useMemo, useState } from "react";
+import { Key, useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -18,7 +18,11 @@ import {
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
-import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
+import {
+  ColorType,
+  StateType,
+  FilterOptions,
+} from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -216,11 +220,22 @@ const ContentTable: React.FC<Props> = ({
 
   const [filters, setFilters] = useState<any[]>([]);
 
-  const items: MenuProps["items"] = useMemo(
-    () => [
+  const [items, setItems] = useState<MenuProps["items"]>();
+
+  const defaultItems: MenuProps["items"] = useMemo(() => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      const reg = new RegExp(value, "i");
+      const result = defaultItems?.filter(item => {
+        return item?.key == "0" || reg.test((item as any)?.label);
+      });
+      setItems(result);
+    };
+
+    return [
       {
         key: "0",
-        label: <Input placeholder={t("Filter by...")} />,
+        label: <Input placeholder={t("Filter by...")} onChange={handleChange} />,
         disabled: true,
       },
       ...((actionsColumn ?? [])
@@ -229,7 +244,10 @@ const ContentTable: React.FC<Props> = ({
           key: column.key,
           label: column.title,
           onClick: () => {
-            setFilters(prevState => [...prevState, column.title]);
+            setFilters(prevState => [
+              ...prevState,
+              { dataIndex: column.dataIndex, title: column.title },
+            ]);
           },
         })) as any),
       ...((contentTableColumns ?? [])
@@ -238,12 +256,42 @@ const ContentTable: React.FC<Props> = ({
           key: column.key,
           label: column.title,
           onClick: () => {
-            setFilters(prevState => [...prevState, column.title]);
+            setFilters(prevState => [
+              ...prevState,
+              { dataIndex: column.dataIndex, title: column.title },
+            ]);
           },
         })) as any),
-    ],
-    [actionsColumn, contentTableColumns, t],
-  );
+    ];
+  }, [actionsColumn, contentTableColumns, t]);
+
+  useEffect(() => {
+    setItems(defaultItems);
+  }, [defaultItems]);
+
+  const itemFilter = (dataIndex: string | string[], option: FilterOptions, value: string) => {
+    const result = contentTableFields?.filter(field => {
+      const data =
+        (typeof dataIndex === "string"
+          ? (field as any)[dataIndex]
+          : (field as any)[dataIndex[0]][dataIndex[1]]) ?? field.status;
+      switch (option) {
+        case FilterOptions.Is:
+          return data === value;
+        case FilterOptions.IsNot:
+          return data !== value;
+        case FilterOptions.Contains:
+          return new RegExp(value).test(data);
+        case FilterOptions.NotContain:
+          return new RegExp(`^(?!.*${value}).*$`).test(data);
+        case FilterOptions.IsEmpty:
+          return data === "";
+        case FilterOptions.IsNotEmpty:
+          return data !== "";
+      }
+    });
+    console.log(result);
+  };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
@@ -260,9 +308,9 @@ const ContentTable: React.FC<Props> = ({
       <StyledLightFilter>
         <Space
           size={[0, 8]}
-          style={{ maxWidth: 700, overflowX: "scroll", marginTop: 0, paddingRight: 10 }}>
+          style={{ maxWidth: 700, overflowX: "auto", marginTop: 0, paddingRight: 10 }}>
           {filters.map(filter => (
-            <FilterDropdown key={filter} filter={filter} />
+            <FilterDropdown key={filter} filter={filter} itemFilter={itemFilter} />
           ))}
         </Space>
         <Dropdown menu={{ items }} placement="bottomLeft" trigger={["click"]} arrow>
