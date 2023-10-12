@@ -56,4 +56,5 @@ type Schema interface {
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)
 	UpdateFields(context.Context, id.SchemaID, []UpdateFieldParam, *usecase.Operator) (schema.FieldList, error)
 	DeleteField(context.Context, id.SchemaID, id.FieldID, *usecase.Operator) error
+	GetSchemasAndGroupSchemasByIDs(context.Context, id.SchemaIDList, *usecase.Operator) (schema.List, schema.List, error)
 }

@@ -43,7 +43,7 @@ func (i *Item) Integration() *IntegrationID {
 	return i.integration
 }
 
-func (i *Item) Fields() []*Field {
+func (i *Item) Fields() Fields {
 	return slices.Clone(i.fields)
 }
 
