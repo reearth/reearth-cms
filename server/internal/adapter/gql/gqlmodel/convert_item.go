@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToItem(vi item.Versioned, s *schema.Schema, list schema.List) *Item {
+func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 	if vi == nil || vi.Value() == nil {
 		return nil
 	}
@@ -18,7 +18,7 @@ func ToItem(vi item.Versioned, s *schema.Schema, list schema.List) *Item {
 	i := vi.Value()
 	itemFields := toItemFields(i.Fields(), s)
 	var groupFields []*ItemField
-	for _, s2 := range list {
+	for _, s2 := range gsList {
 		groupFields = append(groupFields, toItemFields(i.Fields(), s2)...)
 	}
 	return &Item{
@@ -55,7 +55,7 @@ func toItemFields(fields item.Fields, s *schema.Schema) []*ItemField {
 	})
 }
 
-func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema, gs schema.List) *VersionedItem {
+func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema, gsList schema.List) *VersionedItem {
 	if v == nil {
 		return nil
 	}
@@ -70,7 +70,7 @@ func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema, gs schema.L
 		Version: v.Version().String(),
 		Parents: parents,
 		Refs:    refs,
-		Value:   ToItem(v, s, gs),
+		Value:   ToItem(v, s, gsList),
 	}
 }
 
