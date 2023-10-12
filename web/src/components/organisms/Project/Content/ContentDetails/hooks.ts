@@ -338,11 +338,20 @@ export default () => {
       });
     } else {
       currentItem?.fields?.forEach(field => {
-        initialValues[field.schemaFieldId] = field.itemGroupId
-          ? {
+        if (field.itemGroupId) {
+          if (
+            typeof initialValues[field.schemaFieldId] === "object" &&
+            !Array.isArray(initialValues[field.schemaFieldId])
+          ) {
+            initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
+          } else {
+            initialValues[field.schemaFieldId] = {
               [field.itemGroupId]: field.value,
-            }
-          : field.value;
+            };
+          }
+        } else {
+          initialValues[field.schemaFieldId] = field.value;
+        }
       });
     }
     return initialValues;
