@@ -703,7 +703,7 @@ func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, it *it
 		}
 		refItm, _ := items.Item(refItmId)
 		idValue := value.NewMultiple(value.TypeReference, []any{it.ID().String()})
-		refItm.UpdateFields([]*item.Field{item.NewField(*rf.CorrespondingFieldID(), idValue)})
+		refItm.UpdateFields([]*item.Field{item.NewField(*rf.CorrespondingFieldID(), idValue, nil)})
 		if err := i.repos.Item.Save(ctx, refItm); err != nil {
 			return err
 		}
@@ -755,7 +755,7 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 		if err != nil {
 			return nil, err
 		}
-		if err := i.checkUnique(ctx, fields, s, mId, nil); err != nil {
+		if err := i.checkUnique(ctx, fields, groupSchema, mId, nil); err != nil {
 			return nil, err
 		}
 
@@ -794,7 +794,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
-		return item.NewField(sf.ID(), m), nil
+		return item.NewField(sf.ID(), m, f.ItemGroup), nil
 	})
 }
 

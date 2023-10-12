@@ -27,12 +27,12 @@ func TestCompareFields(t *testing.T) {
 			name: "no change",
 			args: args{
 				n: Fields{
-					NewField(fId, value.TypeText.Value("value1").AsMultiple()),
-					NewField(fId2, value.TypeNumber.Value("value1").AsMultiple()),
+					NewField(fId, value.TypeText.Value("value1").AsMultiple(), nil),
+					NewField(fId2, value.TypeNumber.Value("value1").AsMultiple(), nil),
 				},
 				o: Fields{
-					NewField(fId, value.TypeText.Value("value1").AsMultiple()),
-					NewField(fId2, value.TypeNumber.Value("value1").AsMultiple()),
+					NewField(fId, value.TypeText.Value("value1").AsMultiple(), nil),
+					NewField(fId2, value.TypeNumber.Value("value1").AsMultiple(), nil),
 				},
 			},
 			want: FieldChanges{}, // No changes expected
@@ -41,11 +41,11 @@ func TestCompareFields(t *testing.T) {
 			name: "add",
 			args: args{
 				n: Fields{
-					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
-					NewField(fId2, value.New(value.TypeText, "new field").AsMultiple()),
+					NewField(fId, value.New(value.TypeText, "value1").AsMultiple(), nil),
+					NewField(fId2, value.New(value.TypeText, "new field").AsMultiple(), nil),
 				},
 				o: Fields{
-					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
+					NewField(fId, value.New(value.TypeText, "value1").AsMultiple(), nil),
 				},
 			},
 			want: FieldChanges{
@@ -61,12 +61,12 @@ func TestCompareFields(t *testing.T) {
 			name: "update",
 			args: args{
 				n: Fields{
-					NewField(fId, value.New(value.TypeText, "value2").AsMultiple()),
-					NewField(fId2, value.New(value.TypeNumber, 42).AsMultiple()),
+					NewField(fId, value.New(value.TypeText, "value2").AsMultiple(), nil),
+					NewField(fId2, value.New(value.TypeNumber, 42).AsMultiple(), nil),
 				},
 				o: Fields{
-					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
-					NewField(fId2, value.New(value.TypeNumber, 42).AsMultiple()),
+					NewField(fId, value.New(value.TypeText, "value1").AsMultiple(), nil),
+					NewField(fId2, value.New(value.TypeNumber, 42).AsMultiple(), nil),
 				},
 			},
 			want: FieldChanges{
@@ -82,11 +82,11 @@ func TestCompareFields(t *testing.T) {
 			name: "delete",
 			args: args{
 				n: Fields{
-					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
+					NewField(fId, value.New(value.TypeText, "value1").AsMultiple(), nil),
 				},
 				o: Fields{
-					NewField(fId, value.New(value.TypeText, "value1").AsMultiple()),
-					NewField(fId2, value.New(value.TypeText, "to be deleted").AsMultiple()),
+					NewField(fId, value.New(value.TypeText, "value1").AsMultiple(), nil),
+					NewField(fId2, value.New(value.TypeText, "to be deleted").AsMultiple(), nil),
 				},
 			},
 			want: FieldChanges{

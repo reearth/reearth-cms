@@ -283,29 +283,29 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple()),
-		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
 	i2 := item.New().ID(publicAPIItem2ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple(), nil),
 	}).MustBuild()
 
 	i3 := item.New().ID(publicAPIItem3ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple()),
-		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple()),
-		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"})),
-		item.NewField(s.Fields()[3].ID(), value.TypeAsset.Value(a.ID()).AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple(), nil),
+		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
+		item.NewField(s.Fields()[3].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
 	// not public
 	i4 := item.New().ID(publicAPIItem4ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").AsMultiple(), nil),
 	}).MustBuild()
 	// not public model
 	i5 := item.New().ID(publicAPIItem1ID).Model(m2.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple()),
-		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
 	lo.Must0(r.Project.Save(ctx, p1))

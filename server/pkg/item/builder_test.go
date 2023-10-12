@@ -27,7 +27,7 @@ func TestBuilder_SchemaID(t *testing.T) {
 
 func TestBuilder_Fields(t *testing.T) {
 	fid := schema.NewFieldID()
-	fields := []*Field{NewField(fid, value.TypeBool.Value(true).AsMultiple())}
+	fields := Fields{NewField(fid, value.TypeBool.Value(true).AsMultiple(), nil)}
 	b := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Fields(fields).Thread(id.NewThreadID()).MustBuild()
 	assert.Equal(t, fields, b.Fields())
 	b = New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Model(id.NewModelID()).Fields(nil).Thread(id.NewThreadID()).MustBuild()
