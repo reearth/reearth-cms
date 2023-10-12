@@ -338,7 +338,11 @@ export default () => {
       });
     } else {
       currentItem?.fields?.forEach(field => {
-        initialValues[field.schemaFieldId] = field.value;
+        initialValues[field.schemaFieldId] = field.itemGroupId
+          ? {
+              [field.itemGroupId]: field.value,
+            }
+          : field.value;
       });
     }
     return initialValues;

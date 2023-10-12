@@ -10,6 +10,7 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
       field =>
         ({
           schemaFieldId: field.schemaFieldId,
+          itemGroupId: field.itemGroupId,
           type: field.type,
           value: field.value,
         } as ItemField),
