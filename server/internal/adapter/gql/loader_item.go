@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 	"errors"
-
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -28,6 +27,9 @@ func NewItemLoader(usecase interfaces.Item, schemaUsecase interfaces.Schema, mod
 
 func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Item, []error) {
 	op := getOperator(ctx)
+	if len(ids) == 0 {
+		return nil, nil
+	}
 	iIds, err := util.TryMap(ids, gqlmodel.ToID[id.Item])
 	if err != nil {
 		return nil, []error{err}
@@ -37,21 +39,27 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 	if err != nil {
 		return nil, []error{err}
 	}
+	gsIds, err := c.modelUsecase.GetGroupSchemasByModel(ctx, res[0].Value().Model(), op)
+	if err != nil {
+		return nil, []error{err}
+	}
 
 	sIds := lo.SliceToMap(res, func(v item.Versioned) (id.ItemID, id.SchemaID) {
 		return v.Value().ID(), v.Value().Schema()
 	})
 
-	ss, err := c.schemaUsecase.FindByIDs(ctx, lo.Uniq(lo.Values(sIds)), op)
+	ss, err := c.schemaUsecase.FindByIDs(ctx, lo.Uniq(append(gsIds, lo.Values(sIds)...)), op)
 	if err != nil {
 		return nil, []error{err}
 	}
-
+	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
+		return gsIds.Has(schm.ID())
+	})
 	return lo.Map(res, func(m item.Versioned, i int) *gqlmodel.Item {
 		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
 			return s.ID() == sIds[m.Value().ID()]
 		})
-		return gqlmodel.ToItem(m, s)
+		return gqlmodel.ToItem(m, s, gs)
 	}), nil
 }
 
@@ -78,7 +86,7 @@ func (c *ItemLoader) FindVersionedItem(ctx context.Context, itemID gqlmodel.ID) 
 		return nil, err
 	}
 
-	return gqlmodel.ToVersionedItem(itm, s), nil
+	return gqlmodel.ToVersionedItem(itm, s, nil), nil
 }
 
 func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error) {
@@ -103,7 +111,7 @@ func (c *ItemLoader) FindVersionedItems(ctx context.Context, itemID gqlmodel.ID)
 
 	vis := make([]*gqlmodel.VersionedItem, 0, len(res))
 	for _, t := range res {
-		vis = append(vis, gqlmodel.ToVersionedItem(t, s))
+		vis = append(vis, gqlmodel.ToVersionedItem(t, s, nil))
 	}
 	return vis, nil
 }
@@ -122,15 +130,26 @@ func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, sort 
 		}
 		return nil, err
 	}
-
-	s, err := c.schemaUsecase.FindByID(ctx, m.Schema(), op)
+	gsIds, err := c.modelUsecase.GetGroupSchemasByModel(ctx, mid, op)
+	if err != nil {
+		return nil, err
+	}
+	ss, err := c.schemaUsecase.FindByIDs(ctx, append(gsIds, m.Schema()), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil
 		}
 		return nil, err
 	}
-
+	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
+		return gsIds.Has(schm.ID())
+	})
+	s, ok := lo.Find(ss, func(sch *schema.Schema) bool {
+		return sch.ID() == m.Schema()
+	})
+	if !ok {
+		return nil, nil
+	}
 	res, pi, err := c.usecase.FindByModel(ctx, mid, sort.Into(), p.Into(), op)
 	if err != nil {
 		return nil, err
@@ -139,7 +158,7 @@ func (c *ItemLoader) FindByModel(ctx context.Context, modelId gqlmodel.ID, sort 
 	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
 	nodes := make([]*gqlmodel.Item, 0, len(res))
 	for _, i := range res {
-		itm := gqlmodel.ToItem(i, s)
+		itm := gqlmodel.ToItem(i, s, gs)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),
@@ -182,7 +201,7 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p
 		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
 			return s.ID() == sIds[i.Value().ID()]
 		})
-		itm := gqlmodel.ToItem(i, s)
+		itm := gqlmodel.ToItem(i, s, nil)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),
@@ -205,23 +224,33 @@ func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.ItemQuery, sort 
 	if err != nil {
 		return nil, err
 	}
+	var gsIds id.SchemaIDList
+	if len(res) != 0 {
+
+		gsIds, err = c.modelUsecase.GetGroupSchemasByModel(ctx, res[0].Value().Model(), op)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	sIds := lo.SliceToMap(res, func(v item.Versioned) (id.ItemID, id.SchemaID) {
 		return v.Value().ID(), v.Value().Schema()
 	})
 
-	ss, err := c.schemaUsecase.FindByIDs(ctx, lo.Uniq(lo.Values(sIds)), op)
+	ss, err := c.schemaUsecase.FindByIDs(ctx, lo.Uniq(append(gsIds, lo.Values(sIds)...)), op)
 	if err != nil {
 		return nil, err
 	}
-
+	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
+		return gsIds.Has(schm.ID())
+	})
 	edges := make([]*gqlmodel.ItemEdge, 0, len(res))
 	nodes := make([]*gqlmodel.Item, 0, len(res))
 	for _, i := range res {
 		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
 			return s.ID() == sIds[i.Value().ID()]
 		})
-		itm := gqlmodel.ToItem(i, s)
+		itm := gqlmodel.ToItem(i, s, gs)
 		edges = append(edges, &gqlmodel.ItemEdge{
 			Node:   itm,
 			Cursor: usecasex.Cursor(itm.ID),

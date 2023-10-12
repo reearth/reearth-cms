@@ -3,7 +3,10 @@ package interactor
 import (
 	"context"
 	"errors"
+	"github.com/reearth/reearth-cms/server/pkg/group"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
+	"github.com/samber/lo"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -255,4 +258,35 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 			// otherwise return standard schema
 			return i.repos.Schema.FindByID(ctx, sid)
 		})
+}
+
+func (i Model) GetGroupSchemasByModel(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) (id.SchemaIDList, error) {
+	m, err := i.repos.Model.FindByID(ctx, modelID)
+	if err != nil {
+		return nil, err
+	}
+	s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	if err != nil {
+		return nil, err
+	}
+	sg := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
+		return f.Type() == value.TypeGroup
+	})
+	gIds := lo.Map(sg, func(sf *schema.Field, _ int) id.GroupID {
+		var g id.GroupID
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Group: func(f *schema.FieldGroup) {
+				g = f.Group()
+			},
+		})
+		return g
+	})
+	groups, err := i.repos.Group.FindByIDs(ctx, gIds)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(groups, func(fff *group.Group, _ int) id.SchemaID {
+		return fff.Schema()
+	}), nil
 }

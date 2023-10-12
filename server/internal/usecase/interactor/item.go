@@ -794,7 +794,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
-		return item.NewField(sf.ID(), m), nil
+		return item.NewFieldWithGroup(sf.ID(), f.ItemGroup, m), nil
 	})
 }
 

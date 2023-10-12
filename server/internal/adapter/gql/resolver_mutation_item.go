@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
@@ -23,6 +24,15 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
+	m, err := usecases(ctx).Model.FindByID(ctx, mid, op)
+	if err != nil {
+		return nil, err
+	}
+
+	gsIds, err := usecases(ctx).Model.GetGroupSchemasByModel(ctx, mid, op)
+	if err != nil {
+		return nil, err
+	}
 	res, err := usecases(ctx).Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID:   sid,
 		ModelID:    mid,
@@ -32,12 +42,22 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
-	s, err := usecases(ctx).Schema.FindByID(ctx, sid, op)
+
+	ss, err := usecases(ctx).Schema.FindByIDs(ctx, append(gsIds, sid), op)
+	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
+		return gsIds.Has(schm.ID())
+	})
+	s, ok := lo.Find(ss, func(sch *schema.Schema) bool {
+		return sch.ID() == m.Schema()
+	})
+	if !ok {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, s),
+		Item: gqlmodel.ToItem(res, s, gs),
 	}, nil
 }
 
@@ -63,15 +83,32 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 		Fields:     util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
 		Version:    &v,
 	}, op)
+	mid := res.Value().Model()
+	m, err := usecases(ctx).Model.FindByID(ctx, mid, op)
 	if err != nil {
 		return nil, err
 	}
-	s, err := usecases(ctx).Schema.FindByID(ctx, res.Value().Schema(), op)
+
+	gsIds, err := usecases(ctx).Model.GetGroupSchemasByModel(ctx, mid, op)
 	if err != nil {
 		return nil, err
 	}
+	if err != nil {
+		return nil, err
+	}
+	ss, err := usecases(ctx).Schema.FindByIDs(ctx, append(gsIds, res.Value().Schema()), op)
+	gs := lo.Filter(ss, func(schm *schema.Schema, _ int) bool {
+		return gsIds.Has(schm.ID())
+	})
+	s, ok := lo.Find(ss, func(sch *schema.Schema) bool {
+		return sch.ID() == m.Schema()
+	})
+	if !ok {
+		return nil, nil
+	}
+
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, s),
+		Item: gqlmodel.ToItem(res, s, gs),
 	}, nil
 }
 
@@ -103,7 +140,7 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 		return nil, err
 	}
 	return &gqlmodel.UnpublishItemPayload{
-		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s) }),
+		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
 	}, nil
 }
 
@@ -124,6 +161,6 @@ func (r *mutationResolver) PublishItem(ctx context.Context, input gqlmodel.Publi
 	}
 
 	return &gqlmodel.PublishItemPayload{
-		Items: lo.Map(itm, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s) }),
+		Items: lo.Map(itm, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
 	}, nil
 }
