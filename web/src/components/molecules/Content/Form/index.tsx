@@ -218,7 +218,6 @@ const ContentForm: React.FC<Props> = ({
         value: string;
       }[] = [];
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
-      // console.log(values);
       // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
         if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -244,8 +243,6 @@ const ContentForm: React.FC<Props> = ({
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
-      // console.log(fields);
-      // return;
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
           value: (value || "") as string,

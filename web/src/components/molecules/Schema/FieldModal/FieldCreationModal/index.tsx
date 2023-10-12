@@ -387,7 +387,7 @@ const FieldCreationModal: React.FC<Props> = ({
                 name="group"
                 label={t("Select Group")}
                 rules={[{ required: true, message: t("Please select the group!") }]}>
-                <Select /*value={selectedGroup} onChange={handleSelectGroup}*/>
+                <Select>
                   {groups?.map(group => (
                     <Select.Option key={group.id} value={group.id}>
                       {group.name}{" "}
