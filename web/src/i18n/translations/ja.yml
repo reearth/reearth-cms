@@ -123,12 +123,30 @@ Link item: アイテムをリンクする
 State: ステータス
 Reviewers: レビュワー
 New Item: 新規アイテム
+Are you sure you want to delete this view?: ''
+Deleting the view is a permanent action. However, the contents will remain unaffected.: ''
+Please proceed with caution as this action cannot be undone.: ''
+Remove: 削除
+Update View: ''
+Rename: ''
+Remove View: ''
+View Name: ''
+This is the title of the view: ''
+Please input the view name!: ''
 We found some referenced items that not been published yet. Please select to publish the items.: まだ公開されていない参照アイテムが見つかりました。公開するアイテムを選択してください。
 Please input the title of your request!: リクエストのタイトルを入力してください。
 Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
 We found some referenced items that not published yet. Please select to add the items to the same request.: まだ公開されていない参照アイテムが見つかりました。同じリクエストに追加する場合は選択してください。
+is: ''
+is not: ''
+contains: ''
+doesn't contain: ''
+is empty: ''
+is not empty: ''
+Confirm: 確認
+Filter by...: ''
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -140,7 +158,6 @@ Maintainer: メインテイナー
 Owner: オーナー
 Name: 名前
 Creator: 作成者
-Remove: 削除
 No Integration yet: まだインテグレーションはありません
 Create a new: 新規作成
 Or read: 読む
@@ -233,7 +250,6 @@ Default value: デフォルト値
 Field: フィールド
 Previous: 前
 Next: 次
-Confirm: 確認
 Reference setting: 参照設定
 Corresponding field: 対応フィールド
 Select the model to reference: 参照するモデルを選択してください

@@ -45,6 +45,7 @@ import {
   LoadingOutlined,
   EyeInvisibleOutlined,
   CopyOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -141,4 +142,5 @@ export default {
   checkSquare: CheckSquare,
   colorPalette: ColorPalette,
   LineSegments: LineSegments,
+  reload: ReloadOutlined,
 };
