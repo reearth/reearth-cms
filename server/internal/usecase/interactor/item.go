@@ -755,7 +755,7 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 		if err != nil {
 			return nil, err
 		}
-		if err := i.checkUnique(ctx, fields, s, mId, nil); err != nil {
+		if err := i.checkUnique(ctx, fields, groupSchema, mId, nil); err != nil {
 			return nil, err
 		}
 
