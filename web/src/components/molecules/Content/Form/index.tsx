@@ -40,7 +40,6 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { newID } from "@reearth-cms/utils/id";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
@@ -219,7 +218,7 @@ const ContentForm: React.FC<Props> = ({
         value: string;
       }[] = [];
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
-      console.log(values);
+      // console.log(values);
       // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
         if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -245,7 +244,7 @@ const ContentForm: React.FC<Props> = ({
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
-      console.log(fields);
+      // console.log(fields);
       // return;
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
@@ -361,18 +360,6 @@ const ContentForm: React.FC<Props> = ({
     setPublishModalOpen(false);
   }, [setPublishModalOpen]);
 
-  const getItemGroupId = useCallback(
-    (fieldId: string) => {
-      if (item) {
-        const itemField = item.fields?.find(field => field.schemaFieldId === fieldId);
-        return itemField?.itemGroupId;
-      } else {
-        return newID();
-      }
-    },
-    [item],
-  );
-
   return (
     <>
       <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
@@ -407,9 +394,8 @@ const ContentForm: React.FC<Props> = ({
           }
         />
         <FormItemsWrapper>
-          {model?.schema.fields.map(field => {
-            const itemGroupId = getItemGroupId(field.id);
-            return field.type === "TextArea" ? (
+          {model?.schema.fields.map(field =>
+            field.type === "TextArea" ? (
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
@@ -645,7 +631,6 @@ const ContentForm: React.FC<Props> = ({
                 key={field.id}
                 extra={field.description}
                 name={field.id}
-                initialValue={field.multiple ? [] : itemGroupId}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
@@ -682,7 +667,6 @@ const ContentForm: React.FC<Props> = ({
                   />
                 ) : (
                   <GroupItem
-                    itemGroupId={itemGroupId}
                     parentField={field}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
@@ -738,8 +722,8 @@ const ContentForm: React.FC<Props> = ({
                   <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
                 )}
               </StyledFormItem>
-            );
-          })}
+            ),
+          )}
         </FormItemsWrapper>
       </StyledForm>
       <SideBarWrapper>

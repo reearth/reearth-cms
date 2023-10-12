@@ -21,7 +21,6 @@ import { moveItemInArray } from "../moveItemArray";
 type Props = {
   className?: string;
   value?: any;
-  getItemGroupId?: (fieldId: string) => string;
   onChange?: (value: any) => void;
   parentField: Field;
   fields?: Field[];
@@ -117,7 +116,7 @@ const MultiValueGroup: React.FC<Props> = ({
             <FieldWrapper key={key}>
               <GroupItem
                 order={key}
-                itemGroupId={valueItem}
+                value={valueItem}
                 parentField={parentField}
                 linkedItemsModalList={linkedItemsModalList}
                 formItemsData={formItemsData}
