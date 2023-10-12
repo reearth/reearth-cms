@@ -133,7 +133,7 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 			}
 		}
 		ig := id.ItemGroupIDFromRef(f.ItemGroup)
-		return item.NewFieldWithGroup(sf, ig, f.V.MultipleValue()), nil
+		return item.NewField(sf, f.V.MultipleValue(), ig), nil
 	})
 	if err != nil {
 		return nil, err
