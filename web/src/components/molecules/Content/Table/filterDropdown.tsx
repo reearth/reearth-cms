@@ -70,14 +70,21 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
       break;
   }
 
-  const userOptions: {
+  const valueOptions: {
     value: string;
     label: string;
   }[] = [];
-  if (filter.typeProperty?.values) {
-    for (const value of Object.values(filter.typeProperty.values)) {
-      userOptions.push({ value, label: t(value) });
+
+  if (filter.type === "Select") {
+    if (filter.typeProperty?.values) {
+      for (const value of Object.values(filter.typeProperty.values)) {
+        valueOptions.push({ value, label: t(value) });
+      }
     }
+  } else if (filter.type === "Person") {
+    //TO DO
+  } else if (filter.type === "Bool") {
+    valueOptions.push({ value: "true", label: "True" }, { value: "false", label: "False" });
   }
 
   const [open, setOpen] = useState(false);
@@ -104,8 +111,6 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
   };
 
   const onValueSelect = (value: string) => {
-    console.log(value);
-
     filterValue.current = value;
   };
 
@@ -123,10 +128,10 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
               <Select style={{ width: 160 }} options={options} onSelect={onFilterSelect} />
             </Form.Item>
             <Form.Item>
-              {filter.type === "Select" ? (
+              {filter.type === "Select" || filter.type === "Person" || filter.type === "Bool" ? (
                 <Select
                   placeholder="Select the value"
-                  options={userOptions}
+                  options={valueOptions}
                   onSelect={onValueSelect}
                 />
               ) : (
