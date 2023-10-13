@@ -1,6 +1,6 @@
 // import { LightFilter } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
-import { Key, useMemo, useState, useEffect } from "react";
+import { Key, useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -21,6 +21,7 @@ import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/Link
 import {
   ColorType,
   StateType,
+  FilterType,
   FilterOptions,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
@@ -218,6 +219,42 @@ const ContentTable: React.FC<Props> = ({
     );
   };
 
+  const filterStack = useRef<FilterType[]>([]);
+
+  const filterAttach = useCallback(() => {
+    let result = contentTableFields;
+    for (const filter of filterStack.current) {
+      const { dataIndex, option, value } = filter;
+      result = result?.filter(field => {
+        const data =
+          (typeof dataIndex === "string"
+            ? (field as any)[dataIndex]
+            : (field as any)[dataIndex[0]][dataIndex[1]]) ?? field.status;
+        switch (option) {
+          case FilterOptions.Is:
+            return data === value;
+          case FilterOptions.IsNot:
+            return data !== value;
+          case FilterOptions.Contains:
+            return new RegExp(value).test(data);
+          case FilterOptions.NotContain:
+            return new RegExp(`^(?!.*${value}).*$`).test(data);
+          case FilterOptions.IsEmpty:
+            return data === "";
+          case FilterOptions.IsNotEmpty:
+            return data !== "";
+        }
+      });
+    }
+    return result;
+  }, [contentTableFields]);
+
+  const [contentTableFieldsState, setContentTableFieldsState] = useState<ContentTableField[]>();
+
+  useEffect(() => {
+    setContentTableFieldsState(filterAttach());
+  }, [filterAttach]);
+
   const [filters, setFilters] = useState<any[]>([]);
 
   const [items, setItems] = useState<MenuProps["items"]>();
@@ -269,28 +306,9 @@ const ContentTable: React.FC<Props> = ({
     setItems(defaultItems);
   }, [defaultItems]);
 
-  const itemFilter = (dataIndex: string | string[], option: FilterOptions, value: string) => {
-    const result = contentTableFields?.filter(field => {
-      const data =
-        (typeof dataIndex === "string"
-          ? (field as any)[dataIndex]
-          : (field as any)[dataIndex[0]][dataIndex[1]]) ?? field.status;
-      switch (option) {
-        case FilterOptions.Is:
-          return data === value;
-        case FilterOptions.IsNot:
-          return data !== value;
-        case FilterOptions.Contains:
-          return new RegExp(value).test(data);
-        case FilterOptions.NotContain:
-          return new RegExp(`^(?!.*${value}).*$`).test(data);
-        case FilterOptions.IsEmpty:
-          return data === "";
-        case FilterOptions.IsNotEmpty:
-          return data !== "";
-      }
-    });
-    console.log(result);
+  const itemFilter = (newFilter: FilterType, index: number) => {
+    filterStack.current[index] = newFilter;
+    setContentTableFieldsState(filterAttach());
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
@@ -309,8 +327,13 @@ const ContentTable: React.FC<Props> = ({
         <Space
           size={[0, 8]}
           style={{ maxWidth: 700, overflowX: "auto", marginTop: 0, paddingRight: 10 }}>
-          {filters.map(filter => (
-            <FilterDropdown key={filter} filter={filter} itemFilter={itemFilter} />
+          {filters.map((filter, index) => (
+            <FilterDropdown
+              key={filter.title}
+              filter={filter}
+              itemFilter={itemFilter}
+              index={index}
+            />
           ))}
         </Space>
         <Dropdown menu={{ items }} placement="bottomLeft" trigger={["click"]} arrow>
@@ -345,7 +368,7 @@ const ContentTable: React.FC<Props> = ({
           loading={loading}
           pagination={pagination}
           toolbar={handleToolbarEvents}
-          dataSource={contentTableFields}
+          dataSource={contentTableFieldsState}
           tableAlertOptionRender={AlertOptions}
           rowSelection={rowSelection}
           columns={[...actionsColumn, ...contentTableColumns]}

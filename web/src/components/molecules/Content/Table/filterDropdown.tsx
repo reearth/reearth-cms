@@ -9,15 +9,16 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
-import { FilterOptions } from "@reearth-cms/components/molecules/Content/Table/types";
+import { FilterType, FilterOptions } from "@reearth-cms/components/molecules/Content/Table/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   filter: { dataIndex: string | string[]; title: string };
-  itemFilter: (dataIndex: string | string[], option: FilterOptions, reg: string) => void;
+  itemFilter: (filter: FilterType, index: number) => void;
+  index: number;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter, itemFilter }) => {
+const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
   const t = useT();
   const options = [
     { value: FilterOptions.Is, label: t("is") },
@@ -44,7 +45,7 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter }) => {
     if (filterOption.current === undefined) return;
     setOpen(false);
     const value = inputRef.current?.input?.value ?? "";
-    itemFilter(filter.dataIndex, filterOption.current, value);
+    itemFilter({ dataIndex: filter.dataIndex, option: filterOption.current, value }, index);
   };
 
   const onSelect = (value: FilterOptions) => {
