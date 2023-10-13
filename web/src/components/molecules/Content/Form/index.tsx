@@ -207,36 +207,21 @@ const ContentForm: React.FC<Props> = ({
     [formItemsData],
   );
 
-  const modelFieldTypes = useMemo(
-    () => new Map((model?.schema.fields || []).map(field => [field.id, field.type])),
-    [model?.schema.fields],
-  );
-
-  const groupIdsInCurrentModel = useMemo(() => {
-    const res = new Set();
-    model?.schema.fields?.forEach(field => {
-      if (field.type === "Group") res.add(field.typeProperty.groupId);
-    });
-    return res;
-  }, [model?.schema.fields]);
-
-  const groupFieldTypes = useMemo(() => {
-    const res = new Map();
-    groups
-      ?.filter(group => groupIdsInCurrentModel.has(group.id))
-      .forEach(group => {
-        group?.schema.fields?.forEach(field => res.set(field.id, field.type));
-      });
-    return res;
-  }, [groupIdsInCurrentModel, groups]);
-
-  const isObject = useCallback(
-    (value: any) => typeof value === "object" && !Array.isArray(value),
-    [],
-  );
-
   const handleSubmit = useCallback(async () => {
     try {
+      const modelFieldTypes = new Map(
+        (model?.schema.fields || []).map(field => [field.id, field.type]),
+      );
+      const groupIdsInCurrentModel = new Set();
+      model?.schema.fields?.forEach(field => {
+        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty.groupId);
+      });
+      const groupFieldTypes = new Map();
+      groups
+        ?.filter(group => groupIdsInCurrentModel.has(group.id))
+        .forEach(group => {
+          group?.schema.fields?.forEach(field => groupFieldTypes.set(field.id, field.type));
+        });
       const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
       const fields: {
@@ -249,7 +234,7 @@ const ContentForm: React.FC<Props> = ({
       // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
         // group fields
-        if (value && isObject(value)) {
+        if (value && typeof value === "object" && !Array.isArray(value)) {
           for (const [key1, value1] of Object.entries(value)) {
             const type1 = groupFieldTypes.get(key) || "";
             fields.push({
@@ -293,15 +278,14 @@ const ContentForm: React.FC<Props> = ({
       console.log("Validate Failed:", info);
     }
   }, [
+    model?.schema.fields,
+    model?.schema.id,
+    model?.metadataSchema?.fields,
+    model?.metadataSchema?.id,
+    groups,
     form,
     metaForm,
     itemId,
-    isObject,
-    modelFieldTypes,
-    groupFieldTypes,
-    model?.metadataSchema?.fields,
-    model?.metadataSchema?.id,
-    model?.schema.id,
     onItemCreate,
     onItemUpdate,
   ]);
