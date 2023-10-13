@@ -207,20 +207,28 @@ const ContentForm: React.FC<Props> = ({
     [formItemsData],
   );
 
-  // TODO: improve performance
   const modelFieldTypes = useMemo(
     () => new Map((model?.schema.fields || []).map(field => [field.id, field.type])),
     [model?.schema.fields],
   );
 
-  // TODO: improve performance
-  const groupFieldTypes = useMemo(() => {
-    const res = new Map();
-    groups?.forEach(group => {
-      group?.schema.fields?.forEach(field => res.set(field.id, field.type));
+  const groupIdsInCurrentModel = useMemo(() => {
+    const res = new Set();
+    model?.schema.fields?.forEach(field => {
+      if (field.type === "Group") res.add(field.typeProperty.groupId);
     });
     return res;
-  }, [groups]);
+  }, [model?.schema.fields]);
+
+  const groupFieldTypes = useMemo(() => {
+    const res = new Map();
+    groups
+      ?.filter(group => groupIdsInCurrentModel.has(group.id))
+      .forEach(group => {
+        group?.schema.fields?.forEach(field => res.set(field.id, field.type));
+      });
+    return res;
+  }, [groupIdsInCurrentModel, groups]);
 
   const isObject = useCallback(
     (value: any) => typeof value === "object" && !Array.isArray(value),
@@ -240,18 +248,20 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
+        // group fields
         if (value && isObject(value)) {
           for (const [key1, value1] of Object.entries(value)) {
-            const type = groupFieldTypes.get(key) || "";
+            const type1 = groupFieldTypes.get(key) || "";
             fields.push({
               value: (value1 || "") as string,
               schemaFieldId: key,
               itemGroupId: key1,
-              type: type as FieldType,
+              type: type1 as FieldType,
             });
           }
           continue;
         }
+        // model fields
         const type = modelFieldTypes.get(key) || "";
         fields.push({
           value: (value || "") as string,
@@ -259,9 +269,6 @@ const ContentForm: React.FC<Props> = ({
           type: type as FieldType,
         });
       }
-      console.log(values);
-      console.log(fields);
-      return;
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
           value: (value || "") as string,
