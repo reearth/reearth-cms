@@ -229,15 +229,18 @@ const ContentTable: React.FC<Props> = ({
 
   const filterStack = useRef<FilterType[]>([]);
 
-  const filterAttach = useCallback(() => {
+  const filterApply = useCallback(() => {
     let result = contentTableFields;
     for (const filter of filterStack.current) {
       const { dataIndex, option, value } = filter;
       result = result?.filter(field => {
         const data =
-          (typeof dataIndex === "string"
+          dataIndex === "itemRequestState"
+            ? "status"
+            : typeof dataIndex === "string"
             ? (field as any)[dataIndex]
-            : (field as any)[dataIndex[0]][dataIndex[1]]) ?? field.status;
+            : (field as any)[dataIndex[0]][dataIndex[1]];
+
         switch (option) {
           case FilterOptions.Is:
             return data === value;
@@ -248,9 +251,13 @@ const ContentTable: React.FC<Props> = ({
           case FilterOptions.NotContain:
             return new RegExp(`^(?!.*${value}).*$`).test(data);
           case FilterOptions.IsEmpty:
-            return data === "";
+            return data === null;
           case FilterOptions.IsNotEmpty:
-            return data !== "";
+            return data !== null;
+          case FilterOptions.GreaterThan:
+            return data !== null && data >= value;
+          case FilterOptions.LessThan:
+            return data !== null && data <= value;
         }
       });
     }
@@ -260,8 +267,8 @@ const ContentTable: React.FC<Props> = ({
   const [contentTableFieldsState, setContentTableFieldsState] = useState<ContentTableField[]>();
 
   useEffect(() => {
-    setContentTableFieldsState(filterAttach());
-  }, [filterAttach]);
+    setContentTableFieldsState(filterApply());
+  }, [filterApply]);
 
   const [filters, setFilters] = useState<any[]>([]);
 
@@ -321,7 +328,7 @@ const ContentTable: React.FC<Props> = ({
 
   const itemFilter = (newFilter: FilterType, index: number) => {
     filterStack.current[index] = newFilter;
-    setContentTableFieldsState(filterAttach());
+    setContentTableFieldsState(filterApply());
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {

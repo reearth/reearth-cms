@@ -6,6 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
+import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
 import { FilterType, FilterOptions } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -114,6 +115,12 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
     filterValue.current = value;
   };
 
+  const onNumberChange = (value: string | null) => {
+    if (value) {
+      filterValue.current = value;
+    }
+  };
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     filterValue.current = e.target.value;
   };
@@ -128,12 +135,17 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
               <Select style={{ width: 160 }} options={options} onSelect={onFilterSelect} />
             </Form.Item>
             <Form.Item>
-              {filter.type === "Select" || filter.type === "Person" || filter.type === "Bool" ? (
+              {filter.type === "Select" ||
+              filter.type === "Tag" ||
+              filter.type === "Person" ||
+              filter.type === "Bool" ? (
                 <Select
                   placeholder="Select the value"
                   options={valueOptions}
                   onSelect={onValueSelect}
                 />
+              ) : filter.type === "Integer" || filter.type === "Flaot" ? (
+                <InputNumber onChange={onNumberChange} stringMode />
               ) : (
                 <Input onChange={onChange} />
               )}
