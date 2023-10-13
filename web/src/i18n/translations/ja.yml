@@ -219,7 +219,7 @@ Field key must be unique and at least 1 character long. It can only contain lett
 Key is not valid: 無効なキーです
 Set Options: オプションを設定
 Set Tags: タグを設定する
-Select Group: グループ選択
+Select Group: グループを選択
 Please select the group!: グループを選択してください！
 Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
 Support multiple values: 複数値の設定を許可
@@ -270,8 +270,8 @@ Date picker: 日付ピッカー
 Select from a list of tags: タグのリストから選択する
 Check Box: チェックボックス
 Select from a list of checkboxes: チェックボックスのリストから選択する
-Customize a group of fields: フィールドのグループをカスタマイズする
-Delete Group: グループ削除
+Customize a group of fields: フィールドのグループをカスタマイズ
+Delete Group: グループを削除
 Are you sure you want to delete the group: 本当にグループを削除しますか？
 Warning: 注意
 This action will permanently delete the selected group and cannot be reversed.: この操作は選択したグループを永久に削除し、元に戻すことはできません。
@@ -281,7 +281,7 @@ Group name: グループ名
 Please input the name of the group!: グループ名を入力してください！
 Group description: グループ概要
 Group key: グループキー
-Group key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: グループ・キーはユニークで1文字以上でなければなりません。文字、数字、アンダースコア、ダッシュのみを含むことができます。
+Group key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: グループキーはユニークで1文字以上でなければなりません。文字、数字、アンダースコア、ダッシュのみを含むことができます。
 Fields: フィールド
 Delete Model: モデルを削除
 Are you sure you want to delete the model: 本当にこのモデルを削除してよろしいですか？
