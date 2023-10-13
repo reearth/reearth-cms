@@ -159,6 +159,7 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 148,
         minWidth: 148,
+        type: "Status",
       },
       {
         title: t("Created At"),
@@ -170,6 +171,7 @@ const ContentTable: React.FC<Props> = ({
           sort?.type === "CREATION_DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
         width: 148,
         minWidth: 148,
+        type: "Date",
       },
       {
         title: t("Updated At"),
@@ -185,6 +187,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        type: "Date",
       },
     ],
     [t, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
