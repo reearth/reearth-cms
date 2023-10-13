@@ -3,39 +3,40 @@ import styled from "@emotion/styled";
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { Model } from "@reearth-cms/components/molecules/ProjectOverview";
 import { useT } from "@reearth-cms/i18n";
+
+import { Group } from "../types";
 
 export interface Props {
   open: boolean;
-  model?: Model;
+  group?: Group;
   onClose: (refetch?: boolean) => void;
-  onDelete: (modelId?: string) => Promise<void> | void;
+  onDelete: (groupId?: string) => Promise<void> | void;
 }
 
-const ModelDeletionModal: React.FC<Props> = ({ open, model, onClose, onDelete }) => {
+const GroupDeletionModal: React.FC<Props> = ({ open, group, onClose, onDelete }) => {
   const t = useT();
 
   return (
     <Modal
-      title={t("Delete Model")}
-      visible={open}
+      title={t("Delete Group")}
+      open={open}
       onCancel={() => onClose()}
       footer={[
         <Button key="back" onClick={() => onClose()}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={() => onDelete(model?.id)} danger>
-          {t("Delete Model")}
+        <Button key="submit" type="primary" onClick={() => onDelete(group?.id)} danger>
+          {t("Delete Group")}
         </Button>,
       ]}>
       <p>
-        {t("Are you sure you want to delete the model")} <ModelName> {model?.name} </ModelName>?
+        {t("Are you sure you want to delete the group")} <GroupName> {group?.name} </GroupName>?
       </p>
       <Alert
         message={t("Warning")}
         description={t(
-          "This action will permanently delete the selected model and cannot be reversed.",
+          "This action will permanently delete the selected group and cannot be reversed.",
         )}
         type="warning"
         showIcon
@@ -44,8 +45,8 @@ const ModelDeletionModal: React.FC<Props> = ({ open, model, onClose, onDelete })
   );
 };
 
-export default ModelDeletionModal;
+export default GroupDeletionModal;
 
-const ModelName = styled.span`
+const GroupName = styled.span`
   font-weight: 600;
 `;

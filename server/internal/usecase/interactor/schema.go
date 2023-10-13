@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"context"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -106,7 +105,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		mid2 := fr.Model()
 		var s2 *schema.Schema
 		// check self reference
-		if mid2 == param.ModelID {
+		if param.ModelID != nil && mid2 == *param.ModelID {
 			s2 = s1
 		} else {
 			m2, err := i.repos.Model.FindByID(ctx, mid2)
@@ -124,7 +123,7 @@ func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		}
 
 		fr.SetCorrespondingSchema(s2.ID().Ref())
-		fields, err := schema.GetCorrespondingFields(s1, s2, param.ModelID, f1, fr)
+		fields, err := schema.GetCorrespondingFields(s1, s2, *param.ModelID, f1, fr)
 		if err != nil {
 			return err
 		}
@@ -223,7 +222,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 		}
 		var s2 *schema.Schema
 		// check self reference
-		if mid2 == param.ModelID {
+		if param.ModelID != nil && mid2 == *param.ModelID {
 			s2 = s1
 		} else {
 			s2, err = i.repos.Schema.FindByID(ctx, m2.Schema())
@@ -245,7 +244,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 				return interfaces.ErrFieldNotFound
 			}
 			if err := updateField(interfaces.UpdateFieldParam{
-				ModelID:     mid2,
+				ModelID:     mid2.Ref(),
 				SchemaID:    m2.Schema(),
 				FieldID:     *cf1.FieldID,
 				Name:        cf1.Title,
@@ -279,7 +278,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema,
 				return interfaces.ErrOperationDenied
 			}
 
-			fields, err := schema.GetCorrespondingFields(s1, s3, param.ModelID, f1, newFr)
+			fields, err := schema.GetCorrespondingFields(s1, s3, *param.ModelID, f1, newFr)
 			if err != nil {
 				return err
 			}
@@ -429,4 +428,37 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 		f.SetMultiple(*param.Multiple)
 	}
 	return nil
+}
+
+func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.SchemaIDList, operator *usecase.Operator) (schemas schema.List, groupSchemas schema.List, err error) {
+	schemas, err = i.repos.Schema.FindByIDs(ctx, list)
+	if err != nil {
+		return
+	}
+	var gIds id.GroupIDList
+	for _, s := range schemas {
+		sg := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
+			return f.Type() == value.TypeGroup
+		})
+		gIds = lo.Map(sg, func(sf *schema.Field, _ int) id.GroupID {
+			var g id.GroupID
+			sf.TypeProperty().Match(schema.TypePropertyMatch{
+				Group: func(f *schema.FieldGroup) {
+					g = f.Group()
+				},
+			})
+			return g
+		})
+	}
+	groups, err1 := i.repos.Group.FindByIDs(ctx, gIds)
+	if err1 != nil {
+		return nil, nil, err1
+	}
+
+	gsl, err1 := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs())
+	if err1 != nil {
+		return nil, nil, err1
+	}
+	groupSchemas = append(groupSchemas, gsl...)
+	return
 }

@@ -57,7 +57,7 @@ func (r *Project) FindByWorkspaces(_ context.Context, wids accountdomain.Workspa
 		int64(len(result)),
 		startCursor,
 		endCursor,
-		true,
+		false,
 		true,
 	), nil
 }

@@ -2,6 +2,7 @@
   "possibleTypes": {
     "Node": [
       "Asset",
+      "Group",
       "Integration",
       "Item",
       "Model",
@@ -20,6 +21,7 @@
       "SchemaFieldBool",
       "SchemaFieldCheckbox",
       "SchemaFieldDate",
+      "SchemaFieldGroup",
       "SchemaFieldInteger",
       "SchemaFieldMarkdown",
       "SchemaFieldReference",

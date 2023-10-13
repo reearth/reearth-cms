@@ -29,7 +29,7 @@ const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose,
     <Modal
       afterClose={() => SetSelectedIntegration(undefined)}
       title={t("Connect Integration")}
-      visible={open}
+      open={open}
       onCancel={onClose}
       footer={[
         <Button key="back" onClick={onClose}>
