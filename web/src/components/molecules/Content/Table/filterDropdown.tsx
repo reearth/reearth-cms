@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { InputRef } from "antd";
 import { useState, useRef } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -13,7 +12,12 @@ import { FilterType, FilterOptions } from "@reearth-cms/components/molecules/Con
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  filter: { dataIndex: string | string[]; title: string };
+  filter: {
+    dataIndex: string | string[];
+    title: string;
+    type: string;
+    typeProperty?: { values: string[] };
+  };
   itemFilter: (filter: FilterType, index: number) => void;
   index: number;
 };
@@ -29,9 +33,19 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
     { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
   ];
 
+  const userOptions: {
+    value: string;
+    label: string;
+  }[] = [];
+  if (filter.typeProperty) {
+    for (const value of Object.values(filter.typeProperty.values)) {
+      userOptions.push({ value, label: t(value) });
+    }
+  }
+
   const [open, setOpen] = useState(false);
   const filterOption = useRef<FilterOptions>();
-  const inputRef = useRef<InputRef>(null);
+  const filterValue = useRef<string>();
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
@@ -44,12 +58,22 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
   const confirm = () => {
     if (filterOption.current === undefined) return;
     setOpen(false);
-    const value = inputRef.current?.input?.value ?? "";
+    const value = filterValue.current ?? "";
     itemFilter({ dataIndex: filter.dataIndex, option: filterOption.current, value }, index);
   };
 
-  const onSelect = (value: FilterOptions) => {
+  const onFilterSelect = (value: FilterOptions) => {
     filterOption.current = value;
+  };
+
+  const onValueSelect = (value: string) => {
+    console.log(value);
+
+    filterValue.current = value;
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    filterValue.current = e.target.value;
   };
 
   return (
@@ -59,10 +83,18 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
         <DropdownRender>
           <Form name="basic" autoComplete="off">
             <Form.Item label={filter.title} name="condition">
-              <Select style={{ width: 160 }} options={options} onSelect={onSelect} />
+              <Select style={{ width: 160 }} options={options} onSelect={onFilterSelect} />
             </Form.Item>
             <Form.Item>
-              <Input ref={inputRef} />
+              {filter.type === "Select" ? (
+                <Select
+                  placeholder="Select the value"
+                  options={userOptions}
+                  onSelect={onValueSelect}
+                />
+              ) : (
+                <Input onChange={onChange} />
+              )}
             </Form.Item>
             <Form.Item style={{ textAlign: "right" }}>
               <Space size="small">

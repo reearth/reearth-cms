@@ -35,10 +35,15 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import FilterDropdown from "./filterDropdown";
 
+type ExtendedColumns = ProColumns<ContentTableField> & {
+  type?: string;
+  typeProperty?: { values: string[] };
+};
+
 export type Props = {
   className?: string;
   contentTableFields?: ContentTableField[];
-  contentTableColumns?: ProColumns<ContentTableField>[];
+  contentTableColumns?: ExtendedColumns[];
   loading: boolean;
   selectedItem: Item | undefined;
   selection: {
@@ -104,7 +109,7 @@ const ContentTable: React.FC<Props> = ({
   onItemsReload,
 }) => {
   const t = useT();
-  const actionsColumn: ProColumns<ContentTableField>[] = useMemo(
+  const actionsColumn: ExtendedColumns[] = useMemo(
     () => [
       {
         render: (_, contentField) => (
@@ -286,7 +291,7 @@ const ContentTable: React.FC<Props> = ({
           onClick: () => {
             setFilters(prevState => [
               ...prevState,
-              { dataIndex: column.dataIndex, title: column.title },
+              { dataIndex: column.dataIndex, title: column.title, type: column.type },
             ]);
           },
         })) as any),
@@ -298,7 +303,12 @@ const ContentTable: React.FC<Props> = ({
           onClick: () => {
             setFilters(prevState => [
               ...prevState,
-              { dataIndex: column.dataIndex, title: column.title },
+              {
+                dataIndex: column.dataIndex,
+                title: column.title,
+                type: column.type,
+                typeProperty: column.typeProperty,
+              },
             ]);
           },
         })) as any),
