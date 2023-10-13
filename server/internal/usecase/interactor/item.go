@@ -742,9 +742,7 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 			if param.ItemGroup == nil {
 				return false
 			}
-			for _, groupValue := range mvg {
-				return groupValue == *param.ItemGroup
-			}
+
 			_, ok := lo.Find(mvg, func(item value.Group) bool {
 				return item == *param.ItemGroup
 			})

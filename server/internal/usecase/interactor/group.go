@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
@@ -175,7 +176,7 @@ func (i Group) Delete(ctx context.Context, groupID id.GroupID, operator *usecase
 }
 
 func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.List, err error) {
-	models, _, err := i.repos.Model.FindByProject(ctx, g.Project(), nil)
+	models, _, err := i.repos.Model.FindByProject(ctx, g.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
