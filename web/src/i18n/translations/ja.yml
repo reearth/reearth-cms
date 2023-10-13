@@ -152,7 +152,7 @@ Email address or user name: Emailアドレスもしくはユーザー名
 Selected Members: 選択中のメンバー
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
-Groups: ''
+Groups: グループ
 Add: 追加
 Models: モデル
 New Integration: 新規インテグレーション
@@ -210,7 +210,7 @@ Boolean: ブーリアン
 Select: セレクト
 Number: 数値
 Relation: 関係
-Group: ''
+Group: グループ
 Meta Data: メタデータ
 Add Field: フィールドを追加
 Display name: 表示名
@@ -219,8 +219,8 @@ Field key must be unique and at least 1 character long. It can only contain lett
 Key is not valid: 無効なキーです
 Set Options: オプションを設定
 Set Tags: タグを設定する
-Select Group: ''
-Please select the group!: ''
+Select Group: グループ選択
+Please select the group!: グループを選択してください！
 Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
 Support multiple values: 複数値の設定を許可
 Only one field can be used as the title: タイトルとして使用できるフィールドは1つだけです。
@@ -270,18 +270,18 @@ Date picker: 日付ピッカー
 Select from a list of tags: タグのリストから選択する
 Check Box: チェックボックス
 Select from a list of checkboxes: チェックボックスのリストから選択する
-Customize a group of fields: ''
-Delete Group: ''
-Are you sure you want to delete the group: ''
+Customize a group of fields: フィールドのグループをカスタマイズする
+Delete Group: グループ削除
+Are you sure you want to delete the group: 本当にグループを削除しますか？
 Warning: 注意
-This action will permanently delete the selected group and cannot be reversed.: ''
-New Group: ''
-Update Group: ''
-Group name: ''
-Please input the name of the group!: ''
-Group description: ''
-Group key: ''
-Group key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: ''
+This action will permanently delete the selected group and cannot be reversed.: この操作は選択したグループを永久に削除し、元に戻すことはできません。
+New Group: 新グループ
+Update Group: 更新グループ
+Group name: グループ名
+Please input the name of the group!: グループ名を入力してください！
+Group description: グループ概要
+Group key: グループキー
+Group key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: グループ・キーはユニークで1文字以上でなければなりません。文字、数字、アンダースコア、ダッシュのみを含むことができます。
 Fields: フィールド
 Delete Model: モデルを削除
 Are you sure you want to delete the model: 本当にこのモデルを削除してよろしいですか？
@@ -347,8 +347,8 @@ Failed to unpublish items.: エラーによりアイテムを非公開にでき�
 Successfully unpublished items!: アイテムを非公開にしました。
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
-Failed to create group.: ''
-Successfully created group!: ''
+Failed to create group.: グループの作成に失敗しました。
+Successfully created group!: グループの作成に成功しました！
 Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。
@@ -363,12 +363,12 @@ Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
-Failed to delete group.: ''
-Successfully deleted group!: ''
-Failed to update group.: ''
-Successfully updated group!: ''
-No available Group: ''
-Please create a Group first to use the field: ''
+Failed to delete group.: グループの削除に失敗しました
+Successfully deleted group!: グループの削除に成功しました！
+Failed to update group.: グループの更新に失敗しました。
+Successfully updated group!: グループの更新に成功しました！
+No available Group: グループなし
+Please create a Group first to use the field: フィールドを使用するには、まずグループを作成してください。
 Failed to update project.: プロジェクトの更新に失敗しました。
 Successfully updated project!: プロジェクトの更新に成功しました。
 Failed to update request roles.: リクエストロールの更新に失敗しました。
