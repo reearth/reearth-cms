@@ -14,6 +14,7 @@ type Props = {
   className?: string;
   value?: (string | number | Moment)[];
   onChange?: (value: (string | number | Moment)[]) => void;
+  onBlur?: () => Promise<void>;
   FieldInput: React.FunctionComponent<any>;
 } & TextAreaProps &
   InputProps;
@@ -22,6 +23,7 @@ const MultiValueField: React.FC<Props> = ({
   className,
   value = [],
   onChange,
+  onBlur,
   FieldInput,
   ...props
 }) => {
@@ -67,13 +69,19 @@ const MultiValueField: React.FC<Props> = ({
                 <FieldButton
                   type="link"
                   icon={<Icon icon="arrowUp" />}
-                  onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
+                  onClick={() => {
+                    onChange?.(moveItemInArray(value, key, key - 1));
+                    onBlur?.();
+                  }}
                   disabled={key === 0}
                 />
                 <FieldButton
                   type="link"
                   icon={<Icon icon="arrowDown" />}
-                  onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
+                  onClick={() => {
+                    onChange?.(moveItemInArray(value, key, key + 1));
+                    onBlur?.();
+                  }}
                   disabled={key === value.length - 1}
                 />
               </>
@@ -82,13 +90,17 @@ const MultiValueField: React.FC<Props> = ({
               style={{ flex: 1 }}
               {...props}
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
+              onBlur={() => onBlur?.()}
               value={valueItem}
             />
             {!props.disabled && (
               <FieldButton
                 type="link"
                 icon={<Icon icon="delete" />}
-                onClick={() => handleInputDelete(key)}
+                onClick={() => {
+                  handleInputDelete(key);
+                  onBlur?.();
+                }}
               />
             )}
           </FieldWrapper>
@@ -102,8 +114,10 @@ const MultiValueField: React.FC<Props> = ({
             const defaultValue = props.type === "date" ? moment() : "";
             if (Array.isArray(currentValues)) {
               onChange?.([...currentValues, defaultValue]);
+              onBlur?.();
             } else {
               onChange?.([currentValues, defaultValue]);
+              onBlur?.();
             }
           }}>
           {t("New")}
