@@ -74,6 +74,16 @@ func (i *Item) Field(f FieldID) *Field {
 	return ff
 }
 
+func (i *Item) FieldByItemGroupAndID(fid FieldID, igID ItemGroupID) *Field {
+	ff, _ := lo.Find(i.fields, func(g *Field) bool {
+		if g.itemGroup == nil {
+			return false
+		}
+		return g.FieldID() == fid && *g.itemGroup == igID
+	})
+	return ff
+}
+
 func (i *Item) Thread() ThreadID {
 	return i.thread
 }
@@ -105,7 +115,10 @@ func (i *Item) UpdateFields(fields []*Field) {
 		if field == nil {
 			return false
 		}
-		return i.Field(field.field) == nil
+		if field.ItemGroup() == nil {
+			return i.Field(field.field) == nil
+		}
+		return i.FieldByItemGroupAndID(field.FieldID(), *field.ItemGroup()) == nil
 	})
 
 	i.fields = append(lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
@@ -113,7 +126,10 @@ func (i *Item) UpdateFields(fields []*Field) {
 			if g == nil || f == nil {
 				return false
 			}
-			return g.FieldID() == f.FieldID()
+			if g.itemGroup == nil || f.itemGroup == nil {
+				return g.FieldID() == f.FieldID()
+			}
+			return g.FieldID() == f.FieldID() && *g.itemGroup == *f.itemGroup
 		})
 
 		if !found {
