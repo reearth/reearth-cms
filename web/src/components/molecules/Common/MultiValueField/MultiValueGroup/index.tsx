@@ -20,8 +20,8 @@ import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
   className?: string;
-  value?: any;
-  onChange?: (value: any) => void;
+  value?: string[];
+  onChange?: (value: string[]) => void;
   parentField: Field;
   fields?: Field[];
   linkedItemsModalList?: FormItem[];
