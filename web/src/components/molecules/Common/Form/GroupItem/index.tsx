@@ -33,8 +33,8 @@ import { validateURL } from "@reearth-cms/utils/regex";
 import useHooks from "./hooks";
 
 type Props = {
-  value?: any;
-  onChange?: (value: any) => void;
+  value?: string;
+  onChange?: (value: string) => void;
   order?: number;
   parentField: Field;
   linkedItemsModalList?: FormItem[];
