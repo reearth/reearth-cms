@@ -331,6 +331,9 @@ export default () => {
           case "Asset":
             initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
+          case "Group":
+            initialValues[field.id] = field.multiple ? [] : ""; // group doesn't have default value
+            break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
             break;
@@ -339,6 +342,7 @@ export default () => {
     } else {
       currentItem?.fields?.forEach(field => {
         if (field.itemGroupId) {
+          // group item fields
           if (
             typeof initialValues[field.schemaFieldId] === "object" &&
             !Array.isArray(initialValues[field.schemaFieldId])
@@ -350,6 +354,7 @@ export default () => {
             };
           }
         } else {
+          // model item fields
           initialValues[field.schemaFieldId] = field.value;
         }
       });
