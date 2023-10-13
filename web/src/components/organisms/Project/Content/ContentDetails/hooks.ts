@@ -332,7 +332,7 @@ export default () => {
             initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
           case "Group":
-            initialValues[field.id] = field.multiple ? [] : ""; // group doesn't have default value
+            if (field.multiple) initialValues[field.id] = []; // group doesn't have default value
             break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
