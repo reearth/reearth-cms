@@ -4,7 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
-const TextField: React.FC = () => {
+const GroupField: React.FC = () => {
   const t = useT();
 
   return (
@@ -14,4 +14,4 @@ const TextField: React.FC = () => {
   );
 };
 
-export default TextField;
+export default GroupField;
