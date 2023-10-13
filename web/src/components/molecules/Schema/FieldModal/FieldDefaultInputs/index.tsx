@@ -123,7 +123,7 @@ const FieldDefaultInputs: React.FC<Props> = ({
     ) : selectedType === "URL" ? (
       <URLField multiple={multiple} />
     ) : selectedType === "Group" ? (
-      <GroupField multiple={multiple} />
+      <GroupField />
     ) : (
       <TextField multiple={multiple} />
     )

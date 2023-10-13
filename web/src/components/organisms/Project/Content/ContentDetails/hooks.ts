@@ -342,7 +342,6 @@ export default () => {
     } else {
       currentItem?.fields?.forEach(field => {
         if (field.itemGroupId) {
-          // group item fields
           if (
             typeof initialValues[field.schemaFieldId] === "object" &&
             !Array.isArray(initialValues[field.schemaFieldId])
@@ -354,7 +353,6 @@ export default () => {
             };
           }
         } else {
-          // model item fields
           initialValues[field.schemaFieldId] = field.value;
         }
       });
