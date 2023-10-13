@@ -209,6 +209,19 @@ const ContentForm: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     try {
+      const modelFieldTypes = new Map(
+        (model?.schema.fields || []).map(field => [field.id, field.type]),
+      );
+      const groupIdsInCurrentModel = new Set();
+      model?.schema.fields?.forEach(field => {
+        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty.groupId);
+      });
+      const groupFieldTypes = new Map();
+      groups
+        ?.filter(group => groupIdsInCurrentModel.has(group.id))
+        .forEach(group => {
+          group?.schema.fields?.forEach(field => groupFieldTypes.set(field.id, field.type));
+        });
       const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
       const fields: {
@@ -220,27 +233,25 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
+        // group fields
         if (value && typeof value === "object" && !Array.isArray(value)) {
           for (const [key1, value1] of Object.entries(value)) {
-            let type = "";
-            groups?.find(group => {
-              const field = group.schema.fields?.find(field1 => field1.id === key);
-              type = field?.type ?? "";
-              return field !== undefined;
-            });
+            const type1 = groupFieldTypes.get(key) || "";
             fields.push({
               value: (value1 || "") as string,
               schemaFieldId: key,
               itemGroupId: key1,
-              type: type as FieldType,
+              type: type1 as FieldType,
             });
           }
           continue;
         }
+        // model fields
+        const type = modelFieldTypes.get(key) || "";
         fields.push({
           value: (value || "") as string,
           schemaFieldId: key,
-          type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
+          type: type as FieldType,
         });
       }
       for (const [key, value] of Object.entries(metaValues)) {
@@ -267,14 +278,14 @@ const ContentForm: React.FC<Props> = ({
       console.log("Validate Failed:", info);
     }
   }, [
+    model?.schema.fields,
+    model?.schema.id,
+    model?.metadataSchema?.fields,
+    model?.metadataSchema?.id,
+    groups,
     form,
     metaForm,
-    model?.schema.fields,
-    model?.metadataSchema?.id,
-    model?.metadataSchema?.fields,
-    model?.schema.id,
     itemId,
-    groups,
     onItemCreate,
     onItemUpdate,
   ]);
