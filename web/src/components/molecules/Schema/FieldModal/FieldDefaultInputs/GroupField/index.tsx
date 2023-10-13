@@ -2,16 +2,21 @@ import React from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
+import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
 
-const TextField: React.FC = () => {
+type Props = {
+  multiple?: boolean;
+};
+
+const GroupField: React.FC<Props> = ({ multiple }) => {
   const t = useT();
 
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>
-      <Input disabled />
+      {multiple ? <MultiValueField FieldInput={Input} disabled /> : <Input disabled />}
     </Form.Item>
   );
 };
 
-export default TextField;
+export default GroupField;
