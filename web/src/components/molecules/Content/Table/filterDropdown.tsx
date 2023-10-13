@@ -16,7 +16,7 @@ type Props = {
     dataIndex: string | string[];
     title: string;
     type: string;
-    typeProperty?: { values: string[] };
+    typeProperty?: { values?: string[] };
   };
   itemFilter: (filter: FilterType, index: number) => void;
   index: number;
@@ -27,17 +27,54 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
   const options = [
     { value: FilterOptions.Is, label: t("is") },
     { value: FilterOptions.IsNot, label: t("is not") },
-    { value: FilterOptions.Contains, label: t("contains") },
-    { value: FilterOptions.NotContain, label: t("doesn't contain") },
-    { value: FilterOptions.IsEmpty, label: t("is empty") },
-    { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
   ];
+
+  switch (filter.type) {
+    case "Person":
+      options.push(
+        { value: FilterOptions.Contains, label: t("contains") },
+        { value: FilterOptions.NotContain, label: t("doesn't contain") },
+      );
+      break;
+    case "Text" ||
+      "TextArea" ||
+      "RichText" ||
+      "MarkdownText" ||
+      "Asset" ||
+      "URL" ||
+      "Select" ||
+      "Tag":
+      options.push(
+        { value: FilterOptions.Contains, label: t("contains") },
+        { value: FilterOptions.NotContain, label: t("doesn't contain") },
+        { value: FilterOptions.IsEmpty, label: t("is empty") },
+        { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
+      );
+      break;
+    case "Integer" || "Flaot":
+      options.push(
+        { value: FilterOptions.GreaterThan, label: t("greater than") },
+        { value: FilterOptions.LessThan, label: t("less than") },
+        { value: FilterOptions.IsEmpty, label: t("is empty") },
+        { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
+      );
+      break;
+    case "Date":
+      options.push(
+        { value: FilterOptions.Before, label: t("before") },
+        { value: FilterOptions.After, label: t("after") },
+        { value: FilterOptions.OfThisWeek, label: t("of this week") },
+        { value: FilterOptions.OfThisMonth, label: t("of this month") },
+        { value: FilterOptions.OfThisYear, label: t("of this year") },
+      );
+      break;
+  }
 
   const userOptions: {
     value: string;
     label: string;
   }[] = [];
-  if (filter.typeProperty) {
+  if (filter.typeProperty?.values) {
     for (const value of Object.values(filter.typeProperty.values)) {
       userOptions.push({ value, label: t(value) });
     }

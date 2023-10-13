@@ -37,7 +37,7 @@ import FilterDropdown from "./filterDropdown";
 
 type ExtendedColumns = ProColumns<ContentTableField> & {
   type?: string;
-  typeProperty?: { values: string[] };
+  typeProperty?: { values?: string[] };
 };
 
 export type Props = {
