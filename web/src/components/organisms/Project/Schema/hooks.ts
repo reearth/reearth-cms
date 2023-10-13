@@ -18,6 +18,7 @@ import {
   Group as GQLGroup,
   useCheckGroupKeyAvailabilityLazyQuery,
   useDeleteGroupMutation,
+  useCreateGroupMutation,
   useUpdateGroupMutation,
   useUpdateModelMutation,
   useDeleteModelMutation,
@@ -268,30 +269,6 @@ export default () => {
     [modelId, groupId, selectedSchemaType, createNewField, t],
   );
 
-  const handleFieldCreationModalOpen = useCallback(
-    (fieldType: FieldType) => {
-      if (fieldType === "Group" && groups?.length === 0) {
-        confirm({
-          title: "No available Group",
-          content: "Please create a Group first to use the field",
-          okText: "Create Group",
-          okType: "primary",
-          cancelText: "Cancel",
-          onOk() {
-            console.log("OK");
-          },
-          onCancel() {
-            console.log("Cancel");
-          },
-        });
-      } else {
-        setSelectedType(fieldType);
-        if (modelId) setFieldCreationModalShown(true);
-      }
-    },
-    [confirm, groups, modelId],
-  );
-
   const handleFieldUpdateModalClose = useCallback(() => {
     setSelectedField(null);
     setFieldUpdateModalShown(false);
@@ -312,11 +289,14 @@ export default () => {
   );
 
   // group hooks
+  const [groupCreateModalShown, setGroupCreateModalShown] = useState(false);
   const [groupUpdateModalShown, setGroupUpdateModalShown] = useState(false);
   const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
   const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
 
+  const handleGroupCreateModalClose = useCallback(() => setGroupCreateModalShown(false), []);
   const handleGroupUpdateModalClose = useCallback(() => setGroupUpdateModalShown(false), []);
+  const handleGroupCreateModalOpen = useCallback(() => setGroupCreateModalShown(true), []);
   const handleGroupUpdateModalOpen = useCallback(() => setGroupUpdateModalShown(true), []);
   const handleGroupDeletionModalOpen = useCallback(
     () => setGroupDeletionModalShown(true),
@@ -364,6 +344,31 @@ export default () => {
     [deleteGroup, handleGroupDeletionModalClose, t],
   );
 
+  const [createNewGroup] = useCreateGroupMutation({
+    refetchQueries: ["GetGroups"],
+  });
+
+  const handleGroupCreate = useCallback(
+    async (data: { name: string; description: string; key: string }) => {
+      if (!projectId) return;
+      const group = await createNewGroup({
+        variables: {
+          projectId,
+          name: data.name,
+          description: data.description,
+          key: data.key,
+        },
+      });
+      if (group.errors || !group.data?.createGroup) {
+        Notification.error({ message: t("Failed to create group.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully created group!") });
+      handleGroupCreateModalClose();
+    },
+    [projectId, createNewGroup, t, handleGroupCreateModalClose],
+  );
+
   const [updateNewGroup] = useUpdateGroupMutation({
     refetchQueries: ["GetGroups"],
   });
@@ -387,6 +392,30 @@ export default () => {
       handleGroupUpdateModalClose();
     },
     [updateNewGroup, handleGroupUpdateModalClose, t],
+  );
+
+  const handleFieldCreationModalOpen = useCallback(
+    (fieldType: FieldType) => {
+      if (fieldType === "Group" && groups?.length === 0) {
+        confirm({
+          title: t("No available Group"),
+          content: t("Please create a Group first to use the field"),
+          okText: "Create Group",
+          okType: "primary",
+          cancelText: t("Cancel"),
+          onOk() {
+            handleGroupCreateModalOpen();
+          },
+          onCancel() {
+            handleGroupCreateModalClose();
+          },
+        });
+      } else {
+        setSelectedType(fieldType);
+        if (modelId) setFieldCreationModalShown(true);
+      }
+    },
+    [confirm, groups?.length, handleGroupCreateModalClose, handleGroupCreateModalOpen, modelId, t],
   );
 
   // model hooks
@@ -498,14 +527,17 @@ export default () => {
     handleFieldOrder,
     handleFieldDelete,
     // group
+    groupCreateModalShown,
     groupUpdateModalShown,
     isGroupKeyAvailable,
     groupDeletionModalShown,
     handleGroupUpdateModalOpen,
     handleGroupDeletionModalOpen,
+    handleGroupCreateModalClose,
     handleGroupUpdateModalClose,
     handleGroupDeletionModalClose,
     handleGroupDelete,
+    handleGroupCreate,
     handleGroupUpdate,
     handleGroupKeyCheck,
     // modal

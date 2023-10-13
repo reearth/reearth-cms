@@ -367,6 +367,8 @@ Failed to delete group.: ''
 Successfully deleted group!: ''
 Failed to update group.: ''
 Successfully updated group!: ''
+No available Group: ''
+Please create a Group first to use the field: ''
 Failed to update project.: プロジェクトの更新に失敗しました。
 Successfully updated project!: プロジェクトの更新に成功しました。
 Failed to update request roles.: リクエストロールの更新に失敗しました。
