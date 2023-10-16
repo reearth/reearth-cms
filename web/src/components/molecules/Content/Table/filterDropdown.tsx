@@ -37,14 +37,14 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
         { value: FilterOptions.NotContain, label: t("doesn't contain") },
       );
       break;
-    case "Text" ||
-      "TextArea" ||
-      "RichText" ||
-      "MarkdownText" ||
-      "Asset" ||
-      "URL" ||
-      "Select" ||
-      "Tag":
+    case "Text":
+    case "TextArea":
+    case "RichText":
+    case "MarkdownText":
+    case "Asset":
+    case "URL":
+    case "Select":
+    case "Tag":
       options.push(
         { value: FilterOptions.Contains, label: t("contains") },
         { value: FilterOptions.NotContain, label: t("doesn't contain") },
@@ -52,7 +52,8 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
         { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
       );
       break;
-    case "Integer" || "Flaot":
+    case "Integer":
+    case "Flaot":
       options.push(
         { value: FilterOptions.GreaterThan, label: t("greater than") },
         { value: FilterOptions.LessThan, label: t("less than") },
