@@ -1,5 +1,6 @@
 // import { LightFilter } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
+import moment from "moment";
 import { Key, useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 
@@ -242,6 +243,18 @@ const ContentTable: React.FC<Props> = ({
             ? (field as any)[dataIndex]
             : (field as any)[dataIndex[0]][dataIndex[1]];
 
+        let dataTime = 0;
+        let valueTime = 0;
+        if (
+          FilterOptions.DateIs ||
+          option === FilterOptions.DateIsNot ||
+          option === FilterOptions.Before ||
+          option === FilterOptions.After
+        ) {
+          dataTime = new Date(data).setHours(9, 0, 0, 0);
+          valueTime = new Date(value).getTime();
+        }
+
         switch (option) {
           case FilterOptions.Is:
             return data === value;
@@ -259,6 +272,26 @@ const ContentTable: React.FC<Props> = ({
             return data !== null && data >= value;
           case FilterOptions.LessThan:
             return data !== null && data <= value;
+          case FilterOptions.DateIs:
+            return dataTime === valueTime;
+          case FilterOptions.DateIsNot:
+            return dataTime !== valueTime;
+          case FilterOptions.Before:
+            return dataTime < valueTime;
+          case FilterOptions.After:
+            return dataTime > valueTime;
+          case FilterOptions.OfThisWeek:
+            return (
+              moment(dataTime).year() === moment(valueTime).year() &&
+              moment(dataTime).week() === moment(valueTime).week()
+            );
+          case FilterOptions.OfThisMonth:
+            return (
+              moment(dataTime).year() === moment(valueTime).year() &&
+              moment(dataTime).month() === moment(valueTime).month()
+            );
+          case FilterOptions.OfThisYear:
+            return moment(dataTime).year() === moment(valueTime).year();
         }
       });
     }

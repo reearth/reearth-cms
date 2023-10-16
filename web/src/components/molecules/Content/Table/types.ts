@@ -15,6 +15,8 @@ export enum FilterOptions {
   IsNotEmpty,
   GreaterThan,
   LessThan,
+  DateIs,
+  DateIsNot,
   Before,
   After,
   OfThisWeek,

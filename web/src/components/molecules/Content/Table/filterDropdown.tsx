@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
+import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -25,14 +26,16 @@ type Props = {
 
 const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
   const t = useT();
-  const options = [
-    { value: FilterOptions.Is, label: t("is") },
-    { value: FilterOptions.IsNot, label: t("is not") },
-  ];
+  const options: {
+    value: FilterOptions;
+    label: string;
+  }[] = [];
 
   switch (filter.type) {
     case "Person":
       options.push(
+        { value: FilterOptions.Is, label: t("is") },
+        { value: FilterOptions.IsNot, label: t("is not") },
         { value: FilterOptions.Contains, label: t("contains") },
         { value: FilterOptions.NotContain, label: t("doesn't contain") },
       );
@@ -46,6 +49,8 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
     case "Select":
     case "Tag":
       options.push(
+        { value: FilterOptions.Is, label: t("is") },
+        { value: FilterOptions.IsNot, label: t("is not") },
         { value: FilterOptions.Contains, label: t("contains") },
         { value: FilterOptions.NotContain, label: t("doesn't contain") },
         { value: FilterOptions.IsEmpty, label: t("is empty") },
@@ -55,6 +60,8 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
     case "Integer":
     case "Flaot":
       options.push(
+        { value: FilterOptions.Is, label: t("is") },
+        { value: FilterOptions.IsNot, label: t("is not") },
         { value: FilterOptions.GreaterThan, label: t("greater than") },
         { value: FilterOptions.LessThan, label: t("less than") },
         { value: FilterOptions.IsEmpty, label: t("is empty") },
@@ -63,6 +70,8 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
       break;
     case "Date":
       options.push(
+        { value: FilterOptions.DateIs, label: t("is") },
+        { value: FilterOptions.DateIsNot, label: t("is not") },
         { value: FilterOptions.Before, label: t("before") },
         { value: FilterOptions.After, label: t("after") },
         { value: FilterOptions.OfThisWeek, label: t("of this week") },
@@ -122,8 +131,12 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
     }
   };
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     filterValue.current = e.target.value;
+  };
+
+  const onDateChange: DatePickerProps["onChange"] = (date, dateString) => {
+    filterValue.current = dateString;
   };
 
   return (
@@ -147,8 +160,15 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
                 />
               ) : filter.type === "Integer" || filter.type === "Flaot" ? (
                 <InputNumber onChange={onNumberChange} stringMode />
+              ) : filter.type === "Date" ? (
+                <DatePicker
+                  onChange={onDateChange}
+                  style={{ width: "100%" }}
+                  placeholder="Select the date"
+                  showToday={false}
+                />
               ) : (
-                <Input onChange={onChange} />
+                <Input onChange={onInputChange} />
               )}
             </Form.Item>
             <Form.Item style={{ textAlign: "right" }}>
