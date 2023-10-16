@@ -7,7 +7,7 @@ import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Group, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
@@ -38,6 +38,7 @@ export type Props = {
   commentsPanel?: JSX.Element;
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
+  groups?: Group[];
   workspaceUserMembers: Member[];
   totalCount: number;
   page: number;
@@ -125,6 +126,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalShown,
   addItemToRequestModalShown,
   workspaceUserMembers,
+  groups,
   totalCount,
   page,
   pageSize,
@@ -177,6 +179,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
       center={
         <ContentForm
           item={item}
+          groups={groups}
           linkItemModalTotalCount={linkItemModalTotalCount}
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}

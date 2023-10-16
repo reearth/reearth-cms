@@ -1,16 +1,18 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   className?: string;
-  title?: string;
   selectedKey?: string;
   models?: Model[];
+  selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
@@ -18,9 +20,9 @@ export type Props = {
 
 const ModelsList: React.FC<Props> = ({
   className,
-  title,
   selectedKey,
   models,
+  selectedSchemaType,
   collapsed,
   onModalOpen,
   onModelSelect,
@@ -31,13 +33,20 @@ const ModelsList: React.FC<Props> = ({
     onModelSelect(e.key);
   };
 
+  const selectedKeys = useMemo(() => {
+    return !selectedSchemaType
+      ? [selectedKey ?? ""]
+      : selectedSchemaType === "model" && selectedKey
+      ? [selectedKey]
+      : [];
+  }, [selectedKey, selectedSchemaType]);
+
   return (
     <SchemaStyledMenu className={className}>
       {collapsed ? (
-        <StyledIcon icon="unorderedList" />
+        <StyledIcon icon="caretRight" />
       ) : (
         <Header>
-          <SchemaStyledTitle>{title}</SchemaStyledTitle>
           <SchemaAction>
             <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
             <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
@@ -48,7 +57,7 @@ const ModelsList: React.FC<Props> = ({
       )}
       <MenuWrapper>
         <StyledMenu
-          selectedKeys={[selectedKey ?? ""]}
+          selectedKeys={selectedKeys}
           mode={collapsed ? "vertical" : "inline"}
           style={{
             color: collapsed ? "#C4C4C4" : undefined,
@@ -91,13 +100,10 @@ const SchemaStyledMenuTitle = styled.h1`
   color: #00000073;
 `;
 
-const SchemaStyledTitle = styled.h2``;
-
 const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  height: 100%;
   border-right: 1px solid #f0f0f0;
 `;
 

@@ -3,25 +3,25 @@ import React, { useMemo } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
+import { SelectedSchemaType, Tab } from "@reearth-cms/components/molecules/Schema";
 import { useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
 import { FieldType } from "./types";
 
-import { Tab } from ".";
-
 export interface Props {
   className?: string;
   currentTab?: Tab;
+  selectedSchemaType?: SelectedSchemaType;
   addField: (fieldType: FieldType) => void;
 }
 
 type FieldListItem = { title: string; fields: string[] };
 
-const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
+const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();
 
-  const data: FieldListItem[] = useMemo(
+  const group: FieldListItem[] = useMemo(
     () => [
       {
         title: t("Text"),
@@ -55,6 +55,17 @@ const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
     [t],
   );
 
+  const data: FieldListItem[] = useMemo(
+    () => [
+      ...group,
+      {
+        title: t("Group"),
+        fields: ["Group"],
+      },
+    ],
+    [group, t],
+  );
+
   const meta: FieldListItem[] = useMemo(
     () => [
       {
@@ -66,8 +77,8 @@ const FieldList: React.FC<Props> = ({ currentTab, addField }) => {
   );
 
   const dataSource = useMemo(
-    () => (currentTab === "meta-data" ? meta : data),
-    [currentTab, meta, data],
+    () => (selectedSchemaType === "group" ? group : currentTab === "meta-data" ? meta : data),
+    [selectedSchemaType, group, currentTab, meta, data],
   );
 
   return (
