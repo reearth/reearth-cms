@@ -232,6 +232,7 @@ const ContentTable: React.FC<Props> = ({
   const filterApply = useCallback(() => {
     let result = contentTableFields;
     for (const filter of filterStack.current) {
+      if (!filter) continue;
       const { dataIndex, option, value } = filter;
       result = result?.filter(field => {
         const data =
