@@ -14,7 +14,8 @@ export interface Props {
   onViewModalOpen?: () => void;
   onViewUpdateModalOpen?: () => void;
   onViewRenameModalOpen?: (view: View) => void;
-  onViewDeletionModalOpen?: (view: View) => void;
+  onDelete: (viewId: string) => void;
+  onViewDeletionClose: () => void;
 }
 
 const ViewsMenuMolecule: React.FC<Props> = ({
@@ -22,7 +23,8 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   onViewModalOpen,
   // onViewUpdateModalOpen,
   onViewRenameModalOpen,
-  onViewDeletionModalOpen,
+  onDelete,
+  onViewDeletionClose,
 }) => {
   const [selectedView, setSelectedView] = useState<string>(
     views && views.length > 0 ? views[0].id : "",
@@ -34,7 +36,8 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         <ViewsMenuItem
           view={view}
           onViewRenameModalOpen={onViewRenameModalOpen}
-          onViewDeletionModalOpen={onViewDeletionModalOpen}
+          onDelete={onDelete}
+          onViewDeletionClose={onViewDeletionClose}
         />
       ),
       key: view.id,
@@ -64,8 +67,8 @@ const ViewsMenuMolecule: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
-  display: "flex";
-  align-items: "center";
+  display: flex;
+  align-items: center;
 `;
 
 const StyledMenu = styled(Menu)`

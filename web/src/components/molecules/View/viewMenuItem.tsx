@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -9,14 +10,16 @@ export type Props = {
   view: View;
   onViewUpdateModalOpen?: (view: View) => void;
   onViewRenameModalOpen?: (view: View) => void;
-  onViewDeletionModalOpen?: (view: View) => void;
+  onDelete: (viewId: string) => void;
+  onViewDeletionClose: () => void;
 };
 
 const ViewsMenuItem: React.FC<Props> = ({
   view,
   onViewUpdateModalOpen,
   onViewRenameModalOpen,
-  onViewDeletionModalOpen,
+  onDelete,
+  onViewDeletionClose,
 }) => {
   const t = useT();
 
@@ -38,7 +41,32 @@ const ViewsMenuItem: React.FC<Props> = ({
       key: "remove",
       icon: <Icon icon="delete" />,
       danger: true,
-      onClick: () => onViewDeletionModalOpen?.(view),
+      onClick: () => {
+        Modal.confirm({
+          title: t("Are you sure you want to delete this view?"),
+          content: (
+            <div>
+              <p style={{ marginBottom: 0 }}>
+                {t(
+                  "Deleting the view is a permanent action. However, the contents will remain unaffected.",
+                )}
+              </p>
+              <p style={{ marginBottom: 0 }}>
+                {t("Please proceed with caution as this action cannot be undone.")}
+              </p>
+            </div>
+          ),
+          icon: <Icon icon="exclamationCircle" />,
+          okText: t("Remove"),
+          okButtonProps: { danger: true },
+          onOk() {
+            onDelete(view.id);
+          },
+          onCancel() {
+            onViewDeletionClose();
+          },
+        });
+      },
     },
   ];
 

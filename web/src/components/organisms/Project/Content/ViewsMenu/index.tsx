@@ -14,13 +14,11 @@ const ViewsMenu: React.FC = () => {
     handleViewModalOpen,
     // handleViewUpdateModalOpen,
     handleViewRenameModalOpen,
-    handleViewDeletionModalOpen,
     selectedView,
     viewModalShown,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,
-    viewDeletionModalShown,
     handleViewDelete,
     handleViewDeletionModalClose,
   } = useHooks({ modelId });
@@ -32,7 +30,8 @@ const ViewsMenu: React.FC = () => {
         onViewModalOpen={handleViewModalOpen}
         // onViewUpdateModalOpen={handleViewUpdateModalOpen}
         onViewRenameModalOpen={handleViewRenameModalOpen}
-        onViewDeletionModalOpen={handleViewDeletionModalOpen}
+        onDelete={handleViewDelete}
+        onViewDeletionClose={handleViewDeletionModalClose}
       />
       <ViewFormMobal
         view={selectedView}
@@ -40,12 +39,6 @@ const ViewsMenu: React.FC = () => {
         onClose={handleViewModalReset}
         onCreate={handleViewCreate}
         OnUpdate={handleViewUpdate}
-      />
-      <ViewDeletionModal
-        view={selectedView}
-        open={viewDeletionModalShown}
-        onDelete={handleViewDelete}
-        onClose={handleViewDeletionModalClose}
       />
     </>
   );

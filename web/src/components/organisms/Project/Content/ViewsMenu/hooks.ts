@@ -22,7 +22,6 @@ export default ({ modelId }: Params) => {
   const [selectedView, setSelectedView] = useState<View>();
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
-  const [viewDeletionModalShown, setViewDeletionModalShown] = useState(false);
   const navigate = useNavigate();
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
@@ -51,14 +50,6 @@ export default ({ modelId }: Params) => {
       handleViewModalOpen();
     },
     [setSelectedView, handleViewModalOpen],
-  );
-
-  const handleViewDeletionModalOpen = useCallback(
-    async (view: View) => {
-      setSelectedView(view);
-      setViewDeletionModalShown(true);
-    },
-    [setViewDeletionModalShown],
   );
 
   const handleViewModalReset = useCallback(() => {
@@ -119,8 +110,7 @@ export default ({ modelId }: Params) => {
 
   const handleViewDeletionModalClose = useCallback(() => {
     setSelectedView(undefined);
-    setViewDeletionModalShown(false);
-  }, [setSelectedView, setViewDeletionModalShown]);
+  }, [setSelectedView]);
 
   const handleViewDelete = useCallback(
     async (viewId?: string) => {
@@ -141,14 +131,12 @@ export default ({ modelId }: Params) => {
     handleViewModalOpen,
     handleViewUpdateModalOpen,
     handleViewRenameModalOpen,
-    handleViewDeletionModalOpen,
+    handleViewDelete,
+    handleViewDeletionModalClose,
     selectedView,
     viewModalShown,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,
-    viewDeletionModalShown,
-    handleViewDelete,
-    handleViewDeletionModalClose,
   };
 };
