@@ -19,6 +19,7 @@ type Props = {
     title: string;
     type: string;
     typeProperty?: { values?: string[] };
+    members?: { user: { name: string } }[];
   };
   itemFilter: (filter: FilterType, index: number) => void;
   index: number;
@@ -93,7 +94,11 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
       }
     }
   } else if (filter.type === "Person") {
-    //TO DO
+    if (filter?.members?.length) {
+      for (const member of Object.values(filter.members)) {
+        valueOptions.push({ value: member.user.name, label: member.user.name });
+      }
+    }
   } else if (filter.type === "Bool") {
     valueOptions.push({ value: "true", label: "True" }, { value: "false", label: "False" });
   }

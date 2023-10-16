@@ -32,6 +32,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
+import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import FilterDropdown from "./filterDropdown";
@@ -109,6 +110,7 @@ const ContentTable: React.FC<Props> = ({
   onItemDelete,
   onItemsReload,
 }) => {
+  const [currentWorkspace] = useWorkspace();
   const t = useT();
   const actionsColumn: ExtendedColumns[] = useMemo(
     () => [
@@ -349,12 +351,13 @@ const ContentTable: React.FC<Props> = ({
                 title: column.title,
                 type: column.type,
                 typeProperty: column.typeProperty,
+                members: currentWorkspace?.members,
               },
             ]);
           },
         })) as any),
     ];
-  }, [actionsColumn, contentTableColumns, t]);
+  }, [actionsColumn, contentTableColumns, t, currentWorkspace?.members]);
 
   useEffect(() => {
     setItems(defaultItems);
