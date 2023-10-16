@@ -282,3 +282,7 @@ func (r *queryResolver) Groups(ctx context.Context, projectID gqlmodel.ID) ([]*g
 func (r *queryResolver) CheckGroupKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error) {
 	return loaders(ctx).Group.CheckKey(ctx, projectID, key)
 }
+
+func (r *queryResolver) ModelsByGroup(ctx context.Context, groupID gqlmodel.ID) ([]*gqlmodel.Model, error) {
+	return loaders(ctx).Group.FindModelsByGroup(ctx, groupID)
+}

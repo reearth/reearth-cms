@@ -515,6 +515,7 @@ type ComplexityRoot struct {
 		Items                     func(childComplexity int, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) int
 		Me                        func(childComplexity int) int
 		Models                    func(childComplexity int, projectID gqlmodel.ID, pagination *gqlmodel.Pagination) int
+		ModelsByGroup             func(childComplexity int, groupID gqlmodel.ID) int
 		Node                      func(childComplexity int, id gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Nodes                     func(childComplexity int, id []gqlmodel.ID, typeArg gqlmodel.NodeType) int
 		Projects                  func(childComplexity int, workspaceID gqlmodel.ID, pagination *gqlmodel.Pagination) int
@@ -903,6 +904,7 @@ type QueryResolver interface {
 	AssetFile(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.AssetFile, error)
 	Assets(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.AssetSort, pagination *gqlmodel.Pagination) (*gqlmodel.AssetConnection, error)
 	Groups(ctx context.Context, projectID gqlmodel.ID) ([]*gqlmodel.Group, error)
+	ModelsByGroup(ctx context.Context, groupID gqlmodel.ID) ([]*gqlmodel.Model, error)
 	CheckGroupKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Items(ctx context.Context, modelID gqlmodel.ID, sort *gqlmodel.ItemSort, pagination *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error)
 	VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error)
@@ -3116,6 +3118,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Models(childComplexity, args["projectId"].(gqlmodel.ID), args["pagination"].(*gqlmodel.Pagination)), true
 
+	case "Query.modelsByGroup":
+		if e.complexity.Query.ModelsByGroup == nil {
+			break
+		}
+
+		args, err := ec.field_Query_modelsByGroup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ModelsByGroup(childComplexity, args["groupId"].(gqlmodel.ID)), true
+
 	case "Query.node":
 		if e.complexity.Query.Node == nil {
 			break
@@ -4996,6 +5010,7 @@ type DeleteGroupPayload {
 # extend type Query {}
 extend type Query {
     groups(projectId: ID!): [Group]!
+    modelsByGroup(groupId: ID!):[Model]!
     checkGroupKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
@@ -7114,6 +7129,21 @@ func (ec *executionContext) field_Query_items_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["pagination"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_modelsByGroup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.ID
+	if tmp, ok := rawArgs["groupId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groupId"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groupId"] = arg0
 	return args, nil
 }
 
@@ -20575,6 +20605,89 @@ func (ec *executionContext) fieldContext_Query_groups(ctx context.Context, field
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_groups_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_modelsByGroup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_modelsByGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ModelsByGroup(rctx, fc.Args["groupId"].(gqlmodel.ID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.Model)
+	fc.Result = res
+	return ec.marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_modelsByGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Model_id(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Model_projectId(ctx, field)
+			case "schemaId":
+				return ec.fieldContext_Model_schemaId(ctx, field)
+			case "metadataSchemaId":
+				return ec.fieldContext_Model_metadataSchemaId(ctx, field)
+			case "name":
+				return ec.fieldContext_Model_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Model_description(ctx, field)
+			case "key":
+				return ec.fieldContext_Model_key(ctx, field)
+			case "project":
+				return ec.fieldContext_Model_project(ctx, field)
+			case "schema":
+				return ec.fieldContext_Model_schema(ctx, field)
+			case "metadataSchema":
+				return ec.fieldContext_Model_metadataSchema(ctx, field)
+			case "public":
+				return ec.fieldContext_Model_public(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Model_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Model_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_modelsByGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -39652,6 +39765,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_groups(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "modelsByGroup":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_modelsByGroup(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

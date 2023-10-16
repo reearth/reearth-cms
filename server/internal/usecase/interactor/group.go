@@ -204,3 +204,11 @@ func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.
 	}
 	return
 }
+
+func (i Group) FindModelsByGroup(ctx context.Context, groupID id.GroupID, op *usecase.Operator) (model.List, error) {
+	g, err := i.repos.Group.FindByID(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+	return i.getModelsByGroup(ctx, g)
+}
