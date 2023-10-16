@@ -1,5 +1,6 @@
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -61,6 +62,7 @@ const ContentList: React.FC = () => {
           threadId={selectedItem?.threadId}
         />
       }
+      viewsMenu={<ViewsMenu />}
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
       selectedItem={selectedItem}
