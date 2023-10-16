@@ -2,7 +2,6 @@ package gql
 
 import (
 	"context"
-
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -23,6 +22,15 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
+	m, err := usecases(ctx).Model.FindByID(ctx, mid, op)
+	if err != nil {
+		return nil, err
+	}
+
+	ss, gs, err := usecases(ctx).Schema.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{m.Schema()}, op)
+	if err != nil {
+		return nil, err
+	}
 	res, err := usecases(ctx).Item.Create(ctx, interfaces.CreateItemParam{
 		SchemaID:   sid,
 		ModelID:    mid,
@@ -32,12 +40,9 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
-	s, err := usecases(ctx).Schema.FindByID(ctx, sid, op)
-	if err != nil {
-		return nil, err
-	}
+
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, s),
+		Item: gqlmodel.ToItem(res, ss[0], gs),
 	}, nil
 }
 
@@ -66,12 +71,14 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 	if err != nil {
 		return nil, err
 	}
-	s, err := usecases(ctx).Schema.FindByID(ctx, res.Value().Schema(), op)
+
+	ss, gs, err := usecases(ctx).Schema.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{res.Value().Schema()}, op)
 	if err != nil {
 		return nil, err
 	}
+
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, s),
+		Item: gqlmodel.ToItem(res, ss[0], gs),
 	}, nil
 }
 
@@ -103,7 +110,7 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 		return nil, err
 	}
 	return &gqlmodel.UnpublishItemPayload{
-		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s) }),
+		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
 	}, nil
 }
 
@@ -124,6 +131,6 @@ func (r *mutationResolver) PublishItem(ctx context.Context, input gqlmodel.Publi
 	}
 
 	return &gqlmodel.PublishItemPayload{
-		Items: lo.Map(itm, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s) }),
+		Items: lo.Map(itm, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
 	}, nil
 }

@@ -161,7 +161,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Project(p.ID()).
 		Thread(thId).
 		Fields([]*item.Field{
-			item.NewField(fId2, value.TypeAsset.Value(aid).AsMultiple()),
+			item.NewField(fId2, value.TypeAsset.Value(aid).AsMultiple(), nil),
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm); err != nil {
@@ -174,7 +174,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Project(p.ID()).
 		Thread(thId2).
 		Fields([]*item.Field{
-			item.NewField(fId3, value.TypeReference.Value(itmId).AsMultiple()),
+			item.NewField(fId3, value.TypeReference.Value(itmId).AsMultiple(), nil),
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm2); err != nil {
