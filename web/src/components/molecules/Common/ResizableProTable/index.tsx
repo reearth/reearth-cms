@@ -77,10 +77,6 @@ const ResizableProTable: React.FC<Props> = ({
 export default ResizableProTable;
 
 const Wrapper = styled.div`
-  .ant-pro-table-list-toolbar-right {
-    width: 100%;
-    justify-content: space-between;
-  }
   .ant-table.ant-table-middle {
     overflow-x: scroll;
   }
