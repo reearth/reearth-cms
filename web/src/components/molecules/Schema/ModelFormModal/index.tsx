@@ -21,7 +21,7 @@ export interface Props {
   isKeyAvailable: boolean;
   onClose: () => void;
   onCreate?: (values: FormValues) => Promise<void> | void;
-  OnUpdate?: (values: FormValues) => Promise<void> | void;
+  onUpdate?: (values: FormValues) => Promise<void> | void;
   onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
 }
 
@@ -30,7 +30,7 @@ const ModelFormModal: React.FC<Props> = ({
   open,
   onClose,
   onCreate,
-  OnUpdate,
+  onUpdate,
   onModelKeyCheck,
 }) => {
   const t = useT();
@@ -53,16 +53,18 @@ const ModelFormModal: React.FC<Props> = ({
     if (!model?.id) {
       await onCreate?.(values);
     } else {
-      await OnUpdate?.({ modelId: model.id, ...values });
+      await onUpdate?.({ modelId: model.id, ...values });
     }
     onClose();
     form.resetFields();
-  }, [onModelKeyCheck, model, form, onClose, onCreate, OnUpdate]);
+  }, [onModelKeyCheck, model, form, onClose, onCreate, onUpdate]);
 
   const handleClose = useCallback(() => {
-    form.resetFields();
+    if (!model) {
+      form.resetFields();
+    }
     onClose();
-  }, [form, onClose]);
+  }, [form, model, onClose]);
 
   return (
     <Modal
