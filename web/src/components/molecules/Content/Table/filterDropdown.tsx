@@ -163,7 +163,7 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
                   options={valueOptions}
                   onSelect={onValueSelect}
                 />
-              ) : filter.type === "Integer" || filter.type === "Flaot" ? (
+              ) : filter.type === "Integer" || filter.type === "Float" ? (
                 <InputNumber onChange={onNumberChange} stringMode />
               ) : filter.type === "Date" ? (
                 <DatePicker
