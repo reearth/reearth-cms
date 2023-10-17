@@ -16,6 +16,7 @@ import {
   ListToolBarProps,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -289,6 +290,36 @@ const ContentTable: React.FC<Props> = ({
     setting: true,
   };
 
+  const toolBarItems: MenuProps["items"] = [
+    {
+      label: "Add Filter",
+      key: "filter",
+      icon: <Icon icon="sortAscending" />,
+    },
+    {
+      label: "Add Sort",
+      key: "sort",
+      icon: <Icon icon="filter" />,
+    },
+  ];
+
+  const toolBarRender = () => {
+    return [
+      <Dropdown
+        menu={{ items: toolBarItems }}
+        placement="bottom"
+        trigger={["click"]}
+        arrow
+        key="control">
+        <Tooltip title="Control">
+          <IconWrapper>
+            <Icon icon="control" size={18} />
+          </IconWrapper>
+        </Tooltip>
+      </Dropdown>,
+    ];
+  };
+
   return (
     <>
       {contentTableColumns ? (
@@ -297,6 +328,7 @@ const ContentTable: React.FC<Props> = ({
           loading={loading}
           pagination={pagination}
           toolbar={handleToolbarEvents}
+          toolBarRender={toolBarRender}
           dataSource={contentTableFields}
           tableAlertOptionRender={AlertOptions}
           rowSelection={rowSelection}
@@ -354,11 +386,18 @@ const StyledLightFilter = styled.div`
   text-align: left;
   ant-space {
     flex: 1;
-    align-self: start:
+    align-self: start;
     justify-self: start;
     text-align: start;
   }
   .ant-pro-form-light-filter-item {
     margin: 0;
+  }
+`;
+
+const IconWrapper = styled.span`
+  cursor: pointer;
+  &:hover {
+    color: #40a9ff;
   }
 `;
