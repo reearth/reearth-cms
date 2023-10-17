@@ -1,6 +1,6 @@
 // import { LightFilter } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
-import { Key, useMemo, useState } from "react";
+import { Key, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -29,6 +29,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
+import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 export type Props = {
@@ -217,32 +218,48 @@ const ContentTable: React.FC<Props> = ({
 
   const [filters, setFilters] = useState<any[]>([]);
 
-  const items: MenuProps["items"] = useMemo(
-    () => [
-      {
-        key: "0",
-        label: <Input placeholder={t("Filter by...")} />,
-        disabled: true,
-      },
-      ...((actionsColumn ?? [])
-        .filter(column => !!column.title && typeof column.title === "string")
-        .map(column => ({
-          key: column.key,
-          label: column.title,
-          onClick: () => {
-            setFilters(prevState => [...prevState, column.title]);
-          },
-        })) as any),
-      ...((contentTableColumns ?? [])
-        .filter(column => !!column.title && typeof column.title === "string")
-        .map(column => ({
-          key: column.key,
-          label: column.title,
-          onClick: () => {
-            setFilters(prevState => [...prevState, column.title]);
-          },
-        })) as any),
-    ],
+  const getOptions = useCallback(
+    (isSort: boolean): MenuProps["items"] => {
+      return [
+        {
+          key: "0",
+          label: <Input placeholder={t("Filter by...")} />,
+          disabled: true,
+        },
+        ...((actionsColumn ?? [])
+          .filter(column => !!column.title && typeof column.title === "string")
+          .map(column => ({
+            key: column.key,
+            label: column.title,
+            onClick: isSort
+              ? () => {
+                  setFilters(prevState => [...prevState, column.title]);
+                  handleFilterOpenChange(false);
+                }
+              : () => {
+                  handleSortOpenChange(false);
+                },
+          })) as any),
+        ...((contentTableColumns ?? [])
+          .filter(column => !!column.title && typeof column.title === "string")
+          .map(column => ({
+            key: column.key,
+            label: column.title,
+            onClick: isSort
+              ? () => {
+                  setFilters(prevState => [...prevState, column.title]);
+                  handleFilterOpenChange(false);
+                  setSelectTitle(column.title as string);
+                  handleConditionMenuOpenChange(true);
+                }
+              : () => {
+                  handleSortOpenChange(false);
+                  setSelectTitle(column.title as string);
+                  handleConditionMenuOpenChange(true);
+                },
+          })) as any),
+      ];
+    },
     [actionsColumn, contentTableColumns, t],
   );
 
@@ -266,7 +283,11 @@ const ContentTable: React.FC<Props> = ({
             <FilterDropdown key={filter} filter={filter} />
           ))}
         </Space>
-        <Dropdown menu={{ items }} placement="bottomLeft" trigger={["click"]} arrow>
+        <Dropdown
+          menu={{ items: getOptions(true) }}
+          placement="bottomLeft"
+          trigger={["click"]}
+          arrow>
           <Button type="text" style={{ color: "rgba(0, 0, 0, 0.25)" }} icon={<Icon icon="plus" />}>
             Filter
           </Button>
@@ -292,30 +313,94 @@ const ContentTable: React.FC<Props> = ({
 
   const toolBarItems: MenuProps["items"] = [
     {
-      label: "Add Filter",
+      label: (
+        <span
+          onClick={() => {
+            handleFilterOpenChange(true);
+          }}>
+          Add Filter
+        </span>
+      ),
       key: "filter",
       icon: <Icon icon="sortAscending" />,
     },
     {
-      label: "Add Sort",
+      label: (
+        <span
+          onClick={() => {
+            handleSortOpenChange(true);
+          }}>
+          Add Sort
+        </span>
+      ),
       key: "sort",
       icon: <Icon icon="filter" />,
     },
   ];
 
+  const [selectTitle, setSelectTitle] = useState("");
+  const [controlMenuOpen, setControlMenuOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
+
+  const handleControlMenuOpenChange = (open: boolean) => {
+    setControlMenuOpen(open);
+  };
+
+  const handleFilterOpenChange = (open: boolean) => {
+    setControlMenuOpen(false);
+    setFilterOpen(open);
+  };
+
+  const handleSortOpenChange = (open: boolean) => {
+    setControlMenuOpen(false);
+    setSortOpen(open);
+  };
+
+  const handleConditionMenuOpenChange = (open: boolean) => {
+    setConditionMenuOpen(open);
+  };
+
   const toolBarRender = () => {
     return [
       <Dropdown
-        menu={{ items: toolBarItems }}
+        menu={{ items: getOptions(true) }}
         placement="bottom"
-        trigger={["click"]}
+        trigger={["contextMenu"]}
         arrow
+        open={filterOpen}
+        onOpenChange={handleFilterOpenChange}
         key="control">
-        <Tooltip title="Control">
-          <IconWrapper>
-            <Icon icon="control" size={18} />
-          </IconWrapper>
-        </Tooltip>
+        <Dropdown
+          menu={{ items: getOptions(false) }}
+          placement="bottom"
+          trigger={["contextMenu"]}
+          arrow
+          open={sortOpen}
+          onOpenChange={handleSortOpenChange}>
+          <Dropdown
+            dropdownRender={() => <DropdownRender filter={selectTitle} />}
+            trigger={["contextMenu"]}
+            placement="bottom"
+            arrow
+            open={conditionMenuOpen}
+            onOpenChange={handleConditionMenuOpenChange}>
+            <Dropdown
+              menu={{ items: toolBarItems }}
+              placement="bottom"
+              trigger={["click"]}
+              arrow
+              open={controlMenuOpen}
+              onOpenChange={handleControlMenuOpenChange}>
+              <Tooltip title="Control">
+                <IconWrapper>
+                  <Icon icon="control" size={18} />
+                </IconWrapper>
+              </Tooltip>
+            </Dropdown>
+          </Dropdown>
+        </Dropdown>
       </Dropdown>,
     ];
   };
