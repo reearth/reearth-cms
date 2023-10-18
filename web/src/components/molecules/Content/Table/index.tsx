@@ -249,7 +249,7 @@ const ContentTable: React.FC<Props> = ({
     search: (
       <StyledSearchContainer>
         <StyledSearchInput
-          placeholder={t("Search")}
+          placeholder={t("Please enter")}
           defaultValue={searchTerm}
           onSearch={(value: string) => {
             if (value) {
