@@ -11,8 +11,8 @@ type List []*Schema
 
 func (l List) SortByID() List {
 	m := slices.Clone(l)
-	slices.SortFunc(m, func(a, b *Schema) bool {
-		return a.ID().Compare(b.ID()) < 0
+	slices.SortFunc(m, func(a, b *Schema) int {
+		return a.ID().Compare(b.ID())
 	})
 	return m
 }
@@ -32,8 +32,8 @@ func (l FieldList) Find(fid FieldID) *Field {
 
 func (l FieldList) SortByID() FieldList {
 	m := slices.Clone(l)
-	slices.SortFunc(m, func(a, b *Field) bool {
-		return a.ID().Compare(b.ID()) < 0
+	slices.SortFunc(m, func(a, b *Field) int {
+		return a.ID().Compare(b.ID())
 	})
 	return m
 }
@@ -51,8 +51,8 @@ func (l FieldList) IDs() (ids id.FieldIDList) {
 
 func (l FieldList) Ordered() FieldList {
 	o := slices.Clone(l)
-	slices.SortFunc(o, func(a, b *Field) bool {
-		return a.Order() < b.Order()
+	slices.SortFunc(o, func(a, b *Field) int {
+		return a.Order() - b.Order()
 	})
 	return o
 }

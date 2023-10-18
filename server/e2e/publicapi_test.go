@@ -51,32 +51,32 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{"error": "not found"})
+		IsEqual(map[string]any{"error": "not found"})
 
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey2).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{"error": "not found"})
+		IsEqual(map[string]any{"error": "not found"})
 
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, "invalid-key").
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{"error": "not found"})
+		IsEqual(map[string]any{"error": "not found"})
 
 	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, publicAPIModelKey, id.NewItemID()).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{"error": "not found"})
+		IsEqual(map[string]any{"error": "not found"})
 
 	// ok
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"results": []map[string]any{
 				{
 					"id":               publicAPIItem1ID.String(),
@@ -118,7 +118,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"results": []map[string]any{
 				{
 					"id":               publicAPIItem2ID.String(),
@@ -139,7 +139,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"results": []map[string]any{
 				{
 					"id":               publicAPIItem2ID.String(),
@@ -155,7 +155,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"id":               publicAPIItem1ID.String(),
 			publicAPIField1Key: "aaa",
 			publicAPIField2Key: map[string]any{
@@ -169,7 +169,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"error": "not found",
 		})
 
@@ -177,7 +177,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"error": "not found",
 		})
 
@@ -185,7 +185,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"type": "asset",
 			"id":   publicAPIAsset1ID.String(),
 			"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
@@ -204,7 +204,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"results": []map[string]any{
 				{
 					"id":               publicAPIItem1ID.String(),
@@ -233,7 +233,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"id":               publicAPIItem1ID.String(),
 			publicAPIField1Key: "aaa",
 			// publicAPIField2Key should be removed
@@ -247,7 +247,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"error": "not found",
 		})
 
@@ -255,7 +255,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"error": "not found",
 		})
 }

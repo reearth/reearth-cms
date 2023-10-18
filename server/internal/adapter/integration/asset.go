@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/deepmap/oapi-codegen/pkg/runtime"
+	"github.com/oapi-codegen/runtime"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"

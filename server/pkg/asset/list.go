@@ -10,8 +10,8 @@ type List []*Asset
 
 func (l List) SortByID() List {
 	m := slices.Clone(l)
-	slices.SortFunc(m, func(a, b *Asset) bool {
-		return a.ID().Compare(b.ID()) < 0
+	slices.SortFunc(m, func(a, b *Asset) int {
+		return a.ID().Compare(b.ID())
 	})
 	return m
 }

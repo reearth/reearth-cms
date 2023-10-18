@@ -111,7 +111,7 @@ func TestCreateWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("data").Object().Value("createWorkspace").Object().Value("workspace").Object().Value("name").String().Equal("test")
+	o.Value("data").Object().Value("createWorkspace").Object().Value("workspace").Object().Value("name").String().IsEqual("test")
 }
 
 func TestDeleteWorkspace(t *testing.T) {
@@ -130,7 +130,7 @@ func TestDeleteWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("data").Object().Value("deleteWorkspace").Object().Value("workspaceId").String().Equal(wId.String())
+	o.Value("data").Object().Value("deleteWorkspace").Object().Value("workspaceId").String().IsEqual(wId.String())
 
 	_, err = r.Workspace.FindByID(context.Background(), wId)
 	assert.Equal(t, rerror.ErrNotFound, err)
@@ -148,7 +148,7 @@ func TestDeleteWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
 
-	o.Value("errors").Array().First().Object().Value("message").Equal("operation denied")
+	o.Value("errors").Array().Value(0).Object().Value("message").IsEqual("operation denied")
 }
 
 func TestUpdateWorkspace(t *testing.T) {
@@ -171,7 +171,7 @@ func TestUpdateWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("data").Object().Value("updateWorkspace").Object().Value("workspace").Object().Value("name").String().Equal("updated")
+	o.Value("data").Object().Value("updateWorkspace").Object().Value("workspace").Object().Value("name").String().IsEqual("updated")
 
 	w, err = r.Workspace.FindByID(context.Background(), wId)
 	assert.Nil(t, err)
@@ -190,7 +190,7 @@ func TestUpdateWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("errors").Array().First().Object().Value("message").Equal("not found")
+	o.Value("errors").Array().Value(0).Object().Value("message").IsEqual("not found")
 }
 
 func TestAddUsersToWorkspace(t *testing.T) {
@@ -232,7 +232,7 @@ func TestAddUsersToWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
-		Value("errors").Array().First().Object().Value("message").Equal("user already joined")
+		Value("errors").Array().Value(0).Object().Value("message").IsEqual("user already joined")
 }
 
 func TestRemoveUserFromWorkspace(t *testing.T) {
@@ -265,7 +265,7 @@ func TestRemoveUserFromWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("errors").Array().First().Object().Value("message").Equal("target user does not exist in the workspace")
+	o.Value("errors").Array().Value(0).Object().Value("message").IsEqual("target user does not exist in the workspace")
 }
 
 func TestUpdateMemberOfWorkspace(t *testing.T) {
@@ -305,7 +305,7 @@ func TestUpdateMemberOfWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("errors").Array().First().Object().Value("message").Equal("operation denied")
+	o.Value("errors").Array().Value(0).Object().Value("message").IsEqual("operation denied")
 }
 
 func TestAddIntegrationToWorkspace(t *testing.T) {
@@ -339,7 +339,7 @@ func TestAddIntegrationToWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
-		Value("errors").Array().First().Object().Value("message").Equal("user already joined")
+		Value("errors").Array().Value(0).Object().Value("message").IsEqual("user already joined")
 }
 
 func TestRemoveIntegrationFromWorkspace(t *testing.T) {
@@ -372,7 +372,7 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
-		Value("errors").Array().First().Object().Value("message").Equal("target user does not exist in the workspace")
+		Value("errors").Array().Value(0).Object().Value("message").IsEqual("target user does not exist in the workspace")
 }
 
 func TestUpdateIntegrationOfWorkspace(t *testing.T) {
@@ -412,5 +412,5 @@ func TestUpdateIntegrationOfWorkspace(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
-		Value("errors").Array().First().Object().Value("message").Equal("target user does not exist in the workspace")
+		Value("errors").Array().Value(0).Object().Value("message").IsEqual("target user does not exist in the workspace")
 }

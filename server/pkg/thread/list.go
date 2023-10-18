@@ -9,8 +9,8 @@ type List []*Thread
 
 func (l List) SortByID() List {
 	m := slices.Clone(l)
-	slices.SortFunc(m, func(a, b *Thread) bool {
-		return a.ID().Compare(b.ID()) < 0
+	slices.SortFunc(m, func(a, b *Thread) int {
+		return a.ID().Compare(b.ID())
 	})
 	return m
 }

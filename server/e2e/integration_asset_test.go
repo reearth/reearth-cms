@@ -32,11 +32,11 @@ func TestIntegrationGetAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("id", aid.String()).
-		ValueEqual("projectId", pid).
-		ValueEqual("name", "aaa.jpg").
-		ValueEqual("contentType", "image/jpg").
-		ValueEqual("totalSize", 1000)
+		HasValue("id", aid.String()).
+		HasValue("projectId", pid).
+		HasValue("name", "aaa.jpg").
+		HasValue("contentType", "image/jpg").
+		HasValue("totalSize", 1000)
 }
 
 // DELETE /assets/{assetId}
@@ -58,11 +58,11 @@ func TestIntegrationDeleteAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("id", aid.String()).
-		ValueEqual("projectId", pid).
-		ValueEqual("name", "aaa.jpg").
-		ValueEqual("contentType", "image/jpg").
-		ValueEqual("totalSize", 1000)
+		HasValue("id", aid.String()).
+		HasValue("projectId", pid).
+		HasValue("name", "aaa.jpg").
+		HasValue("contentType", "image/jpg").
+		HasValue("totalSize", 1000)
 
 	e.DELETE("/api/assets/{assetId}", aid).
 		WithHeader("authorization", "Bearer "+secret).
@@ -70,7 +70,7 @@ func TestIntegrationDeleteAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("id", aid.String())
+		HasValue("id", aid.String())
 
 	e.GET("/api/assets/{assetId}", aid).
 		WithHeader("authorization", "Bearer "+secret).

@@ -1,7 +1,7 @@
 package integrationapi
 
 import (
-	"github.com/deepmap/oapi-codegen/pkg/types"
+	"github.com/oapi-codegen/runtime/types"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"

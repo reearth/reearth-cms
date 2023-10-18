@@ -49,13 +49,13 @@ func TestIntegrationModelGetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("id", mId.String()).
-		ValueEqual("name", "m1").
-		ValueEqual("description", "m1 desc").
-		ValueEqual("public", true).
-		ValueEqual("key", ikey.String()).
-		ValueEqual("projectId", pid).
-		ValueEqual("schemaId", sid)
+		HasValue("id", mId.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
+		HasValue("public", true).
+		HasValue("key", ikey.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid)
 
 	obj.Value("createdAt").NotNull()
 	obj.Value("updatedAt").NotNull()
@@ -95,13 +95,13 @@ func TestIntegrationModelGetWithProjectAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("id", mId.String()).
-		ValueEqual("name", "m1").
-		ValueEqual("description", "m1 desc").
-		ValueEqual("public", true).
-		ValueEqual("key", ikey.String()).
-		ValueEqual("projectId", pid).
-		ValueEqual("schemaId", sid)
+		HasValue("id", mId.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
+		HasValue("public", true).
+		HasValue("key", ikey.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid)
 
 	obj.Value("createdAt").NotNull()
 	obj.Value("updatedAt").NotNull()
@@ -115,13 +115,13 @@ func TestIntegrationModelGetWithProjectAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("id", mId.String()).
-		ValueEqual("name", "m1").
-		ValueEqual("description", "m1 desc").
-		ValueEqual("public", true).
-		ValueEqual("key", ikey.String()).
-		ValueEqual("projectId", pid).
-		ValueEqual("schemaId", sid)
+		HasValue("id", mId.String()).
+		HasValue("name", "m1").
+		HasValue("description", "m1 desc").
+		HasValue("public", true).
+		HasValue("key", ikey.String()).
+		HasValue("projectId", pid).
+		HasValue("schemaId", sid)
 
 	obj.Value("createdAt").NotNull()
 	obj.Value("updatedAt").NotNull()
