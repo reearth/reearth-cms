@@ -110,8 +110,8 @@ func (f *File) RootPath(uuid string) string {
 // The parent directory refers to a zip file located in the root directory and is treated as the root directory.
 func FoldFiles(files []*File, parent *File) *File {
 	files = slices.Clone(files)
-	slices.SortFunc(files, func(a, b *File) bool {
-		return strings.Compare(a.Path(), b.Path()) < 0
+	slices.SortFunc(files, func(a, b *File) int {
+		return strings.Compare(a.Path(), b.Path())
 	})
 
 	folded := *parent

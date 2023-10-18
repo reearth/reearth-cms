@@ -23,7 +23,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/ravilushqa/otelgqlgen v0.13.1
-	github.com/reearth/reearthx v0.0.0-20231004123029-4aa43e69662a
+	github.com/reearth/reearthx v0.0.0-20231018053753-30170f2e187d
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.38.1
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
