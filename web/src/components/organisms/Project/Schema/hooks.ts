@@ -23,6 +23,7 @@ import {
   useUpdateModelMutation,
   useDeleteModelMutation,
   useCheckModelKeyAvailabilityLazyQuery,
+  useModelsByGroupQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
@@ -326,6 +327,13 @@ export default () => {
     setIsGroupKeyAvailable(!!groupKeyData?.checkGroupKeyAvailability.available);
   }, [groupKeyData?.checkGroupKeyAvailability]);
 
+  const { data: modelsByGroupData } = useModelsByGroupQuery({
+    variables: {
+      groupId: groupId ?? "",
+    },
+    skip: !groupId,
+  });
+
   const [deleteGroup] = useDeleteGroupMutation({
     refetchQueries: ["GetGroups"],
   });
@@ -333,6 +341,21 @@ export default () => {
   const handleGroupDelete = useCallback(
     async (groupId?: string) => {
       if (!groupId) return;
+
+      const modelsByGroup = modelsByGroupData?.modelsByGroup || [];
+      const isGroupDeletable = modelsByGroup.length === 0;
+      if (!isGroupDeletable) {
+        handleGroupDeletionModalClose();
+        const modelNames = modelsByGroup?.map(model => model?.name).join(", ");
+        Modal.error({
+          title: t("Group cannot be deleted"),
+          content: `
+          ${t("This group is used in")} ${modelNames}. 
+          ${t("If you want to delete it, please delete the field that uses it first.")}`,
+        });
+        return;
+      }
+
       const res = await deleteGroup({ variables: { groupId } });
       if (res.errors || !res.data?.deleteGroup) {
         Notification.error({ message: t("Failed to delete group.") });
@@ -341,7 +364,7 @@ export default () => {
         handleGroupDeletionModalClose();
       }
     },
-    [deleteGroup, handleGroupDeletionModalClose, t],
+    [deleteGroup, handleGroupDeletionModalClose, modelsByGroupData?.modelsByGroup, t],
   );
 
   const [createNewGroup] = useCreateGroupMutation({
