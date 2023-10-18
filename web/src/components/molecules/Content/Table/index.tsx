@@ -219,7 +219,14 @@ const ContentTable: React.FC<Props> = ({
   const [filters, setFilters] = useState<any[]>([]);
 
   const getOptions = useCallback(
-    (isSort: boolean): MenuProps["items"] => {
+    (isFilter: boolean): MenuProps["items"] => {
+      const optionsClick = (isFilter: boolean, title: string) => {
+        if (isFilter) setFilters(prevState => [...prevState, title]);
+        handleOptionsOpenChange(false);
+        setSelectTitle(title);
+        handleConditionMenuOpenChange(true);
+      };
+
       return [
         {
           key: "0",
@@ -231,32 +238,18 @@ const ContentTable: React.FC<Props> = ({
           .map(column => ({
             key: column.key,
             label: column.title,
-            onClick: isSort
-              ? () => {
-                  setFilters(prevState => [...prevState, column.title]);
-                  handleFilterOpenChange(false);
-                }
-              : () => {
-                  handleSortOpenChange(false);
-                },
+            onClick: () => {
+              optionsClick(isFilter, column.title as string);
+            },
           })) as any),
         ...((contentTableColumns ?? [])
           .filter(column => !!column.title && typeof column.title === "string")
           .map(column => ({
             key: column.key,
             label: column.title,
-            onClick: isSort
-              ? () => {
-                  setFilters(prevState => [...prevState, column.title]);
-                  handleFilterOpenChange(false);
-                  setSelectTitle(column.title as string);
-                  handleConditionMenuOpenChange(true);
-                }
-              : () => {
-                  handleSortOpenChange(false);
-                  setSelectTitle(column.title as string);
-                  handleConditionMenuOpenChange(true);
-                },
+            onClick: () => {
+              optionsClick(isFilter, column.title as string);
+            },
           })) as any),
       ];
     },
@@ -316,46 +309,46 @@ const ContentTable: React.FC<Props> = ({
       label: (
         <span
           onClick={() => {
-            handleFilterOpenChange(true);
+            toolBarItemClick(true);
           }}>
           Add Filter
         </span>
       ),
       key: "filter",
-      icon: <Icon icon="sortAscending" />,
+      icon: <Icon icon="filter" />,
     },
     {
       label: (
         <span
           onClick={() => {
-            handleSortOpenChange(true);
+            toolBarItemClick(false);
           }}>
           Add Sort
         </span>
       ),
       key: "sort",
-      icon: <Icon icon="filter" />,
+      icon: <Icon icon="sortAscending" />,
     },
   ];
 
+  const [isFilter, setIsFilter] = useState(true);
   const [selectTitle, setSelectTitle] = useState("");
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [sortOpen, setSortOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
 
   const handleControlMenuOpenChange = (open: boolean) => {
     setControlMenuOpen(open);
   };
 
-  const handleFilterOpenChange = (open: boolean) => {
-    setControlMenuOpen(false);
-    setFilterOpen(open);
+  const toolBarItemClick = (isFilter: boolean) => {
+    setIsFilter(isFilter);
+    handleOptionsOpenChange(true);
   };
 
-  const handleSortOpenChange = (open: boolean) => {
+  const handleOptionsOpenChange = (open: boolean) => {
     setControlMenuOpen(false);
-    setSortOpen(open);
+    setOptionsOpen(open);
   };
 
   const handleConditionMenuOpenChange = (open: boolean) => {
@@ -365,40 +358,32 @@ const ContentTable: React.FC<Props> = ({
   const toolBarRender = () => {
     return [
       <Dropdown
-        menu={{ items: getOptions(true) }}
+        menu={{ items: getOptions(isFilter) }}
         placement="bottom"
         trigger={["contextMenu"]}
         arrow
-        open={filterOpen}
-        onOpenChange={handleFilterOpenChange}
+        open={optionsOpen}
+        onOpenChange={handleOptionsOpenChange}
         key="control">
         <Dropdown
-          menu={{ items: getOptions(false) }}
-          placement="bottom"
+          dropdownRender={() => <DropdownRender filter={selectTitle} />}
           trigger={["contextMenu"]}
+          placement="bottom"
           arrow
-          open={sortOpen}
-          onOpenChange={handleSortOpenChange}>
+          open={conditionMenuOpen}
+          onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
-            dropdownRender={() => <DropdownRender filter={selectTitle} />}
-            trigger={["contextMenu"]}
+            menu={{ items: toolBarItems }}
             placement="bottom"
+            trigger={["click"]}
             arrow
-            open={conditionMenuOpen}
-            onOpenChange={handleConditionMenuOpenChange}>
-            <Dropdown
-              menu={{ items: toolBarItems }}
-              placement="bottom"
-              trigger={["click"]}
-              arrow
-              open={controlMenuOpen}
-              onOpenChange={handleControlMenuOpenChange}>
-              <Tooltip title="Control">
-                <IconWrapper>
-                  <Icon icon="control" size={18} />
-                </IconWrapper>
-              </Tooltip>
-            </Dropdown>
+            open={controlMenuOpen}
+            onOpenChange={handleControlMenuOpenChange}>
+            <Tooltip title="Control">
+              <IconWrapper>
+                <Icon icon="control" size={18} />
+              </IconWrapper>
+            </Tooltip>
           </Dropdown>
         </Dropdown>
       </Dropdown>,
