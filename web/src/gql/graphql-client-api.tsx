@@ -2489,24 +2489,30 @@ export type GetViewsQueryVariables = Exact<{
 }>;
 
 
-export type GetViewsQuery = { __typename?: 'Query', view: Array<{ __typename?: 'View', id: string, name: string, modelId: string, projectId: string }> };
+export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'NewItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
 
 export type CreateViewMutationVariables = Exact<{
   projectId: Scalars['ID'];
   modelId: Scalars['ID'];
   name: Scalars['String'];
+  sort?: InputMaybe<ItemSortInput>;
+  filter?: InputMaybe<ConditionInput>;
+  columns?: InputMaybe<Array<FieldSelectorInput> | FieldSelectorInput>;
 }>;
 
 
-export type CreateViewMutation = { __typename?: 'Mutation', createView?: { __typename: 'ViewPayload', view: { __typename: 'View', id: string, name: string } } | null };
+export type CreateViewMutation = { __typename?: 'Mutation', createView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'NewItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
 
 export type UpdateViewMutationVariables = Exact<{
   viewId: Scalars['ID'];
   name: Scalars['String'];
+  sort?: InputMaybe<ItemSortInput>;
+  filter?: InputMaybe<ConditionInput>;
+  columns?: InputMaybe<Array<FieldSelectorInput> | FieldSelectorInput>;
 }>;
 
 
-export type UpdateViewMutation = { __typename?: 'Mutation', updateView?: { __typename: 'ViewPayload', view: { __typename: 'View', id: string, name: string } } | null };
+export type UpdateViewMutation = { __typename?: 'Mutation', updateView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'NewItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
 
 export type DeleteViewMutationVariables = Exact<{
   viewId: Scalars['ID'];
@@ -5476,7 +5482,30 @@ export const GetViewsDocument = gql`
     name
     modelId
     projectId
+    sort {
+      field {
+        type
+        id
+      }
+      direction
+    }
+    columns {
+      type
+      id
+    }
+    filter {
+      ... on BoolFieldCondition {
+        fieldId {
+          type
+          id
+        }
+        operator
+        value
+      }
+    }
+    __typename
   }
+  __typename
 }
     `;
 
@@ -5508,14 +5537,38 @@ export type GetViewsQueryHookResult = ReturnType<typeof useGetViewsQuery>;
 export type GetViewsLazyQueryHookResult = ReturnType<typeof useGetViewsLazyQuery>;
 export type GetViewsQueryResult = Apollo.QueryResult<GetViewsQuery, GetViewsQueryVariables>;
 export const CreateViewDocument = gql`
-    mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!) {
-  createView(input: {projectId: $projectId, modelId: $modelId, name: $name}) {
+    mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+  createView(
+    input: {projectId: $projectId, modelId: $modelId, name: $name, sort: $sort, filter: $filter, columns: $columns}
+  ) {
     view {
       id
       name
+      modelId
+      projectId
+      sort {
+        field {
+          type
+          id
+        }
+        direction
+      }
+      columns {
+        type
+        id
+      }
+      filter {
+        ... on BoolFieldCondition {
+          fieldId {
+            type
+            id
+          }
+          operator
+          value
+        }
+      }
       __typename
     }
-    __typename
   }
 }
     `;
@@ -5537,6 +5590,9 @@ export type CreateViewMutationFn = Apollo.MutationFunction<CreateViewMutation, C
  *      projectId: // value for 'projectId'
  *      modelId: // value for 'modelId'
  *      name: // value for 'name'
+ *      sort: // value for 'sort'
+ *      filter: // value for 'filter'
+ *      columns: // value for 'columns'
  *   },
  * });
  */
@@ -5548,14 +5604,38 @@ export type CreateViewMutationHookResult = ReturnType<typeof useCreateViewMutati
 export type CreateViewMutationResult = Apollo.MutationResult<CreateViewMutation>;
 export type CreateViewMutationOptions = Apollo.BaseMutationOptions<CreateViewMutation, CreateViewMutationVariables>;
 export const UpdateViewDocument = gql`
-    mutation UpdateView($viewId: ID!, $name: String!) {
-  updateView(input: {viewId: $viewId, name: $name}) {
+    mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+  updateView(
+    input: {viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns}
+  ) {
     view {
       id
       name
+      modelId
+      projectId
+      sort {
+        field {
+          type
+          id
+        }
+        direction
+      }
+      columns {
+        type
+        id
+      }
+      filter {
+        ... on BoolFieldCondition {
+          fieldId {
+            type
+            id
+          }
+          operator
+          value
+        }
+      }
       __typename
     }
-    __typename
   }
 }
     `;
@@ -5576,6 +5656,9 @@ export type UpdateViewMutationFn = Apollo.MutationFunction<UpdateViewMutation, U
  *   variables: {
  *      viewId: // value for 'viewId'
  *      name: // value for 'name'
+ *      sort: // value for 'sort'
+ *      filter: // value for 'filter'
+ *      columns: // value for 'columns'
  *   },
  * });
  */
