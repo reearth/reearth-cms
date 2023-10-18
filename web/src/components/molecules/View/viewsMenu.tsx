@@ -6,6 +6,7 @@ import { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
 import { View } from "@reearth-cms/components/molecules/View/types";
+import { useT } from "@reearth-cms/i18n";
 
 import ViewsMenuItem from "./viewMenuItem";
 
@@ -26,6 +27,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   onDelete,
   onViewDeletionClose,
 }) => {
+  const t = useT();
   const [selectedView, setSelectedView] = useState<string>(
     views && views.length > 0 ? views[0].id : "",
   );
@@ -53,14 +55,14 @@ const ViewsMenuMolecule: React.FC<Props> = ({
       <StyledMenu
         mode="horizontal"
         expandIcon={<Icon />}
-        overflowedIndicator={<Button>All Views</Button>}
+        overflowedIndicator={<Button>{t("All Views")}</Button>}
         triggerSubMenuAction="click"
         selectedKeys={[selectedView]}
         items={menuItems}
         onClick={handleSelectView}
       />
       <NewViewButton type="text" onClick={onViewModalOpen}>
-        Save as new view
+        {t("Save as new view")}
       </NewViewButton>
     </Wrapper>
   );

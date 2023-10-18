@@ -19,7 +19,7 @@ export interface Props {
   OnUpdate?: (values: FormValues) => Promise<void> | void;
 }
 
-const ViewFormMobal: React.FC<Props> = ({ view, open, onClose, onCreate, OnUpdate }) => {
+const ViewFormModal: React.FC<Props> = ({ view, open, onClose, onCreate, OnUpdate }) => {
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
@@ -50,6 +50,19 @@ const ViewFormMobal: React.FC<Props> = ({ view, open, onClose, onCreate, OnUpdat
     onClose();
   }, [form, onClose]);
 
+  const handleValuesChange = useCallback(() => {
+    form
+      .validateFields()
+      .then(() => {
+        setButtonDisabled(false);
+      })
+      .catch(fieldError => {
+        setButtonDisabled(
+          fieldError.errorFields.some((item: FieldError) => item.errors.length > 0),
+        );
+      });
+  }, [form]);
+
   return (
     <Modal
       open={open}
@@ -57,21 +70,7 @@ const ViewFormMobal: React.FC<Props> = ({ view, open, onClose, onCreate, OnUpdat
       onCancel={handleClose}
       okButtonProps={{ disabled: buttonDisabled }}
       title={!view?.id ? t("New View") : t("Update View")}>
-      <Form
-        form={form}
-        layout="vertical"
-        onValuesChange={() => {
-          form
-            .validateFields()
-            .then(() => {
-              setButtonDisabled(false);
-            })
-            .catch(fieldError => {
-              setButtonDisabled(
-                fieldError.errorFields.some((item: FieldError) => item.errors.length > 0),
-              );
-            });
-        }}>
+      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <Form.Item
           name="name"
           label={t("View Name")}
@@ -84,4 +83,4 @@ const ViewFormMobal: React.FC<Props> = ({ view, open, onClose, onCreate, OnUpdat
   );
 };
 
-export default ViewFormMobal;
+export default ViewFormModal;

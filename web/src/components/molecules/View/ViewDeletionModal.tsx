@@ -8,19 +8,19 @@ import { View } from "./types";
 export interface Props {
   view?: View;
   open: boolean;
-  onClose: (refetch?: boolean) => void;
+  onClose: () => void;
   onDelete: (viewId?: string) => Promise<void> | void;
 }
 
-const ModelDeletionModal: React.FC<Props> = ({ open, view, onClose, onDelete }) => {
+const ViewDeletionModal: React.FC<Props> = ({ open, view, onClose, onDelete }) => {
   const t = useT();
 
   return (
     <Modal
       open={open}
-      onCancel={() => onClose()}
+      onCancel={onClose}
       footer={[
-        <Button key="back" onClick={() => onClose()}>
+        <Button key="back" onClick={onClose}>
           {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={() => onDelete(view?.id)} danger>
@@ -39,4 +39,4 @@ const ModelDeletionModal: React.FC<Props> = ({ open, view, onClose, onDelete }) 
   );
 };
 
-export default ModelDeletionModal;
+export default ViewDeletionModal;

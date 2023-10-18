@@ -74,11 +74,9 @@ export default ({ modelId }: Params) => {
         Notification.error({ message: t("Failed to create view.") });
         return;
       }
-      Notification.success({ message: t("Successfully created view!") });
       setViewModalShown(false);
-      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/content/${modelId}`);
     },
-    [createNewView, projectId, modelId, t, navigate, currentWorkspace?.id],
+    [createNewView, projectId, modelId, t],
   );
 
   const [updateNewView] = useUpdateViewMutation({
