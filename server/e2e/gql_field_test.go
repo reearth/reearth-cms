@@ -157,7 +157,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 	res.Object().
 		Value("data").Object().
 		Value("node").Object().
-		ValueEqual("id", mId)
+		HasValue("id", mId)
 
 	ids := res.Path("$.data.node.schema.fields[:].id").Raw().([]any)
 
@@ -209,7 +209,7 @@ func TestCreateField(t *testing.T) {
 	res.Object().
 		Value("data").Object().
 		Value("node").Object().
-		ValueEqual("id", mId)
+		HasValue("id", mId)
 
 	tags := res.Path("$.data.node.schema.fields[0].typeProperty.tags").Raw().([]any)
 
@@ -227,7 +227,7 @@ func TestCreateField(t *testing.T) {
 	res.Object().
 		Value("data").Object().
 		Value("node").Object().
-		ValueEqual("id", mId)
+		HasValue("id", mId)
 
 	_, _ = createField(e, mId, "test2", "test2", "test2",
 		false, false, false, false, "Tag",
@@ -247,6 +247,6 @@ func TestCreateField(t *testing.T) {
 	res.Object().
 		Value("data").Object().
 		Value("node").Object().
-		ValueEqual("id", mId)
+		HasValue("id", mId)
 
 }

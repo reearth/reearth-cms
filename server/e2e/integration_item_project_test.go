@@ -42,13 +42,13 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		JSON().
 		Object()
 
-	obj.Value("page").Equal(1)
-	obj.Value("perPage").Equal(5)
-	obj.Value("totalCount").Equal(1)
+	obj.Value("page").IsEqual(1)
+	obj.Value("perPage").IsEqual(5)
+	obj.Value("totalCount").IsEqual(1)
 
 	a := obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), false)
+	a.Length().IsEqual(1)
+	assertItem(a.Value(0), false)
 
 	// model key can be also usable
 	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, ikey).
@@ -59,13 +59,13 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
 
 	a = obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), false)
+	a.Length().IsEqual(1)
+	assertItem(a.Value(0), false)
 
 	// project alias can be also usable
 	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", palias, ikey).
@@ -76,13 +76,13 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
 
 	a = obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), false)
+	a.Length().IsEqual(1)
+	assertItem(a.Value(0), false)
 
 	// asset embeded
 	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId).
@@ -94,13 +94,13 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
 
 	a = obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), true)
+	a.Length().IsEqual(1)
+	assertItem(a.Value(0), true)
 
 	// invalid key
 	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, "xxx").
@@ -157,8 +157,8 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 		JSON().
 		Object()
 	r.Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	r.Value("fields").Equal([]any{
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	r.Value("fields").IsEqual([]any{
 		map[string]string{
 			"id":    fId.String(),
 			"type":  "text",
@@ -166,8 +166,8 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 			"key":   sfKey.String(),
 		},
 	})
-	r.Value("modelId").Equal(mId.String())
-	r.Value("refs").Equal([]string{"latest"})
+	r.Value("modelId").IsEqual(mId.String())
+	r.Value("refs").IsEqual([]string{"latest"})
 
 	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey).
 		WithHeader("authorization", "Bearer "+secret).
@@ -184,7 +184,7 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 		JSON().
 		Object().
 		Value("fields").
-		Equal([]any{
+		IsEqual([]any{
 			map[string]string{
 				"id":    fId.String(),
 				"type":  "text",

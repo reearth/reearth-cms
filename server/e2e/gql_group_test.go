@@ -53,8 +53,8 @@ func TestCreateGroup(t *testing.T) {
 		Value("data").Object().
 		Value("createGroup").Object().
 		Value("group").Object().
-		ValueEqual("name", "test").
-		ValueEqual("description", "test").
-		ValueEqual("key", "test-1")
+		HasValue("name", "test").
+		HasValue("description", "test").
+		HasValue("key", "test-1")
 
 }
