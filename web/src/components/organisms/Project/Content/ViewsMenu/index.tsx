@@ -25,7 +25,7 @@ const ViewsMenu: React.FC = () => {
   return (
     <>
       <ViewsMenuMolecule
-        views={views}
+        views={views || []}
         onViewModalOpen={handleViewModalOpen}
         // onViewUpdateModalOpen={handleViewUpdateModalOpen}
         onViewRenameModalOpen={handleViewRenameModalOpen}

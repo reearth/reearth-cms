@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { View } from "@reearth-cms/components/molecules/View/types";
 import {
+  View,
   useCreateViewMutation,
   useDeleteViewMutation,
   useGetViewsQuery,
@@ -25,6 +25,7 @@ export default ({ modelId }: Params) => {
 
   const { data } = useGetViewsQuery({
     variables: { modelId: modelId ?? "" },
+    skip: !modelId,
   });
 
   const views = useMemo(() => {
@@ -72,6 +73,7 @@ export default ({ modelId }: Params) => {
         return;
       }
       setViewModalShown(false);
+      Notification.success({ message: t("Successfully created view!") });
     },
     [createNewView, projectId, modelId, t],
   );
@@ -93,7 +95,7 @@ export default ({ modelId }: Params) => {
         Notification.error({ message: t("Failed to update view.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated model!") });
+      Notification.success({ message: t("Successfully updated view!") });
       handleViewModalReset();
     },
     [handleViewModalReset, t, updateNewView],

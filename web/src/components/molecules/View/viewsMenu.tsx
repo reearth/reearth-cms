@@ -5,13 +5,13 @@ import Button from "@reearth-cms/components/atoms/Button";
 import { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu from "@reearth-cms/components/atoms/Menu";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { View } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import ViewsMenuItem from "./viewMenuItem";
 
 export interface Props {
-  views?: View[];
+  views: View[];
   onViewModalOpen?: () => void;
   onViewUpdateModalOpen?: () => void;
   onViewRenameModalOpen?: (view: View) => void;

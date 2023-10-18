@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { View } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
