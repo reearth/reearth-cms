@@ -1,7 +1,7 @@
 // import { LightFilter } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
 import moment from "moment";
-import { Key, useMemo, useState, useEffect, useRef, useCallback } from "react";
+import React, { Key, useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -309,24 +309,52 @@ const ContentTable: React.FC<Props> = ({
   }, [filterApply]);
 
   const [filters, setFilters] = useState<any[]>([]);
-  const [items, setItems] = useState<MenuProps["items"]>();
   const [selectedFilter, setSelectedFilter] = useState<{
     dataIndex: string | string[];
     title: string;
     type: string;
   }>();
 
-  const getOptions = useCallback(
-    (isFilter: boolean): MenuProps["items"] => {
-      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        const reg = new RegExp(value, "i");
-        const result = getOptions(isFilter)?.filter(item => {
-          return item?.key == "0" || reg.test((item as any)?.label);
-        });
-        setItems(result);
-      };
+  const [isFilter, setIsFilter] = useState(true);
+  const [controlMenuOpen, setControlMenuOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
 
+  const handleControlMenuOpenChange = (open: boolean) => {
+    setControlMenuOpen(open);
+  };
+
+  const toolBarItemClick = (isFilterMode: boolean) => {
+    setInputValue("");
+    setItems(getOptions(true));
+    setIsFilter(isFilterMode);
+    handleOptionsOpenChange(true);
+  };
+
+  const handleOptionsOpenChange = (open: boolean) => {
+    setControlMenuOpen(false);
+    setOptionsOpen(open);
+  };
+
+  const handleConditionMenuOpenChange = (open: boolean) => {
+    setConditionMenuOpen(open);
+  };
+
+  const close = () => {
+    setConditionMenuOpen(false);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+    const reg = new RegExp(e.target.value, "i");
+    const result = getOptions(optionsOpen)?.filter(item => {
+      return reg.test((item as any)?.label);
+    });
+    setItems(result);
+  };
+
+  const getOptions = useCallback(
+    (isFromMenu: boolean): MenuProps["items"] => {
       const optionsClick = (isFilter: boolean, column: ExtendedColumns) => {
         if (isFilter)
           setFilters(prevState => [
@@ -344,16 +372,12 @@ const ContentTable: React.FC<Props> = ({
           type: column.type,
         } as any);
         handleOptionsOpenChange(false);
-        // setSelectTitle(column.title as string);
-        handleConditionMenuOpenChange(true);
+        if (isFromMenu) {
+          handleConditionMenuOpenChange(true);
+        }
       };
 
       return [
-        {
-          key: "0",
-          label: <Input placeholder={t("Filter by...")} onChange={handleChange} />,
-          disabled: true,
-        },
         ...((actionsColumn ?? [])
           .filter(column => !!column.title && typeof column.title === "string")
           .map(column => ({
@@ -374,12 +398,29 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [actionsColumn, contentTableColumns, t, currentWorkspace?.members],
+    [actionsColumn, contentTableColumns, currentWorkspace?.members, isFilter],
   );
 
+  const defaultItems = getOptions(false);
+  const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
   const itemFilter = (newFilter: FilterType, index: number) => {
     filterStack.current[index] = newFilter;
     setContentTableFieldsState(filterApply());
+  };
+
+  const [inputValue, setInputValue] = useState("");
+
+  const sharedProps = {
+    menu: { items },
+    dropdownRender: (menu: React.ReactNode): React.ReactNode => (
+      <Wrapper>
+        <InputWrapper>
+          <Input value={inputValue} placeholder="Filter by..." onChange={handleChange} />
+        </InputWrapper>
+        {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
+      </Wrapper>
+    ),
+    arrow: true,
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
@@ -399,22 +440,18 @@ const ContentTable: React.FC<Props> = ({
           size={[0, 8]}
           style={{ maxWidth: 700, overflowX: "auto", marginTop: 0, paddingRight: 10 }}>
           {filters.map((filter, index) => (
-            <FilterDropdown
-              key={filter.title}
-              filter={filter}
-              itemFilter={itemFilter}
-              index={index}
-            />
+            <FilterDropdown key={index} filter={filter} itemFilter={itemFilter} index={index} />
           ))}
         </Space>
         <Dropdown
-          menu={{ items: getOptions(true) }}
+          {...sharedProps}
           placement="bottomLeft"
           trigger={["click"]}
-          onOpenChange={(open: boolean) => {
-            setIsFilter(open);
-          }}
-          arrow>
+          onOpenChange={() => {
+            setIsFilter(true);
+            setInputValue("");
+            setItems(defaultItems);
+          }}>
           <Button type="text" style={{ color: "rgba(0, 0, 0, 0.25)" }} icon={<Icon icon="plus" />}>
             Filter
           </Button>
@@ -465,41 +502,12 @@ const ContentTable: React.FC<Props> = ({
     },
   ];
 
-  const [isFilter, setIsFilter] = useState(true);
-  // const [selectTitle, setSelectTitle] = useState("");
-  const [controlMenuOpen, setControlMenuOpen] = useState(false);
-  const [optionsOpen, setOptionsOpen] = useState(false);
-  const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
-
-  const handleControlMenuOpenChange = (open: boolean) => {
-    setControlMenuOpen(open);
-  };
-
-  const toolBarItemClick = (isFilter: boolean) => {
-    setIsFilter(isFilter);
-    handleOptionsOpenChange(true);
-  };
-
-  const handleOptionsOpenChange = (open: boolean) => {
-    setControlMenuOpen(false);
-    setOptionsOpen(open);
-  };
-
-  const handleConditionMenuOpenChange = (open: boolean) => {
-    setConditionMenuOpen(open);
-  };
-
-  const close = () => {
-    setConditionMenuOpen(false);
-  };
-
   const toolBarRender = () => {
     return [
       <Dropdown
-        menu={{ items }}
+        {...sharedProps}
         placement="bottom"
         trigger={["contextMenu"]}
-        arrow
         open={optionsOpen}
         onOpenChange={handleOptionsOpenChange}
         key="control">
@@ -529,10 +537,6 @@ const ContentTable: React.FC<Props> = ({
       </Dropdown>,
     ];
   };
-
-  useEffect(() => {
-    setItems(getOptions(isFilter));
-  }, [getOptions, isFilter]);
 
   return (
     <>
@@ -615,3 +619,18 @@ const IconWrapper = styled.span`
     color: #40a9ff;
   }
 `;
+
+const InputWrapper = styled.div`
+  padding: 8px 10px;
+`;
+
+const Wrapper = styled.div`
+  background-color: #fff;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+`;
+
+const menuStyle: React.CSSProperties = {
+  boxShadow: "none",
+  overflowY: "auto",
+};
