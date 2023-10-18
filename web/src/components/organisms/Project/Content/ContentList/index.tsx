@@ -62,6 +62,13 @@ const ContentList: React.FC = () => {
           threadId={selectedItem?.threadId}
         />
       }
+      modelsMenu={
+        <ModelsMenu
+          title={t("Content")}
+          collapsed={collapsedModelMenu}
+          onModelSelect={handleModelSelect}
+        />
+      }
       viewsMenu={<ViewsMenu />}
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
@@ -84,13 +91,6 @@ const ContentList: React.FC = () => {
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      modelsMenu={
-        <ModelsMenu
-          title={t("Content")}
-          collapsed={collapsedModelMenu}
-          onModelSelect={handleModelSelect}
-        />
-      }
       setSelection={setSelection}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
