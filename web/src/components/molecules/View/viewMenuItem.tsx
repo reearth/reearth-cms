@@ -78,7 +78,8 @@ const ViewsMenuItem: React.FC<Props> = ({
       menu={{ items: children }}>
       {t(view.name)}
     </StyledDropdownButton>
-  )};
+  );
+};
 
 export default ViewsMenuItem;
 

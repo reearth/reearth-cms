@@ -7,6 +7,7 @@ import {
   UsergroupAddOutlined,
   UserSwitchOutlined,
   CaretDownOutlined,
+  CaretRightOutlined,
   LogoutOutlined,
   UserOutlined,
   DashboardOutlined,
@@ -56,6 +57,7 @@ import CheckSquare from "./Icons/checkSquare.svg";
 import ColorPalette from "./Icons/colorPalette.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
+import Group from "./Icons/group.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
 import Link from "./Icons/link.svg";
@@ -81,6 +83,7 @@ export default {
   userGroupAdd: UsergroupAddOutlined,
   userSwitch: UserSwitchOutlined,
   caretDown: CaretDownOutlined,
+  caretRight: CaretRightOutlined,
   logout: LogoutOutlined,
   user: UserOutlined,
   dashboard: DashboardOutlined,
@@ -142,5 +145,6 @@ export default {
   checkSquare: CheckSquare,
   colorPalette: ColorPalette,
   LineSegments: LineSegments,
+  group: Group,
   reload: ReloadOutlined,
 };

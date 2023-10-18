@@ -445,7 +445,12 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		if err := i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return err
 		}
-
+		if itm.Value().MetadataItem() != nil {
+			err = i.repos.Item.Remove(ctx, itemID)
+			if err != nil {
+				return err
+			}
+		}
 		return i.repos.Item.Remove(ctx, itemID)
 	})
 }
@@ -703,7 +708,7 @@ func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, it *it
 		}
 		refItm, _ := items.Item(refItmId)
 		idValue := value.NewMultiple(value.TypeReference, []any{it.ID().String()})
-		refItm.UpdateFields([]*item.Field{item.NewField(*rf.CorrespondingFieldID(), idValue)})
+		refItm.UpdateFields([]*item.Field{item.NewField(*rf.CorrespondingFieldID(), idValue, nil)})
 		if err := i.repos.Item.Save(ctx, refItm); err != nil {
 			return err
 		}
@@ -742,9 +747,7 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 			if param.ItemGroup == nil {
 				return false
 			}
-			for _, groupValue := range mvg {
-				return groupValue == *param.ItemGroup
-			}
+
 			_, ok := lo.Find(mvg, func(item value.Group) bool {
 				return item == *param.ItemGroup
 			})
@@ -755,7 +758,7 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 		if err != nil {
 			return nil, err
 		}
-		if err := i.checkUnique(ctx, fields, s, mId, nil); err != nil {
+		if err := i.checkUnique(ctx, fields, groupSchema, mId, nil); err != nil {
 			return nil, err
 		}
 
@@ -794,7 +797,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
-		return item.NewField(sf.ID(), m), nil
+		return item.NewField(sf.ID(), m, f.ItemGroup), nil
 	})
 }
 

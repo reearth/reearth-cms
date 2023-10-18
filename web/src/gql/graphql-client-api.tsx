@@ -1217,6 +1217,7 @@ export type Query = {
   items: ItemConnection;
   me?: Maybe<Me>;
   models: ModelConnection;
+  modelsByGroup: Array<Maybe<Model>>;
   node?: Maybe<Node>;
   nodes: Array<Maybe<Node>>;
   projects: ProjectConnection;
@@ -1279,6 +1280,11 @@ export type QueryItemsArgs = {
 export type QueryModelsArgs = {
   pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID'];
+};
+
+
+export type QueryModelsByGroupArgs = {
+  groupId: Scalars['ID'];
 };
 
 
@@ -2107,7 +2113,8 @@ export type DeleteCommentMutationVariables = Exact<{
 export type DeleteCommentMutation = { __typename?: 'Mutation', deleteComment?: { __typename?: 'DeleteCommentPayload', commentId: string } | null };
 
 export type CreateFieldMutationVariables = Exact<{
-  modelId: Scalars['ID'];
+  modelId?: InputMaybe<Scalars['ID']>;
+  groupId?: InputMaybe<Scalars['ID']>;
   type: SchemaFieldType;
   title: Scalars['String'];
   metadata?: InputMaybe<Scalars['Boolean']>;
@@ -2124,7 +2131,8 @@ export type CreateFieldMutationVariables = Exact<{
 export type CreateFieldMutation = { __typename?: 'Mutation', createField?: { __typename?: 'FieldPayload', field: { __typename?: 'SchemaField', id: string } } | null };
 
 export type UpdateFieldMutationVariables = Exact<{
-  modelId: Scalars['ID'];
+  modelId?: InputMaybe<Scalars['ID']>;
+  groupId?: InputMaybe<Scalars['ID']>;
   fieldId: Scalars['ID'];
   title: Scalars['String'];
   metadata?: InputMaybe<Scalars['Boolean']>;
@@ -2149,13 +2157,63 @@ export type UpdateFieldsMutationVariables = Exact<{
 export type UpdateFieldsMutation = { __typename?: 'Mutation', updateFields?: { __typename?: 'FieldsPayload', fields: Array<{ __typename?: 'SchemaField', id: string }> } | null };
 
 export type DeleteFieldMutationVariables = Exact<{
-  modelId: Scalars['ID'];
+  modelId?: InputMaybe<Scalars['ID']>;
+  groupId?: InputMaybe<Scalars['ID']>;
   fieldId: Scalars['ID'];
   metadata?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
 export type DeleteFieldMutation = { __typename?: 'Mutation', deleteField?: { __typename?: 'DeleteFieldPayload', fieldId: string } | null };
+
+export type GetGroupsQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+}>;
+
+
+export type GetGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> };
+
+export type GetGroupQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetGroupQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+
+export type CreateGroupMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  name: Scalars['String'];
+  key: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type CreateGroupMutation = { __typename?: 'Mutation', createGroup?: { __typename?: 'GroupPayload', group: { __typename?: 'Group', id: string } } | null };
+
+export type UpdateGroupMutationVariables = Exact<{
+  groupId: Scalars['ID'];
+  name: Scalars['String'];
+  key: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type UpdateGroupMutation = { __typename?: 'Mutation', updateGroup?: { __typename?: 'GroupPayload', group: { __typename?: 'Group', id: string } } | null };
+
+export type DeleteGroupMutationVariables = Exact<{
+  groupId: Scalars['ID'];
+}>;
+
+
+export type DeleteGroupMutation = { __typename?: 'Mutation', deleteGroup?: { __typename?: 'DeleteGroupPayload', groupId: string } | null };
+
+export type CheckGroupKeyAvailabilityQueryVariables = Exact<{
+  projectId: Scalars['ID'];
+  key: Scalars['String'];
+}>;
+
+
+export type CheckGroupKeyAvailabilityQuery = { __typename?: 'Query', checkGroupKeyAvailability: { __typename?: 'KeyAvailability', key: string, available: boolean } };
 
 export type CreateIntegrationMutationVariables = Exact<{
   name: Scalars['String'];
@@ -2190,14 +2248,14 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> }, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> }, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
 
 export type GetItemQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
 
 export type IsItemReferencedQueryVariables = Exact<{
   itemId: Scalars['ID'];
@@ -2221,7 +2279,7 @@ export type SearchItemQueryVariables = Exact<{
 }>;
 
 
-export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -2231,7 +2289,7 @@ export type CreateItemMutationVariables = Exact<{
 }>;
 
 
-export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string }> } } | null };
+export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string, itemGroupId?: string | null }> } } | null };
 
 export type DeleteItemMutationVariables = Exact<{
   itemId: Scalars['ID'];
@@ -2248,7 +2306,7 @@ export type UpdateItemMutationVariables = Exact<{
 }>;
 
 
-export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string }> } } | null };
+export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string, itemGroupId?: string | null }> } } | null };
 
 export type UnpublishItemMutationVariables = Exact<{
   itemIds: Array<Scalars['ID']> | Scalars['ID'];
@@ -2270,7 +2328,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type GetModelQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -3433,9 +3491,9 @@ export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteComment
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
 export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
 export const CreateFieldDocument = gql`
-    mutation CreateField($modelId: ID!, $type: SchemaFieldType!, $title: String!, $metadata: Boolean, $description: String, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
+    mutation CreateField($modelId: ID, $groupId: ID, $type: SchemaFieldType!, $title: String!, $metadata: Boolean, $description: String, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
   createField(
-    input: {modelId: $modelId, type: $type, title: $title, metadata: $metadata, description: $description, key: $key, multiple: $multiple, unique: $unique, isTitle: $isTitle, required: $required, typeProperty: $typeProperty}
+    input: {modelId: $modelId, groupId: $groupId, type: $type, title: $title, metadata: $metadata, description: $description, key: $key, multiple: $multiple, unique: $unique, isTitle: $isTitle, required: $required, typeProperty: $typeProperty}
   ) {
     field {
       id
@@ -3459,6 +3517,7 @@ export type CreateFieldMutationFn = Apollo.MutationFunction<CreateFieldMutation,
  * const [createFieldMutation, { data, loading, error }] = useCreateFieldMutation({
  *   variables: {
  *      modelId: // value for 'modelId'
+ *      groupId: // value for 'groupId'
  *      type: // value for 'type'
  *      title: // value for 'title'
  *      metadata: // value for 'metadata'
@@ -3480,9 +3539,9 @@ export type CreateFieldMutationHookResult = ReturnType<typeof useCreateFieldMuta
 export type CreateFieldMutationResult = Apollo.MutationResult<CreateFieldMutation>;
 export type CreateFieldMutationOptions = Apollo.BaseMutationOptions<CreateFieldMutation, CreateFieldMutationVariables>;
 export const UpdateFieldDocument = gql`
-    mutation UpdateField($modelId: ID!, $fieldId: ID!, $title: String!, $metadata: Boolean, $description: String, $order: Int, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
+    mutation UpdateField($modelId: ID, $groupId: ID, $fieldId: ID!, $title: String!, $metadata: Boolean, $description: String, $order: Int, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
   updateField(
-    input: {modelId: $modelId, fieldId: $fieldId, title: $title, metadata: $metadata, description: $description, order: $order, key: $key, multiple: $multiple, unique: $unique, isTitle: $isTitle, required: $required, typeProperty: $typeProperty}
+    input: {modelId: $modelId, groupId: $groupId, fieldId: $fieldId, title: $title, metadata: $metadata, description: $description, order: $order, key: $key, multiple: $multiple, unique: $unique, isTitle: $isTitle, required: $required, typeProperty: $typeProperty}
   ) {
     field {
       id
@@ -3506,6 +3565,7 @@ export type UpdateFieldMutationFn = Apollo.MutationFunction<UpdateFieldMutation,
  * const [updateFieldMutation, { data, loading, error }] = useUpdateFieldMutation({
  *   variables: {
  *      modelId: // value for 'modelId'
+ *      groupId: // value for 'groupId'
  *      fieldId: // value for 'fieldId'
  *      title: // value for 'title'
  *      metadata: // value for 'metadata'
@@ -3563,8 +3623,10 @@ export type UpdateFieldsMutationHookResult = ReturnType<typeof useUpdateFieldsMu
 export type UpdateFieldsMutationResult = Apollo.MutationResult<UpdateFieldsMutation>;
 export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
 export const DeleteFieldDocument = gql`
-    mutation DeleteField($modelId: ID!, $fieldId: ID!, $metadata: Boolean) {
-  deleteField(input: {modelId: $modelId, fieldId: $fieldId, metadata: $metadata}) {
+    mutation DeleteField($modelId: ID, $groupId: ID, $fieldId: ID!, $metadata: Boolean) {
+  deleteField(
+    input: {modelId: $modelId, groupId: $groupId, fieldId: $fieldId, metadata: $metadata}
+  ) {
     fieldId
   }
 }
@@ -3585,6 +3647,7 @@ export type DeleteFieldMutationFn = Apollo.MutationFunction<DeleteFieldMutation,
  * const [deleteFieldMutation, { data, loading, error }] = useDeleteFieldMutation({
  *   variables: {
  *      modelId: // value for 'modelId'
+ *      groupId: // value for 'groupId'
  *      fieldId: // value for 'fieldId'
  *      metadata: // value for 'metadata'
  *   },
@@ -3597,6 +3660,330 @@ export function useDeleteFieldMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteFieldMutationHookResult = ReturnType<typeof useDeleteFieldMutation>;
 export type DeleteFieldMutationResult = Apollo.MutationResult<DeleteFieldMutation>;
 export type DeleteFieldMutationOptions = Apollo.BaseMutationOptions<DeleteFieldMutation, DeleteFieldMutationVariables>;
+export const GetGroupsDocument = gql`
+    query GetGroups($projectId: ID!) {
+  groups(projectId: $projectId) {
+    id
+    schemaId
+    projectId
+    name
+    description
+    key
+    schema {
+      id
+      fields {
+        id
+        type
+        title
+        key
+        description
+        required
+        unique
+        isTitle
+        multiple
+        typeProperty {
+          ... on SchemaFieldText {
+            defaultValue
+            maxLength
+          }
+          ... on SchemaFieldTextArea {
+            defaultValue
+            maxLength
+          }
+          ... on SchemaFieldMarkdown {
+            defaultValue
+            maxLength
+          }
+          ... on SchemaFieldAsset {
+            assetDefaultValue: defaultValue
+          }
+          ... on SchemaFieldSelect {
+            selectDefaultValue: defaultValue
+            values
+          }
+          ... on SchemaFieldInteger {
+            integerDefaultValue: defaultValue
+            min
+            max
+          }
+          ... on SchemaFieldBool {
+            defaultValue
+          }
+          ... on SchemaFieldURL {
+            defaultValue
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetGroupsQuery__
+ *
+ * To run a query within a React component, call `useGetGroupsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGroupsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGroupsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useGetGroupsQuery(baseOptions: Apollo.QueryHookOptions<GetGroupsQuery, GetGroupsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGroupsQuery, GetGroupsQueryVariables>(GetGroupsDocument, options);
+      }
+export function useGetGroupsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGroupsQuery, GetGroupsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGroupsQuery, GetGroupsQueryVariables>(GetGroupsDocument, options);
+        }
+export type GetGroupsQueryHookResult = ReturnType<typeof useGetGroupsQuery>;
+export type GetGroupsLazyQueryHookResult = ReturnType<typeof useGetGroupsLazyQuery>;
+export type GetGroupsQueryResult = Apollo.QueryResult<GetGroupsQuery, GetGroupsQueryVariables>;
+export const GetGroupDocument = gql`
+    query GetGroup($id: ID!) {
+  node(id: $id, type: Group) {
+    ... on Group {
+      id
+      schemaId
+      projectId
+      name
+      description
+      key
+      schema {
+        id
+        fields {
+          id
+          type
+          title
+          key
+          description
+          required
+          unique
+          isTitle
+          multiple
+          typeProperty {
+            ... on SchemaFieldText {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldTextArea {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldMarkdown {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldAsset {
+              assetDefaultValue: defaultValue
+            }
+            ... on SchemaFieldSelect {
+              selectDefaultValue: defaultValue
+              values
+            }
+            ... on SchemaFieldInteger {
+              integerDefaultValue: defaultValue
+              min
+              max
+            }
+            ... on SchemaFieldBool {
+              defaultValue
+            }
+            ... on SchemaFieldURL {
+              defaultValue
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetGroupQuery__
+ *
+ * To run a query within a React component, call `useGetGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGroupQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetGroupQuery(baseOptions: Apollo.QueryHookOptions<GetGroupQuery, GetGroupQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGroupQuery, GetGroupQueryVariables>(GetGroupDocument, options);
+      }
+export function useGetGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGroupQuery, GetGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGroupQuery, GetGroupQueryVariables>(GetGroupDocument, options);
+        }
+export type GetGroupQueryHookResult = ReturnType<typeof useGetGroupQuery>;
+export type GetGroupLazyQueryHookResult = ReturnType<typeof useGetGroupLazyQuery>;
+export type GetGroupQueryResult = Apollo.QueryResult<GetGroupQuery, GetGroupQueryVariables>;
+export const CreateGroupDocument = gql`
+    mutation createGroup($projectId: ID!, $name: String!, $key: String!, $description: String) {
+  createGroup(
+    input: {projectId: $projectId, name: $name, key: $key, description: $description}
+  ) {
+    group {
+      id
+    }
+  }
+}
+    `;
+export type CreateGroupMutationFn = Apollo.MutationFunction<CreateGroupMutation, CreateGroupMutationVariables>;
+
+/**
+ * __useCreateGroupMutation__
+ *
+ * To run a mutation, you first call `useCreateGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createGroupMutation, { data, loading, error }] = useCreateGroupMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      name: // value for 'name'
+ *      key: // value for 'key'
+ *      description: // value for 'description'
+ *   },
+ * });
+ */
+export function useCreateGroupMutation(baseOptions?: Apollo.MutationHookOptions<CreateGroupMutation, CreateGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateGroupMutation, CreateGroupMutationVariables>(CreateGroupDocument, options);
+      }
+export type CreateGroupMutationHookResult = ReturnType<typeof useCreateGroupMutation>;
+export type CreateGroupMutationResult = Apollo.MutationResult<CreateGroupMutation>;
+export type CreateGroupMutationOptions = Apollo.BaseMutationOptions<CreateGroupMutation, CreateGroupMutationVariables>;
+export const UpdateGroupDocument = gql`
+    mutation updateGroup($groupId: ID!, $name: String!, $key: String!, $description: String) {
+  updateGroup(
+    input: {groupId: $groupId, name: $name, key: $key, description: $description}
+  ) {
+    group {
+      id
+    }
+  }
+}
+    `;
+export type UpdateGroupMutationFn = Apollo.MutationFunction<UpdateGroupMutation, UpdateGroupMutationVariables>;
+
+/**
+ * __useUpdateGroupMutation__
+ *
+ * To run a mutation, you first call `useUpdateGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGroupMutation, { data, loading, error }] = useUpdateGroupMutation({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *      name: // value for 'name'
+ *      key: // value for 'key'
+ *      description: // value for 'description'
+ *   },
+ * });
+ */
+export function useUpdateGroupMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGroupMutation, UpdateGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGroupMutation, UpdateGroupMutationVariables>(UpdateGroupDocument, options);
+      }
+export type UpdateGroupMutationHookResult = ReturnType<typeof useUpdateGroupMutation>;
+export type UpdateGroupMutationResult = Apollo.MutationResult<UpdateGroupMutation>;
+export type UpdateGroupMutationOptions = Apollo.BaseMutationOptions<UpdateGroupMutation, UpdateGroupMutationVariables>;
+export const DeleteGroupDocument = gql`
+    mutation deleteGroup($groupId: ID!) {
+  deleteGroup(input: {groupId: $groupId}) {
+    groupId
+  }
+}
+    `;
+export type DeleteGroupMutationFn = Apollo.MutationFunction<DeleteGroupMutation, DeleteGroupMutationVariables>;
+
+/**
+ * __useDeleteGroupMutation__
+ *
+ * To run a mutation, you first call `useDeleteGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGroupMutation, { data, loading, error }] = useDeleteGroupMutation({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useDeleteGroupMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGroupMutation, DeleteGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument, options);
+      }
+export type DeleteGroupMutationHookResult = ReturnType<typeof useDeleteGroupMutation>;
+export type DeleteGroupMutationResult = Apollo.MutationResult<DeleteGroupMutation>;
+export type DeleteGroupMutationOptions = Apollo.BaseMutationOptions<DeleteGroupMutation, DeleteGroupMutationVariables>;
+export const CheckGroupKeyAvailabilityDocument = gql`
+    query CheckGroupKeyAvailability($projectId: ID!, $key: String!) {
+  checkGroupKeyAvailability(projectId: $projectId, key: $key) {
+    key
+    available
+  }
+}
+    `;
+
+/**
+ * __useCheckGroupKeyAvailabilityQuery__
+ *
+ * To run a query within a React component, call `useCheckGroupKeyAvailabilityQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckGroupKeyAvailabilityQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckGroupKeyAvailabilityQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      key: // value for 'key'
+ *   },
+ * });
+ */
+export function useCheckGroupKeyAvailabilityQuery(baseOptions: Apollo.QueryHookOptions<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>(CheckGroupKeyAvailabilityDocument, options);
+      }
+export function useCheckGroupKeyAvailabilityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>(CheckGroupKeyAvailabilityDocument, options);
+        }
+export type CheckGroupKeyAvailabilityQueryHookResult = ReturnType<typeof useCheckGroupKeyAvailabilityQuery>;
+export type CheckGroupKeyAvailabilityLazyQueryHookResult = ReturnType<typeof useCheckGroupKeyAvailabilityLazyQuery>;
+export type CheckGroupKeyAvailabilityQueryResult = Apollo.QueryResult<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>;
 export const CreateIntegrationDocument = gql`
     mutation CreateIntegration($name: String!, $description: String, $logoUrl: URL!, $type: IntegrationType!) {
   createIntegration(
@@ -3738,6 +4125,7 @@ export const GetItemsDocument = gql`
       }
       fields {
         schemaFieldId
+        itemGroupId
         type
         value
       }
@@ -3748,6 +4136,7 @@ export const GetItemsDocument = gql`
         id
         fields {
           schemaFieldId
+          itemGroupId
           type
           value
         }
@@ -3819,6 +4208,7 @@ export const GetItemDocument = gql`
       }
       fields {
         schemaFieldId
+        itemGroupId
         type
         value
       }
@@ -3965,6 +4355,7 @@ export const SearchItemDocument = gql`
       }
       fields {
         schemaFieldId
+        itemGroupId
         type
         value
       }
@@ -4018,6 +4409,7 @@ export const CreateItemDocument = gql`
         value
         type
         schemaFieldId
+        itemGroupId
       }
     }
   }
@@ -4097,6 +4489,7 @@ export const UpdateItemDocument = gql`
         value
         type
         schemaFieldId
+        itemGroupId
       }
     }
   }
@@ -4356,6 +4749,9 @@ export const GetModelsDocument = gql`
                 multiple
                 order
               }
+            }
+            ... on SchemaFieldGroup {
+              groupId
             }
           }
         }

@@ -246,31 +246,32 @@ const ContentTable: React.FC<Props> = ({
   );
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
-    search: {
-      defaultValue: searchTerm,
-      onSearch: (value: string) => {
-        if (value) {
-          onSearchTerm(value);
-        } else {
-          onSearchTerm();
-        }
-      },
-    },
-    filter: (
-      <StyledLightFilter>
-        <Space
-          size={[0, 8]}
-          style={{ maxWidth: 700, overflowX: "scroll", marginTop: 0, paddingRight: 10 }}>
-          {filters.map(filter => (
-            <FilterDropdown key={filter} filter={filter} />
-          ))}
-        </Space>
-        <Dropdown menu={{ items }} placement="bottomLeft" trigger={["click"]} arrow>
-          <Button type="text" style={{ color: "rgba(0, 0, 0, 0.25)" }} icon={<Icon icon="plus" />}>
-            Filter
-          </Button>
-        </Dropdown>
-      </StyledLightFilter>
+    search: (
+      <StyledSearchContainer>
+        <StyledSearchInput
+          placeholder={t("Search")}
+          defaultValue={searchTerm}
+          onSearch={(value: string) => {
+            if (value) {
+              onSearchTerm(value);
+            } else {
+              onSearchTerm();
+            }
+          }}
+        />
+        <StyledFilterWrapper>
+          <StyledFilterSpace size={[0, 8]}>
+            {filters.map(filter => (
+              <FilterDropdown key={filter} filter={filter} />
+            ))}
+          </StyledFilterSpace>
+          <Dropdown menu={{ items }} placement="bottomLeft" trigger={["click"]} arrow>
+            <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
+              Filter
+            </StyledFilterButton>
+          </Dropdown>
+        </StyledFilterWrapper>
+      </StyledSearchContainer>
     ),
   };
 
@@ -349,7 +350,25 @@ const StyledBadge = styled(Badge)`
   }
 `;
 
-const StyledLightFilter = styled.div`
+const StyledSearchContainer = styled.div`
+  display: flex;
+`;
+
+const StyledSearchInput = styled(Input.Search)`
+  min-width: 200px;
+`;
+
+const StyledFilterSpace = styled(Space)`
+  max-width: 750px;
+  overflow-x: auto;
+  margin-top: 0;
+`;
+
+const StyledFilterButton = styled(Button)`
+  color: rgba(0, 0, 0, 0.25);
+`;
+
+const StyledFilterWrapper = styled.div`
   display: flex;
   text-align: left;
   ant-space {

@@ -91,6 +91,17 @@ const ContentList: React.FC = () => {
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
+<<<<<<< HEAD
+=======
+      modelsMenu={
+        <ModelsMenu
+          title={t("Content")}
+          collapsed={collapsedModelMenu}
+          onModelSelect={handleModelSelect}
+          displayGroups={false}
+        />
+      }
+>>>>>>> feat-web/add-filters
       setSelection={setSelection}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
