@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 
-import ViewDeletionModal from "@reearth-cms/components/molecules/View/ViewDeletionModal";
 import ViewFormMobal from "@reearth-cms/components/molecules/View/ViewFormModal";
 import ViewsMenuMolecule from "@reearth-cms/components/molecules/View/viewsMenu";
 
