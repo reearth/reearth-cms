@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { View } from "@reearth-cms/components/molecules/View/types";
@@ -10,7 +9,7 @@ import {
   useUpdateViewMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useProject } from "@reearth-cms/state";
 
 type Params = {
   modelId?: string;
@@ -20,9 +19,7 @@ export default ({ modelId }: Params) => {
   const t = useT();
   const [viewModalShown, setViewModalShown] = useState(false);
   const [selectedView, setSelectedView] = useState<View>();
-  const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
-  const navigate = useNavigate();
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
