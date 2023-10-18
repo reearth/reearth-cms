@@ -1,6 +1,7 @@
 // import { LightFilter } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
-import { Key, useMemo, useState, useCallback } from "react";
+import moment from "moment";
+import { Key, useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -19,7 +20,12 @@ import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
-import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
+import {
+  ColorType,
+  StateType,
+  FilterType,
+  FilterOptions,
+} from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -27,15 +33,21 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
+import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
+type ExtendedColumns = ProColumns<ContentTableField> & {
+  type?: string;
+  typeProperty?: { values?: string[] };
+};
+
 export type Props = {
   className?: string;
   contentTableFields?: ContentTableField[];
-  contentTableColumns?: ProColumns<ContentTableField>[];
+  contentTableColumns?: ExtendedColumns[];
   loading: boolean;
   selectedItem: Item | undefined;
   selection: {
@@ -100,8 +112,9 @@ const ContentTable: React.FC<Props> = ({
   onItemDelete,
   onItemsReload,
 }) => {
+  const [currentWorkspace] = useWorkspace();
   const t = useT();
-  const actionsColumn: ProColumns<ContentTableField>[] = useMemo(
+  const actionsColumn: ExtendedColumns[] = useMemo(
     () => [
       {
         render: (_, contentField) => (
@@ -156,6 +169,7 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 148,
         minWidth: 148,
+        type: "Status",
       },
       {
         title: t("Created At"),
@@ -167,6 +181,7 @@ const ContentTable: React.FC<Props> = ({
           sort?.type === "CREATION_DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
         width: 148,
         minWidth: 148,
+        type: "Date",
       },
       {
         title: t("Updated At"),
@@ -182,6 +197,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        type: "Date",
       },
     ],
     [t, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
@@ -216,21 +232,126 @@ const ContentTable: React.FC<Props> = ({
     );
   };
 
+  const filterStack = useRef<FilterType[]>([]);
+
+  const filterApply = useCallback(() => {
+    let result = contentTableFields;
+    for (const filter of filterStack.current) {
+      if (!filter) continue;
+      const { dataIndex, option, value } = filter;
+      result = result?.filter(field => {
+        const data =
+          dataIndex === "itemRequestState"
+            ? "status"
+            : typeof dataIndex === "string"
+            ? (field as any)[dataIndex]
+            : (field as any)[dataIndex[0]][dataIndex[1]];
+
+        let dataTime = 0;
+        let valueTime = 0;
+        if (
+          FilterOptions.DateIs ||
+          option === FilterOptions.DateIsNot ||
+          option === FilterOptions.Before ||
+          option === FilterOptions.After
+        ) {
+          dataTime = new Date(data).setHours(9, 0, 0, 0);
+          valueTime = new Date(value).getTime();
+        }
+
+        switch (option) {
+          case FilterOptions.Is:
+            return data === value;
+          case FilterOptions.IsNot:
+            return data !== value;
+          case FilterOptions.Contains:
+            return new RegExp(value).test(data);
+          case FilterOptions.NotContain:
+            return new RegExp(`^(?!.*${value}).*$`).test(data);
+          case FilterOptions.IsEmpty:
+            return data === null;
+          case FilterOptions.IsNotEmpty:
+            return data !== null;
+          case FilterOptions.GreaterThan:
+            return data !== null && data >= value;
+          case FilterOptions.LessThan:
+            return data !== null && data <= value;
+          case FilterOptions.DateIs:
+            return dataTime === valueTime;
+          case FilterOptions.DateIsNot:
+            return dataTime !== valueTime;
+          case FilterOptions.Before:
+            return dataTime < valueTime;
+          case FilterOptions.After:
+            return dataTime > valueTime;
+          case FilterOptions.OfThisWeek:
+            return (
+              moment(dataTime).year() === moment(valueTime).year() &&
+              moment(dataTime).week() === moment(valueTime).week()
+            );
+          case FilterOptions.OfThisMonth:
+            return (
+              moment(dataTime).year() === moment(valueTime).year() &&
+              moment(dataTime).month() === moment(valueTime).month()
+            );
+          case FilterOptions.OfThisYear:
+            return moment(dataTime).year() === moment(valueTime).year();
+        }
+      });
+    }
+    return result;
+  }, [contentTableFields]);
+
+  const [contentTableFieldsState, setContentTableFieldsState] = useState<ContentTableField[]>();
+
+  useEffect(() => {
+    setContentTableFieldsState(filterApply());
+  }, [filterApply]);
+
   const [filters, setFilters] = useState<any[]>([]);
+  const [items, setItems] = useState<MenuProps["items"]>();
+  const [selectedFilter, setSelectedFilter] = useState<{
+    dataIndex: string | string[];
+    title: string;
+    type: string;
+  }>();
 
   const getOptions = useCallback(
     (isFilter: boolean): MenuProps["items"] => {
-      const optionsClick = (isFilter: boolean, title: string) => {
-        if (isFilter) setFilters(prevState => [...prevState, title]);
+      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        const reg = new RegExp(value, "i");
+        const result = getOptions(isFilter)?.filter(item => {
+          return item?.key == "0" || reg.test((item as any)?.label);
+        });
+        setItems(result);
+      };
+
+      const optionsClick = (isFilter: boolean, column: ExtendedColumns) => {
+        if (isFilter)
+          setFilters(prevState => [
+            ...prevState,
+            {
+              dataIndex: column.dataIndex,
+              title: column.title,
+              type: column.type,
+              members: currentWorkspace?.members,
+            },
+          ]);
+        setSelectedFilter({
+          dataIndex: column.dataIndex,
+          title: column.title,
+          type: column.type,
+        } as any);
         handleOptionsOpenChange(false);
-        setSelectTitle(title);
+        // setSelectTitle(column.title as string);
         handleConditionMenuOpenChange(true);
       };
 
       return [
         {
           key: "0",
-          label: <Input placeholder={t("Filter by...")} />,
+          label: <Input placeholder={t("Filter by...")} onChange={handleChange} />,
           disabled: true,
         },
         ...((actionsColumn ?? [])
@@ -239,7 +360,7 @@ const ContentTable: React.FC<Props> = ({
             key: column.key,
             label: column.title,
             onClick: () => {
-              optionsClick(isFilter, column.title as string);
+              optionsClick(isFilter, column);
             },
           })) as any),
         ...((contentTableColumns ?? [])
@@ -248,13 +369,18 @@ const ContentTable: React.FC<Props> = ({
             key: column.key,
             label: column.title,
             onClick: () => {
-              optionsClick(isFilter, column.title as string);
+              optionsClick(isFilter, column);
             },
           })) as any),
       ];
     },
-    [actionsColumn, contentTableColumns, t],
+    [actionsColumn, contentTableColumns, t, currentWorkspace?.members],
   );
+
+  const itemFilter = (newFilter: FilterType, index: number) => {
+    filterStack.current[index] = newFilter;
+    setContentTableFieldsState(filterApply());
+  };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
     search: {
@@ -271,15 +397,23 @@ const ContentTable: React.FC<Props> = ({
       <StyledLightFilter>
         <Space
           size={[0, 8]}
-          style={{ maxWidth: 700, overflowX: "scroll", marginTop: 0, paddingRight: 10 }}>
-          {filters.map(filter => (
-            <FilterDropdown key={filter} filter={filter} />
+          style={{ maxWidth: 700, overflowX: "auto", marginTop: 0, paddingRight: 10 }}>
+          {filters.map((filter, index) => (
+            <FilterDropdown
+              key={filter.title}
+              filter={filter}
+              itemFilter={itemFilter}
+              index={index}
+            />
           ))}
         </Space>
         <Dropdown
           menu={{ items: getOptions(true) }}
           placement="bottomLeft"
           trigger={["click"]}
+          onOpenChange={(open: boolean) => {
+            setIsFilter(open);
+          }}
           arrow>
           <Button type="text" style={{ color: "rgba(0, 0, 0, 0.25)" }} icon={<Icon icon="plus" />}>
             Filter
@@ -332,7 +466,7 @@ const ContentTable: React.FC<Props> = ({
   ];
 
   const [isFilter, setIsFilter] = useState(true);
-  const [selectTitle, setSelectTitle] = useState("");
+  // const [selectTitle, setSelectTitle] = useState("");
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
@@ -355,10 +489,14 @@ const ContentTable: React.FC<Props> = ({
     setConditionMenuOpen(open);
   };
 
+  const close = () => {
+    setConditionMenuOpen(false);
+  };
+
   const toolBarRender = () => {
     return [
       <Dropdown
-        menu={{ items: getOptions(isFilter) }}
+        menu={{ items }}
         placement="bottom"
         trigger={["contextMenu"]}
         arrow
@@ -366,7 +504,9 @@ const ContentTable: React.FC<Props> = ({
         onOpenChange={handleOptionsOpenChange}
         key="control">
         <Dropdown
-          dropdownRender={() => <DropdownRender filter={selectTitle} />}
+          dropdownRender={() =>
+            selectedFilter && <DropdownRender filter={selectedFilter} close={close} />
+          }
           trigger={["contextMenu"]}
           placement="bottom"
           arrow
@@ -390,6 +530,10 @@ const ContentTable: React.FC<Props> = ({
     ];
   };
 
+  useEffect(() => {
+    setItems(getOptions(isFilter));
+  }, [getOptions, isFilter]);
+
   return (
     <>
       {contentTableColumns ? (
@@ -399,7 +543,7 @@ const ContentTable: React.FC<Props> = ({
           pagination={pagination}
           toolbar={handleToolbarEvents}
           toolBarRender={toolBarRender}
-          dataSource={contentTableFields}
+          dataSource={contentTableFieldsState}
           tableAlertOptionRender={AlertOptions}
           rowSelection={rowSelection}
           columns={[...actionsColumn, ...contentTableColumns]}

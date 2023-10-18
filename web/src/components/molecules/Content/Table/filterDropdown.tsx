@@ -1,25 +1,49 @@
 import styled from "@emotion/styled";
+import { useState } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import { FilterType } from "@reearth-cms/components/molecules/Content/Table/types";
 
 import DropdownRender from "./DropdownRender";
 
 type Props = {
-  filter: string;
+  filter: {
+    dataIndex: string | string[];
+    title: string;
+    type: string;
+    typeProperty?: { values?: string[] };
+    members?: { user: { name: string } }[];
+  };
+  itemFilter: (filter: FilterType, index: number) => void;
+  index: number;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter }) => {
+const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
+  const [open, setOpen] = useState(false);
+
+  const close = () => {
+    setOpen(false);
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+  };
+
   return (
     <Dropdown
-      key={filter}
-      dropdownRender={() => <DropdownRender filter={filter} />}
+      key={filter.title}
+      dropdownRender={() => (
+        <DropdownRender filter={filter} itemFilter={itemFilter} index={index} close={close} />
+      )}
       trigger={["click"]}
       placement="bottomLeft"
-      arrow>
+      arrow
+      open={open}
+      onOpenChange={handleOpenChange}>
       <Badge offset={[-3, 3]} color="blue" dot>
-        <StyledButton type="text">{filter}</StyledButton>
+        <StyledButton type="text">{filter.title}</StyledButton>
       </Badge>
     </Dropdown>
   );

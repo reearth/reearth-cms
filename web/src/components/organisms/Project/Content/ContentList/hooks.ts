@@ -185,6 +185,7 @@ export default () => {
         width: 128,
         minWidth: 128,
         ellipsis: true,
+        type: "Person",
       },
       ...currentModel.schema.fields.map(field => ({
         title: field.title,
@@ -193,6 +194,8 @@ export default () => {
         width: 128,
         minWidth: 128,
         ellipsis: true,
+        type: field.type,
+        typeProperty: field.typeProperty,
       })),
     ];
   }, [currentModel, t]);
