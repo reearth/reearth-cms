@@ -233,6 +233,7 @@ type Schema struct {
 	CreatedAt  *time.Time     `json:"createdAt,omitempty"`
 	Fields     *[]SchemaField `json:"fields,omitempty"`
 	Id         *id.SchemaID   `json:"id,omitempty"`
+	Meta       *Schema        `json:"meta,omitempty"`
 	ProjectId  *id.ProjectID  `json:"projectId,omitempty"`
 }
 

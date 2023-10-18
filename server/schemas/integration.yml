@@ -841,6 +841,8 @@ components:
         createdAt:
           type: string
           format: date-time
+        meta:
+          $ref: '#/components/schemas/schema'
     valueType:
       type: string
       enum:
@@ -935,7 +937,7 @@ components:
         referencedItems:
           type: array
           items:
-            $ref: '#/components/schemas/versionedItem' 
+            $ref: '#/components/schemas/versionedItem'
     field:
       type: object
       properties:
