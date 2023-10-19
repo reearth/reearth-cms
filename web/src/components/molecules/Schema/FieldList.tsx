@@ -32,6 +32,10 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         fields: ["Asset"],
       },
       {
+        title: t("Time"),
+        fields: ["Date"],
+      },
+      {
         title: t("Boolean"),
         fields: ["Bool"],
       },
