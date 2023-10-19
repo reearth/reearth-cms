@@ -113,7 +113,7 @@ const ContentListMolecule: React.FC<Props> = ({
       }
       center={
         <Content>
-          <PageHeader
+          <StyledPageHeder
             title={model?.name}
             subTitle={model?.key ? `#${model.key}` : null}
             extra={
@@ -167,6 +167,10 @@ const ContentListMolecule: React.FC<Props> = ({
 const Content = styled.div`
   width: 100%;
   background-color: #fff;
+`;
+
+const StyledPageHeder = styled(PageHeader)`
+  padding: 16px 24px 0px 24px !important;
 `;
 
 export default ContentListMolecule;

@@ -84,8 +84,18 @@ const ViewsMenuItem: React.FC<Props> = ({
 export default ViewsMenuItem;
 
 const StyledDropdownButton = styled(Dropdown.Button)`
-  width: 140px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
+  .ant-btn-compact-first-item {
+    padding: 0px;
+  }
+  .ant-btn-compact-last-item {
+    height: 16px;
+    width: 16px;
+  }
+  .ant-btn-icon-only {
+    display: flex;
+    align-items: center;
+  }
 `;

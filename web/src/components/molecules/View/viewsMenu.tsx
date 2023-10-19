@@ -55,7 +55,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
       <StyledMenu
         mode="horizontal"
         expandIcon={<Icon />}
-        overflowedIndicator={<Button>{t("All Views")}</Button>}
+        overflowedIndicator={<AllViewsButton>{t("All Views")}</AllViewsButton>}
         triggerSubMenuAction="click"
         selectedKeys={[selectedView]}
         items={menuItems}
@@ -70,15 +70,40 @@ const ViewsMenuMolecule: React.FC<Props> = ({
 
 const Wrapper = styled.div`
   display: flex;
+  padding: 0 24px;
   align-items: center;
 `;
 
 const StyledMenu = styled(Menu)`
   flex: 1;
+  height: 46px;
+
+  .ant-menu-item {
+    padding: 0px 32px 0px 0px !important;
+    display: flex;
+    align-items: center;
+  }
+  .ant-menu-item::after {
+    right: 32px;
+    left: 0px;
+    position: absolute;
+  }
+  .ant-menu-overflow-item-rest {
+    padding: 0px !important;
+  }
+  .ant-menu-overflow-item-rest::after {
+    right: 0px;
+    left: 0px;
+    position: absolute;
+  }
 `;
 
 const NewViewButton = styled(Button)`
-  color: "rgba(0, 0, 0, 0.25)";
+  color: rgba(0, 0, 0, 0.25);
+`;
+
+const AllViewsButton = styled(Button)`
+  padding: 5px 16px;
 `;
 
 export default ViewsMenuMolecule;
