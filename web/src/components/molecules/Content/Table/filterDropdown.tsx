@@ -43,6 +43,7 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index, defaultVal
           close={close}
           defaultValue={value}
           open={open}
+          isFilter={true}
         />
       )}
       trigger={["click"]}

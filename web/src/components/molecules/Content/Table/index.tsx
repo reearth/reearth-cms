@@ -1,4 +1,3 @@
-// import { LightFilter } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
 import moment from "moment";
 import React, { Key, useMemo, useState, useEffect, useRef, useCallback } from "react";
@@ -108,7 +107,6 @@ const ContentTable: React.FC<Props> = ({
   onContentTableChange,
   onItemSelect,
   setSelection,
-  // onItemEdit,
   onItemDelete,
   onItemsReload,
 }) => {
@@ -315,7 +313,7 @@ const ContentTable: React.FC<Props> = ({
     type: string;
   }>();
 
-  const [isFilter, setIsFilter] = useState(true);
+  const isFilter = useRef<boolean>(true);
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
@@ -327,7 +325,7 @@ const ContentTable: React.FC<Props> = ({
   const toolBarItemClick = (isFilterMode: boolean) => {
     setInputValue("");
     setItems(getOptions(true));
-    setIsFilter(isFilterMode);
+    isFilter.current = isFilterMode;
     handleOptionsOpenChange(true);
   };
 
@@ -385,7 +383,7 @@ const ContentTable: React.FC<Props> = ({
             key: column.key,
             label: column.title,
             onClick: () => {
-              optionClick(isFilter, column);
+              optionClick(isFilter.current, column);
             },
           })) as any),
         ...((contentTableColumns ?? [])
@@ -394,12 +392,12 @@ const ContentTable: React.FC<Props> = ({
             key: column.key,
             label: column.title,
             onClick: () => {
-              optionClick(isFilter, column);
+              optionClick(isFilter.current, column);
             },
           })) as any),
       ];
     },
-    [actionsColumn, contentTableColumns, currentWorkspace?.members, isFilter],
+    [actionsColumn, contentTableColumns, currentWorkspace?.members],
   );
 
   const defaultItems = getOptions(false);
@@ -455,7 +453,7 @@ const ContentTable: React.FC<Props> = ({
           placement="bottomLeft"
           trigger={["click"]}
           onOpenChange={() => {
-            setIsFilter(true);
+            isFilter.current = true;
             setInputValue("");
             setItems(defaultItems);
           }}>
@@ -524,9 +522,10 @@ const ContentTable: React.FC<Props> = ({
               <DropdownRender
                 filter={selectedFilter}
                 close={close}
-                itemFilter={isFilter ? itemFilter : undefined}
+                itemFilter={isFilter.current ? itemFilter : undefined}
                 index={filters.length - 1}
                 open={conditionMenuOpen}
+                isFilter={isFilter.current}
               />
             )
           }

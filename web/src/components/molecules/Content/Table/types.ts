@@ -22,4 +22,6 @@ export enum FilterOptions {
   OfThisWeek,
   OfThisMonth,
   OfThisYear,
+  Ascending,
+  Descending,
 }

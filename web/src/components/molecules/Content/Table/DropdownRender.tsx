@@ -25,6 +25,7 @@ type Props = {
   close: () => void;
   defaultValue?: FilterType;
   open: boolean;
+  isFilter: boolean;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -34,6 +35,7 @@ const DropdownRender: React.FC<Props> = ({
   close,
   defaultValue,
   open,
+  isFilter,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -49,54 +51,61 @@ const DropdownRender: React.FC<Props> = ({
     label: string;
   }[] = [];
 
-  switch (filter.type) {
-    case "Person":
-      options.push(
-        { value: FilterOptions.Is, label: t("is") },
-        { value: FilterOptions.IsNot, label: t("is not") },
-        { value: FilterOptions.Contains, label: t("contains") },
-        { value: FilterOptions.NotContain, label: t("doesn't contain") },
-      );
-      break;
-    case "Text":
-    case "TextArea":
-    case "RichText":
-    case "MarkdownText":
-    case "Asset":
-    case "URL":
-    case "Select":
-    case "Tag":
-      options.push(
-        { value: FilterOptions.Is, label: t("is") },
-        { value: FilterOptions.IsNot, label: t("is not") },
-        { value: FilterOptions.Contains, label: t("contains") },
-        { value: FilterOptions.NotContain, label: t("doesn't contain") },
-        { value: FilterOptions.IsEmpty, label: t("is empty") },
-        { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
-      );
-      break;
-    case "Integer":
-    case "Flaot":
-      options.push(
-        { value: FilterOptions.Is, label: t("is") },
-        { value: FilterOptions.IsNot, label: t("is not") },
-        { value: FilterOptions.GreaterThan, label: t("greater than") },
-        { value: FilterOptions.LessThan, label: t("less than") },
-        { value: FilterOptions.IsEmpty, label: t("is empty") },
-        { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
-      );
-      break;
-    case "Date":
-      options.push(
-        { value: FilterOptions.DateIs, label: t("is") },
-        { value: FilterOptions.DateIsNot, label: t("is not") },
-        { value: FilterOptions.Before, label: t("before") },
-        { value: FilterOptions.After, label: t("after") },
-        { value: FilterOptions.OfThisWeek, label: t("of this week") },
-        { value: FilterOptions.OfThisMonth, label: t("of this month") },
-        { value: FilterOptions.OfThisYear, label: t("of this year") },
-      );
-      break;
+  if (isFilter) {
+    switch (filter.type) {
+      case "Person":
+        options.push(
+          { value: FilterOptions.Is, label: t("is") },
+          { value: FilterOptions.IsNot, label: t("is not") },
+          { value: FilterOptions.Contains, label: t("contains") },
+          { value: FilterOptions.NotContain, label: t("doesn't contain") },
+        );
+        break;
+      case "Text":
+      case "TextArea":
+      case "RichText":
+      case "MarkdownText":
+      case "Asset":
+      case "URL":
+      case "Select":
+      case "Tag":
+        options.push(
+          { value: FilterOptions.Is, label: t("is") },
+          { value: FilterOptions.IsNot, label: t("is not") },
+          { value: FilterOptions.Contains, label: t("contains") },
+          { value: FilterOptions.NotContain, label: t("doesn't contain") },
+          { value: FilterOptions.IsEmpty, label: t("is empty") },
+          { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
+        );
+        break;
+      case "Integer":
+      case "Flaot":
+        options.push(
+          { value: FilterOptions.Is, label: t("is") },
+          { value: FilterOptions.IsNot, label: t("is not") },
+          { value: FilterOptions.GreaterThan, label: t("greater than") },
+          { value: FilterOptions.LessThan, label: t("less than") },
+          { value: FilterOptions.IsEmpty, label: t("is empty") },
+          { value: FilterOptions.IsNotEmpty, label: t("is not empty") },
+        );
+        break;
+      case "Date":
+        options.push(
+          { value: FilterOptions.DateIs, label: t("is") },
+          { value: FilterOptions.DateIsNot, label: t("is not") },
+          { value: FilterOptions.Before, label: t("before") },
+          { value: FilterOptions.After, label: t("after") },
+          { value: FilterOptions.OfThisWeek, label: t("of this week") },
+          { value: FilterOptions.OfThisMonth, label: t("of this month") },
+          { value: FilterOptions.OfThisYear, label: t("of this year") },
+        );
+        break;
+    }
+  } else {
+    options.push(
+      { value: FilterOptions.Ascending, label: t("Ascending") },
+      { value: FilterOptions.Descending, label: t("Descending") },
+    );
   }
 
   const valueOptions: {
@@ -127,9 +136,13 @@ const DropdownRender: React.FC<Props> = ({
   const confirm = () => {
     if (filterOption.current === undefined) return;
     close();
-    const value = filterValue.current ?? "";
-    if (itemFilter) {
-      itemFilter({ dataIndex: filter.dataIndex, option: filterOption.current, value }, index);
+    if (isFilter) {
+      const value = filterValue.current ?? "";
+      if (itemFilter) {
+        itemFilter({ dataIndex: filter.dataIndex, option: filterOption.current, value }, index);
+      }
+    } else {
+      console.log("sort");
     }
   };
 
@@ -166,33 +179,39 @@ const DropdownRender: React.FC<Props> = ({
             defaultValue={defaultValue?.option}
           />
         </Form.Item>
-        <Form.Item name="value">
-          {filter.type === "Select" ||
-          filter.type === "Tag" ||
-          filter.type === "Person" ||
-          filter.type === "Bool" ? (
-            <Select
-              placeholder="Select the value"
-              options={valueOptions}
-              onSelect={onValueSelect}
-              defaultValue={defaultValue?.value}
-            />
-          ) : filter.type === "Integer" || filter.type === "Float" ? (
-            <InputNumber onChange={onNumberChange} stringMode defaultValue={defaultValue?.value} />
-          ) : filter.type === "Date" ? (
-            <DatePicker
-              onChange={onDateChange}
-              style={{ width: "100%" }}
-              placeholder="Select the date"
-              showToday={false}
-              defaultValue={
-                defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
-              }
-            />
-          ) : (
-            <Input onChange={onInputChange} defaultValue={defaultValue?.value} />
-          )}
-        </Form.Item>
+        {isFilter && (
+          <Form.Item name="value">
+            {filter.type === "Select" ||
+            filter.type === "Tag" ||
+            filter.type === "Person" ||
+            filter.type === "Bool" ? (
+              <Select
+                placeholder="Select the value"
+                options={valueOptions}
+                onSelect={onValueSelect}
+                defaultValue={defaultValue?.value}
+              />
+            ) : filter.type === "Integer" || filter.type === "Float" ? (
+              <InputNumber
+                onChange={onNumberChange}
+                stringMode
+                defaultValue={defaultValue?.value}
+              />
+            ) : filter.type === "Date" ? (
+              <DatePicker
+                onChange={onDateChange}
+                style={{ width: "100%" }}
+                placeholder="Select the date"
+                showToday={false}
+                defaultValue={
+                  defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
+                }
+              />
+            ) : (
+              <Input onChange={onInputChange} defaultValue={defaultValue?.value} />
+            )}
+          </Form.Item>
+        )}
         <Form.Item style={{ textAlign: "right" }}>
           <Space size="small">
             <Button type="default" style={{ marginRight: 10 }} onClick={close}>
