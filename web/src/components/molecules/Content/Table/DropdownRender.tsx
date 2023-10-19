@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import moment from "moment";
 import { useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -37,6 +38,7 @@ const DropdownRender: React.FC<Props> = ({
   open,
   isFilter,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const t = useT();
   const [form] = Form.useForm();
 
@@ -142,7 +144,11 @@ const DropdownRender: React.FC<Props> = ({
         itemFilter({ dataIndex: filter.dataIndex, option: filterOption.current, value }, index);
       }
     } else {
-      console.log("sort");
+      searchParams.set(
+        "direction",
+        filterOption.current === FilterOptions.Ascending ? "ASC" : "DESC",
+      );
+      setSearchParams(searchParams);
     }
   };
 
