@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { useRef } from "react";
+import moment from "moment";
+import { useRef, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -20,12 +21,28 @@ type Props = {
     members?: { user: { name: string } }[];
   };
   itemFilter?: (filter: FilterType, index: number) => void;
-  index?: number;
+  index: number;
   close: () => void;
+  defaultValue?: FilterType;
+  open: boolean;
 };
 
-const DropdownRender: React.FC<Props> = ({ filter, itemFilter, index, close }) => {
+const DropdownRender: React.FC<Props> = ({
+  filter,
+  itemFilter,
+  index,
+  close,
+  defaultValue,
+  open,
+}) => {
   const t = useT();
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (!open && !defaultValue) {
+      form.resetFields();
+    }
+  }, [open, form, defaultValue]);
 
   const options: {
     value: FilterOptions;
@@ -104,14 +121,16 @@ const DropdownRender: React.FC<Props> = ({ filter, itemFilter, index, close }) =
   }
 
   const filterOption = useRef<FilterOptions>();
+  filterOption.current = defaultValue?.option;
   const filterValue = useRef<string>();
 
   const confirm = () => {
     if (filterOption.current === undefined) return;
     close();
     const value = filterValue.current ?? "";
-    if (itemFilter && index)
+    if (itemFilter) {
       itemFilter({ dataIndex: filter.dataIndex, option: filterOption.current, value }, index);
+    }
   };
 
   const onFilterSelect = (value: FilterOptions) => {
@@ -138,11 +157,16 @@ const DropdownRender: React.FC<Props> = ({ filter, itemFilter, index, close }) =
 
   return (
     <Container>
-      <Form name="basic" autoComplete="off">
+      <Form form={form} name="basic" autoComplete="off">
         <Form.Item label={filter.title} name="condition">
-          <Select style={{ width: 160 }} options={options} onSelect={onFilterSelect} />
+          <Select
+            style={{ width: 160 }}
+            options={options}
+            onSelect={onFilterSelect}
+            defaultValue={defaultValue?.option}
+          />
         </Form.Item>
-        <Form.Item>
+        <Form.Item name="value">
           {filter.type === "Select" ||
           filter.type === "Tag" ||
           filter.type === "Person" ||
@@ -151,18 +175,22 @@ const DropdownRender: React.FC<Props> = ({ filter, itemFilter, index, close }) =
               placeholder="Select the value"
               options={valueOptions}
               onSelect={onValueSelect}
+              defaultValue={defaultValue?.value}
             />
           ) : filter.type === "Integer" || filter.type === "Float" ? (
-            <InputNumber onChange={onNumberChange} stringMode />
+            <InputNumber onChange={onNumberChange} stringMode defaultValue={defaultValue?.value} />
           ) : filter.type === "Date" ? (
             <DatePicker
               onChange={onDateChange}
               style={{ width: "100%" }}
               placeholder="Select the date"
               showToday={false}
+              defaultValue={
+                defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
+              }
             />
           ) : (
-            <Input onChange={onInputChange} />
+            <Input onChange={onInputChange} defaultValue={defaultValue?.value} />
           )}
         </Form.Item>
         <Form.Item style={{ textAlign: "right" }}>

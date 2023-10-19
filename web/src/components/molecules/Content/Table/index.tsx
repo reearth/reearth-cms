@@ -355,8 +355,8 @@ const ContentTable: React.FC<Props> = ({
 
   const getOptions = useCallback(
     (isFromMenu: boolean): MenuProps["items"] => {
-      const optionsClick = (isFilter: boolean, column: ExtendedColumns) => {
-        if (isFilter)
+      const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
+        if (isFilter) {
           setFilters(prevState => [
             ...prevState,
             {
@@ -366,6 +366,7 @@ const ContentTable: React.FC<Props> = ({
               members: currentWorkspace?.members,
             },
           ]);
+        }
         setSelectedFilter({
           dataIndex: column.dataIndex,
           title: column.title,
@@ -384,7 +385,7 @@ const ContentTable: React.FC<Props> = ({
             key: column.key,
             label: column.title,
             onClick: () => {
-              optionsClick(isFilter, column);
+              optionClick(isFilter, column);
             },
           })) as any),
         ...((contentTableColumns ?? [])
@@ -393,7 +394,7 @@ const ContentTable: React.FC<Props> = ({
             key: column.key,
             label: column.title,
             onClick: () => {
-              optionsClick(isFilter, column);
+              optionClick(isFilter, column);
             },
           })) as any),
       ];
@@ -440,7 +441,13 @@ const ContentTable: React.FC<Props> = ({
           size={[0, 8]}
           style={{ maxWidth: 700, overflowX: "auto", marginTop: 0, paddingRight: 10 }}>
           {filters.map((filter, index) => (
-            <FilterDropdown key={index} filter={filter} itemFilter={itemFilter} index={index} />
+            <FilterDropdown
+              key={index}
+              filter={filter}
+              itemFilter={itemFilter}
+              index={index}
+              defaultValue={filterStack.current[index]}
+            />
           ))}
         </Space>
         <Dropdown
@@ -513,7 +520,15 @@ const ContentTable: React.FC<Props> = ({
         key="control">
         <Dropdown
           dropdownRender={() =>
-            selectedFilter && <DropdownRender filter={selectedFilter} close={close} />
+            selectedFilter && (
+              <DropdownRender
+                filter={selectedFilter}
+                close={close}
+                itemFilter={isFilter ? itemFilter : undefined}
+                index={filters.length - 1}
+                open={conditionMenuOpen}
+              />
+            )
           }
           trigger={["contextMenu"]}
           placement="bottom"

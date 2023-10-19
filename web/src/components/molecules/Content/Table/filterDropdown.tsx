@@ -18,9 +18,10 @@ type Props = {
   };
   itemFilter: (filter: FilterType, index: number) => void;
   index: number;
+  defaultValue: FilterType;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
+const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index, defaultValue: value }) => {
   const [open, setOpen] = useState(false);
 
   const close = () => {
@@ -35,7 +36,14 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index }) => {
     <Dropdown
       key={filter.title}
       dropdownRender={() => (
-        <DropdownRender filter={filter} itemFilter={itemFilter} index={index} close={close} />
+        <DropdownRender
+          filter={filter}
+          itemFilter={itemFilter}
+          index={index}
+          close={close}
+          defaultValue={value}
+          open={open}
+        />
       )}
       trigger={["click"]}
       placement="bottomLeft"
