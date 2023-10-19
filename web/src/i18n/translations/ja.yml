@@ -364,6 +364,9 @@ Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
+Group cannot be deleted: ''
+is used in: ''
+If you want to delete it, please delete the field that uses it first.: ''
 Failed to delete group.: グループの削除に失敗しました
 Successfully deleted group!: グループの削除に成功しました！
 Failed to update group.: グループの更新に失敗しました。
