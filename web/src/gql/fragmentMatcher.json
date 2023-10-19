@@ -1,5 +1,16 @@
 {
   "possibleTypes": {
+    "Condition": [
+      "AndCondition",
+      "BasicFieldCondition",
+      "BoolFieldCondition",
+      "MultipleFieldCondition",
+      "NullableFieldCondition",
+      "NumberFieldCondition",
+      "OrCondition",
+      "StringFieldCondition",
+      "TimeFieldCondition"
+    ],
     "Node": [
       "Asset",
       "Group",
@@ -10,6 +21,7 @@
       "Request",
       "Schema",
       "User",
+      "View",
       "Workspace"
     ],
     "Operator": [
