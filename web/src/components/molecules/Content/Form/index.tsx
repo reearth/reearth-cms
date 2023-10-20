@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -40,6 +41,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
+import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
@@ -232,7 +234,13 @@ const ContentForm: React.FC<Props> = ({
       }[] = [];
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       // TODO: improve performance
-      for (const [key, value] of Object.entries(values)) {
+      for (let value of Object.values(values)) {
+        if (moment.isMoment(value)) {
+          value = transformMomentToString(value);
+        }
+      }
+      // eslint-disable-next-line prefer-const
+      for (let [key, value] of Object.entries(values)) {
         // group fields
         if (value && typeof value === "object" && !Array.isArray(value)) {
           for (const [key1, value1] of Object.entries(value)) {
@@ -254,6 +262,10 @@ const ContentForm: React.FC<Props> = ({
           type: type as FieldType,
         });
       }
+      console.log(fields);
+      console.log(modelFieldTypes);
+      console.log(groupFieldTypes);
+      return;
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
           value: (value || "") as string,

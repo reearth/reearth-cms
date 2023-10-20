@@ -352,10 +352,14 @@ export default () => {
       });
     } else {
       currentItem?.fields?.forEach(field => {
+        if (field.type === "Date") {
+          field.value = moment(field.value);
+        }
         if (field.itemGroupId) {
           if (
             typeof initialValues[field.schemaFieldId] === "object" &&
-            !Array.isArray(initialValues[field.schemaFieldId])
+            !Array.isArray(initialValues[field.schemaFieldId]) &&
+            !moment.isMoment(initialValues[field.schemaFieldId])
           ) {
             initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
           } else {
