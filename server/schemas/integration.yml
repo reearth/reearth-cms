@@ -856,6 +856,7 @@ components:
         - integer
         - reference
         - url
+        - group
     schemaField:
       type: object
       properties:
@@ -946,6 +947,9 @@ components:
           $ref: '#/components/schemas/valueType'
         value: {}
         key:
+          type: string
+        itemGroup:
+          x-go-type: id.ItemGroupID
           type: string
     refOrVersion:
       type: object

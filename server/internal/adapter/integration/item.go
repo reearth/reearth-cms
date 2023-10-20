@@ -3,6 +3,8 @@ package integration
 import (
 	"context"
 	"errors"
+	"github.com/reearth/reearth-cms/server/pkg/group"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -47,11 +49,18 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 	if err != nil {
 		return ItemFilter500Response{}, err
 	}
-
+	resItms, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
+		sgl, err := getGroupSchemas(ctx, i.Value(), ss)
+		if err != nil {
+			return integrationapi.VersionedItem{}, err
+		}
+		return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), sgl), nil
+	})
+	if err != nil {
+		return ItemFilter400Response{}, err
+	}
 	return ItemFilter200JSONResponse{
-		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
-			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))
-		})),
+		Items:      &resItms,
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
@@ -97,11 +106,18 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 	if err != nil {
 		return ItemFilterWithProject500Response{}, err
 	}
-
+	resItms, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
+		sgl, err := getGroupSchemas(ctx, i.Value(), ss)
+		if err != nil {
+			return integrationapi.VersionedItem{}, err
+		}
+		return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), sgl), nil
+	})
+	if err != nil {
+		return ItemFilterWithProject400Response{}, err
+	}
 	return ItemFilterWithProject200JSONResponse{
-		Items: lo.ToPtr(util.Map(items, func(i item.Versioned) integrationapi.VersionedItem {
-			return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))
-		})),
+		Items:      &resItms,
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
@@ -145,7 +161,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, err
 	}
 
-	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i))), nil
+	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i), nil)), nil
 }
 
 func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error) {
@@ -193,7 +209,7 @@ func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWit
 		return ItemCreateWithProject400Response{}, err
 	}
 
-	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i))), nil
+	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i), nil)), nil
 }
 
 func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
@@ -234,7 +250,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate500Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), getReferencedItems(ctx, i))), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), getReferencedItems(ctx, i), nil)), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -275,7 +291,12 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return ItemGet500Response{}, err
 	}
 
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i))), nil
+	sgl, err := getGroupSchemas(ctx, i.Value(), ss)
+	if err != nil {
+		return ItemGet500Response{}, err
+	}
+
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), sgl)), nil
 }
 
 func assetContext(ctx context.Context, m asset.Map, asset *integrationapi.AssetEmbedding) *integrationapi.AssetContext {
@@ -326,9 +347,40 @@ func getReferencedItems(ctx context.Context, i *version.Value[*item.Item]) *[]in
 			if err != nil {
 				continue
 			}
-			vi = append(vi, integrationapi.NewVersionedItem(ii, nil, nil, nil))
+			vi = append(vi, integrationapi.NewVersionedItem(ii, nil, nil, nil, nil))
 		}
 	}
 
 	return &vi
+}
+func getGroupSchemas(ctx context.Context, i *item.Item, ss *schema.Schema) (schema.List, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+	gf := i.Fields().FieldsByType(value.TypeGroup)
+
+	var gIds id.GroupIDList
+	for _, field := range gf {
+		gsf := ss.Field(field.FieldID())
+
+		if gsf != nil {
+			var gid id.GroupID
+			gsf.TypeProperty().Match(schema.TypePropertyMatch{
+				Group: func(f *schema.FieldGroup) {
+					gid = f.Group()
+				},
+			})
+			gIds = gIds.Add(gid)
+
+		}
+	}
+	gl, err := uc.Group.FindByIDs(ctx, gIds, op)
+	if err != nil {
+		return nil, err
+	}
+
+	sgIds := util.Map(gl, func(g *group.Group) id.SchemaID {
+		return g.Schema()
+	})
+
+	return uc.Schema.FindByIDs(ctx, sgIds, op)
 }

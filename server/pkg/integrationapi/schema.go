@@ -36,9 +36,9 @@ type ItemModelSchemaItemChange struct {
 
 func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
 	return ItemModelSchema{
-		Item: NewItem(i.Item, i.Schema, assets),
+		Item: NewItem(i.Item, schema.List{i.Schema}, assets),
 		ReferencedItems: lo.Map(i.ReferencedItems, func(itm *version.Value[*item.Item], _ int) *VersionedItem {
-			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil))
+			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil, nil))
 		}),
 		Model:      NewModel(i.Model, time.Time{}),
 		Schema:     NewSchema(i.Schema),
