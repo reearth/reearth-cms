@@ -331,19 +331,19 @@ export default () => {
           case "Asset":
             initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
-          case "Date":
-            if (Array.isArray(field.typeProperty.defaultValue)) {
-              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
-                valueItem ? moment(valueItem) : "",
-              );
-            } else {
-              initialValues[field.id] = field.typeProperty.defaultValue
-                ? moment(field.typeProperty.defaultValue)
-                : "";
-            }
-            break;
+          // case "Date":
+          //   if (Array.isArray(field.typeProperty.defaultValue)) {
+          //     initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
+          //       valueItem ? moment(valueItem) : "",
+          //     );
+          //   } else {
+          //     initialValues[field.id] = field.typeProperty.defaultValue
+          //       ? moment(field.typeProperty.defaultValue)
+          //       : "";
+          //   }
+          //   break;
           case "Group":
-            if (field.multiple) initialValues[field.id] = []; // group doesn't have a default value
+            if (field.multiple) initialValues[field.id] = []; // group doesn't have default value
             break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
