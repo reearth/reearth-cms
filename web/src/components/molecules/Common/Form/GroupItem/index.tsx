@@ -314,16 +314,16 @@ const GroupItem: React.FC<Props> = ({
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
-                name={field.id}
+                name={[field.id, itemGroupId ?? ""]}
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }
                 rules={[
                   {
                     required: field.required,
                     message: t("Please input field!"),
                   },
-                ]}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
+                ]}>
                 {field.multiple ? (
                   <MultiValueField type="date" FieldInput={StyledDatePicker} />
                 ) : (

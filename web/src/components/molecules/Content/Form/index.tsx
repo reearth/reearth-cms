@@ -234,19 +234,17 @@ const ContentForm: React.FC<Props> = ({
       }[] = [];
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       // TODO: improve performance
-      for (let value of Object.values(values)) {
-        if (moment.isMoment(value)) {
-          value = transformMomentToString(value);
-        }
-      }
-      // eslint-disable-next-line prefer-const
-      for (let [key, value] of Object.entries(values)) {
+      for (const [key, value] of Object.entries(values)) {
+        const isGroup =
+          typeof value === "object" && !Array.isArray(value) && !moment.isMoment(value);
         // group fields
-        if (value && typeof value === "object" && !Array.isArray(value)) {
+        if (value && isGroup) {
           for (const [key1, value1] of Object.entries(value)) {
             const type1 = groupFieldTypes.get(key) || "";
             fields.push({
-              value: (value1 || "") as string,
+              value: (moment.isMoment(value1)
+                ? transformMomentToString(value1)
+                : value1 ?? "") as string,
               schemaFieldId: key,
               itemGroupId: key1,
               type: type1 as FieldType,
@@ -257,15 +255,11 @@ const ContentForm: React.FC<Props> = ({
         // model fields
         const type = modelFieldTypes.get(key) || "";
         fields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: type as FieldType,
         });
       }
-      console.log(fields);
-      console.log(modelFieldTypes);
-      console.log(groupFieldTypes);
-      return;
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
           value: (value || "") as string,
