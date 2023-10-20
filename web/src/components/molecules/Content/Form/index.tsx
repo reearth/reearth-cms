@@ -563,27 +563,27 @@ const ContentForm: React.FC<Props> = ({
                   </Select>
                 )}
               </StyledFormItem>
-            ) : field.type === "Date" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                name={field.id}
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please input field!"),
-                  },
-                ]}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? (
-                  <MultiValueField type="date" FieldInput={StyledDatePicker} />
-                ) : (
-                  <StyledDatePicker />
-                )}
-              </StyledFormItem>
-            ) : field.type === "Bool" ? (
+            ) : // ) : field.type === "Date" ? (
+            //   <StyledFormItem
+            //     key={field.id}
+            //     extra={field.description}
+            //     name={field.id}
+            //     rules={[
+            //       {
+            //         required: field.required,
+            //         message: t("Please input field!"),
+            //       },
+            //     ]}
+            //     label={
+            //       <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+            //     }>
+            //     {field.multiple ? (
+            //       <MultiValueField type="date" FieldInput={StyledDatePicker} />
+            //     ) : (
+            //       <StyledDatePicker />
+            //     )}
+            //   </StyledFormItem>
+            field.type === "Bool" ? (
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
