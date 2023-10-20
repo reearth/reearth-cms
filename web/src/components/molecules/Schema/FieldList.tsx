@@ -31,10 +31,10 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         title: t("Asset"),
         fields: ["Asset"],
       },
-      {
-        title: t("Time"),
-        fields: ["Date"],
-      },
+      // {
+      //   title: t("Time"),
+      //   fields: ["Date"],
+      // },
       {
         title: t("Boolean"),
         fields: ["Bool"],
@@ -48,10 +48,6 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         fields: ["Integer"],
       },
       {
-        title: t("Relation"),
-        fields: ["Reference"],
-      },
-      {
         title: t("URL"),
         fields: ["URL"],
       },
@@ -62,6 +58,10 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
   const data: FieldListItem[] = useMemo(
     () => [
       ...group,
+      {
+        title: t("Relation"),
+        fields: ["Reference"],
+      },
       {
         title: t("Group"),
         fields: ["Group"],
