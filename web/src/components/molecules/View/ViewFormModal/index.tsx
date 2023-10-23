@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -14,12 +15,20 @@ export interface FormValues {
 export interface Props {
   view?: View;
   open?: boolean;
+  submitting?: boolean;
   onClose: () => void;
   onCreate?: (values: FormValues) => Promise<void> | void;
   OnUpdate?: (values: FormValues) => Promise<void> | void;
 }
 
-const ViewFormModal: React.FC<Props> = ({ view, open, onClose, onCreate, OnUpdate }) => {
+const ViewFormModal: React.FC<Props> = ({
+  view,
+  open,
+  submitting,
+  onClose,
+  onCreate,
+  OnUpdate,
+}) => {
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(true);
@@ -69,7 +78,15 @@ const ViewFormModal: React.FC<Props> = ({ view, open, onClose, onCreate, OnUpdat
       onOk={handleSubmit}
       onCancel={handleClose}
       okButtonProps={{ disabled: buttonDisabled }}
-      title={!view?.id ? t("New View") : t("Update View")}>
+      title={!view?.id ? t("New View") : t("Update View")}
+      footer={[
+        <Button key="back" onClick={handleClose} disabled={submitting}>
+          {t("Cancel")}
+        </Button>,
+        <Button key="submit" type="primary" loading={submitting} onClick={handleSubmit}>
+          {submitting ? t("Submitting") : t("OK")}
+        </Button>,
+      ]}>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <Form.Item
           name="name"

@@ -15,6 +15,7 @@ const ViewsMenu: React.FC = () => {
     handleViewRenameModalOpen,
     selectedView,
     viewModalShown,
+    submitting,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,
@@ -35,6 +36,7 @@ const ViewsMenu: React.FC = () => {
       <ViewFormMobal
         view={selectedView}
         open={viewModalShown}
+        submitting={submitting}
         onClose={handleViewModalReset}
         onCreate={handleViewCreate}
         OnUpdate={handleViewUpdate}

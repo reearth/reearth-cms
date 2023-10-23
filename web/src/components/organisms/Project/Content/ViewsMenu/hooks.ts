@@ -21,6 +21,7 @@ export default ({ modelId }: Params) => {
   const t = useT();
   const [viewModalShown, setViewModalShown] = useState(false);
   const [selectedView, setSelectedView] = useState<View>();
+  const [submitting, setSubmitting] = useState(false);
   const [currentProject] = useProject();
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
@@ -57,7 +58,8 @@ export default ({ modelId }: Params) => {
   const handleViewModalReset = useCallback(() => {
     setSelectedView(undefined);
     setViewModalShown(false);
-  }, [setSelectedView, setViewModalShown]);
+    setSubmitting(false);
+  }, [setSelectedView, setViewModalShown, setSubmitting]);
 
   const [createNewView] = useCreateViewMutation({
     refetchQueries: ["GetViews"],
@@ -65,6 +67,7 @@ export default ({ modelId }: Params) => {
 
   const handleViewCreate = useCallback(
     async (data: { name: string }) => {
+      setSubmitting(true);
       const view = await createNewView({
         variables: {
           name: data.name,
@@ -79,7 +82,7 @@ export default ({ modelId }: Params) => {
       setViewModalShown(false);
       Notification.success({ message: t("Successfully created view!") });
     },
-    [createNewView, projectId, modelId, t],
+    [createNewView, projectId, modelId, t, setSubmitting],
   );
 
   const [updateNewView] = useUpdateViewMutation({
@@ -89,6 +92,7 @@ export default ({ modelId }: Params) => {
   const handleViewUpdate = useCallback(
     async (data: { viewId?: string; name: string }) => {
       if (!data.viewId) return;
+      setSubmitting(true);
       const view = await updateNewView({
         variables: {
           viewId: data.viewId,
@@ -102,7 +106,7 @@ export default ({ modelId }: Params) => {
       Notification.success({ message: t("Successfully updated view!") });
       handleViewModalReset();
     },
-    [handleViewModalReset, t, updateNewView],
+    [handleViewModalReset, t, updateNewView, setSubmitting],
   );
 
   const [deleteView] = useDeleteViewMutation({
@@ -136,6 +140,7 @@ export default ({ modelId }: Params) => {
     handleViewDeletionModalClose,
     selectedView,
     viewModalShown,
+    submitting,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,
