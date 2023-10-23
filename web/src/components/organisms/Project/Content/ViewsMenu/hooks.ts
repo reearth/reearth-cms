@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { View } from "@reearth-cms/components/molecules/View/types";
 import {
-  View,
+  View as GQLView,
   useCreateViewMutation,
   useDeleteViewMutation,
   useGetViewsQuery,
@@ -10,6 +11,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
+import { fromGraphQLView } from "@reearth-cms/utils/values";
 
 type Params = {
   modelId?: string;
@@ -29,8 +31,10 @@ export default ({ modelId }: Params) => {
   });
 
   const views = useMemo(() => {
-    return data?.view;
-  }, [data]);
+    return data?.view
+      ?.map(view => (view ? fromGraphQLView(view as GQLView) : undefined))
+      .filter((view): view is View => !!view);
+  }, [data?.view]);
 
   const handleViewModalOpen = useCallback(() => setViewModalShown(true), []);
 

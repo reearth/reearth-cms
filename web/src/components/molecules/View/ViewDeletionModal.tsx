@@ -1,7 +1,7 @@
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { View } from "@reearth-cms/gql/graphql-client-api";
+import { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
