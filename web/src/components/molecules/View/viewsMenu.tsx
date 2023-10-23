@@ -2,9 +2,7 @@ import styled from "@emotion/styled";
 import { useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
+import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { View } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -28,7 +26,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   onViewDeletionClose,
 }) => {
   const t = useT();
-  const [selectedView, setSelectedView] = useState<string>(
+  const [selectedKey, setSelectedKey] = useState<string>(
     views && views.length > 0 ? views[0].id : "",
   );
 
@@ -46,20 +44,20 @@ const ViewsMenuMolecule: React.FC<Props> = ({
     };
   });
 
-  const handleSelectView: MenuProps["onClick"] = (e: any) => {
-    setSelectedView(e.key);
+  const handleSelectView = (key: any) => {
+    setSelectedKey(key);
   };
 
   return (
     <Wrapper>
-      <StyledMenu
-        mode="horizontal"
-        expandIcon={<Icon />}
-        overflowedIndicator={<AllViewsButton>{t("All Views")}</AllViewsButton>}
-        triggerSubMenuAction="click"
-        selectedKeys={[selectedView]}
+      <StyledTabs
+        defaultActiveKey="1"
+        activeKey={selectedKey}
+        tabPosition="top"
         items={menuItems}
-        onClick={handleSelectView}
+        popupClassName="test"
+        onTabClick={handleSelectView}
+        moreIcon={<Button>All Views</Button>}
       />
       <NewViewButton type="text" onClick={onViewModalOpen}>
         {t("Save as new view")}
@@ -74,36 +72,20 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledTabs = styled(Tabs)`
   flex: 1;
   height: 46px;
 
-  .ant-menu-item {
-    padding: 0px 32px 0px 0px !important;
-    display: flex;
-    align-items: center;
+  .ant-tabs-nav-wrap {
+    width: 0px;
   }
-  .ant-menu-item::after {
-    right: 32px;
-    left: 0px;
-    position: absolute;
-  }
-  .ant-menu-overflow-item-rest {
-    padding: 0px !important;
-  }
-  .ant-menu-overflow-item-rest::after {
-    right: 0px;
-    left: 0px;
-    position: absolute;
+  .ant-tabs-nav {
+    height: 46px;
   }
 `;
 
 const NewViewButton = styled(Button)`
   color: rgba(0, 0, 0, 0.25);
-`;
-
-const AllViewsButton = styled(Button)`
-  padding: 5px 16px;
 `;
 
 export default ViewsMenuMolecule;
