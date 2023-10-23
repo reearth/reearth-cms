@@ -353,7 +353,13 @@ export default () => {
     } else {
       currentItem?.fields?.forEach(field => {
         if (field.type === "Date") {
-          field.value = moment(field.value);
+          if (Array.isArray(field.value)) {
+            field.value = field.value.map((valueItem: string) =>
+              valueItem ? moment(valueItem) : "",
+            );
+          } else {
+            field.value = field.value ? moment(field.value) : "";
+          }
         }
         if (field.itemGroupId) {
           if (
