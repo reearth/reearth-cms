@@ -354,22 +354,17 @@ const ContentTable: React.FC<Props> = ({
   const getOptions = useCallback(
     (isFromMenu: boolean): MenuProps["items"] => {
       const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
-        if (isFilter) {
-          setFilters(prevState => [
-            ...prevState,
-            {
-              dataIndex: column.dataIndex,
-              title: column.title,
-              type: column.type,
-              members: currentWorkspace?.members,
-            },
-          ]);
-        }
-        setSelectedFilter({
+        const filter = {
           dataIndex: column.dataIndex,
           title: column.title,
           type: column.type,
-        } as any);
+          typeProperty: column.typeProperty,
+          members: currentWorkspace?.members,
+        };
+        if (isFilter) {
+          setFilters(prevState => [...prevState, filter]);
+        }
+        setSelectedFilter(filter as any);
         handleOptionsOpenChange(false);
         if (isFromMenu) {
           handleConditionMenuOpenChange(true);

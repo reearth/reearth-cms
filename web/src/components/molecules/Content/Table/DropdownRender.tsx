@@ -55,6 +55,12 @@ const DropdownRender: React.FC<Props> = ({
 
   if (isFilter) {
     switch (filter.type) {
+      case "Bool":
+        options.push(
+          { value: FilterOptions.Is, label: t("is") },
+          { value: FilterOptions.IsNot, label: t("is not") },
+        );
+        break;
       case "Person":
         options.push(
           { value: FilterOptions.Is, label: t("is") },
