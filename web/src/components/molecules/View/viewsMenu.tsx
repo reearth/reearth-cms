@@ -55,7 +55,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         activeKey={selectedKey}
         tabPosition="top"
         items={menuItems}
-        popupClassName="test"
+        popupClassName="hide-icon-button"
         onTabClick={handleSelectView}
         moreIcon={<Button>All Views</Button>}
       />
