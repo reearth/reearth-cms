@@ -182,6 +182,17 @@ export default () => {
     refetchQueries: ["SearchItem", "GetRequests"],
   });
 
+  const { data: groupData } = useGetGroupsQuery({
+    variables: { projectId: projectId ?? "" },
+    skip: !projectId,
+  });
+
+  const groups = useMemo(() => {
+    return groupData?.groups
+      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
+      .filter((group): group is Group => !!group);
+  }, [groupData?.groups]);
+
   const handleItemCreate = useCallback(
     async (data: {
       schemaId: string;
@@ -404,6 +415,58 @@ export default () => {
             break;
         }
       });
+
+      const groupsInCurrentModel = new Set<Group>();
+      currentModel?.schema.fields?.forEach(field => {
+        if (field.type === "Group") {
+          const group = groups?.find(group => group.id === field.typeProperty.groupId);
+          if (group) groupsInCurrentModel.add(group);
+        }
+      });
+
+      // if (
+      //   typeof initialValues[field.schemaFieldId] === "object" &&
+      //   !Array.isArray(initialValues[field.schemaFieldId])
+      // ) {
+      //   initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
+      // } else {
+      //   initialValues[field.schemaFieldId] = {
+      //     [field.itemGroupId]: field.value,
+      //   };
+      // }
+
+      groupsInCurrentModel.forEach(group => {
+        group?.schema?.fields?.forEach(field => {
+          switch (field.type) {
+            case "Select":
+              initialValues[field.id][group.id] = field.typeProperty.selectDefaultValue;
+              break;
+            case "Tag":
+              initialValues[field.id][group.id] = field.typeProperty.selectDefaultValue;
+              break;
+            case "Integer":
+              initialValues[field.id][group.id] = field.typeProperty.integerDefaultValue;
+              break;
+            case "Asset":
+              initialValues[field.id][group.id] = field.typeProperty.assetDefaultValue;
+              break;
+            case "Date":
+              if (Array.isArray(field.typeProperty.defaultValue)) {
+                initialValues[field.id][group.id] = field.typeProperty.defaultValue.map(
+                  (valueItem: string) => (valueItem ? moment(valueItem) : ""),
+                );
+              } else {
+                initialValues[field.id][group.id] = field.typeProperty.defaultValue
+                  ? moment(field.typeProperty.defaultValue)
+                  : "";
+              }
+              break;
+            default:
+              initialValues[field.id][group.id] = field.typeProperty.defaultValue;
+              break;
+          }
+        });
+      });
     } else {
       currentItem?.metadata.fields?.forEach(field => {
         if (field.type === "Date") {
@@ -421,7 +484,7 @@ export default () => {
     }
 
     return initialValues;
-  }, [currentItem, currentModel?.metadataSchema?.fields]);
+  }, [currentItem, currentModel?.metadataSchema?.fields, currentModel?.schema.fields, groups]);
 
   const workspaceUserMembers = useMemo((): Member[] => {
     return (
@@ -507,17 +570,6 @@ export default () => {
   const handleReferenceModelUpdate = useCallback((modelId?: string) => {
     setReferenceModelId(modelId);
   }, []);
-
-  const { data: groupData } = useGetGroupsQuery({
-    variables: { projectId: projectId ?? "" },
-    skip: !projectId,
-  });
-
-  const groups = useMemo(() => {
-    return groupData?.groups
-      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
-      .filter((group): group is Group => !!group);
-  }, [groupData?.groups]);
 
   return {
     linkedItemsModalList,
