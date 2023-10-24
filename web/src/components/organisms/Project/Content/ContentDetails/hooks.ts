@@ -331,19 +331,19 @@ export default () => {
           case "Asset":
             initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
-          // case "Date":
-          //   if (Array.isArray(field.typeProperty.defaultValue)) {
-          //     initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
-          //       valueItem ? moment(valueItem) : "",
-          //     );
-          //   } else {
-          //     initialValues[field.id] = field.typeProperty.defaultValue
-          //       ? moment(field.typeProperty.defaultValue)
-          //       : "";
-          //   }
-          //   break;
+          case "Date":
+            if (Array.isArray(field.typeProperty.defaultValue)) {
+              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
+                valueItem ? moment(valueItem) : "",
+              );
+            } else {
+              initialValues[field.id] = field.typeProperty.defaultValue
+                ? moment(field.typeProperty.defaultValue)
+                : "";
+            }
+            break;
           case "Group":
-            if (field.multiple) initialValues[field.id] = []; // group doesn't have default value
+            if (field.multiple) initialValues[field.id] = []; // group doesn't have a default value
             break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
@@ -352,10 +352,20 @@ export default () => {
       });
     } else {
       currentItem?.fields?.forEach(field => {
+        if (field.type === "Date") {
+          if (Array.isArray(field.value)) {
+            field.value = field.value.map((valueItem: string) =>
+              valueItem ? moment(valueItem) : "",
+            );
+          } else {
+            field.value = field.value ? moment(field.value) : "";
+          }
+        }
         if (field.itemGroupId) {
           if (
             typeof initialValues[field.schemaFieldId] === "object" &&
-            !Array.isArray(initialValues[field.schemaFieldId])
+            !Array.isArray(initialValues[field.schemaFieldId]) &&
+            !moment.isMoment(initialValues[field.schemaFieldId])
           ) {
             initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
           } else {

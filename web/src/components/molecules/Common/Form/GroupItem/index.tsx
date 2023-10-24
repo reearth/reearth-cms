@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useEffect, useMemo } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
-// import DatePicker from "@reearth-cms/components/atoms/DatePicker";
+import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -310,27 +310,27 @@ const GroupItem: React.FC<Props> = ({
                   </Select>
                 )}
               </StyledFormItem>
-            ) : // ) : field.type === "Date" ? (
-            //   <StyledFormItem
-            //     key={field.id}
-            //     extra={field.description}
-            //     name={field.id}
-            //     rules={[
-            //       {
-            //         required: field.required,
-            //         message: t("Please input field!"),
-            //       },
-            //     ]}
-            //     label={
-            //       <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-            //     }>
-            //     {field.multiple ? (
-            //       <MultiValueField type="date" FieldInput={StyledDatePicker} />
-            //     ) : (
-            //       <StyledDatePicker />
-            //     )}
-            //   </StyledFormItem>
-            field.type === "Bool" ? (
+            ) : field.type === "Date" ? (
+              <StyledFormItem
+                key={field.id}
+                extra={field.description}
+                name={[field.id, itemGroupId ?? ""]}
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please input field!"),
+                  },
+                ]}>
+                {field.multiple ? (
+                  <MultiValueField type="date" FieldInput={StyledDatePicker} />
+                ) : (
+                  <StyledDatePicker />
+                )}
+              </StyledFormItem>
+            ) : field.type === "Bool" ? (
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
@@ -445,8 +445,8 @@ const FormItemsWrapper = styled.div`
   }
 `;
 
-// const StyledDatePicker = styled(DatePicker)`
-//   width: 100%;
-// `;
+const StyledDatePicker = styled(DatePicker)`
+  width: 100%;
+`;
 
 export default GroupItem;
