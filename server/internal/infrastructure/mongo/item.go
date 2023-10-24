@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
@@ -183,7 +184,66 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
-func (i *Item) Search(ctx context.Context, query *item.Query, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	var pipeline []any
+
+	// if the query has any meta fields, lookup the meta item
+	if query.HasMetaFields() {
+		pipeline = append(pipeline, bson.M{
+			"$lookup": bson.M{
+				"from":         "item",
+				"localField":   "metadataitem",
+				"foreignField": "id",
+				"as":           "__temp.meta",
+			},
+		})
+		pipeline = append(pipeline, bson.M{
+			"$unwind": "$__temp.meta",
+		})
+	}
+
+	// create aliases for fields used in filter logic or sort
+	aliases := bson.M{}
+	for _, field := range query.ItemFields() {
+		aliases["__temp."+field.ID.String()] = bson.M{
+			"$filter": bson.M{
+				"input": "$fields",
+				"as":    "field",
+				"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+			},
+		}
+	}
+	for _, field := range query.MetaFields() {
+		aliases["__temp."+field.ID.String()] = bson.M{
+			"$filter": bson.M{
+				"input": "$__temp.meta.fields",
+				"as":    "field",
+				"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+			},
+		}
+	}
+	if len(aliases) > 0 {
+		pipeline = append(pipeline, bson.M{
+			"$set": aliases,
+		})
+
+		// flatten the value object
+		flattenAliases := bson.M{}
+		for key, _ := range aliases {
+			flattenAliases[key] = "$" + key + ".v.v"
+		}
+		pipeline = append(pipeline, bson.M{
+			"$set": flattenAliases,
+		})
+
+		// unwind the aliases: will get the field value in side an array
+		for key, _ := range aliases {
+			pipeline = append(pipeline, bson.M{"$unwind": bson.M{"path": "$" + key, "preserveNullAndEmptyArrays": true}})
+		}
+	}
+
+	// apply filters and sort to pipeline
+
 	filter := bson.M{
 		"project": query.Project().String(),
 	}
@@ -193,12 +253,35 @@ func (i *Item) Search(ctx context.Context, query *item.Query, sort *usecasex.Sor
 			{"fields.v.v": bson.M{"$regex": regex}},
 			{"fields.value": bson.M{"$regex": regex}}, // compat
 		}
-
 	}
 	if query.Schema() != nil {
 		filter["schema"] = query.Schema().String()
 	}
-	res, pi, err := i.paginate(ctx, filter, query.Ref(), sort, pagination)
+	if query.Model() != nil {
+		filter["modelid"] = query.Model().String()
+	}
+	pipeline = append(pipeline, bson.M{"$match": filter})
+
+	var sort *usecasex.Sort
+	if query.Sort() != nil {
+		f := query.Sort().Field
+		key := ""
+		reverted := false
+		if query.Sort().Direction == view.DirectionDesc {
+			reverted = true
+		}
+		if f.Type == view.FieldTypeMetaField || f.Type == view.FieldTypeField {
+			key = "__temp." + f.ID.String()
+		} else {
+			key = string(f.Type)
+		}
+		sort = &usecasex.Sort{
+			Key:      key,
+			Reverted: reverted,
+		}
+	}
+
+	res, pi, err := r.paginateAggregation(ctx, pipeline, query.Ref(), sort, pagination)
 	return res, pi, err
 }
 
@@ -265,6 +348,15 @@ func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bo
 func (r *Item) paginate(ctx context.Context, filter bson.M, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	c := mongodoc.NewVersionedItemConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), sort, pagination, c)
+	if err != nil {
+		return nil, nil, rerror.ErrInternalBy(err)
+	}
+	return c.Result, pageInfo, nil
+}
+
+func (r *Item) paginateAggregation(ctx context.Context, pipeline []any, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	c := mongodoc.NewVersionedItemConsumer()
+	pageInfo, err := r.client.PaginateAggregation(ctx, applyProjectFilterToPipeline(pipeline, r.f.Readable), version.Eq(ref.OrLatest().OrVersion()), sort, pagination, c)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

@@ -158,3 +158,11 @@ export const GET_GROUP_KEY_AVAILABILITY = gql`
     }
   }
 `;
+
+export const MODELS_BY_GROUP = gql`
+  query ModelsByGroup($groupId: ID!) {
+    modelsByGroup(groupId: $groupId) {
+      name
+    }
+  }
+`;

@@ -15,3 +15,15 @@ export const bytesFormat = (bytes: number, decimals = 2) => {
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 };
+
+export const transformMomentToString = (value: any) => {
+  if (moment.isMoment(value)) {
+    return value.format("YYYY-MM-DDTHH:mm:ssZ");
+  }
+
+  if (Array.isArray(value) && value.every(item => moment.isMoment(item))) {
+    return value.map(item => item.format("YYYY-MM-DDTHH:mm:ssZ"));
+  }
+
+  return value; // return the original value if it's neither a moment object nor an array of moment objects
+};

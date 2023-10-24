@@ -2215,6 +2215,13 @@ export type CheckGroupKeyAvailabilityQueryVariables = Exact<{
 
 export type CheckGroupKeyAvailabilityQuery = { __typename?: 'Query', checkGroupKeyAvailability: { __typename?: 'KeyAvailability', key: string, available: boolean } };
 
+export type ModelsByGroupQueryVariables = Exact<{
+  groupId: Scalars['ID'];
+}>;
+
+
+export type ModelsByGroupQuery = { __typename?: 'Query', modelsByGroup: Array<{ __typename?: 'Model', name: string } | null> };
+
 export type CreateIntegrationMutationVariables = Exact<{
   name: Scalars['String'];
   description?: InputMaybe<Scalars['String']>;
@@ -3984,6 +3991,41 @@ export function useCheckGroupKeyAvailabilityLazyQuery(baseOptions?: Apollo.LazyQ
 export type CheckGroupKeyAvailabilityQueryHookResult = ReturnType<typeof useCheckGroupKeyAvailabilityQuery>;
 export type CheckGroupKeyAvailabilityLazyQueryHookResult = ReturnType<typeof useCheckGroupKeyAvailabilityLazyQuery>;
 export type CheckGroupKeyAvailabilityQueryResult = Apollo.QueryResult<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>;
+export const ModelsByGroupDocument = gql`
+    query ModelsByGroup($groupId: ID!) {
+  modelsByGroup(groupId: $groupId) {
+    name
+  }
+}
+    `;
+
+/**
+ * __useModelsByGroupQuery__
+ *
+ * To run a query within a React component, call `useModelsByGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useModelsByGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useModelsByGroupQuery({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useModelsByGroupQuery(baseOptions: Apollo.QueryHookOptions<ModelsByGroupQuery, ModelsByGroupQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ModelsByGroupQuery, ModelsByGroupQueryVariables>(ModelsByGroupDocument, options);
+      }
+export function useModelsByGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ModelsByGroupQuery, ModelsByGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ModelsByGroupQuery, ModelsByGroupQueryVariables>(ModelsByGroupDocument, options);
+        }
+export type ModelsByGroupQueryHookResult = ReturnType<typeof useModelsByGroupQuery>;
+export type ModelsByGroupLazyQueryHookResult = ReturnType<typeof useModelsByGroupLazyQuery>;
+export type ModelsByGroupQueryResult = Apollo.QueryResult<ModelsByGroupQuery, ModelsByGroupQueryVariables>;
 export const CreateIntegrationDocument = gql`
     mutation CreateIntegration($name: String!, $description: String, $logoUrl: URL!, $type: IntegrationType!) {
   createIntegration(

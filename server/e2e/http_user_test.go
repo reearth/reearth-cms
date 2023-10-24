@@ -84,8 +84,8 @@ func TestSignUp(t *testing.T) {
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("name").String().Equal("name")
-	o.Value("email").String().Equal("test@example.com")
+	o.Value("name").String().IsEqual("name")
+	o.Value("email").String().IsEqual("test@example.com")
 	o.Value("id").String().NotEmpty()
 
 	u, err := r.User.FindByEmail(context.Background(), "test@example.com")
