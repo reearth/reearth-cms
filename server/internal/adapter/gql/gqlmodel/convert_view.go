@@ -208,6 +208,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.Bool != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeBool,
 			BoolCondition: &view.BoolCondition{
 				Field: i.Bool.FieldID.Into(),
 				Op:    i.Bool.Operator.Into(),
@@ -217,6 +218,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.String != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeString,
 			StringCondition: &view.StringCondition{
 				Field: i.String.FieldID.Into(),
 				Op:    i.String.Operator.Into(),
@@ -226,6 +228,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.Number != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeNumber,
 			NumberCondition: &view.NumberCondition{
 				Field: i.Number.FieldID.Into(),
 				Op:    i.Number.Operator.Into(),
@@ -235,6 +238,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.Basic != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeBasic,
 			BasicCondition: &view.BasicCondition{
 				Field: i.Basic.FieldID.Into(),
 				Op:    i.Basic.Operator.Into(),
@@ -244,6 +248,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.Time != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeTime,
 			TimeCondition: &view.TimeCondition{
 				Field: i.Time.FieldID.Into(),
 				Op:    i.Time.Operator.Into(),
@@ -253,6 +258,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.Nullable != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeNullable,
 			NullableCondition: &view.NullableCondition{
 				Field: i.Nullable.FieldID.Into(),
 				Op:    i.Nullable.Operator.Into(),
@@ -261,6 +267,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.Multiple != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeMultiple,
 			MultipleCondition: &view.MultipleCondition{
 				Field: i.Multiple.FieldID.Into(),
 				Op:    i.Multiple.Operator.Into(),
@@ -270,6 +277,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.And != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeAnd,
 			AndCondition: &view.AndCondition{
 				Conditions: lo.Map(i.And.Conditions, func(c *ConditionInput, _ int) view.Condition {
 					return *c.Into()
@@ -279,6 +287,7 @@ func (i *ConditionInput) Into() *view.Condition {
 	}
 	if i.Or != nil {
 		return &view.Condition{
+			ConditionType: view.ConditionTypeOr,
 			OrCondition: &view.OrCondition{
 				Conditions: lo.Map(i.Or.Conditions, func(c *ConditionInput, _ int) view.Condition {
 					return *c.Into()

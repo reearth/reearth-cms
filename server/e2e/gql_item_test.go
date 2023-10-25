@@ -509,8 +509,8 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.markdownFId, "value": "test1", "type": "MarkdownText"},
 		// {"schemaFieldId": fids.assetFId, "value": nil, "type": "Asset"},
 		{"schemaFieldId": fids.boolFId, "value": true, "type": "Bool"},
-		{"schemaFieldId": fids.selectFId, "value": "s2", "type": "Select"},
-		{"schemaFieldId": fids.integerFId, "value": 2, "type": "Integer"},
+		{"schemaFieldId": fids.selectFId, "value": "s1", "type": "Select"},
+		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test1.com", "type": "URL"},
 	})
 
@@ -535,7 +535,7 @@ func TestSearchItem(t *testing.T) {
 		"project": pId,
 		"schema":  sId,
 	}, nil, nil, map[string]any{
-		"first": 2,
+		"first": 10,
 	})
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
@@ -553,7 +553,8 @@ func TestSearchItem(t *testing.T) {
 		"direction": "DESC",
 	}, nil, map[string]any{
 		"first": 2,
-	})
+	},
+	)
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id, i1Id})
@@ -597,4 +598,201 @@ func TestSearchItem(t *testing.T) {
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	// filter basic
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "EQUALS",
+				"value":    "test1 updated",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "NOT_EQUALS",
+				"value":    "test1 updated",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+
+	i1ver, _ = getItem(e, i1Id)
+	updateItem(e, i1Id, i1ver, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "", "type": "Text"},
+	})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"nullable": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "EMPTY",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"nullable": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "NOT_EMPTY",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+
+	// number filters
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.integerFId,
+					"type": "FIELD",
+				},
+				"operator": "LESS_THAN",
+				"value":    2,
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.integerFId,
+					"type": "FIELD",
+				},
+				"operator": "LESS_THAN_OR_EQUAL_TO",
+				"value":    2,
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.integerFId,
+					"type": "FIELD",
+				},
+				"operator": "GREATER_THAN",
+				"value":    1,
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.integerFId,
+					"type": "FIELD",
+				},
+				"operator": "GREATER_THAN_OR_EQUAL_TO",
+				"value":    1,
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
 }
