@@ -331,8 +331,8 @@ export default () => {
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
-    const itemGroupIdsMap = new Map();
     if (!currentItem) {
+      const itemGroupIdsMap = new Map();
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
           case "Select":
@@ -463,7 +463,7 @@ export default () => {
                       [itemGroupId]: moment(field.typeProperty.defaultValue),
                     };
                   }
-                } else {
+                } else if (initialValues[field.id]?.[itemGroupId]) {
                   initialValues[field.id][itemGroupId] = "";
                 }
               }
