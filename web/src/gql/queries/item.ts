@@ -2,50 +2,6 @@ import { gql } from "@apollo/client";
 
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
-export const GET_ITEMS = gql`
-  query GetItems($modelId: ID!, $pagination: Pagination) {
-    items(modelId: $modelId, pagination: $pagination) {
-      nodes {
-        id
-        title
-        schemaId
-        createdAt
-        updatedAt
-        status
-        createdBy {
-          ... on Integration {
-            name
-          }
-          ... on User {
-            name
-          }
-        }
-        fields {
-          schemaFieldId
-          itemGroupId
-          type
-          value
-        }
-        thread {
-          ...threadFragment
-        }
-        metadata {
-          id
-          fields {
-            schemaFieldId
-            itemGroupId
-            type
-            value
-          }
-        }
-      }
-      totalCount
-    }
-  }
-
-  ${threadFragment}
-`;
-
 export const GET_ITEM_NODE = gql`
   query GetItem($id: ID!) {
     node(id: $id, type: Item) {
@@ -121,8 +77,8 @@ export const GET_ITEMS_BY_IDS = gql`
 `;
 
 export const SEARCH_ITEM = gql`
-  query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
-    searchItem(query: $query, sort: $sort, pagination: $pagination) {
+  query SearchItem($searchItemInput: SearchItemInput!) {
+    searchItem(input: $searchItemInput) {
       nodes {
         id
         title
@@ -130,17 +86,10 @@ export const SEARCH_ITEM = gql`
         createdAt
         updatedAt
         status
+        version
         assets {
           id
           url
-        }
-        createdBy {
-          ... on Integration {
-            name
-          }
-          ... on User {
-            name
-          }
         }
         fields {
           schemaFieldId
@@ -148,11 +97,25 @@ export const SEARCH_ITEM = gql`
           type
           value
         }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            type
+            value
+          }
+        }
         thread {
           ...threadFragment
         }
       }
       totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
 
