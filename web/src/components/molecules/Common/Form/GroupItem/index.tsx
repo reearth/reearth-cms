@@ -120,10 +120,6 @@ const GroupItem: React.FC<Props> = ({
   const fields = useMemo(() => group?.schema.fields, [group?.schema.fields]);
   const itemGroupId = useMemo(() => value, [value]);
 
-  // useEffect(() => {
-  //   if (!value) onChange?.(itemGroupId);
-  // }, [itemGroupId, onChange, value]);
-
   return (
     <Collapse collapsible="header" defaultActiveKey={["1"]} style={{ width: 500 }}>
       <Panel

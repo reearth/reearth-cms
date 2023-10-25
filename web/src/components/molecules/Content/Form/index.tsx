@@ -260,9 +260,6 @@ const ContentForm: React.FC<Props> = ({
           type: type as FieldType,
         });
       }
-      console.log(fields);
-      console.log(values);
-      // return;
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
           value: (value || "") as string,
@@ -674,6 +671,8 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueGroup
                     parentField={field}
+                    form={form}
+                    groups={groups}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
                     assetList={assetList}

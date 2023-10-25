@@ -169,6 +169,17 @@ export default () => {
     [gqlFormItemsData?.nodes],
   );
 
+  const { data: groupData } = useGetGroupsQuery({
+    variables: { projectId: projectId ?? "" },
+    skip: !projectId,
+  });
+
+  const groups = useMemo(() => {
+    return groupData?.groups
+      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
+      .filter((group): group is Group => !!group);
+  }, [groupData?.groups]);
+
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
       navigate(
@@ -182,17 +193,6 @@ export default () => {
   const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["SearchItem", "GetRequests"],
   });
-
-  const { data: groupData } = useGetGroupsQuery({
-    variables: { projectId: projectId ?? "" },
-    skip: !projectId,
-  });
-
-  const groups = useMemo(() => {
-    return groupData?.groups
-      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
-      .filter((group): group is Group => !!group);
-  }, [groupData?.groups]);
 
   const handleItemCreate = useCallback(
     async (data: {
@@ -331,8 +331,7 @@ export default () => {
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
-    const m = new Map();
-
+    const itemGroupIdsMap = new Map();
     if (!currentItem) {
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
@@ -362,9 +361,8 @@ export default () => {
             } else {
               const id = newID();
               initialValues[field.id] = id;
-              m.set(field.typeProperty?.groupId, id);
+              itemGroupIdsMap.set(field.typeProperty?.groupId, id);
             }
-          // initialValues[field.id] = field.multiple ? [] : id; // group doesn't have a default value
             break;
           }
           default:
@@ -372,6 +370,7 @@ export default () => {
             break;
         }
       });
+
       const groupsInCurrentModel = new Set<Group>();
       currentModel?.schema.fields?.forEach(field => {
         if (field.type === "Group") {
@@ -381,6 +380,7 @@ export default () => {
       });
 
       groupsInCurrentModel.forEach(group => {
+        const itemGroupId = itemGroupIdsMap.get(group.id);
         group?.schema?.fields?.forEach(field => {
           switch (field.type) {
             case "Select":
@@ -388,56 +388,52 @@ export default () => {
                 typeof initialValues[field.id] === "object" &&
                 !Array.isArray(initialValues[field.id])
               ) {
-                initialValues[field.id][group.id] = field.typeProperty.selectDefaultValue;
+                initialValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
               } else {
                 initialValues[field.id] = {
-                  [group.id]: field.typeProperty.selectDefaultValue,
+                  [itemGroupId]: field.typeProperty.selectDefaultValue,
                 };
               }
-              // initialValues[field.id][group.id] = field.typeProperty.selectDefaultValue;
               break;
             case "Tag":
               if (
                 typeof initialValues[field.id] === "object" &&
                 !Array.isArray(initialValues[field.id])
               ) {
-                initialValues[field.id][group.id] = field.typeProperty.selectDefaultValue;
+                initialValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
               } else {
                 initialValues[field.id] = {
-                  [group.id]: field.typeProperty.selectDefaultValue,
+                  [itemGroupId]: field.typeProperty.selectDefaultValue,
                 };
               }
-              // initialValues[field.id][group.id] = field.typeProperty.selectDefaultValue;
               break;
             case "Integer":
               if (
                 typeof initialValues[field.id] === "object" &&
                 !Array.isArray(initialValues[field.id])
               ) {
-                initialValues[field.id][group.id] = field.typeProperty.integerDefaultValue;
+                initialValues[field.id][itemGroupId] = field.typeProperty.integerDefaultValue;
               } else {
                 initialValues[field.id] = {
-                  [group.id]: field.typeProperty.integerDefaultValue,
+                  [itemGroupId]: field.typeProperty.integerDefaultValue,
                 };
               }
-              // initialValues[field.id][group.id] = field.typeProperty.integerDefaultValue;
               break;
             case "Asset":
               if (
                 typeof initialValues[field.id] === "object" &&
                 !Array.isArray(initialValues[field.id])
               ) {
-                initialValues[field.id][group.id] = field.typeProperty.assetDefaultValue;
+                initialValues[field.id][itemGroupId] = field.typeProperty.assetDefaultValue;
               } else {
                 initialValues[field.id] = {
-                  [group.id]: field.typeProperty.assetDefaultValue,
+                  [itemGroupId]: field.typeProperty.assetDefaultValue,
                 };
               }
-              // initialValues[field.id][group.id] = field.typeProperty.assetDefaultValue;
               break;
             case "Date":
               if (Array.isArray(field.typeProperty.defaultValue)) {
-                initialValues[field.id][group.id] = field.typeProperty.defaultValue.map(
+                initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
                   (valueItem: string) => {
                     if (valueItem) {
                       if (
@@ -447,13 +443,12 @@ export default () => {
                         return moment(field.typeProperty.defaultValue);
                       } else {
                         return {
-                          [group.id]: moment(field.typeProperty.defaultValue),
+                          [itemGroupId]: moment(field.typeProperty.defaultValue),
                         };
                       }
                     } else {
                       return "";
                     }
-                    // valueItem ? moment(valueItem) : "";
                   },
                 );
               } else {
@@ -462,41 +457,32 @@ export default () => {
                     typeof initialValues[field.id] === "object" &&
                     !Array.isArray(initialValues[field.id])
                   ) {
-                    initialValues[field.id][group.id] = moment(field.typeProperty.defaultValue);
+                    initialValues[field.id][itemGroupId] = moment(field.typeProperty.defaultValue);
                   } else {
                     initialValues[field.id] = {
-                      [group.id]: moment(field.typeProperty.defaultValue),
+                      [itemGroupId]: moment(field.typeProperty.defaultValue),
                     };
                   }
-                  // initialValues[field.id][group.id] = moment(field.typeProperty.defaultValue);
                 } else {
-                  initialValues[field.id][group.id] = "";
+                  initialValues[field.id][itemGroupId] = "";
                 }
               }
               break;
             default:
-              // let itemGroupId = initialValues[field.id];
               if (
                 typeof initialValues[field.id] === "object" &&
                 !Array.isArray(initialValues[field.id])
               ) {
-                if (m.has(group.id)) {
-                  initialValues[field.id][m.get(group.id)] = field.typeProperty.defaultValue;
-                }
+                initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue;
               } else {
-                if (m.has(group.id)) {
-                  initialValues[field.id] = {
-                    [m.get(group.id)]: field.typeProperty.defaultValue,
-                  };
-                }
+                initialValues[field.id] = {
+                  [itemGroupId]: field.typeProperty.defaultValue,
+                };
               }
-              // initialValues[field.id][group.id] = field.typeProperty.defaultValue;
               break;
           }
         });
       });
-      console.log("initialValues", initialValues);
-      console.log("m", m);
     } else {
       currentItem?.fields?.forEach(field => {
         if (field.type === "Date") {
