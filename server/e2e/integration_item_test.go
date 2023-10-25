@@ -241,13 +241,13 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
 
 	a := obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), false)
+	a.Length().IsEqual(1)
+	assertItem(a.Value(0), false)
 
 	// asset embeded
 	obj = e.GET("/api/models/{modelId}/items", mId).
@@ -259,13 +259,13 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
 
 	a = obj.Value("items").Array()
-	a.Length().Equal(1)
-	assertItem(a.First(), true)
+	a.Length().IsEqual(1)
+	assertItem(a.Value(0), true)
 
 	// key cannot be used
 	e.GET("/api/models/{modelId}/items", ikey).
@@ -293,7 +293,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 
 	r2.
 		Value("fields").
-		Equal([]any{
+		IsEqual([]any{
 			map[string]string{
 				"id":    fId3.String(),
 				"type":  "reference",
@@ -301,9 +301,9 @@ func TestIntegrationItemListAPI(t *testing.T) {
 				"key":   sfKey3.String(),
 			},
 		})
-	r2.Value("referencedItems").Array().First().Object().Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	raw := r2.Value("referencedItems").Array().First().Object().Raw()
+	r2.Value("referencedItems").Array().Value(0).Object().Keys().
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId.String()
 	raw["modelId"] = mId.String()
 }
@@ -351,8 +351,8 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		JSON().
 		Object()
 	r.Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	r.Value("fields").Equal([]any{
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	r.Value("fields").IsEqual([]any{
 		map[string]string{
 			"id":    fId.String(),
 			"type":  "text",
@@ -360,8 +360,8 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 			"key":   sfKey.String(),
 		},
 	})
-	r.Value("modelId").Equal(mId.String())
-	r.Value("refs").Equal([]string{"latest"})
+	r.Value("modelId").IsEqual(mId.String())
+	r.Value("refs").IsEqual([]string{"latest"})
 
 	e.POST("/api/models/{modelId}/items", mId).
 		WithHeader("authorization", "Bearer "+secret).
@@ -378,7 +378,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		JSON().
 		Object().
 		Value("fields").
-		Equal([]any{
+		IsEqual([]any{
 			map[string]string{
 				"id":    fId.String(),
 				"type":  "text",
@@ -405,7 +405,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 
 	r2.
 		Value("fields").
-		Equal([]any{
+		IsEqual([]any{
 			map[string]string{
 				"id":    fId3.String(),
 				"type":  "reference",
@@ -413,9 +413,9 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 				"key":   sfKey3.String(),
 			},
 		})
-	r2.Value("referencedItems").Array().First().Object().Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	raw := r2.Value("referencedItems").Array().First().Object().Raw()
+	r2.Value("referencedItems").Array().Value(0).Object().Keys().
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId.String()
 	raw["modelId"] = mId.String()
 }
@@ -458,8 +458,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		JSON().
 		Object()
 	r.Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	r.Value("fields").Equal([]interface{}{
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	r.Value("fields").IsEqual([]interface{}{
 		map[string]string{
 			"id":    fId2.String(),
 			"key":   "asset",
@@ -473,8 +473,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			"key":   sfKey.String(),
 		},
 	})
-	r.Value("modelId").Equal(mId.String())
-	r.Value("refs").Equal([]string{"latest"})
+	r.Value("modelId").IsEqual(mId.String())
+	r.Value("refs").IsEqual([]string{"latest"})
 
 	e.PATCH("/api/items/{itemId}", itmId).
 		WithHeader("authorization", "Bearer "+secret).
@@ -497,7 +497,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		JSON().
 		Object().
 		Value("fields").
-		Equal([]any{
+		IsEqual([]any{
 			map[string]string{
 				"id":    fId2.String(),
 				"key":   "asset",
@@ -530,7 +530,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 
 	r2.
 		Value("fields").
-		Equal([]any{
+		IsEqual([]any{
 			map[string]string{
 				"id":    fId3.String(),
 				"type":  "reference",
@@ -538,9 +538,9 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"key":   sfKey3.String(),
 			},
 		})
-	r2.Value("referencedItems").Array().First().Object().Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	raw := r2.Value("referencedItems").Array().First().Object().Raw()
+	r2.Value("referencedItems").Array().Value(0).Object().Keys().
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId.String()
 	raw["modelId"] = mId.String()
 }
@@ -574,7 +574,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 
 	r2 := e.POST("/api/models/{modelId}/items", mId2).
 		WithHeader("authorization", "Bearer "+secret).
@@ -594,7 +594,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 
 	r2.
 		Value("fields").
-		Equal([]any{
+		IsEqual([]any{
 			map[string]string{
 				"id":    fId3.String(),
 				"type":  "reference",
@@ -602,9 +602,9 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 				"key":   sfKey3.String(),
 			},
 		})
-	r2.Value("referencedItems").Array().First().Object().Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-	raw := r2.Value("referencedItems").Array().First().Object().Raw()
+	r2.Value("referencedItems").Array().Value(0).Object().Keys().
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId.String()
 	raw["modelId"] = mId.String()
 }
@@ -624,7 +624,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().Keys().
-		Contains("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 
 	e.DELETE("/api/items/{itemId}", itmId).
 		WithHeader("authorization", "Bearer "+secret).
@@ -632,7 +632,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().Keys().
-		Contains("id")
+		ContainsAll("id")
 
 	e.GET("/api/items/{itemId}", itmId).
 		WithHeader("authorization", "Bearer "+secret).
@@ -642,21 +642,21 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 	o := v.Object()
-	o.Value("id").Equal(itmId.String())
+	o.Value("id").IsEqual(itmId.String())
 	if assetEmbeded {
 		a := o.Value("fields").Array()
-		a.Length().Equal(1)
-		a.First().Object().Value("value").Object().
-			ValueEqual("id", aid.String()).
+		a.Length().IsEqual(1)
+		a.Value(0).Object().Value("value").Object().
+			HasValue("id", aid.String()).
 			NotContainsKey("contentType").
 			NotContainsKey("file").
 			NotContainsKey("name").
-			ValueEqual("previewType", "unknown").
-			ValueEqual("projectId", pid.String()).
-			ValueEqual("totalSize", 1000).
-			ValueEqual("url", fmt.Sprintf("https://example.com/assets/%s/%s/aaa.jpg", auuid[0:2], auuid[2:]))
+			HasValue("previewType", "unknown").
+			HasValue("projectId", pid.String()).
+			HasValue("totalSize", 1000).
+			HasValue("url", fmt.Sprintf("https://example.com/assets/%s/%s/aaa.jpg", auuid[0:2], auuid[2:]))
 	} else {
-		o.Value("fields").Equal([]map[string]any{
+		o.Value("fields").IsEqual([]map[string]any{
 			{
 				"id":    fId2.String(),
 				"key":   "asset",
@@ -665,6 +665,6 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 			},
 		})
 	}
-	o.Value("parents").Equal([]any{})
-	o.Value("refs").Equal([]string{"latest"})
+	o.Value("parents").IsEqual([]any{})
+	o.Value("refs").IsEqual([]string{"latest"})
 }

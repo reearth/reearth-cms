@@ -445,7 +445,12 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		if err := i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return err
 		}
-
+		if itm.Value().MetadataItem() != nil {
+			err = i.repos.Item.Remove(ctx, itemID)
+			if err != nil {
+				return err
+			}
+		}
 		return i.repos.Item.Remove(ctx, itemID)
 	})
 }
