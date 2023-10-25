@@ -591,10 +591,11 @@ export type ItemPayload = {
   item: Item;
 };
 
-export type ItemQuery = {
+export type ItemQueryInput = {
   project: Scalars['ID'];
   q?: InputMaybe<Scalars['String']>;
   schema?: InputMaybe<Scalars['ID']>;
+  model?: InputMaybe<Scalars['ID']>;
 };
 
 export type ItemSort = {
@@ -2280,8 +2281,9 @@ export type GetItemsByIdsQueryVariables = Exact<{
 export type GetItemsByIdsQuery = { __typename?: 'Query', nodes: Array<{ __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null> };
 
 export type SearchItemQueryVariables = Exact<{
-  query: ItemQuery;
-  sort?: InputMaybe<ItemSort>;
+  query: ItemQueryInput;
+  sort?: InputMaybe<ItemSortInput>;
+  filter?: InputMaybe<ConditionInput>;
   pagination?: InputMaybe<Pagination>;
 }>;
 
@@ -4337,40 +4339,62 @@ export type GetItemsByIdsQueryHookResult = ReturnType<typeof useGetItemsByIdsQue
 export type GetItemsByIdsLazyQueryHookResult = ReturnType<typeof useGetItemsByIdsLazyQuery>;
 export type GetItemsByIdsQueryResult = Apollo.QueryResult<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>;
 export const SearchItemDocument = gql`
-    query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
-  searchItem(query: $query, sort: $sort, pagination: $pagination) {
+    query SearchItem($query: ItemQueryInput!, $sort: ItemSortInput, $filter: ConditionInput, $pagination: Pagination) {
+  searchItem(input:{query: $query, sort: $sort, filter: $filter, pagination: $pagination}) {
     nodes {
-      id
-      title
-      schemaId
-      createdAt
-      updatedAt
-      status
-      assets {
-        id
-        url
-      }
-      createdBy {
-        ... on Integration {
-          name
-        }
-        ... on User {
-          name
-        }
-      }
-      fields {
-        schemaFieldId
-        itemGroupId
-        type
-        value
-      }
-      thread {
-        ...threadFragment
-      }
-    }
-    totalCount
-  }
-}
+					  id
+					  title
+					  schemaId
+					  createdAt
+					  updatedAt
+					  status
+					  version
+					  assets {
+						id
+						url
+					  }
+					  createdBy {
+						... on Integration {
+						  name
+						}
+						... on User {
+						  name
+						}
+					  }
+					  updatedBy {
+						... on Integration {
+						  name
+						}
+						... on User {
+						  name
+						}
+					  }
+					  fields {
+						schemaFieldId
+						type
+						value
+					  }
+					  metadata {
+						id
+						fields {
+						  schemaFieldId
+						  type
+						  value
+						}
+					  }
+					  thread {
+						...threadFragment
+					  }
+					}
+					totalCount
+					pageInfo {
+					  hasNextPage
+					  hasPreviousPage
+					  startCursor
+					  endCursor	
+					}
+				  }
+				}
     ${ThreadFragmentFragmentDoc}`;
 
 /**

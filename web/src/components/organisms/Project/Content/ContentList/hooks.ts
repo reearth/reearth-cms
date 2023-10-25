@@ -14,18 +14,16 @@ import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
-  SortDirection as GQLSortDirection,
-  ItemSortType as GQLItemSortType,
+  SortDirection,
+  ItemSortType,
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
+  FieldType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import { fileName } from "./utils";
-
-export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
-export type SortDirection = "ASC" | "DESC";
 
 export default () => {
   const {
@@ -57,17 +55,17 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection } | undefined>({
-    type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
-    direction: direction ? (direction as SortDirection) : "DESC",
+  const [sort, setSort] = useState<{ type: ItemSortType; direction: SortDirection } | undefined>({
+    type: sortType ? (sortType as ItemSortType) : ItemSortType.ModificationDate,
+    direction: direction ? (direction as SortDirection) : SortDirection.Desc,
   });
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
     setSort({
-      type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
-      direction: direction ? (direction as SortDirection) : "DESC",
+      type: sortType ? (sortType as ItemSortType) : ItemSortType.ModificationDate,
+      direction: direction ? (direction as SortDirection) : SortDirection.Desc,
     });
     setSearchTerm(searchTermParam ?? "");
   }, [pageParam, pageSizeParam, sortType, direction, searchTermParam]);
@@ -81,9 +79,10 @@ export default () => {
         q: searchTerm,
       },
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: sort
-        ? { sortBy: sort.type as GQLItemSortType, direction: sort.direction as GQLSortDirection }
-        : undefined,
+      sort: {
+        field: { type: FieldType.ModificationDate, id: null },
+        direction: SortDirection.Desc,
+      },
     },
     skip: !currentModel?.schema.id,
   });
