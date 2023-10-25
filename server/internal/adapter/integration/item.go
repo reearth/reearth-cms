@@ -161,7 +161,12 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return ItemCreate400Response{}, err
 	}
 
-	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i), nil)), nil
+	sgl, err := getGroupSchemas(ctx, i.Value(), ss)
+	if err != nil {
+		return nil, err
+	}
+
+	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i), sgl)), nil
 }
 
 func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error) {
@@ -209,7 +214,12 @@ func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWit
 		return ItemCreateWithProject400Response{}, err
 	}
 
-	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i), nil)), nil
+	sgl, err := getGroupSchemas(ctx, i.Value(), ss)
+	if err != nil {
+		return nil, err
+	}
+
+	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i), sgl)), nil
 }
 
 func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
@@ -250,7 +260,12 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate500Response{}, err
 	}
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), getReferencedItems(ctx, i), nil)), nil
+	sgl, err := getGroupSchemas(ctx, i.Value(), ss)
+	if err != nil {
+		return ItemUpdate400Response{}, err
+	}
+
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), getReferencedItems(ctx, i), sgl)), nil
 }
 
 func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
