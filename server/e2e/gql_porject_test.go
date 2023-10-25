@@ -56,5 +56,5 @@ func TestCreateProject(t *testing.T) {
 		Value("data").Object().
 		Value("createProject").Object().
 		Value("project").Object().
-		ValueEqual("name", "test")
+		HasValue("name", "test")
 }

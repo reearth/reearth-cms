@@ -38,12 +38,12 @@ func TestIntegrationGetAssetCommentAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object()
-	r.Keys().Contains("comments")
-	c := r.Value("comments").Array().First().Object()
-	c.Value("id").Equal(icId.String())
-	c.Value("authorId").Equal(uId.String())
-	c.Value("authorType").Equal(integrationapi.User)
-	c.Value("content").Equal("test comment")
+	r.Keys().ContainsAny("comments")
+	c := r.Value("comments").Array().Value(0).Object()
+	c.Value("id").IsEqual(icId.String())
+	c.Value("authorId").IsEqual(uId.String())
+	c.Value("authorType").IsEqual(integrationapi.User)
+	c.Value("content").IsEqual("test comment")
 }
 
 // POST|/assets/{assetId}/comments
@@ -79,9 +79,9 @@ func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 		JSON().
 		Object()
 
-	c.Value("authorId").Equal(iId)
-	c.Value("authorType").Equal(integrationapi.Integrtaion)
-	c.Value("content").Equal("test")
+	c.Value("authorId").IsEqual(iId)
+	c.Value("authorType").IsEqual(integrationapi.Integrtaion)
+	c.Value("content").IsEqual("test")
 }
 
 // PATCH|/assets/{assetId}/comments/{commentId}
@@ -118,12 +118,12 @@ func TestIntegrationUpdateAssetCommentAPI(t *testing.T) {
 		Object()
 
 	r.Keys().
-		Contains("id", "authorId", "authorType", "content", "createdAt")
+		ContainsAll("id", "authorId", "authorType", "content", "createdAt")
 
-	r.Value("id").Equal(icId.String())
-	r.Value("authorId").Equal(uId)
-	r.Value("authorType").Equal(integrationapi.User)
-	r.Value("content").Equal("updated content")
+	r.Value("id").IsEqual(icId.String())
+	r.Value("authorId").IsEqual(uId)
+	r.Value("authorType").IsEqual(integrationapi.User)
+	r.Value("content").IsEqual("updated content")
 
 }
 
@@ -142,11 +142,11 @@ func TestIntegrationDeleteAssetCommentAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().Keys().
-		Contains("id")
+		ContainsAll("id")
 
 	e.GET("/api/assets/{assetId}/comments", aid).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
-		JSON().Object().Value("comments").Array().Empty()
+		JSON().Object().Value("comments").Array().IsEmpty()
 }
