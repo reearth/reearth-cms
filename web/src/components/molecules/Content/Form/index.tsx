@@ -262,7 +262,7 @@ const ContentForm: React.FC<Props> = ({
       }
       console.log(fields);
       console.log(values);
-      return;
+      // return;
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
           value: (value || "") as string,

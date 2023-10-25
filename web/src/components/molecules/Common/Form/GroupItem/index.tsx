@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
@@ -28,7 +28,6 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { newID } from "@reearth-cms/utils/id";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
@@ -78,7 +77,6 @@ type Props = {
 
 const GroupItem: React.FC<Props> = ({
   value,
-  onChange,
   order,
   parentField,
   linkedItemsModalList,
@@ -120,11 +118,11 @@ const GroupItem: React.FC<Props> = ({
   const t = useT();
 
   const fields = useMemo(() => group?.schema.fields, [group?.schema.fields]);
-  const itemGroupId = useMemo(() => value ?? newID(), [value]);
+  const itemGroupId = useMemo(() => value, [value]);
 
-  useEffect(() => {
-    if (!value) onChange?.(itemGroupId);
-  }, [itemGroupId, onChange, value]);
+  // useEffect(() => {
+  //   if (!value) onChange?.(itemGroupId);
+  // }, [itemGroupId, onChange, value]);
 
   return (
     <Collapse collapsible="header" defaultActiveKey={["1"]} style={{ width: 500 }}>
