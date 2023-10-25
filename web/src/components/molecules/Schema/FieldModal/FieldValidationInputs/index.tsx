@@ -15,15 +15,15 @@ const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {
   return selectedType ? (
     selectedType === "Text" || selectedType === "TextArea" || selectedType === "MarkdownText" ? (
       <Form.Item name="maxLength" label={t("Set maximum length")}>
-        <InputNumber type="number" />
+        <InputNumber type="number" min={0} />
       </Form.Item>
     ) : selectedType === "Integer" ? (
       <>
         <Form.Item name="min" label={t("Set minimum value")}>
-          <InputNumber type="number" />
+          <InputNumber type="number" min={0} />
         </Form.Item>
         <Form.Item name="max" label={t("Set maximum value")}>
-          <InputNumber type="number" />
+          <InputNumber type="number" min={0} />
         </Form.Item>
       </>
     ) : null

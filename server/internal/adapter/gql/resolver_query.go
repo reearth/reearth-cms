@@ -247,10 +247,6 @@ func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) 
 	return loaders(ctx).Item.FindVersionedItems(ctx, itemID)
 }
 
-func (r *queryResolver) Items(ctx context.Context, modelId gqlmodel.ID, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.FindByModel(ctx, modelId, sort, p)
-}
-
 func (r *queryResolver) View(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.View, error) {
 	return loaders(ctx).View.FindByModel(ctx, modelID)
 }
@@ -259,12 +255,8 @@ func (r *queryResolver) Assets(ctx context.Context, projectId gqlmodel.ID, keywo
 	return loaders(ctx).Asset.FindByProject(ctx, projectId, keyword, sort, pagination)
 }
 
-func (r *queryResolver) ItemsByProject(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.FindByProject(ctx, projectID, p)
-}
-
-func (r *queryResolver) SearchItem(ctx context.Context, query gqlmodel.ItemQuery, sort *gqlmodel.ItemSort, p *gqlmodel.Pagination) (*gqlmodel.ItemConnection, error) {
-	return loaders(ctx).Item.Search(ctx, query, sort, p)
+func (r *queryResolver) SearchItem(ctx context.Context, inp gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error) {
+	return loaders(ctx).Item.Search(ctx, inp)
 }
 
 func (r *queryResolver) IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error) {
@@ -281,4 +273,8 @@ func (r *queryResolver) Groups(ctx context.Context, projectID gqlmodel.ID) ([]*g
 
 func (r *queryResolver) CheckGroupKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error) {
 	return loaders(ctx).Group.CheckKey(ctx, projectID, key)
+}
+
+func (r *queryResolver) ModelsByGroup(ctx context.Context, groupID gqlmodel.ID) ([]*gqlmodel.Model, error) {
+	return loaders(ctx).Group.FindModelsByGroup(ctx, groupID)
 }

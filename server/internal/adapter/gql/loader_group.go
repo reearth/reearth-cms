@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
@@ -49,6 +50,22 @@ func (c *GroupLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID) 
 
 	return lo.Map(res, func(m *group.Group, _ int) *gqlmodel.Group {
 		return gqlmodel.ToGroup(m)
+	}), nil
+}
+
+func (c *GroupLoader) FindModelsByGroup(ctx context.Context, groupID gqlmodel.ID) ([]*gqlmodel.Model, error) {
+	gId, err := gqlmodel.ToID[id.Group](groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.usecase.FindModelsByGroup(ctx, gId, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(res, func(m *model.Model, _ int) *gqlmodel.Model {
+		return gqlmodel.ToModel(m)
 	}), nil
 }
 

@@ -9,8 +9,8 @@ type List []*Model
 
 func (l List) SortByID() List {
 	m := slices.Clone(l)
-	slices.SortFunc(m, func(a, b *Model) bool {
-		return a.ID().Compare(b.ID()) < 0
+	slices.SortFunc(m, func(a, b *Model) int {
+		return a.ID().Compare(b.ID())
 	})
 	return m
 }

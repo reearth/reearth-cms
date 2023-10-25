@@ -105,17 +105,6 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 	return i.repos.Item.FindByProject(ctx, projectID, nil, p)
 }
 
-func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, sort *usecasex.Sort, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	m, err := i.repos.Model.FindByID(ctx, modelID)
-	if err != nil {
-		return nil, nil, err
-	}
-	if !operator.IsReadableProject(m.Project()) {
-		return nil, nil, rerror.ErrNotFound
-	}
-	return i.repos.Item.FindByModel(ctx, m.ID(), nil, sort, p)
-}
-
 func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	m, err := i.repos.Model.FindByID(ctx, modelID)
 	if err != nil {
@@ -156,8 +145,8 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usec
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
 
-func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	return i.repos.Item.Search(ctx, q, sort, p)
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	return i.repos.Item.Search(ctx, q, p)
 }
 
 func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspondingFieldID id.FieldID, _ *usecase.Operator) (bool, error) {
@@ -445,7 +434,12 @@ func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Op
 		if err := i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return err
 		}
-
+		if itm.Value().MetadataItem() != nil {
+			err = i.repos.Item.Remove(ctx, itemID)
+			if err != nil {
+				return err
+			}
+		}
 		return i.repos.Item.Remove(ctx, itemID)
 	})
 }

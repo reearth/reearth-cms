@@ -229,23 +229,23 @@ func TestViewCRUD(t *testing.T) {
 		Value("data").Object().
 		Value("createView").Object().
 		Value("view").Object().
-		ValueEqual("name", "test").
-		ValueEqual("sort", sort).
-		ValueEqual("columns", columns).
-		ValueEqual("filter", filter["bool"])
+		HasValue("name", "test").
+		HasValue("sort", sort).
+		HasValue("columns", columns).
+		HasValue("filter", filter["bool"])
 
 	res = getViews(e, mID)
 	res.Object().
 		Value("data").Object().
 		Value("view").Array().
-		First().Object().
-		ValueEqual("name", "test").
-		ValueEqual("sort", sort).
-		ValueEqual("columns", columns).
-		ValueEqual("filter", filter["bool"])
+		Value(0).Object().
+		HasValue("name", "test").
+		HasValue("sort", sort).
+		HasValue("columns", columns).
+		HasValue("filter", filter["bool"])
 
 	res = deleteView(e, vID)
-	res.Path("$.errors[0].message").String().Equal("model should have at least one view")
+	res.Path("$.errors[0].message").String().IsEqual("model should have at least one view")
 
 	// Test update
 	sort = map[string]any{
@@ -261,9 +261,9 @@ func TestViewCRUD(t *testing.T) {
 	res.Object().
 		Value("data").Object().
 		Value("view").Array().
-		First().Object().
-		ValueEqual("name", "test updated").
-		ValueEqual("sort", sort).
-		ValueEqual("columns", columns).
-		ValueEqual("filter", filter["bool"])
+		Value(0).Object().
+		HasValue("name", "test updated").
+		HasValue("sort", sort).
+		HasValue("columns", columns).
+		HasValue("filter", filter["bool"])
 }

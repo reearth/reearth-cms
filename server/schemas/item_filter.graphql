@@ -47,7 +47,7 @@ type FieldSelector{
   id: ID
 }
 
-type NewItemSort {
+type ItemSort {
   field: FieldSelector!
   direction: SortDirection
 }
