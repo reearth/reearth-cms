@@ -805,6 +805,9 @@ components:
         schemaId:
           x-go-type: id.SchemaID
           type: string
+        metadata:
+          x-go-type: id.SchemaID
+          type: string
         name:
           type: string
         description:
@@ -841,8 +844,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        meta:
-          $ref: '#/components/schemas/schema'
     valueType:
       type: string
       enum:
@@ -938,6 +939,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/versionedItem'
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
     field:
       type: object
       properties:
