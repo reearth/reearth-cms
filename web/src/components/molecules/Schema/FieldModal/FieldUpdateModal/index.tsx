@@ -316,6 +316,11 @@ const FieldUpdateModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
+  const handleModalCancel = useCallback(() => {
+    setMultipleValue(selectedField?.multiple);
+    onClose?.(true);
+  }, [onClose, selectedField?.multiple]);
+
   return (
     <Modal
       title={
@@ -332,7 +337,7 @@ const FieldUpdateModal: React.FC<Props> = ({
         ) : null
       }
       open={open}
-      onCancel={() => onClose?.(true)}
+      onCancel={handleModalCancel}
       onOk={handleSubmit}
       confirmLoading={fieldUpdateLoading}
       okButtonProps={{ disabled: buttonDisabled }}
@@ -470,13 +475,13 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="required"
               valuePropName="checked"
               extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox>{t("Make field required")}</Checkbox>
+              <Checkbox disabled={selectedType === "Group"}>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
               extra={t("Ensures that multiple entries can't have the same value for this field")}>
-              <Checkbox>{t("Set field as unique")}</Checkbox>
+              <Checkbox disabled={selectedType === "Group"}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>

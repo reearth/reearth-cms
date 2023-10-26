@@ -365,44 +365,45 @@ const ContentTable: React.FC<Props> = ({
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
-    search: {
-      defaultValue: searchTerm,
-      onSearch: (value: string) => {
-        if (value) {
-          onSearchTerm(value);
-        } else {
-          onSearchTerm();
-        }
-      },
-    },
-    filter: (
-      <StyledLightFilter>
-        <Space
-          size={[0, 8]}
-          style={{ maxWidth: 700, overflowX: "auto", marginTop: 0, paddingRight: 10 }}>
-          {filters.map((filter, index) => (
-            <FilterDropdown
-              key={index}
-              filter={filter}
-              defaultValue={defaultFilterValues.current[index]}
-              index={index}
-            />
-          ))}
-        </Space>
-        <Dropdown
-          {...sharedProps}
-          placement="bottomLeft"
-          trigger={["click"]}
-          onOpenChange={() => {
-            isFilter.current = true;
-            setInputValue("");
-            setItems(defaultItems);
-          }}>
-          <Button type="text" style={{ color: "rgba(0, 0, 0, 0.25)" }} icon={<Icon icon="plus" />}>
-            Filter
-          </Button>
-        </Dropdown>
-      </StyledLightFilter>
+    search: (
+      <StyledSearchContainer>
+        <StyledSearchInput
+          placeholder={t("Please enter")}
+          defaultValue={searchTerm}
+          onSearch={(value: string) => {
+            if (value) {
+              onSearchTerm(value);
+            } else {
+              onSearchTerm();
+            }
+          }}
+        />
+        <StyledFilterWrapper>
+          <StyledFilterSpace size={[0, 8]}>
+            {filters.map((filter, index) => (
+              <FilterDropdown
+                key={index}
+                filter={filter}
+                defaultValue={defaultFilterValues.current[index]}
+                index={index}
+              />
+            ))}
+          </StyledFilterSpace>
+          <Dropdown
+            {...sharedProps}
+            placement="bottomLeft"
+            trigger={["click"]}
+            onOpenChange={() => {
+              isFilter.current = true;
+              setInputValue("");
+              setItems(defaultItems);
+            }}>
+            <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
+              Filter
+            </StyledFilterButton>
+          </Dropdown>
+        </StyledFilterWrapper>
+      </StyledSearchContainer>
     ),
   };
 
@@ -556,7 +557,25 @@ const StyledBadge = styled(Badge)`
   }
 `;
 
-const StyledLightFilter = styled.div`
+const StyledSearchContainer = styled.div`
+  display: flex;
+`;
+
+const StyledSearchInput = styled(Input.Search)`
+  min-width: 200px;
+`;
+
+const StyledFilterSpace = styled(Space)`
+  max-width: 750px;
+  overflow-x: auto;
+  margin-top: 0;
+`;
+
+const StyledFilterButton = styled(Button)`
+  color: rgba(0, 0, 0, 0.25);
+`;
+
+const StyledFilterWrapper = styled.div`
   display: flex;
   text-align: left;
   ant-space {
