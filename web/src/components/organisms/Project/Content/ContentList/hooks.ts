@@ -20,6 +20,7 @@ import {
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
   FieldType,
+  ConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -50,6 +51,7 @@ export default () => {
   const sortType = useMemo(() => searchParams.get("sortType"), [searchParams]);
   const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
+  const filterParam = useMemo(() => searchParams.get("filter"), [searchParams]);
   const navigate = useNavigate();
   const { modelId } = useParams();
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
@@ -59,6 +61,7 @@ export default () => {
     type: sortType ? (sortType as ItemSortType) : ItemSortType.ModificationDate,
     direction: direction ? (direction as SortDirection) : SortDirection.Desc,
   });
+  const [filter, setFilter] = useState<ConditionInput[]>();
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
@@ -67,8 +70,43 @@ export default () => {
       type: sortType ? (sortType as ItemSortType) : ItemSortType.ModificationDate,
       direction: direction ? (direction as SortDirection) : SortDirection.Desc,
     });
+    const newFilter = [];
+    if (filterParam) {
+      const params = filterParam.split(",");
+      let key, type, id, operator, value;
+      for (const param of params) {
+        const conditions = param.split(";");
+        [key, value] = conditions[0].split(":");
+        [type, id] = conditions[1].split(":");
+        operator = conditions[2];
+        const data: {
+          [x: string]: {
+            fieldId: {
+              type: string;
+              id: string;
+            };
+            operator: string;
+            value?: string | Date;
+          };
+        } = {
+          [key]: {
+            fieldId: { type, id },
+            operator,
+          },
+        };
+
+        if (key === "time") {
+          value = new Date(value);
+        }
+        if (key !== "nullable") {
+          data[key].value = value;
+        }
+        newFilter.push(data);
+      }
+    }
+    setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
-  }, [pageParam, pageSizeParam, sortType, direction, searchTermParam]);
+  }, [pageParam, pageSizeParam, sortType, direction, searchTermParam, filterParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -83,6 +121,13 @@ export default () => {
         field: { type: FieldType.ModificationDate, id: null },
         direction: SortDirection.Desc,
       },
+      filter: filter
+        ? {
+            and: {
+              conditions: filter,
+            },
+          }
+        : undefined,
     },
     skip: !currentModel?.schema.id,
   });
@@ -136,7 +181,7 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              author: item.createdBy?.name,
+              createdBy: item.createdBy?.name,
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
@@ -179,8 +224,8 @@ export default () => {
     return [
       {
         title: t("Created By"),
-        dataIndex: "author",
-        key: "author",
+        dataIndex: "createdBy",
+        key: "CREATION_USER",
         width: 128,
         minWidth: 128,
         ellipsis: true,
@@ -311,6 +356,7 @@ export default () => {
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
     sort,
+    filter,
     searchTerm,
     page,
     pageSize,

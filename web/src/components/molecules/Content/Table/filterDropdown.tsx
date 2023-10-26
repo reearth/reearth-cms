@@ -4,24 +4,20 @@ import { useState } from "react";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
-import { FilterType } from "@reearth-cms/components/molecules/Content/Table/types";
+import {
+  DefaultFilterValueType,
+  DropdownFilterType,
+} from "@reearth-cms/components/molecules/Content/Table/types";
 
 import DropdownRender from "./DropdownRender";
 
 type Props = {
-  filter: {
-    dataIndex: string | string[];
-    title: string;
-    type: string;
-    typeProperty?: { values?: string[] };
-    members?: { user: { name: string } }[];
-  };
-  itemFilter: (filter: FilterType, index: number) => void;
+  filter: DropdownFilterType;
   index: number;
-  defaultValue: FilterType;
+  defaultValue: DefaultFilterValueType;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index, defaultValue: value }) => {
+const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value }) => {
   const [open, setOpen] = useState(false);
 
   const close = () => {
@@ -38,7 +34,6 @@ const FilterDropdown: React.FC<Props> = ({ filter, itemFilter, index, defaultVal
       dropdownRender={() => (
         <DropdownRender
           filter={filter}
-          itemFilter={itemFilter}
           index={index}
           close={close}
           defaultValue={value}

@@ -1,27 +1,34 @@
+import {
+  BasicOperator,
+  BoolOperator,
+  NullableOperator,
+  NumberOperator,
+  TimeOperator,
+  StringOperator,
+  MultipleOperator,
+} from "@reearth-cms/gql/graphql-client-api";
+
 export type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
-export type FilterType = {
-  dataIndex: string | string[];
-  option: FilterOptions;
+export type DefaultFilterValueType = {
+  operatorType: string;
+  operator: Operator;
   value: string;
 };
+export type DropdownFilterType = {
+  dataIndex: string | string[];
+  title: string;
+  type: string;
+  typeProperty: { values?: string[] };
+  members: { user: { name: string } }[];
+  id: string;
+};
 
-export enum FilterOptions {
-  Is,
-  IsNot,
-  Contains,
-  NotContain,
-  IsEmpty,
-  IsNotEmpty,
-  GreaterThan,
-  LessThan,
-  DateIs,
-  DateIsNot,
-  Before,
-  After,
-  OfThisWeek,
-  OfThisMonth,
-  OfThisYear,
-  Ascending,
-  Descending,
-}
+export type Operator =
+  | BasicOperator
+  | BoolOperator
+  | NullableOperator
+  | NumberOperator
+  | TimeOperator
+  | StringOperator
+  | MultipleOperator;

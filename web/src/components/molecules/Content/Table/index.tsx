@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
-import React, { Key, useMemo, useState, useEffect, useRef, useCallback } from "react";
+import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -22,15 +21,12 @@ import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/Link
 import {
   ColorType,
   StateType,
-  FilterType,
-  FilterOptions,
+  DefaultFilterValueType,
+  DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import {
-  ItemSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { SortDirection, ItemSortType, ConditionInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -54,6 +50,7 @@ export type Props = {
   };
   totalCount: number;
   sort?: { type?: ItemSortType; direction?: SortDirection };
+  filter?: Omit<ConditionInput, "and" | "or">[];
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -89,6 +86,7 @@ const ContentTable: React.FC<Props> = ({
   selection,
   totalCount,
   sort,
+  filter,
   searchTerm,
   page,
   pageSize,
@@ -142,24 +140,17 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: t("Status"),
-        dataIndex: "itemRequestState",
-        key: "itemRequestState",
+        dataIndex: "status",
+        key: "STATUS",
         render: (_, item) => {
-          const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
           const itemStatus: StateType[] = item.status.split("_") as StateType[];
           return (
             <>
               {itemStatus.map((state, index) => {
                 if (index === itemStatus.length - 1) {
-                  return (
-                    <StyledBadge
-                      key={index}
-                      color={stateColors[state] as ColorType}
-                      text={t(state)}
-                    />
-                  );
+                  return <StyledBadge key={index} color={stateColors[state]} text={t(state)} />;
                 } else {
-                  return <StyledBadge key={index} color={stateColors[state] as ColorType} />;
+                  return <StyledBadge key={index} color={stateColors[state]} />;
                 }
               })}
             </>
@@ -167,7 +158,7 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 148,
         minWidth: 148,
-        type: "Status",
+        type: "STATUS",
       },
       {
         title: t("Created At"),
@@ -230,88 +221,47 @@ const ContentTable: React.FC<Props> = ({
     );
   };
 
-  const filterStack = useRef<FilterType[]>([]);
+  const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
 
-  const filterApply = useCallback(() => {
-    let result = contentTableFields;
-    for (const filter of filterStack.current) {
-      if (!filter) continue;
-      const { dataIndex, option, value } = filter;
-      result = result?.filter(field => {
-        const data =
-          dataIndex === "itemRequestState"
-            ? "status"
-            : typeof dataIndex === "string"
-            ? (field as any)[dataIndex]
-            : (field as any)[dataIndex[0]][dataIndex[1]];
-
-        let dataTime = 0;
-        let valueTime = 0;
-        if (
-          FilterOptions.DateIs ||
-          option === FilterOptions.DateIsNot ||
-          option === FilterOptions.Before ||
-          option === FilterOptions.After
-        ) {
-          dataTime = new Date(data).setHours(9, 0, 0, 0);
-          valueTime = new Date(value).getTime();
-        }
-
-        switch (option) {
-          case FilterOptions.Is:
-            return data === value;
-          case FilterOptions.IsNot:
-            return data !== value;
-          case FilterOptions.Contains:
-            return new RegExp(value).test(data);
-          case FilterOptions.NotContain:
-            return new RegExp(`^(?!.*${value}).*$`).test(data);
-          case FilterOptions.IsEmpty:
-            return data === null;
-          case FilterOptions.IsNotEmpty:
-            return data !== null;
-          case FilterOptions.GreaterThan:
-            return data !== null && data >= value;
-          case FilterOptions.LessThan:
-            return data !== null && data <= value;
-          case FilterOptions.DateIs:
-            return dataTime === valueTime;
-          case FilterOptions.DateIsNot:
-            return dataTime !== valueTime;
-          case FilterOptions.Before:
-            return dataTime < valueTime;
-          case FilterOptions.After:
-            return dataTime > valueTime;
-          case FilterOptions.OfThisWeek:
-            return (
-              moment(dataTime).year() === moment(valueTime).year() &&
-              moment(dataTime).week() === moment(valueTime).week()
-            );
-          case FilterOptions.OfThisMonth:
-            return (
-              moment(dataTime).year() === moment(valueTime).year() &&
-              moment(dataTime).month() === moment(valueTime).month()
-            );
-          case FilterOptions.OfThisYear:
-            return moment(dataTime).year() === moment(valueTime).year();
-        }
-      });
-    }
-    return result;
-  }, [contentTableFields]);
-
-  const [contentTableFieldsState, setContentTableFieldsState] = useState<ContentTableField[]>();
+  const [filters, setFilters] = useState<DropdownFilterType[]>([]);
+  const [selectedFilter, setSelectedFilter] = useState<DropdownFilterType>();
 
   useEffect(() => {
-    setContentTableFieldsState(filterApply());
-  }, [filterApply]);
+    if (filter && contentTableColumns) {
+      const newFilters: any[] = [];
+      const newDefaultValues = [];
+      for (const f of filter) {
+        const condition = Object.values(f)[0];
+        if (!condition) break;
+        const { operator, fieldId } = condition;
+        const value = "value" in condition ? condition?.value : "";
+        const operatorType = Object.keys(f)[0];
+        let column;
 
-  const [filters, setFilters] = useState<any[]>([]);
-  const [selectedFilter, setSelectedFilter] = useState<{
-    dataIndex: string | string[];
-    title: string;
-    type: string;
-  }>();
+        const columns: ExtendedColumns[] =
+          fieldId.type === "FIELD" || fieldId.type === "CREATION_USER"
+            ? contentTableColumns
+            : actionsColumn;
+        for (const c of columns) {
+          if (c.key === fieldId.id) {
+            column = c;
+            break;
+          }
+        }
+        newFilters.push({
+          dataIndex: column?.dataIndex,
+          title: column?.title,
+          type: column?.type,
+          typeProperty: column?.typeProperty,
+          members: currentWorkspace?.members,
+          id: column?.key,
+        });
+        newDefaultValues.push({ operatorType, operator, value });
+      }
+      setFilters(newFilters);
+      defaultFilterValues.current = newDefaultValues;
+    }
+  }, [filter, contentTableColumns, actionsColumn, currentWorkspace?.members]);
 
   const isFilter = useRef<boolean>(true);
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
@@ -360,9 +310,10 @@ const ContentTable: React.FC<Props> = ({
           type: column.type,
           typeProperty: column.typeProperty,
           members: currentWorkspace?.members,
+          id: column.key,
         };
         if (isFilter) {
-          setFilters(prevState => [...prevState, filter]);
+          setFilters(prevState => [...prevState, filter] as any);
         }
         setSelectedFilter(filter as any);
         handleOptionsOpenChange(false);
@@ -373,7 +324,7 @@ const ContentTable: React.FC<Props> = ({
 
       return [
         ...((actionsColumn ?? [])
-          .filter(column => !!column.title && typeof column.title === "string")
+          .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
           .map(column => ({
             key: column.key,
             label: column.title,
@@ -397,10 +348,6 @@ const ContentTable: React.FC<Props> = ({
 
   const defaultItems = getOptions(false);
   const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
-  const itemFilter = (newFilter: FilterType, index: number) => {
-    filterStack.current[index] = newFilter;
-    setContentTableFieldsState(filterApply());
-  };
 
   const [inputValue, setInputValue] = useState("");
 
@@ -437,9 +384,8 @@ const ContentTable: React.FC<Props> = ({
             <FilterDropdown
               key={index}
               filter={filter}
-              itemFilter={itemFilter}
+              defaultValue={defaultFilterValues.current[index]}
               index={index}
-              defaultValue={filterStack.current[index]}
             />
           ))}
         </Space>
@@ -517,7 +463,6 @@ const ContentTable: React.FC<Props> = ({
               <DropdownRender
                 filter={selectedFilter}
                 close={close}
-                itemFilter={isFilter.current ? itemFilter : undefined}
                 index={filters.length - 1}
                 open={conditionMenuOpen}
                 isFilter={isFilter.current}
@@ -556,7 +501,7 @@ const ContentTable: React.FC<Props> = ({
           pagination={pagination}
           toolbar={handleToolbarEvents}
           toolBarRender={toolBarRender}
-          dataSource={contentTableFieldsState}
+          dataSource={contentTableFields}
           tableAlertOptionRender={AlertOptions}
           rowSelection={rowSelection}
           columns={[...actionsColumn, ...contentTableColumns]}
@@ -565,7 +510,10 @@ const ContentTable: React.FC<Props> = ({
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
               sorter?.order
-                ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+                ? {
+                    type: sorter.columnKey,
+                    direction: sorter.order === "ascend" ? SortDirection.Asc : SortDirection.Desc,
+                  }
                 : undefined,
             );
           }}
@@ -642,4 +590,12 @@ const Wrapper = styled.div`
 const menuStyle: React.CSSProperties = {
   boxShadow: "none",
   overflowY: "auto",
+};
+
+const stateColors: {
+  [K in StateType]: ColorType;
+} = {
+  DRAFT: "#BFBFBF",
+  PUBLIC: "#52C41A",
+  REVIEW: "#FA8C16",
 };
