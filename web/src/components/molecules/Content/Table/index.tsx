@@ -21,10 +21,7 @@ import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/Link
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import {
-  ItemSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { SortDirection, FieldSelectorInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -40,7 +37,7 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { type?: ItemSortType; direction?: SortDirection };
+  sort?: { field?: FieldSelectorInput; direction?: SortDirection };
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -53,7 +50,7 @@ export type Props = {
   onContentTableChange: (
     page: number,
     pageSize: number,
-    sorter?: { type?: ItemSortType; direction?: SortDirection },
+    sorter?: { field?: FieldSelectorInput; direction?: SortDirection },
   ) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
@@ -113,6 +110,7 @@ const ContentTable: React.FC<Props> = ({
       {
         title: () => <Icon icon="message" />,
         dataIndex: "commentsCount",
+        fieldType: "commentsCount",
         key: "commentsCount",
         render: (_, item) => {
           return (
@@ -129,8 +127,9 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: t("Status"),
-        dataIndex: "itemRequestState",
-        key: "itemRequestState",
+        dataIndex: "Status",
+        fieldType: "STATUS",
+        key: "STATUS",
         render: (_, item) => {
           const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
           const itemStatus: StateType[] = item.status.split("_") as StateType[];
@@ -158,22 +157,58 @@ const ContentTable: React.FC<Props> = ({
       {
         title: t("Created At"),
         dataIndex: "createdAt",
+        fieldType: "CREATION_DATE",
         key: "CREATION_DATE",
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
         defaultSortOrder:
-          sort?.type === "CREATION_DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+          sort?.field?.type === "CREATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
+        width: 148,
+        minWidth: 148,
+      },
+      {
+        title: t("Created By"),
+        dataIndex: "createdBy",
+        fieldType: "CREATION_USER",
+        key: "CREATION_USER",
+        sorter: true,
+        defaultSortOrder:
+          sort?.field?.type === "CREATION_USER"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         width: 148,
         minWidth: 148,
       },
       {
         title: t("Updated At"),
         dataIndex: "updatedAt",
+        fieldType: "MODIFICATION_DATE",
         key: "MODIFICATION_DATE",
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
         defaultSortOrder:
-          sort?.type === "MODIFICATION_DATE"
+          sort?.field?.type === "MODIFICATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
+        width: 148,
+        minWidth: 148,
+      },
+      {
+        title: t("Updated By"),
+        dataIndex: "updatedBy",
+        fieldType: "MODIFICATION_USER",
+        key: "MODIFICATION_USER",
+        sorter: true,
+        defaultSortOrder:
+          sort?.field?.type === "MODIFICATION_USER"
             ? sort.direction === "ASC"
               ? "ascend"
               : "descend"
@@ -182,7 +217,22 @@ const ContentTable: React.FC<Props> = ({
         minWidth: 148,
       },
     ],
-    [t, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
+    [t, sort?.field?.type, sort?.direction, selectedItem?.id, onItemSelect],
+  );
+
+  const contentColumn: ProColumns<ContentTableField>[] | undefined = useMemo(
+    () =>
+      contentTableColumns?.map(column => ({
+        sorter: true,
+        key: column.key,
+        fieldType: "FIELD",
+        title: column.title,
+        dataIndex: column.dataIndex,
+        width: 128,
+        minWidth: 128,
+        ellipsis: true,
+      })),
+    [contentTableColumns],
   );
 
   const rowSelection: TableRowSelection = {
@@ -301,13 +351,23 @@ const ContentTable: React.FC<Props> = ({
           dataSource={contentTableFields}
           tableAlertOptionRender={AlertOptions}
           rowSelection={rowSelection}
-          columns={[...actionsColumn, ...contentTableColumns]}
+          columns={[...actionsColumn, ...contentColumn]}
           onChange={(pagination, _, sorter: any) => {
+            console.log("sorter", sorter);
             onContentTableChange(
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
               sorter?.order
-                ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
+                ? {
+                    field: {
+                      id: sorter?.columnKey,
+                      type: sorter.column.fieldType as FieldSelectorInput["type"],
+                    },
+                    direction:
+                      sorter.order === "ascend"
+                        ? ("ASC" as SortDirection)
+                        : ("DESC" as SortDirection),
+                  }
                 : undefined,
             );
           }}

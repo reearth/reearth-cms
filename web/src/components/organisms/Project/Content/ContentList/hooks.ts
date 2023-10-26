@@ -14,8 +14,8 @@ import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
-  SortDirection as GQLSortDirection,
-  ItemSortType as GQLItemSortType,
+  SortDirection,
+  FieldSelectorInput,
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
@@ -23,9 +23,6 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 import { fileName } from "./utils";
-
-export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
-export type SortDirection = "ASC" | "DESC";
 
 export default () => {
   const {
@@ -49,43 +46,57 @@ export default () => {
 
   const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
   const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const sortType = useMemo(() => searchParams.get("sortType"), [searchParams]);
+  const sortFieldType = useMemo(() => searchParams.get("sortFieldType"), [searchParams]);
   const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
+  const sortFieldId = useMemo(() => searchParams.get("sortFieldId"), [searchParams]);
+
   const navigate = useNavigate();
   const { modelId } = useParams();
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection } | undefined>({
-    type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
-    direction: direction ? (direction as SortDirection) : "DESC",
+  const [sort, setSort] = useState<
+    { field: FieldSelectorInput; direction: SortDirection } | undefined
+  >({
+    field: {
+      id: sortFieldId,
+      type: sortFieldType
+        ? (sortFieldType as FieldSelectorInput["type"])
+        : ("MODIFICATION_DATE" as FieldSelectorInput["type"]),
+    },
+    direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
   });
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
     setSort({
-      type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
-      direction: direction ? (direction as SortDirection) : "DESC",
+      field: {
+        id: sortFieldId,
+        type: sortFieldType
+          ? (sortFieldType as FieldSelectorInput["type"])
+          : ("MODIFICATION_DATE" as FieldSelectorInput["type"]),
+      },
+      direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
     });
     setSearchTerm(searchTermParam ?? "");
-  }, [pageParam, pageSizeParam, sortType, direction, searchTermParam]);
+  }, [pageParam, pageSizeParam, sortFieldType, direction, searchTermParam, sortFieldId]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
-      query: {
-        project: currentProject?.id as string,
-        schema: currentModel?.schema.id,
-        q: searchTerm,
+      searchItemInput: {
+        query: {
+          project: currentProject?.id as string,
+          model: currentModel?.id,
+          q: searchTerm,
+        },
+        pagination: { first: pageSize, offset: (page - 1) * pageSize },
+        sort: sort,
       },
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: sort
-        ? { sortBy: sort.type as GQLItemSortType, direction: sort.direction as GQLSortDirection }
-        : undefined,
     },
-    skip: !currentModel?.schema.id,
+    skip: !currentModel?.id,
   });
 
   const handleItemsReload = useCallback(() => {
@@ -177,25 +188,12 @@ export default () => {
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
-    return [
-      {
-        title: t("Created By"),
-        dataIndex: "author",
-        key: "author",
-        width: 128,
-        minWidth: 128,
-        ellipsis: true,
-      },
-      ...currentModel.schema.fields.map(field => ({
-        title: field.title,
-        dataIndex: ["fields", field.id],
-        key: field.id,
-        width: 128,
-        minWidth: 128,
-        ellipsis: true,
-      })),
-    ];
-  }, [currentModel, t]);
+    return currentModel.schema.fields.map(field => ({
+      title: field.title,
+      dataIndex: ["fields", field.id],
+      key: field.id,
+    }));
+  }, [currentModel]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
@@ -270,15 +268,16 @@ export default () => {
     (
       page: number,
       pageSize: number,
-      sorter?: { type?: ItemSortType; direction?: SortDirection },
+      sorter?: { field?: FieldSelectorInput; direction?: SortDirection },
     ) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
-      searchParams.set("sortType", sorter?.type ? sorter.type : "");
+      searchParams.set("sortFieldType", sorter?.field?.type ? sorter?.field?.type : "");
       searchParams.set("direction", sorter?.direction ? sorter.direction : "");
+      searchParams.set("sortFieldId", sorter?.field?.id ? sorter?.field?.id : "");
       setSearchParams(searchParams);
     },
-    [setSearchParams, searchParams],
+    [searchParams, setSearchParams],
   );
 
   const handleSearchTerm = useCallback(
