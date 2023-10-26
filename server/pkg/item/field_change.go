@@ -74,8 +74,8 @@ func CompareFields(n, o Fields) FieldChanges {
 		changes = append(changes, change)
 	}
 
-	slices.SortFunc(changes, func(a, b FieldChange) bool {
-		return a.ID.Timestamp().Before(b.ID.Timestamp())
+	slices.SortFunc(changes, func(a, b FieldChange) int {
+		return a.ID.Timestamp().Compare(b.ID.Timestamp())
 	})
 
 	return changes

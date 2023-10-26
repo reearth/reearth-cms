@@ -37,9 +37,9 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 0)
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 0)
 
 	obj := e.GET("/api/projects/{projectId}/assets", pid).
 		WithHeader("authorization", "Bearer "+secret).
@@ -49,19 +49,19 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		ValueEqual("page", 1).
-		ValueEqual("perPage", 5).
-		ValueEqual("totalCount", 1)
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
 
 	al := obj.Value("items").Array()
-	al.Length().Equal(1)
-	al.First().Object().
-		ValueEqual("id", aid.String()).
-		ValueEqual("projectId", pid).
-		ValueEqual("totalSize", 1000).
-		ValueEqual("previewType", "unknown").
-		ValueEqual("createdAt", aid.Timestamp().UTC().Format(time.RFC3339Nano)).
-		ValueEqual("updatedAt", time.Time{}.Format("2006-01-02T15:04:05Z"))
+	al.Length().IsEqual(1)
+	al.Value(0).Object().
+		HasValue("id", aid.String()).
+		HasValue("projectId", pid).
+		HasValue("totalSize", 1000).
+		HasValue("previewType", "unknown").
+		HasValue("createdAt", aid.Timestamp().UTC().Format(time.RFC3339Nano)).
+		HasValue("updatedAt", time.Time{}.Format("2006-01-02T15:04:05Z"))
 }
 
 // POST projects/{projectId}/assets
@@ -105,11 +105,11 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		// ValueEqual("id", aid.String()).
-		ValueEqual("projectId", pid).
-		ValueEqual("name", "testFile.jpg").
-		ValueEqual("contentType", "image/jpeg").
-		ValueEqual("totalSize", 4)
+		// HasValue("id", aid.String()).
+		HasValue("projectId", pid).
+		HasValue("name", "testFile.jpg").
+		HasValue("contentType", "image/jpeg").
+		HasValue("totalSize", 4)
 	r.Keys().
-		Contains("id", "file", "name", "projectId", "url", "contentType", "createdAt", "previewType", "totalSize", "updatedAt")
+		ContainsAll("id", "file", "name", "projectId", "url", "contentType", "createdAt", "previewType", "totalSize", "updatedAt")
 }

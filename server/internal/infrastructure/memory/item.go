@@ -235,8 +235,8 @@ func (r *Item) Len() int {
 }
 
 func sortItems(items []*version.Value[*item.Item]) {
-	slices.SortStableFunc(items, func(a, b *version.Value[*item.Item]) bool {
-		return a.Value().Timestamp().Before(b.Value().Timestamp())
+	slices.SortStableFunc(items, func(a, b *version.Value[*item.Item]) int {
+		return a.Value().Timestamp().Compare(b.Value().Timestamp())
 	})
 }
 

@@ -153,8 +153,8 @@ func TestCreateModel(t *testing.T) {
 		Value("data").Object().
 		Value("createModel").Object().
 		Value("model").Object().
-		ValueEqual("name", "test").
-		ValueEqual("description", "test").
-		ValueEqual("key", "test-1")
+		HasValue("name", "test").
+		HasValue("description", "test").
+		HasValue("key", "test-1")
 
 }
