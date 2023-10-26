@@ -255,6 +255,11 @@ const FieldCreationModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
+  const handleModalCancel = useCallback(() => {
+    setMultipleValue(false);
+    onClose?.(true);
+  }, [onClose]);
+
   return (
     <Modal
       title={
@@ -271,7 +276,7 @@ const FieldCreationModal: React.FC<Props> = ({
         ) : null
       }
       open={open}
-      onCancel={() => onClose?.(true)}
+      onCancel={handleModalCancel}
       onOk={handleSubmit}
       confirmLoading={fieldCreationLoading}
       okButtonProps={{ disabled: buttonDisabled }}
