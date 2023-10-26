@@ -316,6 +316,11 @@ const FieldUpdateModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
+  const handleModalCancel = useCallback(() => {
+    setMultipleValue(selectedField?.multiple);
+    onClose?.(true);
+  }, [onClose, selectedField?.multiple]);
+
   return (
     <Modal
       title={
@@ -332,7 +337,7 @@ const FieldUpdateModal: React.FC<Props> = ({
         ) : null
       }
       open={open}
-      onCancel={() => onClose?.(true)}
+      onCancel={handleModalCancel}
       onOk={handleSubmit}
       confirmLoading={fieldUpdateLoading}
       okButtonProps={{ disabled: buttonDisabled }}
