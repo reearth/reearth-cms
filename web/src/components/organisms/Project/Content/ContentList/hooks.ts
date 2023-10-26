@@ -148,7 +148,7 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              author: item.createdBy?.name,
+              author: item.createdBy?.name || "",
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
@@ -180,6 +180,17 @@ export default () => {
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
+              metadata: item?.metadata?.fields?.reduce(
+                (obj, field) =>
+                  Object.assign(obj, {
+                    [field.schemaFieldId]: Array.isArray(field.value)
+                      ? field.value.join(", ")
+                      : field.value
+                      ? "" + field.value
+                      : field.value,
+                  }),
+                {},
+              ),
             }
           : undefined,
       )
@@ -188,11 +199,22 @@ export default () => {
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
-    return currentModel.schema.fields.map(field => ({
+    const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,
+      fieldType: "FIELD",
       dataIndex: ["fields", field.id],
       key: field.id,
     }));
+
+    const metadataColumns =
+      currentModel?.metadataSchema?.fields?.map(field => ({
+        title: field.title,
+        fieldType: "META_FIELD",
+        dataIndex: ["metadata", field.id],
+        key: field.id,
+      })) || [];
+
+    return fieldsColumns.concat(metadataColumns);
   }, [currentModel]);
 
   useEffect(() => {

@@ -47,6 +47,7 @@ export type ContentTableField = {
   comments: Comment[];
   createdAt: Date;
   updatedAt: Date;
+  metadata: { [key: string]: any };
 };
 
 export type Comment = {

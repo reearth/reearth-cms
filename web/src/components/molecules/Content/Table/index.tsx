@@ -225,7 +225,7 @@ const ContentTable: React.FC<Props> = ({
       contentTableColumns?.map(column => ({
         sorter: true,
         key: column.key,
-        fieldType: "FIELD",
+        fieldType: column.fieldType,
         title: column.title,
         dataIndex: column.dataIndex,
         width: 128,
