@@ -43,6 +43,7 @@ export type FieldType =
   | "Select"
   | "Tag"
   | "Integer"
+  | "Float"
   | "Reference"
   | "Checkbox"
   | "URL"

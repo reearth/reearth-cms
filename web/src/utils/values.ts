@@ -1,5 +1,11 @@
 import { Model, Field, Group } from "@reearth-cms/components/molecules/Schema/types";
-import { Maybe, Model as GQLModel, Group as GQLGroup } from "@reearth-cms/gql/graphql-client-api";
+import { View } from "@reearth-cms/components/molecules/View/types";
+import {
+  Maybe,
+  Model as GQLModel,
+  Group as GQLGroup,
+  View as GQLView,
+} from "@reearth-cms/gql/graphql-client-api";
 
 export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
   if (!model) return;
@@ -77,5 +83,16 @@ export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
           } as Field),
       ),
     },
+  };
+};
+
+export const fromGraphQLView = (view: GQLView): View | undefined => {
+  if (!view) return;
+
+  return {
+    id: view.id,
+    name: view.name,
+    modelId: view.modelId,
+    projectId: view.projectId,
   };
 };
