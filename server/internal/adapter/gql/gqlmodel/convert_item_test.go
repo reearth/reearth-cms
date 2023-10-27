@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -169,22 +168,26 @@ func TestToItemQuery(t *testing.T) {
 	str := "foo"
 	tests := []struct {
 		name  string
-		input ItemQuery
+		input SearchItemInput
 		want  *item.Query
 	}{
 		{
 			name: "should pass",
-			input: ItemQuery{
-				Project: IDFrom(pid),
-				Schema:  IDFromRef(sid.Ref()),
-				Q:       &str,
+			input: SearchItemInput{
+				Query: &ItemQueryInput{
+					Project: IDFrom(pid),
+					Schema:  IDFromRef(sid.Ref()),
+					Q:       &str,
+				},
 			},
-			want: item.NewQuery(pid, sid.Ref(), str, nil),
+			want: item.NewQuery(pid, sid.Ref(), nil, str, nil),
 		},
 		{
 			name: "invalid project id",
-			input: ItemQuery{
-				Q: &str,
+			input: SearchItemInput{
+				Query: &ItemQueryInput{
+					Q: &str,
+				},
 			},
 		},
 	}
@@ -195,94 +198,6 @@ func TestToItemQuery(t *testing.T) {
 			t.Parallel()
 			got := ToItemQuery(tc.input)
 			assert.Equal(t, tc.want, got)
-		})
-	}
-}
-
-func TestItemSort_Into(t *testing.T) {
-	tests := []struct {
-		name string
-		sort *ItemSort
-		want *usecasex.Sort
-	}{
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeCreationDate,
-				Direction: lo.ToPtr(SortDirectionAsc),
-			},
-			want: &usecasex.Sort{
-				Key:      "id",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeCreationDate,
-				Direction: nil,
-			},
-			want: &usecasex.Sort{
-				Key:      "id",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeCreationDate,
-				Direction: lo.ToPtr(SortDirectionDesc),
-			},
-			want: &usecasex.Sort{
-				Key:      "id",
-				Reverted: true,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeCreationDate,
-				Direction: nil,
-			},
-			want: &usecasex.Sort{
-				Key:      "id",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeModificationDate,
-				Direction: nil,
-			},
-			want: &usecasex.Sort{
-				Key:      "timestamp",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeModificationDate,
-				Direction: nil,
-			},
-			want: &usecasex.Sort{
-				Key:      "timestamp",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    "xxx",
-				Direction: nil,
-			},
-			want: nil,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, tt.sort.Into())
 		})
 	}
 }

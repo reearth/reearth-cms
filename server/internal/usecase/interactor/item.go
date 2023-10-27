@@ -105,17 +105,6 @@ func (i Item) FindByProject(ctx context.Context, projectID id.ProjectID, p *usec
 	return i.repos.Item.FindByProject(ctx, projectID, nil, p)
 }
 
-func (i Item) FindByModel(ctx context.Context, modelID id.ModelID, sort *usecasex.Sort, p *usecasex.Pagination, operator *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	m, err := i.repos.Model.FindByID(ctx, modelID)
-	if err != nil {
-		return nil, nil, err
-	}
-	if !operator.IsReadableProject(m.Project()) {
-		return nil, nil, rerror.ErrNotFound
-	}
-	return i.repos.Item.FindByModel(ctx, m.ID(), nil, sort, p)
-}
-
 func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
 	m, err := i.repos.Model.FindByID(ctx, modelID)
 	if err != nil {
@@ -156,8 +145,8 @@ func (i Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID, _ *usec
 	return i.repos.Item.FindAllVersionsByID(ctx, itemID)
 }
 
-func (i Item) Search(ctx context.Context, q *item.Query, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	return i.repos.Item.Search(ctx, q, sort, p)
+func (i Item) Search(ctx context.Context, q *item.Query, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
+	return i.repos.Item.Search(ctx, q, p)
 }
 
 func (i Item) IsItemReferenced(ctx context.Context, itemID id.ItemID, correspondingFieldID id.FieldID, _ *usecase.Operator) (bool, error) {
@@ -293,6 +282,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		var metaItemFields item.Fields
+		if vi.Value().MetadataItem() != nil {
+			mi, err := i.repos.Item.FindByID(ctx, *vi.Value().MetadataItem(), nil)
+			if err != nil {
+				return nil, err
+			}
+			metaItemFields = mi.Value().Fields()
+		}
+
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -302,6 +300,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				Item:            vi.Value(),
 				Model:           m,
 				Schema:          s,
+				MetadataFields:  metaItemFields,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 			},
 			Operator: operator.Operator(),
@@ -400,7 +399,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return nil, err
 		}
-
+		var metaItemFields item.Fields
+		if itv.MetadataItem() != nil {
+			mi, err := i.repos.Item.FindByID(ctx, *itv.MetadataItem(), nil)
+			if err != nil {
+				return nil, err
+			}
+			metaItemFields = mi.Value().Fields()
+		}
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -410,6 +416,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Item:            itv,
 				Model:           m,
 				Schema:          s,
+				MetadataFields:  metaItemFields,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 				Changes:         item.CompareFields(itv.Fields(), oldFields),
 			},

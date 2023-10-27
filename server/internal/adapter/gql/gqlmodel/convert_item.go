@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
 
@@ -103,33 +102,16 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 	}
 }
 
-func ToItemQuery(iq ItemQuery) *item.Query {
-	pid, err := ToID[id.Project](iq.Project)
+func ToItemQuery(inp SearchItemInput) *item.Query {
+	q := inp.Query
+	pid, err := ToID[id.Project](q.Project)
 	if err != nil {
 		return nil
 	}
 
-	return item.NewQuery(pid, ToIDRef[id.Schema](iq.Schema), lo.FromPtr(iq.Q), nil)
-}
-
-func (s *ItemSort) Into() *usecasex.Sort {
-	if s == nil {
-		return nil
-	}
-	key := ""
-	switch s.SortBy {
-	case ItemSortTypeCreationDate:
-		key = "id"
-	case ItemSortTypeModificationDate:
-		key = "timestamp"
-	}
-	if key == "" {
-		return nil
-	}
-	return &usecasex.Sort{
-		Key:      key,
-		Reverted: s.Direction != nil && *s.Direction == SortDirectionDesc,
-	}
+	return item.NewQuery(pid, ToIDRef[id.Schema](q.Schema), ToIDRef[id.Model](q.Model), lo.FromPtr(q.Q), nil).
+		WithSort(inp.Sort.Into()).
+		WithFilter(inp.Filter.Into())
 }
 
 func ToItemStatus(in item.Status) ItemStatus {
