@@ -241,6 +241,7 @@ func sortItems(items []*version.Value[*item.Item]) {
 }
 
 func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	// TODO: support filters, sort, and pagination
 	if r.err != nil {
 		return nil, nil, r.err
 	}
