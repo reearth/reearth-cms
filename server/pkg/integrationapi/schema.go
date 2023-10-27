@@ -52,17 +52,17 @@ func NewModel(m *model.Model, lastModified time.Time) Model {
 		metadata = m.Metadata().Ref()
 	}
 	return Model{
-		Id:             m.ID().Ref(),
-		Key:            util.ToPtrIfNotEmpty(m.Key().String()),
-		Name:           util.ToPtrIfNotEmpty(m.Name()),
-		Description:    util.ToPtrIfNotEmpty(m.Description()),
-		Public:         util.ToPtrIfNotEmpty(m.Public()),
-		ProjectId:      m.Project().Ref(),
-		SchemaId:       m.Schema().Ref(),
-		MetadataSchema: metadata,
-		CreatedAt:      lo.ToPtr(m.ID().Timestamp()),
-		UpdatedAt:      lo.ToPtr(m.UpdatedAt()),
-		LastModified:   util.ToPtrIfNotEmpty(lastModified),
+		Id:               m.ID().Ref(),
+		Key:              util.ToPtrIfNotEmpty(m.Key().String()),
+		Name:             util.ToPtrIfNotEmpty(m.Name()),
+		Description:      util.ToPtrIfNotEmpty(m.Description()),
+		Public:           util.ToPtrIfNotEmpty(m.Public()),
+		ProjectId:        m.Project().Ref(),
+		SchemaId:         m.Schema().Ref(),
+		MetadataSchemaId: metadata,
+		CreatedAt:        lo.ToPtr(m.ID().Timestamp()),
+		UpdatedAt:        lo.ToPtr(m.UpdatedAt()),
+		LastModified:     util.ToPtrIfNotEmpty(lastModified),
 	}
 }
 

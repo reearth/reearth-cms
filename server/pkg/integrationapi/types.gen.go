@@ -206,17 +206,17 @@ type Item struct {
 
 // Model defines model for model.
 type Model struct {
-	CreatedAt      *time.Time    `json:"createdAt,omitempty"`
-	Description    *string       `json:"description,omitempty"`
-	Id             *id.ModelID   `json:"id,omitempty"`
-	Key            *string       `json:"key,omitempty"`
-	LastModified   *time.Time    `json:"lastModified,omitempty"`
-	MetadataSchema *id.SchemaID  `json:"metadataSchema,omitempty"`
-	Name           *string       `json:"name,omitempty"`
-	ProjectId      *id.ProjectID `json:"projectId,omitempty"`
-	Public         *bool         `json:"public,omitempty"`
-	SchemaId       *id.SchemaID  `json:"schemaId,omitempty"`
-	UpdatedAt      *time.Time    `json:"updatedAt,omitempty"`
+	CreatedAt        *time.Time    `json:"createdAt,omitempty"`
+	Description      *string       `json:"description,omitempty"`
+	Id               *id.ModelID   `json:"id,omitempty"`
+	Key              *string       `json:"key,omitempty"`
+	LastModified     *time.Time    `json:"lastModified,omitempty"`
+	MetadataSchemaId *id.SchemaID  `json:"metadataSchemaId,omitempty"`
+	Name             *string       `json:"name,omitempty"`
+	ProjectId        *id.ProjectID `json:"projectId,omitempty"`
+	Public           *bool         `json:"public,omitempty"`
+	SchemaId         *id.SchemaID  `json:"schemaId,omitempty"`
+	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`
 }
 
 // RefOrVersion defines model for refOrVersion.

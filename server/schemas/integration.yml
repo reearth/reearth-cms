@@ -817,7 +817,7 @@ components:
         schemaId:
           x-go-type: id.SchemaID
           type: string
-        metadataSchema:
+        metadataSchemaId:
           x-go-type: id.SchemaID
           type: string
         name:
