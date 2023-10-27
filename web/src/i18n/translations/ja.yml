@@ -129,6 +129,31 @@ Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
 We found some referenced items that not published yet. Please select to add the items to the same request.: まだ公開されていない参照アイテムが見つかりました。同じリクエストに追加する場合は選択してください。
+is: ''
+is not: ''
+contains: ''
+doesn't contain: ''
+start with: ''
+doesn't start with: ''
+end with: ''
+doesn't end with: ''
+is empty: ''
+is not empty: ''
+greater than: ''
+greater than or equal to: ''
+less than: ''
+less than or equal to: ''
+after: ''
+after or on: ''
+before: ''
+before or on: ''
+of this week: ''
+of this month: ''
+of this year: ''
+Ascending: ''
+Descending: ''
+Confirm: 確認
+Please enter: 入力してください
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -234,7 +259,6 @@ Default value: デフォルト値
 Field: フィールド
 Previous: 前
 Next: 次
-Confirm: 確認
 Reference setting: 参照設定
 Corresponding field: 対応フィールド
 Select the model to reference: 参照するモデルを選択してください
@@ -295,6 +319,21 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
+Are you sure to delete this view?: ''
+Permanently remove the view, the contents won’t be removed, please don’t worry This action is not reversible, so please continue with caution.: ''
+New View: ''
+Update View: ''
+Submitting: ''
+OK: ''
+View Name: ''
+This is the title of the view: ''
+Please input the view name!: ''
+Rename: ''
+Remove View: ''
+Are you sure you want to delete this view?: ''
+Deleting the view is a permanent action. However, the contents will remain unaffected.: ''
+Please proceed with caution as this action cannot be undone.: ''
+Save as new view: ''
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 search projects: 検索
 Create a Workspace: 新規ワークスペース
@@ -346,6 +385,12 @@ Failed to publish items.: アイテムの公開に失敗しました。
 Successfully published items!: アイテムの公開に成功しました!
 Failed to unpublish items.: エラーによりアイテムを非公開にできませんでした。
 Successfully unpublished items!: アイテムを非公開にしました。
+Failed to create view.: ''
+Successfully created view!: ''
+Failed to update view.: ''
+Successfully updated view!: ''
+Failed to delete view.: ''
+Successfully deleted view!: ''
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to create group.: グループの作成に失敗しました。

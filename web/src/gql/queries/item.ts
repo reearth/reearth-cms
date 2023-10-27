@@ -3,8 +3,8 @@ import { gql } from "@apollo/client";
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_ITEMS = gql`
-  query GetItems($modelId: ID!, $pagination: Pagination) {
-    items(modelId: $modelId, pagination: $pagination) {
+  query GetItems($query: ItemQueryInput!, $pagination: Pagination) {
+    searchItem(input: { query: $query, pagination: $pagination }) {
       nodes {
         id
         title
@@ -121,8 +121,13 @@ export const GET_ITEMS_BY_IDS = gql`
 `;
 
 export const SEARCH_ITEM = gql`
-  query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
-    searchItem(query: $query, sort: $sort, pagination: $pagination) {
+  query SearchItem(
+    $query: ItemQueryInput!
+    $sort: ItemSortInput
+    $filter: ConditionInput
+    $pagination: Pagination
+  ) {
+    searchItem(input: { query: $query, sort: $sort, filter: $filter, pagination: $pagination }) {
       nodes {
         id
         title

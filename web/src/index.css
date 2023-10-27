@@ -17,3 +17,9 @@ code {
 .ant-table-cell{
     word-break: break-all;
 }
+
+.hide-icon-button {
+   .ant-btn-compact-last-item{
+        visibility: hidden;
+   } 
+}
