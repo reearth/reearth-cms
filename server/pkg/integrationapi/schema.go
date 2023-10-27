@@ -38,7 +38,7 @@ func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelS
 	return ItemModelSchema{
 		Item: NewItem(i.Item, i.Schema, assets),
 		ReferencedItems: lo.Map(i.ReferencedItems, func(itm *version.Value[*item.Item], _ int) *VersionedItem {
-			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil))
+			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil, nil, nil))
 		}),
 		Model:      NewModel(i.Model, time.Time{}),
 		Schema:     NewSchema(i.Schema),
@@ -48,16 +48,17 @@ func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelS
 
 func NewModel(m *model.Model, lastModified time.Time) Model {
 	return Model{
-		Id:           m.ID().Ref(),
-		Key:          util.ToPtrIfNotEmpty(m.Key().String()),
-		Name:         util.ToPtrIfNotEmpty(m.Name()),
-		Description:  util.ToPtrIfNotEmpty(m.Description()),
-		Public:       util.ToPtrIfNotEmpty(m.Public()),
-		ProjectId:    m.Project().Ref(),
-		SchemaId:     m.Schema().Ref(),
-		CreatedAt:    lo.ToPtr(m.ID().Timestamp()),
-		UpdatedAt:    lo.ToPtr(m.UpdatedAt()),
-		LastModified: util.ToPtrIfNotEmpty(lastModified),
+		Id:             m.ID().Ref(),
+		Key:            util.ToPtrIfNotEmpty(m.Key().String()),
+		Name:           util.ToPtrIfNotEmpty(m.Name()),
+		Description:    util.ToPtrIfNotEmpty(m.Description()),
+		Public:         util.ToPtrIfNotEmpty(m.Public()),
+		ProjectId:      m.Project().Ref(),
+		SchemaId:       m.Schema().Ref(),
+		MetadataSchema: m.Metadata().Ref(),
+		CreatedAt:      lo.ToPtr(m.ID().Timestamp()),
+		UpdatedAt:      lo.ToPtr(m.UpdatedAt()),
+		LastModified:   util.ToPtrIfNotEmpty(lastModified),
 	}
 }
 

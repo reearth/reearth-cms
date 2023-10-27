@@ -95,7 +95,7 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
-                metadata:
+                metadataFields:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
@@ -202,7 +202,7 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
-                metadata:
+                metadataFields:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
@@ -265,7 +265,7 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
-                metadata:
+                metadataFields:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
@@ -817,7 +817,7 @@ components:
         schemaId:
           x-go-type: id.SchemaID
           type: string
-        metadata:
+        metadataSchema:
           x-go-type: id.SchemaID
           type: string
         name:
@@ -951,7 +951,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/versionedItem'
-        metadata:
+        metadataFields:
           type: array
           items:
             $ref: '#/components/schemas/field'
