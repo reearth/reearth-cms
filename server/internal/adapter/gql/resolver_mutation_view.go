@@ -28,7 +28,7 @@ func (r *mutationResolver) CreateView(ctx context.Context, input gqlmodel.Create
 		Project: pID,
 		Model:   mID,
 		Filter:  input.Filter.Into(),
-		Sort:    input.Sort.Into2(),
+		Sort:    input.Sort.Into(),
 		Columns: columns,
 	}, getOperator(ctx))
 	if err != nil {
@@ -55,7 +55,7 @@ func (r *mutationResolver) UpdateView(ctx context.Context, input gqlmodel.Update
 		ID:      vID,
 		Name:    input.Name,
 		Filter:  input.Filter.Into(),
-		Sort:    input.Sort.Into2(),
+		Sort:    input.Sort.Into(),
 		Columns: columns,
 	}, getOperator(ctx))
 	if err != nil {

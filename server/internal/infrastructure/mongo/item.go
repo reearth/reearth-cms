@@ -186,24 +186,76 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 }
 
 func (r *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	var pipeline []any
+	// apply basic filter like project, model, schema, keyword search
+	pipeline := []any{basicFilterStage(query)}
 
 	// if the query has any meta fields, lookup the meta item
 	if query.HasMetaFields() {
-		pipeline = append(pipeline, bson.M{
+		pipeline = append(pipeline, lookupStages()...)
+	}
+
+	// create aliases for fields used in filter logic or sort
+	pipeline = append(pipeline, aliasStages(query)...)
+
+	// apply filters and sort to pipeline
+	filterStage := filter(query.Filter())
+	if filterStage != nil {
+		pipeline = append(pipeline, bson.M{"$match": filterStage})
+	}
+
+	res, pi, err := r.paginateAggregation(ctx, pipeline, query.Ref(), sort(query), pagination)
+	return res, pi, err
+}
+
+func sort(query *item.Query) *usecasex.Sort {
+	var s *usecasex.Sort
+	if query.Sort() != nil {
+		reverted := query.Sort().Direction == view.DirectionDesc
+		s = &usecasex.Sort{
+			Key:      fieldKey(query.Sort().Field),
+			Reverted: reverted,
+		}
+	}
+	return s
+}
+
+func basicFilterStage(query *item.Query) any {
+	filter := bson.M{
+		"project": query.Project().String(),
+	}
+	if query.Q() != "" {
+		regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"}
+		filter["$or"] = []bson.M{
+			{"fields.v.v": bson.M{"$regex": regex}},
+			{"fields.value": bson.M{"$regex": regex}}, // compat
+		}
+	}
+	if query.Schema() != nil {
+		filter["schema"] = query.Schema().String()
+	}
+	if query.Model() != nil {
+		filter["modelid"] = query.Model().String()
+	}
+	return bson.M{"$match": filter}
+}
+
+func lookupStages() []any {
+	return []any{
+		bson.M{
 			"$lookup": bson.M{
 				"from":         "item",
 				"localField":   "metadataitem",
 				"foreignField": "id",
 				"as":           "__temp.meta",
 			},
-		})
-		pipeline = append(pipeline, bson.M{
+		},
+		bson.M{
 			"$unwind": "$__temp.meta",
-		})
+		},
 	}
+}
 
-	// create aliases for fields used in filter logic or sort
+func aliasStages(query *item.Query) []any {
 	aliases := bson.M{}
 	for _, field := range query.ItemFields() {
 		aliases["__temp."+field.ID.String()] = bson.M{
@@ -223,61 +275,28 @@ func (r *Item) Search(ctx context.Context, query *item.Query, pagination *usecas
 			},
 		}
 	}
-	if len(aliases) > 0 {
-		pipeline = append(pipeline, bson.M{
-			"$set": aliases,
-		})
-
-		// flatten the value object
-		flattenAliases := bson.M{}
-		for key := range aliases {
-			flattenAliases[key] = "$" + key + ".v.v"
-		}
-		pipeline = append(pipeline, bson.M{
-			"$set": flattenAliases,
-		})
-
-		// unwind the aliases: will get the field value in side an array
-		for key := range aliases {
-			pipeline = append(pipeline, bson.M{"$unwind": bson.M{"path": "$" + key, "preserveNullAndEmptyArrays": true}})
-		}
+	if len(aliases) <= 0 {
+		return []any{}
 	}
 
-	// apply filters and sort to pipeline
-	filterStage := filter(query.Filter())
-	if filterStage != nil {
-		pipeline = append(pipeline, bson.M{"$match": filterStage})
+	stages := []any{
+		bson.M{"$set": aliases},
 	}
 
-	filter := bson.M{
-		"project": query.Project().String(),
+	// flatten the value object
+	flattenAliases := bson.M{}
+	for key := range aliases {
+		flattenAliases[key] = "$" + key + ".v.v"
 	}
-	if query.Q() != "" {
-		regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"}
-		filter["$or"] = []bson.M{
-			{"fields.v.v": bson.M{"$regex": regex}},
-			{"fields.value": bson.M{"$regex": regex}}, // compat
-		}
-	}
-	if query.Schema() != nil {
-		filter["schema"] = query.Schema().String()
-	}
-	if query.Model() != nil {
-		filter["modelid"] = query.Model().String()
-	}
-	pipeline = append(pipeline, bson.M{"$match": filter})
+	stages = append(stages, bson.M{
+		"$set": flattenAliases,
+	})
 
-	var sort *usecasex.Sort
-	if query.Sort() != nil {
-		reverted := query.Sort().Direction == view.DirectionDesc
-		sort = &usecasex.Sort{
-			Key:      fieldKey(query.Sort().Field),
-			Reverted: reverted,
-		}
+	// unwind the aliases: will get the field value in side an array
+	for key := range aliases {
+		stages = append(stages, bson.M{"$unwind": bson.M{"path": "$" + key, "preserveNullAndEmptyArrays": true}})
 	}
-
-	res, pi, err := r.paginateAggregation(ctx, pipeline, query.Ref(), sort, pagination)
-	return res, pi, err
+	return stages
 }
 
 func filter(f *view.Condition) any {

@@ -128,9 +128,9 @@ func applyProjectFilterToPipeline(pipeline []any, ids id.ProjectIDList) []any {
 	return append([]any{bson.M{"$match": bson.M{"project": bson.M{"$in": ids.Strings()}}}}, pipeline...)
 }
 
-func applyWorkspaceFilterToPipeline(pipeline []any, ids accountdomain.WorkspaceIDList) []any {
-	if ids == nil {
-		return pipeline
-	}
-	return append([]any{bson.M{"$match": bson.M{"workspace": bson.M{"$in": ids.Strings()}}}}, pipeline...)
-}
+// func applyWorkspaceFilterToPipeline(pipeline []any, ids accountdomain.WorkspaceIDList) []any {
+// 	if ids == nil {
+// 		return pipeline
+// 	}
+// 	return append([]any{bson.M{"$match": bson.M{"workspace": bson.M{"$in": ids.Strings()}}}}, pipeline...)
+// }
