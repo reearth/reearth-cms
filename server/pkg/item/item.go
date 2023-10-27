@@ -76,10 +76,10 @@ func (i *Item) Field(f FieldID) *Field {
 
 func (i *Item) FieldByItemGroupAndID(fid FieldID, igID ItemGroupID) *Field {
 	ff, _ := lo.Find(i.fields, func(g *Field) bool {
-		if g.itemGroup == nil {
+		if g.group == nil {
 			return false
 		}
-		return g.FieldID() == fid && *g.itemGroup == igID
+		return g.FieldID() == fid && *g.group == igID
 	})
 	return ff
 }
@@ -126,10 +126,10 @@ func (i *Item) UpdateFields(fields []*Field) {
 			if g == nil || f == nil {
 				return false
 			}
-			if g.itemGroup == nil || f.itemGroup == nil {
+			if g.group == nil || f.group == nil {
 				return g.FieldID() == f.FieldID()
 			}
-			return g.FieldID() == f.FieldID() && *g.itemGroup == *f.itemGroup
+			return g.FieldID() == f.FieldID() && *g.group == *f.group
 		})
 
 		if !found {

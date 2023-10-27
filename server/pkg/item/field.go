@@ -6,9 +6,9 @@ import (
 )
 
 type Field struct {
-	field     FieldID
-	itemGroup *ItemGroupID
-	value     *value.Multiple
+	field FieldID
+	group *ItemGroupID
+	value *value.Multiple
 }
 
 func NewField(field FieldID, v *value.Multiple, ig *ItemGroupID) *Field {
@@ -16,9 +16,9 @@ func NewField(field FieldID, v *value.Multiple, ig *ItemGroupID) *Field {
 		return nil
 	}
 	return &Field{
-		field:     field,
-		value:     v,
-		itemGroup: ig,
+		field: field,
+		value: v,
+		group: ig,
 	}
 }
 
@@ -41,5 +41,5 @@ func (f *Field) ItemGroup() *ItemGroupID {
 	if f == nil {
 		return nil
 	}
-	return f.itemGroup
+	return f.group
 }

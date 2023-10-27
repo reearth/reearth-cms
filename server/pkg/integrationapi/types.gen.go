@@ -181,11 +181,11 @@ type CommentAuthorType string
 
 // Field defines model for field.
 type Field struct {
-	Id        *id.FieldID     `json:"id,omitempty"`
-	ItemGroup *id.ItemGroupID `json:"itemGroup,omitempty"`
-	Key       *string         `json:"key,omitempty"`
-	Type      *ValueType      `json:"type,omitempty"`
-	Value     *interface{}    `json:"value,omitempty"`
+	Group *id.ItemGroupID `json:"group,omitempty"`
+	Id    *id.FieldID     `json:"id,omitempty"`
+	Key   *string         `json:"key,omitempty"`
+	Type  *ValueType      `json:"type,omitempty"`
+	Value *interface{}    `json:"value,omitempty"`
 }
 
 // File defines model for file.
