@@ -69,6 +69,22 @@ func (c *GroupLoader) FindModelsByGroup(ctx context.Context, groupID gqlmodel.ID
 	}), nil
 }
 
+func (c *GroupLoader) FindByModel(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.Group, error) {
+	mId, err := gqlmodel.ToID[id.Model](modelID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.usecase.FindByModel(ctx, mId, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(res, func(g *group.Group, _ int) *gqlmodel.Group {
+		return gqlmodel.ToGroup(g)
+	}), nil
+}
+
 func (c *GroupLoader) CheckKey(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error) {
 	pId, err := gqlmodel.ToID[id.Project](projectID)
 	if err != nil {

@@ -175,6 +175,44 @@ func (i Group) Delete(ctx context.Context, groupID id.GroupID, operator *usecase
 		})
 }
 
+func (i Group) FindModelsByGroup(ctx context.Context, groupID id.GroupID, op *usecase.Operator) (model.List, error) {
+	g, err := i.repos.Group.FindByID(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+	return i.getModelsByGroup(ctx, g)
+}
+
+func (i Group) FindByModel(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) (group.List, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (group.List, error) {
+			m, err := i.repos.Model.FindByID(ctx, modelID)
+			if err != nil {
+				return nil, err
+			}
+			if !operator.IsReadableProject(m.Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+			s, err := i.repos.Schema.FindByID(ctx, m.Schema())
+			if err != nil {
+				return nil, err
+			}
+			var gids id.GroupIDList
+			for _, f := range s.Fields() {
+				if f.Type() == value.TypeGroup {
+					var fg *schema.FieldGroup
+					f.TypeProperty().Match(schema.TypePropertyMatch{
+						Group: func(f *schema.FieldGroup) {
+							fg = f
+						},
+					})
+					gids = gids.Add(fg.Group())
+				}
+			}
+			return i.repos.Group.FindByIDs(ctx, gids)
+		})
+}
+
 func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.List, err error) {
 	models, _, err := i.repos.Model.FindByProject(ctx, g.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
@@ -203,12 +241,4 @@ func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.
 
 	}
 	return
-}
-
-func (i Group) FindModelsByGroup(ctx context.Context, groupID id.GroupID, op *usecase.Operator) (model.List, error) {
-	g, err := i.repos.Group.FindByID(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
-	return i.getModelsByGroup(ctx, g)
 }
