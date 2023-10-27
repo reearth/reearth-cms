@@ -45,6 +45,14 @@ func (c *Collection) Count(ctx context.Context, filter any, q version.Query) (in
 	return c.client.Count(ctx, apply(q, filter))
 }
 
+func (c *Collection) PaginateAggregation(ctx context.Context, pipeline []any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
+	return c.client.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer)
+}
+
+func (c *Collection) CountAggregation(ctx context.Context, pipeline []any, q version.Query) (int64, error) {
+	return c.client.CountAggregation(ctx, applyToPipeline(q, pipeline))
+}
+
 func (c *Collection) SaveOne(ctx context.Context, id string, d any, parent *version.VersionOrRef) error {
 	q := bson.M{
 		"id":    id,

@@ -204,6 +204,65 @@ func TestCollection_Count(t *testing.T) {
 	assert.Equal(t, int64(0), count)
 }
 
+func TestCollection_CountAggregation(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Client()
+	vx, vy := version.New(), version.New()
+
+	_, _ = c.InsertMany(ctx, []any{
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "b",
+			},
+			Meta: Meta{
+				Version: vx,
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "b",
+				"b": "c",
+			},
+			Meta: Meta{
+				Version: vy,
+				Parents: []version.Version{vx},
+				Refs:    []version.Ref{"latest", "aaa"},
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"a": "d",
+				"b": "a",
+			},
+			Meta: Meta{
+				Version: vy,
+				Refs:    []version.Ref{"latest"},
+			},
+		},
+	})
+
+	// all
+	count, err := col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "b"}}}, version.All())
+	assert.NoError(t, err)
+	assert.Equal(t, int64(2), count)
+
+	// version
+	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "b"}}}, version.Eq(vx.OrRef()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), count)
+
+	// ref
+	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "b"}}}, version.Eq(version.Latest.OrVersion()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), count)
+
+	// not found
+	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "c"}}}, version.Eq(version.Latest.OrVersion()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), count)
+}
+
 func TestCollection_Paginate(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
@@ -252,6 +311,64 @@ func TestCollection_Paginate(t *testing.T) {
 	pi, err := col.Paginate(
 		ctx,
 		bson.M{},
+		version.Eq(version.Latest.OrVersion()),
+		nil,
+		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+		consumer,
+	)
+	assert.NoError(t, err)
+	assert.Equal(t, usecasex.NewPageInfo(2, usecasex.Cursor("a").Ref(), usecasex.Cursor("b").Ref(), false, false), pi)
+	assert.Equal(t, []d{{ID: "a", A: "b"}, {ID: "b", A: "a"}}, consumer.Result)
+}
+
+func TestCollection_PaginateAggregation(t *testing.T) {
+	ctx := context.Background()
+	col := initCollection(t)
+	c := col.Client().Client()
+	vx, vy := version.New(), version.New()
+
+	type d struct {
+		ID string
+		A  string
+	}
+
+	_, _ = c.InsertMany(ctx, []any{
+		&Document[bson.M]{
+			Data: bson.M{
+				"id": "a",
+				"a":  "a",
+			},
+			Meta: Meta{
+				Version: vx,
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"id": "a",
+				"a":  "b",
+			},
+			Meta: Meta{
+				Version: vy,
+				Parents: []version.Version{vx},
+				Refs:    []version.Ref{"latest", "aaa"},
+			},
+		},
+		&Document[bson.M]{
+			Data: bson.M{
+				"id": "b",
+				"a":  "a",
+			},
+			Meta: Meta{
+				Version: vy,
+				Refs:    []version.Ref{"latest"},
+			},
+		},
+	})
+
+	consumer := &mongox.SliceConsumer[d]{}
+	pi, err := col.PaginateAggregation(
+		ctx,
+		[]any{},
 		version.Eq(version.Latest.OrVersion()),
 		nil,
 		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),

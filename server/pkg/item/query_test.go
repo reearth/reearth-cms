@@ -38,7 +38,7 @@ func TestNewQuery(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
-			got := NewQuery(tc.args.project, tc.args.schema, tc.args.q, tc.args.ref)
+			got := NewQuery(tc.args.project, tc.args.schema, nil, tc.args.q, tc.args.ref)
 			assert.Equal(tt, tc.want, got)
 		})
 	}

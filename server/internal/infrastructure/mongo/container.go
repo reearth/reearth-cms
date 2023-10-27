@@ -120,3 +120,17 @@ func applyProjectFilter(filter interface{}, ids id.ProjectIDList) interface{} {
 	}
 	return mongox.And(filter, "project", bson.M{"$in": ids.Strings()})
 }
+
+func applyProjectFilterToPipeline(pipeline []any, ids id.ProjectIDList) []any {
+	if ids == nil {
+		return pipeline
+	}
+	return append([]any{bson.M{"$match": bson.M{"project": bson.M{"$in": ids.Strings()}}}}, pipeline...)
+}
+
+// func applyWorkspaceFilterToPipeline(pipeline []any, ids accountdomain.WorkspaceIDList) []any {
+// 	if ids == nil {
+// 		return pipeline
+// 	}
+// 	return append([]any{bson.M{"$match": bson.M{"workspace": bson.M{"$in": ids.Strings()}}}}, pipeline...)
+// }
