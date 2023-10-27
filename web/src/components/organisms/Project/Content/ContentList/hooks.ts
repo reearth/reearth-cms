@@ -16,10 +16,11 @@ import {
   useDeleteItemMutation,
   Comment as GQLComment,
   SortDirection,
-  FieldSelectorInput,
+  FieldSelector,
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
+  ConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -51,24 +52,24 @@ export default () => {
   const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
   const sortFieldId = useMemo(() => searchParams.get("sortFieldId"), [searchParams]);
+  const filterParam = useMemo(() => searchParams.get("filter"), [searchParams]);
 
   const navigate = useNavigate();
   const { modelId } = useParams();
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<
-    { field: FieldSelectorInput; direction: SortDirection } | undefined
-  >({
+  const [sort, setSort] = useState<{ field: FieldSelector; direction: SortDirection } | undefined>({
     field: {
       id: sortFieldId,
       type: sortFieldType
-        ? (sortFieldType as FieldSelectorInput["type"])
-        : ("MODIFICATION_DATE" as FieldSelectorInput["type"]),
+        ? (sortFieldType as FieldSelector["type"])
+        : ("MODIFICATION_DATE" as FieldSelector["type"]),
     },
     direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
   });
   const [columns, setColumns] = useState<Record<string, ColumnsState>>({});
+  const [filter, setFilter] = useState<ConditionInput[]>();
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
@@ -77,13 +78,56 @@ export default () => {
       field: {
         id: sortFieldId,
         type: sortFieldType
-          ? (sortFieldType as FieldSelectorInput["type"])
-          : ("MODIFICATION_DATE" as FieldSelectorInput["type"]),
+          ? (sortFieldType as FieldSelector["type"])
+          : ("MODIFICATION_DATE" as FieldSelector["type"]),
       },
       direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
     });
+    const newFilter = [];
+    if (filterParam) {
+      const params = filterParam.split(",");
+      let key, type, id, operator, value;
+      for (const param of params) {
+        const conditions = param.split(";");
+        [key, value] = conditions[0].split(":");
+        [type, id] = conditions[1].split(":");
+        operator = conditions[2];
+        const data: {
+          [x: string]: {
+            fieldId: {
+              type: string;
+              id: string;
+            };
+            operator: string;
+            value?: string | Date;
+          };
+        } = {
+          [key]: {
+            fieldId: { type, id },
+            operator,
+          },
+        };
+
+        if (key === "time") {
+          value = new Date(value);
+        }
+        if (key !== "nullable") {
+          data[key].value = value;
+        }
+        newFilter.push(data);
+      }
+    }
+    setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
-  }, [pageParam, pageSizeParam, sortFieldType, direction, searchTermParam, sortFieldId]);
+  }, [
+    pageParam,
+    pageSizeParam,
+    sortFieldType,
+    direction,
+    searchTermParam,
+    sortFieldId,
+    filterParam,
+  ]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -96,6 +140,13 @@ export default () => {
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
         sort: sort,
+        filter: filter
+          ? {
+              and: {
+                conditions: filter,
+              },
+            }
+          : undefined,
       },
     },
     skip: !currentModel?.id,
@@ -150,7 +201,7 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              author: item.createdBy?.name || "",
+              createdBy: item.createdBy?.name,
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
@@ -203,17 +254,21 @@ export default () => {
     if (!currentModel) return;
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,
-      fieldType: "FIELD",
       dataIndex: ["fields", field.id],
+      fieldType: "FIELD",
       key: field.id,
+      ellipsis: true,
+      type: field.type,
     }));
 
     const metadataColumns =
       currentModel?.metadataSchema?.fields?.map(field => ({
         title: field.title,
-        fieldType: "META_FIELD",
         dataIndex: ["metadata", field.id],
+        fieldType: "META_FIELD",
         key: field.id,
+        ellipsis: true,
+        type: field.type,
       })) || [];
 
     return fieldsColumns.concat(metadataColumns);
@@ -292,7 +347,7 @@ export default () => {
     (
       page: number,
       pageSize: number,
-      sorter?: { field?: FieldSelectorInput; direction?: SortDirection },
+      sorter?: { field?: FieldSelector; direction?: SortDirection },
     ) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
@@ -332,6 +387,7 @@ export default () => {
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
     sort,
+    filter,
     searchTerm,
     page,
     pageSize,

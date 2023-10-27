@@ -2237,6 +2237,14 @@ export type DeleteIntegrationMutationVariables = Exact<{
 
 export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration?: { __typename?: 'DeleteIntegrationPayload', integrationId: string } | null };
 
+export type GetItemsQueryVariables = Exact<{
+  query: ItemQueryInput;
+  pagination?: InputMaybe<Pagination>;
+}>;
+
+
+export type GetItemsQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> }, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
+
 export type GetItemQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
@@ -4125,6 +4133,76 @@ export function useDeleteIntegrationMutation(baseOptions?: Apollo.MutationHookOp
 export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteIntegrationMutation>;
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
 export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
+export const GetItemsDocument = gql`
+    query GetItems($query: ItemQueryInput!, $pagination: Pagination) {
+  searchItem(input: {query: $query, pagination: $pagination}) {
+    nodes {
+      id
+      title
+      schemaId
+      createdAt
+      updatedAt
+      status
+      createdBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
+      }
+      fields {
+        schemaFieldId
+        itemGroupId
+        type
+        value
+      }
+      thread {
+        ...threadFragment
+      }
+      metadata {
+        id
+        fields {
+          schemaFieldId
+          itemGroupId
+          type
+          value
+        }
+      }
+    }
+    totalCount
+  }
+}
+    ${ThreadFragmentFragmentDoc}`;
+
+/**
+ * __useGetItemsQuery__
+ *
+ * To run a query within a React component, call `useGetItemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetItemsQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *      pagination: // value for 'pagination'
+ *   },
+ * });
+ */
+export function useGetItemsQuery(baseOptions: Apollo.QueryHookOptions<GetItemsQuery, GetItemsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetItemsQuery, GetItemsQueryVariables>(GetItemsDocument, options);
+      }
+export function useGetItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetItemsQuery, GetItemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetItemsQuery, GetItemsQueryVariables>(GetItemsDocument, options);
+        }
+export type GetItemsQueryHookResult = ReturnType<typeof useGetItemsQuery>;
+export type GetItemsLazyQueryHookResult = ReturnType<typeof useGetItemsLazyQuery>;
+export type GetItemsQueryResult = Apollo.QueryResult<GetItemsQuery, GetItemsQueryVariables>;
 export const GetItemDocument = gql`
     query GetItem($id: ID!) {
   node(id: $id, type: Item) {

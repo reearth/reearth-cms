@@ -495,6 +495,7 @@ func TestTwoWayReferenceFields(t *testing.T) {
 func TestSearchItem(t *testing.T) {
 	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
 
+	// region init
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
 
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
@@ -524,24 +525,27 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.textAreaFId, "value": "test2", "type": "TextArea"},
 		{"schemaFieldId": fids.markdownFId, "value": "test2", "type": "MarkdownText"},
 		// {"schemaFieldId": fids.assetFId, "value": nil, "type": "Asset"},
-		{"schemaFieldId": fids.boolFId, "value": true, "type": "Bool"},
+		{"schemaFieldId": fids.boolFId, "value": false, "type": "Bool"},
 		{"schemaFieldId": fids.selectFId, "value": "s2", "type": "Select"},
 		{"schemaFieldId": fids.integerFId, "value": 2, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test2.com", "type": "URL"},
 	})
+	// endregion
 
-	// fetch by schema
+	// region fetch by schema
 	res := SearchItem(e, map[string]any{
 		"project": pId,
-		"schema":  sId,
+		// "schema":  sId,
+		"model": mId,
 	}, nil, nil, map[string]any{
 		"first": 10,
 	})
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
 
-	// fetch by schema with sort
+	// region fetch by schema with sort
 	res = SearchItem(e, map[string]any{
 		"project": pId,
 		"schema":  sId,
@@ -575,8 +579,9 @@ func TestSearchItem(t *testing.T) {
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id, i1Id})
+	// endregion
 
-	// fetch by model
+	// region fetch by model
 	res = SearchItem(e, map[string]any{
 		"project": pId,
 		"model":   mId,
@@ -598,8 +603,9 @@ func TestSearchItem(t *testing.T) {
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
 
-	// filter basic
+	// region filter basic
 	res = SearchItem(e, map[string]any{
 		"project": pId,
 		"model":   mId,
@@ -647,7 +653,9 @@ func TestSearchItem(t *testing.T) {
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+	// endregion
 
+	// region filter nullable
 	i1ver, _ = getItem(e, i1Id)
 	updateItem(e, i1Id, i1ver, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "", "type": "Text"},
@@ -699,7 +707,13 @@ func TestSearchItem(t *testing.T) {
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
 
-	// number filters
+	i1ver, _ = getItem(e, i1Id)
+	updateItem(e, i1Id, i1ver, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1 updated", "type": "Text"},
+	})
+	// endregion
+
+	// region filters number
 	res = SearchItem(e, map[string]any{
 		"project": pId,
 		"model":   mId,
@@ -795,4 +809,328 @@ func TestSearchItem(t *testing.T) {
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
+
+	// region filters text
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "CONTAINS",
+				"value":    "updated",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "NOT_CONTAINS",
+				"value":    "updated",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "STARTS_WITH",
+				"value":    "test",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "NOT_STARTS_WITH",
+				"value":    "test",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(0)
+	res.Path("$.data.searchItem.nodes").Array().IsEmpty()
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "ENDS_WITH",
+				"value":    "updated",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"id":   fids.textFId,
+					"type": "FIELD",
+				},
+				"operator": "NOT_ENDS_WITH",
+				"value":    "updated",
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+	// endregion
+
+	// region filters boolean
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	}, nil, map[string]any{
+		"bool": map[string]any{
+			"fieldId": map[string]any{
+				"id":   fids.boolFId,
+				"type": "FIELD",
+			},
+			"operator": "EQUALS",
+			"value":    false,
+		},
+	}, map[string]any{
+		"first": 2,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	}, nil, map[string]any{
+		"bool": map[string]any{
+			"fieldId": map[string]any{
+				"id":   fids.boolFId,
+				"type": "FIELD",
+			},
+			"operator": "NOT_EQUALS",
+			"value":    false,
+		},
+	}, map[string]any{
+		"first": 2,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
+
+	// region filters select
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+	}, nil, map[string]any{
+		"multiple": map[string]any{
+			"fieldId": map[string]any{
+				"id":   fids.selectFId,
+				"type": "FIELD",
+			},
+			"operator": "INCLUDES_ANY",
+			"value":    []string{"s1", "s2", "s3"},
+		},
+	}, map[string]any{
+		"first": 2,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+	}, nil, map[string]any{
+		"multiple": map[string]any{
+			"fieldId": map[string]any{
+				"id":   fids.selectFId,
+				"type": "FIELD",
+			},
+			"operator": "INCLUDES_ANY",
+			"value":    []string{"s1", "s3"},
+		},
+	}, map[string]any{
+		"first": 2,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+	}, nil, map[string]any{
+		"multiple": map[string]any{
+			"fieldId": map[string]any{
+				"id":   fids.selectFId,
+				"type": "FIELD",
+			},
+			"operator": "NOT_INCLUDES_ANY",
+			"value":    []string{"s1", "s2", "s3"},
+		},
+	}, map[string]any{
+		"first": 2,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(0)
+	res.Path("$.data.searchItem.nodes").Array().IsEmpty()
+	// endregion
+
+	// region filters and
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       "",
+	}, nil, map[string]any{
+		"and": map[string]any{
+			"conditions": []map[string]any{
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"id":   fids.textFId,
+							"type": "FIELD",
+						},
+						"operator": "STARTS_WITH",
+						"value":    "test",
+					},
+				},
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"id":   fids.textFId,
+							"type": "FIELD",
+						},
+						"operator": "ENDS_WITH",
+						"value":    "updated",
+					},
+				},
+			},
+		},
+	}, map[string]any{
+		"first": 2,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
+
+	// region filters or
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       "",
+	}, nil, map[string]any{
+		"or": map[string]any{
+			"conditions": []map[string]any{
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"id":   fids.textFId,
+							"type": "FIELD",
+						},
+						"operator": "STARTS_WITH",
+						"value":    "test1",
+					},
+				},
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"id":   fids.textFId,
+							"type": "FIELD",
+						},
+						"operator": "STARTS_WITH",
+						"value":    "test2",
+					},
+				},
+			},
+		},
+	}, map[string]any{
+		"first": 2,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
 }

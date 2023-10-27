@@ -2,6 +2,50 @@ import { gql } from "@apollo/client";
 
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
+export const GET_ITEMS = gql`
+  query GetItems($query: ItemQueryInput!, $pagination: Pagination) {
+    searchItem(input: { query: $query, pagination: $pagination }) {
+      nodes {
+        id
+        title
+        schemaId
+        createdAt
+        updatedAt
+        status
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        fields {
+          schemaFieldId
+          itemGroupId
+          type
+          value
+        }
+        thread {
+          ...threadFragment
+        }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            itemGroupId
+            type
+            value
+          }
+        }
+      }
+      totalCount
+    }
+  }
+
+  ${threadFragment}
+`;
+
 export const GET_ITEM_NODE = gql`
   query GetItem($id: ID!) {
     node(id: $id, type: Item) {
@@ -164,7 +208,7 @@ export const UPDATE_ITEM = gql`
         schemaId
         fields {
           value
-          type
+          types
           schemaFieldId
           itemGroupId
         }

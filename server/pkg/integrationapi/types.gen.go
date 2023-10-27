@@ -59,6 +59,7 @@ const (
 	ValueTypeAsset     ValueType = "asset"
 	ValueTypeBool      ValueType = "bool"
 	ValueTypeDate      ValueType = "date"
+	ValueTypeGroup     ValueType = "group"
 	ValueTypeInteger   ValueType = "integer"
 	ValueTypeMarkdown  ValueType = "markdown"
 	ValueTypeReference ValueType = "reference"
@@ -180,10 +181,11 @@ type CommentAuthorType string
 
 // Field defines model for field.
 type Field struct {
-	Id    *id.FieldID  `json:"id,omitempty"`
-	Key   *string      `json:"key,omitempty"`
-	Type  *ValueType   `json:"type,omitempty"`
-	Value *interface{} `json:"value,omitempty"`
+	Group *id.ItemGroupID `json:"group,omitempty"`
+	Id    *id.FieldID     `json:"id,omitempty"`
+	Key   *string         `json:"key,omitempty"`
+	Type  *ValueType      `json:"type,omitempty"`
+	Value *interface{}    `json:"value,omitempty"`
 }
 
 // File defines model for file.
@@ -206,16 +208,17 @@ type Item struct {
 
 // Model defines model for model.
 type Model struct {
-	CreatedAt    *time.Time    `json:"createdAt,omitempty"`
-	Description  *string       `json:"description,omitempty"`
-	Id           *id.ModelID   `json:"id,omitempty"`
-	Key          *string       `json:"key,omitempty"`
-	LastModified *time.Time    `json:"lastModified,omitempty"`
-	Name         *string       `json:"name,omitempty"`
-	ProjectId    *id.ProjectID `json:"projectId,omitempty"`
-	Public       *bool         `json:"public,omitempty"`
-	SchemaId     *id.SchemaID  `json:"schemaId,omitempty"`
-	UpdatedAt    *time.Time    `json:"updatedAt,omitempty"`
+	CreatedAt        *time.Time    `json:"createdAt,omitempty"`
+	Description      *string       `json:"description,omitempty"`
+	Id               *id.ModelID   `json:"id,omitempty"`
+	Key              *string       `json:"key,omitempty"`
+	LastModified     *time.Time    `json:"lastModified,omitempty"`
+	MetadataSchemaId *id.SchemaID  `json:"metadataSchemaId,omitempty"`
+	Name             *string       `json:"name,omitempty"`
+	ProjectId        *id.ProjectID `json:"projectId,omitempty"`
+	Public           *bool         `json:"public,omitempty"`
+	SchemaId         *id.SchemaID  `json:"schemaId,omitempty"`
+	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`
 }
 
 // RefOrVersion defines model for refOrVersion.
@@ -259,6 +262,7 @@ type VersionedItem struct {
 	CreatedAt       *time.Time            `json:"createdAt,omitempty"`
 	Fields          *[]Field              `json:"fields,omitempty"`
 	Id              *id.ItemID            `json:"id,omitempty"`
+	MetadataFields  *[]Field              `json:"metadataFields,omitempty"`
 	ModelId         *string               `json:"modelId,omitempty"`
 	Parents         *[]openapi_types.UUID `json:"parents,omitempty"`
 	ReferencedItems *[]VersionedItem      `json:"referencedItems,omitempty"`
@@ -330,8 +334,9 @@ type ItemGetParamsRef string
 
 // ItemUpdateJSONBody defines parameters for ItemUpdate.
 type ItemUpdateJSONBody struct {
-	Asset  *AssetEmbedding `json:"asset,omitempty"`
-	Fields *[]Field        `json:"fields,omitempty"`
+	Asset          *AssetEmbedding `json:"asset,omitempty"`
+	Fields         *[]Field        `json:"fields,omitempty"`
+	MetadataFields *[]Field        `json:"metadataFields,omitempty"`
 }
 
 // ItemCommentCreateJSONBody defines parameters for ItemCommentCreate.
@@ -376,7 +381,8 @@ type ItemFilterParamsRef string
 
 // ItemCreateJSONBody defines parameters for ItemCreate.
 type ItemCreateJSONBody struct {
-	Fields *[]Field `json:"fields,omitempty"`
+	Fields         *[]Field `json:"fields,omitempty"`
+	MetadataFields *[]Field `json:"metadataFields,omitempty"`
 }
 
 // ItemFilterWithProjectParams defines parameters for ItemFilterWithProject.
@@ -411,7 +417,8 @@ type ItemFilterWithProjectParamsRef string
 
 // ItemCreateWithProjectJSONBody defines parameters for ItemCreateWithProject.
 type ItemCreateWithProjectJSONBody struct {
-	Fields *[]Field `json:"fields,omitempty"`
+	Fields         *[]Field `json:"fields,omitempty"`
+	MetadataFields *[]Field `json:"metadataFields,omitempty"`
 }
 
 // AssetFilterParams defines parameters for AssetFilter.

@@ -282,6 +282,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		var metaItemFields item.Fields
+		if vi.Value().MetadataItem() != nil {
+			mi, err := i.repos.Item.FindByID(ctx, *vi.Value().MetadataItem(), nil)
+			if err != nil {
+				return nil, err
+			}
+			metaItemFields = mi.Value().Fields()
+		}
+
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -291,6 +300,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				Item:            vi.Value(),
 				Model:           m,
 				Schema:          s,
+				MetadataFields:  metaItemFields,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 			},
 			Operator: operator.Operator(),
@@ -389,7 +399,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return nil, err
 		}
-
+		var metaItemFields item.Fields
+		if itv.MetadataItem() != nil {
+			mi, err := i.repos.Item.FindByID(ctx, *itv.MetadataItem(), nil)
+			if err != nil {
+				return nil, err
+			}
+			metaItemFields = mi.Value().Fields()
+		}
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -399,6 +416,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Item:            itv,
 				Model:           m,
 				Schema:          s,
+				MetadataFields:  metaItemFields,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 				Changes:         item.CompareFields(itv.Fields(), oldFields),
 			},
@@ -733,12 +751,12 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 		}
 
 		groupItemParams := lo.Filter(params, func(param interfaces.ItemFieldParam, _ int) bool {
-			if param.ItemGroup == nil {
+			if param.Group == nil {
 				return false
 			}
 
 			_, ok := lo.Find(mvg, func(item value.Group) bool {
-				return item == *param.ItemGroup
+				return item == *param.Group
 			})
 			return ok
 		})
@@ -786,7 +804,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
-		return item.NewField(sf.ID(), m, f.ItemGroup), nil
+		return item.NewField(sf.ID(), m, f.Group), nil
 	})
 }
 

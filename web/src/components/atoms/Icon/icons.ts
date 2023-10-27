@@ -47,6 +47,8 @@ import {
   EyeInvisibleOutlined,
   CopyOutlined,
   ReloadOutlined,
+  SortAscendingOutlined,
+  FilterOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -55,6 +57,7 @@ import Asset from "./Icons/asset.svg";
 import Boolean from "./Icons/boolean.svg";
 import CheckSquare from "./Icons/checkSquare.svg";
 import ColorPalette from "./Icons/colorPalette.svg";
+import Control from "./Icons/control.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import Group from "./Icons/group.svg";
@@ -147,4 +150,7 @@ export default {
   LineSegments: LineSegments,
   group: Group,
   reload: ReloadOutlined,
+  control: Control,
+  sortAscending: SortAscendingOutlined,
+  filter: FilterOutlined,
 };

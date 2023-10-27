@@ -155,7 +155,7 @@ func ToFilter(i *view.Condition) Condition {
 	return nil
 }
 
-func (s *ItemSortInput) Into2() *view.Sort {
+func (s *ItemSortInput) Into() *view.Sort {
 	if s == nil {
 		return nil
 	}

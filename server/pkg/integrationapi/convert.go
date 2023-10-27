@@ -26,7 +26,7 @@ func New(obj any, v string, urlResolver asset.URLResolver) (res any, err error) 
 	case *item.Item:
 		res = NewItem(o, nil, nil)
 	case item.Versioned:
-		res = NewVersionedItem(o, nil, nil, nil)
+		res = NewVersionedItem(o, nil, nil, nil, nil, nil, nil)
 	case item.ItemModelSchema:
 		res = NewItemModelSchema(o, nil)
 	// TODO: add later

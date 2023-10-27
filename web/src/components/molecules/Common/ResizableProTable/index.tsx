@@ -17,6 +17,7 @@ const ResizableProTable: React.FC<Props> = ({
   loading,
   options,
   toolbar,
+  toolBarRender,
   rowSelection,
   tableAlertOptionRender,
   pagination,
@@ -65,6 +66,7 @@ const ResizableProTable: React.FC<Props> = ({
         search={false}
         loading={loading}
         toolbar={toolbar}
+        toolBarRender={toolBarRender}
         options={options}
         tableAlertOptionRender={tableAlertOptionRender}
         rowSelection={rowSelection}

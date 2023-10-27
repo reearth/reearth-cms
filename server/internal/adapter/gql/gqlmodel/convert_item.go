@@ -95,10 +95,10 @@ func ToItemParam(field *ItemFieldInput) *interfaces.ItemFieldParam {
 	}
 
 	return &interfaces.ItemFieldParam{
-		ItemGroup: ToIDRef[id.ItemGroup](field.ItemGroupID),
-		Field:     &fid,
-		Type:      FromValueType(field.Type),
-		Value:     field.Value,
+		Group: ToIDRef[id.ItemGroup](field.ItemGroupID),
+		Field: &fid,
+		Type:  FromValueType(field.Type),
+		Value: field.Value,
 	}
 }
 
@@ -110,29 +110,9 @@ func ToItemQuery(inp SearchItemInput) *item.Query {
 	}
 
 	return item.NewQuery(pid, ToIDRef[id.Schema](q.Schema), ToIDRef[id.Model](q.Model), lo.FromPtr(q.Q), nil).
-		WithSort(inp.Sort.Into2()).
+		WithSort(inp.Sort.Into()).
 		WithFilter(inp.Filter.Into())
 }
-
-// func (s *ItemSort) Into() *usecasex.Sort {
-// 	if s == nil {
-// 		return nil
-// 	}
-// 	key := ""
-// 	switch s.SortBy {
-// 	case ItemSortTypeCreationDate:
-// 		key = "id"
-// 	case ItemSortTypeModificationDate:
-// 		key = "timestamp"
-// 	}
-// 	if key == "" {
-// 		return nil
-// 	}
-// 	return &usecasex.Sort{
-// 		Key:      key,
-// 		Reverted: s.Direction != nil && *s.Direction == SortDirectionDesc,
-// 	}
-// }
 
 func ToItemStatus(in item.Status) ItemStatus {
 	switch in {
