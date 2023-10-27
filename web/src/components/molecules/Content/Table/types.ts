@@ -8,6 +8,8 @@ import {
   MultipleOperator,
 } from "@reearth-cms/gql/graphql-client-api";
 
+import { FieldType } from "../../Schema/types";
+
 export type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
 export type DefaultFilterValueType = {
@@ -15,10 +17,13 @@ export type DefaultFilterValueType = {
   operator: Operator;
   value: string;
 };
+
+export type FilterType = FieldType | "Person";
+
 export type DropdownFilterType = {
   dataIndex: string | string[];
   title: string;
-  type: string;
+  type: FilterType;
   typeProperty: { values?: string[] };
   members: { user: { name: string } }[];
   id: string;
