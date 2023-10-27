@@ -21,5 +21,9 @@ func (l List) Clone() List {
 }
 
 func (l List) SchemaIDs() id.SchemaIDList {
-	return util.Map(l, func(g *Group) id.SchemaID { return g.Schema() })
+	var schemaIds id.SchemaIDList
+	for _, group := range l {
+		schemaIds = schemaIds.AddUniq(group.schema)
+	}
+	return schemaIds
 }
