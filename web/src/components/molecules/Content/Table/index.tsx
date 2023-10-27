@@ -26,7 +26,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { SortDirection, ItemSortType, ConditionInput } from "@reearth-cms/gql/graphql-client-api";
+import { SortDirection, ConditionInput, FieldSelector } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -49,7 +49,7 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { type?: ItemSortType; direction?: SortDirection };
+  sort?: { field?: FieldSelector; direction?: SortDirection };
   filter?: Omit<ConditionInput, "and" | "or">[];
   searchTerm: string;
   page: number;
@@ -63,7 +63,7 @@ export type Props = {
   onContentTableChange: (
     page: number,
     pageSize: number,
-    sorter?: { type?: ItemSortType; direction?: SortDirection },
+    sorter?: { field?: FieldSelector; direction?: SortDirection },
   ) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
@@ -167,7 +167,11 @@ const ContentTable: React.FC<Props> = ({
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
         defaultSortOrder:
-          sort?.type === "CREATION_DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+          sort?.field?.type === "CREATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         width: 148,
         minWidth: 148,
         type: "Date",
@@ -179,8 +183,8 @@ const ContentTable: React.FC<Props> = ({
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
         defaultSortOrder:
-          sort?.type === "MODIFICATION_DATE"
-            ? sort.direction === "ASC"
+          sort?.field?.type === "MODIFICATION_DATE"
+            ? sort?.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -189,7 +193,7 @@ const ContentTable: React.FC<Props> = ({
         type: "Date",
       },
     ],
-    [t, onItemSelect, sort?.direction, sort?.type, selectedItem?.id],
+    [t, sort?.field?.type, sort?.direction, selectedItem?.id, onItemSelect],
   );
 
   const rowSelection: TableRowSelection = {
@@ -512,7 +516,7 @@ const ContentTable: React.FC<Props> = ({
               pagination.pageSize ?? 10,
               sorter?.order
                 ? {
-                    type: sorter.columnKey,
+                    field: { type: sorter.columnKey },
                     direction: sorter.order === "ascend" ? SortDirection.Asc : SortDirection.Desc,
                   }
                 : undefined,

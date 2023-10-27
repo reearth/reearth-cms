@@ -592,26 +592,22 @@ export type ItemPayload = {
 };
 
 export type ItemQueryInput = {
+  model?: InputMaybe<Scalars['ID']>;
   project: Scalars['ID'];
   q?: InputMaybe<Scalars['String']>;
   schema?: InputMaybe<Scalars['ID']>;
-  model?: InputMaybe<Scalars['ID']>;
 };
 
 export type ItemSort = {
-  direction?: InputMaybe<SortDirection>;
-  sortBy: ItemSortType;
+  __typename?: 'ItemSort';
+  direction?: Maybe<SortDirection>;
+  field: FieldSelector;
 };
 
 export type ItemSortInput = {
   direction?: InputMaybe<SortDirection>;
   field: FieldSelectorInput;
 };
-
-export enum ItemSortType {
-  CreationDate = 'CREATION_DATE',
-  ModificationDate = 'MODIFICATION_DATE'
-}
 
 export enum ItemStatus {
   Draft = 'DRAFT',
@@ -1024,12 +1020,6 @@ export type MutationUpdateWorkspaceArgs = {
   input: UpdateWorkspaceInput;
 };
 
-export type NewItemSort = {
-  __typename?: 'NewItemSort';
-  direction?: Maybe<SortDirection>;
-  field: FieldSelector;
-};
-
 export type Node = {
   id: Scalars['ID'];
 };
@@ -1215,7 +1205,6 @@ export type Query = {
   checkProjectAlias: ProjectAliasAvailability;
   groups: Array<Maybe<Group>>;
   isItemReferenced: Scalars['Boolean'];
-  items: ItemConnection;
   me?: Maybe<Me>;
   models: ModelConnection;
   modelsByGroup: Array<Maybe<Model>>;
@@ -1271,13 +1260,6 @@ export type QueryIsItemReferencedArgs = {
 };
 
 
-export type QueryItemsArgs = {
-  modelId: Scalars['ID'];
-  pagination?: InputMaybe<Pagination>;
-  sort?: InputMaybe<ItemSort>;
-};
-
-
 export type QueryModelsArgs = {
   pagination?: InputMaybe<Pagination>;
   projectId: Scalars['ID'];
@@ -1319,9 +1301,7 @@ export type QueryRequestsArgs = {
 
 
 export type QuerySearchItemArgs = {
-  pagination?: InputMaybe<Pagination>;
-  query: ItemQuery;
-  sort?: InputMaybe<ItemSort>;
+  input: SearchItemInput;
 };
 
 
@@ -1668,6 +1648,13 @@ export type SchemaMarkdownTextInput = {
   maxLength?: InputMaybe<Scalars['Int']>;
 };
 
+export type SearchItemInput = {
+  filter?: InputMaybe<ConditionInput>;
+  pagination?: InputMaybe<Pagination>;
+  query: ItemQueryInput;
+  sort?: InputMaybe<ItemSortInput>;
+};
+
 export type Sort = {
   key: Scalars['String'];
   reverted?: InputMaybe<Scalars['Boolean']>;
@@ -1917,7 +1904,7 @@ export type View = Node & {
   modelId: Scalars['ID'];
   name: Scalars['String'];
   projectId: Scalars['ID'];
-  sort?: Maybe<NewItemSort>;
+  sort?: Maybe<ItemSort>;
 };
 
 export type ViewPayload = {
@@ -2251,12 +2238,12 @@ export type DeleteIntegrationMutationVariables = Exact<{
 export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration?: { __typename?: 'DeleteIntegrationPayload', integrationId: string } | null };
 
 export type GetItemsQueryVariables = Exact<{
-  modelId: Scalars['ID'];
+  query: ItemQueryInput;
   pagination?: InputMaybe<Pagination>;
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> }, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> }, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
 
 export type GetItemQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -4113,8 +4100,8 @@ export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteInt
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
 export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
 export const GetItemsDocument = gql`
-    query GetItems($modelId: ID!, $pagination: Pagination) {
-  items(modelId: $modelId, pagination: $pagination) {
+    query GetItems($query: ItemQueryInput!, $pagination: Pagination) {
+  searchItem(input: {query: $query, pagination: $pagination}) {
     nodes {
       id
       title
@@ -4166,7 +4153,7 @@ export const GetItemsDocument = gql`
  * @example
  * const { data, loading, error } = useGetItemsQuery({
  *   variables: {
- *      modelId: // value for 'modelId'
+ *      query: // value for 'query'
  *      pagination: // value for 'pagination'
  *   },
  * });
@@ -4340,61 +4327,41 @@ export type GetItemsByIdsLazyQueryHookResult = ReturnType<typeof useGetItemsById
 export type GetItemsByIdsQueryResult = Apollo.QueryResult<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>;
 export const SearchItemDocument = gql`
     query SearchItem($query: ItemQueryInput!, $sort: ItemSortInput, $filter: ConditionInput, $pagination: Pagination) {
-  searchItem(input:{query: $query, sort: $sort, filter: $filter, pagination: $pagination}) {
+  searchItem(
+    input: {query: $query, sort: $sort, filter: $filter, pagination: $pagination}
+  ) {
     nodes {
-					  id
-					  title
-					  schemaId
-					  createdAt
-					  updatedAt
-					  status
-					  version
-					  assets {
-						id
-						url
-					  }
-					  createdBy {
-						... on Integration {
-						  name
-						}
-						... on User {
-						  name
-						}
-					  }
-					  updatedBy {
-						... on Integration {
-						  name
-						}
-						... on User {
-						  name
-						}
-					  }
-					  fields {
-						schemaFieldId
-						type
-						value
-					  }
-					  metadata {
-						id
-						fields {
-						  schemaFieldId
-						  type
-						  value
-						}
-					  }
-					  thread {
-						...threadFragment
-					  }
-					}
-					totalCount
-					pageInfo {
-					  hasNextPage
-					  hasPreviousPage
-					  startCursor
-					  endCursor	
-					}
-				  }
-				}
+      id
+      title
+      schemaId
+      createdAt
+      updatedAt
+      status
+      assets {
+        id
+        url
+      }
+      createdBy {
+        ... on Integration {
+          name
+        }
+        ... on User {
+          name
+        }
+      }
+      fields {
+        schemaFieldId
+        itemGroupId
+        type
+        value
+      }
+      thread {
+        ...threadFragment
+      }
+    }
+    totalCount
+  }
+}
     ${ThreadFragmentFragmentDoc}`;
 
 /**
@@ -4411,6 +4378,7 @@ export const SearchItemDocument = gql`
  *   variables: {
  *      query: // value for 'query'
  *      sort: // value for 'sort'
+ *      filter: // value for 'filter'
  *      pagination: // value for 'pagination'
  *   },
  * });

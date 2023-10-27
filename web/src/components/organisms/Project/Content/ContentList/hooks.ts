@@ -15,7 +15,7 @@ import {
   useDeleteItemMutation,
   Comment as GQLComment,
   SortDirection,
-  ItemSortType,
+  FieldSelector,
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
@@ -57,8 +57,8 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<{ type: ItemSortType; direction: SortDirection } | undefined>({
-    type: sortType ? (sortType as ItemSortType) : ItemSortType.ModificationDate,
+  const [sort, setSort] = useState<{ field: FieldSelector; direction: SortDirection } | undefined>({
+    field: sortType ? { type: sortType as FieldType } : { type: FieldType.ModificationDate },
     direction: direction ? (direction as SortDirection) : SortDirection.Desc,
   });
   const [filter, setFilter] = useState<ConditionInput[]>();
@@ -67,7 +67,7 @@ export default () => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
     setSort({
-      type: sortType ? (sortType as ItemSortType) : ItemSortType.ModificationDate,
+      field: sortType ? { type: sortType as FieldType } : { type: FieldType.ModificationDate },
       direction: direction ? (direction as SortDirection) : SortDirection.Desc,
     });
     const newFilter = [];
@@ -317,11 +317,11 @@ export default () => {
     (
       page: number,
       pageSize: number,
-      sorter?: { type?: ItemSortType; direction?: SortDirection },
+      sorter?: { field?: FieldSelector; direction?: SortDirection },
     ) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
-      searchParams.set("sortType", sorter?.type ? sorter.type : "");
+      searchParams.set("sortType", sorter?.field?.type ?? "");
       searchParams.set("direction", sorter?.direction ? sorter.direction : "");
       setSearchParams(searchParams);
     },
