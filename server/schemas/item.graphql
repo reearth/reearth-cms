@@ -81,6 +81,20 @@ input PublishItemInput {
   itemIds: [ID!]!
 }
 
+input ItemQueryInput {
+  project: ID!
+  schema: ID
+  model: ID
+  q: String
+}
+
+input SearchItemInput {
+  query: ItemQueryInput!
+  sort: ItemSortInput
+  filter: ConditionInput
+  pagination: Pagination
+}
+
 # Payloads
 type ItemPayload {
   item: Item!
@@ -110,30 +124,9 @@ type ItemEdge {
   node: Item
 }
 
-enum ItemSortType {
-  CREATION_DATE
-  MODIFICATION_DATE
-}
-
-input ItemSort {
-  sortBy: ItemSortType!
-  direction: SortDirection
-}
-
-input ItemQuery {
-  project: ID!
-  schema: ID
-  q: String
-}
-
 extend type Query {
-  items(modelId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
-  searchItem(
-    query: ItemQuery!
-    sort: ItemSort
-    pagination: Pagination
-  ): ItemConnection!
+  searchItem(input: SearchItemInput!): ItemConnection!
   isItemReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean!
 }
 
@@ -144,5 +137,3 @@ extend type Mutation {
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
 }
-
-
