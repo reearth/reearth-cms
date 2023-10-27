@@ -9,14 +9,17 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext, f *[]VersionedItem) VersionedItem {
+func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext, f *[]VersionedItem, ms *schema.Schema, mi item.Versioned) VersionedItem {
 	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
 		return types.UUID(v)
 	})
 	rs := lo.Map(ver.Refs().Values(), func(r version.Ref, _ int) string {
 		return string(r)
 	})
-
+	var metaFields *[]Field
+	if mi != nil && ms != nil {
+		metaFields = NewItem(mi.Value(), ms, nil).Fields
+	}
 	ii := NewItem(ver.Value(), s, assets)
 	return VersionedItem{
 		Id:              ii.Id,
@@ -25,6 +28,7 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 		Fields:          ii.Fields,
 		ModelId:         ii.ModelId,
 		Parents:         &ps,
+		MetadataFields:  metaFields,
 		Refs:            &rs,
 		Version:         lo.ToPtr(types.UUID(ver.Version())),
 		ReferencedItems: f,
