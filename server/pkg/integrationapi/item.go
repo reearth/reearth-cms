@@ -49,11 +49,11 @@ func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
 			}
 
 			return Field{
-				Id:        f.FieldID().Ref(),
-				Type:      lo.ToPtr(ToValueType(f.Type())),
-				Value:     lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
-				Key:       util.ToPtrIfNotEmpty(sf.Key().String()),
-				ItemGroup: f.ItemGroup(),
+				Id:    f.FieldID().Ref(),
+				Type:  lo.ToPtr(ToValueType(f.Type())),
+				Value: lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
+				Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
+				Group: f.ItemGroup(),
 			}, true
 		})
 		fs = append(fs, t...)

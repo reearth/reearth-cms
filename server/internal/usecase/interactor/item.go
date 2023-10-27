@@ -751,12 +751,12 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 		}
 
 		groupItemParams := lo.Filter(params, func(param interfaces.ItemFieldParam, _ int) bool {
-			if param.ItemGroup == nil {
+			if param.Group == nil {
 				return false
 			}
 
 			_, ok := lo.Find(mvg, func(item value.Group) bool {
-				return item == *param.ItemGroup
+				return item == *param.Group
 			})
 			return ok
 		})
@@ -804,7 +804,7 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
 		}
 
-		return item.NewField(sf.ID(), m, f.ItemGroup), nil
+		return item.NewField(sf.ID(), m, f.Group), nil
 	})
 }
 

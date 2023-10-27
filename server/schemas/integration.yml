@@ -967,7 +967,7 @@ components:
         value: {}
         key:
           type: string
-        itemGroup:
+        group:
           x-go-type: id.ItemGroupID
           type: string
     refOrVersion:
