@@ -288,8 +288,8 @@ Multiple select: 複数選択
 Int: 整数値
 Integer: 整数値
 http/https URL: URL
-Reference: 参考文献
-Reference field: 参照フィールド
+Reference: 参照
+Reference other models and items: 他のモデルやアイテムを参照
 Date: 日付
 Date picker: 日付ピッカー
 Select from a list of tags: タグのリストから選択する
