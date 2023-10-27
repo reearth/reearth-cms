@@ -20,10 +20,10 @@ const FieldValidationInputs: React.FC<Props> = ({ selectedType }) => {
     ) : selectedType === "Integer" ? (
       <>
         <Form.Item name="min" label={t("Set minimum value")}>
-          <InputNumber type="number" min={0} />
+          <InputNumber type="number" />
         </Form.Item>
         <Form.Item name="max" label={t("Set maximum value")}>
-          <InputNumber type="number" min={0} />
+          <InputNumber type="number" />
         </Form.Item>
       </>
     ) : null
