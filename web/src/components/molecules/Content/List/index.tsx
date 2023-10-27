@@ -17,10 +17,9 @@ import type {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
-import ViewsMenu from "./viewsMenu";
-
 export type Props = {
   commentsPanel?: JSX.Element;
+  viewsMenu: JSX.Element;
   collapsed?: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];
@@ -65,6 +64,7 @@ export type Props = {
 
 const ContentListMolecule: React.FC<Props> = ({
   commentsPanel,
+  viewsMenu,
   collapsed,
   model,
   contentTableFields,
@@ -116,7 +116,7 @@ const ContentListMolecule: React.FC<Props> = ({
       }
       center={
         <Content>
-          <PageHeader
+          <StyledPageHeder
             title={model?.name}
             subTitle={model?.key ? `#${model.key}` : null}
             extra={
@@ -129,7 +129,7 @@ const ContentListMolecule: React.FC<Props> = ({
               </Button>
             }
           />
-          <ViewsMenu />
+          {viewsMenu}
           <ContentTable
             totalCount={totalCount}
             sort={sort}
@@ -171,6 +171,10 @@ const ContentListMolecule: React.FC<Props> = ({
 const Content = styled.div`
   width: 100%;
   background-color: #fff;
+`;
+
+const StyledPageHeder = styled(PageHeader)`
+  padding: 16px 24px 0px 24px !important;
 `;
 
 export default ContentListMolecule;

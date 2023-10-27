@@ -2538,6 +2538,43 @@ export type DeleteMeMutationVariables = Exact<{
 
 export type DeleteMeMutation = { __typename?: 'Mutation', deleteMe?: { __typename?: 'DeleteMePayload', userId: string } | null };
 
+export type GetViewsQueryVariables = Exact<{
+  modelId: Scalars['ID'];
+}>;
+
+
+export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
+
+export type CreateViewMutationVariables = Exact<{
+  projectId: Scalars['ID'];
+  modelId: Scalars['ID'];
+  name: Scalars['String'];
+  sort?: InputMaybe<ItemSortInput>;
+  filter?: InputMaybe<ConditionInput>;
+  columns?: InputMaybe<Array<FieldSelectorInput> | FieldSelectorInput>;
+}>;
+
+
+export type CreateViewMutation = { __typename?: 'Mutation', createView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
+
+export type UpdateViewMutationVariables = Exact<{
+  viewId: Scalars['ID'];
+  name: Scalars['String'];
+  sort?: InputMaybe<ItemSortInput>;
+  filter?: InputMaybe<ConditionInput>;
+  columns?: InputMaybe<Array<FieldSelectorInput> | FieldSelectorInput>;
+}>;
+
+
+export type UpdateViewMutation = { __typename?: 'Mutation', updateView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
+
+export type DeleteViewMutationVariables = Exact<{
+  viewId: Scalars['ID'];
+}>;
+
+
+export type DeleteViewMutation = { __typename?: 'Mutation', deleteView?: { __typename?: 'DeleteViewPayload', viewId: string } | null };
+
 export type CreateWebhookMutationVariables = Exact<{
   integrationId: Scalars['ID'];
   name: Scalars['String'];
@@ -5868,6 +5905,233 @@ export function useDeleteMeMutation(baseOptions?: Apollo.MutationHookOptions<Del
 export type DeleteMeMutationHookResult = ReturnType<typeof useDeleteMeMutation>;
 export type DeleteMeMutationResult = Apollo.MutationResult<DeleteMeMutation>;
 export type DeleteMeMutationOptions = Apollo.BaseMutationOptions<DeleteMeMutation, DeleteMeMutationVariables>;
+export const GetViewsDocument = gql`
+    query GetViews($modelId: ID!) {
+  view(modelId: $modelId) {
+    id
+    name
+    modelId
+    projectId
+    sort {
+      field {
+        type
+        id
+      }
+      direction
+    }
+    columns {
+      type
+      id
+    }
+    filter {
+      ... on BoolFieldCondition {
+        fieldId {
+          type
+          id
+        }
+        operator
+        value
+      }
+    }
+    __typename
+  }
+  __typename
+}
+    `;
+
+/**
+ * __useGetViewsQuery__
+ *
+ * To run a query within a React component, call `useGetViewsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetViewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetViewsQuery({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *   },
+ * });
+ */
+export function useGetViewsQuery(baseOptions: Apollo.QueryHookOptions<GetViewsQuery, GetViewsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetViewsQuery, GetViewsQueryVariables>(GetViewsDocument, options);
+      }
+export function useGetViewsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetViewsQuery, GetViewsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetViewsQuery, GetViewsQueryVariables>(GetViewsDocument, options);
+        }
+export type GetViewsQueryHookResult = ReturnType<typeof useGetViewsQuery>;
+export type GetViewsLazyQueryHookResult = ReturnType<typeof useGetViewsLazyQuery>;
+export type GetViewsQueryResult = Apollo.QueryResult<GetViewsQuery, GetViewsQueryVariables>;
+export const CreateViewDocument = gql`
+    mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+  createView(
+    input: {projectId: $projectId, modelId: $modelId, name: $name, sort: $sort, filter: $filter, columns: $columns}
+  ) {
+    view {
+      id
+      name
+      modelId
+      projectId
+      sort {
+        field {
+          type
+          id
+        }
+        direction
+      }
+      columns {
+        type
+        id
+      }
+      filter {
+        ... on BoolFieldCondition {
+          fieldId {
+            type
+            id
+          }
+          operator
+          value
+        }
+      }
+      __typename
+    }
+  }
+}
+    `;
+export type CreateViewMutationFn = Apollo.MutationFunction<CreateViewMutation, CreateViewMutationVariables>;
+
+/**
+ * __useCreateViewMutation__
+ *
+ * To run a mutation, you first call `useCreateViewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateViewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createViewMutation, { data, loading, error }] = useCreateViewMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      modelId: // value for 'modelId'
+ *      name: // value for 'name'
+ *      sort: // value for 'sort'
+ *      filter: // value for 'filter'
+ *      columns: // value for 'columns'
+ *   },
+ * });
+ */
+export function useCreateViewMutation(baseOptions?: Apollo.MutationHookOptions<CreateViewMutation, CreateViewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateViewMutation, CreateViewMutationVariables>(CreateViewDocument, options);
+      }
+export type CreateViewMutationHookResult = ReturnType<typeof useCreateViewMutation>;
+export type CreateViewMutationResult = Apollo.MutationResult<CreateViewMutation>;
+export type CreateViewMutationOptions = Apollo.BaseMutationOptions<CreateViewMutation, CreateViewMutationVariables>;
+export const UpdateViewDocument = gql`
+    mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+  updateView(
+    input: {viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns}
+  ) {
+    view {
+      id
+      name
+      modelId
+      projectId
+      sort {
+        field {
+          type
+          id
+        }
+        direction
+      }
+      columns {
+        type
+        id
+      }
+      filter {
+        ... on BoolFieldCondition {
+          fieldId {
+            type
+            id
+          }
+          operator
+          value
+        }
+      }
+      __typename
+    }
+  }
+}
+    `;
+export type UpdateViewMutationFn = Apollo.MutationFunction<UpdateViewMutation, UpdateViewMutationVariables>;
+
+/**
+ * __useUpdateViewMutation__
+ *
+ * To run a mutation, you first call `useUpdateViewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateViewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateViewMutation, { data, loading, error }] = useUpdateViewMutation({
+ *   variables: {
+ *      viewId: // value for 'viewId'
+ *      name: // value for 'name'
+ *      sort: // value for 'sort'
+ *      filter: // value for 'filter'
+ *      columns: // value for 'columns'
+ *   },
+ * });
+ */
+export function useUpdateViewMutation(baseOptions?: Apollo.MutationHookOptions<UpdateViewMutation, UpdateViewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateViewMutation, UpdateViewMutationVariables>(UpdateViewDocument, options);
+      }
+export type UpdateViewMutationHookResult = ReturnType<typeof useUpdateViewMutation>;
+export type UpdateViewMutationResult = Apollo.MutationResult<UpdateViewMutation>;
+export type UpdateViewMutationOptions = Apollo.BaseMutationOptions<UpdateViewMutation, UpdateViewMutationVariables>;
+export const DeleteViewDocument = gql`
+    mutation DeleteView($viewId: ID!) {
+  deleteView(input: {viewId: $viewId}) {
+    viewId
+  }
+}
+    `;
+export type DeleteViewMutationFn = Apollo.MutationFunction<DeleteViewMutation, DeleteViewMutationVariables>;
+
+/**
+ * __useDeleteViewMutation__
+ *
+ * To run a mutation, you first call `useDeleteViewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteViewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteViewMutation, { data, loading, error }] = useDeleteViewMutation({
+ *   variables: {
+ *      viewId: // value for 'viewId'
+ *   },
+ * });
+ */
+export function useDeleteViewMutation(baseOptions?: Apollo.MutationHookOptions<DeleteViewMutation, DeleteViewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteViewMutation, DeleteViewMutationVariables>(DeleteViewDocument, options);
+      }
+export type DeleteViewMutationHookResult = ReturnType<typeof useDeleteViewMutation>;
+export type DeleteViewMutationResult = Apollo.MutationResult<DeleteViewMutation>;
+export type DeleteViewMutationOptions = Apollo.BaseMutationOptions<DeleteViewMutation, DeleteViewMutationVariables>;
 export const CreateWebhookDocument = gql`
     mutation CreateWebhook($integrationId: ID!, $name: String!, $url: URL!, $active: Boolean!, $trigger: WebhookTriggerInput!, $secret: String!) {
   createWebhook(
