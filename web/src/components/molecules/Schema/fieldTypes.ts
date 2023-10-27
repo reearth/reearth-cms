@@ -54,7 +54,7 @@ export const fieldTypes: {
   Reference: {
     icon: "arrowUpRight",
     title: i18next.t("Reference"),
-    description: i18next.t("Reference field"),
+    description: i18next.t("Referencing other models and items"),
     color: "#597EF7",
   },
   Date: {
