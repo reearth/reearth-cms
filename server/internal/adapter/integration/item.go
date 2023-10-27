@@ -419,10 +419,10 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 
 	var mi item.Versioned
 	var ms *schema.Schema
-	if miList != nil && len(miList) > 0 {
+	if len(miList) > 0 {
 		mi = miList[0]
 	}
-	if msList != nil && len(msList) > 0 {
+	if len(msList) > 0 {
 		ms = msList[0]
 	}
 
