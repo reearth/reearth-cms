@@ -671,6 +671,8 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueGroup
                     parentField={field}
+                    form={form}
+                    groups={groups}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
                     assetList={assetList}
