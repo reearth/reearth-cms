@@ -1,5 +1,6 @@
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -62,6 +63,14 @@ const ContentList: React.FC = () => {
           threadId={selectedItem?.threadId}
         />
       }
+      modelsMenu={
+        <ModelsMenu
+          title={t("Content")}
+          collapsed={collapsedModelMenu}
+          onModelSelect={handleModelSelect}
+        />
+      }
+      viewsMenu={<ViewsMenu />}
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
       selectedItem={selectedItem}
@@ -84,14 +93,6 @@ const ContentList: React.FC = () => {
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      modelsMenu={
-        <ModelsMenu
-          title={t("Content")}
-          collapsed={collapsedModelMenu}
-          onModelSelect={handleModelSelect}
-          displayGroups={false}
-        />
-      }
       setSelection={setSelection}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}
