@@ -1,5 +1,6 @@
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import { gql } from "@apollo/client";
+import * as Apollo from "@apollo/client";
+
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -23,28 +24,28 @@ export type Scalars = {
 };
 
 export type AddCommentInput = {
-  content: Scalars['String'];
-  threadId: Scalars['ID'];
+  content: Scalars["String"];
+  threadId: Scalars["ID"];
 };
 
 export type AddIntegrationToWorkspaceInput = {
-  integrationId: Scalars['ID'];
+  integrationId: Scalars["ID"];
   role: Role;
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type AddUsersToWorkspaceInput = {
   users: Array<MemberInput>;
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type AddUsersToWorkspacePayload = {
-  __typename?: 'AddUsersToWorkspacePayload';
+  __typename?: "AddUsersToWorkspacePayload";
   workspace: Workspace;
 };
 
 export type AndCondition = {
-  __typename?: 'AndCondition';
+  __typename?: "AndCondition";
   conditions: Array<Condition>;
 };
 
@@ -53,64 +54,64 @@ export type AndConditionInput = {
 };
 
 export type ApproveRequestInput = {
-  requestId: Scalars['ID'];
+  requestId: Scalars["ID"];
 };
 
 export enum ArchiveExtractionStatus {
-  Done = 'DONE',
-  Failed = 'FAILED',
-  InProgress = 'IN_PROGRESS',
-  Pending = 'PENDING',
-  Skipped = 'SKIPPED'
+  Done = "DONE",
+  Failed = "FAILED",
+  InProgress = "IN_PROGRESS",
+  Pending = "PENDING",
+  Skipped = "SKIPPED",
 }
 
 export type Asset = Node & {
-  __typename?: 'Asset';
+  __typename?: "Asset";
   archiveExtractionStatus?: Maybe<ArchiveExtractionStatus>;
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars["DateTime"];
   createdBy: Operator;
-  createdById: Scalars['ID'];
+  createdById: Scalars["ID"];
   createdByType: OperatorType;
-  fileName: Scalars['String'];
-  id: Scalars['ID'];
+  fileName: Scalars["String"];
+  id: Scalars["ID"];
   items?: Maybe<Array<AssetItem>>;
   previewType?: Maybe<PreviewType>;
   project: Project;
-  projectId: Scalars['ID'];
-  size: Scalars['FileSize'];
+  projectId: Scalars["ID"];
+  size: Scalars["FileSize"];
   thread?: Maybe<Thread>;
-  threadId: Scalars['ID'];
-  url: Scalars['String'];
-  uuid: Scalars['String'];
+  threadId: Scalars["ID"];
+  url: Scalars["String"];
+  uuid: Scalars["String"];
 };
 
 export type AssetConnection = {
-  __typename?: 'AssetConnection';
+  __typename?: "AssetConnection";
   edges: Array<AssetEdge>;
   nodes: Array<Maybe<Asset>>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars["Int"];
 };
 
 export type AssetEdge = {
-  __typename?: 'AssetEdge';
-  cursor: Scalars['Cursor'];
+  __typename?: "AssetEdge";
+  cursor: Scalars["Cursor"];
   node?: Maybe<Asset>;
 };
 
 export type AssetFile = {
-  __typename?: 'AssetFile';
+  __typename?: "AssetFile";
   children?: Maybe<Array<AssetFile>>;
-  contentType?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  path: Scalars['String'];
-  size: Scalars['FileSize'];
+  contentType?: Maybe<Scalars["String"]>;
+  name: Scalars["String"];
+  path: Scalars["String"];
+  size: Scalars["FileSize"];
 };
 
 export type AssetItem = {
-  __typename?: 'AssetItem';
-  itemId: Scalars['ID'];
-  modelId: Scalars['ID'];
+  __typename?: "AssetItem";
+  itemId: Scalars["ID"];
+  modelId: Scalars["ID"];
 };
 
 export type AssetSort = {
@@ -119,66 +120,75 @@ export type AssetSort = {
 };
 
 export enum AssetSortType {
-  Date = 'DATE',
-  Name = 'NAME',
-  Size = 'SIZE'
+  Date = "DATE",
+  Name = "NAME",
+  Size = "SIZE",
 }
 
 export type BasicFieldCondition = {
-  __typename?: 'BasicFieldCondition';
+  __typename?: "BasicFieldCondition";
   fieldId: FieldSelector;
   operator: BasicOperator;
-  value: Scalars['Any'];
+  value: Scalars["Any"];
 };
 
 export type BasicFieldConditionInput = {
   fieldId: FieldSelectorInput;
   operator: BasicOperator;
-  value: Scalars['Any'];
+  value: Scalars["Any"];
 };
 
 export enum BasicOperator {
-  Equals = 'EQUALS',
-  NotEquals = 'NOT_EQUALS'
+  Equals = "EQUALS",
+  NotEquals = "NOT_EQUALS",
 }
 
 export type BoolFieldCondition = {
-  __typename?: 'BoolFieldCondition';
+  __typename?: "BoolFieldCondition";
   fieldId: FieldSelector;
   operator: BoolOperator;
-  value: Scalars['Boolean'];
+  value: Scalars["Boolean"];
 };
 
 export type BoolFieldConditionInput = {
   fieldId: FieldSelectorInput;
   operator: BoolOperator;
-  value: Scalars['Boolean'];
+  value: Scalars["Boolean"];
 };
 
 export enum BoolOperator {
-  Equals = 'EQUALS',
-  NotEquals = 'NOT_EQUALS'
+  Equals = "EQUALS",
+  NotEquals = "NOT_EQUALS",
 }
 
 export type Comment = {
-  __typename?: 'Comment';
+  __typename?: "Comment";
   author?: Maybe<Operator>;
-  authorId: Scalars['ID'];
+  authorId: Scalars["ID"];
   authorType: OperatorType;
-  content: Scalars['String'];
-  createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
-  threadId: Scalars['ID'];
-  workspaceId: Scalars['ID'];
+  content: Scalars["String"];
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  threadId: Scalars["ID"];
+  workspaceId: Scalars["ID"];
 };
 
 export type CommentPayload = {
-  __typename?: 'CommentPayload';
+  __typename?: "CommentPayload";
   comment: Comment;
   thread: Thread;
 };
 
-export type Condition = AndCondition | BasicFieldCondition | BoolFieldCondition | MultipleFieldCondition | NullableFieldCondition | NumberFieldCondition | OrCondition | StringFieldCondition | TimeFieldCondition;
+export type Condition =
+  | AndCondition
+  | BasicFieldCondition
+  | BoolFieldCondition
+  | MultipleFieldCondition
+  | NullableFieldCondition
+  | NumberFieldCondition
+  | OrCondition
+  | StringFieldCondition
+  | TimeFieldCondition;
 
 export type ConditionInput = {
   and?: InputMaybe<AndConditionInput>;
@@ -193,413 +203,415 @@ export type ConditionInput = {
 };
 
 export type CorrespondingFieldInput = {
-  description?: InputMaybe<Scalars['String']>;
-  fieldId?: InputMaybe<Scalars['ID']>;
-  key?: InputMaybe<Scalars['String']>;
-  required?: InputMaybe<Scalars['Boolean']>;
-  title?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars["String"]>;
+  fieldId?: InputMaybe<Scalars["ID"]>;
+  key?: InputMaybe<Scalars["String"]>;
+  required?: InputMaybe<Scalars["Boolean"]>;
+  title?: InputMaybe<Scalars["String"]>;
 };
 
 export type CreateAssetInput = {
-  file?: InputMaybe<Scalars['Upload']>;
-  projectId: Scalars['ID'];
-  skipDecompression?: InputMaybe<Scalars['Boolean']>;
-  token?: InputMaybe<Scalars['String']>;
-  url?: InputMaybe<Scalars['String']>;
+  file?: InputMaybe<Scalars["Upload"]>;
+  projectId: Scalars["ID"];
+  skipDecompression?: InputMaybe<Scalars["Boolean"]>;
+  token?: InputMaybe<Scalars["String"]>;
+  url?: InputMaybe<Scalars["String"]>;
 };
 
 export type CreateAssetPayload = {
-  __typename?: 'CreateAssetPayload';
+  __typename?: "CreateAssetPayload";
   asset: Asset;
 };
 
 export type CreateAssetUploadInput = {
-  filename: Scalars['String'];
-  projectId: Scalars['ID'];
+  filename: Scalars["String"];
+  projectId: Scalars["ID"];
 };
 
 export type CreateAssetUploadPayload = {
-  __typename?: 'CreateAssetUploadPayload';
-  contentType: Scalars['String'];
-  token: Scalars['String'];
-  url: Scalars['String'];
+  __typename?: "CreateAssetUploadPayload";
+  contentType: Scalars["String"];
+  token: Scalars["String"];
+  url: Scalars["String"];
 };
 
 export type CreateFieldInput = {
-  description?: InputMaybe<Scalars['String']>;
-  groupId?: InputMaybe<Scalars['ID']>;
-  isTitle: Scalars['Boolean'];
-  key: Scalars['String'];
-  metadata?: InputMaybe<Scalars['Boolean']>;
-  modelId?: InputMaybe<Scalars['ID']>;
-  multiple: Scalars['Boolean'];
-  required: Scalars['Boolean'];
-  title: Scalars['String'];
+  description?: InputMaybe<Scalars["String"]>;
+  groupId?: InputMaybe<Scalars["ID"]>;
+  isTitle: Scalars["Boolean"];
+  key: Scalars["String"];
+  metadata?: InputMaybe<Scalars["Boolean"]>;
+  modelId?: InputMaybe<Scalars["ID"]>;
+  multiple: Scalars["Boolean"];
+  required: Scalars["Boolean"];
+  title: Scalars["String"];
   type: SchemaFieldType;
   typeProperty: SchemaFieldTypePropertyInput;
-  unique: Scalars['Boolean'];
+  unique: Scalars["Boolean"];
 };
 
 export type CreateGroupInput = {
-  description?: InputMaybe<Scalars['String']>;
-  key: Scalars['String'];
-  name: Scalars['String'];
-  projectId: Scalars['ID'];
+  description?: InputMaybe<Scalars["String"]>;
+  key: Scalars["String"];
+  name: Scalars["String"];
+  projectId: Scalars["ID"];
 };
 
 export type CreateIntegrationInput = {
-  description?: InputMaybe<Scalars['String']>;
-  logoUrl: Scalars['URL'];
-  name: Scalars['String'];
+  description?: InputMaybe<Scalars["String"]>;
+  logoUrl: Scalars["URL"];
+  name: Scalars["String"];
   type: IntegrationType;
 };
 
 export type CreateItemInput = {
   fields: Array<ItemFieldInput>;
-  metadataId?: InputMaybe<Scalars['ID']>;
-  modelId: Scalars['ID'];
-  schemaId: Scalars['ID'];
+  metadataId?: InputMaybe<Scalars["ID"]>;
+  modelId: Scalars["ID"];
+  schemaId: Scalars["ID"];
 };
 
 export type CreateModelInput = {
-  description?: InputMaybe<Scalars['String']>;
-  key?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  projectId: Scalars['ID'];
+  description?: InputMaybe<Scalars["String"]>;
+  key?: InputMaybe<Scalars["String"]>;
+  name?: InputMaybe<Scalars["String"]>;
+  projectId: Scalars["ID"];
 };
 
 export type CreateProjectInput = {
-  alias?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
+  alias?: InputMaybe<Scalars["String"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  name?: InputMaybe<Scalars["String"]>;
   requestRoles?: InputMaybe<Array<Role>>;
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type CreateRequestInput = {
-  description?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars["String"]>;
   items: Array<RequestItemInput>;
-  projectId: Scalars['ID'];
-  reviewersId?: InputMaybe<Array<Scalars['ID']>>;
+  projectId: Scalars["ID"];
+  reviewersId?: InputMaybe<Array<Scalars["ID"]>>;
   state?: InputMaybe<RequestState>;
-  title: Scalars['String'];
+  title: Scalars["String"];
 };
 
 export type CreateThreadInput = {
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type CreateViewInput = {
   columns?: InputMaybe<Array<FieldSelectorInput>>;
   filter?: InputMaybe<ConditionInput>;
-  modelId: Scalars['ID'];
-  name: Scalars['String'];
-  projectId: Scalars['ID'];
+  modelId: Scalars["ID"];
+  name: Scalars["String"];
+  projectId: Scalars["ID"];
   sort?: InputMaybe<ItemSortInput>;
 };
 
 export type CreateWebhookInput = {
-  active: Scalars['Boolean'];
-  integrationId: Scalars['ID'];
-  name: Scalars['String'];
-  secret: Scalars['String'];
+  active: Scalars["Boolean"];
+  integrationId: Scalars["ID"];
+  name: Scalars["String"];
+  secret: Scalars["String"];
   trigger: WebhookTriggerInput;
-  url: Scalars['URL'];
+  url: Scalars["URL"];
 };
 
 export type CreateWorkspaceInput = {
-  name: Scalars['String'];
+  name: Scalars["String"];
 };
 
 export type CreateWorkspacePayload = {
-  __typename?: 'CreateWorkspacePayload';
+  __typename?: "CreateWorkspacePayload";
   workspace: Workspace;
 };
 
 export type DecompressAssetInput = {
-  assetId: Scalars['ID'];
+  assetId: Scalars["ID"];
 };
 
 export type DecompressAssetPayload = {
-  __typename?: 'DecompressAssetPayload';
+  __typename?: "DecompressAssetPayload";
   asset: Asset;
 };
 
 export type DeleteAssetInput = {
-  assetId: Scalars['ID'];
+  assetId: Scalars["ID"];
 };
 
 export type DeleteAssetPayload = {
-  __typename?: 'DeleteAssetPayload';
-  assetId: Scalars['ID'];
+  __typename?: "DeleteAssetPayload";
+  assetId: Scalars["ID"];
 };
 
 export type DeleteCommentInput = {
-  commentId: Scalars['ID'];
-  threadId: Scalars['ID'];
+  commentId: Scalars["ID"];
+  threadId: Scalars["ID"];
 };
 
 export type DeleteCommentPayload = {
-  __typename?: 'DeleteCommentPayload';
-  commentId: Scalars['ID'];
+  __typename?: "DeleteCommentPayload";
+  commentId: Scalars["ID"];
   thread: Thread;
 };
 
 export type DeleteFieldInput = {
-  fieldId: Scalars['ID'];
-  groupId?: InputMaybe<Scalars['ID']>;
-  metadata?: InputMaybe<Scalars['Boolean']>;
-  modelId?: InputMaybe<Scalars['ID']>;
+  fieldId: Scalars["ID"];
+  groupId?: InputMaybe<Scalars["ID"]>;
+  metadata?: InputMaybe<Scalars["Boolean"]>;
+  modelId?: InputMaybe<Scalars["ID"]>;
 };
 
 export type DeleteFieldPayload = {
-  __typename?: 'DeleteFieldPayload';
-  fieldId: Scalars['ID'];
+  __typename?: "DeleteFieldPayload";
+  fieldId: Scalars["ID"];
 };
 
 export type DeleteGroupInput = {
-  groupId: Scalars['ID'];
+  groupId: Scalars["ID"];
 };
 
 export type DeleteGroupPayload = {
-  __typename?: 'DeleteGroupPayload';
-  groupId: Scalars['ID'];
+  __typename?: "DeleteGroupPayload";
+  groupId: Scalars["ID"];
 };
 
 export type DeleteIntegrationInput = {
-  integrationId: Scalars['ID'];
+  integrationId: Scalars["ID"];
 };
 
 export type DeleteIntegrationPayload = {
-  __typename?: 'DeleteIntegrationPayload';
-  integrationId: Scalars['ID'];
+  __typename?: "DeleteIntegrationPayload";
+  integrationId: Scalars["ID"];
 };
 
 export type DeleteItemInput = {
-  itemId: Scalars['ID'];
+  itemId: Scalars["ID"];
 };
 
 export type DeleteItemPayload = {
-  __typename?: 'DeleteItemPayload';
-  itemId: Scalars['ID'];
+  __typename?: "DeleteItemPayload";
+  itemId: Scalars["ID"];
 };
 
 export type DeleteMeInput = {
-  userId: Scalars['ID'];
+  userId: Scalars["ID"];
 };
 
 export type DeleteMePayload = {
-  __typename?: 'DeleteMePayload';
-  userId: Scalars['ID'];
+  __typename?: "DeleteMePayload";
+  userId: Scalars["ID"];
 };
 
 export type DeleteModelInput = {
-  modelId: Scalars['ID'];
+  modelId: Scalars["ID"];
 };
 
 export type DeleteModelPayload = {
-  __typename?: 'DeleteModelPayload';
-  modelId: Scalars['ID'];
+  __typename?: "DeleteModelPayload";
+  modelId: Scalars["ID"];
 };
 
 export type DeleteProjectInput = {
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
 };
 
 export type DeleteProjectPayload = {
-  __typename?: 'DeleteProjectPayload';
-  projectId: Scalars['ID'];
+  __typename?: "DeleteProjectPayload";
+  projectId: Scalars["ID"];
 };
 
 export type DeleteRequestInput = {
-  projectId: Scalars['ID'];
-  requestsId: Array<Scalars['ID']>;
+  projectId: Scalars["ID"];
+  requestsId: Array<Scalars["ID"]>;
 };
 
 export type DeleteRequestPayload = {
-  __typename?: 'DeleteRequestPayload';
-  requests: Array<Scalars['ID']>;
+  __typename?: "DeleteRequestPayload";
+  requests: Array<Scalars["ID"]>;
 };
 
 export type DeleteViewInput = {
-  viewId: Scalars['ID'];
+  viewId: Scalars["ID"];
 };
 
 export type DeleteViewPayload = {
-  __typename?: 'DeleteViewPayload';
-  viewId: Scalars['ID'];
+  __typename?: "DeleteViewPayload";
+  viewId: Scalars["ID"];
 };
 
 export type DeleteWebhookInput = {
-  integrationId: Scalars['ID'];
-  webhookId: Scalars['ID'];
+  integrationId: Scalars["ID"];
+  webhookId: Scalars["ID"];
 };
 
 export type DeleteWebhookPayload = {
-  __typename?: 'DeleteWebhookPayload';
-  webhookId: Scalars['ID'];
+  __typename?: "DeleteWebhookPayload";
+  webhookId: Scalars["ID"];
 };
 
 export type DeleteWorkspaceInput = {
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type DeleteWorkspacePayload = {
-  __typename?: 'DeleteWorkspacePayload';
-  workspaceId: Scalars['ID'];
+  __typename?: "DeleteWorkspacePayload";
+  workspaceId: Scalars["ID"];
 };
 
 export type FieldPayload = {
-  __typename?: 'FieldPayload';
+  __typename?: "FieldPayload";
   field: SchemaField;
 };
 
 export type FieldSelector = {
-  __typename?: 'FieldSelector';
-  id?: Maybe<Scalars['ID']>;
+  __typename?: "FieldSelector";
+  id?: Maybe<Scalars["ID"]>;
   type: FieldType;
 };
 
 export type FieldSelectorInput = {
-  id?: InputMaybe<Scalars['ID']>;
+  id?: InputMaybe<Scalars["ID"]>;
   type: FieldType;
 };
 
 export enum FieldType {
-  CreationDate = 'CREATION_DATE',
-  CreationUser = 'CREATION_USER',
-  Field = 'FIELD',
-  Id = 'ID',
-  MetaField = 'META_FIELD',
-  ModificationDate = 'MODIFICATION_DATE',
-  ModificationUser = 'MODIFICATION_USER',
-  Status = 'STATUS'
+  CreationDate = "CREATION_DATE",
+  CreationUser = "CREATION_USER",
+  Field = "FIELD",
+  Id = "ID",
+  MetaField = "META_FIELD",
+  ModificationDate = "MODIFICATION_DATE",
+  ModificationUser = "MODIFICATION_USER",
+  Status = "STATUS",
 }
 
 export type FieldsPayload = {
-  __typename?: 'FieldsPayload';
+  __typename?: "FieldsPayload";
   fields: Array<SchemaField>;
 };
 
 export type Group = Node & {
-  __typename?: 'Group';
-  description: Scalars['String'];
+  __typename?: "Group";
+  description: Scalars["String"];
   fields: Array<SchemaField>;
-  id: Scalars['ID'];
-  key: Scalars['String'];
-  name: Scalars['String'];
+  id: Scalars["ID"];
+  key: Scalars["String"];
+  name: Scalars["String"];
   project: Project;
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
   schema: Schema;
-  schemaId: Scalars['ID'];
+  schemaId: Scalars["ID"];
 };
 
 export type GroupPayload = {
-  __typename?: 'GroupPayload';
+  __typename?: "GroupPayload";
   group: Group;
 };
 
 export type Integration = Node & {
-  __typename?: 'Integration';
+  __typename?: "Integration";
   config?: Maybe<IntegrationConfig>;
-  createdAt: Scalars['DateTime'];
-  description?: Maybe<Scalars['String']>;
+  createdAt: Scalars["DateTime"];
+  description?: Maybe<Scalars["String"]>;
   developer: User;
-  developerId: Scalars['ID'];
+  developerId: Scalars["ID"];
   iType: IntegrationType;
-  id: Scalars['ID'];
-  logoUrl: Scalars['URL'];
-  name: Scalars['String'];
-  updatedAt: Scalars['DateTime'];
+  id: Scalars["ID"];
+  logoUrl: Scalars["URL"];
+  name: Scalars["String"];
+  updatedAt: Scalars["DateTime"];
 };
 
 export type IntegrationConfig = {
-  __typename?: 'IntegrationConfig';
-  token: Scalars['String'];
+  __typename?: "IntegrationConfig";
+  token: Scalars["String"];
   webhooks: Array<Webhook>;
 };
 
 export type IntegrationPayload = {
-  __typename?: 'IntegrationPayload';
+  __typename?: "IntegrationPayload";
   integration: Integration;
 };
 
 export enum IntegrationType {
-  Private = 'Private',
-  Public = 'Public'
+  Private = "Private",
+  Public = "Public",
 }
 
 export type Item = Node & {
-  __typename?: 'Item';
+  __typename?: "Item";
   assets: Array<Maybe<Asset>>;
-  createdAt: Scalars['DateTime'];
+  createdAt: Scalars["DateTime"];
   createdBy?: Maybe<Operator>;
   fields: Array<ItemField>;
-  id: Scalars['ID'];
-  integrationId?: Maybe<Scalars['ID']>;
+  id: Scalars["ID"];
+  integrationId?: Maybe<Scalars["ID"]>;
   metadata?: Maybe<Item>;
-  metadataId?: Maybe<Scalars['ID']>;
+  metadataId?: Maybe<Scalars["ID"]>;
   model: Model;
-  modelId: Scalars['ID'];
+  modelId: Scalars["ID"];
   project: Project;
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
   schema: Schema;
-  schemaId: Scalars['ID'];
+  schemaId: Scalars["ID"];
   status: ItemStatus;
   thread: Thread;
-  threadId: Scalars['ID'];
-  title?: Maybe<Scalars['String']>;
-  updatedAt: Scalars['DateTime'];
+  threadId: Scalars["ID"];
+  title?: Maybe<Scalars["String"]>;
+  updatedAt: Scalars["DateTime"];
   updatedBy?: Maybe<Operator>;
-  updatedByIntegrationId?: Maybe<Scalars['ID']>;
-  updatedByUserId?: Maybe<Scalars['ID']>;
-  userId?: Maybe<Scalars['ID']>;
-  version: Scalars['String'];
+  updatedByIntegrationId?: Maybe<Scalars["ID"]>;
+  updatedByUserId?: Maybe<Scalars["ID"]>;
+  userId?: Maybe<Scalars["ID"]>;
+  version: Scalars["String"];
 };
 
 export type ItemConnection = {
-  __typename?: 'ItemConnection';
+  __typename?: "ItemConnection";
   edges: Array<ItemEdge>;
   nodes: Array<Maybe<Item>>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars["Int"];
 };
 
 export type ItemEdge = {
-  __typename?: 'ItemEdge';
-  cursor: Scalars['Cursor'];
+  __typename?: "ItemEdge";
+  cursor: Scalars["Cursor"];
   node?: Maybe<Item>;
 };
 
 export type ItemField = {
-  __typename?: 'ItemField';
-  itemGroupId?: Maybe<Scalars['ID']>;
-  schemaFieldId: Scalars['ID'];
+  __typename?: "ItemField";
+  itemGroupId?: Maybe<Scalars["ID"]>;
+  schemaFieldId: Scalars["ID"];
   type: SchemaFieldType;
-  value?: Maybe<Scalars['Any']>;
+  value?: Maybe<Scalars["Any"]>;
 };
 
 export type ItemFieldInput = {
-  itemGroupId?: InputMaybe<Scalars['ID']>;
-  schemaFieldId: Scalars['ID'];
+  itemGroupId?: InputMaybe<Scalars["ID"]>;
+  schemaFieldId: Scalars["ID"];
   type: SchemaFieldType;
-  value: Scalars['Any'];
+  value: Scalars["Any"];
 };
 
 export type ItemPayload = {
-  __typename?: 'ItemPayload';
+  __typename?: "ItemPayload";
   item: Item;
 };
 
-export type ItemQuery = {
-  project: Scalars['ID'];
-  q?: InputMaybe<Scalars['String']>;
-  schema?: InputMaybe<Scalars['ID']>;
+export type ItemQueryInput = {
+  model?: InputMaybe<Scalars["ID"]>;
+  project: Scalars["ID"];
+  q?: InputMaybe<Scalars["String"]>;
+  schema?: InputMaybe<Scalars["ID"]>;
 };
 
 export type ItemSort = {
-  direction?: InputMaybe<SortDirection>;
-  sortBy: ItemSortType;
+  __typename?: "ItemSort";
+  direction?: Maybe<SortDirection>;
+  field: FieldSelector;
 };
 
 export type ItemSortInput = {
@@ -607,102 +619,97 @@ export type ItemSortInput = {
   field: FieldSelectorInput;
 };
 
-export enum ItemSortType {
-  CreationDate = 'CREATION_DATE',
-  ModificationDate = 'MODIFICATION_DATE'
-}
-
 export enum ItemStatus {
-  Draft = 'DRAFT',
-  Public = 'PUBLIC',
-  PublicDraft = 'PUBLIC_DRAFT',
-  PublicReview = 'PUBLIC_REVIEW',
-  Review = 'REVIEW'
+  Draft = "DRAFT",
+  Public = "PUBLIC",
+  PublicDraft = "PUBLIC_DRAFT",
+  PublicReview = "PUBLIC_REVIEW",
+  Review = "REVIEW",
 }
 
 export type KeyAvailability = {
-  __typename?: 'KeyAvailability';
-  available: Scalars['Boolean'];
-  key: Scalars['String'];
+  __typename?: "KeyAvailability";
+  available: Scalars["Boolean"];
+  key: Scalars["String"];
 };
 
 export type Me = {
-  __typename?: 'Me';
-  auths: Array<Scalars['String']>;
-  email: Scalars['String'];
-  id: Scalars['ID'];
+  __typename?: "Me";
+  auths: Array<Scalars["String"]>;
+  email: Scalars["String"];
+  id: Scalars["ID"];
   integrations: Array<Integration>;
-  lang: Scalars['Lang'];
+  lang: Scalars["Lang"];
   myWorkspace: Workspace;
-  myWorkspaceId: Scalars['ID'];
-  name: Scalars['String'];
+  myWorkspaceId: Scalars["ID"];
+  name: Scalars["String"];
   theme: Theme;
   workspaces: Array<Workspace>;
 };
 
 export type MemberInput = {
   role: Role;
-  userId: Scalars['ID'];
+  userId: Scalars["ID"];
 };
 
 export type Model = Node & {
-  __typename?: 'Model';
-  createdAt: Scalars['DateTime'];
-  description: Scalars['String'];
-  id: Scalars['ID'];
-  key: Scalars['String'];
+  __typename?: "Model";
+  createdAt: Scalars["DateTime"];
+  description: Scalars["String"];
+  id: Scalars["ID"];
+  key: Scalars["String"];
   metadataSchema?: Maybe<Schema>;
-  metadataSchemaId?: Maybe<Scalars['ID']>;
-  name: Scalars['String'];
+  metadataSchemaId?: Maybe<Scalars["ID"]>;
+  name: Scalars["String"];
   project: Project;
-  projectId: Scalars['ID'];
-  public: Scalars['Boolean'];
+  projectId: Scalars["ID"];
+  public: Scalars["Boolean"];
   schema: Schema;
-  schemaId: Scalars['ID'];
-  updatedAt: Scalars['DateTime'];
+  schemaId: Scalars["ID"];
+  updatedAt: Scalars["DateTime"];
 };
 
 export type ModelConnection = {
-  __typename?: 'ModelConnection';
+  __typename?: "ModelConnection";
   edges: Array<ModelEdge>;
   nodes: Array<Maybe<Model>>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars["Int"];
 };
 
 export type ModelEdge = {
-  __typename?: 'ModelEdge';
-  cursor: Scalars['Cursor'];
+  __typename?: "ModelEdge";
+  cursor: Scalars["Cursor"];
   node?: Maybe<Model>;
 };
 
 export type ModelPayload = {
-  __typename?: 'ModelPayload';
+  __typename?: "ModelPayload";
   model: Model;
 };
 
 export type MultipleFieldCondition = {
-  __typename?: 'MultipleFieldCondition';
+  __typename?: "MultipleFieldCondition";
   fieldId: FieldSelector;
   operator: MultipleOperator;
-  value: Array<Scalars['Any']>;
+  value: Array<Scalars["Any"]>;
 };
 
 export type MultipleFieldConditionInput = {
   fieldId: FieldSelectorInput;
   operator: MultipleOperator;
-  value: Array<Scalars['Any']>;
+  value: Array<Scalars["Any"]>;
 };
 
 export enum MultipleOperator {
-  IncludesAll = 'INCLUDES_ALL',
-  IncludesAny = 'INCLUDES_ANY',
-  NotIncludesAll = 'NOT_INCLUDES_ALL',
-  NotIncludesAny = 'NOT_INCLUDES_ANY'
+  IncludesAll = "INCLUDES_ALL",
+  IncludesAny = "INCLUDES_ANY",
+  NotIncludesAll = "NOT_INCLUDES_ALL",
+  NotIncludesAny = "NOT_INCLUDES_ANY",
 }
 
 export type Mutation = {
-  __typename?: 'Mutation';
+  __typename?: "Mutation";
   addComment?: Maybe<CommentPayload>;
   addIntegrationToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
   addUsersToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
@@ -758,297 +765,244 @@ export type Mutation = {
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
 };
 
-
 export type MutationAddCommentArgs = {
   input: AddCommentInput;
 };
-
 
 export type MutationAddIntegrationToWorkspaceArgs = {
   input: AddIntegrationToWorkspaceInput;
 };
 
-
 export type MutationAddUsersToWorkspaceArgs = {
   input: AddUsersToWorkspaceInput;
 };
-
 
 export type MutationApproveRequestArgs = {
   input: ApproveRequestInput;
 };
 
-
 export type MutationCreateAssetArgs = {
   input: CreateAssetInput;
 };
-
 
 export type MutationCreateAssetUploadArgs = {
   input: CreateAssetUploadInput;
 };
 
-
 export type MutationCreateFieldArgs = {
   input: CreateFieldInput;
 };
-
 
 export type MutationCreateGroupArgs = {
   input: CreateGroupInput;
 };
 
-
 export type MutationCreateIntegrationArgs = {
   input: CreateIntegrationInput;
 };
-
 
 export type MutationCreateItemArgs = {
   input: CreateItemInput;
 };
 
-
 export type MutationCreateModelArgs = {
   input: CreateModelInput;
 };
-
 
 export type MutationCreateProjectArgs = {
   input: CreateProjectInput;
 };
 
-
 export type MutationCreateRequestArgs = {
   input: CreateRequestInput;
 };
-
 
 export type MutationCreateThreadArgs = {
   input: CreateThreadInput;
 };
 
-
 export type MutationCreateViewArgs = {
   input: CreateViewInput;
 };
-
 
 export type MutationCreateWebhookArgs = {
   input: CreateWebhookInput;
 };
 
-
 export type MutationCreateWorkspaceArgs = {
   input: CreateWorkspaceInput;
 };
-
 
 export type MutationDecompressAssetArgs = {
   input: DecompressAssetInput;
 };
 
-
 export type MutationDeleteAssetArgs = {
   input: DeleteAssetInput;
 };
-
 
 export type MutationDeleteCommentArgs = {
   input: DeleteCommentInput;
 };
 
-
 export type MutationDeleteFieldArgs = {
   input: DeleteFieldInput;
 };
-
 
 export type MutationDeleteGroupArgs = {
   input: DeleteGroupInput;
 };
 
-
 export type MutationDeleteIntegrationArgs = {
   input: DeleteIntegrationInput;
 };
-
 
 export type MutationDeleteItemArgs = {
   input: DeleteItemInput;
 };
 
-
 export type MutationDeleteMeArgs = {
   input: DeleteMeInput;
 };
-
 
 export type MutationDeleteModelArgs = {
   input: DeleteModelInput;
 };
 
-
 export type MutationDeleteProjectArgs = {
   input: DeleteProjectInput;
 };
-
 
 export type MutationDeleteRequestArgs = {
   input: DeleteRequestInput;
 };
 
-
 export type MutationDeleteViewArgs = {
   input: DeleteViewInput;
 };
-
 
 export type MutationDeleteWebhookArgs = {
   input: DeleteWebhookInput;
 };
 
-
 export type MutationDeleteWorkspaceArgs = {
   input: DeleteWorkspaceInput;
 };
-
 
 export type MutationPublishItemArgs = {
   input: PublishItemInput;
 };
 
-
 export type MutationPublishModelArgs = {
   input: PublishModelInput;
 };
-
 
 export type MutationRemoveIntegrationFromWorkspaceArgs = {
   input: RemoveIntegrationFromWorkspaceInput;
 };
 
-
 export type MutationRemoveMyAuthArgs = {
   input: RemoveMyAuthInput;
 };
-
 
 export type MutationRemoveUserFromWorkspaceArgs = {
   input: RemoveUserFromWorkspaceInput;
 };
 
-
 export type MutationUnpublishItemArgs = {
   input: UnpublishItemInput;
 };
-
 
 export type MutationUpdateAssetArgs = {
   input: UpdateAssetInput;
 };
 
-
 export type MutationUpdateCommentArgs = {
   input: UpdateCommentInput;
 };
-
 
 export type MutationUpdateFieldArgs = {
   input: UpdateFieldInput;
 };
 
-
 export type MutationUpdateFieldsArgs = {
   input: Array<UpdateFieldInput>;
 };
-
 
 export type MutationUpdateGroupArgs = {
   input: UpdateGroupInput;
 };
 
-
 export type MutationUpdateIntegrationArgs = {
   input: UpdateIntegrationInput;
 };
-
 
 export type MutationUpdateIntegrationOfWorkspaceArgs = {
   input: UpdateIntegrationOfWorkspaceInput;
 };
 
-
 export type MutationUpdateItemArgs = {
   input: UpdateItemInput;
 };
-
 
 export type MutationUpdateMeArgs = {
   input: UpdateMeInput;
 };
 
-
 export type MutationUpdateModelArgs = {
   input: UpdateModelInput;
 };
-
 
 export type MutationUpdateProjectArgs = {
   input: UpdateProjectInput;
 };
 
-
 export type MutationUpdateRequestArgs = {
   input: UpdateRequestInput;
 };
-
 
 export type MutationUpdateUserOfWorkspaceArgs = {
   input: UpdateUserOfWorkspaceInput;
 };
 
-
 export type MutationUpdateViewArgs = {
   input: UpdateViewInput;
 };
 
-
 export type MutationUpdateWebhookArgs = {
   input: UpdateWebhookInput;
 };
-
 
 export type MutationUpdateWorkspaceArgs = {
   input: UpdateWorkspaceInput;
 };
 
 export type NewItemSort = {
-  __typename?: 'NewItemSort';
+  __typename?: "NewItemSort";
   direction?: Maybe<SortDirection>;
   field: FieldSelector;
 };
 
 export type Node = {
-  id: Scalars['ID'];
+  id: Scalars["ID"];
 };
 
 export enum NodeType {
-  Asset = 'ASSET',
-  Group = 'Group',
-  Integration = 'Integration',
-  Item = 'Item',
-  Model = 'Model',
-  Project = 'PROJECT',
-  Request = 'REQUEST',
-  Schema = 'Schema',
-  User = 'USER',
-  View = 'View',
-  Workspace = 'WORKSPACE'
+  Asset = "ASSET",
+  Group = "Group",
+  Integration = "Integration",
+  Item = "Item",
+  Model = "Model",
+  Project = "PROJECT",
+  Request = "REQUEST",
+  Schema = "Schema",
+  User = "USER",
+  View = "View",
+  Workspace = "WORKSPACE",
 }
 
 export type NullableFieldCondition = {
-  __typename?: 'NullableFieldCondition';
+  __typename?: "NullableFieldCondition";
   fieldId: FieldSelector;
   operator: NullableOperator;
 };
@@ -1059,28 +1013,28 @@ export type NullableFieldConditionInput = {
 };
 
 export enum NullableOperator {
-  Empty = 'EMPTY',
-  NotEmpty = 'NOT_EMPTY'
+  Empty = "EMPTY",
+  NotEmpty = "NOT_EMPTY",
 }
 
 export type NumberFieldCondition = {
-  __typename?: 'NumberFieldCondition';
+  __typename?: "NumberFieldCondition";
   fieldId: FieldSelector;
   operator: NumberOperator;
-  value: Scalars['Float'];
+  value: Scalars["Float"];
 };
 
 export type NumberFieldConditionInput = {
   fieldId: FieldSelectorInput;
   operator: NumberOperator;
-  value: Scalars['Float'];
+  value: Scalars["Float"];
 };
 
 export enum NumberOperator {
-  GreaterThan = 'GREATER_THAN',
-  GreaterThanOrEqualTo = 'GREATER_THAN_OR_EQUAL_TO',
-  LessThan = 'LESS_THAN',
-  LessThanOrEqualTo = 'LESS_THAN_OR_EQUAL_TO'
+  GreaterThan = "GREATER_THAN",
+  GreaterThanOrEqualTo = "GREATER_THAN_OR_EQUAL_TO",
+  LessThan = "LESS_THAN",
+  LessThanOrEqualTo = "LESS_THAN_OR_EQUAL_TO",
 }
 
 export type Operator = Integration | User;
@@ -1095,12 +1049,12 @@ export type OperatorInput = {
 };
 
 export enum OperatorType {
-  Integration = 'Integration',
-  User = 'User'
+  Integration = "Integration",
+  User = "User",
 }
 
 export type OrCondition = {
-  __typename?: 'OrCondition';
+  __typename?: "OrCondition";
   conditions: Array<Condition>;
 };
 
@@ -1109,112 +1063,111 @@ export type OrConditionInput = {
 };
 
 export type PageInfo = {
-  __typename?: 'PageInfo';
-  endCursor?: Maybe<Scalars['Cursor']>;
-  hasNextPage: Scalars['Boolean'];
-  hasPreviousPage: Scalars['Boolean'];
-  startCursor?: Maybe<Scalars['Cursor']>;
+  __typename?: "PageInfo";
+  endCursor?: Maybe<Scalars["Cursor"]>;
+  hasNextPage: Scalars["Boolean"];
+  hasPreviousPage: Scalars["Boolean"];
+  startCursor?: Maybe<Scalars["Cursor"]>;
 };
 
 export type Pagination = {
-  after?: InputMaybe<Scalars['Cursor']>;
-  before?: InputMaybe<Scalars['Cursor']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  offset?: InputMaybe<Scalars['Int']>;
+  after?: InputMaybe<Scalars["Cursor"]>;
+  before?: InputMaybe<Scalars["Cursor"]>;
+  first?: InputMaybe<Scalars["Int"]>;
+  last?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
 };
 
 export enum PreviewType {
-  Geo = 'GEO',
-  Geo_3DTiles = 'GEO_3D_TILES',
-  GeoMvt = 'GEO_MVT',
-  Image = 'IMAGE',
-  ImageSvg = 'IMAGE_SVG',
-  Model_3D = 'MODEL_3D',
-  Unknown = 'UNKNOWN'
+  Geo = "GEO",
+  Geo_3DTiles = "GEO_3D_TILES",
+  GeoMvt = "GEO_MVT",
+  Image = "IMAGE",
+  ImageSvg = "IMAGE_SVG",
+  Model_3D = "MODEL_3D",
+  Unknown = "UNKNOWN",
 }
 
 export type Project = Node & {
-  __typename?: 'Project';
-  alias: Scalars['String'];
-  createdAt: Scalars['DateTime'];
-  description: Scalars['String'];
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  __typename?: "Project";
+  alias: Scalars["String"];
+  createdAt: Scalars["DateTime"];
+  description: Scalars["String"];
+  id: Scalars["ID"];
+  name: Scalars["String"];
   publication?: Maybe<ProjectPublication>;
   requestRoles?: Maybe<Array<Role>>;
-  updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars["DateTime"];
   workspace?: Maybe<Workspace>;
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type ProjectAliasAvailability = {
-  __typename?: 'ProjectAliasAvailability';
-  alias: Scalars['String'];
-  available: Scalars['Boolean'];
+  __typename?: "ProjectAliasAvailability";
+  alias: Scalars["String"];
+  available: Scalars["Boolean"];
 };
 
 export type ProjectConnection = {
-  __typename?: 'ProjectConnection';
+  __typename?: "ProjectConnection";
   edges: Array<ProjectEdge>;
   nodes: Array<Maybe<Project>>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars["Int"];
 };
 
 export type ProjectEdge = {
-  __typename?: 'ProjectEdge';
-  cursor: Scalars['Cursor'];
+  __typename?: "ProjectEdge";
+  cursor: Scalars["Cursor"];
   node?: Maybe<Project>;
 };
 
 export type ProjectPayload = {
-  __typename?: 'ProjectPayload';
+  __typename?: "ProjectPayload";
   project: Project;
 };
 
 export type ProjectPublication = {
-  __typename?: 'ProjectPublication';
-  assetPublic: Scalars['Boolean'];
+  __typename?: "ProjectPublication";
+  assetPublic: Scalars["Boolean"];
   scope: ProjectPublicationScope;
 };
 
 export enum ProjectPublicationScope {
-  Limited = 'LIMITED',
-  Private = 'PRIVATE',
-  Public = 'PUBLIC'
+  Limited = "LIMITED",
+  Private = "PRIVATE",
+  Public = "PUBLIC",
 }
 
 export type PublishItemInput = {
-  itemIds: Array<Scalars['ID']>;
+  itemIds: Array<Scalars["ID"]>;
 };
 
 export type PublishItemPayload = {
-  __typename?: 'PublishItemPayload';
+  __typename?: "PublishItemPayload";
   items: Array<Item>;
 };
 
 export type PublishModelInput = {
-  modelId: Scalars['ID'];
-  status: Scalars['Boolean'];
+  modelId: Scalars["ID"];
+  status: Scalars["Boolean"];
 };
 
 export type PublishModelPayload = {
-  __typename?: 'PublishModelPayload';
-  modelId: Scalars['ID'];
-  status: Scalars['Boolean'];
+  __typename?: "PublishModelPayload";
+  modelId: Scalars["ID"];
+  status: Scalars["Boolean"];
 };
 
 export type Query = {
-  __typename?: 'Query';
+  __typename?: "Query";
   assetFile: AssetFile;
   assets: AssetConnection;
   checkGroupKeyAvailability: KeyAvailability;
   checkModelKeyAvailability: KeyAvailability;
   checkProjectAlias: ProjectAliasAvailability;
   groups: Array<Maybe<Group>>;
-  isItemReferenced: Scalars['Boolean'];
-  items: ItemConnection;
+  isItemReferenced: Scalars["Boolean"];
   me?: Maybe<Me>;
   models: ModelConnection;
   modelsByGroup: Array<Maybe<Model>>;
@@ -1228,413 +1181,401 @@ export type Query = {
   view: Array<View>;
 };
 
-
 export type QueryAssetFileArgs = {
-  assetId: Scalars['ID'];
+  assetId: Scalars["ID"];
 };
 
-
 export type QueryAssetsArgs = {
-  keyword?: InputMaybe<Scalars['String']>;
+  keyword?: InputMaybe<Scalars["String"]>;
   pagination?: InputMaybe<Pagination>;
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
   sort?: InputMaybe<AssetSort>;
 };
 
-
 export type QueryCheckGroupKeyAvailabilityArgs = {
-  key: Scalars['String'];
-  projectId: Scalars['ID'];
+  key: Scalars["String"];
+  projectId: Scalars["ID"];
 };
-
 
 export type QueryCheckModelKeyAvailabilityArgs = {
-  key: Scalars['String'];
-  projectId: Scalars['ID'];
+  key: Scalars["String"];
+  projectId: Scalars["ID"];
 };
-
 
 export type QueryCheckProjectAliasArgs = {
-  alias: Scalars['String'];
+  alias: Scalars["String"];
 };
-
 
 export type QueryGroupsArgs = {
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
 };
-
 
 export type QueryIsItemReferencedArgs = {
-  correspondingFieldId: Scalars['ID'];
-  itemId: Scalars['ID'];
+  correspondingFieldId: Scalars["ID"];
+  itemId: Scalars["ID"];
 };
-
-
-export type QueryItemsArgs = {
-  modelId: Scalars['ID'];
-  pagination?: InputMaybe<Pagination>;
-  sort?: InputMaybe<ItemSort>;
-};
-
 
 export type QueryModelsArgs = {
   pagination?: InputMaybe<Pagination>;
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
 };
-
 
 export type QueryModelsByGroupArgs = {
-  groupId: Scalars['ID'];
+  groupId: Scalars["ID"];
 };
-
 
 export type QueryNodeArgs = {
-  id: Scalars['ID'];
+  id: Scalars["ID"];
   type: NodeType;
 };
-
 
 export type QueryNodesArgs = {
-  id: Array<Scalars['ID']>;
+  id: Array<Scalars["ID"]>;
   type: NodeType;
 };
-
 
 export type QueryProjectsArgs = {
   pagination?: InputMaybe<Pagination>;
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
-
 export type QueryRequestsArgs = {
-  createdBy?: InputMaybe<Scalars['ID']>;
-  key?: InputMaybe<Scalars['String']>;
+  createdBy?: InputMaybe<Scalars["ID"]>;
+  key?: InputMaybe<Scalars["String"]>;
   pagination?: InputMaybe<Pagination>;
-  projectId: Scalars['ID'];
-  reviewer?: InputMaybe<Scalars['ID']>;
+  projectId: Scalars["ID"];
+  reviewer?: InputMaybe<Scalars["ID"]>;
   sort?: InputMaybe<Sort>;
   state?: InputMaybe<Array<RequestState>>;
 };
 
-
 export type QuerySearchItemArgs = {
-  pagination?: InputMaybe<Pagination>;
-  query: ItemQuery;
-  sort?: InputMaybe<ItemSort>;
+  input: SearchItemInput;
 };
-
 
 export type QuerySearchUserArgs = {
-  nameOrEmail: Scalars['String'];
+  nameOrEmail: Scalars["String"];
 };
-
 
 export type QueryVersionsByItemArgs = {
-  itemId: Scalars['ID'];
+  itemId: Scalars["ID"];
 };
 
-
 export type QueryViewArgs = {
-  modelId: Scalars['ID'];
+  modelId: Scalars["ID"];
 };
 
 export type RemoveIntegrationFromWorkspaceInput = {
-  integrationId: Scalars['ID'];
-  workspaceId: Scalars['ID'];
+  integrationId: Scalars["ID"];
+  workspaceId: Scalars["ID"];
 };
 
 export type RemoveMemberFromWorkspacePayload = {
-  __typename?: 'RemoveMemberFromWorkspacePayload';
+  __typename?: "RemoveMemberFromWorkspacePayload";
   workspace: Workspace;
 };
 
 export type RemoveMyAuthInput = {
-  auth: Scalars['String'];
+  auth: Scalars["String"];
 };
 
 export type RemoveUserFromWorkspaceInput = {
-  userId: Scalars['ID'];
-  workspaceId: Scalars['ID'];
+  userId: Scalars["ID"];
+  workspaceId: Scalars["ID"];
 };
 
 export type Request = Node & {
-  __typename?: 'Request';
-  approvedAt?: Maybe<Scalars['DateTime']>;
-  closedAt?: Maybe<Scalars['DateTime']>;
-  createdAt: Scalars['DateTime'];
+  __typename?: "Request";
+  approvedAt?: Maybe<Scalars["DateTime"]>;
+  closedAt?: Maybe<Scalars["DateTime"]>;
+  createdAt: Scalars["DateTime"];
   createdBy?: Maybe<User>;
-  createdById: Scalars['ID'];
-  description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
+  createdById: Scalars["ID"];
+  description?: Maybe<Scalars["String"]>;
+  id: Scalars["ID"];
   items: Array<RequestItem>;
   project?: Maybe<Project>;
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
   reviewers: Array<User>;
-  reviewersId: Array<Scalars['ID']>;
+  reviewersId: Array<Scalars["ID"]>;
   state: RequestState;
   thread?: Maybe<Thread>;
-  threadId: Scalars['ID'];
-  title: Scalars['String'];
-  updatedAt: Scalars['DateTime'];
+  threadId: Scalars["ID"];
+  title: Scalars["String"];
+  updatedAt: Scalars["DateTime"];
   workspace?: Maybe<Workspace>;
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type RequestConnection = {
-  __typename?: 'RequestConnection';
+  __typename?: "RequestConnection";
   edges: Array<RequestEdge>;
   nodes: Array<Maybe<Request>>;
   pageInfo: PageInfo;
-  totalCount: Scalars['Int'];
+  totalCount: Scalars["Int"];
 };
 
 export type RequestEdge = {
-  __typename?: 'RequestEdge';
-  cursor: Scalars['Cursor'];
+  __typename?: "RequestEdge";
+  cursor: Scalars["Cursor"];
   node?: Maybe<Request>;
 };
 
 export type RequestItem = {
-  __typename?: 'RequestItem';
+  __typename?: "RequestItem";
   item?: Maybe<VersionedItem>;
-  itemId: Scalars['ID'];
-  ref?: Maybe<Scalars['String']>;
-  version?: Maybe<Scalars['String']>;
+  itemId: Scalars["ID"];
+  ref?: Maybe<Scalars["String"]>;
+  version?: Maybe<Scalars["String"]>;
 };
 
 export type RequestItemInput = {
-  itemId: Scalars['ID'];
+  itemId: Scalars["ID"];
 };
 
 export type RequestPayload = {
-  __typename?: 'RequestPayload';
+  __typename?: "RequestPayload";
   request: Request;
 };
 
 export enum RequestState {
-  Approved = 'APPROVED',
-  Closed = 'CLOSED',
-  Draft = 'DRAFT',
-  Waiting = 'WAITING'
+  Approved = "APPROVED",
+  Closed = "CLOSED",
+  Draft = "DRAFT",
+  Waiting = "WAITING",
 }
 
 export enum Role {
-  Maintainer = 'MAINTAINER',
-  Owner = 'OWNER',
-  Reader = 'READER',
-  Writer = 'WRITER'
+  Maintainer = "MAINTAINER",
+  Owner = "OWNER",
+  Reader = "READER",
+  Writer = "WRITER",
 }
 
 export type Schema = Node & {
-  __typename?: 'Schema';
+  __typename?: "Schema";
   fields: Array<SchemaField>;
-  id: Scalars['ID'];
+  id: Scalars["ID"];
   project: Project;
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
   titleField?: Maybe<SchemaField>;
-  titleFieldId?: Maybe<Scalars['ID']>;
+  titleFieldId?: Maybe<Scalars["ID"]>;
 };
 
 export type SchemaField = {
-  __typename?: 'SchemaField';
-  createdAt: Scalars['DateTime'];
-  description?: Maybe<Scalars['String']>;
+  __typename?: "SchemaField";
+  createdAt: Scalars["DateTime"];
+  description?: Maybe<Scalars["String"]>;
   group?: Maybe<Group>;
-  groupId?: Maybe<Scalars['ID']>;
-  id: Scalars['ID'];
-  isTitle: Scalars['Boolean'];
-  key: Scalars['String'];
+  groupId?: Maybe<Scalars["ID"]>;
+  id: Scalars["ID"];
+  isTitle: Scalars["Boolean"];
+  key: Scalars["String"];
   model?: Maybe<Model>;
-  modelId?: Maybe<Scalars['ID']>;
-  multiple: Scalars['Boolean'];
-  order?: Maybe<Scalars['Int']>;
-  required: Scalars['Boolean'];
-  title: Scalars['String'];
+  modelId?: Maybe<Scalars["ID"]>;
+  multiple: Scalars["Boolean"];
+  order?: Maybe<Scalars["Int"]>;
+  required: Scalars["Boolean"];
+  title: Scalars["String"];
   type: SchemaFieldType;
   typeProperty?: Maybe<SchemaFieldTypeProperty>;
-  unique: Scalars['Boolean'];
-  updatedAt: Scalars['DateTime'];
+  unique: Scalars["Boolean"];
+  updatedAt: Scalars["DateTime"];
 };
 
 export type SchemaFieldAsset = {
-  __typename?: 'SchemaFieldAsset';
-  defaultValue?: Maybe<Scalars['Any']>;
+  __typename?: "SchemaFieldAsset";
+  defaultValue?: Maybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldAssetInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldBool = {
-  __typename?: 'SchemaFieldBool';
-  defaultValue?: Maybe<Scalars['Any']>;
+  __typename?: "SchemaFieldBool";
+  defaultValue?: Maybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldBoolInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldCheckbox = {
-  __typename?: 'SchemaFieldCheckbox';
-  defaultValue?: Maybe<Scalars['Any']>;
+  __typename?: "SchemaFieldCheckbox";
+  defaultValue?: Maybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldCheckboxInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldDate = {
-  __typename?: 'SchemaFieldDate';
-  defaultValue?: Maybe<Scalars['Any']>;
+  __typename?: "SchemaFieldDate";
+  defaultValue?: Maybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldDateInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldGroup = {
-  __typename?: 'SchemaFieldGroup';
-  groupId: Scalars['ID'];
+  __typename?: "SchemaFieldGroup";
+  groupId: Scalars["ID"];
 };
 
 export type SchemaFieldGroupInput = {
-  groupId: Scalars['ID'];
+  groupId: Scalars["ID"];
 };
 
 export type SchemaFieldInteger = {
-  __typename?: 'SchemaFieldInteger';
-  defaultValue?: Maybe<Scalars['Any']>;
-  max?: Maybe<Scalars['Int']>;
-  min?: Maybe<Scalars['Int']>;
+  __typename?: "SchemaFieldInteger";
+  defaultValue?: Maybe<Scalars["Any"]>;
+  max?: Maybe<Scalars["Int"]>;
+  min?: Maybe<Scalars["Int"]>;
 };
 
 export type SchemaFieldIntegerInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
-  max?: InputMaybe<Scalars['Int']>;
-  min?: InputMaybe<Scalars['Int']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
+  max?: InputMaybe<Scalars["Int"]>;
+  min?: InputMaybe<Scalars["Int"]>;
 };
 
 export type SchemaFieldMarkdown = {
-  __typename?: 'SchemaFieldMarkdown';
-  defaultValue?: Maybe<Scalars['Any']>;
-  maxLength?: Maybe<Scalars['Int']>;
+  __typename?: "SchemaFieldMarkdown";
+  defaultValue?: Maybe<Scalars["Any"]>;
+  maxLength?: Maybe<Scalars["Int"]>;
 };
 
 export type SchemaFieldReference = {
-  __typename?: 'SchemaFieldReference';
+  __typename?: "SchemaFieldReference";
   correspondingField?: Maybe<SchemaField>;
-  correspondingFieldId?: Maybe<Scalars['ID']>;
+  correspondingFieldId?: Maybe<Scalars["ID"]>;
   correspondingSchema?: Maybe<Schema>;
-  correspondingSchemaId?: Maybe<Scalars['ID']>;
-  modelId: Scalars['ID'];
+  correspondingSchemaId?: Maybe<Scalars["ID"]>;
+  modelId: Scalars["ID"];
 };
 
 export type SchemaFieldReferenceInput = {
   correspondingField?: InputMaybe<CorrespondingFieldInput>;
-  correspondingSchemaId?: InputMaybe<Scalars['ID']>;
-  modelId: Scalars['ID'];
+  correspondingSchemaId?: InputMaybe<Scalars["ID"]>;
+  modelId: Scalars["ID"];
 };
 
 export type SchemaFieldRichText = {
-  __typename?: 'SchemaFieldRichText';
-  defaultValue?: Maybe<Scalars['Any']>;
-  maxLength?: Maybe<Scalars['Int']>;
+  __typename?: "SchemaFieldRichText";
+  defaultValue?: Maybe<Scalars["Any"]>;
+  maxLength?: Maybe<Scalars["Int"]>;
 };
 
 export type SchemaFieldRichTextInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
-  maxLength?: InputMaybe<Scalars['Int']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
+  maxLength?: InputMaybe<Scalars["Int"]>;
 };
 
 export type SchemaFieldSelect = {
-  __typename?: 'SchemaFieldSelect';
-  defaultValue?: Maybe<Scalars['Any']>;
-  values: Array<Scalars['String']>;
+  __typename?: "SchemaFieldSelect";
+  defaultValue?: Maybe<Scalars["Any"]>;
+  values: Array<Scalars["String"]>;
 };
 
 export type SchemaFieldSelectInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
-  values: Array<Scalars['String']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
+  values: Array<Scalars["String"]>;
 };
 
 export type SchemaFieldTag = {
-  __typename?: 'SchemaFieldTag';
-  defaultValue?: Maybe<Scalars['Any']>;
+  __typename?: "SchemaFieldTag";
+  defaultValue?: Maybe<Scalars["Any"]>;
   tags: Array<SchemaFieldTagValue>;
 };
 
 export enum SchemaFieldTagColor {
-  Blue = 'BLUE',
-  Cyan = 'CYAN',
-  Geekblue = 'GEEKBLUE',
-  Gold = 'GOLD',
-  Green = 'GREEN',
-  Lime = 'LIME',
-  Magenta = 'MAGENTA',
-  Orange = 'ORANGE',
-  Purple = 'PURPLE',
-  Red = 'RED',
-  Volcano = 'VOLCANO'
+  Blue = "BLUE",
+  Cyan = "CYAN",
+  Geekblue = "GEEKBLUE",
+  Gold = "GOLD",
+  Green = "GREEN",
+  Lime = "LIME",
+  Magenta = "MAGENTA",
+  Orange = "ORANGE",
+  Purple = "PURPLE",
+  Red = "RED",
+  Volcano = "VOLCANO",
 }
 
 export type SchemaFieldTagInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
   tags: Array<SchemaFieldTagValueInput>;
 };
 
 export type SchemaFieldTagValue = {
-  __typename?: 'SchemaFieldTagValue';
+  __typename?: "SchemaFieldTagValue";
   color: SchemaFieldTagColor;
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  id: Scalars["ID"];
+  name: Scalars["String"];
 };
 
 export type SchemaFieldTagValueInput = {
   color?: InputMaybe<SchemaFieldTagColor>;
-  id?: InputMaybe<Scalars['ID']>;
-  name?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars["ID"]>;
+  name?: InputMaybe<Scalars["String"]>;
 };
 
 export type SchemaFieldText = {
-  __typename?: 'SchemaFieldText';
-  defaultValue?: Maybe<Scalars['Any']>;
-  maxLength?: Maybe<Scalars['Int']>;
+  __typename?: "SchemaFieldText";
+  defaultValue?: Maybe<Scalars["Any"]>;
+  maxLength?: Maybe<Scalars["Int"]>;
 };
 
 export type SchemaFieldTextArea = {
-  __typename?: 'SchemaFieldTextArea';
-  defaultValue?: Maybe<Scalars['Any']>;
-  maxLength?: Maybe<Scalars['Int']>;
+  __typename?: "SchemaFieldTextArea";
+  defaultValue?: Maybe<Scalars["Any"]>;
+  maxLength?: Maybe<Scalars["Int"]>;
 };
 
 export type SchemaFieldTextAreaInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
-  maxLength?: InputMaybe<Scalars['Int']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
+  maxLength?: InputMaybe<Scalars["Int"]>;
 };
 
 export type SchemaFieldTextInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
-  maxLength?: InputMaybe<Scalars['Int']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
+  maxLength?: InputMaybe<Scalars["Int"]>;
 };
 
 export enum SchemaFieldType {
-  Asset = 'Asset',
-  Bool = 'Bool',
-  Checkbox = 'Checkbox',
-  Date = 'Date',
-  Group = 'Group',
-  Integer = 'Integer',
-  MarkdownText = 'MarkdownText',
-  Reference = 'Reference',
-  RichText = 'RichText',
-  Select = 'Select',
-  Tag = 'Tag',
-  Text = 'Text',
-  TextArea = 'TextArea',
-  Url = 'URL'
+  Asset = "Asset",
+  Bool = "Bool",
+  Checkbox = "Checkbox",
+  Date = "Date",
+  Group = "Group",
+  Integer = "Integer",
+  MarkdownText = "MarkdownText",
+  Reference = "Reference",
+  RichText = "RichText",
+  Select = "Select",
+  Tag = "Tag",
+  Text = "Text",
+  TextArea = "TextArea",
+  Url = "URL",
 }
 
-export type SchemaFieldTypeProperty = SchemaFieldAsset | SchemaFieldBool | SchemaFieldCheckbox | SchemaFieldDate | SchemaFieldGroup | SchemaFieldInteger | SchemaFieldMarkdown | SchemaFieldReference | SchemaFieldRichText | SchemaFieldSelect | SchemaFieldTag | SchemaFieldText | SchemaFieldTextArea | SchemaFieldUrl;
+export type SchemaFieldTypeProperty =
+  | SchemaFieldAsset
+  | SchemaFieldBool
+  | SchemaFieldCheckbox
+  | SchemaFieldDate
+  | SchemaFieldGroup
+  | SchemaFieldInteger
+  | SchemaFieldMarkdown
+  | SchemaFieldReference
+  | SchemaFieldRichText
+  | SchemaFieldSelect
+  | SchemaFieldTag
+  | SchemaFieldText
+  | SchemaFieldTextArea
+  | SchemaFieldUrl;
 
 export type SchemaFieldTypePropertyInput = {
   asset?: InputMaybe<SchemaFieldAssetInput>;
@@ -1654,1143 +1595,4206 @@ export type SchemaFieldTypePropertyInput = {
 };
 
 export type SchemaFieldUrl = {
-  __typename?: 'SchemaFieldURL';
-  defaultValue?: Maybe<Scalars['Any']>;
+  __typename?: "SchemaFieldURL";
+  defaultValue?: Maybe<Scalars["Any"]>;
 };
 
 export type SchemaFieldUrlInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
 };
 
 export type SchemaMarkdownTextInput = {
-  defaultValue?: InputMaybe<Scalars['Any']>;
-  maxLength?: InputMaybe<Scalars['Int']>;
+  defaultValue?: InputMaybe<Scalars["Any"]>;
+  maxLength?: InputMaybe<Scalars["Int"]>;
+};
+
+export type SearchItemInput = {
+  filter?: InputMaybe<ConditionInput>;
+  pagination?: InputMaybe<Pagination>;
+  query: ItemQueryInput;
+  sort?: InputMaybe<ItemSortInput>;
 };
 
 export type Sort = {
-  key: Scalars['String'];
-  reverted?: InputMaybe<Scalars['Boolean']>;
+  key: Scalars["String"];
+  reverted?: InputMaybe<Scalars["Boolean"]>;
 };
 
 export enum SortDirection {
-  Asc = 'ASC',
-  Desc = 'DESC'
+  Asc = "ASC",
+  Desc = "DESC",
 }
 
 export type StringFieldCondition = {
-  __typename?: 'StringFieldCondition';
+  __typename?: "StringFieldCondition";
   fieldId: FieldSelector;
   operator: StringOperator;
-  value: Scalars['String'];
+  value: Scalars["String"];
 };
 
 export type StringFieldConditionInput = {
   fieldId: FieldSelectorInput;
   operator: StringOperator;
-  value: Scalars['String'];
+  value: Scalars["String"];
 };
 
 export enum StringOperator {
-  Contains = 'CONTAINS',
-  EndsWith = 'ENDS_WITH',
-  NotContains = 'NOT_CONTAINS',
-  NotEndsWith = 'NOT_ENDS_WITH',
-  NotStartsWith = 'NOT_STARTS_WITH',
-  StartsWith = 'STARTS_WITH'
+  Contains = "CONTAINS",
+  EndsWith = "ENDS_WITH",
+  NotContains = "NOT_CONTAINS",
+  NotEndsWith = "NOT_ENDS_WITH",
+  NotStartsWith = "NOT_STARTS_WITH",
+  StartsWith = "STARTS_WITH",
 }
 
 export enum Theme {
-  Dark = 'DARK',
-  Default = 'DEFAULT',
-  Light = 'LIGHT'
+  Dark = "DARK",
+  Default = "DEFAULT",
+  Light = "LIGHT",
 }
 
 export type Thread = {
-  __typename?: 'Thread';
+  __typename?: "Thread";
   comments: Array<Comment>;
-  id: Scalars['ID'];
+  id: Scalars["ID"];
   workspace?: Maybe<Workspace>;
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type ThreadPayload = {
-  __typename?: 'ThreadPayload';
+  __typename?: "ThreadPayload";
   thread: Thread;
 };
 
 export type TimeFieldCondition = {
-  __typename?: 'TimeFieldCondition';
+  __typename?: "TimeFieldCondition";
   fieldId: FieldSelector;
   operator: TimeOperator;
-  value: Scalars['DateTime'];
+  value: Scalars["DateTime"];
 };
 
 export type TimeFieldConditionInput = {
   fieldId: FieldSelectorInput;
   operator: TimeOperator;
-  value: Scalars['DateTime'];
+  value: Scalars["DateTime"];
 };
 
 export enum TimeOperator {
-  After = 'AFTER',
-  AfterOrOn = 'AFTER_OR_ON',
-  Before = 'BEFORE',
-  BeforeOrOn = 'BEFORE_OR_ON',
-  OfThisMonth = 'OF_THIS_MONTH',
-  OfThisWeek = 'OF_THIS_WEEK',
-  OfThisYear = 'OF_THIS_YEAR'
+  After = "AFTER",
+  AfterOrOn = "AFTER_OR_ON",
+  Before = "BEFORE",
+  BeforeOrOn = "BEFORE_OR_ON",
+  OfThisMonth = "OF_THIS_MONTH",
+  OfThisWeek = "OF_THIS_WEEK",
+  OfThisYear = "OF_THIS_YEAR",
 }
 
 export type UnpublishItemInput = {
-  itemIds: Array<Scalars['ID']>;
+  itemIds: Array<Scalars["ID"]>;
 };
 
 export type UnpublishItemPayload = {
-  __typename?: 'UnpublishItemPayload';
+  __typename?: "UnpublishItemPayload";
   items: Array<Item>;
 };
 
 export type UpdateAssetInput = {
-  id: Scalars['ID'];
+  id: Scalars["ID"];
   previewType?: InputMaybe<PreviewType>;
 };
 
 export type UpdateAssetPayload = {
-  __typename?: 'UpdateAssetPayload';
+  __typename?: "UpdateAssetPayload";
   asset: Asset;
 };
 
 export type UpdateCommentInput = {
-  commentId: Scalars['ID'];
-  content: Scalars['String'];
-  threadId: Scalars['ID'];
+  commentId: Scalars["ID"];
+  content: Scalars["String"];
+  threadId: Scalars["ID"];
 };
 
 export type UpdateFieldInput = {
-  description?: InputMaybe<Scalars['String']>;
-  fieldId: Scalars['ID'];
-  groupId?: InputMaybe<Scalars['ID']>;
-  isTitle?: InputMaybe<Scalars['Boolean']>;
-  key?: InputMaybe<Scalars['String']>;
-  metadata?: InputMaybe<Scalars['Boolean']>;
-  modelId?: InputMaybe<Scalars['ID']>;
-  multiple?: InputMaybe<Scalars['Boolean']>;
-  order?: InputMaybe<Scalars['Int']>;
-  required?: InputMaybe<Scalars['Boolean']>;
-  title?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars["String"]>;
+  fieldId: Scalars["ID"];
+  groupId?: InputMaybe<Scalars["ID"]>;
+  isTitle?: InputMaybe<Scalars["Boolean"]>;
+  key?: InputMaybe<Scalars["String"]>;
+  metadata?: InputMaybe<Scalars["Boolean"]>;
+  modelId?: InputMaybe<Scalars["ID"]>;
+  multiple?: InputMaybe<Scalars["Boolean"]>;
+  order?: InputMaybe<Scalars["Int"]>;
+  required?: InputMaybe<Scalars["Boolean"]>;
+  title?: InputMaybe<Scalars["String"]>;
   typeProperty?: InputMaybe<SchemaFieldTypePropertyInput>;
-  unique?: InputMaybe<Scalars['Boolean']>;
+  unique?: InputMaybe<Scalars["Boolean"]>;
 };
 
 export type UpdateGroupInput = {
-  description?: InputMaybe<Scalars['String']>;
-  groupId: Scalars['ID'];
-  key?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars["String"]>;
+  groupId: Scalars["ID"];
+  key?: InputMaybe<Scalars["String"]>;
+  name?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateIntegrationInput = {
-  description?: InputMaybe<Scalars['String']>;
-  integrationId: Scalars['ID'];
-  logoUrl?: InputMaybe<Scalars['URL']>;
-  name?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars["String"]>;
+  integrationId: Scalars["ID"];
+  logoUrl?: InputMaybe<Scalars["URL"]>;
+  name?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateIntegrationOfWorkspaceInput = {
-  integrationId: Scalars['ID'];
+  integrationId: Scalars["ID"];
   role: Role;
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 };
 
 export type UpdateItemInput = {
   fields: Array<ItemFieldInput>;
-  itemId: Scalars['ID'];
-  metadataId?: InputMaybe<Scalars['ID']>;
-  version?: InputMaybe<Scalars['String']>;
+  itemId: Scalars["ID"];
+  metadataId?: InputMaybe<Scalars["ID"]>;
+  version?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateMeInput = {
-  email?: InputMaybe<Scalars['String']>;
-  lang?: InputMaybe<Scalars['Lang']>;
-  name?: InputMaybe<Scalars['String']>;
-  password?: InputMaybe<Scalars['String']>;
-  passwordConfirmation?: InputMaybe<Scalars['String']>;
+  email?: InputMaybe<Scalars["String"]>;
+  lang?: InputMaybe<Scalars["Lang"]>;
+  name?: InputMaybe<Scalars["String"]>;
+  password?: InputMaybe<Scalars["String"]>;
+  passwordConfirmation?: InputMaybe<Scalars["String"]>;
   theme?: InputMaybe<Theme>;
 };
 
 export type UpdateMePayload = {
-  __typename?: 'UpdateMePayload';
+  __typename?: "UpdateMePayload";
   me: Me;
 };
 
 export type UpdateMemberOfWorkspacePayload = {
-  __typename?: 'UpdateMemberOfWorkspacePayload';
+  __typename?: "UpdateMemberOfWorkspacePayload";
   workspace: Workspace;
 };
 
 export type UpdateModelInput = {
-  description?: InputMaybe<Scalars['String']>;
-  key?: InputMaybe<Scalars['String']>;
-  modelId: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  public: Scalars['Boolean'];
+  description?: InputMaybe<Scalars["String"]>;
+  key?: InputMaybe<Scalars["String"]>;
+  modelId: Scalars["ID"];
+  name?: InputMaybe<Scalars["String"]>;
+  public: Scalars["Boolean"];
 };
 
 export type UpdateProjectInput = {
-  alias?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  projectId: Scalars['ID'];
+  alias?: InputMaybe<Scalars["String"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  name?: InputMaybe<Scalars["String"]>;
+  projectId: Scalars["ID"];
   publication?: InputMaybe<UpdateProjectPublicationInput>;
   requestRoles?: InputMaybe<Array<Role>>;
 };
 
 export type UpdateProjectPublicationInput = {
-  assetPublic?: InputMaybe<Scalars['Boolean']>;
+  assetPublic?: InputMaybe<Scalars["Boolean"]>;
   scope?: InputMaybe<ProjectPublicationScope>;
 };
 
 export type UpdateRequestInput = {
-  description?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars["String"]>;
   items?: InputMaybe<Array<RequestItemInput>>;
-  requestId: Scalars['ID'];
-  reviewersId?: InputMaybe<Array<Scalars['ID']>>;
+  requestId: Scalars["ID"];
+  reviewersId?: InputMaybe<Array<Scalars["ID"]>>;
   state?: InputMaybe<RequestState>;
-  title?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars["String"]>;
 };
 
 export type UpdateUserOfWorkspaceInput = {
   role: Role;
-  userId: Scalars['ID'];
-  workspaceId: Scalars['ID'];
+  userId: Scalars["ID"];
+  workspaceId: Scalars["ID"];
 };
 
 export type UpdateViewInput = {
   columns?: InputMaybe<Array<FieldSelectorInput>>;
   filter?: InputMaybe<ConditionInput>;
-  name?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars["String"]>;
   sort?: InputMaybe<ItemSortInput>;
-  viewId: Scalars['ID'];
+  viewId: Scalars["ID"];
 };
 
 export type UpdateWebhookInput = {
-  active?: InputMaybe<Scalars['Boolean']>;
-  integrationId: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  secret?: InputMaybe<Scalars['String']>;
+  active?: InputMaybe<Scalars["Boolean"]>;
+  integrationId: Scalars["ID"];
+  name?: InputMaybe<Scalars["String"]>;
+  secret?: InputMaybe<Scalars["String"]>;
   trigger?: InputMaybe<WebhookTriggerInput>;
-  url?: InputMaybe<Scalars['URL']>;
-  webhookId: Scalars['ID'];
+  url?: InputMaybe<Scalars["URL"]>;
+  webhookId: Scalars["ID"];
 };
 
 export type UpdateWorkspaceInput = {
-  name: Scalars['String'];
-  workspaceId: Scalars['ID'];
+  name: Scalars["String"];
+  workspaceId: Scalars["ID"];
 };
 
 export type UpdateWorkspacePayload = {
-  __typename?: 'UpdateWorkspacePayload';
+  __typename?: "UpdateWorkspacePayload";
   workspace: Workspace;
 };
 
 export type User = Node & {
-  __typename?: 'User';
-  email: Scalars['String'];
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  __typename?: "User";
+  email: Scalars["String"];
+  id: Scalars["ID"];
+  name: Scalars["String"];
 };
 
 export type VersionedItem = {
-  __typename?: 'VersionedItem';
-  parents?: Maybe<Array<Scalars['String']>>;
-  refs: Array<Scalars['String']>;
+  __typename?: "VersionedItem";
+  parents?: Maybe<Array<Scalars["String"]>>;
+  refs: Array<Scalars["String"]>;
   value: Item;
-  version: Scalars['String'];
+  version: Scalars["String"];
 };
 
 export type View = Node & {
-  __typename?: 'View';
+  __typename?: "View";
   columns?: Maybe<Array<FieldSelector>>;
   filter?: Maybe<Condition>;
-  id: Scalars['ID'];
-  modelId: Scalars['ID'];
-  name: Scalars['String'];
-  projectId: Scalars['ID'];
-  sort?: Maybe<NewItemSort>;
+  id: Scalars["ID"];
+  modelId: Scalars["ID"];
+  name: Scalars["String"];
+  projectId: Scalars["ID"];
+  sort?: Maybe<ItemSort>;
 };
 
 export type ViewPayload = {
-  __typename?: 'ViewPayload';
+  __typename?: "ViewPayload";
   view: View;
 };
 
 export type Webhook = {
-  __typename?: 'Webhook';
-  active: Scalars['Boolean'];
-  createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  secret: Scalars['String'];
+  __typename?: "Webhook";
+  active: Scalars["Boolean"];
+  createdAt: Scalars["DateTime"];
+  id: Scalars["ID"];
+  name: Scalars["String"];
+  secret: Scalars["String"];
   trigger: WebhookTrigger;
-  updatedAt: Scalars['DateTime'];
-  url: Scalars['URL'];
+  updatedAt: Scalars["DateTime"];
+  url: Scalars["URL"];
 };
 
 export type WebhookPayload = {
-  __typename?: 'WebhookPayload';
+  __typename?: "WebhookPayload";
   webhook: Webhook;
 };
 
 export type WebhookTrigger = {
-  __typename?: 'WebhookTrigger';
-  onAssetDecompress?: Maybe<Scalars['Boolean']>;
-  onAssetDelete?: Maybe<Scalars['Boolean']>;
-  onAssetUpload?: Maybe<Scalars['Boolean']>;
-  onItemCreate?: Maybe<Scalars['Boolean']>;
-  onItemDelete?: Maybe<Scalars['Boolean']>;
-  onItemPublish?: Maybe<Scalars['Boolean']>;
-  onItemUnPublish?: Maybe<Scalars['Boolean']>;
-  onItemUpdate?: Maybe<Scalars['Boolean']>;
+  __typename?: "WebhookTrigger";
+  onAssetDecompress?: Maybe<Scalars["Boolean"]>;
+  onAssetDelete?: Maybe<Scalars["Boolean"]>;
+  onAssetUpload?: Maybe<Scalars["Boolean"]>;
+  onItemCreate?: Maybe<Scalars["Boolean"]>;
+  onItemDelete?: Maybe<Scalars["Boolean"]>;
+  onItemPublish?: Maybe<Scalars["Boolean"]>;
+  onItemUnPublish?: Maybe<Scalars["Boolean"]>;
+  onItemUpdate?: Maybe<Scalars["Boolean"]>;
 };
 
 export type WebhookTriggerInput = {
-  onAssetDecompress?: InputMaybe<Scalars['Boolean']>;
-  onAssetDelete?: InputMaybe<Scalars['Boolean']>;
-  onAssetUpload?: InputMaybe<Scalars['Boolean']>;
-  onItemCreate?: InputMaybe<Scalars['Boolean']>;
-  onItemDelete?: InputMaybe<Scalars['Boolean']>;
-  onItemPublish?: InputMaybe<Scalars['Boolean']>;
-  onItemUnPublish?: InputMaybe<Scalars['Boolean']>;
-  onItemUpdate?: InputMaybe<Scalars['Boolean']>;
+  onAssetDecompress?: InputMaybe<Scalars["Boolean"]>;
+  onAssetDelete?: InputMaybe<Scalars["Boolean"]>;
+  onAssetUpload?: InputMaybe<Scalars["Boolean"]>;
+  onItemCreate?: InputMaybe<Scalars["Boolean"]>;
+  onItemDelete?: InputMaybe<Scalars["Boolean"]>;
+  onItemPublish?: InputMaybe<Scalars["Boolean"]>;
+  onItemUnPublish?: InputMaybe<Scalars["Boolean"]>;
+  onItemUpdate?: InputMaybe<Scalars["Boolean"]>;
 };
 
 export type Workspace = Node & {
-  __typename?: 'Workspace';
-  id: Scalars['ID'];
+  __typename?: "Workspace";
+  id: Scalars["ID"];
   members: Array<WorkspaceMember>;
-  name: Scalars['String'];
-  personal: Scalars['Boolean'];
+  name: Scalars["String"];
+  personal: Scalars["Boolean"];
 };
 
 export type WorkspaceIntegrationMember = {
-  __typename?: 'WorkspaceIntegrationMember';
-  active: Scalars['Boolean'];
+  __typename?: "WorkspaceIntegrationMember";
+  active: Scalars["Boolean"];
   integration?: Maybe<Integration>;
-  integrationId: Scalars['ID'];
+  integrationId: Scalars["ID"];
   invitedBy?: Maybe<User>;
-  invitedById: Scalars['ID'];
+  invitedById: Scalars["ID"];
   role: Role;
 };
 
 export type WorkspaceMember = WorkspaceIntegrationMember | WorkspaceUserMember;
 
 export type WorkspaceUserMember = {
-  __typename?: 'WorkspaceUserMember';
+  __typename?: "WorkspaceUserMember";
   role: Role;
   user?: Maybe<User>;
-  userId: Scalars['ID'];
+  userId: Scalars["ID"];
 };
 
-export type AssetFragmentFragment = { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null };
+export type AssetFragmentFragment = {
+  __typename?: "Asset";
+  id: string;
+  fileName: string;
+  projectId: string;
+  createdAt: Date;
+  size: number;
+  previewType?: PreviewType | null;
+  uuid: string;
+  url: string;
+  archiveExtractionStatus?: ArchiveExtractionStatus | null;
+  createdBy:
+    | {
+        __typename?: "Integration";
+        id: string;
+        name: string;
+        description?: string | null;
+        logoUrl: string;
+        iType: IntegrationType;
+        developerId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        developer: { __typename?: "User"; id: string; name: string; email: string };
+        config?: {
+          __typename?: "IntegrationConfig";
+          token: string;
+          webhooks: Array<{
+            __typename?: "Webhook";
+            id: string;
+            name: string;
+            url: string;
+            active: boolean;
+            secret: string;
+            createdAt: Date;
+            updatedAt: Date;
+            trigger: {
+              __typename?: "WebhookTrigger";
+              onItemCreate?: boolean | null;
+              onItemUpdate?: boolean | null;
+              onItemDelete?: boolean | null;
+              onItemPublish?: boolean | null;
+              onItemUnPublish?: boolean | null;
+              onAssetUpload?: boolean | null;
+              onAssetDecompress?: boolean | null;
+              onAssetDelete?: boolean | null;
+            };
+          }>;
+        } | null;
+      }
+    | { __typename?: "User"; id: string; name: string; email: string };
+  thread?: {
+    __typename?: "Thread";
+    id: string;
+    workspaceId: string;
+    comments: Array<{
+      __typename?: "Comment";
+      id: string;
+      authorId: string;
+      content: string;
+      createdAt: Date;
+      author?:
+        | { __typename?: "Integration"; id: string; name: string }
+        | { __typename?: "User"; id: string; name: string; email: string }
+        | null;
+    }>;
+  } | null;
+};
 
-export type AssetFileFragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string };
+export type AssetFileFragmentFragment = {
+  __typename?: "AssetFile";
+  name: string;
+  size: number;
+  contentType?: string | null;
+  path: string;
+};
 
-export type AssetFile5FragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null };
+export type AssetFile5FragmentFragment = {
+  __typename?: "AssetFile";
+  name: string;
+  size: number;
+  contentType?: string | null;
+  path: string;
+  children?: Array<{
+    __typename?: "AssetFile";
+    name: string;
+    size: number;
+    contentType?: string | null;
+    path: string;
+    children?: Array<{
+      __typename?: "AssetFile";
+      name: string;
+      size: number;
+      contentType?: string | null;
+      path: string;
+      children?: Array<{
+        __typename?: "AssetFile";
+        name: string;
+        size: number;
+        contentType?: string | null;
+        path: string;
+        children?: Array<{
+          __typename?: "AssetFile";
+          name: string;
+          size: number;
+          contentType?: string | null;
+          path: string;
+          children?: Array<{
+            __typename?: "AssetFile";
+            name: string;
+            size: number;
+            contentType?: string | null;
+            path: string;
+          }> | null;
+        }> | null;
+      }> | null;
+    }> | null;
+  }> | null;
+};
 
-export type IntegrationFragmentFragment = { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null };
+export type IntegrationFragmentFragment = {
+  __typename?: "Integration";
+  id: string;
+  name: string;
+  description?: string | null;
+  logoUrl: string;
+  iType: IntegrationType;
+  developerId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  developer: { __typename?: "User"; id: string; name: string; email: string };
+  config?: {
+    __typename?: "IntegrationConfig";
+    token: string;
+    webhooks: Array<{
+      __typename?: "Webhook";
+      id: string;
+      name: string;
+      url: string;
+      active: boolean;
+      secret: string;
+      createdAt: Date;
+      updatedAt: Date;
+      trigger: {
+        __typename?: "WebhookTrigger";
+        onItemCreate?: boolean | null;
+        onItemUpdate?: boolean | null;
+        onItemDelete?: boolean | null;
+        onItemPublish?: boolean | null;
+        onItemUnPublish?: boolean | null;
+        onAssetUpload?: boolean | null;
+        onAssetDecompress?: boolean | null;
+        onAssetDelete?: boolean | null;
+      };
+    }>;
+  } | null;
+};
 
-export type RequestFragmentFragment = { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> };
+export type RequestFragmentFragment = {
+  __typename?: "Request";
+  id: string;
+  title: string;
+  description?: string | null;
+  workspaceId: string;
+  projectId: string;
+  threadId: string;
+  reviewersId: Array<string>;
+  state: RequestState;
+  createdAt: Date;
+  updatedAt: Date;
+  approvedAt?: Date | null;
+  closedAt?: Date | null;
+  items: Array<{
+    __typename?: "RequestItem";
+    itemId: string;
+    version?: string | null;
+    ref?: string | null;
+    item?: {
+      __typename?: "VersionedItem";
+      version: string;
+      parents?: Array<string> | null;
+      refs: Array<string>;
+      value: {
+        __typename?: "Item";
+        id: string;
+        schemaId: string;
+        modelId: string;
+        model: { __typename?: "Model"; name: string };
+        fields: Array<{
+          __typename?: "ItemField";
+          schemaFieldId: string;
+          type: SchemaFieldType;
+          value?: any | null;
+        }>;
+        schema: {
+          __typename?: "Schema";
+          id: string;
+          fields: Array<{
+            __typename?: "SchemaField";
+            id: string;
+            type: SchemaFieldType;
+            title: string;
+            key: string;
+            description?: string | null;
+            required: boolean;
+            unique: boolean;
+            isTitle: boolean;
+            multiple: boolean;
+            typeProperty?:
+              | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+              | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+              | { __typename?: "SchemaFieldCheckbox" }
+              | { __typename?: "SchemaFieldDate" }
+              | { __typename?: "SchemaFieldGroup" }
+              | {
+                  __typename?: "SchemaFieldInteger";
+                  min?: number | null;
+                  max?: number | null;
+                  integerDefaultValue?: any | null;
+                }
+              | {
+                  __typename?: "SchemaFieldMarkdown";
+                  defaultValue?: any | null;
+                  maxLength?: number | null;
+                }
+              | { __typename?: "SchemaFieldReference" }
+              | { __typename?: "SchemaFieldRichText" }
+              | {
+                  __typename?: "SchemaFieldSelect";
+                  values: Array<string>;
+                  selectDefaultValue?: any | null;
+                }
+              | { __typename?: "SchemaFieldTag" }
+              | {
+                  __typename?: "SchemaFieldText";
+                  defaultValue?: any | null;
+                  maxLength?: number | null;
+                }
+              | {
+                  __typename?: "SchemaFieldTextArea";
+                  defaultValue?: any | null;
+                  maxLength?: number | null;
+                }
+              | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+              | null;
+          }>;
+        };
+      };
+    } | null;
+  }>;
+  createdBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+  thread?: {
+    __typename?: "Thread";
+    id: string;
+    workspaceId: string;
+    comments: Array<{
+      __typename?: "Comment";
+      id: string;
+      authorId: string;
+      content: string;
+      createdAt: Date;
+      author?:
+        | { __typename?: "Integration"; id: string; name: string }
+        | { __typename?: "User"; id: string; name: string; email: string }
+        | null;
+    }>;
+  } | null;
+  project?: {
+    __typename?: "Project";
+    id: string;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+  } | null;
+  reviewers: Array<{ __typename?: "User"; id: string; name: string; email: string }>;
+};
 
-export type ThreadFragmentFragment = { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> };
+export type ThreadFragmentFragment = {
+  __typename?: "Thread";
+  id: string;
+  workspaceId: string;
+  comments: Array<{
+    __typename?: "Comment";
+    id: string;
+    authorId: string;
+    content: string;
+    createdAt: Date;
+    author?:
+      | { __typename?: "Integration"; id: string; name: string }
+      | { __typename?: "User"; id: string; name: string; email: string }
+      | null;
+  }>;
+};
 
-export type WorkspaceFragmentFragment = { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> };
+export type WorkspaceFragmentFragment = {
+  __typename?: "Workspace";
+  id: string;
+  name: string;
+  personal: boolean;
+  members: Array<
+    | {
+        __typename?: "WorkspaceIntegrationMember";
+        active: boolean;
+        invitedById: string;
+        integrationRole: Role;
+        integration?: {
+          __typename?: "Integration";
+          id: string;
+          name: string;
+          description?: string | null;
+          logoUrl: string;
+          iType: IntegrationType;
+          developerId: string;
+          createdAt: Date;
+          updatedAt: Date;
+          developer: { __typename?: "User"; id: string; name: string; email: string };
+          config?: {
+            __typename?: "IntegrationConfig";
+            token: string;
+            webhooks: Array<{
+              __typename?: "Webhook";
+              id: string;
+              name: string;
+              url: string;
+              active: boolean;
+              secret: string;
+              createdAt: Date;
+              updatedAt: Date;
+              trigger: {
+                __typename?: "WebhookTrigger";
+                onItemCreate?: boolean | null;
+                onItemUpdate?: boolean | null;
+                onItemDelete?: boolean | null;
+                onItemPublish?: boolean | null;
+                onItemUnPublish?: boolean | null;
+                onAssetUpload?: boolean | null;
+                onAssetDecompress?: boolean | null;
+                onAssetDelete?: boolean | null;
+              };
+            }>;
+          } | null;
+        } | null;
+        invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+      }
+    | {
+        __typename?: "WorkspaceUserMember";
+        userId: string;
+        role: Role;
+        user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+      }
+  >;
+};
 
 export type GetAssetsQueryVariables = Exact<{
-  projectId: Scalars['ID'];
-  keyword?: InputMaybe<Scalars['String']>;
+  projectId: Scalars["ID"];
+  keyword?: InputMaybe<Scalars["String"]>;
   sort?: InputMaybe<AssetSort>;
   pagination?: InputMaybe<Pagination>;
 }>;
 
-
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetAssetsQuery = {
+  __typename?: "Query";
+  assets: {
+    __typename?: "AssetConnection";
+    totalCount: number;
+    edges: Array<{
+      __typename?: "AssetEdge";
+      cursor: string;
+      node?: {
+        __typename?: "Asset";
+        id: string;
+        fileName: string;
+        projectId: string;
+        createdAt: Date;
+        size: number;
+        previewType?: PreviewType | null;
+        uuid: string;
+        url: string;
+        archiveExtractionStatus?: ArchiveExtractionStatus | null;
+        createdBy:
+          | {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            }
+          | { __typename?: "User"; id: string; name: string; email: string };
+        thread?: {
+          __typename?: "Thread";
+          id: string;
+          workspaceId: string;
+          comments: Array<{
+            __typename?: "Comment";
+            id: string;
+            authorId: string;
+            content: string;
+            createdAt: Date;
+            author?:
+              | { __typename?: "Integration"; id: string; name: string }
+              | { __typename?: "User"; id: string; name: string; email: string }
+              | null;
+          }>;
+        } | null;
+      } | null;
+    }>;
+    nodes: Array<{
+      __typename?: "Asset";
+      id: string;
+      fileName: string;
+      projectId: string;
+      createdAt: Date;
+      size: number;
+      previewType?: PreviewType | null;
+      uuid: string;
+      url: string;
+      archiveExtractionStatus?: ArchiveExtractionStatus | null;
+      createdBy:
+        | {
+            __typename?: "Integration";
+            id: string;
+            name: string;
+            description?: string | null;
+            logoUrl: string;
+            iType: IntegrationType;
+            developerId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            developer: { __typename?: "User"; id: string; name: string; email: string };
+            config?: {
+              __typename?: "IntegrationConfig";
+              token: string;
+              webhooks: Array<{
+                __typename?: "Webhook";
+                id: string;
+                name: string;
+                url: string;
+                active: boolean;
+                secret: string;
+                createdAt: Date;
+                updatedAt: Date;
+                trigger: {
+                  __typename?: "WebhookTrigger";
+                  onItemCreate?: boolean | null;
+                  onItemUpdate?: boolean | null;
+                  onItemDelete?: boolean | null;
+                  onItemPublish?: boolean | null;
+                  onItemUnPublish?: boolean | null;
+                  onAssetUpload?: boolean | null;
+                  onAssetDecompress?: boolean | null;
+                  onAssetDelete?: boolean | null;
+                };
+              }>;
+            } | null;
+          }
+        | { __typename?: "User"; id: string; name: string; email: string };
+      thread?: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      } | null;
+    } | null>;
+    pageInfo: {
+      __typename?: "PageInfo";
+      startCursor?: string | null;
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
+};
 
 export type GetAssetsItemsQueryVariables = Exact<{
-  projectId: Scalars['ID'];
-  keyword?: InputMaybe<Scalars['String']>;
+  projectId: Scalars["ID"];
+  keyword?: InputMaybe<Scalars["String"]>;
   sort?: InputMaybe<AssetSort>;
   pagination?: InputMaybe<Pagination>;
 }>;
 
-
-export type GetAssetsItemsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null } | null> } };
+export type GetAssetsItemsQuery = {
+  __typename?: "Query";
+  assets: {
+    __typename?: "AssetConnection";
+    edges: Array<{
+      __typename?: "AssetEdge";
+      cursor: string;
+      node?: {
+        __typename?: "Asset";
+        id: string;
+        items?: Array<{ __typename?: "AssetItem"; itemId: string; modelId: string }> | null;
+      } | null;
+    }>;
+    nodes: Array<{
+      __typename?: "Asset";
+      id: string;
+      items?: Array<{ __typename?: "AssetItem"; itemId: string; modelId: string }> | null;
+    } | null>;
+  };
+};
 
 export type GetAssetQueryVariables = Exact<{
-  assetId: Scalars['ID'];
+  assetId: Scalars["ID"];
 }>;
 
-
-export type GetAssetQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetAssetQuery = {
+  __typename?: "Query";
+  node?:
+    | {
+        __typename?: "Asset";
+        id: string;
+        fileName: string;
+        projectId: string;
+        createdAt: Date;
+        size: number;
+        previewType?: PreviewType | null;
+        uuid: string;
+        url: string;
+        archiveExtractionStatus?: ArchiveExtractionStatus | null;
+        createdBy:
+          | {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            }
+          | { __typename?: "User"; id: string; name: string; email: string };
+        thread?: {
+          __typename?: "Thread";
+          id: string;
+          workspaceId: string;
+          comments: Array<{
+            __typename?: "Comment";
+            id: string;
+            authorId: string;
+            content: string;
+            createdAt: Date;
+            author?:
+              | { __typename?: "Integration"; id: string; name: string }
+              | { __typename?: "User"; id: string; name: string; email: string }
+              | null;
+          }>;
+        } | null;
+      }
+    | { __typename?: "Group" }
+    | { __typename?: "Integration" }
+    | { __typename?: "Item" }
+    | { __typename?: "Model" }
+    | { __typename?: "Project" }
+    | { __typename?: "Request" }
+    | { __typename?: "Schema" }
+    | { __typename?: "User" }
+    | { __typename?: "View" }
+    | { __typename?: "Workspace" }
+    | null;
+};
 
 export type GetAssetFileQueryVariables = Exact<{
-  assetId: Scalars['ID'];
+  assetId: Scalars["ID"];
 }>;
 
-
-export type GetAssetFileQuery = { __typename?: 'Query', assetFile: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null } };
+export type GetAssetFileQuery = {
+  __typename?: "Query";
+  assetFile: {
+    __typename?: "AssetFile";
+    name: string;
+    size: number;
+    contentType?: string | null;
+    path: string;
+    children?: Array<{
+      __typename?: "AssetFile";
+      name: string;
+      size: number;
+      contentType?: string | null;
+      path: string;
+      children?: Array<{
+        __typename?: "AssetFile";
+        name: string;
+        size: number;
+        contentType?: string | null;
+        path: string;
+        children?: Array<{
+          __typename?: "AssetFile";
+          name: string;
+          size: number;
+          contentType?: string | null;
+          path: string;
+          children?: Array<{
+            __typename?: "AssetFile";
+            name: string;
+            size: number;
+            contentType?: string | null;
+            path: string;
+            children?: Array<{
+              __typename?: "AssetFile";
+              name: string;
+              size: number;
+              contentType?: string | null;
+              path: string;
+            }> | null;
+          }> | null;
+        }> | null;
+      }> | null;
+    }> | null;
+  };
+};
 
 export type GetAssetItemQueryVariables = Exact<{
-  assetId: Scalars['ID'];
+  assetId: Scalars["ID"];
 }>;
 
-
-export type GetAssetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetAssetItemQuery = {
+  __typename?: "Query";
+  node?:
+    | {
+        __typename?: "Asset";
+        id: string;
+        items?: Array<{ __typename?: "AssetItem"; itemId: string; modelId: string }> | null;
+      }
+    | { __typename?: "Group" }
+    | { __typename?: "Integration" }
+    | { __typename?: "Item" }
+    | { __typename?: "Model" }
+    | { __typename?: "Project" }
+    | { __typename?: "Request" }
+    | { __typename?: "Schema" }
+    | { __typename?: "User" }
+    | { __typename?: "View" }
+    | { __typename?: "Workspace" }
+    | null;
+};
 
 export type CreateAssetMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  file?: InputMaybe<Scalars['Upload']>;
-  token?: InputMaybe<Scalars['String']>;
-  url?: InputMaybe<Scalars['String']>;
-  skipDecompression?: InputMaybe<Scalars['Boolean']>;
+  projectId: Scalars["ID"];
+  file?: InputMaybe<Scalars["Upload"]>;
+  token?: InputMaybe<Scalars["String"]>;
+  url?: InputMaybe<Scalars["String"]>;
+  skipDecompression?: InputMaybe<Scalars["Boolean"]>;
 }>;
 
-
-export type CreateAssetMutation = { __typename?: 'Mutation', createAsset?: { __typename?: 'CreateAssetPayload', asset: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
+export type CreateAssetMutation = {
+  __typename?: "Mutation";
+  createAsset?: {
+    __typename?: "CreateAssetPayload";
+    asset: {
+      __typename?: "Asset";
+      id: string;
+      fileName: string;
+      projectId: string;
+      createdAt: Date;
+      size: number;
+      previewType?: PreviewType | null;
+      uuid: string;
+      url: string;
+      archiveExtractionStatus?: ArchiveExtractionStatus | null;
+      createdBy:
+        | {
+            __typename?: "Integration";
+            id: string;
+            name: string;
+            description?: string | null;
+            logoUrl: string;
+            iType: IntegrationType;
+            developerId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            developer: { __typename?: "User"; id: string; name: string; email: string };
+            config?: {
+              __typename?: "IntegrationConfig";
+              token: string;
+              webhooks: Array<{
+                __typename?: "Webhook";
+                id: string;
+                name: string;
+                url: string;
+                active: boolean;
+                secret: string;
+                createdAt: Date;
+                updatedAt: Date;
+                trigger: {
+                  __typename?: "WebhookTrigger";
+                  onItemCreate?: boolean | null;
+                  onItemUpdate?: boolean | null;
+                  onItemDelete?: boolean | null;
+                  onItemPublish?: boolean | null;
+                  onItemUnPublish?: boolean | null;
+                  onAssetUpload?: boolean | null;
+                  onAssetDecompress?: boolean | null;
+                  onAssetDelete?: boolean | null;
+                };
+              }>;
+            } | null;
+          }
+        | { __typename?: "User"; id: string; name: string; email: string };
+      thread?: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      } | null;
+    };
+  } | null;
+};
 
 export type UpdateAssetMutationVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars["ID"];
   previewType?: InputMaybe<PreviewType>;
 }>;
 
-
-export type UpdateAssetMutation = { __typename?: 'Mutation', updateAsset?: { __typename?: 'UpdateAssetPayload', asset: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
+export type UpdateAssetMutation = {
+  __typename?: "Mutation";
+  updateAsset?: {
+    __typename?: "UpdateAssetPayload";
+    asset: {
+      __typename?: "Asset";
+      id: string;
+      fileName: string;
+      projectId: string;
+      createdAt: Date;
+      size: number;
+      previewType?: PreviewType | null;
+      uuid: string;
+      url: string;
+      archiveExtractionStatus?: ArchiveExtractionStatus | null;
+      createdBy:
+        | {
+            __typename?: "Integration";
+            id: string;
+            name: string;
+            description?: string | null;
+            logoUrl: string;
+            iType: IntegrationType;
+            developerId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            developer: { __typename?: "User"; id: string; name: string; email: string };
+            config?: {
+              __typename?: "IntegrationConfig";
+              token: string;
+              webhooks: Array<{
+                __typename?: "Webhook";
+                id: string;
+                name: string;
+                url: string;
+                active: boolean;
+                secret: string;
+                createdAt: Date;
+                updatedAt: Date;
+                trigger: {
+                  __typename?: "WebhookTrigger";
+                  onItemCreate?: boolean | null;
+                  onItemUpdate?: boolean | null;
+                  onItemDelete?: boolean | null;
+                  onItemPublish?: boolean | null;
+                  onItemUnPublish?: boolean | null;
+                  onAssetUpload?: boolean | null;
+                  onAssetDecompress?: boolean | null;
+                  onAssetDelete?: boolean | null;
+                };
+              }>;
+            } | null;
+          }
+        | { __typename?: "User"; id: string; name: string; email: string };
+      thread?: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      } | null;
+    };
+  } | null;
+};
 
 export type DeleteAssetMutationVariables = Exact<{
-  assetId: Scalars['ID'];
+  assetId: Scalars["ID"];
 }>;
 
-
-export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset?: { __typename?: 'DeleteAssetPayload', assetId: string } | null };
+export type DeleteAssetMutation = {
+  __typename?: "Mutation";
+  deleteAsset?: { __typename?: "DeleteAssetPayload"; assetId: string } | null;
+};
 
 export type DecompressAssetMutationVariables = Exact<{
-  assetId: Scalars['ID'];
+  assetId: Scalars["ID"];
 }>;
 
-
-export type DecompressAssetMutation = { __typename?: 'Mutation', decompressAsset?: { __typename?: 'DecompressAssetPayload', asset: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } } | null };
+export type DecompressAssetMutation = {
+  __typename?: "Mutation";
+  decompressAsset?: {
+    __typename?: "DecompressAssetPayload";
+    asset: {
+      __typename?: "Asset";
+      id: string;
+      fileName: string;
+      projectId: string;
+      createdAt: Date;
+      size: number;
+      previewType?: PreviewType | null;
+      uuid: string;
+      url: string;
+      archiveExtractionStatus?: ArchiveExtractionStatus | null;
+      createdBy:
+        | {
+            __typename?: "Integration";
+            id: string;
+            name: string;
+            description?: string | null;
+            logoUrl: string;
+            iType: IntegrationType;
+            developerId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            developer: { __typename?: "User"; id: string; name: string; email: string };
+            config?: {
+              __typename?: "IntegrationConfig";
+              token: string;
+              webhooks: Array<{
+                __typename?: "Webhook";
+                id: string;
+                name: string;
+                url: string;
+                active: boolean;
+                secret: string;
+                createdAt: Date;
+                updatedAt: Date;
+                trigger: {
+                  __typename?: "WebhookTrigger";
+                  onItemCreate?: boolean | null;
+                  onItemUpdate?: boolean | null;
+                  onItemDelete?: boolean | null;
+                  onItemPublish?: boolean | null;
+                  onItemUnPublish?: boolean | null;
+                  onAssetUpload?: boolean | null;
+                  onAssetDecompress?: boolean | null;
+                  onAssetDelete?: boolean | null;
+                };
+              }>;
+            } | null;
+          }
+        | { __typename?: "User"; id: string; name: string; email: string };
+      thread?: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      } | null;
+    };
+  } | null;
+};
 
 export type CreateAssetUploadMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  filename: Scalars['String'];
+  projectId: Scalars["ID"];
+  filename: Scalars["String"];
 }>;
 
-
-export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType: string } | null };
+export type CreateAssetUploadMutation = {
+  __typename?: "Mutation";
+  createAssetUpload?: {
+    __typename?: "CreateAssetUploadPayload";
+    url: string;
+    token: string;
+    contentType: string;
+  } | null;
+};
 
 export type AddCommentMutationVariables = Exact<{
-  threadId: Scalars['ID'];
-  content: Scalars['String'];
+  threadId: Scalars["ID"];
+  content: Scalars["String"];
 }>;
 
-
-export type AddCommentMutation = { __typename?: 'Mutation', addComment?: { __typename?: 'CommentPayload', comment: { __typename?: 'Comment', id: string, authorType: OperatorType, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null } } | null };
+export type AddCommentMutation = {
+  __typename?: "Mutation";
+  addComment?: {
+    __typename?: "CommentPayload";
+    comment: {
+      __typename?: "Comment";
+      id: string;
+      authorType: OperatorType;
+      authorId: string;
+      content: string;
+      createdAt: Date;
+      author?:
+        | { __typename?: "Integration"; id: string; name: string }
+        | { __typename?: "User"; id: string; name: string; email: string }
+        | null;
+    };
+  } | null;
+};
 
 export type UpdateCommentMutationVariables = Exact<{
-  commentId: Scalars['ID'];
-  threadId: Scalars['ID'];
-  content: Scalars['String'];
+  commentId: Scalars["ID"];
+  threadId: Scalars["ID"];
+  content: Scalars["String"];
 }>;
 
-
-export type UpdateCommentMutation = { __typename?: 'Mutation', updateComment?: { __typename?: 'CommentPayload', comment: { __typename?: 'Comment', id: string, authorType: OperatorType, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null } } | null };
+export type UpdateCommentMutation = {
+  __typename?: "Mutation";
+  updateComment?: {
+    __typename?: "CommentPayload";
+    comment: {
+      __typename?: "Comment";
+      id: string;
+      authorType: OperatorType;
+      authorId: string;
+      content: string;
+      createdAt: Date;
+      author?:
+        | { __typename?: "Integration"; id: string; name: string }
+        | { __typename?: "User"; id: string; name: string; email: string }
+        | null;
+    };
+  } | null;
+};
 
 export type DeleteCommentMutationVariables = Exact<{
-  commentId: Scalars['ID'];
-  threadId: Scalars['ID'];
+  commentId: Scalars["ID"];
+  threadId: Scalars["ID"];
 }>;
 
-
-export type DeleteCommentMutation = { __typename?: 'Mutation', deleteComment?: { __typename?: 'DeleteCommentPayload', commentId: string } | null };
+export type DeleteCommentMutation = {
+  __typename?: "Mutation";
+  deleteComment?: { __typename?: "DeleteCommentPayload"; commentId: string } | null;
+};
 
 export type CreateFieldMutationVariables = Exact<{
-  modelId?: InputMaybe<Scalars['ID']>;
-  groupId?: InputMaybe<Scalars['ID']>;
+  modelId?: InputMaybe<Scalars["ID"]>;
+  groupId?: InputMaybe<Scalars["ID"]>;
   type: SchemaFieldType;
-  title: Scalars['String'];
-  metadata?: InputMaybe<Scalars['Boolean']>;
-  description?: InputMaybe<Scalars['String']>;
-  key: Scalars['String'];
-  multiple: Scalars['Boolean'];
-  unique: Scalars['Boolean'];
-  isTitle: Scalars['Boolean'];
-  required: Scalars['Boolean'];
+  title: Scalars["String"];
+  metadata?: InputMaybe<Scalars["Boolean"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  key: Scalars["String"];
+  multiple: Scalars["Boolean"];
+  unique: Scalars["Boolean"];
+  isTitle: Scalars["Boolean"];
+  required: Scalars["Boolean"];
   typeProperty: SchemaFieldTypePropertyInput;
 }>;
 
-
-export type CreateFieldMutation = { __typename?: 'Mutation', createField?: { __typename?: 'FieldPayload', field: { __typename?: 'SchemaField', id: string } } | null };
+export type CreateFieldMutation = {
+  __typename?: "Mutation";
+  createField?: {
+    __typename?: "FieldPayload";
+    field: { __typename?: "SchemaField"; id: string };
+  } | null;
+};
 
 export type UpdateFieldMutationVariables = Exact<{
-  modelId?: InputMaybe<Scalars['ID']>;
-  groupId?: InputMaybe<Scalars['ID']>;
-  fieldId: Scalars['ID'];
-  title: Scalars['String'];
-  metadata?: InputMaybe<Scalars['Boolean']>;
-  description?: InputMaybe<Scalars['String']>;
-  order?: InputMaybe<Scalars['Int']>;
-  key: Scalars['String'];
-  multiple: Scalars['Boolean'];
-  unique: Scalars['Boolean'];
-  isTitle: Scalars['Boolean'];
-  required: Scalars['Boolean'];
+  modelId?: InputMaybe<Scalars["ID"]>;
+  groupId?: InputMaybe<Scalars["ID"]>;
+  fieldId: Scalars["ID"];
+  title: Scalars["String"];
+  metadata?: InputMaybe<Scalars["Boolean"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  order?: InputMaybe<Scalars["Int"]>;
+  key: Scalars["String"];
+  multiple: Scalars["Boolean"];
+  unique: Scalars["Boolean"];
+  isTitle: Scalars["Boolean"];
+  required: Scalars["Boolean"];
   typeProperty: SchemaFieldTypePropertyInput;
 }>;
 
-
-export type UpdateFieldMutation = { __typename?: 'Mutation', updateField?: { __typename?: 'FieldPayload', field: { __typename?: 'SchemaField', id: string } } | null };
+export type UpdateFieldMutation = {
+  __typename?: "Mutation";
+  updateField?: {
+    __typename?: "FieldPayload";
+    field: { __typename?: "SchemaField"; id: string };
+  } | null;
+};
 
 export type UpdateFieldsMutationVariables = Exact<{
   updateFieldInput: Array<UpdateFieldInput> | UpdateFieldInput;
 }>;
 
-
-export type UpdateFieldsMutation = { __typename?: 'Mutation', updateFields?: { __typename?: 'FieldsPayload', fields: Array<{ __typename?: 'SchemaField', id: string }> } | null };
+export type UpdateFieldsMutation = {
+  __typename?: "Mutation";
+  updateFields?: {
+    __typename?: "FieldsPayload";
+    fields: Array<{ __typename?: "SchemaField"; id: string }>;
+  } | null;
+};
 
 export type DeleteFieldMutationVariables = Exact<{
-  modelId?: InputMaybe<Scalars['ID']>;
-  groupId?: InputMaybe<Scalars['ID']>;
-  fieldId: Scalars['ID'];
-  metadata?: InputMaybe<Scalars['Boolean']>;
+  modelId?: InputMaybe<Scalars["ID"]>;
+  groupId?: InputMaybe<Scalars["ID"]>;
+  fieldId: Scalars["ID"];
+  metadata?: InputMaybe<Scalars["Boolean"]>;
 }>;
 
-
-export type DeleteFieldMutation = { __typename?: 'Mutation', deleteField?: { __typename?: 'DeleteFieldPayload', fieldId: string } | null };
+export type DeleteFieldMutation = {
+  __typename?: "Mutation";
+  deleteField?: { __typename?: "DeleteFieldPayload"; fieldId: string } | null;
+};
 
 export type GetGroupsQueryVariables = Exact<{
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
 }>;
 
-
-export type GetGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> };
+export type GetGroupsQuery = {
+  __typename?: "Query";
+  groups: Array<{
+    __typename?: "Group";
+    id: string;
+    schemaId: string;
+    projectId: string;
+    name: string;
+    description: string;
+    key: string;
+    schema: {
+      __typename?: "Schema";
+      id: string;
+      fields: Array<{
+        __typename?: "SchemaField";
+        id: string;
+        type: SchemaFieldType;
+        title: string;
+        key: string;
+        description?: string | null;
+        required: boolean;
+        unique: boolean;
+        isTitle: boolean;
+        multiple: boolean;
+        typeProperty?:
+          | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+          | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+          | { __typename?: "SchemaFieldCheckbox" }
+          | { __typename?: "SchemaFieldDate" }
+          | { __typename?: "SchemaFieldGroup" }
+          | {
+              __typename?: "SchemaFieldInteger";
+              min?: number | null;
+              max?: number | null;
+              integerDefaultValue?: any | null;
+            }
+          | {
+              __typename?: "SchemaFieldMarkdown";
+              defaultValue?: any | null;
+              maxLength?: number | null;
+            }
+          | { __typename?: "SchemaFieldReference" }
+          | { __typename?: "SchemaFieldRichText" }
+          | {
+              __typename?: "SchemaFieldSelect";
+              values: Array<string>;
+              selectDefaultValue?: any | null;
+            }
+          | { __typename?: "SchemaFieldTag" }
+          | { __typename?: "SchemaFieldText"; defaultValue?: any | null; maxLength?: number | null }
+          | {
+              __typename?: "SchemaFieldTextArea";
+              defaultValue?: any | null;
+              maxLength?: number | null;
+            }
+          | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+          | null;
+      }>;
+    };
+  } | null>;
+};
 
 export type GetGroupQueryVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars["ID"];
 }>;
 
-
-export type GetGroupQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetGroupQuery = {
+  __typename?: "Query";
+  node?:
+    | { __typename?: "Asset" }
+    | {
+        __typename?: "Group";
+        id: string;
+        schemaId: string;
+        projectId: string;
+        name: string;
+        description: string;
+        key: string;
+        schema: {
+          __typename?: "Schema";
+          id: string;
+          fields: Array<{
+            __typename?: "SchemaField";
+            id: string;
+            type: SchemaFieldType;
+            title: string;
+            key: string;
+            description?: string | null;
+            required: boolean;
+            unique: boolean;
+            isTitle: boolean;
+            multiple: boolean;
+            typeProperty?:
+              | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+              | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+              | { __typename?: "SchemaFieldCheckbox" }
+              | { __typename?: "SchemaFieldDate" }
+              | { __typename?: "SchemaFieldGroup" }
+              | {
+                  __typename?: "SchemaFieldInteger";
+                  min?: number | null;
+                  max?: number | null;
+                  integerDefaultValue?: any | null;
+                }
+              | {
+                  __typename?: "SchemaFieldMarkdown";
+                  defaultValue?: any | null;
+                  maxLength?: number | null;
+                }
+              | { __typename?: "SchemaFieldReference" }
+              | { __typename?: "SchemaFieldRichText" }
+              | {
+                  __typename?: "SchemaFieldSelect";
+                  values: Array<string>;
+                  selectDefaultValue?: any | null;
+                }
+              | { __typename?: "SchemaFieldTag" }
+              | {
+                  __typename?: "SchemaFieldText";
+                  defaultValue?: any | null;
+                  maxLength?: number | null;
+                }
+              | {
+                  __typename?: "SchemaFieldTextArea";
+                  defaultValue?: any | null;
+                  maxLength?: number | null;
+                }
+              | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+              | null;
+          }>;
+        };
+      }
+    | { __typename?: "Integration" }
+    | { __typename?: "Item" }
+    | { __typename?: "Model" }
+    | { __typename?: "Project" }
+    | { __typename?: "Request" }
+    | { __typename?: "Schema" }
+    | { __typename?: "User" }
+    | { __typename?: "View" }
+    | { __typename?: "Workspace" }
+    | null;
+};
 
 export type CreateGroupMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  name: Scalars['String'];
-  key: Scalars['String'];
-  description?: InputMaybe<Scalars['String']>;
+  projectId: Scalars["ID"];
+  name: Scalars["String"];
+  key: Scalars["String"];
+  description?: InputMaybe<Scalars["String"]>;
 }>;
 
-
-export type CreateGroupMutation = { __typename?: 'Mutation', createGroup?: { __typename?: 'GroupPayload', group: { __typename?: 'Group', id: string } } | null };
+export type CreateGroupMutation = {
+  __typename?: "Mutation";
+  createGroup?: { __typename?: "GroupPayload"; group: { __typename?: "Group"; id: string } } | null;
+};
 
 export type UpdateGroupMutationVariables = Exact<{
-  groupId: Scalars['ID'];
-  name: Scalars['String'];
-  key: Scalars['String'];
-  description?: InputMaybe<Scalars['String']>;
+  groupId: Scalars["ID"];
+  name: Scalars["String"];
+  key: Scalars["String"];
+  description?: InputMaybe<Scalars["String"]>;
 }>;
 
-
-export type UpdateGroupMutation = { __typename?: 'Mutation', updateGroup?: { __typename?: 'GroupPayload', group: { __typename?: 'Group', id: string } } | null };
+export type UpdateGroupMutation = {
+  __typename?: "Mutation";
+  updateGroup?: { __typename?: "GroupPayload"; group: { __typename?: "Group"; id: string } } | null;
+};
 
 export type DeleteGroupMutationVariables = Exact<{
-  groupId: Scalars['ID'];
+  groupId: Scalars["ID"];
 }>;
 
-
-export type DeleteGroupMutation = { __typename?: 'Mutation', deleteGroup?: { __typename?: 'DeleteGroupPayload', groupId: string } | null };
+export type DeleteGroupMutation = {
+  __typename?: "Mutation";
+  deleteGroup?: { __typename?: "DeleteGroupPayload"; groupId: string } | null;
+};
 
 export type CheckGroupKeyAvailabilityQueryVariables = Exact<{
-  projectId: Scalars['ID'];
-  key: Scalars['String'];
+  projectId: Scalars["ID"];
+  key: Scalars["String"];
 }>;
 
+export type CheckGroupKeyAvailabilityQuery = {
+  __typename?: "Query";
+  checkGroupKeyAvailability: { __typename?: "KeyAvailability"; key: string; available: boolean };
+};
 
-export type CheckGroupKeyAvailabilityQuery = { __typename?: 'Query', checkGroupKeyAvailability: { __typename?: 'KeyAvailability', key: string, available: boolean } };
+export type ModelsByGroupQueryVariables = Exact<{
+  groupId: Scalars["ID"];
+}>;
+
+export type ModelsByGroupQuery = {
+  __typename?: "Query";
+  modelsByGroup: Array<{ __typename?: "Model"; name: string } | null>;
+};
 
 export type CreateIntegrationMutationVariables = Exact<{
-  name: Scalars['String'];
-  description?: InputMaybe<Scalars['String']>;
-  logoUrl: Scalars['URL'];
+  name: Scalars["String"];
+  description?: InputMaybe<Scalars["String"]>;
+  logoUrl: Scalars["URL"];
   type: IntegrationType;
 }>;
 
-
-export type CreateIntegrationMutation = { __typename?: 'Mutation', createIntegration?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
+export type CreateIntegrationMutation = {
+  __typename?: "Mutation";
+  createIntegration?: {
+    __typename?: "IntegrationPayload";
+    integration: {
+      __typename?: "Integration";
+      id: string;
+      name: string;
+      description?: string | null;
+      logoUrl: string;
+      iType: IntegrationType;
+    };
+  } | null;
+};
 
 export type UpdateIntegrationMutationVariables = Exact<{
-  integrationId: Scalars['ID'];
-  name: Scalars['String'];
-  description?: InputMaybe<Scalars['String']>;
-  logoUrl: Scalars['URL'];
+  integrationId: Scalars["ID"];
+  name: Scalars["String"];
+  description?: InputMaybe<Scalars["String"]>;
+  logoUrl: Scalars["URL"];
 }>;
 
-
-export type UpdateIntegrationMutation = { __typename?: 'Mutation', updateIntegration?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
+export type UpdateIntegrationMutation = {
+  __typename?: "Mutation";
+  updateIntegration?: {
+    __typename?: "IntegrationPayload";
+    integration: {
+      __typename?: "Integration";
+      id: string;
+      name: string;
+      description?: string | null;
+      logoUrl: string;
+      iType: IntegrationType;
+    };
+  } | null;
+};
 
 export type DeleteIntegrationMutationVariables = Exact<{
-  integrationId: Scalars['ID'];
+  integrationId: Scalars["ID"];
 }>;
 
-
-export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration?: { __typename?: 'DeleteIntegrationPayload', integrationId: string } | null };
+export type DeleteIntegrationMutation = {
+  __typename?: "Mutation";
+  deleteIntegration?: { __typename?: "DeleteIntegrationPayload"; integrationId: string } | null;
+};
 
 export type GetItemsQueryVariables = Exact<{
-  modelId: Scalars['ID'];
+  query: ItemQueryInput;
   pagination?: InputMaybe<Pagination>;
 }>;
 
-
-export type GetItemsQuery = { __typename?: 'Query', items: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> }, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
+export type GetItemsQuery = {
+  __typename?: "Query";
+  searchItem: {
+    __typename?: "ItemConnection";
+    totalCount: number;
+    nodes: Array<{
+      __typename?: "Item";
+      id: string;
+      title?: string | null;
+      schemaId: string;
+      createdAt: Date;
+      updatedAt: Date;
+      status: ItemStatus;
+      createdBy?:
+        | { __typename?: "Integration"; name: string }
+        | { __typename?: "User"; name: string }
+        | null;
+      fields: Array<{
+        __typename?: "ItemField";
+        schemaFieldId: string;
+        itemGroupId?: string | null;
+        type: SchemaFieldType;
+        value?: any | null;
+      }>;
+      thread: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      };
+      metadata?: {
+        __typename?: "Item";
+        id: string;
+        fields: Array<{
+          __typename?: "ItemField";
+          schemaFieldId: string;
+          itemGroupId?: string | null;
+          type: SchemaFieldType;
+          value?: any | null;
+        }>;
+      } | null;
+    } | null>;
+  };
+};
 
 export type GetItemQueryVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars["ID"];
 }>;
 
-
-export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetItemQuery = {
+  __typename?: "Query";
+  node?:
+    | { __typename?: "Asset" }
+    | { __typename?: "Group" }
+    | { __typename?: "Integration" }
+    | {
+        __typename?: "Item";
+        id: string;
+        title?: string | null;
+        schemaId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: ItemStatus;
+        version: string;
+        assets: Array<{ __typename?: "Asset"; id: string; url: string } | null>;
+        createdBy?:
+          | { __typename?: "Integration"; name: string }
+          | { __typename?: "User"; name: string }
+          | null;
+        updatedBy?:
+          | { __typename?: "Integration"; name: string }
+          | { __typename?: "User"; name: string }
+          | null;
+        fields: Array<{
+          __typename?: "ItemField";
+          schemaFieldId: string;
+          itemGroupId?: string | null;
+          type: SchemaFieldType;
+          value?: any | null;
+        }>;
+        metadata?: {
+          __typename?: "Item";
+          id: string;
+          fields: Array<{
+            __typename?: "ItemField";
+            schemaFieldId: string;
+            type: SchemaFieldType;
+            value?: any | null;
+          }>;
+        } | null;
+        thread: {
+          __typename?: "Thread";
+          id: string;
+          workspaceId: string;
+          comments: Array<{
+            __typename?: "Comment";
+            id: string;
+            authorId: string;
+            content: string;
+            createdAt: Date;
+            author?:
+              | { __typename?: "Integration"; id: string; name: string }
+              | { __typename?: "User"; id: string; name: string; email: string }
+              | null;
+          }>;
+        };
+      }
+    | { __typename?: "Model" }
+    | { __typename?: "Project" }
+    | { __typename?: "Request" }
+    | { __typename?: "Schema" }
+    | { __typename?: "User" }
+    | { __typename?: "View" }
+    | { __typename?: "Workspace" }
+    | null;
+};
 
 export type IsItemReferencedQueryVariables = Exact<{
-  itemId: Scalars['ID'];
-  correspondingFieldId: Scalars['ID'];
+  itemId: Scalars["ID"];
+  correspondingFieldId: Scalars["ID"];
 }>;
 
-
-export type IsItemReferencedQuery = { __typename?: 'Query', isItemReferenced: boolean };
+export type IsItemReferencedQuery = { __typename?: "Query"; isItemReferenced: boolean };
 
 export type GetItemsByIdsQueryVariables = Exact<{
-  id: Array<Scalars['ID']> | Scalars['ID'];
+  id: Array<Scalars["ID"]> | Scalars["ID"];
 }>;
 
-
-export type GetItemsByIdsQuery = { __typename?: 'Query', nodes: Array<{ __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null> };
+export type GetItemsByIdsQuery = {
+  __typename?: "Query";
+  nodes: Array<
+    | { __typename?: "Asset" }
+    | { __typename?: "Group" }
+    | { __typename?: "Integration" }
+    | {
+        __typename?: "Item";
+        id: string;
+        title?: string | null;
+        schemaId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: ItemStatus;
+      }
+    | { __typename?: "Model" }
+    | { __typename?: "Project" }
+    | { __typename?: "Request" }
+    | { __typename?: "Schema" }
+    | { __typename?: "User" }
+    | { __typename?: "View" }
+    | { __typename?: "Workspace" }
+    | null
+  >;
+};
 
 export type SearchItemQueryVariables = Exact<{
-  query: ItemQuery;
-  sort?: InputMaybe<ItemSort>;
+  query: ItemQueryInput;
+  sort?: InputMaybe<ItemSortInput>;
+  filter?: InputMaybe<ConditionInput>;
   pagination?: InputMaybe<Pagination>;
 }>;
 
-
-export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type SearchItemQuery = {
+  __typename?: "Query";
+  searchItem: {
+    __typename?: "ItemConnection";
+    totalCount: number;
+    nodes: Array<{
+      __typename?: "Item";
+      id: string;
+      title?: string | null;
+      schemaId: string;
+      createdAt: Date;
+      updatedAt: Date;
+      status: ItemStatus;
+      assets: Array<{ __typename?: "Asset"; id: string; url: string } | null>;
+      createdBy?:
+        | { __typename?: "Integration"; name: string }
+        | { __typename?: "User"; name: string }
+        | null;
+      fields: Array<{
+        __typename?: "ItemField";
+        schemaFieldId: string;
+        itemGroupId?: string | null;
+        type: SchemaFieldType;
+        value?: any | null;
+      }>;
+      thread: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      };
+    } | null>;
+  };
+};
 
 export type CreateItemMutationVariables = Exact<{
-  modelId: Scalars['ID'];
-  schemaId: Scalars['ID'];
-  metadataId?: InputMaybe<Scalars['ID']>;
+  modelId: Scalars["ID"];
+  schemaId: Scalars["ID"];
+  metadataId?: InputMaybe<Scalars["ID"]>;
   fields: Array<ItemFieldInput> | ItemFieldInput;
 }>;
 
-
-export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string, itemGroupId?: string | null }> } } | null };
+export type CreateItemMutation = {
+  __typename?: "Mutation";
+  createItem?: {
+    __typename?: "ItemPayload";
+    item: {
+      __typename?: "Item";
+      id: string;
+      schemaId: string;
+      fields: Array<{
+        __typename?: "ItemField";
+        value?: any | null;
+        type: SchemaFieldType;
+        schemaFieldId: string;
+        itemGroupId?: string | null;
+      }>;
+    };
+  } | null;
+};
 
 export type DeleteItemMutationVariables = Exact<{
-  itemId: Scalars['ID'];
+  itemId: Scalars["ID"];
 }>;
 
-
-export type DeleteItemMutation = { __typename?: 'Mutation', deleteItem?: { __typename?: 'DeleteItemPayload', itemId: string } | null };
+export type DeleteItemMutation = {
+  __typename?: "Mutation";
+  deleteItem?: { __typename?: "DeleteItemPayload"; itemId: string } | null;
+};
 
 export type UpdateItemMutationVariables = Exact<{
-  itemId: Scalars['ID'];
+  itemId: Scalars["ID"];
   fields: Array<ItemFieldInput> | ItemFieldInput;
-  metadataId?: InputMaybe<Scalars['ID']>;
-  version: Scalars['String'];
+  metadataId?: InputMaybe<Scalars["ID"]>;
+  version: Scalars["String"];
 }>;
 
-
-export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string, itemGroupId?: string | null }> } } | null };
+export type UpdateItemMutation = {
+  __typename?: "Mutation";
+  updateItem?: {
+    __typename?: "ItemPayload";
+    item: {
+      __typename?: "Item";
+      id: string;
+      schemaId: string;
+      fields: Array<{
+        __typename?: "ItemField";
+        value?: any | null;
+        type: SchemaFieldType;
+        schemaFieldId: string;
+        itemGroupId?: string | null;
+      }>;
+    };
+  } | null;
+};
 
 export type UnpublishItemMutationVariables = Exact<{
-  itemIds: Array<Scalars['ID']> | Scalars['ID'];
+  itemIds: Array<Scalars["ID"]> | Scalars["ID"];
 }>;
 
-
-export type UnpublishItemMutation = { __typename?: 'Mutation', unpublishItem?: { __typename?: 'UnpublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
+export type UnpublishItemMutation = {
+  __typename?: "Mutation";
+  unpublishItem?: {
+    __typename?: "UnpublishItemPayload";
+    items: Array<{ __typename?: "Item"; id: string }>;
+  } | null;
+};
 
 export type PublishItemMutationVariables = Exact<{
-  itemIds: Array<Scalars['ID']> | Scalars['ID'];
+  itemIds: Array<Scalars["ID"]> | Scalars["ID"];
 }>;
 
-
-export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
+export type PublishItemMutation = {
+  __typename?: "Mutation";
+  publishItem?: {
+    __typename?: "PublishItemPayload";
+    items: Array<{ __typename?: "Item"; id: string }>;
+  } | null;
+};
 
 export type GetModelsQueryVariables = Exact<{
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
   pagination?: InputMaybe<Pagination>;
 }>;
 
-
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = {
+  __typename?: "Query";
+  models: {
+    __typename?: "ModelConnection";
+    nodes: Array<{
+      __typename?: "Model";
+      id: string;
+      name: string;
+      description: string;
+      key: string;
+      public: boolean;
+      metadataSchema?: {
+        __typename?: "Schema";
+        id: string;
+        fields: Array<{
+          __typename?: "SchemaField";
+          id: string;
+          type: SchemaFieldType;
+          title: string;
+          key: string;
+          description?: string | null;
+          required: boolean;
+          unique: boolean;
+          isTitle: boolean;
+          multiple: boolean;
+          order?: number | null;
+          typeProperty?:
+            | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+            | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+            | { __typename?: "SchemaFieldCheckbox"; defaultValue?: any | null }
+            | { __typename?: "SchemaFieldDate"; defaultValue?: any | null }
+            | { __typename?: "SchemaFieldGroup" }
+            | {
+                __typename?: "SchemaFieldInteger";
+                min?: number | null;
+                max?: number | null;
+                integerDefaultValue?: any | null;
+              }
+            | {
+                __typename?: "SchemaFieldMarkdown";
+                defaultValue?: any | null;
+                maxLength?: number | null;
+              }
+            | {
+                __typename?: "SchemaFieldReference";
+                modelId: string;
+                correspondingField?: {
+                  __typename?: "SchemaField";
+                  id: string;
+                  type: SchemaFieldType;
+                  title: string;
+                  key: string;
+                  description?: string | null;
+                  required: boolean;
+                  unique: boolean;
+                  multiple: boolean;
+                  order?: number | null;
+                } | null;
+              }
+            | { __typename?: "SchemaFieldRichText" }
+            | {
+                __typename?: "SchemaFieldSelect";
+                values: Array<string>;
+                selectDefaultValue?: any | null;
+              }
+            | {
+                __typename?: "SchemaFieldTag";
+                selectDefaultValue?: any | null;
+                tags: Array<{
+                  __typename?: "SchemaFieldTagValue";
+                  id: string;
+                  name: string;
+                  color: SchemaFieldTagColor;
+                }>;
+              }
+            | {
+                __typename?: "SchemaFieldText";
+                defaultValue?: any | null;
+                maxLength?: number | null;
+              }
+            | {
+                __typename?: "SchemaFieldTextArea";
+                defaultValue?: any | null;
+                maxLength?: number | null;
+              }
+            | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+            | null;
+        }>;
+      } | null;
+      schema: {
+        __typename?: "Schema";
+        id: string;
+        fields: Array<{
+          __typename?: "SchemaField";
+          id: string;
+          type: SchemaFieldType;
+          title: string;
+          key: string;
+          description?: string | null;
+          required: boolean;
+          unique: boolean;
+          isTitle: boolean;
+          multiple: boolean;
+          order?: number | null;
+          typeProperty?:
+            | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+            | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+            | { __typename?: "SchemaFieldCheckbox"; defaultValue?: any | null }
+            | { __typename?: "SchemaFieldDate"; defaultValue?: any | null }
+            | { __typename?: "SchemaFieldGroup"; groupId: string }
+            | {
+                __typename?: "SchemaFieldInteger";
+                min?: number | null;
+                max?: number | null;
+                integerDefaultValue?: any | null;
+              }
+            | {
+                __typename?: "SchemaFieldMarkdown";
+                defaultValue?: any | null;
+                maxLength?: number | null;
+              }
+            | {
+                __typename?: "SchemaFieldReference";
+                modelId: string;
+                correspondingField?: {
+                  __typename?: "SchemaField";
+                  id: string;
+                  type: SchemaFieldType;
+                  title: string;
+                  key: string;
+                  description?: string | null;
+                  required: boolean;
+                  unique: boolean;
+                  multiple: boolean;
+                  order?: number | null;
+                } | null;
+              }
+            | { __typename?: "SchemaFieldRichText" }
+            | {
+                __typename?: "SchemaFieldSelect";
+                values: Array<string>;
+                selectDefaultValue?: any | null;
+              }
+            | {
+                __typename?: "SchemaFieldTag";
+                selectDefaultValue?: any | null;
+                tags: Array<{
+                  __typename?: "SchemaFieldTagValue";
+                  id: string;
+                  name: string;
+                  color: SchemaFieldTagColor;
+                }>;
+              }
+            | {
+                __typename?: "SchemaFieldText";
+                defaultValue?: any | null;
+                maxLength?: number | null;
+              }
+            | {
+                __typename?: "SchemaFieldTextArea";
+                defaultValue?: any | null;
+                maxLength?: number | null;
+              }
+            | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+            | null;
+        }>;
+      };
+    } | null>;
+  };
+};
 
 export type GetModelQueryVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars["ID"];
 }>;
 
-
-export type GetModelQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model', id: string, schemaId: string } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetModelQuery = {
+  __typename?: "Query";
+  node?:
+    | { __typename?: "Asset" }
+    | { __typename?: "Group" }
+    | { __typename?: "Integration" }
+    | { __typename?: "Item" }
+    | { __typename?: "Model"; id: string; schemaId: string }
+    | { __typename?: "Project" }
+    | { __typename?: "Request" }
+    | { __typename?: "Schema" }
+    | { __typename?: "User" }
+    | { __typename?: "View" }
+    | { __typename?: "Workspace" }
+    | null;
+};
 
 export type CreateModelMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  key?: InputMaybe<Scalars['String']>;
+  projectId: Scalars["ID"];
+  name?: InputMaybe<Scalars["String"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  key?: InputMaybe<Scalars["String"]>;
 }>;
 
-
-export type CreateModelMutation = { __typename?: 'Mutation', createModel?: { __typename?: 'ModelPayload', model: { __typename?: 'Model', id: string, name: string } } | null };
+export type CreateModelMutation = {
+  __typename?: "Mutation";
+  createModel?: {
+    __typename?: "ModelPayload";
+    model: { __typename?: "Model"; id: string; name: string };
+  } | null;
+};
 
 export type DeleteModelMutationVariables = Exact<{
-  modelId: Scalars['ID'];
+  modelId: Scalars["ID"];
 }>;
 
-
-export type DeleteModelMutation = { __typename?: 'Mutation', deleteModel?: { __typename?: 'DeleteModelPayload', modelId: string } | null };
+export type DeleteModelMutation = {
+  __typename?: "Mutation";
+  deleteModel?: { __typename?: "DeleteModelPayload"; modelId: string } | null;
+};
 
 export type UpdateModelMutationVariables = Exact<{
-  modelId: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  key?: InputMaybe<Scalars['String']>;
-  public: Scalars['Boolean'];
+  modelId: Scalars["ID"];
+  name?: InputMaybe<Scalars["String"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  key?: InputMaybe<Scalars["String"]>;
+  public: Scalars["Boolean"];
 }>;
 
-
-export type UpdateModelMutation = { __typename?: 'Mutation', updateModel?: { __typename?: 'ModelPayload', model: { __typename?: 'Model', id: string, name: string } } | null };
+export type UpdateModelMutation = {
+  __typename?: "Mutation";
+  updateModel?: {
+    __typename?: "ModelPayload";
+    model: { __typename?: "Model"; id: string; name: string };
+  } | null;
+};
 
 export type CheckModelKeyAvailabilityQueryVariables = Exact<{
-  projectId: Scalars['ID'];
-  key: Scalars['String'];
+  projectId: Scalars["ID"];
+  key: Scalars["String"];
 }>;
 
-
-export type CheckModelKeyAvailabilityQuery = { __typename?: 'Query', checkModelKeyAvailability: { __typename?: 'KeyAvailability', key: string, available: boolean } };
+export type CheckModelKeyAvailabilityQuery = {
+  __typename?: "Query";
+  checkModelKeyAvailability: { __typename?: "KeyAvailability"; key: string; available: boolean };
+};
 
 export type GetProjectQueryVariables = Exact<{
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
 }>;
 
-
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | null };
+export type GetProjectQuery = {
+  __typename?: "Query";
+  node?:
+    | { __typename?: "Asset"; id: string }
+    | { __typename?: "Group"; id: string }
+    | { __typename?: "Integration"; id: string }
+    | { __typename?: "Item"; id: string }
+    | { __typename?: "Model"; id: string }
+    | {
+        __typename?: "Project";
+        name: string;
+        description: string;
+        alias: string;
+        requestRoles?: Array<Role> | null;
+        id: string;
+        publication?: {
+          __typename?: "ProjectPublication";
+          scope: ProjectPublicationScope;
+          assetPublic: boolean;
+        } | null;
+      }
+    | { __typename?: "Request"; id: string }
+    | { __typename?: "Schema"; id: string }
+    | { __typename?: "User"; id: string }
+    | { __typename?: "View"; id: string }
+    | { __typename?: "Workspace"; id: string }
+    | null;
+};
 
 export type GetProjectsQueryVariables = Exact<{
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
   pagination?: InputMaybe<Pagination>;
 }>;
 
-
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | null> } };
+export type GetProjectsQuery = {
+  __typename?: "Query";
+  projects: {
+    __typename?: "ProjectConnection";
+    nodes: Array<{
+      __typename?: "Project";
+      id: string;
+      name: string;
+      description: string;
+      alias: string;
+      requestRoles?: Array<Role> | null;
+      publication?: {
+        __typename?: "ProjectPublication";
+        scope: ProjectPublicationScope;
+        assetPublic: boolean;
+      } | null;
+    } | null>;
+  };
+};
 
 export type CheckProjectAliasQueryVariables = Exact<{
-  alias: Scalars['String'];
+  alias: Scalars["String"];
 }>;
 
-
-export type CheckProjectAliasQuery = { __typename?: 'Query', checkProjectAlias: { __typename?: 'ProjectAliasAvailability', alias: string, available: boolean } };
+export type CheckProjectAliasQuery = {
+  __typename?: "Query";
+  checkProjectAlias: { __typename?: "ProjectAliasAvailability"; alias: string; available: boolean };
+};
 
 export type CreateProjectMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
-  name: Scalars['String'];
-  description: Scalars['String'];
-  alias: Scalars['String'];
+  workspaceId: Scalars["ID"];
+  name: Scalars["String"];
+  description: Scalars["String"];
+  alias: Scalars["String"];
 }>;
 
-
-export type CreateProjectMutation = { __typename?: 'Mutation', createProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
+export type CreateProjectMutation = {
+  __typename?: "Mutation";
+  createProject?: {
+    __typename?: "ProjectPayload";
+    project: {
+      __typename?: "Project";
+      id: string;
+      name: string;
+      description: string;
+      alias: string;
+      publication?: {
+        __typename?: "ProjectPublication";
+        scope: ProjectPublicationScope;
+        assetPublic: boolean;
+      } | null;
+    };
+  } | null;
+};
 
 export type DeleteProjectMutationVariables = Exact<{
-  projectId: Scalars['ID'];
+  projectId: Scalars["ID"];
 }>;
 
-
-export type DeleteProjectMutation = { __typename?: 'Mutation', deleteProject?: { __typename?: 'DeleteProjectPayload', projectId: string } | null };
+export type DeleteProjectMutation = {
+  __typename?: "Mutation";
+  deleteProject?: { __typename?: "DeleteProjectPayload"; projectId: string } | null;
+};
 
 export type UpdateProjectMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
-  alias?: InputMaybe<Scalars['String']>;
+  projectId: Scalars["ID"];
+  name?: InputMaybe<Scalars["String"]>;
+  description?: InputMaybe<Scalars["String"]>;
+  alias?: InputMaybe<Scalars["String"]>;
   publication?: InputMaybe<UpdateProjectPublicationInput>;
   requestRoles?: InputMaybe<Array<Role> | Role>;
 }>;
 
-
-export type UpdateProjectMutation = { __typename?: 'Mutation', updateProject?: { __typename?: 'ProjectPayload', project: { __typename?: 'Project', id: string, name: string, description: string, alias: string, requestRoles?: Array<Role> | null, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } } | null };
+export type UpdateProjectMutation = {
+  __typename?: "Mutation";
+  updateProject?: {
+    __typename?: "ProjectPayload";
+    project: {
+      __typename?: "Project";
+      id: string;
+      name: string;
+      description: string;
+      alias: string;
+      requestRoles?: Array<Role> | null;
+      publication?: {
+        __typename?: "ProjectPublication";
+        scope: ProjectPublicationScope;
+        assetPublic: boolean;
+      } | null;
+    };
+  } | null;
+};
 
 export type GetRequestsQueryVariables = Exact<{
-  projectId: Scalars['ID'];
-  key?: InputMaybe<Scalars['String']>;
+  projectId: Scalars["ID"];
+  key?: InputMaybe<Scalars["String"]>;
   state?: InputMaybe<Array<RequestState> | RequestState>;
   pagination?: InputMaybe<Pagination>;
-  createdBy?: InputMaybe<Scalars['ID']>;
-  reviewer?: InputMaybe<Scalars['ID']>;
+  createdBy?: InputMaybe<Scalars["ID"]>;
+  reviewer?: InputMaybe<Scalars["ID"]>;
   sort?: InputMaybe<Sort>;
 }>;
 
-
-export type GetRequestsQuery = { __typename?: 'Query', requests: { __typename?: 'RequestConnection', totalCount: number, nodes: Array<{ __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }>, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null> } };
+export type GetRequestsQuery = {
+  __typename?: "Query";
+  requests: {
+    __typename?: "RequestConnection";
+    totalCount: number;
+    nodes: Array<{
+      __typename?: "Request";
+      id: string;
+      title: string;
+      description?: string | null;
+      workspaceId: string;
+      projectId: string;
+      threadId: string;
+      reviewersId: Array<string>;
+      state: RequestState;
+      createdAt: Date;
+      updatedAt: Date;
+      approvedAt?: Date | null;
+      closedAt?: Date | null;
+      createdBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+      reviewers: Array<{ __typename?: "User"; id: string; name: string; email: string }>;
+      thread?: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      } | null;
+    } | null>;
+  };
+};
 
 export type GetModalRequestsQueryVariables = Exact<{
-  projectId: Scalars['ID'];
-  key?: InputMaybe<Scalars['String']>;
+  projectId: Scalars["ID"];
+  key?: InputMaybe<Scalars["String"]>;
   state?: InputMaybe<Array<RequestState> | RequestState>;
   pagination?: InputMaybe<Pagination>;
-  createdBy?: InputMaybe<Scalars['ID']>;
-  reviewer?: InputMaybe<Scalars['ID']>;
+  createdBy?: InputMaybe<Scalars["ID"]>;
+  reviewer?: InputMaybe<Scalars["ID"]>;
   sort?: InputMaybe<Sort>;
 }>;
 
-
-export type GetModalRequestsQuery = { __typename?: 'Query', requests: { __typename?: 'RequestConnection', totalCount: number, nodes: Array<{ __typename?: 'Request', id: string, title: string, description?: string | null, state: RequestState, createdAt: Date, createdBy?: { __typename?: 'User', name: string } | null, items: Array<{ __typename?: 'RequestItem', itemId: string }>, reviewers: Array<{ __typename?: 'User', id: string, name: string }> } | null> } };
+export type GetModalRequestsQuery = {
+  __typename?: "Query";
+  requests: {
+    __typename?: "RequestConnection";
+    totalCount: number;
+    nodes: Array<{
+      __typename?: "Request";
+      id: string;
+      title: string;
+      description?: string | null;
+      state: RequestState;
+      createdAt: Date;
+      createdBy?: { __typename?: "User"; name: string } | null;
+      items: Array<{ __typename?: "RequestItem"; itemId: string }>;
+      reviewers: Array<{ __typename?: "User"; id: string; name: string }>;
+    } | null>;
+  };
+};
 
 export type GetRequestQueryVariables = Exact<{
-  requestId: Scalars['ID'];
+  requestId: Scalars["ID"];
 }>;
 
-
-export type GetRequestQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', id: string } | { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | null };
+export type GetRequestQuery = {
+  __typename?: "Query";
+  node?:
+    | { __typename?: "Asset"; id: string }
+    | { __typename?: "Group"; id: string }
+    | { __typename?: "Integration"; id: string }
+    | { __typename?: "Item"; id: string }
+    | { __typename?: "Model"; id: string }
+    | { __typename?: "Project"; id: string }
+    | {
+        __typename?: "Request";
+        id: string;
+        title: string;
+        description?: string | null;
+        workspaceId: string;
+        projectId: string;
+        threadId: string;
+        reviewersId: Array<string>;
+        state: RequestState;
+        createdAt: Date;
+        updatedAt: Date;
+        approvedAt?: Date | null;
+        closedAt?: Date | null;
+        items: Array<{
+          __typename?: "RequestItem";
+          itemId: string;
+          version?: string | null;
+          ref?: string | null;
+          item?: {
+            __typename?: "VersionedItem";
+            version: string;
+            parents?: Array<string> | null;
+            refs: Array<string>;
+            value: {
+              __typename?: "Item";
+              id: string;
+              schemaId: string;
+              modelId: string;
+              model: { __typename?: "Model"; name: string };
+              fields: Array<{
+                __typename?: "ItemField";
+                schemaFieldId: string;
+                type: SchemaFieldType;
+                value?: any | null;
+              }>;
+              schema: {
+                __typename?: "Schema";
+                id: string;
+                fields: Array<{
+                  __typename?: "SchemaField";
+                  id: string;
+                  type: SchemaFieldType;
+                  title: string;
+                  key: string;
+                  description?: string | null;
+                  required: boolean;
+                  unique: boolean;
+                  isTitle: boolean;
+                  multiple: boolean;
+                  typeProperty?:
+                    | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+                    | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+                    | { __typename?: "SchemaFieldCheckbox" }
+                    | { __typename?: "SchemaFieldDate" }
+                    | { __typename?: "SchemaFieldGroup" }
+                    | {
+                        __typename?: "SchemaFieldInteger";
+                        min?: number | null;
+                        max?: number | null;
+                        integerDefaultValue?: any | null;
+                      }
+                    | {
+                        __typename?: "SchemaFieldMarkdown";
+                        defaultValue?: any | null;
+                        maxLength?: number | null;
+                      }
+                    | { __typename?: "SchemaFieldReference" }
+                    | { __typename?: "SchemaFieldRichText" }
+                    | {
+                        __typename?: "SchemaFieldSelect";
+                        values: Array<string>;
+                        selectDefaultValue?: any | null;
+                      }
+                    | { __typename?: "SchemaFieldTag" }
+                    | {
+                        __typename?: "SchemaFieldText";
+                        defaultValue?: any | null;
+                        maxLength?: number | null;
+                      }
+                    | {
+                        __typename?: "SchemaFieldTextArea";
+                        defaultValue?: any | null;
+                        maxLength?: number | null;
+                      }
+                    | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+                    | null;
+                }>;
+              };
+            };
+          } | null;
+        }>;
+        createdBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+        thread?: {
+          __typename?: "Thread";
+          id: string;
+          workspaceId: string;
+          comments: Array<{
+            __typename?: "Comment";
+            id: string;
+            authorId: string;
+            content: string;
+            createdAt: Date;
+            author?:
+              | { __typename?: "Integration"; id: string; name: string }
+              | { __typename?: "User"; id: string; name: string; email: string }
+              | null;
+          }>;
+        } | null;
+        project?: {
+          __typename?: "Project";
+          id: string;
+          name: string;
+          createdAt: Date;
+          updatedAt: Date;
+        } | null;
+        reviewers: Array<{ __typename?: "User"; id: string; name: string; email: string }>;
+      }
+    | { __typename?: "Schema"; id: string }
+    | { __typename?: "User"; id: string }
+    | { __typename?: "View"; id: string }
+    | { __typename?: "Workspace"; id: string }
+    | null;
+};
 
 export type CreateRequestMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  title: Scalars['String'];
-  description?: InputMaybe<Scalars['String']>;
+  projectId: Scalars["ID"];
+  title: Scalars["String"];
+  description?: InputMaybe<Scalars["String"]>;
   state?: InputMaybe<RequestState>;
-  reviewersId?: InputMaybe<Array<Scalars['ID']> | Scalars['ID']>;
+  reviewersId?: InputMaybe<Array<Scalars["ID"]> | Scalars["ID"]>;
   items: Array<RequestItemInput> | RequestItemInput;
 }>;
 
-
-export type CreateRequestMutation = { __typename?: 'Mutation', createRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+export type CreateRequestMutation = {
+  __typename?: "Mutation";
+  createRequest?: {
+    __typename?: "RequestPayload";
+    request: {
+      __typename?: "Request";
+      id: string;
+      title: string;
+      description?: string | null;
+      workspaceId: string;
+      projectId: string;
+      threadId: string;
+      reviewersId: Array<string>;
+      state: RequestState;
+      createdAt: Date;
+      updatedAt: Date;
+      approvedAt?: Date | null;
+      closedAt?: Date | null;
+      items: Array<{
+        __typename?: "RequestItem";
+        itemId: string;
+        version?: string | null;
+        ref?: string | null;
+        item?: {
+          __typename?: "VersionedItem";
+          version: string;
+          parents?: Array<string> | null;
+          refs: Array<string>;
+          value: {
+            __typename?: "Item";
+            id: string;
+            schemaId: string;
+            modelId: string;
+            model: { __typename?: "Model"; name: string };
+            fields: Array<{
+              __typename?: "ItemField";
+              schemaFieldId: string;
+              type: SchemaFieldType;
+              value?: any | null;
+            }>;
+            schema: {
+              __typename?: "Schema";
+              id: string;
+              fields: Array<{
+                __typename?: "SchemaField";
+                id: string;
+                type: SchemaFieldType;
+                title: string;
+                key: string;
+                description?: string | null;
+                required: boolean;
+                unique: boolean;
+                isTitle: boolean;
+                multiple: boolean;
+                typeProperty?:
+                  | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+                  | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+                  | { __typename?: "SchemaFieldCheckbox" }
+                  | { __typename?: "SchemaFieldDate" }
+                  | { __typename?: "SchemaFieldGroup" }
+                  | {
+                      __typename?: "SchemaFieldInteger";
+                      min?: number | null;
+                      max?: number | null;
+                      integerDefaultValue?: any | null;
+                    }
+                  | {
+                      __typename?: "SchemaFieldMarkdown";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | { __typename?: "SchemaFieldReference" }
+                  | { __typename?: "SchemaFieldRichText" }
+                  | {
+                      __typename?: "SchemaFieldSelect";
+                      values: Array<string>;
+                      selectDefaultValue?: any | null;
+                    }
+                  | { __typename?: "SchemaFieldTag" }
+                  | {
+                      __typename?: "SchemaFieldText";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | {
+                      __typename?: "SchemaFieldTextArea";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+                  | null;
+              }>;
+            };
+          };
+        } | null;
+      }>;
+      createdBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+      thread?: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      } | null;
+      project?: {
+        __typename?: "Project";
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+      } | null;
+      reviewers: Array<{ __typename?: "User"; id: string; name: string; email: string }>;
+    };
+  } | null;
+};
 
 export type UpdateRequestMutationVariables = Exact<{
-  requestId: Scalars['ID'];
-  title?: InputMaybe<Scalars['String']>;
-  description?: InputMaybe<Scalars['String']>;
+  requestId: Scalars["ID"];
+  title?: InputMaybe<Scalars["String"]>;
+  description?: InputMaybe<Scalars["String"]>;
   state?: InputMaybe<RequestState>;
-  reviewersId?: InputMaybe<Array<Scalars['ID']> | Scalars['ID']>;
+  reviewersId?: InputMaybe<Array<Scalars["ID"]> | Scalars["ID"]>;
   items?: InputMaybe<Array<RequestItemInput> | RequestItemInput>;
 }>;
 
-
-export type UpdateRequestMutation = { __typename?: 'Mutation', updateRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+export type UpdateRequestMutation = {
+  __typename?: "Mutation";
+  updateRequest?: {
+    __typename?: "RequestPayload";
+    request: {
+      __typename?: "Request";
+      id: string;
+      title: string;
+      description?: string | null;
+      workspaceId: string;
+      projectId: string;
+      threadId: string;
+      reviewersId: Array<string>;
+      state: RequestState;
+      createdAt: Date;
+      updatedAt: Date;
+      approvedAt?: Date | null;
+      closedAt?: Date | null;
+      items: Array<{
+        __typename?: "RequestItem";
+        itemId: string;
+        version?: string | null;
+        ref?: string | null;
+        item?: {
+          __typename?: "VersionedItem";
+          version: string;
+          parents?: Array<string> | null;
+          refs: Array<string>;
+          value: {
+            __typename?: "Item";
+            id: string;
+            schemaId: string;
+            modelId: string;
+            model: { __typename?: "Model"; name: string };
+            fields: Array<{
+              __typename?: "ItemField";
+              schemaFieldId: string;
+              type: SchemaFieldType;
+              value?: any | null;
+            }>;
+            schema: {
+              __typename?: "Schema";
+              id: string;
+              fields: Array<{
+                __typename?: "SchemaField";
+                id: string;
+                type: SchemaFieldType;
+                title: string;
+                key: string;
+                description?: string | null;
+                required: boolean;
+                unique: boolean;
+                isTitle: boolean;
+                multiple: boolean;
+                typeProperty?:
+                  | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+                  | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+                  | { __typename?: "SchemaFieldCheckbox" }
+                  | { __typename?: "SchemaFieldDate" }
+                  | { __typename?: "SchemaFieldGroup" }
+                  | {
+                      __typename?: "SchemaFieldInteger";
+                      min?: number | null;
+                      max?: number | null;
+                      integerDefaultValue?: any | null;
+                    }
+                  | {
+                      __typename?: "SchemaFieldMarkdown";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | { __typename?: "SchemaFieldReference" }
+                  | { __typename?: "SchemaFieldRichText" }
+                  | {
+                      __typename?: "SchemaFieldSelect";
+                      values: Array<string>;
+                      selectDefaultValue?: any | null;
+                    }
+                  | { __typename?: "SchemaFieldTag" }
+                  | {
+                      __typename?: "SchemaFieldText";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | {
+                      __typename?: "SchemaFieldTextArea";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+                  | null;
+              }>;
+            };
+          };
+        } | null;
+      }>;
+      createdBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+      thread?: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      } | null;
+      project?: {
+        __typename?: "Project";
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+      } | null;
+      reviewers: Array<{ __typename?: "User"; id: string; name: string; email: string }>;
+    };
+  } | null;
+};
 
 export type ApproveRequestMutationVariables = Exact<{
-  requestId: Scalars['ID'];
+  requestId: Scalars["ID"];
 }>;
 
-
-export type ApproveRequestMutation = { __typename?: 'Mutation', approveRequest?: { __typename?: 'RequestPayload', request: { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } } | null };
+export type ApproveRequestMutation = {
+  __typename?: "Mutation";
+  approveRequest?: {
+    __typename?: "RequestPayload";
+    request: {
+      __typename?: "Request";
+      id: string;
+      title: string;
+      description?: string | null;
+      workspaceId: string;
+      projectId: string;
+      threadId: string;
+      reviewersId: Array<string>;
+      state: RequestState;
+      createdAt: Date;
+      updatedAt: Date;
+      approvedAt?: Date | null;
+      closedAt?: Date | null;
+      items: Array<{
+        __typename?: "RequestItem";
+        itemId: string;
+        version?: string | null;
+        ref?: string | null;
+        item?: {
+          __typename?: "VersionedItem";
+          version: string;
+          parents?: Array<string> | null;
+          refs: Array<string>;
+          value: {
+            __typename?: "Item";
+            id: string;
+            schemaId: string;
+            modelId: string;
+            model: { __typename?: "Model"; name: string };
+            fields: Array<{
+              __typename?: "ItemField";
+              schemaFieldId: string;
+              type: SchemaFieldType;
+              value?: any | null;
+            }>;
+            schema: {
+              __typename?: "Schema";
+              id: string;
+              fields: Array<{
+                __typename?: "SchemaField";
+                id: string;
+                type: SchemaFieldType;
+                title: string;
+                key: string;
+                description?: string | null;
+                required: boolean;
+                unique: boolean;
+                isTitle: boolean;
+                multiple: boolean;
+                typeProperty?:
+                  | { __typename?: "SchemaFieldAsset"; assetDefaultValue?: any | null }
+                  | { __typename?: "SchemaFieldBool"; defaultValue?: any | null }
+                  | { __typename?: "SchemaFieldCheckbox" }
+                  | { __typename?: "SchemaFieldDate" }
+                  | { __typename?: "SchemaFieldGroup" }
+                  | {
+                      __typename?: "SchemaFieldInteger";
+                      min?: number | null;
+                      max?: number | null;
+                      integerDefaultValue?: any | null;
+                    }
+                  | {
+                      __typename?: "SchemaFieldMarkdown";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | { __typename?: "SchemaFieldReference" }
+                  | { __typename?: "SchemaFieldRichText" }
+                  | {
+                      __typename?: "SchemaFieldSelect";
+                      values: Array<string>;
+                      selectDefaultValue?: any | null;
+                    }
+                  | { __typename?: "SchemaFieldTag" }
+                  | {
+                      __typename?: "SchemaFieldText";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | {
+                      __typename?: "SchemaFieldTextArea";
+                      defaultValue?: any | null;
+                      maxLength?: number | null;
+                    }
+                  | { __typename?: "SchemaFieldURL"; defaultValue?: any | null }
+                  | null;
+              }>;
+            };
+          };
+        } | null;
+      }>;
+      createdBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+      thread?: {
+        __typename?: "Thread";
+        id: string;
+        workspaceId: string;
+        comments: Array<{
+          __typename?: "Comment";
+          id: string;
+          authorId: string;
+          content: string;
+          createdAt: Date;
+          author?:
+            | { __typename?: "Integration"; id: string; name: string }
+            | { __typename?: "User"; id: string; name: string; email: string }
+            | null;
+        }>;
+      } | null;
+      project?: {
+        __typename?: "Project";
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+      } | null;
+      reviewers: Array<{ __typename?: "User"; id: string; name: string; email: string }>;
+    };
+  } | null;
+};
 
 export type DeleteRequestMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  requestsId: Array<Scalars['ID']> | Scalars['ID'];
+  projectId: Scalars["ID"];
+  requestsId: Array<Scalars["ID"]> | Scalars["ID"];
 }>;
 
-
-export type DeleteRequestMutation = { __typename?: 'Mutation', deleteRequest?: { __typename?: 'DeleteRequestPayload', requests: Array<string> } | null };
+export type DeleteRequestMutation = {
+  __typename?: "Mutation";
+  deleteRequest?: { __typename?: "DeleteRequestPayload"; requests: Array<string> } | null;
+};
 
 export type GetUserBySearchQueryVariables = Exact<{
-  nameOrEmail: Scalars['String'];
+  nameOrEmail: Scalars["String"];
 }>;
 
+export type GetUserBySearchQuery = {
+  __typename?: "Query";
+  searchUser?: { __typename?: "User"; id: string; name: string; email: string } | null;
+};
 
-export type GetUserBySearchQuery = { __typename?: 'Query', searchUser?: { __typename?: 'User', id: string, name: string, email: string } | null };
+export type GetMeQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetMeQuery = {
+  __typename?: "Query";
+  me?: {
+    __typename?: "Me";
+    id: string;
+    name: string;
+    email: string;
+    lang: string;
+    auths: Array<string>;
+    myWorkspace: { __typename?: "Workspace"; id: string; name: string };
+    workspaces: Array<{
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    }>;
+    integrations: Array<{
+      __typename?: "Integration";
+      id: string;
+      name: string;
+      description?: string | null;
+      logoUrl: string;
+      iType: IntegrationType;
+      developerId: string;
+      createdAt: Date;
+      updatedAt: Date;
+      developer: { __typename?: "User"; id: string; name: string; email: string };
+      config?: {
+        __typename?: "IntegrationConfig";
+        token: string;
+        webhooks: Array<{
+          __typename?: "Webhook";
+          id: string;
+          name: string;
+          url: string;
+          active: boolean;
+          secret: string;
+          createdAt: Date;
+          updatedAt: Date;
+          trigger: {
+            __typename?: "WebhookTrigger";
+            onItemCreate?: boolean | null;
+            onItemUpdate?: boolean | null;
+            onItemDelete?: boolean | null;
+            onItemPublish?: boolean | null;
+            onItemUnPublish?: boolean | null;
+            onAssetUpload?: boolean | null;
+            onAssetDecompress?: boolean | null;
+            onAssetDelete?: boolean | null;
+          };
+        }>;
+      } | null;
+    }>;
+  } | null;
+};
 
+export type GetProfileQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }>, integrations: Array<{ __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null }> } | null };
+export type GetProfileQuery = {
+  __typename?: "Query";
+  me?: {
+    __typename?: "Me";
+    id: string;
+    name: string;
+    email: string;
+    lang: string;
+    theme: Theme;
+    auths: Array<string>;
+    myWorkspace: { __typename?: "Workspace"; id: string; name: string };
+  } | null;
+};
 
-export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetLanguageQueryVariables = Exact<{ [key: string]: never }>;
 
+export type GetLanguageQuery = {
+  __typename?: "Query";
+  me?: { __typename?: "Me"; id: string; lang: string } | null;
+};
 
-export type GetProfileQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, theme: Theme, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string } } | null };
+export type GetThemeQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetLanguageQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetLanguageQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, lang: string } | null };
-
-export type GetThemeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetThemeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, theme: Theme } | null };
+export type GetThemeQuery = {
+  __typename?: "Query";
+  me?: { __typename?: "Me"; id: string; theme: Theme } | null;
+};
 
 export type UpdateMeMutationVariables = Exact<{
-  name?: InputMaybe<Scalars['String']>;
-  email?: InputMaybe<Scalars['String']>;
-  lang?: InputMaybe<Scalars['Lang']>;
+  name?: InputMaybe<Scalars["String"]>;
+  email?: InputMaybe<Scalars["String"]>;
+  lang?: InputMaybe<Scalars["Lang"]>;
   theme?: InputMaybe<Theme>;
-  password?: InputMaybe<Scalars['String']>;
-  passwordConfirmation?: InputMaybe<Scalars['String']>;
+  password?: InputMaybe<Scalars["String"]>;
+  passwordConfirmation?: InputMaybe<Scalars["String"]>;
 }>;
 
-
-export type UpdateMeMutation = { __typename?: 'Mutation', updateMe?: { __typename?: 'UpdateMePayload', me: { __typename?: 'Me', id: string, name: string, email: string, lang: string, theme: Theme, myWorkspace: { __typename?: 'Workspace', id: string, name: string } } } | null };
+export type UpdateMeMutation = {
+  __typename?: "Mutation";
+  updateMe?: {
+    __typename?: "UpdateMePayload";
+    me: {
+      __typename?: "Me";
+      id: string;
+      name: string;
+      email: string;
+      lang: string;
+      theme: Theme;
+      myWorkspace: { __typename?: "Workspace"; id: string; name: string };
+    };
+  } | null;
+};
 
 export type DeleteMeMutationVariables = Exact<{
-  userId: Scalars['ID'];
+  userId: Scalars["ID"];
 }>;
 
-
-export type DeleteMeMutation = { __typename?: 'Mutation', deleteMe?: { __typename?: 'DeleteMePayload', userId: string } | null };
+export type DeleteMeMutation = {
+  __typename?: "Mutation";
+  deleteMe?: { __typename?: "DeleteMePayload"; userId: string } | null;
+};
 
 export type GetViewsQueryVariables = Exact<{
-  modelId: Scalars['ID'];
+  modelId: Scalars["ID"];
 }>;
 
-
-export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'NewItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
+export type GetViewsQuery = {
+  __typename: "Query";
+  view: Array<{
+    __typename: "View";
+    id: string;
+    name: string;
+    modelId: string;
+    projectId: string;
+    sort?: {
+      __typename?: "NewItemSort";
+      direction?: SortDirection | null;
+      field: { __typename?: "FieldSelector"; type: FieldType; id?: string | null };
+    } | null;
+    columns?: Array<{ __typename?: "FieldSelector"; type: FieldType; id?: string | null }> | null;
+    filter?:
+      | { __typename?: "AndCondition" }
+      | { __typename?: "BasicFieldCondition" }
+      | {
+          __typename?: "BoolFieldCondition";
+          operator: BoolOperator;
+          value: boolean;
+          fieldId: { __typename?: "FieldSelector"; type: FieldType; id?: string | null };
+        }
+      | { __typename?: "MultipleFieldCondition" }
+      | { __typename?: "NullableFieldCondition" }
+      | { __typename?: "NumberFieldCondition" }
+      | { __typename?: "OrCondition" }
+      | { __typename?: "StringFieldCondition" }
+      | { __typename?: "TimeFieldCondition" }
+      | null;
+  }>;
+};
 
 export type CreateViewMutationVariables = Exact<{
-  projectId: Scalars['ID'];
-  modelId: Scalars['ID'];
-  name: Scalars['String'];
+  projectId: Scalars["ID"];
+  modelId: Scalars["ID"];
+  name: Scalars["String"];
   sort?: InputMaybe<ItemSortInput>;
   filter?: InputMaybe<ConditionInput>;
   columns?: InputMaybe<Array<FieldSelectorInput> | FieldSelectorInput>;
 }>;
 
-
-export type CreateViewMutation = { __typename?: 'Mutation', createView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'NewItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
+export type CreateViewMutation = {
+  __typename?: "Mutation";
+  createView?: {
+    __typename?: "ViewPayload";
+    view: {
+      __typename: "View";
+      id: string;
+      name: string;
+      modelId: string;
+      projectId: string;
+      sort?: {
+        __typename?: "NewItemSort";
+        direction?: SortDirection | null;
+        field: { __typename?: "FieldSelector"; type: FieldType; id?: string | null };
+      } | null;
+      columns?: Array<{ __typename?: "FieldSelector"; type: FieldType; id?: string | null }> | null;
+      filter?:
+        | { __typename?: "AndCondition" }
+        | { __typename?: "BasicFieldCondition" }
+        | {
+            __typename?: "BoolFieldCondition";
+            operator: BoolOperator;
+            value: boolean;
+            fieldId: { __typename?: "FieldSelector"; type: FieldType; id?: string | null };
+          }
+        | { __typename?: "MultipleFieldCondition" }
+        | { __typename?: "NullableFieldCondition" }
+        | { __typename?: "NumberFieldCondition" }
+        | { __typename?: "OrCondition" }
+        | { __typename?: "StringFieldCondition" }
+        | { __typename?: "TimeFieldCondition" }
+        | null;
+    };
+  } | null;
+};
 
 export type UpdateViewMutationVariables = Exact<{
-  viewId: Scalars['ID'];
-  name: Scalars['String'];
+  viewId: Scalars["ID"];
+  name: Scalars["String"];
   sort?: InputMaybe<ItemSortInput>;
   filter?: InputMaybe<ConditionInput>;
   columns?: InputMaybe<Array<FieldSelectorInput> | FieldSelectorInput>;
 }>;
 
-
-export type UpdateViewMutation = { __typename?: 'Mutation', updateView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'NewItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
+export type UpdateViewMutation = {
+  __typename?: "Mutation";
+  updateView?: {
+    __typename?: "ViewPayload";
+    view: {
+      __typename: "View";
+      id: string;
+      name: string;
+      modelId: string;
+      projectId: string;
+      sort?: {
+        __typename?: "NewItemSort";
+        direction?: SortDirection | null;
+        field: { __typename?: "FieldSelector"; type: FieldType; id?: string | null };
+      } | null;
+      columns?: Array<{ __typename?: "FieldSelector"; type: FieldType; id?: string | null }> | null;
+      filter?:
+        | { __typename?: "AndCondition" }
+        | { __typename?: "BasicFieldCondition" }
+        | {
+            __typename?: "BoolFieldCondition";
+            operator: BoolOperator;
+            value: boolean;
+            fieldId: { __typename?: "FieldSelector"; type: FieldType; id?: string | null };
+          }
+        | { __typename?: "MultipleFieldCondition" }
+        | { __typename?: "NullableFieldCondition" }
+        | { __typename?: "NumberFieldCondition" }
+        | { __typename?: "OrCondition" }
+        | { __typename?: "StringFieldCondition" }
+        | { __typename?: "TimeFieldCondition" }
+        | null;
+    };
+  } | null;
+};
 
 export type DeleteViewMutationVariables = Exact<{
-  viewId: Scalars['ID'];
+  viewId: Scalars["ID"];
 }>;
 
-
-export type DeleteViewMutation = { __typename?: 'Mutation', deleteView?: { __typename?: 'DeleteViewPayload', viewId: string } | null };
+export type DeleteViewMutation = {
+  __typename?: "Mutation";
+  deleteView?: { __typename?: "DeleteViewPayload"; viewId: string } | null;
+};
 
 export type CreateWebhookMutationVariables = Exact<{
-  integrationId: Scalars['ID'];
-  name: Scalars['String'];
-  url: Scalars['URL'];
-  active: Scalars['Boolean'];
+  integrationId: Scalars["ID"];
+  name: Scalars["String"];
+  url: Scalars["URL"];
+  active: Scalars["Boolean"];
   trigger: WebhookTriggerInput;
-  secret: Scalars['String'];
+  secret: Scalars["String"];
 }>;
 
-
-export type CreateWebhookMutation = { __typename?: 'Mutation', createWebhook?: { __typename?: 'WebhookPayload', webhook: { __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } } } | null };
+export type CreateWebhookMutation = {
+  __typename?: "Mutation";
+  createWebhook?: {
+    __typename?: "WebhookPayload";
+    webhook: {
+      __typename?: "Webhook";
+      id: string;
+      name: string;
+      url: string;
+      active: boolean;
+      secret: string;
+      createdAt: Date;
+      updatedAt: Date;
+      trigger: {
+        __typename?: "WebhookTrigger";
+        onItemCreate?: boolean | null;
+        onItemUpdate?: boolean | null;
+        onItemDelete?: boolean | null;
+        onItemPublish?: boolean | null;
+        onItemUnPublish?: boolean | null;
+        onAssetUpload?: boolean | null;
+        onAssetDecompress?: boolean | null;
+        onAssetDelete?: boolean | null;
+      };
+    };
+  } | null;
+};
 
 export type UpdateWebhookMutationVariables = Exact<{
-  integrationId: Scalars['ID'];
-  webhookId: Scalars['ID'];
-  name: Scalars['String'];
-  url: Scalars['URL'];
-  active: Scalars['Boolean'];
+  integrationId: Scalars["ID"];
+  webhookId: Scalars["ID"];
+  name: Scalars["String"];
+  url: Scalars["URL"];
+  active: Scalars["Boolean"];
   trigger: WebhookTriggerInput;
-  secret?: InputMaybe<Scalars['String']>;
+  secret?: InputMaybe<Scalars["String"]>;
 }>;
 
-
-export type UpdateWebhookMutation = { __typename?: 'Mutation', updateWebhook?: { __typename?: 'WebhookPayload', webhook: { __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } } } | null };
+export type UpdateWebhookMutation = {
+  __typename?: "Mutation";
+  updateWebhook?: {
+    __typename?: "WebhookPayload";
+    webhook: {
+      __typename?: "Webhook";
+      id: string;
+      name: string;
+      url: string;
+      active: boolean;
+      secret: string;
+      createdAt: Date;
+      updatedAt: Date;
+      trigger: {
+        __typename?: "WebhookTrigger";
+        onItemCreate?: boolean | null;
+        onItemUpdate?: boolean | null;
+        onItemDelete?: boolean | null;
+        onItemPublish?: boolean | null;
+        onItemUnPublish?: boolean | null;
+        onAssetUpload?: boolean | null;
+        onAssetDecompress?: boolean | null;
+        onAssetDelete?: boolean | null;
+      };
+    };
+  } | null;
+};
 
 export type DeleteWebhookMutationVariables = Exact<{
-  integrationId: Scalars['ID'];
-  webhookId: Scalars['ID'];
+  integrationId: Scalars["ID"];
+  webhookId: Scalars["ID"];
 }>;
 
+export type DeleteWebhookMutation = {
+  __typename?: "Mutation";
+  deleteWebhook?: { __typename?: "DeleteWebhookPayload"; webhookId: string } | null;
+};
 
-export type DeleteWebhookMutation = { __typename?: 'Mutation', deleteWebhook?: { __typename?: 'DeleteWebhookPayload', webhookId: string } | null };
+export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetWorkspacesQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, myWorkspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
+export type GetWorkspacesQuery = {
+  __typename?: "Query";
+  me?: {
+    __typename?: "Me";
+    id: string;
+    name: string;
+    myWorkspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+    workspaces: Array<{
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    }>;
+  } | null;
+};
 
 export type UpdateWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
-  name: Scalars['String'];
+  workspaceId: Scalars["ID"];
+  name: Scalars["String"];
 }>;
 
-
-export type UpdateWorkspaceMutation = { __typename?: 'Mutation', updateWorkspace?: { __typename?: 'UpdateWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type UpdateWorkspaceMutation = {
+  __typename?: "Mutation";
+  updateWorkspace?: {
+    __typename?: "UpdateWorkspacePayload";
+    workspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+  } | null;
+};
 
 export type DeleteWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
 }>;
 
-
-export type DeleteWorkspaceMutation = { __typename?: 'Mutation', deleteWorkspace?: { __typename?: 'DeleteWorkspacePayload', workspaceId: string } | null };
+export type DeleteWorkspaceMutation = {
+  __typename?: "Mutation";
+  deleteWorkspace?: { __typename?: "DeleteWorkspacePayload"; workspaceId: string } | null;
+};
 
 export type AddUsersToWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
   users: Array<MemberInput> | MemberInput;
 }>;
 
-
-export type AddUsersToWorkspaceMutation = { __typename?: 'Mutation', addUsersToWorkspace?: { __typename?: 'AddUsersToWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type AddUsersToWorkspaceMutation = {
+  __typename?: "Mutation";
+  addUsersToWorkspace?: {
+    __typename?: "AddUsersToWorkspacePayload";
+    workspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+  } | null;
+};
 
 export type UpdateMemberOfWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
-  userId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
+  userId: Scalars["ID"];
   role: Role;
 }>;
 
-
-export type UpdateMemberOfWorkspaceMutation = { __typename?: 'Mutation', updateUserOfWorkspace?: { __typename?: 'UpdateMemberOfWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type UpdateMemberOfWorkspaceMutation = {
+  __typename?: "Mutation";
+  updateUserOfWorkspace?: {
+    __typename?: "UpdateMemberOfWorkspacePayload";
+    workspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+  } | null;
+};
 
 export type RemoveMemberFromWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
-  userId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
+  userId: Scalars["ID"];
 }>;
 
-
-export type RemoveMemberFromWorkspaceMutation = { __typename?: 'Mutation', removeUserFromWorkspace?: { __typename?: 'RemoveMemberFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type RemoveMemberFromWorkspaceMutation = {
+  __typename?: "Mutation";
+  removeUserFromWorkspace?: {
+    __typename?: "RemoveMemberFromWorkspacePayload";
+    workspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+  } | null;
+};
 
 export type AddIntegrationToWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
-  integrationId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
+  integrationId: Scalars["ID"];
   role: Role;
 }>;
 
-
-export type AddIntegrationToWorkspaceMutation = { __typename?: 'Mutation', addIntegrationToWorkspace?: { __typename?: 'AddUsersToWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type AddIntegrationToWorkspaceMutation = {
+  __typename?: "Mutation";
+  addIntegrationToWorkspace?: {
+    __typename?: "AddUsersToWorkspacePayload";
+    workspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+  } | null;
+};
 
 export type UpdateIntegrationOfWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
-  integrationId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
+  integrationId: Scalars["ID"];
   role: Role;
 }>;
 
-
-export type UpdateIntegrationOfWorkspaceMutation = { __typename?: 'Mutation', updateIntegrationOfWorkspace?: { __typename?: 'UpdateMemberOfWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type UpdateIntegrationOfWorkspaceMutation = {
+  __typename?: "Mutation";
+  updateIntegrationOfWorkspace?: {
+    __typename?: "UpdateMemberOfWorkspacePayload";
+    workspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+  } | null;
+};
 
 export type RemoveIntegrationFromWorkspaceMutationVariables = Exact<{
-  workspaceId: Scalars['ID'];
-  integrationId: Scalars['ID'];
+  workspaceId: Scalars["ID"];
+  integrationId: Scalars["ID"];
 }>;
 
-
-export type RemoveIntegrationFromWorkspaceMutation = { __typename?: 'Mutation', removeIntegrationFromWorkspace?: { __typename?: 'RemoveMemberFromWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type RemoveIntegrationFromWorkspaceMutation = {
+  __typename?: "Mutation";
+  removeIntegrationFromWorkspace?: {
+    __typename?: "RemoveMemberFromWorkspacePayload";
+    workspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+  } | null;
+};
 
 export type CreateWorkspaceMutationVariables = Exact<{
-  name: Scalars['String'];
+  name: Scalars["String"];
 }>;
 
-
-export type CreateWorkspaceMutation = { __typename?: 'Mutation', createWorkspace?: { __typename?: 'CreateWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+export type CreateWorkspaceMutation = {
+  __typename?: "Mutation";
+  createWorkspace?: {
+    __typename?: "CreateWorkspacePayload";
+    workspace: {
+      __typename?: "Workspace";
+      id: string;
+      name: string;
+      personal: boolean;
+      members: Array<
+        | {
+            __typename?: "WorkspaceIntegrationMember";
+            active: boolean;
+            invitedById: string;
+            integrationRole: Role;
+            integration?: {
+              __typename?: "Integration";
+              id: string;
+              name: string;
+              description?: string | null;
+              logoUrl: string;
+              iType: IntegrationType;
+              developerId: string;
+              createdAt: Date;
+              updatedAt: Date;
+              developer: { __typename?: "User"; id: string; name: string; email: string };
+              config?: {
+                __typename?: "IntegrationConfig";
+                token: string;
+                webhooks: Array<{
+                  __typename?: "Webhook";
+                  id: string;
+                  name: string;
+                  url: string;
+                  active: boolean;
+                  secret: string;
+                  createdAt: Date;
+                  updatedAt: Date;
+                  trigger: {
+                    __typename?: "WebhookTrigger";
+                    onItemCreate?: boolean | null;
+                    onItemUpdate?: boolean | null;
+                    onItemDelete?: boolean | null;
+                    onItemPublish?: boolean | null;
+                    onItemUnPublish?: boolean | null;
+                    onAssetUpload?: boolean | null;
+                    onAssetDecompress?: boolean | null;
+                    onAssetDelete?: boolean | null;
+                  };
+                }>;
+              } | null;
+            } | null;
+            invitedBy?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+        | {
+            __typename?: "WorkspaceUserMember";
+            userId: string;
+            role: Role;
+            user?: { __typename?: "User"; id: string; name: string; email: string } | null;
+          }
+      >;
+    };
+  } | null;
+};
 
 export const IntegrationFragmentFragmentDoc = gql`
-    fragment integrationFragment on Integration {
-  id
-  name
-  description
-  logoUrl
-  iType
-  developerId
-  developer {
+  fragment integrationFragment on Integration {
     id
     name
-    email
-  }
-  config {
-    token
-    webhooks {
+    description
+    logoUrl
+    iType
+    developerId
+    developer {
       id
       name
-      url
-      active
-      secret
-      trigger {
-        onItemCreate
-        onItemUpdate
-        onItemDelete
-        onItemPublish
-        onItemUnPublish
-        onAssetUpload
-        onAssetDecompress
-        onAssetDelete
+      email
+    }
+    config {
+      token
+      webhooks {
+        id
+        name
+        url
+        active
+        secret
+        trigger {
+          onItemCreate
+          onItemUpdate
+          onItemDelete
+          onItemPublish
+          onItemUnPublish
+          onAssetUpload
+          onAssetDecompress
+          onAssetDelete
+        }
+        createdAt
+        updatedAt
       }
+    }
+    createdAt
+    updatedAt
+  }
+`;
+export const ThreadFragmentFragmentDoc = gql`
+  fragment threadFragment on Thread {
+    id
+    workspaceId
+    comments {
+      id
+      author {
+        ... on User {
+          id
+          name
+          email
+        }
+        ... on Integration {
+          id
+          name
+        }
+      }
+      authorId
+      content
       createdAt
-      updatedAt
     }
   }
-  createdAt
-  updatedAt
-}
-    `;
-export const ThreadFragmentFragmentDoc = gql`
-    fragment threadFragment on Thread {
-  id
-  workspaceId
-  comments {
+`;
+export const AssetFragmentFragmentDoc = gql`
+  fragment assetFragment on Asset {
     id
-    author {
+    fileName
+    projectId
+    createdAt
+    createdBy {
       ... on User {
         id
         name
         email
       }
       ... on Integration {
-        id
-        name
+        ...integrationFragment
       }
     }
-    authorId
-    content
-    createdAt
-  }
-}
-    `;
-export const AssetFragmentFragmentDoc = gql`
-    fragment assetFragment on Asset {
-  id
-  fileName
-  projectId
-  createdAt
-  createdBy {
-    ... on User {
-      id
-      name
-      email
+    size
+    previewType
+    uuid
+    url
+    thread {
+      ...threadFragment
     }
-    ... on Integration {
-      ...integrationFragment
-    }
+    archiveExtractionStatus
   }
-  size
-  previewType
-  uuid
-  url
-  thread {
-    ...threadFragment
-  }
-  archiveExtractionStatus
-}
-    ${IntegrationFragmentFragmentDoc}
-${ThreadFragmentFragmentDoc}`;
+  ${IntegrationFragmentFragmentDoc}
+  ${ThreadFragmentFragmentDoc}
+`;
 export const AssetFileFragmentFragmentDoc = gql`
-    fragment assetFileFragment on AssetFile {
-  name
-  size
-  contentType
-  path
-}
-    `;
+  fragment assetFileFragment on AssetFile {
+    name
+    size
+    contentType
+    path
+  }
+`;
 export const AssetFile5FragmentFragmentDoc = gql`
-    fragment assetFile5Fragment on AssetFile {
-  ...assetFileFragment
-  children {
+  fragment assetFile5Fragment on AssetFile {
     ...assetFileFragment
     children {
       ...assetFileFragment
@@ -2800,36 +5804,1221 @@ export const AssetFile5FragmentFragmentDoc = gql`
           ...assetFileFragment
           children {
             ...assetFileFragment
+            children {
+              ...assetFileFragment
+            }
           }
         }
       }
     }
   }
-}
-    ${AssetFileFragmentFragmentDoc}`;
+  ${AssetFileFragmentFragmentDoc}
+`;
 export const RequestFragmentFragmentDoc = gql`
-    fragment requestFragment on Request {
-  id
-  items {
-    itemId
-    version
-    ref
-    item {
+  fragment requestFragment on Request {
+    id
+    items {
+      itemId
       version
-      parents
-      refs
-      value {
+      ref
+      item {
+        version
+        parents
+        refs
+        value {
+          id
+          schemaId
+          modelId
+          model {
+            name
+          }
+          fields {
+            schemaFieldId
+            type
+            value
+          }
+          schema {
+            id
+            fields {
+              id
+              type
+              title
+              key
+              description
+              required
+              unique
+              isTitle
+              multiple
+              typeProperty {
+                ... on SchemaFieldText {
+                  defaultValue
+                  maxLength
+                }
+                ... on SchemaFieldTextArea {
+                  defaultValue
+                  maxLength
+                }
+                ... on SchemaFieldMarkdown {
+                  defaultValue
+                  maxLength
+                }
+                ... on SchemaFieldAsset {
+                  assetDefaultValue: defaultValue
+                }
+                ... on SchemaFieldSelect {
+                  selectDefaultValue: defaultValue
+                  values
+                }
+                ... on SchemaFieldInteger {
+                  integerDefaultValue: defaultValue
+                  min
+                  max
+                }
+                ... on SchemaFieldBool {
+                  defaultValue
+                }
+                ... on SchemaFieldURL {
+                  defaultValue
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    title
+    description
+    createdBy {
+      id
+      name
+      email
+    }
+    workspaceId
+    projectId
+    threadId
+    reviewersId
+    state
+    createdAt
+    updatedAt
+    approvedAt
+    closedAt
+    thread {
+      ...threadFragment
+    }
+    project {
+      id
+      name
+      createdAt
+      updatedAt
+    }
+    reviewers {
+      id
+      name
+      email
+    }
+  }
+  ${ThreadFragmentFragmentDoc}
+`;
+export const WorkspaceFragmentFragmentDoc = gql`
+  fragment WorkspaceFragment on Workspace {
+    id
+    name
+    members {
+      ... on WorkspaceUserMember {
+        user {
+          id
+          name
+          email
+        }
+        userId
+        role
+      }
+      ... on WorkspaceIntegrationMember {
+        integration {
+          ...integrationFragment
+        }
+        integrationRole: role
+        active
+        invitedBy {
+          id
+          name
+          email
+        }
+        invitedById
+      }
+    }
+    personal
+  }
+  ${IntegrationFragmentFragmentDoc}
+`;
+export const GetAssetsDocument = gql`
+  query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
+    assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+      edges {
+        cursor
+        node {
+          ...assetFragment
+        }
+      }
+      nodes {
+        ...assetFragment
+      }
+      pageInfo {
+        startCursor
+        endCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      totalCount
+    }
+  }
+  ${AssetFragmentFragmentDoc}
+`;
+
+/**
+ * __useGetAssetsQuery__
+ *
+ * To run a query within a React component, call `useGetAssetsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      keyword: // value for 'keyword'
+ *      sort: // value for 'sort'
+ *      pagination: // value for 'pagination'
+ *   },
+ * });
+ */
+export function useGetAssetsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
+}
+export function useGetAssetsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
+}
+export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
+export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
+export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
+export const GetAssetsItemsDocument = gql`
+  query GetAssetsItems(
+    $projectId: ID!
+    $keyword: String
+    $sort: AssetSort
+    $pagination: Pagination
+  ) {
+    assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
+      edges {
+        cursor
+        node {
+          id
+          items {
+            itemId
+            modelId
+          }
+        }
+      }
+      nodes {
+        id
+        items {
+          itemId
+          modelId
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetAssetsItemsQuery__
+ *
+ * To run a query within a React component, call `useGetAssetsItemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetsItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetsItemsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      keyword: // value for 'keyword'
+ *      sort: // value for 'sort'
+ *      pagination: // value for 'pagination'
+ *   },
+ * });
+ */
+export function useGetAssetsItemsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>(
+    GetAssetsItemsDocument,
+    options,
+  );
+}
+export function useGetAssetsItemsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>(
+    GetAssetsItemsDocument,
+    options,
+  );
+}
+export type GetAssetsItemsQueryHookResult = ReturnType<typeof useGetAssetsItemsQuery>;
+export type GetAssetsItemsLazyQueryHookResult = ReturnType<typeof useGetAssetsItemsLazyQuery>;
+export type GetAssetsItemsQueryResult = Apollo.QueryResult<
+  GetAssetsItemsQuery,
+  GetAssetsItemsQueryVariables
+>;
+export const GetAssetDocument = gql`
+  query GetAsset($assetId: ID!) {
+    node(id: $assetId, type: ASSET) {
+      ...assetFragment
+    }
+  }
+  ${AssetFragmentFragmentDoc}
+`;
+
+/**
+ * __useGetAssetQuery__
+ *
+ * To run a query within a React component, call `useGetAssetQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetQuery({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useGetAssetQuery(
+  baseOptions: Apollo.QueryHookOptions<GetAssetQuery, GetAssetQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAssetQuery, GetAssetQueryVariables>(GetAssetDocument, options);
+}
+export function useGetAssetLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetAssetQuery, GetAssetQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAssetQuery, GetAssetQueryVariables>(GetAssetDocument, options);
+}
+export type GetAssetQueryHookResult = ReturnType<typeof useGetAssetQuery>;
+export type GetAssetLazyQueryHookResult = ReturnType<typeof useGetAssetLazyQuery>;
+export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQueryVariables>;
+export const GetAssetFileDocument = gql`
+  query GetAssetFile($assetId: ID!) {
+    assetFile(assetId: $assetId) {
+      ...assetFile5Fragment
+    }
+  }
+  ${AssetFile5FragmentFragmentDoc}
+`;
+
+/**
+ * __useGetAssetFileQuery__
+ *
+ * To run a query within a React component, call `useGetAssetFileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetFileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetFileQuery({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useGetAssetFileQuery(
+  baseOptions: Apollo.QueryHookOptions<GetAssetFileQuery, GetAssetFileQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAssetFileQuery, GetAssetFileQueryVariables>(
+    GetAssetFileDocument,
+    options,
+  );
+}
+export function useGetAssetFileLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetAssetFileQuery, GetAssetFileQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAssetFileQuery, GetAssetFileQueryVariables>(
+    GetAssetFileDocument,
+    options,
+  );
+}
+export type GetAssetFileQueryHookResult = ReturnType<typeof useGetAssetFileQuery>;
+export type GetAssetFileLazyQueryHookResult = ReturnType<typeof useGetAssetFileLazyQuery>;
+export type GetAssetFileQueryResult = Apollo.QueryResult<
+  GetAssetFileQuery,
+  GetAssetFileQueryVariables
+>;
+export const GetAssetItemDocument = gql`
+  query GetAssetItem($assetId: ID!) {
+    node(id: $assetId, type: ASSET) {
+      ... on Asset {
+        id
+        items {
+          itemId
+          modelId
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetAssetItemQuery__
+ *
+ * To run a query within a React component, call `useGetAssetItemQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAssetItemQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAssetItemQuery({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useGetAssetItemQuery(
+  baseOptions: Apollo.QueryHookOptions<GetAssetItemQuery, GetAssetItemQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetAssetItemQuery, GetAssetItemQueryVariables>(
+    GetAssetItemDocument,
+    options,
+  );
+}
+export function useGetAssetItemLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetAssetItemQuery, GetAssetItemQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetAssetItemQuery, GetAssetItemQueryVariables>(
+    GetAssetItemDocument,
+    options,
+  );
+}
+export type GetAssetItemQueryHookResult = ReturnType<typeof useGetAssetItemQuery>;
+export type GetAssetItemLazyQueryHookResult = ReturnType<typeof useGetAssetItemLazyQuery>;
+export type GetAssetItemQueryResult = Apollo.QueryResult<
+  GetAssetItemQuery,
+  GetAssetItemQueryVariables
+>;
+export const CreateAssetDocument = gql`
+  mutation CreateAsset(
+    $projectId: ID!
+    $file: Upload
+    $token: String
+    $url: String
+    $skipDecompression: Boolean
+  ) {
+    createAsset(
+      input: {
+        projectId: $projectId
+        file: $file
+        token: $token
+        url: $url
+        skipDecompression: $skipDecompression
+      }
+    ) {
+      asset {
+        ...assetFragment
+      }
+    }
+  }
+  ${AssetFragmentFragmentDoc}
+`;
+export type CreateAssetMutationFn = Apollo.MutationFunction<
+  CreateAssetMutation,
+  CreateAssetMutationVariables
+>;
+
+/**
+ * __useCreateAssetMutation__
+ *
+ * To run a mutation, you first call `useCreateAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      file: // value for 'file'
+ *      token: // value for 'token'
+ *      url: // value for 'url'
+ *      skipDecompression: // value for 'skipDecompression'
+ *   },
+ * });
+ */
+export function useCreateAssetMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateAssetMutation, CreateAssetMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateAssetMutation, CreateAssetMutationVariables>(
+    CreateAssetDocument,
+    options,
+  );
+}
+export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMutation>;
+export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
+export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<
+  CreateAssetMutation,
+  CreateAssetMutationVariables
+>;
+export const UpdateAssetDocument = gql`
+  mutation UpdateAsset($id: ID!, $previewType: PreviewType) {
+    updateAsset(input: { id: $id, previewType: $previewType }) {
+      asset {
+        ...assetFragment
+      }
+    }
+  }
+  ${AssetFragmentFragmentDoc}
+`;
+export type UpdateAssetMutationFn = Apollo.MutationFunction<
+  UpdateAssetMutation,
+  UpdateAssetMutationVariables
+>;
+
+/**
+ * __useUpdateAssetMutation__
+ *
+ * To run a mutation, you first call `useUpdateAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAssetMutation, { data, loading, error }] = useUpdateAssetMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      previewType: // value for 'previewType'
+ *   },
+ * });
+ */
+export function useUpdateAssetMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateAssetMutation, UpdateAssetMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateAssetMutation, UpdateAssetMutationVariables>(
+    UpdateAssetDocument,
+    options,
+  );
+}
+export type UpdateAssetMutationHookResult = ReturnType<typeof useUpdateAssetMutation>;
+export type UpdateAssetMutationResult = Apollo.MutationResult<UpdateAssetMutation>;
+export type UpdateAssetMutationOptions = Apollo.BaseMutationOptions<
+  UpdateAssetMutation,
+  UpdateAssetMutationVariables
+>;
+export const DeleteAssetDocument = gql`
+  mutation DeleteAsset($assetId: ID!) {
+    deleteAsset(input: { assetId: $assetId }) {
+      assetId
+    }
+  }
+`;
+export type DeleteAssetMutationFn = Apollo.MutationFunction<
+  DeleteAssetMutation,
+  DeleteAssetMutationVariables
+>;
+
+/**
+ * __useDeleteAssetMutation__
+ *
+ * To run a mutation, you first call `useDeleteAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAssetMutation, { data, loading, error }] = useDeleteAssetMutation({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useDeleteAssetMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteAssetMutation, DeleteAssetMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteAssetMutation, DeleteAssetMutationVariables>(
+    DeleteAssetDocument,
+    options,
+  );
+}
+export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
+export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
+export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<
+  DeleteAssetMutation,
+  DeleteAssetMutationVariables
+>;
+export const DecompressAssetDocument = gql`
+  mutation DecompressAsset($assetId: ID!) {
+    decompressAsset(input: { assetId: $assetId }) {
+      asset {
+        ...assetFragment
+      }
+    }
+  }
+  ${AssetFragmentFragmentDoc}
+`;
+export type DecompressAssetMutationFn = Apollo.MutationFunction<
+  DecompressAssetMutation,
+  DecompressAssetMutationVariables
+>;
+
+/**
+ * __useDecompressAssetMutation__
+ *
+ * To run a mutation, you first call `useDecompressAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDecompressAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [decompressAssetMutation, { data, loading, error }] = useDecompressAssetMutation({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useDecompressAssetMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DecompressAssetMutation,
+    DecompressAssetMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DecompressAssetMutation, DecompressAssetMutationVariables>(
+    DecompressAssetDocument,
+    options,
+  );
+}
+export type DecompressAssetMutationHookResult = ReturnType<typeof useDecompressAssetMutation>;
+export type DecompressAssetMutationResult = Apollo.MutationResult<DecompressAssetMutation>;
+export type DecompressAssetMutationOptions = Apollo.BaseMutationOptions<
+  DecompressAssetMutation,
+  DecompressAssetMutationVariables
+>;
+export const CreateAssetUploadDocument = gql`
+  mutation CreateAssetUpload($projectId: ID!, $filename: String!) {
+    createAssetUpload(input: { projectId: $projectId, filename: $filename }) {
+      url
+      token
+      contentType
+    }
+  }
+`;
+export type CreateAssetUploadMutationFn = Apollo.MutationFunction<
+  CreateAssetUploadMutation,
+  CreateAssetUploadMutationVariables
+>;
+
+/**
+ * __useCreateAssetUploadMutation__
+ *
+ * To run a mutation, you first call `useCreateAssetUploadMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAssetUploadMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAssetUploadMutation, { data, loading, error }] = useCreateAssetUploadMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      filename: // value for 'filename'
+ *   },
+ * });
+ */
+export function useCreateAssetUploadMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateAssetUploadMutation,
+    CreateAssetUploadMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateAssetUploadMutation, CreateAssetUploadMutationVariables>(
+    CreateAssetUploadDocument,
+    options,
+  );
+}
+export type CreateAssetUploadMutationHookResult = ReturnType<typeof useCreateAssetUploadMutation>;
+export type CreateAssetUploadMutationResult = Apollo.MutationResult<CreateAssetUploadMutation>;
+export type CreateAssetUploadMutationOptions = Apollo.BaseMutationOptions<
+  CreateAssetUploadMutation,
+  CreateAssetUploadMutationVariables
+>;
+export const AddCommentDocument = gql`
+  mutation AddComment($threadId: ID!, $content: String!) {
+    addComment(input: { threadId: $threadId, content: $content }) {
+      comment {
+        id
+        author {
+          ... on User {
+            id
+            name
+            email
+          }
+          ... on Integration {
+            id
+            name
+          }
+        }
+        authorType
+        authorId
+        content
+        createdAt
+      }
+    }
+  }
+`;
+export type AddCommentMutationFn = Apollo.MutationFunction<
+  AddCommentMutation,
+  AddCommentMutationVariables
+>;
+
+/**
+ * __useAddCommentMutation__
+ *
+ * To run a mutation, you first call `useAddCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCommentMutation, { data, loading, error }] = useAddCommentMutation({
+ *   variables: {
+ *      threadId: // value for 'threadId'
+ *      content: // value for 'content'
+ *   },
+ * });
+ */
+export function useAddCommentMutation(
+  baseOptions?: Apollo.MutationHookOptions<AddCommentMutation, AddCommentMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<AddCommentMutation, AddCommentMutationVariables>(
+    AddCommentDocument,
+    options,
+  );
+}
+export type AddCommentMutationHookResult = ReturnType<typeof useAddCommentMutation>;
+export type AddCommentMutationResult = Apollo.MutationResult<AddCommentMutation>;
+export type AddCommentMutationOptions = Apollo.BaseMutationOptions<
+  AddCommentMutation,
+  AddCommentMutationVariables
+>;
+export const UpdateCommentDocument = gql`
+  mutation UpdateComment($commentId: ID!, $threadId: ID!, $content: String!) {
+    updateComment(input: { commentId: $commentId, threadId: $threadId, content: $content }) {
+      comment {
+        id
+        author {
+          ... on User {
+            id
+            name
+            email
+          }
+          ... on Integration {
+            id
+            name
+          }
+        }
+        authorType
+        authorId
+        content
+        createdAt
+      }
+    }
+  }
+`;
+export type UpdateCommentMutationFn = Apollo.MutationFunction<
+  UpdateCommentMutation,
+  UpdateCommentMutationVariables
+>;
+
+/**
+ * __useUpdateCommentMutation__
+ *
+ * To run a mutation, you first call `useUpdateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCommentMutation, { data, loading, error }] = useUpdateCommentMutation({
+ *   variables: {
+ *      commentId: // value for 'commentId'
+ *      threadId: // value for 'threadId'
+ *      content: // value for 'content'
+ *   },
+ * });
+ */
+export function useUpdateCommentMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateCommentMutation, UpdateCommentMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(
+    UpdateCommentDocument,
+    options,
+  );
+}
+export type UpdateCommentMutationHookResult = ReturnType<typeof useUpdateCommentMutation>;
+export type UpdateCommentMutationResult = Apollo.MutationResult<UpdateCommentMutation>;
+export type UpdateCommentMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCommentMutation,
+  UpdateCommentMutationVariables
+>;
+export const DeleteCommentDocument = gql`
+  mutation DeleteComment($commentId: ID!, $threadId: ID!) {
+    deleteComment(input: { commentId: $commentId, threadId: $threadId }) {
+      commentId
+    }
+  }
+`;
+export type DeleteCommentMutationFn = Apollo.MutationFunction<
+  DeleteCommentMutation,
+  DeleteCommentMutationVariables
+>;
+
+/**
+ * __useDeleteCommentMutation__
+ *
+ * To run a mutation, you first call `useDeleteCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCommentMutation, { data, loading, error }] = useDeleteCommentMutation({
+ *   variables: {
+ *      commentId: // value for 'commentId'
+ *      threadId: // value for 'threadId'
+ *   },
+ * });
+ */
+export function useDeleteCommentMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteCommentMutation, DeleteCommentMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(
+    DeleteCommentDocument,
+    options,
+  );
+}
+export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
+export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
+export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<
+  DeleteCommentMutation,
+  DeleteCommentMutationVariables
+>;
+export const CreateFieldDocument = gql`
+  mutation CreateField(
+    $modelId: ID
+    $groupId: ID
+    $type: SchemaFieldType!
+    $title: String!
+    $metadata: Boolean
+    $description: String
+    $key: String!
+    $multiple: Boolean!
+    $unique: Boolean!
+    $isTitle: Boolean!
+    $required: Boolean!
+    $typeProperty: SchemaFieldTypePropertyInput!
+  ) {
+    createField(
+      input: {
+        modelId: $modelId
+        groupId: $groupId
+        type: $type
+        title: $title
+        metadata: $metadata
+        description: $description
+        key: $key
+        multiple: $multiple
+        unique: $unique
+        isTitle: $isTitle
+        required: $required
+        typeProperty: $typeProperty
+      }
+    ) {
+      field {
+        id
+      }
+    }
+  }
+`;
+export type CreateFieldMutationFn = Apollo.MutationFunction<
+  CreateFieldMutation,
+  CreateFieldMutationVariables
+>;
+
+/**
+ * __useCreateFieldMutation__
+ *
+ * To run a mutation, you first call `useCreateFieldMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateFieldMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createFieldMutation, { data, loading, error }] = useCreateFieldMutation({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *      groupId: // value for 'groupId'
+ *      type: // value for 'type'
+ *      title: // value for 'title'
+ *      metadata: // value for 'metadata'
+ *      description: // value for 'description'
+ *      key: // value for 'key'
+ *      multiple: // value for 'multiple'
+ *      unique: // value for 'unique'
+ *      isTitle: // value for 'isTitle'
+ *      required: // value for 'required'
+ *      typeProperty: // value for 'typeProperty'
+ *   },
+ * });
+ */
+export function useCreateFieldMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateFieldMutation, CreateFieldMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateFieldMutation, CreateFieldMutationVariables>(
+    CreateFieldDocument,
+    options,
+  );
+}
+export type CreateFieldMutationHookResult = ReturnType<typeof useCreateFieldMutation>;
+export type CreateFieldMutationResult = Apollo.MutationResult<CreateFieldMutation>;
+export type CreateFieldMutationOptions = Apollo.BaseMutationOptions<
+  CreateFieldMutation,
+  CreateFieldMutationVariables
+>;
+export const UpdateFieldDocument = gql`
+  mutation UpdateField(
+    $modelId: ID
+    $groupId: ID
+    $fieldId: ID!
+    $title: String!
+    $metadata: Boolean
+    $description: String
+    $order: Int
+    $key: String!
+    $multiple: Boolean!
+    $unique: Boolean!
+    $isTitle: Boolean!
+    $required: Boolean!
+    $typeProperty: SchemaFieldTypePropertyInput!
+  ) {
+    updateField(
+      input: {
+        modelId: $modelId
+        groupId: $groupId
+        fieldId: $fieldId
+        title: $title
+        metadata: $metadata
+        description: $description
+        order: $order
+        key: $key
+        multiple: $multiple
+        unique: $unique
+        isTitle: $isTitle
+        required: $required
+        typeProperty: $typeProperty
+      }
+    ) {
+      field {
+        id
+      }
+    }
+  }
+`;
+export type UpdateFieldMutationFn = Apollo.MutationFunction<
+  UpdateFieldMutation,
+  UpdateFieldMutationVariables
+>;
+
+/**
+ * __useUpdateFieldMutation__
+ *
+ * To run a mutation, you first call `useUpdateFieldMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFieldMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFieldMutation, { data, loading, error }] = useUpdateFieldMutation({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *      groupId: // value for 'groupId'
+ *      fieldId: // value for 'fieldId'
+ *      title: // value for 'title'
+ *      metadata: // value for 'metadata'
+ *      description: // value for 'description'
+ *      order: // value for 'order'
+ *      key: // value for 'key'
+ *      multiple: // value for 'multiple'
+ *      unique: // value for 'unique'
+ *      isTitle: // value for 'isTitle'
+ *      required: // value for 'required'
+ *      typeProperty: // value for 'typeProperty'
+ *   },
+ * });
+ */
+export function useUpdateFieldMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateFieldMutation, UpdateFieldMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateFieldMutation, UpdateFieldMutationVariables>(
+    UpdateFieldDocument,
+    options,
+  );
+}
+export type UpdateFieldMutationHookResult = ReturnType<typeof useUpdateFieldMutation>;
+export type UpdateFieldMutationResult = Apollo.MutationResult<UpdateFieldMutation>;
+export type UpdateFieldMutationOptions = Apollo.BaseMutationOptions<
+  UpdateFieldMutation,
+  UpdateFieldMutationVariables
+>;
+export const UpdateFieldsDocument = gql`
+  mutation UpdateFields($updateFieldInput: [UpdateFieldInput!]!) {
+    updateFields(input: $updateFieldInput) {
+      fields {
+        id
+      }
+    }
+  }
+`;
+export type UpdateFieldsMutationFn = Apollo.MutationFunction<
+  UpdateFieldsMutation,
+  UpdateFieldsMutationVariables
+>;
+
+/**
+ * __useUpdateFieldsMutation__
+ *
+ * To run a mutation, you first call `useUpdateFieldsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFieldsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFieldsMutation, { data, loading, error }] = useUpdateFieldsMutation({
+ *   variables: {
+ *      updateFieldInput: // value for 'updateFieldInput'
+ *   },
+ * });
+ */
+export function useUpdateFieldsMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateFieldsMutation, UpdateFieldsMutationVariables>(
+    UpdateFieldsDocument,
+    options,
+  );
+}
+export type UpdateFieldsMutationHookResult = ReturnType<typeof useUpdateFieldsMutation>;
+export type UpdateFieldsMutationResult = Apollo.MutationResult<UpdateFieldsMutation>;
+export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateFieldsMutation,
+  UpdateFieldsMutationVariables
+>;
+export const DeleteFieldDocument = gql`
+  mutation DeleteField($modelId: ID, $groupId: ID, $fieldId: ID!, $metadata: Boolean) {
+    deleteField(
+      input: { modelId: $modelId, groupId: $groupId, fieldId: $fieldId, metadata: $metadata }
+    ) {
+      fieldId
+    }
+  }
+`;
+export type DeleteFieldMutationFn = Apollo.MutationFunction<
+  DeleteFieldMutation,
+  DeleteFieldMutationVariables
+>;
+
+/**
+ * __useDeleteFieldMutation__
+ *
+ * To run a mutation, you first call `useDeleteFieldMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteFieldMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteFieldMutation, { data, loading, error }] = useDeleteFieldMutation({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *      groupId: // value for 'groupId'
+ *      fieldId: // value for 'fieldId'
+ *      metadata: // value for 'metadata'
+ *   },
+ * });
+ */
+export function useDeleteFieldMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteFieldMutation, DeleteFieldMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteFieldMutation, DeleteFieldMutationVariables>(
+    DeleteFieldDocument,
+    options,
+  );
+}
+export type DeleteFieldMutationHookResult = ReturnType<typeof useDeleteFieldMutation>;
+export type DeleteFieldMutationResult = Apollo.MutationResult<DeleteFieldMutation>;
+export type DeleteFieldMutationOptions = Apollo.BaseMutationOptions<
+  DeleteFieldMutation,
+  DeleteFieldMutationVariables
+>;
+export const GetGroupsDocument = gql`
+  query GetGroups($projectId: ID!) {
+    groups(projectId: $projectId) {
+      id
+      schemaId
+      projectId
+      name
+      description
+      key
+      schema {
+        id
+        fields {
+          id
+          type
+          title
+          key
+          description
+          required
+          unique
+          isTitle
+          multiple
+          typeProperty {
+            ... on SchemaFieldText {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldTextArea {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldMarkdown {
+              defaultValue
+              maxLength
+            }
+            ... on SchemaFieldAsset {
+              assetDefaultValue: defaultValue
+            }
+            ... on SchemaFieldSelect {
+              selectDefaultValue: defaultValue
+              values
+            }
+            ... on SchemaFieldInteger {
+              integerDefaultValue: defaultValue
+              min
+              max
+            }
+            ... on SchemaFieldBool {
+              defaultValue
+            }
+            ... on SchemaFieldURL {
+              defaultValue
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetGroupsQuery__
+ *
+ * To run a query within a React component, call `useGetGroupsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGroupsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGroupsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useGetGroupsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetGroupsQuery, GetGroupsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetGroupsQuery, GetGroupsQueryVariables>(GetGroupsDocument, options);
+}
+export function useGetGroupsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetGroupsQuery, GetGroupsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetGroupsQuery, GetGroupsQueryVariables>(GetGroupsDocument, options);
+}
+export type GetGroupsQueryHookResult = ReturnType<typeof useGetGroupsQuery>;
+export type GetGroupsLazyQueryHookResult = ReturnType<typeof useGetGroupsLazyQuery>;
+export type GetGroupsQueryResult = Apollo.QueryResult<GetGroupsQuery, GetGroupsQueryVariables>;
+export const GetGroupDocument = gql`
+  query GetGroup($id: ID!) {
+    node(id: $id, type: Group) {
+      ... on Group {
         id
         schemaId
-        modelId
-        model {
-          name
-        }
-        fields {
-          schemaFieldId
-          type
-          value
-        }
+        projectId
+        name
+        description
+        key
         schema {
           id
           fields {
@@ -2879,933 +7068,7 @@ export const RequestFragmentFragmentDoc = gql`
       }
     }
   }
-  title
-  description
-  createdBy {
-    id
-    name
-    email
-  }
-  workspaceId
-  projectId
-  threadId
-  reviewersId
-  state
-  createdAt
-  updatedAt
-  approvedAt
-  closedAt
-  thread {
-    ...threadFragment
-  }
-  project {
-    id
-    name
-    createdAt
-    updatedAt
-  }
-  reviewers {
-    id
-    name
-    email
-  }
-}
-    ${ThreadFragmentFragmentDoc}`;
-export const WorkspaceFragmentFragmentDoc = gql`
-    fragment WorkspaceFragment on Workspace {
-  id
-  name
-  members {
-    ... on WorkspaceUserMember {
-      user {
-        id
-        name
-        email
-      }
-      userId
-      role
-    }
-    ... on WorkspaceIntegrationMember {
-      integration {
-        ...integrationFragment
-      }
-      integrationRole: role
-      active
-      invitedBy {
-        id
-        name
-        email
-      }
-      invitedById
-    }
-  }
-  personal
-}
-    ${IntegrationFragmentFragmentDoc}`;
-export const GetAssetsDocument = gql`
-    query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
-  assets(
-    projectId: $projectId
-    keyword: $keyword
-    sort: $sort
-    pagination: $pagination
-  ) {
-    edges {
-      cursor
-      node {
-        ...assetFragment
-      }
-    }
-    nodes {
-      ...assetFragment
-    }
-    pageInfo {
-      startCursor
-      endCursor
-      hasNextPage
-      hasPreviousPage
-    }
-    totalCount
-  }
-}
-    ${AssetFragmentFragmentDoc}`;
-
-/**
- * __useGetAssetsQuery__
- *
- * To run a query within a React component, call `useGetAssetsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAssetsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAssetsQuery({
- *   variables: {
- *      projectId: // value for 'projectId'
- *      keyword: // value for 'keyword'
- *      sort: // value for 'sort'
- *      pagination: // value for 'pagination'
- *   },
- * });
- */
-export function useGetAssetsQuery(baseOptions: Apollo.QueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
-      }
-export function useGetAssetsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetsQuery, GetAssetsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAssetsQuery, GetAssetsQueryVariables>(GetAssetsDocument, options);
-        }
-export type GetAssetsQueryHookResult = ReturnType<typeof useGetAssetsQuery>;
-export type GetAssetsLazyQueryHookResult = ReturnType<typeof useGetAssetsLazyQuery>;
-export type GetAssetsQueryResult = Apollo.QueryResult<GetAssetsQuery, GetAssetsQueryVariables>;
-export const GetAssetsItemsDocument = gql`
-    query GetAssetsItems($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
-  assets(
-    projectId: $projectId
-    keyword: $keyword
-    sort: $sort
-    pagination: $pagination
-  ) {
-    edges {
-      cursor
-      node {
-        id
-        items {
-          itemId
-          modelId
-        }
-      }
-    }
-    nodes {
-      id
-      items {
-        itemId
-        modelId
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetAssetsItemsQuery__
- *
- * To run a query within a React component, call `useGetAssetsItemsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAssetsItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAssetsItemsQuery({
- *   variables: {
- *      projectId: // value for 'projectId'
- *      keyword: // value for 'keyword'
- *      sort: // value for 'sort'
- *      pagination: // value for 'pagination'
- *   },
- * });
- */
-export function useGetAssetsItemsQuery(baseOptions: Apollo.QueryHookOptions<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>(GetAssetsItemsDocument, options);
-      }
-export function useGetAssetsItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>(GetAssetsItemsDocument, options);
-        }
-export type GetAssetsItemsQueryHookResult = ReturnType<typeof useGetAssetsItemsQuery>;
-export type GetAssetsItemsLazyQueryHookResult = ReturnType<typeof useGetAssetsItemsLazyQuery>;
-export type GetAssetsItemsQueryResult = Apollo.QueryResult<GetAssetsItemsQuery, GetAssetsItemsQueryVariables>;
-export const GetAssetDocument = gql`
-    query GetAsset($assetId: ID!) {
-  node(id: $assetId, type: ASSET) {
-    ...assetFragment
-  }
-}
-    ${AssetFragmentFragmentDoc}`;
-
-/**
- * __useGetAssetQuery__
- *
- * To run a query within a React component, call `useGetAssetQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAssetQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAssetQuery({
- *   variables: {
- *      assetId: // value for 'assetId'
- *   },
- * });
- */
-export function useGetAssetQuery(baseOptions: Apollo.QueryHookOptions<GetAssetQuery, GetAssetQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAssetQuery, GetAssetQueryVariables>(GetAssetDocument, options);
-      }
-export function useGetAssetLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetQuery, GetAssetQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAssetQuery, GetAssetQueryVariables>(GetAssetDocument, options);
-        }
-export type GetAssetQueryHookResult = ReturnType<typeof useGetAssetQuery>;
-export type GetAssetLazyQueryHookResult = ReturnType<typeof useGetAssetLazyQuery>;
-export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQueryVariables>;
-export const GetAssetFileDocument = gql`
-    query GetAssetFile($assetId: ID!) {
-  assetFile(assetId: $assetId) {
-    ...assetFile5Fragment
-  }
-}
-    ${AssetFile5FragmentFragmentDoc}`;
-
-/**
- * __useGetAssetFileQuery__
- *
- * To run a query within a React component, call `useGetAssetFileQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAssetFileQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAssetFileQuery({
- *   variables: {
- *      assetId: // value for 'assetId'
- *   },
- * });
- */
-export function useGetAssetFileQuery(baseOptions: Apollo.QueryHookOptions<GetAssetFileQuery, GetAssetFileQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAssetFileQuery, GetAssetFileQueryVariables>(GetAssetFileDocument, options);
-      }
-export function useGetAssetFileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetFileQuery, GetAssetFileQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAssetFileQuery, GetAssetFileQueryVariables>(GetAssetFileDocument, options);
-        }
-export type GetAssetFileQueryHookResult = ReturnType<typeof useGetAssetFileQuery>;
-export type GetAssetFileLazyQueryHookResult = ReturnType<typeof useGetAssetFileLazyQuery>;
-export type GetAssetFileQueryResult = Apollo.QueryResult<GetAssetFileQuery, GetAssetFileQueryVariables>;
-export const GetAssetItemDocument = gql`
-    query GetAssetItem($assetId: ID!) {
-  node(id: $assetId, type: ASSET) {
-    ... on Asset {
-      id
-      items {
-        itemId
-        modelId
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetAssetItemQuery__
- *
- * To run a query within a React component, call `useGetAssetItemQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAssetItemQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAssetItemQuery({
- *   variables: {
- *      assetId: // value for 'assetId'
- *   },
- * });
- */
-export function useGetAssetItemQuery(baseOptions: Apollo.QueryHookOptions<GetAssetItemQuery, GetAssetItemQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAssetItemQuery, GetAssetItemQueryVariables>(GetAssetItemDocument, options);
-      }
-export function useGetAssetItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAssetItemQuery, GetAssetItemQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAssetItemQuery, GetAssetItemQueryVariables>(GetAssetItemDocument, options);
-        }
-export type GetAssetItemQueryHookResult = ReturnType<typeof useGetAssetItemQuery>;
-export type GetAssetItemLazyQueryHookResult = ReturnType<typeof useGetAssetItemLazyQuery>;
-export type GetAssetItemQueryResult = Apollo.QueryResult<GetAssetItemQuery, GetAssetItemQueryVariables>;
-export const CreateAssetDocument = gql`
-    mutation CreateAsset($projectId: ID!, $file: Upload, $token: String, $url: String, $skipDecompression: Boolean) {
-  createAsset(
-    input: {projectId: $projectId, file: $file, token: $token, url: $url, skipDecompression: $skipDecompression}
-  ) {
-    asset {
-      ...assetFragment
-    }
-  }
-}
-    ${AssetFragmentFragmentDoc}`;
-export type CreateAssetMutationFn = Apollo.MutationFunction<CreateAssetMutation, CreateAssetMutationVariables>;
-
-/**
- * __useCreateAssetMutation__
- *
- * To run a mutation, you first call `useCreateAssetMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateAssetMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createAssetMutation, { data, loading, error }] = useCreateAssetMutation({
- *   variables: {
- *      projectId: // value for 'projectId'
- *      file: // value for 'file'
- *      token: // value for 'token'
- *      url: // value for 'url'
- *      skipDecompression: // value for 'skipDecompression'
- *   },
- * });
- */
-export function useCreateAssetMutation(baseOptions?: Apollo.MutationHookOptions<CreateAssetMutation, CreateAssetMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateAssetMutation, CreateAssetMutationVariables>(CreateAssetDocument, options);
-      }
-export type CreateAssetMutationHookResult = ReturnType<typeof useCreateAssetMutation>;
-export type CreateAssetMutationResult = Apollo.MutationResult<CreateAssetMutation>;
-export type CreateAssetMutationOptions = Apollo.BaseMutationOptions<CreateAssetMutation, CreateAssetMutationVariables>;
-export const UpdateAssetDocument = gql`
-    mutation UpdateAsset($id: ID!, $previewType: PreviewType) {
-  updateAsset(input: {id: $id, previewType: $previewType}) {
-    asset {
-      ...assetFragment
-    }
-  }
-}
-    ${AssetFragmentFragmentDoc}`;
-export type UpdateAssetMutationFn = Apollo.MutationFunction<UpdateAssetMutation, UpdateAssetMutationVariables>;
-
-/**
- * __useUpdateAssetMutation__
- *
- * To run a mutation, you first call `useUpdateAssetMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateAssetMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateAssetMutation, { data, loading, error }] = useUpdateAssetMutation({
- *   variables: {
- *      id: // value for 'id'
- *      previewType: // value for 'previewType'
- *   },
- * });
- */
-export function useUpdateAssetMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAssetMutation, UpdateAssetMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateAssetMutation, UpdateAssetMutationVariables>(UpdateAssetDocument, options);
-      }
-export type UpdateAssetMutationHookResult = ReturnType<typeof useUpdateAssetMutation>;
-export type UpdateAssetMutationResult = Apollo.MutationResult<UpdateAssetMutation>;
-export type UpdateAssetMutationOptions = Apollo.BaseMutationOptions<UpdateAssetMutation, UpdateAssetMutationVariables>;
-export const DeleteAssetDocument = gql`
-    mutation DeleteAsset($assetId: ID!) {
-  deleteAsset(input: {assetId: $assetId}) {
-    assetId
-  }
-}
-    `;
-export type DeleteAssetMutationFn = Apollo.MutationFunction<DeleteAssetMutation, DeleteAssetMutationVariables>;
-
-/**
- * __useDeleteAssetMutation__
- *
- * To run a mutation, you first call `useDeleteAssetMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteAssetMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteAssetMutation, { data, loading, error }] = useDeleteAssetMutation({
- *   variables: {
- *      assetId: // value for 'assetId'
- *   },
- * });
- */
-export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAssetMutation, DeleteAssetMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteAssetMutation, DeleteAssetMutationVariables>(DeleteAssetDocument, options);
-      }
-export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
-export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
-export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
-export const DecompressAssetDocument = gql`
-    mutation DecompressAsset($assetId: ID!) {
-  decompressAsset(input: {assetId: $assetId}) {
-    asset {
-      ...assetFragment
-    }
-  }
-}
-    ${AssetFragmentFragmentDoc}`;
-export type DecompressAssetMutationFn = Apollo.MutationFunction<DecompressAssetMutation, DecompressAssetMutationVariables>;
-
-/**
- * __useDecompressAssetMutation__
- *
- * To run a mutation, you first call `useDecompressAssetMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDecompressAssetMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [decompressAssetMutation, { data, loading, error }] = useDecompressAssetMutation({
- *   variables: {
- *      assetId: // value for 'assetId'
- *   },
- * });
- */
-export function useDecompressAssetMutation(baseOptions?: Apollo.MutationHookOptions<DecompressAssetMutation, DecompressAssetMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DecompressAssetMutation, DecompressAssetMutationVariables>(DecompressAssetDocument, options);
-      }
-export type DecompressAssetMutationHookResult = ReturnType<typeof useDecompressAssetMutation>;
-export type DecompressAssetMutationResult = Apollo.MutationResult<DecompressAssetMutation>;
-export type DecompressAssetMutationOptions = Apollo.BaseMutationOptions<DecompressAssetMutation, DecompressAssetMutationVariables>;
-export const CreateAssetUploadDocument = gql`
-    mutation CreateAssetUpload($projectId: ID!, $filename: String!) {
-  createAssetUpload(input: {projectId: $projectId, filename: $filename}) {
-    url
-    token
-    contentType
-  }
-}
-    `;
-export type CreateAssetUploadMutationFn = Apollo.MutationFunction<CreateAssetUploadMutation, CreateAssetUploadMutationVariables>;
-
-/**
- * __useCreateAssetUploadMutation__
- *
- * To run a mutation, you first call `useCreateAssetUploadMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateAssetUploadMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createAssetUploadMutation, { data, loading, error }] = useCreateAssetUploadMutation({
- *   variables: {
- *      projectId: // value for 'projectId'
- *      filename: // value for 'filename'
- *   },
- * });
- */
-export function useCreateAssetUploadMutation(baseOptions?: Apollo.MutationHookOptions<CreateAssetUploadMutation, CreateAssetUploadMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateAssetUploadMutation, CreateAssetUploadMutationVariables>(CreateAssetUploadDocument, options);
-      }
-export type CreateAssetUploadMutationHookResult = ReturnType<typeof useCreateAssetUploadMutation>;
-export type CreateAssetUploadMutationResult = Apollo.MutationResult<CreateAssetUploadMutation>;
-export type CreateAssetUploadMutationOptions = Apollo.BaseMutationOptions<CreateAssetUploadMutation, CreateAssetUploadMutationVariables>;
-export const AddCommentDocument = gql`
-    mutation AddComment($threadId: ID!, $content: String!) {
-  addComment(input: {threadId: $threadId, content: $content}) {
-    comment {
-      id
-      author {
-        ... on User {
-          id
-          name
-          email
-        }
-        ... on Integration {
-          id
-          name
-        }
-      }
-      authorType
-      authorId
-      content
-      createdAt
-    }
-  }
-}
-    `;
-export type AddCommentMutationFn = Apollo.MutationFunction<AddCommentMutation, AddCommentMutationVariables>;
-
-/**
- * __useAddCommentMutation__
- *
- * To run a mutation, you first call `useAddCommentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddCommentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addCommentMutation, { data, loading, error }] = useAddCommentMutation({
- *   variables: {
- *      threadId: // value for 'threadId'
- *      content: // value for 'content'
- *   },
- * });
- */
-export function useAddCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddCommentMutation, AddCommentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddCommentMutation, AddCommentMutationVariables>(AddCommentDocument, options);
-      }
-export type AddCommentMutationHookResult = ReturnType<typeof useAddCommentMutation>;
-export type AddCommentMutationResult = Apollo.MutationResult<AddCommentMutation>;
-export type AddCommentMutationOptions = Apollo.BaseMutationOptions<AddCommentMutation, AddCommentMutationVariables>;
-export const UpdateCommentDocument = gql`
-    mutation UpdateComment($commentId: ID!, $threadId: ID!, $content: String!) {
-  updateComment(
-    input: {commentId: $commentId, threadId: $threadId, content: $content}
-  ) {
-    comment {
-      id
-      author {
-        ... on User {
-          id
-          name
-          email
-        }
-        ... on Integration {
-          id
-          name
-        }
-      }
-      authorType
-      authorId
-      content
-      createdAt
-    }
-  }
-}
-    `;
-export type UpdateCommentMutationFn = Apollo.MutationFunction<UpdateCommentMutation, UpdateCommentMutationVariables>;
-
-/**
- * __useUpdateCommentMutation__
- *
- * To run a mutation, you first call `useUpdateCommentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCommentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCommentMutation, { data, loading, error }] = useUpdateCommentMutation({
- *   variables: {
- *      commentId: // value for 'commentId'
- *      threadId: // value for 'threadId'
- *      content: // value for 'content'
- *   },
- * });
- */
-export function useUpdateCommentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommentMutation, UpdateCommentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, options);
-      }
-export type UpdateCommentMutationHookResult = ReturnType<typeof useUpdateCommentMutation>;
-export type UpdateCommentMutationResult = Apollo.MutationResult<UpdateCommentMutation>;
-export type UpdateCommentMutationOptions = Apollo.BaseMutationOptions<UpdateCommentMutation, UpdateCommentMutationVariables>;
-export const DeleteCommentDocument = gql`
-    mutation DeleteComment($commentId: ID!, $threadId: ID!) {
-  deleteComment(input: {commentId: $commentId, threadId: $threadId}) {
-    commentId
-  }
-}
-    `;
-export type DeleteCommentMutationFn = Apollo.MutationFunction<DeleteCommentMutation, DeleteCommentMutationVariables>;
-
-/**
- * __useDeleteCommentMutation__
- *
- * To run a mutation, you first call `useDeleteCommentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteCommentMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteCommentMutation, { data, loading, error }] = useDeleteCommentMutation({
- *   variables: {
- *      commentId: // value for 'commentId'
- *      threadId: // value for 'threadId'
- *   },
- * });
- */
-export function useDeleteCommentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCommentMutation, DeleteCommentMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, options);
-      }
-export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
-export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
-export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
-export const CreateFieldDocument = gql`
-    mutation CreateField($modelId: ID, $groupId: ID, $type: SchemaFieldType!, $title: String!, $metadata: Boolean, $description: String, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
-  createField(
-    input: {modelId: $modelId, groupId: $groupId, type: $type, title: $title, metadata: $metadata, description: $description, key: $key, multiple: $multiple, unique: $unique, isTitle: $isTitle, required: $required, typeProperty: $typeProperty}
-  ) {
-    field {
-      id
-    }
-  }
-}
-    `;
-export type CreateFieldMutationFn = Apollo.MutationFunction<CreateFieldMutation, CreateFieldMutationVariables>;
-
-/**
- * __useCreateFieldMutation__
- *
- * To run a mutation, you first call `useCreateFieldMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateFieldMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createFieldMutation, { data, loading, error }] = useCreateFieldMutation({
- *   variables: {
- *      modelId: // value for 'modelId'
- *      groupId: // value for 'groupId'
- *      type: // value for 'type'
- *      title: // value for 'title'
- *      metadata: // value for 'metadata'
- *      description: // value for 'description'
- *      key: // value for 'key'
- *      multiple: // value for 'multiple'
- *      unique: // value for 'unique'
- *      isTitle: // value for 'isTitle'
- *      required: // value for 'required'
- *      typeProperty: // value for 'typeProperty'
- *   },
- * });
- */
-export function useCreateFieldMutation(baseOptions?: Apollo.MutationHookOptions<CreateFieldMutation, CreateFieldMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateFieldMutation, CreateFieldMutationVariables>(CreateFieldDocument, options);
-      }
-export type CreateFieldMutationHookResult = ReturnType<typeof useCreateFieldMutation>;
-export type CreateFieldMutationResult = Apollo.MutationResult<CreateFieldMutation>;
-export type CreateFieldMutationOptions = Apollo.BaseMutationOptions<CreateFieldMutation, CreateFieldMutationVariables>;
-export const UpdateFieldDocument = gql`
-    mutation UpdateField($modelId: ID, $groupId: ID, $fieldId: ID!, $title: String!, $metadata: Boolean, $description: String, $order: Int, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
-  updateField(
-    input: {modelId: $modelId, groupId: $groupId, fieldId: $fieldId, title: $title, metadata: $metadata, description: $description, order: $order, key: $key, multiple: $multiple, unique: $unique, isTitle: $isTitle, required: $required, typeProperty: $typeProperty}
-  ) {
-    field {
-      id
-    }
-  }
-}
-    `;
-export type UpdateFieldMutationFn = Apollo.MutationFunction<UpdateFieldMutation, UpdateFieldMutationVariables>;
-
-/**
- * __useUpdateFieldMutation__
- *
- * To run a mutation, you first call `useUpdateFieldMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateFieldMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateFieldMutation, { data, loading, error }] = useUpdateFieldMutation({
- *   variables: {
- *      modelId: // value for 'modelId'
- *      groupId: // value for 'groupId'
- *      fieldId: // value for 'fieldId'
- *      title: // value for 'title'
- *      metadata: // value for 'metadata'
- *      description: // value for 'description'
- *      order: // value for 'order'
- *      key: // value for 'key'
- *      multiple: // value for 'multiple'
- *      unique: // value for 'unique'
- *      isTitle: // value for 'isTitle'
- *      required: // value for 'required'
- *      typeProperty: // value for 'typeProperty'
- *   },
- * });
- */
-export function useUpdateFieldMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFieldMutation, UpdateFieldMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateFieldMutation, UpdateFieldMutationVariables>(UpdateFieldDocument, options);
-      }
-export type UpdateFieldMutationHookResult = ReturnType<typeof useUpdateFieldMutation>;
-export type UpdateFieldMutationResult = Apollo.MutationResult<UpdateFieldMutation>;
-export type UpdateFieldMutationOptions = Apollo.BaseMutationOptions<UpdateFieldMutation, UpdateFieldMutationVariables>;
-export const UpdateFieldsDocument = gql`
-    mutation UpdateFields($updateFieldInput: [UpdateFieldInput!]!) {
-  updateFields(input: $updateFieldInput) {
-    fields {
-      id
-    }
-  }
-}
-    `;
-export type UpdateFieldsMutationFn = Apollo.MutationFunction<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
-
-/**
- * __useUpdateFieldsMutation__
- *
- * To run a mutation, you first call `useUpdateFieldsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateFieldsMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateFieldsMutation, { data, loading, error }] = useUpdateFieldsMutation({
- *   variables: {
- *      updateFieldInput: // value for 'updateFieldInput'
- *   },
- * });
- */
-export function useUpdateFieldsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateFieldsMutation, UpdateFieldsMutationVariables>(UpdateFieldsDocument, options);
-      }
-export type UpdateFieldsMutationHookResult = ReturnType<typeof useUpdateFieldsMutation>;
-export type UpdateFieldsMutationResult = Apollo.MutationResult<UpdateFieldsMutation>;
-export type UpdateFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateFieldsMutation, UpdateFieldsMutationVariables>;
-export const DeleteFieldDocument = gql`
-    mutation DeleteField($modelId: ID, $groupId: ID, $fieldId: ID!, $metadata: Boolean) {
-  deleteField(
-    input: {modelId: $modelId, groupId: $groupId, fieldId: $fieldId, metadata: $metadata}
-  ) {
-    fieldId
-  }
-}
-    `;
-export type DeleteFieldMutationFn = Apollo.MutationFunction<DeleteFieldMutation, DeleteFieldMutationVariables>;
-
-/**
- * __useDeleteFieldMutation__
- *
- * To run a mutation, you first call `useDeleteFieldMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteFieldMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteFieldMutation, { data, loading, error }] = useDeleteFieldMutation({
- *   variables: {
- *      modelId: // value for 'modelId'
- *      groupId: // value for 'groupId'
- *      fieldId: // value for 'fieldId'
- *      metadata: // value for 'metadata'
- *   },
- * });
- */
-export function useDeleteFieldMutation(baseOptions?: Apollo.MutationHookOptions<DeleteFieldMutation, DeleteFieldMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteFieldMutation, DeleteFieldMutationVariables>(DeleteFieldDocument, options);
-      }
-export type DeleteFieldMutationHookResult = ReturnType<typeof useDeleteFieldMutation>;
-export type DeleteFieldMutationResult = Apollo.MutationResult<DeleteFieldMutation>;
-export type DeleteFieldMutationOptions = Apollo.BaseMutationOptions<DeleteFieldMutation, DeleteFieldMutationVariables>;
-export const GetGroupsDocument = gql`
-    query GetGroups($projectId: ID!) {
-  groups(projectId: $projectId) {
-    id
-    schemaId
-    projectId
-    name
-    description
-    key
-    schema {
-      id
-      fields {
-        id
-        type
-        title
-        key
-        description
-        required
-        unique
-        isTitle
-        multiple
-        typeProperty {
-          ... on SchemaFieldText {
-            defaultValue
-            maxLength
-          }
-          ... on SchemaFieldTextArea {
-            defaultValue
-            maxLength
-          }
-          ... on SchemaFieldMarkdown {
-            defaultValue
-            maxLength
-          }
-          ... on SchemaFieldAsset {
-            assetDefaultValue: defaultValue
-          }
-          ... on SchemaFieldSelect {
-            selectDefaultValue: defaultValue
-            values
-          }
-          ... on SchemaFieldInteger {
-            integerDefaultValue: defaultValue
-            min
-            max
-          }
-          ... on SchemaFieldBool {
-            defaultValue
-          }
-          ... on SchemaFieldURL {
-            defaultValue
-          }
-        }
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetGroupsQuery__
- *
- * To run a query within a React component, call `useGetGroupsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetGroupsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetGroupsQuery({
- *   variables: {
- *      projectId: // value for 'projectId'
- *   },
- * });
- */
-export function useGetGroupsQuery(baseOptions: Apollo.QueryHookOptions<GetGroupsQuery, GetGroupsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetGroupsQuery, GetGroupsQueryVariables>(GetGroupsDocument, options);
-      }
-export function useGetGroupsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGroupsQuery, GetGroupsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetGroupsQuery, GetGroupsQueryVariables>(GetGroupsDocument, options);
-        }
-export type GetGroupsQueryHookResult = ReturnType<typeof useGetGroupsQuery>;
-export type GetGroupsLazyQueryHookResult = ReturnType<typeof useGetGroupsLazyQuery>;
-export type GetGroupsQueryResult = Apollo.QueryResult<GetGroupsQuery, GetGroupsQueryVariables>;
-export const GetGroupDocument = gql`
-    query GetGroup($id: ID!) {
-  node(id: $id, type: Group) {
-    ... on Group {
-      id
-      schemaId
-      projectId
-      name
-      description
-      key
-      schema {
-        id
-        fields {
-          id
-          type
-          title
-          key
-          description
-          required
-          unique
-          isTitle
-          multiple
-          typeProperty {
-            ... on SchemaFieldText {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldTextArea {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldMarkdown {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldAsset {
-              assetDefaultValue: defaultValue
-            }
-            ... on SchemaFieldSelect {
-              selectDefaultValue: defaultValue
-              values
-            }
-            ... on SchemaFieldInteger {
-              integerDefaultValue: defaultValue
-              min
-              max
-            }
-            ... on SchemaFieldBool {
-              defaultValue
-            }
-            ... on SchemaFieldURL {
-              defaultValue
-            }
-          }
-        }
-      }
-    }
-  }
-}
-    `;
+`;
 
 /**
  * __useGetGroupQuery__
@@ -3823,29 +7086,36 @@ export const GetGroupDocument = gql`
  *   },
  * });
  */
-export function useGetGroupQuery(baseOptions: Apollo.QueryHookOptions<GetGroupQuery, GetGroupQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetGroupQuery, GetGroupQueryVariables>(GetGroupDocument, options);
-      }
-export function useGetGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGroupQuery, GetGroupQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetGroupQuery, GetGroupQueryVariables>(GetGroupDocument, options);
-        }
+export function useGetGroupQuery(
+  baseOptions: Apollo.QueryHookOptions<GetGroupQuery, GetGroupQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetGroupQuery, GetGroupQueryVariables>(GetGroupDocument, options);
+}
+export function useGetGroupLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetGroupQuery, GetGroupQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetGroupQuery, GetGroupQueryVariables>(GetGroupDocument, options);
+}
 export type GetGroupQueryHookResult = ReturnType<typeof useGetGroupQuery>;
 export type GetGroupLazyQueryHookResult = ReturnType<typeof useGetGroupLazyQuery>;
 export type GetGroupQueryResult = Apollo.QueryResult<GetGroupQuery, GetGroupQueryVariables>;
 export const CreateGroupDocument = gql`
-    mutation createGroup($projectId: ID!, $name: String!, $key: String!, $description: String) {
-  createGroup(
-    input: {projectId: $projectId, name: $name, key: $key, description: $description}
-  ) {
-    group {
-      id
+  mutation createGroup($projectId: ID!, $name: String!, $key: String!, $description: String) {
+    createGroup(
+      input: { projectId: $projectId, name: $name, key: $key, description: $description }
+    ) {
+      group {
+        id
+      }
     }
   }
-}
-    `;
-export type CreateGroupMutationFn = Apollo.MutationFunction<CreateGroupMutation, CreateGroupMutationVariables>;
+`;
+export type CreateGroupMutationFn = Apollo.MutationFunction<
+  CreateGroupMutation,
+  CreateGroupMutationVariables
+>;
 
 /**
  * __useCreateGroupMutation__
@@ -3867,25 +7137,34 @@ export type CreateGroupMutationFn = Apollo.MutationFunction<CreateGroupMutation,
  *   },
  * });
  */
-export function useCreateGroupMutation(baseOptions?: Apollo.MutationHookOptions<CreateGroupMutation, CreateGroupMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateGroupMutation, CreateGroupMutationVariables>(CreateGroupDocument, options);
-      }
+export function useCreateGroupMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateGroupMutation, CreateGroupMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateGroupMutation, CreateGroupMutationVariables>(
+    CreateGroupDocument,
+    options,
+  );
+}
 export type CreateGroupMutationHookResult = ReturnType<typeof useCreateGroupMutation>;
 export type CreateGroupMutationResult = Apollo.MutationResult<CreateGroupMutation>;
-export type CreateGroupMutationOptions = Apollo.BaseMutationOptions<CreateGroupMutation, CreateGroupMutationVariables>;
+export type CreateGroupMutationOptions = Apollo.BaseMutationOptions<
+  CreateGroupMutation,
+  CreateGroupMutationVariables
+>;
 export const UpdateGroupDocument = gql`
-    mutation updateGroup($groupId: ID!, $name: String!, $key: String!, $description: String) {
-  updateGroup(
-    input: {groupId: $groupId, name: $name, key: $key, description: $description}
-  ) {
-    group {
-      id
+  mutation updateGroup($groupId: ID!, $name: String!, $key: String!, $description: String) {
+    updateGroup(input: { groupId: $groupId, name: $name, key: $key, description: $description }) {
+      group {
+        id
+      }
     }
   }
-}
-    `;
-export type UpdateGroupMutationFn = Apollo.MutationFunction<UpdateGroupMutation, UpdateGroupMutationVariables>;
+`;
+export type UpdateGroupMutationFn = Apollo.MutationFunction<
+  UpdateGroupMutation,
+  UpdateGroupMutationVariables
+>;
 
 /**
  * __useUpdateGroupMutation__
@@ -3907,21 +7186,32 @@ export type UpdateGroupMutationFn = Apollo.MutationFunction<UpdateGroupMutation,
  *   },
  * });
  */
-export function useUpdateGroupMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGroupMutation, UpdateGroupMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateGroupMutation, UpdateGroupMutationVariables>(UpdateGroupDocument, options);
-      }
+export function useUpdateGroupMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateGroupMutation, UpdateGroupMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateGroupMutation, UpdateGroupMutationVariables>(
+    UpdateGroupDocument,
+    options,
+  );
+}
 export type UpdateGroupMutationHookResult = ReturnType<typeof useUpdateGroupMutation>;
 export type UpdateGroupMutationResult = Apollo.MutationResult<UpdateGroupMutation>;
-export type UpdateGroupMutationOptions = Apollo.BaseMutationOptions<UpdateGroupMutation, UpdateGroupMutationVariables>;
+export type UpdateGroupMutationOptions = Apollo.BaseMutationOptions<
+  UpdateGroupMutation,
+  UpdateGroupMutationVariables
+>;
 export const DeleteGroupDocument = gql`
-    mutation deleteGroup($groupId: ID!) {
-  deleteGroup(input: {groupId: $groupId}) {
-    groupId
+  mutation deleteGroup($groupId: ID!) {
+    deleteGroup(input: { groupId: $groupId }) {
+      groupId
+    }
   }
-}
-    `;
-export type DeleteGroupMutationFn = Apollo.MutationFunction<DeleteGroupMutation, DeleteGroupMutationVariables>;
+`;
+export type DeleteGroupMutationFn = Apollo.MutationFunction<
+  DeleteGroupMutation,
+  DeleteGroupMutationVariables
+>;
 
 /**
  * __useDeleteGroupMutation__
@@ -3940,21 +7230,29 @@ export type DeleteGroupMutationFn = Apollo.MutationFunction<DeleteGroupMutation,
  *   },
  * });
  */
-export function useDeleteGroupMutation(baseOptions?: Apollo.MutationHookOptions<DeleteGroupMutation, DeleteGroupMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument, options);
-      }
+export function useDeleteGroupMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteGroupMutation, DeleteGroupMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(
+    DeleteGroupDocument,
+    options,
+  );
+}
 export type DeleteGroupMutationHookResult = ReturnType<typeof useDeleteGroupMutation>;
 export type DeleteGroupMutationResult = Apollo.MutationResult<DeleteGroupMutation>;
-export type DeleteGroupMutationOptions = Apollo.BaseMutationOptions<DeleteGroupMutation, DeleteGroupMutationVariables>;
+export type DeleteGroupMutationOptions = Apollo.BaseMutationOptions<
+  DeleteGroupMutation,
+  DeleteGroupMutationVariables
+>;
 export const CheckGroupKeyAvailabilityDocument = gql`
-    query CheckGroupKeyAvailability($projectId: ID!, $key: String!) {
-  checkGroupKeyAvailability(projectId: $projectId, key: $key) {
-    key
-    available
+  query CheckGroupKeyAvailability($projectId: ID!, $key: String!) {
+    checkGroupKeyAvailability(projectId: $projectId, key: $key) {
+      key
+      available
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useCheckGroupKeyAvailabilityQuery__
@@ -3973,33 +7271,112 @@ export const CheckGroupKeyAvailabilityDocument = gql`
  *   },
  * });
  */
-export function useCheckGroupKeyAvailabilityQuery(baseOptions: Apollo.QueryHookOptions<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>(CheckGroupKeyAvailabilityDocument, options);
-      }
-export function useCheckGroupKeyAvailabilityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>(CheckGroupKeyAvailabilityDocument, options);
-        }
-export type CheckGroupKeyAvailabilityQueryHookResult = ReturnType<typeof useCheckGroupKeyAvailabilityQuery>;
-export type CheckGroupKeyAvailabilityLazyQueryHookResult = ReturnType<typeof useCheckGroupKeyAvailabilityLazyQuery>;
-export type CheckGroupKeyAvailabilityQueryResult = Apollo.QueryResult<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>;
-export const CreateIntegrationDocument = gql`
-    mutation CreateIntegration($name: String!, $description: String, $logoUrl: URL!, $type: IntegrationType!) {
-  createIntegration(
-    input: {name: $name, description: $description, logoUrl: $logoUrl, type: $type}
-  ) {
-    integration {
-      id
+export function useCheckGroupKeyAvailabilityQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    CheckGroupKeyAvailabilityQuery,
+    CheckGroupKeyAvailabilityQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<CheckGroupKeyAvailabilityQuery, CheckGroupKeyAvailabilityQueryVariables>(
+    CheckGroupKeyAvailabilityDocument,
+    options,
+  );
+}
+export function useCheckGroupKeyAvailabilityLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CheckGroupKeyAvailabilityQuery,
+    CheckGroupKeyAvailabilityQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    CheckGroupKeyAvailabilityQuery,
+    CheckGroupKeyAvailabilityQueryVariables
+  >(CheckGroupKeyAvailabilityDocument, options);
+}
+export type CheckGroupKeyAvailabilityQueryHookResult = ReturnType<
+  typeof useCheckGroupKeyAvailabilityQuery
+>;
+export type CheckGroupKeyAvailabilityLazyQueryHookResult = ReturnType<
+  typeof useCheckGroupKeyAvailabilityLazyQuery
+>;
+export type CheckGroupKeyAvailabilityQueryResult = Apollo.QueryResult<
+  CheckGroupKeyAvailabilityQuery,
+  CheckGroupKeyAvailabilityQueryVariables
+>;
+export const ModelsByGroupDocument = gql`
+  query ModelsByGroup($groupId: ID!) {
+    modelsByGroup(groupId: $groupId) {
       name
-      description
-      logoUrl
-      iType
     }
   }
+`;
+
+/**
+ * __useModelsByGroupQuery__
+ *
+ * To run a query within a React component, call `useModelsByGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useModelsByGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useModelsByGroupQuery({
+ *   variables: {
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useModelsByGroupQuery(
+  baseOptions: Apollo.QueryHookOptions<ModelsByGroupQuery, ModelsByGroupQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<ModelsByGroupQuery, ModelsByGroupQueryVariables>(
+    ModelsByGroupDocument,
+    options,
+  );
 }
-    `;
-export type CreateIntegrationMutationFn = Apollo.MutationFunction<CreateIntegrationMutation, CreateIntegrationMutationVariables>;
+export function useModelsByGroupLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ModelsByGroupQuery, ModelsByGroupQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<ModelsByGroupQuery, ModelsByGroupQueryVariables>(
+    ModelsByGroupDocument,
+    options,
+  );
+}
+export type ModelsByGroupQueryHookResult = ReturnType<typeof useModelsByGroupQuery>;
+export type ModelsByGroupLazyQueryHookResult = ReturnType<typeof useModelsByGroupLazyQuery>;
+export type ModelsByGroupQueryResult = Apollo.QueryResult<
+  ModelsByGroupQuery,
+  ModelsByGroupQueryVariables
+>;
+export const CreateIntegrationDocument = gql`
+  mutation CreateIntegration(
+    $name: String!
+    $description: String
+    $logoUrl: URL!
+    $type: IntegrationType!
+  ) {
+    createIntegration(
+      input: { name: $name, description: $description, logoUrl: $logoUrl, type: $type }
+    ) {
+      integration {
+        id
+        name
+        description
+        logoUrl
+        iType
+      }
+    }
+  }
+`;
+export type CreateIntegrationMutationFn = Apollo.MutationFunction<
+  CreateIntegrationMutation,
+  CreateIntegrationMutationVariables
+>;
 
 /**
  * __useCreateIntegrationMutation__
@@ -4021,29 +7398,53 @@ export type CreateIntegrationMutationFn = Apollo.MutationFunction<CreateIntegrat
  *   },
  * });
  */
-export function useCreateIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateIntegrationMutation, CreateIntegrationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateIntegrationMutation, CreateIntegrationMutationVariables>(CreateIntegrationDocument, options);
-      }
+export function useCreateIntegrationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateIntegrationMutation,
+    CreateIntegrationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateIntegrationMutation, CreateIntegrationMutationVariables>(
+    CreateIntegrationDocument,
+    options,
+  );
+}
 export type CreateIntegrationMutationHookResult = ReturnType<typeof useCreateIntegrationMutation>;
 export type CreateIntegrationMutationResult = Apollo.MutationResult<CreateIntegrationMutation>;
-export type CreateIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateIntegrationMutation, CreateIntegrationMutationVariables>;
+export type CreateIntegrationMutationOptions = Apollo.BaseMutationOptions<
+  CreateIntegrationMutation,
+  CreateIntegrationMutationVariables
+>;
 export const UpdateIntegrationDocument = gql`
-    mutation UpdateIntegration($integrationId: ID!, $name: String!, $description: String, $logoUrl: URL!) {
-  updateIntegration(
-    input: {integrationId: $integrationId, name: $name, description: $description, logoUrl: $logoUrl}
+  mutation UpdateIntegration(
+    $integrationId: ID!
+    $name: String!
+    $description: String
+    $logoUrl: URL!
   ) {
-    integration {
-      id
-      name
-      description
-      logoUrl
-      iType
+    updateIntegration(
+      input: {
+        integrationId: $integrationId
+        name: $name
+        description: $description
+        logoUrl: $logoUrl
+      }
+    ) {
+      integration {
+        id
+        name
+        description
+        logoUrl
+        iType
+      }
     }
   }
-}
-    `;
-export type UpdateIntegrationMutationFn = Apollo.MutationFunction<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>;
+`;
+export type UpdateIntegrationMutationFn = Apollo.MutationFunction<
+  UpdateIntegrationMutation,
+  UpdateIntegrationMutationVariables
+>;
 
 /**
  * __useUpdateIntegrationMutation__
@@ -4065,21 +7466,35 @@ export type UpdateIntegrationMutationFn = Apollo.MutationFunction<UpdateIntegrat
  *   },
  * });
  */
-export function useUpdateIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>(UpdateIntegrationDocument, options);
-      }
+export function useUpdateIntegrationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateIntegrationMutation,
+    UpdateIntegrationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>(
+    UpdateIntegrationDocument,
+    options,
+  );
+}
 export type UpdateIntegrationMutationHookResult = ReturnType<typeof useUpdateIntegrationMutation>;
 export type UpdateIntegrationMutationResult = Apollo.MutationResult<UpdateIntegrationMutation>;
-export type UpdateIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationMutation, UpdateIntegrationMutationVariables>;
+export type UpdateIntegrationMutationOptions = Apollo.BaseMutationOptions<
+  UpdateIntegrationMutation,
+  UpdateIntegrationMutationVariables
+>;
 export const DeleteIntegrationDocument = gql`
-    mutation DeleteIntegration($integrationId: ID!) {
-  deleteIntegration(input: {integrationId: $integrationId}) {
-    integrationId
+  mutation DeleteIntegration($integrationId: ID!) {
+    deleteIntegration(input: { integrationId: $integrationId }) {
+      integrationId
+    }
   }
-}
-    `;
-export type DeleteIntegrationMutationFn = Apollo.MutationFunction<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
+`;
+export type DeleteIntegrationMutationFn = Apollo.MutationFunction<
+  DeleteIntegrationMutation,
+  DeleteIntegrationMutationVariables
+>;
 
 /**
  * __useDeleteIntegrationMutation__
@@ -4098,54 +7513,66 @@ export type DeleteIntegrationMutationFn = Apollo.MutationFunction<DeleteIntegrat
  *   },
  * });
  */
-export function useDeleteIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>(DeleteIntegrationDocument, options);
-      }
+export function useDeleteIntegrationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteIntegrationMutation,
+    DeleteIntegrationMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>(
+    DeleteIntegrationDocument,
+    options,
+  );
+}
 export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteIntegrationMutation>;
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
-export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
+export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<
+  DeleteIntegrationMutation,
+  DeleteIntegrationMutationVariables
+>;
 export const GetItemsDocument = gql`
-    query GetItems($modelId: ID!, $pagination: Pagination) {
-  items(modelId: $modelId, pagination: $pagination) {
-    nodes {
-      id
-      title
-      schemaId
-      createdAt
-      updatedAt
-      status
-      createdBy {
-        ... on Integration {
-          name
-        }
-        ... on User {
-          name
-        }
-      }
-      fields {
-        schemaFieldId
-        itemGroupId
-        type
-        value
-      }
-      thread {
-        ...threadFragment
-      }
-      metadata {
+  query GetItems($query: ItemQueryInput!, $pagination: Pagination) {
+    searchItem(input: { query: $query, pagination: $pagination }) {
+      nodes {
         id
+        title
+        schemaId
+        createdAt
+        updatedAt
+        status
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
         fields {
           schemaFieldId
           itemGroupId
           type
           value
         }
+        thread {
+          ...threadFragment
+        }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            itemGroupId
+            type
+            value
+          }
+        }
       }
+      totalCount
     }
-    totalCount
   }
-}
-    ${ThreadFragmentFragmentDoc}`;
+  ${ThreadFragmentFragmentDoc}
+`;
 
 /**
  * __useGetItemsQuery__
@@ -4159,74 +7586,79 @@ export const GetItemsDocument = gql`
  * @example
  * const { data, loading, error } = useGetItemsQuery({
  *   variables: {
- *      modelId: // value for 'modelId'
+ *      query: // value for 'query'
  *      pagination: // value for 'pagination'
  *   },
  * });
  */
-export function useGetItemsQuery(baseOptions: Apollo.QueryHookOptions<GetItemsQuery, GetItemsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetItemsQuery, GetItemsQueryVariables>(GetItemsDocument, options);
-      }
-export function useGetItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetItemsQuery, GetItemsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetItemsQuery, GetItemsQueryVariables>(GetItemsDocument, options);
-        }
+export function useGetItemsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetItemsQuery, GetItemsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetItemsQuery, GetItemsQueryVariables>(GetItemsDocument, options);
+}
+export function useGetItemsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetItemsQuery, GetItemsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetItemsQuery, GetItemsQueryVariables>(GetItemsDocument, options);
+}
 export type GetItemsQueryHookResult = ReturnType<typeof useGetItemsQuery>;
 export type GetItemsLazyQueryHookResult = ReturnType<typeof useGetItemsLazyQuery>;
 export type GetItemsQueryResult = Apollo.QueryResult<GetItemsQuery, GetItemsQueryVariables>;
 export const GetItemDocument = gql`
-    query GetItem($id: ID!) {
-  node(id: $id, type: Item) {
-    ... on Item {
-      id
-      title
-      schemaId
-      createdAt
-      updatedAt
-      status
-      version
-      assets {
+  query GetItem($id: ID!) {
+    node(id: $id, type: Item) {
+      ... on Item {
         id
-        url
-      }
-      createdBy {
-        ... on Integration {
-          name
+        title
+        schemaId
+        createdAt
+        updatedAt
+        status
+        version
+        assets {
+          id
+          url
         }
-        ... on User {
-          name
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
-      }
-      updatedBy {
-        ... on Integration {
-          name
+        updatedBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
         }
-        ... on User {
-          name
-        }
-      }
-      fields {
-        schemaFieldId
-        itemGroupId
-        type
-        value
-      }
-      metadata {
-        id
         fields {
           schemaFieldId
+          itemGroupId
           type
           value
         }
-      }
-      thread {
-        ...threadFragment
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            type
+            value
+          }
+        }
+        thread {
+          ...threadFragment
+        }
       }
     }
   }
-}
-    ${ThreadFragmentFragmentDoc}`;
+  ${ThreadFragmentFragmentDoc}
+`;
 
 /**
  * __useGetItemQuery__
@@ -4244,22 +7676,26 @@ export const GetItemDocument = gql`
  *   },
  * });
  */
-export function useGetItemQuery(baseOptions: Apollo.QueryHookOptions<GetItemQuery, GetItemQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetItemQuery, GetItemQueryVariables>(GetItemDocument, options);
-      }
-export function useGetItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetItemQuery, GetItemQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetItemQuery, GetItemQueryVariables>(GetItemDocument, options);
-        }
+export function useGetItemQuery(
+  baseOptions: Apollo.QueryHookOptions<GetItemQuery, GetItemQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetItemQuery, GetItemQueryVariables>(GetItemDocument, options);
+}
+export function useGetItemLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetItemQuery, GetItemQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetItemQuery, GetItemQueryVariables>(GetItemDocument, options);
+}
 export type GetItemQueryHookResult = ReturnType<typeof useGetItemQuery>;
 export type GetItemLazyQueryHookResult = ReturnType<typeof useGetItemLazyQuery>;
 export type GetItemQueryResult = Apollo.QueryResult<GetItemQuery, GetItemQueryVariables>;
 export const IsItemReferencedDocument = gql`
-    query IsItemReferenced($itemId: ID!, $correspondingFieldId: ID!) {
-  isItemReferenced(itemId: $itemId, correspondingFieldId: $correspondingFieldId)
-}
-    `;
+  query IsItemReferenced($itemId: ID!, $correspondingFieldId: ID!) {
+    isItemReferenced(itemId: $itemId, correspondingFieldId: $correspondingFieldId)
+  }
+`;
 
 /**
  * __useIsItemReferencedQuery__
@@ -4278,31 +7714,44 @@ export const IsItemReferencedDocument = gql`
  *   },
  * });
  */
-export function useIsItemReferencedQuery(baseOptions: Apollo.QueryHookOptions<IsItemReferencedQuery, IsItemReferencedQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<IsItemReferencedQuery, IsItemReferencedQueryVariables>(IsItemReferencedDocument, options);
-      }
-export function useIsItemReferencedLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IsItemReferencedQuery, IsItemReferencedQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<IsItemReferencedQuery, IsItemReferencedQueryVariables>(IsItemReferencedDocument, options);
-        }
+export function useIsItemReferencedQuery(
+  baseOptions: Apollo.QueryHookOptions<IsItemReferencedQuery, IsItemReferencedQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<IsItemReferencedQuery, IsItemReferencedQueryVariables>(
+    IsItemReferencedDocument,
+    options,
+  );
+}
+export function useIsItemReferencedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<IsItemReferencedQuery, IsItemReferencedQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<IsItemReferencedQuery, IsItemReferencedQueryVariables>(
+    IsItemReferencedDocument,
+    options,
+  );
+}
 export type IsItemReferencedQueryHookResult = ReturnType<typeof useIsItemReferencedQuery>;
 export type IsItemReferencedLazyQueryHookResult = ReturnType<typeof useIsItemReferencedLazyQuery>;
-export type IsItemReferencedQueryResult = Apollo.QueryResult<IsItemReferencedQuery, IsItemReferencedQueryVariables>;
+export type IsItemReferencedQueryResult = Apollo.QueryResult<
+  IsItemReferencedQuery,
+  IsItemReferencedQueryVariables
+>;
 export const GetItemsByIdsDocument = gql`
-    query GetItemsByIds($id: [ID!]!) {
-  nodes(id: $id, type: Item) {
-    ... on Item {
-      id
-      title
-      schemaId
-      createdAt
-      updatedAt
-      status
+  query GetItemsByIds($id: [ID!]!) {
+    nodes(id: $id, type: Item) {
+      ... on Item {
+        id
+        title
+        schemaId
+        createdAt
+        updatedAt
+        status
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetItemsByIdsQuery__
@@ -4320,53 +7769,72 @@ export const GetItemsByIdsDocument = gql`
  *   },
  * });
  */
-export function useGetItemsByIdsQuery(baseOptions: Apollo.QueryHookOptions<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>(GetItemsByIdsDocument, options);
-      }
-export function useGetItemsByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>(GetItemsByIdsDocument, options);
-        }
+export function useGetItemsByIdsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>(
+    GetItemsByIdsDocument,
+    options,
+  );
+}
+export function useGetItemsByIdsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>(
+    GetItemsByIdsDocument,
+    options,
+  );
+}
 export type GetItemsByIdsQueryHookResult = ReturnType<typeof useGetItemsByIdsQuery>;
 export type GetItemsByIdsLazyQueryHookResult = ReturnType<typeof useGetItemsByIdsLazyQuery>;
-export type GetItemsByIdsQueryResult = Apollo.QueryResult<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>;
+export type GetItemsByIdsQueryResult = Apollo.QueryResult<
+  GetItemsByIdsQuery,
+  GetItemsByIdsQueryVariables
+>;
 export const SearchItemDocument = gql`
-    query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
-  searchItem(query: $query, sort: $sort, pagination: $pagination) {
-    nodes {
-      id
-      title
-      schemaId
-      createdAt
-      updatedAt
-      status
-      assets {
+  query SearchItem(
+    $query: ItemQueryInput!
+    $sort: ItemSortInput
+    $filter: ConditionInput
+    $pagination: Pagination
+  ) {
+    searchItem(input: { query: $query, sort: $sort, filter: $filter, pagination: $pagination }) {
+      nodes {
         id
-        url
-      }
-      createdBy {
-        ... on Integration {
-          name
+        title
+        schemaId
+        createdAt
+        updatedAt
+        status
+        assets {
+          id
+          url
         }
-        ... on User {
-          name
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        fields {
+          schemaFieldId
+          itemGroupId
+          type
+          value
+        }
+        thread {
+          ...threadFragment
         }
       }
-      fields {
-        schemaFieldId
-        itemGroupId
-        type
-        value
-      }
-      thread {
-        ...threadFragment
-      }
+      totalCount
     }
-    totalCount
   }
-}
-    ${ThreadFragmentFragmentDoc}`;
+  ${ThreadFragmentFragmentDoc}
+`;
 
 /**
  * __useSearchItemQuery__
@@ -4382,40 +7850,51 @@ export const SearchItemDocument = gql`
  *   variables: {
  *      query: // value for 'query'
  *      sort: // value for 'sort'
+ *      filter: // value for 'filter'
  *      pagination: // value for 'pagination'
  *   },
  * });
  */
-export function useSearchItemQuery(baseOptions: Apollo.QueryHookOptions<SearchItemQuery, SearchItemQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SearchItemQuery, SearchItemQueryVariables>(SearchItemDocument, options);
-      }
-export function useSearchItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchItemQuery, SearchItemQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SearchItemQuery, SearchItemQueryVariables>(SearchItemDocument, options);
-        }
+export function useSearchItemQuery(
+  baseOptions: Apollo.QueryHookOptions<SearchItemQuery, SearchItemQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<SearchItemQuery, SearchItemQueryVariables>(SearchItemDocument, options);
+}
+export function useSearchItemLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<SearchItemQuery, SearchItemQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<SearchItemQuery, SearchItemQueryVariables>(
+    SearchItemDocument,
+    options,
+  );
+}
 export type SearchItemQueryHookResult = ReturnType<typeof useSearchItemQuery>;
 export type SearchItemLazyQueryHookResult = ReturnType<typeof useSearchItemLazyQuery>;
 export type SearchItemQueryResult = Apollo.QueryResult<SearchItemQuery, SearchItemQueryVariables>;
 export const CreateItemDocument = gql`
-    mutation CreateItem($modelId: ID!, $schemaId: ID!, $metadataId: ID, $fields: [ItemFieldInput!]!) {
-  createItem(
-    input: {modelId: $modelId, schemaId: $schemaId, metadataId: $metadataId, fields: $fields}
-  ) {
-    item {
-      id
-      schemaId
-      fields {
-        value
-        type
-        schemaFieldId
-        itemGroupId
+  mutation CreateItem($modelId: ID!, $schemaId: ID!, $metadataId: ID, $fields: [ItemFieldInput!]!) {
+    createItem(
+      input: { modelId: $modelId, schemaId: $schemaId, metadataId: $metadataId, fields: $fields }
+    ) {
+      item {
+        id
+        schemaId
+        fields {
+          value
+          type
+          schemaFieldId
+          itemGroupId
+        }
       }
     }
   }
-}
-    `;
-export type CreateItemMutationFn = Apollo.MutationFunction<CreateItemMutation, CreateItemMutationVariables>;
+`;
+export type CreateItemMutationFn = Apollo.MutationFunction<
+  CreateItemMutation,
+  CreateItemMutationVariables
+>;
 
 /**
  * __useCreateItemMutation__
@@ -4437,21 +7916,32 @@ export type CreateItemMutationFn = Apollo.MutationFunction<CreateItemMutation, C
  *   },
  * });
  */
-export function useCreateItemMutation(baseOptions?: Apollo.MutationHookOptions<CreateItemMutation, CreateItemMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateItemMutation, CreateItemMutationVariables>(CreateItemDocument, options);
-      }
+export function useCreateItemMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateItemMutation, CreateItemMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateItemMutation, CreateItemMutationVariables>(
+    CreateItemDocument,
+    options,
+  );
+}
 export type CreateItemMutationHookResult = ReturnType<typeof useCreateItemMutation>;
 export type CreateItemMutationResult = Apollo.MutationResult<CreateItemMutation>;
-export type CreateItemMutationOptions = Apollo.BaseMutationOptions<CreateItemMutation, CreateItemMutationVariables>;
+export type CreateItemMutationOptions = Apollo.BaseMutationOptions<
+  CreateItemMutation,
+  CreateItemMutationVariables
+>;
 export const DeleteItemDocument = gql`
-    mutation DeleteItem($itemId: ID!) {
-  deleteItem(input: {itemId: $itemId}) {
-    itemId
+  mutation DeleteItem($itemId: ID!) {
+    deleteItem(input: { itemId: $itemId }) {
+      itemId
+    }
   }
-}
-    `;
-export type DeleteItemMutationFn = Apollo.MutationFunction<DeleteItemMutation, DeleteItemMutationVariables>;
+`;
+export type DeleteItemMutationFn = Apollo.MutationFunction<
+  DeleteItemMutation,
+  DeleteItemMutationVariables
+>;
 
 /**
  * __useDeleteItemMutation__
@@ -4470,32 +7960,48 @@ export type DeleteItemMutationFn = Apollo.MutationFunction<DeleteItemMutation, D
  *   },
  * });
  */
-export function useDeleteItemMutation(baseOptions?: Apollo.MutationHookOptions<DeleteItemMutation, DeleteItemMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteItemMutation, DeleteItemMutationVariables>(DeleteItemDocument, options);
-      }
+export function useDeleteItemMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteItemMutation, DeleteItemMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteItemMutation, DeleteItemMutationVariables>(
+    DeleteItemDocument,
+    options,
+  );
+}
 export type DeleteItemMutationHookResult = ReturnType<typeof useDeleteItemMutation>;
 export type DeleteItemMutationResult = Apollo.MutationResult<DeleteItemMutation>;
-export type DeleteItemMutationOptions = Apollo.BaseMutationOptions<DeleteItemMutation, DeleteItemMutationVariables>;
+export type DeleteItemMutationOptions = Apollo.BaseMutationOptions<
+  DeleteItemMutation,
+  DeleteItemMutationVariables
+>;
 export const UpdateItemDocument = gql`
-    mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $metadataId: ID, $version: String!) {
-  updateItem(
-    input: {itemId: $itemId, fields: $fields, metadataId: $metadataId, version: $version}
+  mutation UpdateItem(
+    $itemId: ID!
+    $fields: [ItemFieldInput!]!
+    $metadataId: ID
+    $version: String!
   ) {
-    item {
-      id
-      schemaId
-      fields {
-        value
-        type
-        schemaFieldId
-        itemGroupId
+    updateItem(
+      input: { itemId: $itemId, fields: $fields, metadataId: $metadataId, version: $version }
+    ) {
+      item {
+        id
+        schemaId
+        fields {
+          value
+          type
+          schemaFieldId
+          itemGroupId
+        }
       }
     }
   }
-}
-    `;
-export type UpdateItemMutationFn = Apollo.MutationFunction<UpdateItemMutation, UpdateItemMutationVariables>;
+`;
+export type UpdateItemMutationFn = Apollo.MutationFunction<
+  UpdateItemMutation,
+  UpdateItemMutationVariables
+>;
 
 /**
  * __useUpdateItemMutation__
@@ -4517,23 +8023,34 @@ export type UpdateItemMutationFn = Apollo.MutationFunction<UpdateItemMutation, U
  *   },
  * });
  */
-export function useUpdateItemMutation(baseOptions?: Apollo.MutationHookOptions<UpdateItemMutation, UpdateItemMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateItemMutation, UpdateItemMutationVariables>(UpdateItemDocument, options);
-      }
+export function useUpdateItemMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateItemMutation, UpdateItemMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateItemMutation, UpdateItemMutationVariables>(
+    UpdateItemDocument,
+    options,
+  );
+}
 export type UpdateItemMutationHookResult = ReturnType<typeof useUpdateItemMutation>;
 export type UpdateItemMutationResult = Apollo.MutationResult<UpdateItemMutation>;
-export type UpdateItemMutationOptions = Apollo.BaseMutationOptions<UpdateItemMutation, UpdateItemMutationVariables>;
+export type UpdateItemMutationOptions = Apollo.BaseMutationOptions<
+  UpdateItemMutation,
+  UpdateItemMutationVariables
+>;
 export const UnpublishItemDocument = gql`
-    mutation UnpublishItem($itemIds: [ID!]!) {
-  unpublishItem(input: {itemIds: $itemIds}) {
-    items {
-      id
+  mutation UnpublishItem($itemIds: [ID!]!) {
+    unpublishItem(input: { itemIds: $itemIds }) {
+      items {
+        id
+      }
     }
   }
-}
-    `;
-export type UnpublishItemMutationFn = Apollo.MutationFunction<UnpublishItemMutation, UnpublishItemMutationVariables>;
+`;
+export type UnpublishItemMutationFn = Apollo.MutationFunction<
+  UnpublishItemMutation,
+  UnpublishItemMutationVariables
+>;
 
 /**
  * __useUnpublishItemMutation__
@@ -4552,23 +8069,34 @@ export type UnpublishItemMutationFn = Apollo.MutationFunction<UnpublishItemMutat
  *   },
  * });
  */
-export function useUnpublishItemMutation(baseOptions?: Apollo.MutationHookOptions<UnpublishItemMutation, UnpublishItemMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UnpublishItemMutation, UnpublishItemMutationVariables>(UnpublishItemDocument, options);
-      }
+export function useUnpublishItemMutation(
+  baseOptions?: Apollo.MutationHookOptions<UnpublishItemMutation, UnpublishItemMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UnpublishItemMutation, UnpublishItemMutationVariables>(
+    UnpublishItemDocument,
+    options,
+  );
+}
 export type UnpublishItemMutationHookResult = ReturnType<typeof useUnpublishItemMutation>;
 export type UnpublishItemMutationResult = Apollo.MutationResult<UnpublishItemMutation>;
-export type UnpublishItemMutationOptions = Apollo.BaseMutationOptions<UnpublishItemMutation, UnpublishItemMutationVariables>;
+export type UnpublishItemMutationOptions = Apollo.BaseMutationOptions<
+  UnpublishItemMutation,
+  UnpublishItemMutationVariables
+>;
 export const PublishItemDocument = gql`
-    mutation PublishItem($itemIds: [ID!]!) {
-  publishItem(input: {itemIds: $itemIds}) {
-    items {
-      id
+  mutation PublishItem($itemIds: [ID!]!) {
+    publishItem(input: { itemIds: $itemIds }) {
+      items {
+        id
+      }
     }
   }
-}
-    `;
-export type PublishItemMutationFn = Apollo.MutationFunction<PublishItemMutation, PublishItemMutationVariables>;
+`;
+export type PublishItemMutationFn = Apollo.MutationFunction<
+  PublishItemMutation,
+  PublishItemMutationVariables
+>;
 
 /**
  * __usePublishItemMutation__
@@ -4587,179 +8115,187 @@ export type PublishItemMutationFn = Apollo.MutationFunction<PublishItemMutation,
  *   },
  * });
  */
-export function usePublishItemMutation(baseOptions?: Apollo.MutationHookOptions<PublishItemMutation, PublishItemMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<PublishItemMutation, PublishItemMutationVariables>(PublishItemDocument, options);
-      }
+export function usePublishItemMutation(
+  baseOptions?: Apollo.MutationHookOptions<PublishItemMutation, PublishItemMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<PublishItemMutation, PublishItemMutationVariables>(
+    PublishItemDocument,
+    options,
+  );
+}
 export type PublishItemMutationHookResult = ReturnType<typeof usePublishItemMutation>;
 export type PublishItemMutationResult = Apollo.MutationResult<PublishItemMutation>;
-export type PublishItemMutationOptions = Apollo.BaseMutationOptions<PublishItemMutation, PublishItemMutationVariables>;
+export type PublishItemMutationOptions = Apollo.BaseMutationOptions<
+  PublishItemMutation,
+  PublishItemMutationVariables
+>;
 export const GetModelsDocument = gql`
-    query GetModels($projectId: ID!, $pagination: Pagination) {
-  models(projectId: $projectId, pagination: $pagination) {
-    nodes {
-      id
-      name
-      description
-      key
-      public
-      metadataSchema {
+  query GetModels($projectId: ID!, $pagination: Pagination) {
+    models(projectId: $projectId, pagination: $pagination) {
+      nodes {
         id
-        fields {
+        name
+        description
+        key
+        public
+        metadataSchema {
           id
-          type
-          title
-          key
-          description
-          required
-          unique
-          isTitle
-          multiple
-          order
-          typeProperty {
-            ... on SchemaFieldText {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldTextArea {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldMarkdown {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldAsset {
-              assetDefaultValue: defaultValue
-            }
-            ... on SchemaFieldSelect {
-              selectDefaultValue: defaultValue
-              values
-            }
-            ... on SchemaFieldInteger {
-              integerDefaultValue: defaultValue
-              min
-              max
-            }
-            ... on SchemaFieldBool {
-              defaultValue
-            }
-            ... on SchemaFieldCheckbox {
-              defaultValue
-            }
-            ... on SchemaFieldTag {
-              selectDefaultValue: defaultValue
-              tags {
-                id
-                name
-                color
+          fields {
+            id
+            type
+            title
+            key
+            description
+            required
+            unique
+            isTitle
+            multiple
+            order
+            typeProperty {
+              ... on SchemaFieldText {
+                defaultValue
+                maxLength
               }
-            }
-            ... on SchemaFieldDate {
-              defaultValue
-            }
-            ... on SchemaFieldURL {
-              defaultValue
-            }
-            ... on SchemaFieldReference {
-              modelId
-              correspondingField {
-                id
-                type
-                title
-                key
-                description
-                required
-                unique
-                multiple
-                order
+              ... on SchemaFieldTextArea {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldMarkdown {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldAsset {
+                assetDefaultValue: defaultValue
+              }
+              ... on SchemaFieldSelect {
+                selectDefaultValue: defaultValue
+                values
+              }
+              ... on SchemaFieldInteger {
+                integerDefaultValue: defaultValue
+                min
+                max
+              }
+              ... on SchemaFieldBool {
+                defaultValue
+              }
+              ... on SchemaFieldCheckbox {
+                defaultValue
+              }
+              ... on SchemaFieldTag {
+                selectDefaultValue: defaultValue
+                tags {
+                  id
+                  name
+                  color
+                }
+              }
+              ... on SchemaFieldDate {
+                defaultValue
+              }
+              ... on SchemaFieldURL {
+                defaultValue
+              }
+              ... on SchemaFieldReference {
+                modelId
+                correspondingField {
+                  id
+                  type
+                  title
+                  key
+                  description
+                  required
+                  unique
+                  multiple
+                  order
+                }
               }
             }
           }
         }
-      }
-      schema {
-        id
-        fields {
+        schema {
           id
-          type
-          title
-          key
-          description
-          required
-          unique
-          isTitle
-          multiple
-          order
-          typeProperty {
-            ... on SchemaFieldText {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldTextArea {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldMarkdown {
-              defaultValue
-              maxLength
-            }
-            ... on SchemaFieldAsset {
-              assetDefaultValue: defaultValue
-            }
-            ... on SchemaFieldSelect {
-              selectDefaultValue: defaultValue
-              values
-            }
-            ... on SchemaFieldInteger {
-              integerDefaultValue: defaultValue
-              min
-              max
-            }
-            ... on SchemaFieldBool {
-              defaultValue
-            }
-            ... on SchemaFieldCheckbox {
-              defaultValue
-            }
-            ... on SchemaFieldTag {
-              selectDefaultValue: defaultValue
-              tags {
-                id
-                name
-                color
+          fields {
+            id
+            type
+            title
+            key
+            description
+            required
+            unique
+            isTitle
+            multiple
+            order
+            typeProperty {
+              ... on SchemaFieldText {
+                defaultValue
+                maxLength
               }
-            }
-            ... on SchemaFieldDate {
-              defaultValue
-            }
-            ... on SchemaFieldURL {
-              defaultValue
-            }
-            ... on SchemaFieldReference {
-              modelId
-              correspondingField {
-                id
-                type
-                title
-                key
-                description
-                required
-                unique
-                multiple
-                order
+              ... on SchemaFieldTextArea {
+                defaultValue
+                maxLength
               }
-            }
-            ... on SchemaFieldGroup {
-              groupId
+              ... on SchemaFieldMarkdown {
+                defaultValue
+                maxLength
+              }
+              ... on SchemaFieldAsset {
+                assetDefaultValue: defaultValue
+              }
+              ... on SchemaFieldSelect {
+                selectDefaultValue: defaultValue
+                values
+              }
+              ... on SchemaFieldInteger {
+                integerDefaultValue: defaultValue
+                min
+                max
+              }
+              ... on SchemaFieldBool {
+                defaultValue
+              }
+              ... on SchemaFieldCheckbox {
+                defaultValue
+              }
+              ... on SchemaFieldTag {
+                selectDefaultValue: defaultValue
+                tags {
+                  id
+                  name
+                  color
+                }
+              }
+              ... on SchemaFieldDate {
+                defaultValue
+              }
+              ... on SchemaFieldURL {
+                defaultValue
+              }
+              ... on SchemaFieldReference {
+                modelId
+                correspondingField {
+                  id
+                  type
+                  title
+                  key
+                  description
+                  required
+                  unique
+                  multiple
+                  order
+                }
+              }
+              ... on SchemaFieldGroup {
+                groupId
+              }
             }
           }
         }
       }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetModelsQuery__
@@ -4778,27 +8314,31 @@ export const GetModelsDocument = gql`
  *   },
  * });
  */
-export function useGetModelsQuery(baseOptions: Apollo.QueryHookOptions<GetModelsQuery, GetModelsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetModelsQuery, GetModelsQueryVariables>(GetModelsDocument, options);
-      }
-export function useGetModelsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetModelsQuery, GetModelsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetModelsQuery, GetModelsQueryVariables>(GetModelsDocument, options);
-        }
+export function useGetModelsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetModelsQuery, GetModelsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetModelsQuery, GetModelsQueryVariables>(GetModelsDocument, options);
+}
+export function useGetModelsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetModelsQuery, GetModelsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetModelsQuery, GetModelsQueryVariables>(GetModelsDocument, options);
+}
 export type GetModelsQueryHookResult = ReturnType<typeof useGetModelsQuery>;
 export type GetModelsLazyQueryHookResult = ReturnType<typeof useGetModelsLazyQuery>;
 export type GetModelsQueryResult = Apollo.QueryResult<GetModelsQuery, GetModelsQueryVariables>;
 export const GetModelDocument = gql`
-    query GetModel($id: ID!) {
-  node(id: $id, type: Model) {
-    ... on Model {
-      id
-      schemaId
+  query GetModel($id: ID!) {
+    node(id: $id, type: Model) {
+      ... on Model {
+        id
+        schemaId
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetModelQuery__
@@ -4816,30 +8356,37 @@ export const GetModelDocument = gql`
  *   },
  * });
  */
-export function useGetModelQuery(baseOptions: Apollo.QueryHookOptions<GetModelQuery, GetModelQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetModelQuery, GetModelQueryVariables>(GetModelDocument, options);
-      }
-export function useGetModelLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetModelQuery, GetModelQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetModelQuery, GetModelQueryVariables>(GetModelDocument, options);
-        }
+export function useGetModelQuery(
+  baseOptions: Apollo.QueryHookOptions<GetModelQuery, GetModelQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetModelQuery, GetModelQueryVariables>(GetModelDocument, options);
+}
+export function useGetModelLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetModelQuery, GetModelQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetModelQuery, GetModelQueryVariables>(GetModelDocument, options);
+}
 export type GetModelQueryHookResult = ReturnType<typeof useGetModelQuery>;
 export type GetModelLazyQueryHookResult = ReturnType<typeof useGetModelLazyQuery>;
 export type GetModelQueryResult = Apollo.QueryResult<GetModelQuery, GetModelQueryVariables>;
 export const CreateModelDocument = gql`
-    mutation CreateModel($projectId: ID!, $name: String, $description: String, $key: String) {
-  createModel(
-    input: {projectId: $projectId, name: $name, description: $description, key: $key}
-  ) {
-    model {
-      id
-      name
+  mutation CreateModel($projectId: ID!, $name: String, $description: String, $key: String) {
+    createModel(
+      input: { projectId: $projectId, name: $name, description: $description, key: $key }
+    ) {
+      model {
+        id
+        name
+      }
     }
   }
-}
-    `;
-export type CreateModelMutationFn = Apollo.MutationFunction<CreateModelMutation, CreateModelMutationVariables>;
+`;
+export type CreateModelMutationFn = Apollo.MutationFunction<
+  CreateModelMutation,
+  CreateModelMutationVariables
+>;
 
 /**
  * __useCreateModelMutation__
@@ -4861,21 +8408,32 @@ export type CreateModelMutationFn = Apollo.MutationFunction<CreateModelMutation,
  *   },
  * });
  */
-export function useCreateModelMutation(baseOptions?: Apollo.MutationHookOptions<CreateModelMutation, CreateModelMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateModelMutation, CreateModelMutationVariables>(CreateModelDocument, options);
-      }
+export function useCreateModelMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateModelMutation, CreateModelMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateModelMutation, CreateModelMutationVariables>(
+    CreateModelDocument,
+    options,
+  );
+}
 export type CreateModelMutationHookResult = ReturnType<typeof useCreateModelMutation>;
 export type CreateModelMutationResult = Apollo.MutationResult<CreateModelMutation>;
-export type CreateModelMutationOptions = Apollo.BaseMutationOptions<CreateModelMutation, CreateModelMutationVariables>;
+export type CreateModelMutationOptions = Apollo.BaseMutationOptions<
+  CreateModelMutation,
+  CreateModelMutationVariables
+>;
 export const DeleteModelDocument = gql`
-    mutation DeleteModel($modelId: ID!) {
-  deleteModel(input: {modelId: $modelId}) {
-    modelId
+  mutation DeleteModel($modelId: ID!) {
+    deleteModel(input: { modelId: $modelId }) {
+      modelId
+    }
   }
-}
-    `;
-export type DeleteModelMutationFn = Apollo.MutationFunction<DeleteModelMutation, DeleteModelMutationVariables>;
+`;
+export type DeleteModelMutationFn = Apollo.MutationFunction<
+  DeleteModelMutation,
+  DeleteModelMutationVariables
+>;
 
 /**
  * __useDeleteModelMutation__
@@ -4894,26 +8452,49 @@ export type DeleteModelMutationFn = Apollo.MutationFunction<DeleteModelMutation,
  *   },
  * });
  */
-export function useDeleteModelMutation(baseOptions?: Apollo.MutationHookOptions<DeleteModelMutation, DeleteModelMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteModelMutation, DeleteModelMutationVariables>(DeleteModelDocument, options);
-      }
+export function useDeleteModelMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteModelMutation, DeleteModelMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteModelMutation, DeleteModelMutationVariables>(
+    DeleteModelDocument,
+    options,
+  );
+}
 export type DeleteModelMutationHookResult = ReturnType<typeof useDeleteModelMutation>;
 export type DeleteModelMutationResult = Apollo.MutationResult<DeleteModelMutation>;
-export type DeleteModelMutationOptions = Apollo.BaseMutationOptions<DeleteModelMutation, DeleteModelMutationVariables>;
+export type DeleteModelMutationOptions = Apollo.BaseMutationOptions<
+  DeleteModelMutation,
+  DeleteModelMutationVariables
+>;
 export const UpdateModelDocument = gql`
-    mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String, $public: Boolean!) {
-  updateModel(
-    input: {modelId: $modelId, name: $name, description: $description, key: $key, public: $public}
+  mutation UpdateModel(
+    $modelId: ID!
+    $name: String
+    $description: String
+    $key: String
+    $public: Boolean!
   ) {
-    model {
-      id
-      name
+    updateModel(
+      input: {
+        modelId: $modelId
+        name: $name
+        description: $description
+        key: $key
+        public: $public
+      }
+    ) {
+      model {
+        id
+        name
+      }
     }
   }
-}
-    `;
-export type UpdateModelMutationFn = Apollo.MutationFunction<UpdateModelMutation, UpdateModelMutationVariables>;
+`;
+export type UpdateModelMutationFn = Apollo.MutationFunction<
+  UpdateModelMutation,
+  UpdateModelMutationVariables
+>;
 
 /**
  * __useUpdateModelMutation__
@@ -4936,21 +8517,29 @@ export type UpdateModelMutationFn = Apollo.MutationFunction<UpdateModelMutation,
  *   },
  * });
  */
-export function useUpdateModelMutation(baseOptions?: Apollo.MutationHookOptions<UpdateModelMutation, UpdateModelMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateModelMutation, UpdateModelMutationVariables>(UpdateModelDocument, options);
-      }
+export function useUpdateModelMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateModelMutation, UpdateModelMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateModelMutation, UpdateModelMutationVariables>(
+    UpdateModelDocument,
+    options,
+  );
+}
 export type UpdateModelMutationHookResult = ReturnType<typeof useUpdateModelMutation>;
 export type UpdateModelMutationResult = Apollo.MutationResult<UpdateModelMutation>;
-export type UpdateModelMutationOptions = Apollo.BaseMutationOptions<UpdateModelMutation, UpdateModelMutationVariables>;
+export type UpdateModelMutationOptions = Apollo.BaseMutationOptions<
+  UpdateModelMutation,
+  UpdateModelMutationVariables
+>;
 export const CheckModelKeyAvailabilityDocument = gql`
-    query CheckModelKeyAvailability($projectId: ID!, $key: String!) {
-  checkModelKeyAvailability(projectId: $projectId, key: $key) {
-    key
-    available
+  query CheckModelKeyAvailability($projectId: ID!, $key: String!) {
+    checkModelKeyAvailability(projectId: $projectId, key: $key) {
+      key
+      available
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useCheckModelKeyAvailabilityQuery__
@@ -4969,34 +8558,57 @@ export const CheckModelKeyAvailabilityDocument = gql`
  *   },
  * });
  */
-export function useCheckModelKeyAvailabilityQuery(baseOptions: Apollo.QueryHookOptions<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>(CheckModelKeyAvailabilityDocument, options);
-      }
-export function useCheckModelKeyAvailabilityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>(CheckModelKeyAvailabilityDocument, options);
-        }
-export type CheckModelKeyAvailabilityQueryHookResult = ReturnType<typeof useCheckModelKeyAvailabilityQuery>;
-export type CheckModelKeyAvailabilityLazyQueryHookResult = ReturnType<typeof useCheckModelKeyAvailabilityLazyQuery>;
-export type CheckModelKeyAvailabilityQueryResult = Apollo.QueryResult<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>;
+export function useCheckModelKeyAvailabilityQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    CheckModelKeyAvailabilityQuery,
+    CheckModelKeyAvailabilityQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>(
+    CheckModelKeyAvailabilityDocument,
+    options,
+  );
+}
+export function useCheckModelKeyAvailabilityLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CheckModelKeyAvailabilityQuery,
+    CheckModelKeyAvailabilityQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    CheckModelKeyAvailabilityQuery,
+    CheckModelKeyAvailabilityQueryVariables
+  >(CheckModelKeyAvailabilityDocument, options);
+}
+export type CheckModelKeyAvailabilityQueryHookResult = ReturnType<
+  typeof useCheckModelKeyAvailabilityQuery
+>;
+export type CheckModelKeyAvailabilityLazyQueryHookResult = ReturnType<
+  typeof useCheckModelKeyAvailabilityLazyQuery
+>;
+export type CheckModelKeyAvailabilityQueryResult = Apollo.QueryResult<
+  CheckModelKeyAvailabilityQuery,
+  CheckModelKeyAvailabilityQueryVariables
+>;
 export const GetProjectDocument = gql`
-    query GetProject($projectId: ID!) {
-  node(id: $projectId, type: PROJECT) {
-    id
-    ... on Project {
-      name
-      description
-      alias
-      publication {
-        scope
-        assetPublic
+  query GetProject($projectId: ID!) {
+    node(id: $projectId, type: PROJECT) {
+      id
+      ... on Project {
+        name
+        description
+        alias
+        publication {
+          scope
+          assetPublic
+        }
+        requestRoles
       }
-      requestRoles
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetProjectQuery__
@@ -5014,34 +8626,41 @@ export const GetProjectDocument = gql`
  *   },
  * });
  */
-export function useGetProjectQuery(baseOptions: Apollo.QueryHookOptions<GetProjectQuery, GetProjectQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetProjectQuery, GetProjectQueryVariables>(GetProjectDocument, options);
-      }
-export function useGetProjectLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProjectQuery, GetProjectQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetProjectQuery, GetProjectQueryVariables>(GetProjectDocument, options);
-        }
+export function useGetProjectQuery(
+  baseOptions: Apollo.QueryHookOptions<GetProjectQuery, GetProjectQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetProjectQuery, GetProjectQueryVariables>(GetProjectDocument, options);
+}
+export function useGetProjectLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetProjectQuery, GetProjectQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetProjectQuery, GetProjectQueryVariables>(
+    GetProjectDocument,
+    options,
+  );
+}
 export type GetProjectQueryHookResult = ReturnType<typeof useGetProjectQuery>;
 export type GetProjectLazyQueryHookResult = ReturnType<typeof useGetProjectLazyQuery>;
 export type GetProjectQueryResult = Apollo.QueryResult<GetProjectQuery, GetProjectQueryVariables>;
 export const GetProjectsDocument = gql`
-    query GetProjects($workspaceId: ID!, $pagination: Pagination) {
-  projects(workspaceId: $workspaceId, pagination: $pagination) {
-    nodes {
-      id
-      name
-      description
-      alias
-      publication {
-        scope
-        assetPublic
+  query GetProjects($workspaceId: ID!, $pagination: Pagination) {
+    projects(workspaceId: $workspaceId, pagination: $pagination) {
+      nodes {
+        id
+        name
+        description
+        alias
+        publication {
+          scope
+          assetPublic
+        }
+        requestRoles
       }
-      requestRoles
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetProjectsQuery__
@@ -5060,25 +8679,35 @@ export const GetProjectsDocument = gql`
  *   },
  * });
  */
-export function useGetProjectsQuery(baseOptions: Apollo.QueryHookOptions<GetProjectsQuery, GetProjectsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetProjectsQuery, GetProjectsQueryVariables>(GetProjectsDocument, options);
-      }
-export function useGetProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProjectsQuery, GetProjectsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetProjectsQuery, GetProjectsQueryVariables>(GetProjectsDocument, options);
-        }
+export function useGetProjectsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetProjectsQuery, GetProjectsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetProjectsQuery, GetProjectsQueryVariables>(GetProjectsDocument, options);
+}
+export function useGetProjectsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetProjectsQuery, GetProjectsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetProjectsQuery, GetProjectsQueryVariables>(
+    GetProjectsDocument,
+    options,
+  );
+}
 export type GetProjectsQueryHookResult = ReturnType<typeof useGetProjectsQuery>;
 export type GetProjectsLazyQueryHookResult = ReturnType<typeof useGetProjectsLazyQuery>;
-export type GetProjectsQueryResult = Apollo.QueryResult<GetProjectsQuery, GetProjectsQueryVariables>;
+export type GetProjectsQueryResult = Apollo.QueryResult<
+  GetProjectsQuery,
+  GetProjectsQueryVariables
+>;
 export const CheckProjectAliasDocument = gql`
-    query CheckProjectAlias($alias: String!) {
-  checkProjectAlias(alias: $alias) {
-    alias
-    available
+  query CheckProjectAlias($alias: String!) {
+    checkProjectAlias(alias: $alias) {
+      alias
+      available
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useCheckProjectAliasQuery__
@@ -5096,36 +8725,60 @@ export const CheckProjectAliasDocument = gql`
  *   },
  * });
  */
-export function useCheckProjectAliasQuery(baseOptions: Apollo.QueryHookOptions<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>(CheckProjectAliasDocument, options);
-      }
-export function useCheckProjectAliasLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>(CheckProjectAliasDocument, options);
-        }
+export function useCheckProjectAliasQuery(
+  baseOptions: Apollo.QueryHookOptions<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>(
+    CheckProjectAliasDocument,
+    options,
+  );
+}
+export function useCheckProjectAliasLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CheckProjectAliasQuery,
+    CheckProjectAliasQueryVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>(
+    CheckProjectAliasDocument,
+    options,
+  );
+}
 export type CheckProjectAliasQueryHookResult = ReturnType<typeof useCheckProjectAliasQuery>;
 export type CheckProjectAliasLazyQueryHookResult = ReturnType<typeof useCheckProjectAliasLazyQuery>;
-export type CheckProjectAliasQueryResult = Apollo.QueryResult<CheckProjectAliasQuery, CheckProjectAliasQueryVariables>;
+export type CheckProjectAliasQueryResult = Apollo.QueryResult<
+  CheckProjectAliasQuery,
+  CheckProjectAliasQueryVariables
+>;
 export const CreateProjectDocument = gql`
-    mutation CreateProject($workspaceId: ID!, $name: String!, $description: String!, $alias: String!) {
-  createProject(
-    input: {workspaceId: $workspaceId, name: $name, description: $description, alias: $alias}
+  mutation CreateProject(
+    $workspaceId: ID!
+    $name: String!
+    $description: String!
+    $alias: String!
   ) {
-    project {
-      id
-      name
-      description
-      alias
-      publication {
-        scope
-        assetPublic
+    createProject(
+      input: { workspaceId: $workspaceId, name: $name, description: $description, alias: $alias }
+    ) {
+      project {
+        id
+        name
+        description
+        alias
+        publication {
+          scope
+          assetPublic
+        }
       }
     }
   }
-}
-    `;
-export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutation, CreateProjectMutationVariables>;
+`;
+export type CreateProjectMutationFn = Apollo.MutationFunction<
+  CreateProjectMutation,
+  CreateProjectMutationVariables
+>;
 
 /**
  * __useCreateProjectMutation__
@@ -5147,21 +8800,32 @@ export type CreateProjectMutationFn = Apollo.MutationFunction<CreateProjectMutat
  *   },
  * });
  */
-export function useCreateProjectMutation(baseOptions?: Apollo.MutationHookOptions<CreateProjectMutation, CreateProjectMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateProjectMutation, CreateProjectMutationVariables>(CreateProjectDocument, options);
-      }
+export function useCreateProjectMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateProjectMutation, CreateProjectMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateProjectMutation, CreateProjectMutationVariables>(
+    CreateProjectDocument,
+    options,
+  );
+}
 export type CreateProjectMutationHookResult = ReturnType<typeof useCreateProjectMutation>;
 export type CreateProjectMutationResult = Apollo.MutationResult<CreateProjectMutation>;
-export type CreateProjectMutationOptions = Apollo.BaseMutationOptions<CreateProjectMutation, CreateProjectMutationVariables>;
+export type CreateProjectMutationOptions = Apollo.BaseMutationOptions<
+  CreateProjectMutation,
+  CreateProjectMutationVariables
+>;
 export const DeleteProjectDocument = gql`
-    mutation DeleteProject($projectId: ID!) {
-  deleteProject(input: {projectId: $projectId}) {
-    projectId
+  mutation DeleteProject($projectId: ID!) {
+    deleteProject(input: { projectId: $projectId }) {
+      projectId
+    }
   }
-}
-    `;
-export type DeleteProjectMutationFn = Apollo.MutationFunction<DeleteProjectMutation, DeleteProjectMutationVariables>;
+`;
+export type DeleteProjectMutationFn = Apollo.MutationFunction<
+  DeleteProjectMutation,
+  DeleteProjectMutationVariables
+>;
 
 /**
  * __useDeleteProjectMutation__
@@ -5180,33 +8844,58 @@ export type DeleteProjectMutationFn = Apollo.MutationFunction<DeleteProjectMutat
  *   },
  * });
  */
-export function useDeleteProjectMutation(baseOptions?: Apollo.MutationHookOptions<DeleteProjectMutation, DeleteProjectMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteProjectMutation, DeleteProjectMutationVariables>(DeleteProjectDocument, options);
-      }
+export function useDeleteProjectMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteProjectMutation, DeleteProjectMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteProjectMutation, DeleteProjectMutationVariables>(
+    DeleteProjectDocument,
+    options,
+  );
+}
 export type DeleteProjectMutationHookResult = ReturnType<typeof useDeleteProjectMutation>;
 export type DeleteProjectMutationResult = Apollo.MutationResult<DeleteProjectMutation>;
-export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<DeleteProjectMutation, DeleteProjectMutationVariables>;
+export type DeleteProjectMutationOptions = Apollo.BaseMutationOptions<
+  DeleteProjectMutation,
+  DeleteProjectMutationVariables
+>;
 export const UpdateProjectDocument = gql`
-    mutation UpdateProject($projectId: ID!, $name: String, $description: String, $alias: String, $publication: UpdateProjectPublicationInput, $requestRoles: [Role!]) {
-  updateProject(
-    input: {projectId: $projectId, name: $name, description: $description, alias: $alias, publication: $publication, requestRoles: $requestRoles}
+  mutation UpdateProject(
+    $projectId: ID!
+    $name: String
+    $description: String
+    $alias: String
+    $publication: UpdateProjectPublicationInput
+    $requestRoles: [Role!]
   ) {
-    project {
-      id
-      name
-      description
-      alias
-      publication {
-        scope
-        assetPublic
+    updateProject(
+      input: {
+        projectId: $projectId
+        name: $name
+        description: $description
+        alias: $alias
+        publication: $publication
+        requestRoles: $requestRoles
       }
-      requestRoles
+    ) {
+      project {
+        id
+        name
+        description
+        alias
+        publication {
+          scope
+          assetPublic
+        }
+        requestRoles
+      }
     }
   }
-}
-    `;
-export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutation, UpdateProjectMutationVariables>;
+`;
+export type UpdateProjectMutationFn = Apollo.MutationFunction<
+  UpdateProjectMutation,
+  UpdateProjectMutationVariables
+>;
 
 /**
  * __useUpdateProjectMutation__
@@ -5230,55 +8919,72 @@ export type UpdateProjectMutationFn = Apollo.MutationFunction<UpdateProjectMutat
  *   },
  * });
  */
-export function useUpdateProjectMutation(baseOptions?: Apollo.MutationHookOptions<UpdateProjectMutation, UpdateProjectMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateProjectMutation, UpdateProjectMutationVariables>(UpdateProjectDocument, options);
-      }
+export function useUpdateProjectMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateProjectMutation, UpdateProjectMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateProjectMutation, UpdateProjectMutationVariables>(
+    UpdateProjectDocument,
+    options,
+  );
+}
 export type UpdateProjectMutationHookResult = ReturnType<typeof useUpdateProjectMutation>;
 export type UpdateProjectMutationResult = Apollo.MutationResult<UpdateProjectMutation>;
-export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<UpdateProjectMutation, UpdateProjectMutationVariables>;
+export type UpdateProjectMutationOptions = Apollo.BaseMutationOptions<
+  UpdateProjectMutation,
+  UpdateProjectMutationVariables
+>;
 export const GetRequestsDocument = gql`
-    query GetRequests($projectId: ID!, $key: String, $state: [RequestState!], $pagination: Pagination, $createdBy: ID, $reviewer: ID, $sort: Sort) {
-  requests(
-    projectId: $projectId
-    key: $key
-    state: $state
-    pagination: $pagination
-    createdBy: $createdBy
-    reviewer: $reviewer
-    sort: $sort
+  query GetRequests(
+    $projectId: ID!
+    $key: String
+    $state: [RequestState!]
+    $pagination: Pagination
+    $createdBy: ID
+    $reviewer: ID
+    $sort: Sort
   ) {
-    nodes {
-      id
-      title
-      description
-      createdBy {
+    requests(
+      projectId: $projectId
+      key: $key
+      state: $state
+      pagination: $pagination
+      createdBy: $createdBy
+      reviewer: $reviewer
+      sort: $sort
+    ) {
+      nodes {
         id
-        name
-        email
+        title
+        description
+        createdBy {
+          id
+          name
+          email
+        }
+        workspaceId
+        projectId
+        threadId
+        reviewersId
+        reviewers {
+          id
+          name
+          email
+        }
+        state
+        createdAt
+        updatedAt
+        approvedAt
+        closedAt
+        thread {
+          ...threadFragment
+        }
       }
-      workspaceId
-      projectId
-      threadId
-      reviewersId
-      reviewers {
-        id
-        name
-        email
-      }
-      state
-      createdAt
-      updatedAt
-      approvedAt
-      closedAt
-      thread {
-        ...threadFragment
-      }
+      totalCount
     }
-    totalCount
   }
-}
-    ${ThreadFragmentFragmentDoc}`;
+  ${ThreadFragmentFragmentDoc}
+`;
 
 /**
  * __useGetRequestsQuery__
@@ -5302,49 +9008,67 @@ export const GetRequestsDocument = gql`
  *   },
  * });
  */
-export function useGetRequestsQuery(baseOptions: Apollo.QueryHookOptions<GetRequestsQuery, GetRequestsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetRequestsQuery, GetRequestsQueryVariables>(GetRequestsDocument, options);
-      }
-export function useGetRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestsQuery, GetRequestsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetRequestsQuery, GetRequestsQueryVariables>(GetRequestsDocument, options);
-        }
+export function useGetRequestsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetRequestsQuery, GetRequestsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetRequestsQuery, GetRequestsQueryVariables>(GetRequestsDocument, options);
+}
+export function useGetRequestsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetRequestsQuery, GetRequestsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetRequestsQuery, GetRequestsQueryVariables>(
+    GetRequestsDocument,
+    options,
+  );
+}
 export type GetRequestsQueryHookResult = ReturnType<typeof useGetRequestsQuery>;
 export type GetRequestsLazyQueryHookResult = ReturnType<typeof useGetRequestsLazyQuery>;
-export type GetRequestsQueryResult = Apollo.QueryResult<GetRequestsQuery, GetRequestsQueryVariables>;
+export type GetRequestsQueryResult = Apollo.QueryResult<
+  GetRequestsQuery,
+  GetRequestsQueryVariables
+>;
 export const GetModalRequestsDocument = gql`
-    query GetModalRequests($projectId: ID!, $key: String, $state: [RequestState!], $pagination: Pagination, $createdBy: ID, $reviewer: ID, $sort: Sort) {
-  requests(
-    projectId: $projectId
-    key: $key
-    state: $state
-    pagination: $pagination
-    createdBy: $createdBy
-    reviewer: $reviewer
-    sort: $sort
+  query GetModalRequests(
+    $projectId: ID!
+    $key: String
+    $state: [RequestState!]
+    $pagination: Pagination
+    $createdBy: ID
+    $reviewer: ID
+    $sort: Sort
   ) {
-    nodes {
-      id
-      title
-      description
-      createdBy {
-        name
-      }
-      items {
-        itemId
-      }
-      reviewers {
+    requests(
+      projectId: $projectId
+      key: $key
+      state: $state
+      pagination: $pagination
+      createdBy: $createdBy
+      reviewer: $reviewer
+      sort: $sort
+    ) {
+      nodes {
         id
-        name
+        title
+        description
+        createdBy {
+          name
+        }
+        items {
+          itemId
+        }
+        reviewers {
+          id
+          name
+        }
+        state
+        createdAt
       }
-      state
-      createdAt
+      totalCount
     }
-    totalCount
   }
-}
-    `;
+`;
 
 /**
  * __useGetModalRequestsQuery__
@@ -5368,27 +9092,41 @@ export const GetModalRequestsDocument = gql`
  *   },
  * });
  */
-export function useGetModalRequestsQuery(baseOptions: Apollo.QueryHookOptions<GetModalRequestsQuery, GetModalRequestsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetModalRequestsQuery, GetModalRequestsQueryVariables>(GetModalRequestsDocument, options);
-      }
-export function useGetModalRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetModalRequestsQuery, GetModalRequestsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetModalRequestsQuery, GetModalRequestsQueryVariables>(GetModalRequestsDocument, options);
-        }
+export function useGetModalRequestsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetModalRequestsQuery, GetModalRequestsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetModalRequestsQuery, GetModalRequestsQueryVariables>(
+    GetModalRequestsDocument,
+    options,
+  );
+}
+export function useGetModalRequestsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetModalRequestsQuery, GetModalRequestsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetModalRequestsQuery, GetModalRequestsQueryVariables>(
+    GetModalRequestsDocument,
+    options,
+  );
+}
 export type GetModalRequestsQueryHookResult = ReturnType<typeof useGetModalRequestsQuery>;
 export type GetModalRequestsLazyQueryHookResult = ReturnType<typeof useGetModalRequestsLazyQuery>;
-export type GetModalRequestsQueryResult = Apollo.QueryResult<GetModalRequestsQuery, GetModalRequestsQueryVariables>;
+export type GetModalRequestsQueryResult = Apollo.QueryResult<
+  GetModalRequestsQuery,
+  GetModalRequestsQueryVariables
+>;
 export const GetRequestDocument = gql`
-    query GetRequest($requestId: ID!) {
-  node(id: $requestId, type: REQUEST) {
-    id
-    ... on Request {
-      ...requestFragment
+  query GetRequest($requestId: ID!) {
+    node(id: $requestId, type: REQUEST) {
+      id
+      ... on Request {
+        ...requestFragment
+      }
     }
   }
-}
-    ${RequestFragmentFragmentDoc}`;
+  ${RequestFragmentFragmentDoc}
+`;
 
 /**
  * __useGetRequestQuery__
@@ -5406,29 +9144,54 @@ export const GetRequestDocument = gql`
  *   },
  * });
  */
-export function useGetRequestQuery(baseOptions: Apollo.QueryHookOptions<GetRequestQuery, GetRequestQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetRequestQuery, GetRequestQueryVariables>(GetRequestDocument, options);
-      }
-export function useGetRequestLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestQuery, GetRequestQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetRequestQuery, GetRequestQueryVariables>(GetRequestDocument, options);
-        }
+export function useGetRequestQuery(
+  baseOptions: Apollo.QueryHookOptions<GetRequestQuery, GetRequestQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetRequestQuery, GetRequestQueryVariables>(GetRequestDocument, options);
+}
+export function useGetRequestLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetRequestQuery, GetRequestQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetRequestQuery, GetRequestQueryVariables>(
+    GetRequestDocument,
+    options,
+  );
+}
 export type GetRequestQueryHookResult = ReturnType<typeof useGetRequestQuery>;
 export type GetRequestLazyQueryHookResult = ReturnType<typeof useGetRequestLazyQuery>;
 export type GetRequestQueryResult = Apollo.QueryResult<GetRequestQuery, GetRequestQueryVariables>;
 export const CreateRequestDocument = gql`
-    mutation CreateRequest($projectId: ID!, $title: String!, $description: String, $state: RequestState, $reviewersId: [ID!], $items: [RequestItemInput!]!) {
-  createRequest(
-    input: {projectId: $projectId, title: $title, description: $description, state: $state, reviewersId: $reviewersId, items: $items}
+  mutation CreateRequest(
+    $projectId: ID!
+    $title: String!
+    $description: String
+    $state: RequestState
+    $reviewersId: [ID!]
+    $items: [RequestItemInput!]!
   ) {
-    request {
-      ...requestFragment
+    createRequest(
+      input: {
+        projectId: $projectId
+        title: $title
+        description: $description
+        state: $state
+        reviewersId: $reviewersId
+        items: $items
+      }
+    ) {
+      request {
+        ...requestFragment
+      }
     }
   }
-}
-    ${RequestFragmentFragmentDoc}`;
-export type CreateRequestMutationFn = Apollo.MutationFunction<CreateRequestMutation, CreateRequestMutationVariables>;
+  ${RequestFragmentFragmentDoc}
+`;
+export type CreateRequestMutationFn = Apollo.MutationFunction<
+  CreateRequestMutation,
+  CreateRequestMutationVariables
+>;
 
 /**
  * __useCreateRequestMutation__
@@ -5452,25 +9215,51 @@ export type CreateRequestMutationFn = Apollo.MutationFunction<CreateRequestMutat
  *   },
  * });
  */
-export function useCreateRequestMutation(baseOptions?: Apollo.MutationHookOptions<CreateRequestMutation, CreateRequestMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateRequestMutation, CreateRequestMutationVariables>(CreateRequestDocument, options);
-      }
+export function useCreateRequestMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateRequestMutation, CreateRequestMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateRequestMutation, CreateRequestMutationVariables>(
+    CreateRequestDocument,
+    options,
+  );
+}
 export type CreateRequestMutationHookResult = ReturnType<typeof useCreateRequestMutation>;
 export type CreateRequestMutationResult = Apollo.MutationResult<CreateRequestMutation>;
-export type CreateRequestMutationOptions = Apollo.BaseMutationOptions<CreateRequestMutation, CreateRequestMutationVariables>;
+export type CreateRequestMutationOptions = Apollo.BaseMutationOptions<
+  CreateRequestMutation,
+  CreateRequestMutationVariables
+>;
 export const UpdateRequestDocument = gql`
-    mutation UpdateRequest($requestId: ID!, $title: String, $description: String, $state: RequestState, $reviewersId: [ID!], $items: [RequestItemInput!]) {
-  updateRequest(
-    input: {requestId: $requestId, title: $title, description: $description, state: $state, reviewersId: $reviewersId, items: $items}
+  mutation UpdateRequest(
+    $requestId: ID!
+    $title: String
+    $description: String
+    $state: RequestState
+    $reviewersId: [ID!]
+    $items: [RequestItemInput!]
   ) {
-    request {
-      ...requestFragment
+    updateRequest(
+      input: {
+        requestId: $requestId
+        title: $title
+        description: $description
+        state: $state
+        reviewersId: $reviewersId
+        items: $items
+      }
+    ) {
+      request {
+        ...requestFragment
+      }
     }
   }
-}
-    ${RequestFragmentFragmentDoc}`;
-export type UpdateRequestMutationFn = Apollo.MutationFunction<UpdateRequestMutation, UpdateRequestMutationVariables>;
+  ${RequestFragmentFragmentDoc}
+`;
+export type UpdateRequestMutationFn = Apollo.MutationFunction<
+  UpdateRequestMutation,
+  UpdateRequestMutationVariables
+>;
 
 /**
  * __useUpdateRequestMutation__
@@ -5494,23 +9283,35 @@ export type UpdateRequestMutationFn = Apollo.MutationFunction<UpdateRequestMutat
  *   },
  * });
  */
-export function useUpdateRequestMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRequestMutation, UpdateRequestMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateRequestMutation, UpdateRequestMutationVariables>(UpdateRequestDocument, options);
-      }
+export function useUpdateRequestMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateRequestMutation, UpdateRequestMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateRequestMutation, UpdateRequestMutationVariables>(
+    UpdateRequestDocument,
+    options,
+  );
+}
 export type UpdateRequestMutationHookResult = ReturnType<typeof useUpdateRequestMutation>;
 export type UpdateRequestMutationResult = Apollo.MutationResult<UpdateRequestMutation>;
-export type UpdateRequestMutationOptions = Apollo.BaseMutationOptions<UpdateRequestMutation, UpdateRequestMutationVariables>;
+export type UpdateRequestMutationOptions = Apollo.BaseMutationOptions<
+  UpdateRequestMutation,
+  UpdateRequestMutationVariables
+>;
 export const ApproveRequestDocument = gql`
-    mutation ApproveRequest($requestId: ID!) {
-  approveRequest(input: {requestId: $requestId}) {
-    request {
-      ...requestFragment
+  mutation ApproveRequest($requestId: ID!) {
+    approveRequest(input: { requestId: $requestId }) {
+      request {
+        ...requestFragment
+      }
     }
   }
-}
-    ${RequestFragmentFragmentDoc}`;
-export type ApproveRequestMutationFn = Apollo.MutationFunction<ApproveRequestMutation, ApproveRequestMutationVariables>;
+  ${RequestFragmentFragmentDoc}
+`;
+export type ApproveRequestMutationFn = Apollo.MutationFunction<
+  ApproveRequestMutation,
+  ApproveRequestMutationVariables
+>;
 
 /**
  * __useApproveRequestMutation__
@@ -5529,21 +9330,32 @@ export type ApproveRequestMutationFn = Apollo.MutationFunction<ApproveRequestMut
  *   },
  * });
  */
-export function useApproveRequestMutation(baseOptions?: Apollo.MutationHookOptions<ApproveRequestMutation, ApproveRequestMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ApproveRequestMutation, ApproveRequestMutationVariables>(ApproveRequestDocument, options);
-      }
+export function useApproveRequestMutation(
+  baseOptions?: Apollo.MutationHookOptions<ApproveRequestMutation, ApproveRequestMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<ApproveRequestMutation, ApproveRequestMutationVariables>(
+    ApproveRequestDocument,
+    options,
+  );
+}
 export type ApproveRequestMutationHookResult = ReturnType<typeof useApproveRequestMutation>;
 export type ApproveRequestMutationResult = Apollo.MutationResult<ApproveRequestMutation>;
-export type ApproveRequestMutationOptions = Apollo.BaseMutationOptions<ApproveRequestMutation, ApproveRequestMutationVariables>;
+export type ApproveRequestMutationOptions = Apollo.BaseMutationOptions<
+  ApproveRequestMutation,
+  ApproveRequestMutationVariables
+>;
 export const DeleteRequestDocument = gql`
-    mutation DeleteRequest($projectId: ID!, $requestsId: [ID!]!) {
-  deleteRequest(input: {projectId: $projectId, requestsId: $requestsId}) {
-    requests
+  mutation DeleteRequest($projectId: ID!, $requestsId: [ID!]!) {
+    deleteRequest(input: { projectId: $projectId, requestsId: $requestsId }) {
+      requests
+    }
   }
-}
-    `;
-export type DeleteRequestMutationFn = Apollo.MutationFunction<DeleteRequestMutation, DeleteRequestMutationVariables>;
+`;
+export type DeleteRequestMutationFn = Apollo.MutationFunction<
+  DeleteRequestMutation,
+  DeleteRequestMutationVariables
+>;
 
 /**
  * __useDeleteRequestMutation__
@@ -5563,22 +9375,30 @@ export type DeleteRequestMutationFn = Apollo.MutationFunction<DeleteRequestMutat
  *   },
  * });
  */
-export function useDeleteRequestMutation(baseOptions?: Apollo.MutationHookOptions<DeleteRequestMutation, DeleteRequestMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteRequestMutation, DeleteRequestMutationVariables>(DeleteRequestDocument, options);
-      }
+export function useDeleteRequestMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteRequestMutation, DeleteRequestMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteRequestMutation, DeleteRequestMutationVariables>(
+    DeleteRequestDocument,
+    options,
+  );
+}
 export type DeleteRequestMutationHookResult = ReturnType<typeof useDeleteRequestMutation>;
 export type DeleteRequestMutationResult = Apollo.MutationResult<DeleteRequestMutation>;
-export type DeleteRequestMutationOptions = Apollo.BaseMutationOptions<DeleteRequestMutation, DeleteRequestMutationVariables>;
+export type DeleteRequestMutationOptions = Apollo.BaseMutationOptions<
+  DeleteRequestMutation,
+  DeleteRequestMutationVariables
+>;
 export const GetUserBySearchDocument = gql`
-    query GetUserBySearch($nameOrEmail: String!) {
-  searchUser(nameOrEmail: $nameOrEmail) {
-    id
-    name
-    email
+  query GetUserBySearch($nameOrEmail: String!) {
+    searchUser(nameOrEmail: $nameOrEmail) {
+      id
+      name
+      email
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useGetUserBySearchQuery__
@@ -5596,58 +9416,72 @@ export const GetUserBySearchDocument = gql`
  *   },
  * });
  */
-export function useGetUserBySearchQuery(baseOptions: Apollo.QueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(GetUserBySearchDocument, options);
-      }
-export function useGetUserBySearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(GetUserBySearchDocument, options);
-        }
+export function useGetUserBySearchQuery(
+  baseOptions: Apollo.QueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(
+    GetUserBySearchDocument,
+    options,
+  );
+}
+export function useGetUserBySearchLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetUserBySearchQuery, GetUserBySearchQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetUserBySearchQuery, GetUserBySearchQueryVariables>(
+    GetUserBySearchDocument,
+    options,
+  );
+}
 export type GetUserBySearchQueryHookResult = ReturnType<typeof useGetUserBySearchQuery>;
 export type GetUserBySearchLazyQueryHookResult = ReturnType<typeof useGetUserBySearchLazyQuery>;
-export type GetUserBySearchQueryResult = Apollo.QueryResult<GetUserBySearchQuery, GetUserBySearchQueryVariables>;
+export type GetUserBySearchQueryResult = Apollo.QueryResult<
+  GetUserBySearchQuery,
+  GetUserBySearchQueryVariables
+>;
 export const GetMeDocument = gql`
-    query GetMe {
-  me {
-    id
-    name
-    email
-    lang
-    myWorkspace {
+  query GetMe {
+    me {
       id
       name
-    }
-    workspaces {
-      id
-      name
-      members {
-        ... on WorkspaceUserMember {
-          user {
-            id
-            name
-            email
+      email
+      lang
+      myWorkspace {
+        id
+        name
+      }
+      workspaces {
+        id
+        name
+        members {
+          ... on WorkspaceUserMember {
+            user {
+              id
+              name
+              email
+            }
+            userId
+            role
           }
-          userId
-          role
-        }
-        ... on WorkspaceIntegrationMember {
-          integration {
-            ...integrationFragment
+          ... on WorkspaceIntegrationMember {
+            integration {
+              ...integrationFragment
+            }
+            integrationRole: role
+            active
+            invitedById
           }
-          integrationRole: role
-          active
-          invitedById
         }
       }
-    }
-    auths
-    integrations {
-      ...integrationFragment
+      auths
+      integrations {
+        ...integrationFragment
+      }
     }
   }
-}
-    ${IntegrationFragmentFragmentDoc}`;
+  ${IntegrationFragmentFragmentDoc}
+`;
 
 /**
  * __useGetMeQuery__
@@ -5664,33 +9498,37 @@ export const GetMeDocument = gql`
  *   },
  * });
  */
-export function useGetMeQuery(baseOptions?: Apollo.QueryHookOptions<GetMeQuery, GetMeQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetMeQuery, GetMeQueryVariables>(GetMeDocument, options);
-      }
-export function useGetMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMeQuery, GetMeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetMeQuery, GetMeQueryVariables>(GetMeDocument, options);
-        }
+export function useGetMeQuery(
+  baseOptions?: Apollo.QueryHookOptions<GetMeQuery, GetMeQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetMeQuery, GetMeQueryVariables>(GetMeDocument, options);
+}
+export function useGetMeLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetMeQuery, GetMeQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetMeQuery, GetMeQueryVariables>(GetMeDocument, options);
+}
 export type GetMeQueryHookResult = ReturnType<typeof useGetMeQuery>;
 export type GetMeLazyQueryHookResult = ReturnType<typeof useGetMeLazyQuery>;
 export type GetMeQueryResult = Apollo.QueryResult<GetMeQuery, GetMeQueryVariables>;
 export const GetProfileDocument = gql`
-    query GetProfile {
-  me {
-    id
-    name
-    email
-    lang
-    theme
-    myWorkspace {
+  query GetProfile {
+    me {
       id
       name
+      email
+      lang
+      theme
+      myWorkspace {
+        id
+        name
+      }
+      auths
     }
-    auths
   }
-}
-    `;
+`;
 
 /**
  * __useGetProfileQuery__
@@ -5707,25 +9545,32 @@ export const GetProfileDocument = gql`
  *   },
  * });
  */
-export function useGetProfileQuery(baseOptions?: Apollo.QueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
-      }
-export function useGetProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
-        }
+export function useGetProfileQuery(
+  baseOptions?: Apollo.QueryHookOptions<GetProfileQuery, GetProfileQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
+}
+export function useGetProfileLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetProfileQuery, GetProfileQueryVariables>(
+    GetProfileDocument,
+    options,
+  );
+}
 export type GetProfileQueryHookResult = ReturnType<typeof useGetProfileQuery>;
 export type GetProfileLazyQueryHookResult = ReturnType<typeof useGetProfileLazyQuery>;
 export type GetProfileQueryResult = Apollo.QueryResult<GetProfileQuery, GetProfileQueryVariables>;
 export const GetLanguageDocument = gql`
-    query GetLanguage {
-  me {
-    id
-    lang
+  query GetLanguage {
+    me {
+      id
+      lang
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useGetLanguageQuery__
@@ -5742,25 +9587,35 @@ export const GetLanguageDocument = gql`
  *   },
  * });
  */
-export function useGetLanguageQuery(baseOptions?: Apollo.QueryHookOptions<GetLanguageQuery, GetLanguageQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetLanguageQuery, GetLanguageQueryVariables>(GetLanguageDocument, options);
-      }
-export function useGetLanguageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetLanguageQuery, GetLanguageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetLanguageQuery, GetLanguageQueryVariables>(GetLanguageDocument, options);
-        }
+export function useGetLanguageQuery(
+  baseOptions?: Apollo.QueryHookOptions<GetLanguageQuery, GetLanguageQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetLanguageQuery, GetLanguageQueryVariables>(GetLanguageDocument, options);
+}
+export function useGetLanguageLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetLanguageQuery, GetLanguageQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetLanguageQuery, GetLanguageQueryVariables>(
+    GetLanguageDocument,
+    options,
+  );
+}
 export type GetLanguageQueryHookResult = ReturnType<typeof useGetLanguageQuery>;
 export type GetLanguageLazyQueryHookResult = ReturnType<typeof useGetLanguageLazyQuery>;
-export type GetLanguageQueryResult = Apollo.QueryResult<GetLanguageQuery, GetLanguageQueryVariables>;
+export type GetLanguageQueryResult = Apollo.QueryResult<
+  GetLanguageQuery,
+  GetLanguageQueryVariables
+>;
 export const GetThemeDocument = gql`
-    query GetTheme {
-  me {
-    id
-    theme
+  query GetTheme {
+    me {
+      id
+      theme
+    }
   }
-}
-    `;
+`;
 
 /**
  * __useGetThemeQuery__
@@ -5777,37 +9632,58 @@ export const GetThemeDocument = gql`
  *   },
  * });
  */
-export function useGetThemeQuery(baseOptions?: Apollo.QueryHookOptions<GetThemeQuery, GetThemeQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetThemeQuery, GetThemeQueryVariables>(GetThemeDocument, options);
-      }
-export function useGetThemeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetThemeQuery, GetThemeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetThemeQuery, GetThemeQueryVariables>(GetThemeDocument, options);
-        }
+export function useGetThemeQuery(
+  baseOptions?: Apollo.QueryHookOptions<GetThemeQuery, GetThemeQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetThemeQuery, GetThemeQueryVariables>(GetThemeDocument, options);
+}
+export function useGetThemeLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetThemeQuery, GetThemeQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetThemeQuery, GetThemeQueryVariables>(GetThemeDocument, options);
+}
 export type GetThemeQueryHookResult = ReturnType<typeof useGetThemeQuery>;
 export type GetThemeLazyQueryHookResult = ReturnType<typeof useGetThemeLazyQuery>;
 export type GetThemeQueryResult = Apollo.QueryResult<GetThemeQuery, GetThemeQueryVariables>;
 export const UpdateMeDocument = gql`
-    mutation UpdateMe($name: String, $email: String, $lang: Lang, $theme: Theme, $password: String, $passwordConfirmation: String) {
-  updateMe(
-    input: {name: $name, email: $email, lang: $lang, theme: $theme, password: $password, passwordConfirmation: $passwordConfirmation}
+  mutation UpdateMe(
+    $name: String
+    $email: String
+    $lang: Lang
+    $theme: Theme
+    $password: String
+    $passwordConfirmation: String
   ) {
-    me {
-      id
-      name
-      email
-      lang
-      theme
-      myWorkspace {
+    updateMe(
+      input: {
+        name: $name
+        email: $email
+        lang: $lang
+        theme: $theme
+        password: $password
+        passwordConfirmation: $passwordConfirmation
+      }
+    ) {
+      me {
         id
         name
+        email
+        lang
+        theme
+        myWorkspace {
+          id
+          name
+        }
       }
     }
   }
-}
-    `;
-export type UpdateMeMutationFn = Apollo.MutationFunction<UpdateMeMutation, UpdateMeMutationVariables>;
+`;
+export type UpdateMeMutationFn = Apollo.MutationFunction<
+  UpdateMeMutation,
+  UpdateMeMutationVariables
+>;
 
 /**
  * __useUpdateMeMutation__
@@ -5831,21 +9707,29 @@ export type UpdateMeMutationFn = Apollo.MutationFunction<UpdateMeMutation, Updat
  *   },
  * });
  */
-export function useUpdateMeMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMeMutation, UpdateMeMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateMeMutation, UpdateMeMutationVariables>(UpdateMeDocument, options);
-      }
+export function useUpdateMeMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateMeMutation, UpdateMeMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateMeMutation, UpdateMeMutationVariables>(UpdateMeDocument, options);
+}
 export type UpdateMeMutationHookResult = ReturnType<typeof useUpdateMeMutation>;
 export type UpdateMeMutationResult = Apollo.MutationResult<UpdateMeMutation>;
-export type UpdateMeMutationOptions = Apollo.BaseMutationOptions<UpdateMeMutation, UpdateMeMutationVariables>;
+export type UpdateMeMutationOptions = Apollo.BaseMutationOptions<
+  UpdateMeMutation,
+  UpdateMeMutationVariables
+>;
 export const DeleteMeDocument = gql`
-    mutation DeleteMe($userId: ID!) {
-  deleteMe(input: {userId: $userId}) {
-    userId
+  mutation DeleteMe($userId: ID!) {
+    deleteMe(input: { userId: $userId }) {
+      userId
+    }
   }
-}
-    `;
-export type DeleteMeMutationFn = Apollo.MutationFunction<DeleteMeMutation, DeleteMeMutationVariables>;
+`;
+export type DeleteMeMutationFn = Apollo.MutationFunction<
+  DeleteMeMutation,
+  DeleteMeMutationVariables
+>;
 
 /**
  * __useDeleteMeMutation__
@@ -5864,80 +9748,21 @@ export type DeleteMeMutationFn = Apollo.MutationFunction<DeleteMeMutation, Delet
  *   },
  * });
  */
-export function useDeleteMeMutation(baseOptions?: Apollo.MutationHookOptions<DeleteMeMutation, DeleteMeMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteMeMutation, DeleteMeMutationVariables>(DeleteMeDocument, options);
-      }
+export function useDeleteMeMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteMeMutation, DeleteMeMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteMeMutation, DeleteMeMutationVariables>(DeleteMeDocument, options);
+}
 export type DeleteMeMutationHookResult = ReturnType<typeof useDeleteMeMutation>;
 export type DeleteMeMutationResult = Apollo.MutationResult<DeleteMeMutation>;
-export type DeleteMeMutationOptions = Apollo.BaseMutationOptions<DeleteMeMutation, DeleteMeMutationVariables>;
+export type DeleteMeMutationOptions = Apollo.BaseMutationOptions<
+  DeleteMeMutation,
+  DeleteMeMutationVariables
+>;
 export const GetViewsDocument = gql`
-    query GetViews($modelId: ID!) {
-  view(modelId: $modelId) {
-    id
-    name
-    modelId
-    projectId
-    sort {
-      field {
-        type
-        id
-      }
-      direction
-    }
-    columns {
-      type
-      id
-    }
-    filter {
-      ... on BoolFieldCondition {
-        fieldId {
-          type
-          id
-        }
-        operator
-        value
-      }
-    }
-    __typename
-  }
-  __typename
-}
-    `;
-
-/**
- * __useGetViewsQuery__
- *
- * To run a query within a React component, call `useGetViewsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetViewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetViewsQuery({
- *   variables: {
- *      modelId: // value for 'modelId'
- *   },
- * });
- */
-export function useGetViewsQuery(baseOptions: Apollo.QueryHookOptions<GetViewsQuery, GetViewsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetViewsQuery, GetViewsQueryVariables>(GetViewsDocument, options);
-      }
-export function useGetViewsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetViewsQuery, GetViewsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetViewsQuery, GetViewsQueryVariables>(GetViewsDocument, options);
-        }
-export type GetViewsQueryHookResult = ReturnType<typeof useGetViewsQuery>;
-export type GetViewsLazyQueryHookResult = ReturnType<typeof useGetViewsLazyQuery>;
-export type GetViewsQueryResult = Apollo.QueryResult<GetViewsQuery, GetViewsQueryVariables>;
-export const CreateViewDocument = gql`
-    mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
-  createView(
-    input: {projectId: $projectId, modelId: $modelId, name: $name, sort: $sort, filter: $filter, columns: $columns}
-  ) {
-    view {
+  query GetViews($modelId: ID!) {
+    view(modelId: $modelId) {
       id
       name
       modelId
@@ -5965,10 +9790,95 @@ export const CreateViewDocument = gql`
       }
       __typename
     }
+    __typename
   }
+`;
+
+/**
+ * __useGetViewsQuery__
+ *
+ * To run a query within a React component, call `useGetViewsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetViewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetViewsQuery({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *   },
+ * });
+ */
+export function useGetViewsQuery(
+  baseOptions: Apollo.QueryHookOptions<GetViewsQuery, GetViewsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetViewsQuery, GetViewsQueryVariables>(GetViewsDocument, options);
 }
-    `;
-export type CreateViewMutationFn = Apollo.MutationFunction<CreateViewMutation, CreateViewMutationVariables>;
+export function useGetViewsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetViewsQuery, GetViewsQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetViewsQuery, GetViewsQueryVariables>(GetViewsDocument, options);
+}
+export type GetViewsQueryHookResult = ReturnType<typeof useGetViewsQuery>;
+export type GetViewsLazyQueryHookResult = ReturnType<typeof useGetViewsLazyQuery>;
+export type GetViewsQueryResult = Apollo.QueryResult<GetViewsQuery, GetViewsQueryVariables>;
+export const CreateViewDocument = gql`
+  mutation CreateView(
+    $projectId: ID!
+    $modelId: ID!
+    $name: String!
+    $sort: ItemSortInput
+    $filter: ConditionInput
+    $columns: [FieldSelectorInput!]
+  ) {
+    createView(
+      input: {
+        projectId: $projectId
+        modelId: $modelId
+        name: $name
+        sort: $sort
+        filter: $filter
+        columns: $columns
+      }
+    ) {
+      view {
+        id
+        name
+        modelId
+        projectId
+        sort {
+          field {
+            type
+            id
+          }
+          direction
+        }
+        columns {
+          type
+          id
+        }
+        filter {
+          ... on BoolFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            operator
+            value
+          }
+        }
+        __typename
+      }
+    }
+  }
+`;
+export type CreateViewMutationFn = Apollo.MutationFunction<
+  CreateViewMutation,
+  CreateViewMutationVariables
+>;
 
 /**
  * __useCreateViewMutation__
@@ -5992,50 +9902,67 @@ export type CreateViewMutationFn = Apollo.MutationFunction<CreateViewMutation, C
  *   },
  * });
  */
-export function useCreateViewMutation(baseOptions?: Apollo.MutationHookOptions<CreateViewMutation, CreateViewMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateViewMutation, CreateViewMutationVariables>(CreateViewDocument, options);
-      }
+export function useCreateViewMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateViewMutation, CreateViewMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateViewMutation, CreateViewMutationVariables>(
+    CreateViewDocument,
+    options,
+  );
+}
 export type CreateViewMutationHookResult = ReturnType<typeof useCreateViewMutation>;
 export type CreateViewMutationResult = Apollo.MutationResult<CreateViewMutation>;
-export type CreateViewMutationOptions = Apollo.BaseMutationOptions<CreateViewMutation, CreateViewMutationVariables>;
+export type CreateViewMutationOptions = Apollo.BaseMutationOptions<
+  CreateViewMutation,
+  CreateViewMutationVariables
+>;
 export const UpdateViewDocument = gql`
-    mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
-  updateView(
-    input: {viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns}
+  mutation UpdateView(
+    $viewId: ID!
+    $name: String!
+    $sort: ItemSortInput
+    $filter: ConditionInput
+    $columns: [FieldSelectorInput!]
   ) {
-    view {
-      id
-      name
-      modelId
-      projectId
-      sort {
-        field {
-          type
-          id
-        }
-        direction
-      }
-      columns {
-        type
+    updateView(
+      input: { viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns }
+    ) {
+      view {
         id
-      }
-      filter {
-        ... on BoolFieldCondition {
-          fieldId {
+        name
+        modelId
+        projectId
+        sort {
+          field {
             type
             id
           }
-          operator
-          value
+          direction
         }
+        columns {
+          type
+          id
+        }
+        filter {
+          ... on BoolFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            operator
+            value
+          }
+        }
+        __typename
       }
-      __typename
     }
   }
-}
-    `;
-export type UpdateViewMutationFn = Apollo.MutationFunction<UpdateViewMutation, UpdateViewMutationVariables>;
+`;
+export type UpdateViewMutationFn = Apollo.MutationFunction<
+  UpdateViewMutation,
+  UpdateViewMutationVariables
+>;
 
 /**
  * __useUpdateViewMutation__
@@ -6058,21 +9985,32 @@ export type UpdateViewMutationFn = Apollo.MutationFunction<UpdateViewMutation, U
  *   },
  * });
  */
-export function useUpdateViewMutation(baseOptions?: Apollo.MutationHookOptions<UpdateViewMutation, UpdateViewMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateViewMutation, UpdateViewMutationVariables>(UpdateViewDocument, options);
-      }
+export function useUpdateViewMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateViewMutation, UpdateViewMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateViewMutation, UpdateViewMutationVariables>(
+    UpdateViewDocument,
+    options,
+  );
+}
 export type UpdateViewMutationHookResult = ReturnType<typeof useUpdateViewMutation>;
 export type UpdateViewMutationResult = Apollo.MutationResult<UpdateViewMutation>;
-export type UpdateViewMutationOptions = Apollo.BaseMutationOptions<UpdateViewMutation, UpdateViewMutationVariables>;
+export type UpdateViewMutationOptions = Apollo.BaseMutationOptions<
+  UpdateViewMutation,
+  UpdateViewMutationVariables
+>;
 export const DeleteViewDocument = gql`
-    mutation DeleteView($viewId: ID!) {
-  deleteView(input: {viewId: $viewId}) {
-    viewId
+  mutation DeleteView($viewId: ID!) {
+    deleteView(input: { viewId: $viewId }) {
+      viewId
+    }
   }
-}
-    `;
-export type DeleteViewMutationFn = Apollo.MutationFunction<DeleteViewMutation, DeleteViewMutationVariables>;
+`;
+export type DeleteViewMutationFn = Apollo.MutationFunction<
+  DeleteViewMutation,
+  DeleteViewMutationVariables
+>;
 
 /**
  * __useDeleteViewMutation__
@@ -6091,41 +10029,66 @@ export type DeleteViewMutationFn = Apollo.MutationFunction<DeleteViewMutation, D
  *   },
  * });
  */
-export function useDeleteViewMutation(baseOptions?: Apollo.MutationHookOptions<DeleteViewMutation, DeleteViewMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteViewMutation, DeleteViewMutationVariables>(DeleteViewDocument, options);
-      }
+export function useDeleteViewMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteViewMutation, DeleteViewMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteViewMutation, DeleteViewMutationVariables>(
+    DeleteViewDocument,
+    options,
+  );
+}
 export type DeleteViewMutationHookResult = ReturnType<typeof useDeleteViewMutation>;
 export type DeleteViewMutationResult = Apollo.MutationResult<DeleteViewMutation>;
-export type DeleteViewMutationOptions = Apollo.BaseMutationOptions<DeleteViewMutation, DeleteViewMutationVariables>;
+export type DeleteViewMutationOptions = Apollo.BaseMutationOptions<
+  DeleteViewMutation,
+  DeleteViewMutationVariables
+>;
 export const CreateWebhookDocument = gql`
-    mutation CreateWebhook($integrationId: ID!, $name: String!, $url: URL!, $active: Boolean!, $trigger: WebhookTriggerInput!, $secret: String!) {
-  createWebhook(
-    input: {integrationId: $integrationId, name: $name, url: $url, active: $active, trigger: $trigger, secret: $secret}
+  mutation CreateWebhook(
+    $integrationId: ID!
+    $name: String!
+    $url: URL!
+    $active: Boolean!
+    $trigger: WebhookTriggerInput!
+    $secret: String!
   ) {
-    webhook {
-      id
-      name
-      url
-      active
-      trigger {
-        onItemCreate
-        onItemUpdate
-        onItemDelete
-        onItemPublish
-        onItemUnPublish
-        onAssetUpload
-        onAssetDecompress
-        onAssetDelete
+    createWebhook(
+      input: {
+        integrationId: $integrationId
+        name: $name
+        url: $url
+        active: $active
+        trigger: $trigger
+        secret: $secret
       }
-      secret
-      createdAt
-      updatedAt
+    ) {
+      webhook {
+        id
+        name
+        url
+        active
+        trigger {
+          onItemCreate
+          onItemUpdate
+          onItemDelete
+          onItemPublish
+          onItemUnPublish
+          onAssetUpload
+          onAssetDecompress
+          onAssetDelete
+        }
+        secret
+        createdAt
+        updatedAt
+      }
     }
   }
-}
-    `;
-export type CreateWebhookMutationFn = Apollo.MutationFunction<CreateWebhookMutation, CreateWebhookMutationVariables>;
+`;
+export type CreateWebhookMutationFn = Apollo.MutationFunction<
+  CreateWebhookMutation,
+  CreateWebhookMutationVariables
+>;
 
 /**
  * __useCreateWebhookMutation__
@@ -6149,41 +10112,68 @@ export type CreateWebhookMutationFn = Apollo.MutationFunction<CreateWebhookMutat
  *   },
  * });
  */
-export function useCreateWebhookMutation(baseOptions?: Apollo.MutationHookOptions<CreateWebhookMutation, CreateWebhookMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateWebhookMutation, CreateWebhookMutationVariables>(CreateWebhookDocument, options);
-      }
+export function useCreateWebhookMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateWebhookMutation, CreateWebhookMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateWebhookMutation, CreateWebhookMutationVariables>(
+    CreateWebhookDocument,
+    options,
+  );
+}
 export type CreateWebhookMutationHookResult = ReturnType<typeof useCreateWebhookMutation>;
 export type CreateWebhookMutationResult = Apollo.MutationResult<CreateWebhookMutation>;
-export type CreateWebhookMutationOptions = Apollo.BaseMutationOptions<CreateWebhookMutation, CreateWebhookMutationVariables>;
+export type CreateWebhookMutationOptions = Apollo.BaseMutationOptions<
+  CreateWebhookMutation,
+  CreateWebhookMutationVariables
+>;
 export const UpdateWebhookDocument = gql`
-    mutation UpdateWebhook($integrationId: ID!, $webhookId: ID!, $name: String!, $url: URL!, $active: Boolean!, $trigger: WebhookTriggerInput!, $secret: String) {
-  updateWebhook(
-    input: {integrationId: $integrationId, webhookId: $webhookId, name: $name, url: $url, active: $active, trigger: $trigger, secret: $secret}
+  mutation UpdateWebhook(
+    $integrationId: ID!
+    $webhookId: ID!
+    $name: String!
+    $url: URL!
+    $active: Boolean!
+    $trigger: WebhookTriggerInput!
+    $secret: String
   ) {
-    webhook {
-      id
-      name
-      url
-      active
-      trigger {
-        onItemCreate
-        onItemUpdate
-        onItemDelete
-        onItemPublish
-        onItemUnPublish
-        onAssetUpload
-        onAssetDecompress
-        onAssetDelete
+    updateWebhook(
+      input: {
+        integrationId: $integrationId
+        webhookId: $webhookId
+        name: $name
+        url: $url
+        active: $active
+        trigger: $trigger
+        secret: $secret
       }
-      secret
-      createdAt
-      updatedAt
+    ) {
+      webhook {
+        id
+        name
+        url
+        active
+        trigger {
+          onItemCreate
+          onItemUpdate
+          onItemDelete
+          onItemPublish
+          onItemUnPublish
+          onAssetUpload
+          onAssetDecompress
+          onAssetDelete
+        }
+        secret
+        createdAt
+        updatedAt
+      }
     }
   }
-}
-    `;
-export type UpdateWebhookMutationFn = Apollo.MutationFunction<UpdateWebhookMutation, UpdateWebhookMutationVariables>;
+`;
+export type UpdateWebhookMutationFn = Apollo.MutationFunction<
+  UpdateWebhookMutation,
+  UpdateWebhookMutationVariables
+>;
 
 /**
  * __useUpdateWebhookMutation__
@@ -6208,21 +10198,32 @@ export type UpdateWebhookMutationFn = Apollo.MutationFunction<UpdateWebhookMutat
  *   },
  * });
  */
-export function useUpdateWebhookMutation(baseOptions?: Apollo.MutationHookOptions<UpdateWebhookMutation, UpdateWebhookMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateWebhookMutation, UpdateWebhookMutationVariables>(UpdateWebhookDocument, options);
-      }
+export function useUpdateWebhookMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateWebhookMutation, UpdateWebhookMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateWebhookMutation, UpdateWebhookMutationVariables>(
+    UpdateWebhookDocument,
+    options,
+  );
+}
 export type UpdateWebhookMutationHookResult = ReturnType<typeof useUpdateWebhookMutation>;
 export type UpdateWebhookMutationResult = Apollo.MutationResult<UpdateWebhookMutation>;
-export type UpdateWebhookMutationOptions = Apollo.BaseMutationOptions<UpdateWebhookMutation, UpdateWebhookMutationVariables>;
+export type UpdateWebhookMutationOptions = Apollo.BaseMutationOptions<
+  UpdateWebhookMutation,
+  UpdateWebhookMutationVariables
+>;
 export const DeleteWebhookDocument = gql`
-    mutation DeleteWebhook($integrationId: ID!, $webhookId: ID!) {
-  deleteWebhook(input: {integrationId: $integrationId, webhookId: $webhookId}) {
-    webhookId
+  mutation DeleteWebhook($integrationId: ID!, $webhookId: ID!) {
+    deleteWebhook(input: { integrationId: $integrationId, webhookId: $webhookId }) {
+      webhookId
+    }
   }
-}
-    `;
-export type DeleteWebhookMutationFn = Apollo.MutationFunction<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
+`;
+export type DeleteWebhookMutationFn = Apollo.MutationFunction<
+  DeleteWebhookMutation,
+  DeleteWebhookMutationVariables
+>;
 
 /**
  * __useDeleteWebhookMutation__
@@ -6242,29 +10243,38 @@ export type DeleteWebhookMutationFn = Apollo.MutationFunction<DeleteWebhookMutat
  *   },
  * });
  */
-export function useDeleteWebhookMutation(baseOptions?: Apollo.MutationHookOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteWebhookMutation, DeleteWebhookMutationVariables>(DeleteWebhookDocument, options);
-      }
+export function useDeleteWebhookMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteWebhookMutation, DeleteWebhookMutationVariables>(
+    DeleteWebhookDocument,
+    options,
+  );
+}
 export type DeleteWebhookMutationHookResult = ReturnType<typeof useDeleteWebhookMutation>;
 export type DeleteWebhookMutationResult = Apollo.MutationResult<DeleteWebhookMutation>;
-export type DeleteWebhookMutationOptions = Apollo.BaseMutationOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
+export type DeleteWebhookMutationOptions = Apollo.BaseMutationOptions<
+  DeleteWebhookMutation,
+  DeleteWebhookMutationVariables
+>;
 export const GetWorkspacesDocument = gql`
-    query GetWorkspaces {
-  me {
-    id
-    name
-    myWorkspace {
+  query GetWorkspaces {
+    me {
       id
-      ...WorkspaceFragment
-    }
-    workspaces {
-      id
-      ...WorkspaceFragment
+      name
+      myWorkspace {
+        id
+        ...WorkspaceFragment
+      }
+      workspaces {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
+  ${WorkspaceFragmentFragmentDoc}
+`;
 
 /**
  * __useGetWorkspacesQuery__
@@ -6281,28 +10291,45 @@ export const GetWorkspacesDocument = gql`
  *   },
  * });
  */
-export function useGetWorkspacesQuery(baseOptions?: Apollo.QueryHookOptions<GetWorkspacesQuery, GetWorkspacesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetWorkspacesQuery, GetWorkspacesQueryVariables>(GetWorkspacesDocument, options);
-      }
-export function useGetWorkspacesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWorkspacesQuery, GetWorkspacesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetWorkspacesQuery, GetWorkspacesQueryVariables>(GetWorkspacesDocument, options);
-        }
+export function useGetWorkspacesQuery(
+  baseOptions?: Apollo.QueryHookOptions<GetWorkspacesQuery, GetWorkspacesQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetWorkspacesQuery, GetWorkspacesQueryVariables>(
+    GetWorkspacesDocument,
+    options,
+  );
+}
+export function useGetWorkspacesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetWorkspacesQuery, GetWorkspacesQueryVariables>,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetWorkspacesQuery, GetWorkspacesQueryVariables>(
+    GetWorkspacesDocument,
+    options,
+  );
+}
 export type GetWorkspacesQueryHookResult = ReturnType<typeof useGetWorkspacesQuery>;
 export type GetWorkspacesLazyQueryHookResult = ReturnType<typeof useGetWorkspacesLazyQuery>;
-export type GetWorkspacesQueryResult = Apollo.QueryResult<GetWorkspacesQuery, GetWorkspacesQueryVariables>;
+export type GetWorkspacesQueryResult = Apollo.QueryResult<
+  GetWorkspacesQuery,
+  GetWorkspacesQueryVariables
+>;
 export const UpdateWorkspaceDocument = gql`
-    mutation UpdateWorkspace($workspaceId: ID!, $name: String!) {
-  updateWorkspace(input: {workspaceId: $workspaceId, name: $name}) {
-    workspace {
-      id
-      ...WorkspaceFragment
+  mutation UpdateWorkspace($workspaceId: ID!, $name: String!) {
+    updateWorkspace(input: { workspaceId: $workspaceId, name: $name }) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
-export type UpdateWorkspaceMutationFn = Apollo.MutationFunction<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>;
+  ${WorkspaceFragmentFragmentDoc}
+`;
+export type UpdateWorkspaceMutationFn = Apollo.MutationFunction<
+  UpdateWorkspaceMutation,
+  UpdateWorkspaceMutationVariables
+>;
 
 /**
  * __useUpdateWorkspaceMutation__
@@ -6322,21 +10349,35 @@ export type UpdateWorkspaceMutationFn = Apollo.MutationFunction<UpdateWorkspaceM
  *   },
  * });
  */
-export function useUpdateWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>(UpdateWorkspaceDocument, options);
-      }
+export function useUpdateWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateWorkspaceMutation,
+    UpdateWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>(
+    UpdateWorkspaceDocument,
+    options,
+  );
+}
 export type UpdateWorkspaceMutationHookResult = ReturnType<typeof useUpdateWorkspaceMutation>;
 export type UpdateWorkspaceMutationResult = Apollo.MutationResult<UpdateWorkspaceMutation>;
-export type UpdateWorkspaceMutationOptions = Apollo.BaseMutationOptions<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>;
+export type UpdateWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  UpdateWorkspaceMutation,
+  UpdateWorkspaceMutationVariables
+>;
 export const DeleteWorkspaceDocument = gql`
-    mutation DeleteWorkspace($workspaceId: ID!) {
-  deleteWorkspace(input: {workspaceId: $workspaceId}) {
-    workspaceId
+  mutation DeleteWorkspace($workspaceId: ID!) {
+    deleteWorkspace(input: { workspaceId: $workspaceId }) {
+      workspaceId
+    }
   }
-}
-    `;
-export type DeleteWorkspaceMutationFn = Apollo.MutationFunction<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>;
+`;
+export type DeleteWorkspaceMutationFn = Apollo.MutationFunction<
+  DeleteWorkspaceMutation,
+  DeleteWorkspaceMutationVariables
+>;
 
 /**
  * __useDeleteWorkspaceMutation__
@@ -6355,24 +10396,39 @@ export type DeleteWorkspaceMutationFn = Apollo.MutationFunction<DeleteWorkspaceM
  *   },
  * });
  */
-export function useDeleteWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>(DeleteWorkspaceDocument, options);
-      }
+export function useDeleteWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteWorkspaceMutation,
+    DeleteWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>(
+    DeleteWorkspaceDocument,
+    options,
+  );
+}
 export type DeleteWorkspaceMutationHookResult = ReturnType<typeof useDeleteWorkspaceMutation>;
 export type DeleteWorkspaceMutationResult = Apollo.MutationResult<DeleteWorkspaceMutation>;
-export type DeleteWorkspaceMutationOptions = Apollo.BaseMutationOptions<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>;
+export type DeleteWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  DeleteWorkspaceMutation,
+  DeleteWorkspaceMutationVariables
+>;
 export const AddUsersToWorkspaceDocument = gql`
-    mutation AddUsersToWorkspace($workspaceId: ID!, $users: [MemberInput!]!) {
-  addUsersToWorkspace(input: {workspaceId: $workspaceId, users: $users}) {
-    workspace {
-      id
-      ...WorkspaceFragment
+  mutation AddUsersToWorkspace($workspaceId: ID!, $users: [MemberInput!]!) {
+    addUsersToWorkspace(input: { workspaceId: $workspaceId, users: $users }) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
-export type AddUsersToWorkspaceMutationFn = Apollo.MutationFunction<AddUsersToWorkspaceMutation, AddUsersToWorkspaceMutationVariables>;
+  ${WorkspaceFragmentFragmentDoc}
+`;
+export type AddUsersToWorkspaceMutationFn = Apollo.MutationFunction<
+  AddUsersToWorkspaceMutation,
+  AddUsersToWorkspaceMutationVariables
+>;
 
 /**
  * __useAddUsersToWorkspaceMutation__
@@ -6392,26 +10448,41 @@ export type AddUsersToWorkspaceMutationFn = Apollo.MutationFunction<AddUsersToWo
  *   },
  * });
  */
-export function useAddUsersToWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<AddUsersToWorkspaceMutation, AddUsersToWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddUsersToWorkspaceMutation, AddUsersToWorkspaceMutationVariables>(AddUsersToWorkspaceDocument, options);
-      }
-export type AddUsersToWorkspaceMutationHookResult = ReturnType<typeof useAddUsersToWorkspaceMutation>;
+export function useAddUsersToWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddUsersToWorkspaceMutation,
+    AddUsersToWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<AddUsersToWorkspaceMutation, AddUsersToWorkspaceMutationVariables>(
+    AddUsersToWorkspaceDocument,
+    options,
+  );
+}
+export type AddUsersToWorkspaceMutationHookResult = ReturnType<
+  typeof useAddUsersToWorkspaceMutation
+>;
 export type AddUsersToWorkspaceMutationResult = Apollo.MutationResult<AddUsersToWorkspaceMutation>;
-export type AddUsersToWorkspaceMutationOptions = Apollo.BaseMutationOptions<AddUsersToWorkspaceMutation, AddUsersToWorkspaceMutationVariables>;
+export type AddUsersToWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  AddUsersToWorkspaceMutation,
+  AddUsersToWorkspaceMutationVariables
+>;
 export const UpdateMemberOfWorkspaceDocument = gql`
-    mutation UpdateMemberOfWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
-  updateUserOfWorkspace(
-    input: {workspaceId: $workspaceId, userId: $userId, role: $role}
-  ) {
-    workspace {
-      id
-      ...WorkspaceFragment
+  mutation UpdateMemberOfWorkspace($workspaceId: ID!, $userId: ID!, $role: Role!) {
+    updateUserOfWorkspace(input: { workspaceId: $workspaceId, userId: $userId, role: $role }) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
-export type UpdateMemberOfWorkspaceMutationFn = Apollo.MutationFunction<UpdateMemberOfWorkspaceMutation, UpdateMemberOfWorkspaceMutationVariables>;
+  ${WorkspaceFragmentFragmentDoc}
+`;
+export type UpdateMemberOfWorkspaceMutationFn = Apollo.MutationFunction<
+  UpdateMemberOfWorkspaceMutation,
+  UpdateMemberOfWorkspaceMutationVariables
+>;
 
 /**
  * __useUpdateMemberOfWorkspaceMutation__
@@ -6432,24 +10503,42 @@ export type UpdateMemberOfWorkspaceMutationFn = Apollo.MutationFunction<UpdateMe
  *   },
  * });
  */
-export function useUpdateMemberOfWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMemberOfWorkspaceMutation, UpdateMemberOfWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateMemberOfWorkspaceMutation, UpdateMemberOfWorkspaceMutationVariables>(UpdateMemberOfWorkspaceDocument, options);
-      }
-export type UpdateMemberOfWorkspaceMutationHookResult = ReturnType<typeof useUpdateMemberOfWorkspaceMutation>;
-export type UpdateMemberOfWorkspaceMutationResult = Apollo.MutationResult<UpdateMemberOfWorkspaceMutation>;
-export type UpdateMemberOfWorkspaceMutationOptions = Apollo.BaseMutationOptions<UpdateMemberOfWorkspaceMutation, UpdateMemberOfWorkspaceMutationVariables>;
+export function useUpdateMemberOfWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateMemberOfWorkspaceMutation,
+    UpdateMemberOfWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateMemberOfWorkspaceMutation,
+    UpdateMemberOfWorkspaceMutationVariables
+  >(UpdateMemberOfWorkspaceDocument, options);
+}
+export type UpdateMemberOfWorkspaceMutationHookResult = ReturnType<
+  typeof useUpdateMemberOfWorkspaceMutation
+>;
+export type UpdateMemberOfWorkspaceMutationResult =
+  Apollo.MutationResult<UpdateMemberOfWorkspaceMutation>;
+export type UpdateMemberOfWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  UpdateMemberOfWorkspaceMutation,
+  UpdateMemberOfWorkspaceMutationVariables
+>;
 export const RemoveMemberFromWorkspaceDocument = gql`
-    mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
-  removeUserFromWorkspace(input: {workspaceId: $workspaceId, userId: $userId}) {
-    workspace {
-      id
-      ...WorkspaceFragment
+  mutation RemoveMemberFromWorkspace($workspaceId: ID!, $userId: ID!) {
+    removeUserFromWorkspace(input: { workspaceId: $workspaceId, userId: $userId }) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
-export type RemoveMemberFromWorkspaceMutationFn = Apollo.MutationFunction<RemoveMemberFromWorkspaceMutation, RemoveMemberFromWorkspaceMutationVariables>;
+  ${WorkspaceFragmentFragmentDoc}
+`;
+export type RemoveMemberFromWorkspaceMutationFn = Apollo.MutationFunction<
+  RemoveMemberFromWorkspaceMutation,
+  RemoveMemberFromWorkspaceMutationVariables
+>;
 
 /**
  * __useRemoveMemberFromWorkspaceMutation__
@@ -6469,26 +10558,44 @@ export type RemoveMemberFromWorkspaceMutationFn = Apollo.MutationFunction<Remove
  *   },
  * });
  */
-export function useRemoveMemberFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<RemoveMemberFromWorkspaceMutation, RemoveMemberFromWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RemoveMemberFromWorkspaceMutation, RemoveMemberFromWorkspaceMutationVariables>(RemoveMemberFromWorkspaceDocument, options);
-      }
-export type RemoveMemberFromWorkspaceMutationHookResult = ReturnType<typeof useRemoveMemberFromWorkspaceMutation>;
-export type RemoveMemberFromWorkspaceMutationResult = Apollo.MutationResult<RemoveMemberFromWorkspaceMutation>;
-export type RemoveMemberFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<RemoveMemberFromWorkspaceMutation, RemoveMemberFromWorkspaceMutationVariables>;
+export function useRemoveMemberFromWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RemoveMemberFromWorkspaceMutation,
+    RemoveMemberFromWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RemoveMemberFromWorkspaceMutation,
+    RemoveMemberFromWorkspaceMutationVariables
+  >(RemoveMemberFromWorkspaceDocument, options);
+}
+export type RemoveMemberFromWorkspaceMutationHookResult = ReturnType<
+  typeof useRemoveMemberFromWorkspaceMutation
+>;
+export type RemoveMemberFromWorkspaceMutationResult =
+  Apollo.MutationResult<RemoveMemberFromWorkspaceMutation>;
+export type RemoveMemberFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  RemoveMemberFromWorkspaceMutation,
+  RemoveMemberFromWorkspaceMutationVariables
+>;
 export const AddIntegrationToWorkspaceDocument = gql`
-    mutation AddIntegrationToWorkspace($workspaceId: ID!, $integrationId: ID!, $role: Role!) {
-  addIntegrationToWorkspace(
-    input: {workspaceId: $workspaceId, integrationId: $integrationId, role: $role}
-  ) {
-    workspace {
-      id
-      ...WorkspaceFragment
+  mutation AddIntegrationToWorkspace($workspaceId: ID!, $integrationId: ID!, $role: Role!) {
+    addIntegrationToWorkspace(
+      input: { workspaceId: $workspaceId, integrationId: $integrationId, role: $role }
+    ) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
-export type AddIntegrationToWorkspaceMutationFn = Apollo.MutationFunction<AddIntegrationToWorkspaceMutation, AddIntegrationToWorkspaceMutationVariables>;
+  ${WorkspaceFragmentFragmentDoc}
+`;
+export type AddIntegrationToWorkspaceMutationFn = Apollo.MutationFunction<
+  AddIntegrationToWorkspaceMutation,
+  AddIntegrationToWorkspaceMutationVariables
+>;
 
 /**
  * __useAddIntegrationToWorkspaceMutation__
@@ -6509,26 +10616,44 @@ export type AddIntegrationToWorkspaceMutationFn = Apollo.MutationFunction<AddInt
  *   },
  * });
  */
-export function useAddIntegrationToWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<AddIntegrationToWorkspaceMutation, AddIntegrationToWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddIntegrationToWorkspaceMutation, AddIntegrationToWorkspaceMutationVariables>(AddIntegrationToWorkspaceDocument, options);
-      }
-export type AddIntegrationToWorkspaceMutationHookResult = ReturnType<typeof useAddIntegrationToWorkspaceMutation>;
-export type AddIntegrationToWorkspaceMutationResult = Apollo.MutationResult<AddIntegrationToWorkspaceMutation>;
-export type AddIntegrationToWorkspaceMutationOptions = Apollo.BaseMutationOptions<AddIntegrationToWorkspaceMutation, AddIntegrationToWorkspaceMutationVariables>;
+export function useAddIntegrationToWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AddIntegrationToWorkspaceMutation,
+    AddIntegrationToWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AddIntegrationToWorkspaceMutation,
+    AddIntegrationToWorkspaceMutationVariables
+  >(AddIntegrationToWorkspaceDocument, options);
+}
+export type AddIntegrationToWorkspaceMutationHookResult = ReturnType<
+  typeof useAddIntegrationToWorkspaceMutation
+>;
+export type AddIntegrationToWorkspaceMutationResult =
+  Apollo.MutationResult<AddIntegrationToWorkspaceMutation>;
+export type AddIntegrationToWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  AddIntegrationToWorkspaceMutation,
+  AddIntegrationToWorkspaceMutationVariables
+>;
 export const UpdateIntegrationOfWorkspaceDocument = gql`
-    mutation UpdateIntegrationOfWorkspace($workspaceId: ID!, $integrationId: ID!, $role: Role!) {
-  updateIntegrationOfWorkspace(
-    input: {workspaceId: $workspaceId, integrationId: $integrationId, role: $role}
-  ) {
-    workspace {
-      id
-      ...WorkspaceFragment
+  mutation UpdateIntegrationOfWorkspace($workspaceId: ID!, $integrationId: ID!, $role: Role!) {
+    updateIntegrationOfWorkspace(
+      input: { workspaceId: $workspaceId, integrationId: $integrationId, role: $role }
+    ) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
-export type UpdateIntegrationOfWorkspaceMutationFn = Apollo.MutationFunction<UpdateIntegrationOfWorkspaceMutation, UpdateIntegrationOfWorkspaceMutationVariables>;
+  ${WorkspaceFragmentFragmentDoc}
+`;
+export type UpdateIntegrationOfWorkspaceMutationFn = Apollo.MutationFunction<
+  UpdateIntegrationOfWorkspaceMutation,
+  UpdateIntegrationOfWorkspaceMutationVariables
+>;
 
 /**
  * __useUpdateIntegrationOfWorkspaceMutation__
@@ -6549,26 +10674,44 @@ export type UpdateIntegrationOfWorkspaceMutationFn = Apollo.MutationFunction<Upd
  *   },
  * });
  */
-export function useUpdateIntegrationOfWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateIntegrationOfWorkspaceMutation, UpdateIntegrationOfWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateIntegrationOfWorkspaceMutation, UpdateIntegrationOfWorkspaceMutationVariables>(UpdateIntegrationOfWorkspaceDocument, options);
-      }
-export type UpdateIntegrationOfWorkspaceMutationHookResult = ReturnType<typeof useUpdateIntegrationOfWorkspaceMutation>;
-export type UpdateIntegrationOfWorkspaceMutationResult = Apollo.MutationResult<UpdateIntegrationOfWorkspaceMutation>;
-export type UpdateIntegrationOfWorkspaceMutationOptions = Apollo.BaseMutationOptions<UpdateIntegrationOfWorkspaceMutation, UpdateIntegrationOfWorkspaceMutationVariables>;
+export function useUpdateIntegrationOfWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateIntegrationOfWorkspaceMutation,
+    UpdateIntegrationOfWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateIntegrationOfWorkspaceMutation,
+    UpdateIntegrationOfWorkspaceMutationVariables
+  >(UpdateIntegrationOfWorkspaceDocument, options);
+}
+export type UpdateIntegrationOfWorkspaceMutationHookResult = ReturnType<
+  typeof useUpdateIntegrationOfWorkspaceMutation
+>;
+export type UpdateIntegrationOfWorkspaceMutationResult =
+  Apollo.MutationResult<UpdateIntegrationOfWorkspaceMutation>;
+export type UpdateIntegrationOfWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  UpdateIntegrationOfWorkspaceMutation,
+  UpdateIntegrationOfWorkspaceMutationVariables
+>;
 export const RemoveIntegrationFromWorkspaceDocument = gql`
-    mutation RemoveIntegrationFromWorkspace($workspaceId: ID!, $integrationId: ID!) {
-  removeIntegrationFromWorkspace(
-    input: {workspaceId: $workspaceId, integrationId: $integrationId}
-  ) {
-    workspace {
-      id
-      ...WorkspaceFragment
+  mutation RemoveIntegrationFromWorkspace($workspaceId: ID!, $integrationId: ID!) {
+    removeIntegrationFromWorkspace(
+      input: { workspaceId: $workspaceId, integrationId: $integrationId }
+    ) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
-export type RemoveIntegrationFromWorkspaceMutationFn = Apollo.MutationFunction<RemoveIntegrationFromWorkspaceMutation, RemoveIntegrationFromWorkspaceMutationVariables>;
+  ${WorkspaceFragmentFragmentDoc}
+`;
+export type RemoveIntegrationFromWorkspaceMutationFn = Apollo.MutationFunction<
+  RemoveIntegrationFromWorkspaceMutation,
+  RemoveIntegrationFromWorkspaceMutationVariables
+>;
 
 /**
  * __useRemoveIntegrationFromWorkspaceMutation__
@@ -6588,24 +10731,42 @@ export type RemoveIntegrationFromWorkspaceMutationFn = Apollo.MutationFunction<R
  *   },
  * });
  */
-export function useRemoveIntegrationFromWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<RemoveIntegrationFromWorkspaceMutation, RemoveIntegrationFromWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RemoveIntegrationFromWorkspaceMutation, RemoveIntegrationFromWorkspaceMutationVariables>(RemoveIntegrationFromWorkspaceDocument, options);
-      }
-export type RemoveIntegrationFromWorkspaceMutationHookResult = ReturnType<typeof useRemoveIntegrationFromWorkspaceMutation>;
-export type RemoveIntegrationFromWorkspaceMutationResult = Apollo.MutationResult<RemoveIntegrationFromWorkspaceMutation>;
-export type RemoveIntegrationFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<RemoveIntegrationFromWorkspaceMutation, RemoveIntegrationFromWorkspaceMutationVariables>;
+export function useRemoveIntegrationFromWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RemoveIntegrationFromWorkspaceMutation,
+    RemoveIntegrationFromWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RemoveIntegrationFromWorkspaceMutation,
+    RemoveIntegrationFromWorkspaceMutationVariables
+  >(RemoveIntegrationFromWorkspaceDocument, options);
+}
+export type RemoveIntegrationFromWorkspaceMutationHookResult = ReturnType<
+  typeof useRemoveIntegrationFromWorkspaceMutation
+>;
+export type RemoveIntegrationFromWorkspaceMutationResult =
+  Apollo.MutationResult<RemoveIntegrationFromWorkspaceMutation>;
+export type RemoveIntegrationFromWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  RemoveIntegrationFromWorkspaceMutation,
+  RemoveIntegrationFromWorkspaceMutationVariables
+>;
 export const CreateWorkspaceDocument = gql`
-    mutation CreateWorkspace($name: String!) {
-  createWorkspace(input: {name: $name}) {
-    workspace {
-      id
-      ...WorkspaceFragment
+  mutation CreateWorkspace($name: String!) {
+    createWorkspace(input: { name: $name }) {
+      workspace {
+        id
+        ...WorkspaceFragment
+      }
     }
   }
-}
-    ${WorkspaceFragmentFragmentDoc}`;
-export type CreateWorkspaceMutationFn = Apollo.MutationFunction<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>;
+  ${WorkspaceFragmentFragmentDoc}
+`;
+export type CreateWorkspaceMutationFn = Apollo.MutationFunction<
+  CreateWorkspaceMutation,
+  CreateWorkspaceMutationVariables
+>;
 
 /**
  * __useCreateWorkspaceMutation__
@@ -6624,10 +10785,21 @@ export type CreateWorkspaceMutationFn = Apollo.MutationFunction<CreateWorkspaceM
  *   },
  * });
  */
-export function useCreateWorkspaceMutation(baseOptions?: Apollo.MutationHookOptions<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>(CreateWorkspaceDocument, options);
-      }
+export function useCreateWorkspaceMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateWorkspaceMutation,
+    CreateWorkspaceMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>(
+    CreateWorkspaceDocument,
+    options,
+  );
+}
 export type CreateWorkspaceMutationHookResult = ReturnType<typeof useCreateWorkspaceMutation>;
 export type CreateWorkspaceMutationResult = Apollo.MutationResult<CreateWorkspaceMutation>;
-export type CreateWorkspaceMutationOptions = Apollo.BaseMutationOptions<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>;
+export type CreateWorkspaceMutationOptions = Apollo.BaseMutationOptions<
+  CreateWorkspaceMutation,
+  CreateWorkspaceMutationVariables
+>;

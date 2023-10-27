@@ -32,6 +32,7 @@ import {
   useGetGroupsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { newID } from "@reearth-cms/utils/id";
 import { fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
@@ -167,6 +168,17 @@ export default () => {
     () => gqlFormItemsData?.nodes as FormItem[],
     [gqlFormItemsData?.nodes],
   );
+
+  const { data: groupData } = useGetGroupsQuery({
+    variables: { projectId: projectId ?? "" },
+    skip: !projectId,
+  });
+
+  const groups = useMemo(() => {
+    return groupData?.groups
+      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
+      .filter((group): group is Group => !!group);
+  }, [groupData?.groups]);
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
@@ -320,6 +332,7 @@ export default () => {
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
     if (!currentItem) {
+      const itemGroupIdsMap = new Map();
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
           case "Select":
@@ -331,20 +344,161 @@ export default () => {
           case "Asset":
             initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
-          case "Group":
-            if (field.multiple) initialValues[field.id] = []; // group doesn't have default value
+          case "Date":
+            if (Array.isArray(field.typeProperty.defaultValue)) {
+              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
+                valueItem ? moment(valueItem) : "",
+              );
+            } else {
+              initialValues[field.id] = field.typeProperty.defaultValue
+                ? moment(field.typeProperty.defaultValue)
+                : "";
+            }
             break;
+          case "Group": {
+            if (field.multiple) {
+              initialValues[field.id] = [];
+            } else {
+              const id = newID();
+              initialValues[field.id] = id;
+              itemGroupIdsMap.set(field.typeProperty?.groupId, id);
+            }
+            break;
+          }
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
             break;
         }
       });
+
+      const groupsInCurrentModel = new Set<Group>();
+      currentModel?.schema.fields?.forEach(field => {
+        if (field.type === "Group") {
+          const group = groups?.find(group => group.id === field.typeProperty.groupId);
+          if (group) groupsInCurrentModel.add(group);
+        }
+      });
+
+      groupsInCurrentModel.forEach(group => {
+        const itemGroupId = itemGroupIdsMap.get(group.id);
+        group?.schema?.fields?.forEach(field => {
+          switch (field.type) {
+            case "Select":
+              if (
+                typeof initialValues[field.id] === "object" &&
+                !Array.isArray(initialValues[field.id])
+              ) {
+                initialValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
+              } else {
+                initialValues[field.id] = {
+                  [itemGroupId]: field.typeProperty.selectDefaultValue,
+                };
+              }
+              break;
+            case "Tag":
+              if (
+                typeof initialValues[field.id] === "object" &&
+                !Array.isArray(initialValues[field.id])
+              ) {
+                initialValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
+              } else {
+                initialValues[field.id] = {
+                  [itemGroupId]: field.typeProperty.selectDefaultValue,
+                };
+              }
+              break;
+            case "Integer":
+              if (
+                typeof initialValues[field.id] === "object" &&
+                !Array.isArray(initialValues[field.id])
+              ) {
+                initialValues[field.id][itemGroupId] = field.typeProperty.integerDefaultValue;
+              } else {
+                initialValues[field.id] = {
+                  [itemGroupId]: field.typeProperty.integerDefaultValue,
+                };
+              }
+              break;
+            case "Asset":
+              if (
+                typeof initialValues[field.id] === "object" &&
+                !Array.isArray(initialValues[field.id])
+              ) {
+                initialValues[field.id][itemGroupId] = field.typeProperty.assetDefaultValue;
+              } else {
+                initialValues[field.id] = {
+                  [itemGroupId]: field.typeProperty.assetDefaultValue,
+                };
+              }
+              break;
+            case "Date":
+              if (Array.isArray(field.typeProperty.defaultValue)) {
+                initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
+                  (valueItem: string) => {
+                    if (valueItem) {
+                      if (
+                        typeof initialValues[field.id] === "object" &&
+                        !Array.isArray(initialValues[field.id])
+                      ) {
+                        return moment(field.typeProperty.defaultValue);
+                      } else {
+                        return {
+                          [itemGroupId]: moment(field.typeProperty.defaultValue),
+                        };
+                      }
+                    } else {
+                      return "";
+                    }
+                  },
+                );
+              } else {
+                if (field.typeProperty.defaultValue) {
+                  if (
+                    typeof initialValues[field.id] === "object" &&
+                    !Array.isArray(initialValues[field.id])
+                  ) {
+                    initialValues[field.id][itemGroupId] = moment(field.typeProperty.defaultValue);
+                  } else {
+                    initialValues[field.id] = {
+                      [itemGroupId]: moment(field.typeProperty.defaultValue),
+                    };
+                  }
+                } else if (initialValues[field.id]?.[itemGroupId]) {
+                  initialValues[field.id][itemGroupId] = "";
+                }
+              }
+              break;
+            default:
+              if (
+                typeof initialValues[field.id] === "object" &&
+                !Array.isArray(initialValues[field.id])
+              ) {
+                initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue;
+              } else {
+                initialValues[field.id] = {
+                  [itemGroupId]: field.typeProperty.defaultValue,
+                };
+              }
+              break;
+          }
+        });
+      });
     } else {
       currentItem?.fields?.forEach(field => {
+        if (field.type === "Date") {
+          if (Array.isArray(field.value)) {
+            field.value = field.value.map((valueItem: string) =>
+              valueItem ? moment(valueItem) : "",
+            );
+          } else {
+            field.value = field.value ? moment(field.value) : "";
+          }
+        }
         if (field.itemGroupId) {
           if (
             typeof initialValues[field.schemaFieldId] === "object" &&
-            !Array.isArray(initialValues[field.schemaFieldId])
+            !Array.isArray(initialValues[field.schemaFieldId]) &&
+            !moment.isMoment(initialValues[field.schemaFieldId])
           ) {
             initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
           } else {
@@ -358,7 +512,7 @@ export default () => {
       });
     }
     return initialValues;
-  }, [currentItem, currentModel?.schema.fields]);
+  }, [currentItem, currentModel, groups]);
 
   const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
@@ -496,17 +650,6 @@ export default () => {
   const handleReferenceModelUpdate = useCallback((modelId?: string) => {
     setReferenceModelId(modelId);
   }, []);
-
-  const { data: groupData } = useGetGroupsQuery({
-    variables: { projectId: projectId ?? "" },
-    skip: !projectId,
-  });
-
-  const groups = useMemo(() => {
-    return groupData?.groups
-      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
-      .filter((group): group is Group => !!group);
-  }, [groupData?.groups]);
 
   return {
     linkedItemsModalList,

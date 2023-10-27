@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -31,6 +30,7 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 export type FormValues = {
@@ -183,18 +183,6 @@ const FieldCreationModal: React.FC<Props> = ({
     }
   }, [form, selectedTags, selectedType]);
 
-  const transformMomentToString = (value: any) => {
-    if (moment.isMoment(value)) {
-      return value.format("YYYY-MM-DDTHH:mm:ssZ");
-    }
-
-    if (Array.isArray(value) && value.every(item => moment.isMoment(item))) {
-      return value.map(item => item.format("YYYY-MM-DDTHH:mm:ssZ"));
-    }
-
-    return value; // return the original value if it's neither a moment object nor an array of moment objects
-  };
-
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -267,6 +255,11 @@ const FieldCreationModal: React.FC<Props> = ({
     setActiveTab("settings");
   }, [form]);
 
+  const handleModalCancel = useCallback(() => {
+    setMultipleValue(false);
+    onClose?.(true);
+  }, [onClose]);
+
   return (
     <Modal
       title={
@@ -283,7 +276,7 @@ const FieldCreationModal: React.FC<Props> = ({
         ) : null
       }
       open={open}
-      onCancel={() => onClose?.(true)}
+      onCancel={handleModalCancel}
       onOk={handleSubmit}
       confirmLoading={fieldCreationLoading}
       okButtonProps={{ disabled: buttonDisabled }}
@@ -421,13 +414,13 @@ const FieldCreationModal: React.FC<Props> = ({
               name="required"
               valuePropName="checked"
               extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox>{t("Make field required")}</Checkbox>
+              <Checkbox disabled={selectedType === "Group"}>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
               extra={t("Ensures that a multiple entries can't have the same value for this field")}>
-              <Checkbox>{t("Set field as unique")}</Checkbox>
+              <Checkbox disabled={selectedType === "Group"}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>

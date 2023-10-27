@@ -10,10 +10,11 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  ItemSortType,
+import type {
   SortDirection,
-} from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+  FieldSelector,
+  ConditionInput,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -30,7 +31,8 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { type?: ItemSortType; direction?: SortDirection };
+  sort?: { field?: FieldSelector; direction?: SortDirection };
+  filter?: ConditionInput[];
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -43,7 +45,7 @@ export type Props = {
   onContentTableChange: (
     page: number,
     pageSize: number,
-    sorter?: { type?: ItemSortType; direction?: SortDirection },
+    sorter?: { field?: FieldSelector; direction?: SortDirection },
   ) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
@@ -73,6 +75,7 @@ const ContentListMolecule: React.FC<Props> = ({
   selection,
   totalCount,
   sort,
+  filter,
   searchTerm,
   page,
   pageSize,
@@ -130,6 +133,7 @@ const ContentListMolecule: React.FC<Props> = ({
           <ContentTable
             totalCount={totalCount}
             sort={sort}
+            filter={filter}
             searchTerm={searchTerm}
             page={page}
             pageSize={pageSize}

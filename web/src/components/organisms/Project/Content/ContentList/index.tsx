@@ -20,6 +20,7 @@ const ContentList: React.FC = () => {
     loading,
     totalCount,
     sort,
+    filter,
     searchTerm,
     page,
     pageSize,
@@ -80,6 +81,7 @@ const ContentList: React.FC = () => {
       totalCount={totalCount}
       searchTerm={searchTerm}
       page={page}
+      filter={filter}
       pageSize={pageSize}
       model={currentModel}
       contentTableFields={contentTableFields}

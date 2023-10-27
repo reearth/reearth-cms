@@ -143,10 +143,27 @@ is: ''
 is not: ''
 contains: ''
 doesn't contain: ''
+start with: ''
+doesn't start with: ''
+end with: ''
+doesn't end with: ''
 is empty: ''
 is not empty: ''
+greater than: ''
+greater than or equal to: ''
+less than: ''
+less than or equal to: ''
+after: ''
+after or on: ''
+before: ''
+before or on: ''
+of this week: ''
+of this month: ''
+of this year: ''
+Ascending: ''
+Descending: ''
 Confirm: 確認
-Filter by...: ''
+Please enter: 入力してください
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -223,6 +240,7 @@ CLOSED: クローズ済
 WAITING: レビュー待ち
 Current user: 現在のユーザー
 Text: テキスト
+Time: ''
 Boolean: ブーリアン
 Select: セレクト
 Number: 数値
@@ -279,8 +297,8 @@ Multiple select: 複数選択
 Int: 整数値
 Integer: 整数値
 http/https URL: URL
-Reference: 参考文献
-Reference field: 参照フィールド
+Reference: 参照
+Reference other models and items: 他のモデルやアイテムを参照
 Date: 日付
 Date picker: 日付ピッカー
 Select from a list of tags: タグのリストから選択する
@@ -379,6 +397,9 @@ Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
+Group cannot be deleted: ''
+is used in: ''
+If you want to delete it, please delete the field that uses it first.: ''
 Failed to delete group.: グループの削除に失敗しました
 Successfully deleted group!: グループの削除に成功しました！
 Failed to update group.: グループの更新に失敗しました。

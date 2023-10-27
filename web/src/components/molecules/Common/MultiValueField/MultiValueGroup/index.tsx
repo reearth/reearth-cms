@@ -1,13 +1,15 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect } from "react";
+import moment from "moment";
+import { useCallback, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
@@ -23,6 +25,8 @@ type Props = {
   value?: string[];
   onChange?: (value: string[]) => void;
   parentField: Field;
+  form?: FormInstance<any>;
+  groups?: Group[];
   fields?: Field[];
   linkedItemsModalList?: FormItem[];
   formItemsData: FormItem[];
@@ -60,6 +64,8 @@ type Props = {
 const MultiValueGroup: React.FC<Props> = ({
   className,
   parentField,
+  groups,
+  form,
   fields,
   value = [],
   onChange,
@@ -108,6 +114,108 @@ const MultiValueGroup: React.FC<Props> = ({
     [onChange, value],
   );
 
+  const group = useMemo<Group | undefined>(
+    () => groups?.find(g => g.id === parentField.typeProperty?.groupId),
+    [groups, parentField.typeProperty?.groupId],
+  );
+
+  const handleAdd = useCallback(() => {
+    const currentValues = value || [];
+    const itemGroupId = newID();
+
+    if (Array.isArray(currentValues)) {
+      onChange?.([...currentValues, itemGroupId]);
+    } else {
+      onChange?.([currentValues, itemGroupId]);
+    }
+
+    // set default value
+    const newValues = { ...form?.getFieldsValue() };
+    group?.schema.fields.forEach((field: Field) => {
+      switch (field.type) {
+        case "Select":
+          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
+            newValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
+          } else {
+            newValues[field.id] = {
+              [itemGroupId]: field.typeProperty.selectDefaultValue,
+            };
+          }
+          break;
+        case "Tag":
+          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
+            newValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
+          } else {
+            newValues[field.id] = {
+              [itemGroupId]: field.typeProperty.selectDefaultValue,
+            };
+          }
+          break;
+        case "Integer":
+          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
+            newValues[field.id][itemGroupId] = field.typeProperty.integerDefaultValue;
+          } else {
+            newValues[field.id] = {
+              [itemGroupId]: field.typeProperty.integerDefaultValue,
+            };
+          }
+          break;
+        case "Asset":
+          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
+            newValues[field.id][itemGroupId] = field.typeProperty.assetDefaultValue;
+          } else {
+            newValues[field.id] = {
+              [itemGroupId]: field.typeProperty.assetDefaultValue,
+            };
+          }
+          break;
+        case "Date":
+          if (Array.isArray(field.typeProperty.defaultValue)) {
+            newValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
+              (valueItem: string) => {
+                if (valueItem) {
+                  if (
+                    typeof newValues[field.id] === "object" &&
+                    !Array.isArray(newValues[field.id])
+                  ) {
+                    return moment(field.typeProperty.defaultValue);
+                  } else {
+                    return {
+                      [itemGroupId]: moment(field.typeProperty.defaultValue),
+                    };
+                  }
+                } else {
+                  return "";
+                }
+              },
+            );
+          } else {
+            if (field.typeProperty.defaultValue) {
+              if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
+                newValues[field.id][itemGroupId] = moment(field.typeProperty.defaultValue);
+              } else {
+                newValues[field.id] = {
+                  [itemGroupId]: moment(field.typeProperty.defaultValue),
+                };
+              }
+            } else {
+              newValues[field.id][itemGroupId] = "";
+            }
+          }
+          break;
+        default:
+          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
+            form?.setFieldValue([field.id, itemGroupId], field.typeProperty.defaultValue);
+          } else {
+            form?.setFieldValue(field.id, {
+              [itemGroupId]: field.typeProperty.defaultValue,
+            });
+          }
+          break;
+      }
+    });
+  }, [form, group?.schema.fields, onChange, value]);
+
   return (
     <div className={className}>
       {Array.isArray(value) &&
@@ -155,18 +263,7 @@ const MultiValueGroup: React.FC<Props> = ({
           );
         })}
       {
-        <Button
-          icon={<Icon icon="plus" />}
-          type="primary"
-          onClick={() => {
-            const currentValues = value || [];
-            const itemGroupId = newID();
-            if (Array.isArray(currentValues)) {
-              onChange?.([...currentValues, itemGroupId]);
-            } else {
-              onChange?.([currentValues, itemGroupId]);
-            }
-          }}>
+        <Button icon={<Icon icon="plus" />} type="primary" onClick={handleAdd}>
           {t("New")}
         </Button>
       }
