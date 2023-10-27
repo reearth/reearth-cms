@@ -41,3 +41,37 @@ func TestQuery_Apply(t *testing.T) {
 		apply(version.Eq(version.Latest.OrVersion()), bson.M{"a": "b"}),
 	)
 }
+
+func TestQuery_ApplyToPipeline(t *testing.T) {
+	v := version.New()
+	assert.Equal(
+		t,
+		[]any{
+			bson.M{"$match": bson.M{metaKey: bson.M{"$exists": false}}},
+			bson.M{"a": "b"},
+		},
+		applyToPipeline(version.All(), []any{bson.M{"a": "b"}}),
+	)
+	assert.Equal(
+		t,
+		[]any{
+			bson.M{"$match": bson.M{
+				metaKey:    bson.M{"$exists": false},
+				versionKey: v,
+			}},
+			bson.M{"a": "b"},
+		},
+		applyToPipeline(version.Eq(v.OrRef()), []any{bson.M{"a": "b"}}),
+	)
+	assert.Equal(
+		t,
+		[]any{
+			bson.M{"$match": bson.M{
+				metaKey: bson.M{"$exists": false},
+				refsKey: bson.M{"$in": []string{"latest"}},
+			}},
+			bson.M{"a": "b"},
+		},
+		applyToPipeline(version.Eq(version.Latest.OrVersion()), []any{bson.M{"a": "b"}}),
+	)
+}
