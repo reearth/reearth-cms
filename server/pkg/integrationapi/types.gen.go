@@ -59,6 +59,7 @@ const (
 	ValueTypeAsset     ValueType = "asset"
 	ValueTypeBool      ValueType = "bool"
 	ValueTypeDate      ValueType = "date"
+	ValueTypeGroup     ValueType = "group"
 	ValueTypeInteger   ValueType = "integer"
 	ValueTypeMarkdown  ValueType = "markdown"
 	ValueTypeReference ValueType = "reference"
@@ -180,10 +181,11 @@ type CommentAuthorType string
 
 // Field defines model for field.
 type Field struct {
-	Id    *id.FieldID  `json:"id,omitempty"`
-	Key   *string      `json:"key,omitempty"`
-	Type  *ValueType   `json:"type,omitempty"`
-	Value *interface{} `json:"value,omitempty"`
+	Id        *id.FieldID     `json:"id,omitempty"`
+	ItemGroup *id.ItemGroupID `json:"itemGroup,omitempty"`
+	Key       *string         `json:"key,omitempty"`
+	Type      *ValueType      `json:"type,omitempty"`
+	Value     *interface{}    `json:"value,omitempty"`
 }
 
 // File defines model for file.

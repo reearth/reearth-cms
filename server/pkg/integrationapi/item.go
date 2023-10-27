@@ -9,7 +9,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext, f *[]VersionedItem, ms *schema.Schema, mi item.Versioned) VersionedItem {
+func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext, f *[]VersionedItem, ms *schema.Schema, mi item.Versioned, sgl schema.List) VersionedItem {
 	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
 		return types.UUID(v)
 	})
@@ -18,9 +18,10 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 	})
 	var metaFields *[]Field
 	if mi != nil && ms != nil {
-		metaFields = NewItem(mi.Value(), ms, nil).Fields
+		metaFields = NewItem(mi.Value(), schema.List{ms}, nil).Fields
 	}
-	ii := NewItem(ver.Value(), s, assets)
+
+	ii := NewItem(ver.Value(), append(sgl, s), assets)
 	return VersionedItem{
 		Id:              ii.Id,
 		CreatedAt:       ii.CreatedAt,
@@ -35,23 +36,28 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 	}
 }
 
-func NewItem(i *item.Item, s *schema.Schema, assets *AssetContext) Item {
-	fs := lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (Field, bool) {
-		if s == nil {
-			return Field{}, false
-		}
-		sf := s.Field(f.FieldID())
-		if sf == nil {
-			return Field{}, false
-		}
+func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
+	var fs []Field
+	for _, s := range ss {
+		t := lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (Field, bool) {
+			if s == nil {
+				return Field{}, false
+			}
+			sf := s.Field(f.FieldID())
+			if sf == nil {
+				return Field{}, false
+			}
 
-		return Field{
-			Id:    f.FieldID().Ref(),
-			Type:  lo.ToPtr(ToValueType(f.Type())),
-			Value: lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
-			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
-		}, true
-	})
+			return Field{
+				Id:        f.FieldID().Ref(),
+				Type:      lo.ToPtr(ToValueType(f.Type())),
+				Value:     lo.ToPtr(ToValues(f.Value(), sf.Multiple(), assets)),
+				Key:       util.ToPtrIfNotEmpty(sf.Key().String()),
+				ItemGroup: f.ItemGroup(),
+			}, true
+		})
+		fs = append(fs, t...)
+	}
 
 	return Item{
 		Id:        i.ID().Ref(),
