@@ -1,3 +1,4 @@
+import { ColumnsState } from "@ant-design/pro-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -67,6 +68,7 @@ export default () => {
     },
     direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
   });
+  const [columns, setColumns] = useState<Record<string, ColumnsState>>({});
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
@@ -335,6 +337,8 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    columns,
+    setColumns,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,

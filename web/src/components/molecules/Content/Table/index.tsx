@@ -1,4 +1,5 @@
 // import { LightFilter } from "@ant-design/pro-components";
+import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 import { Key, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -38,6 +39,8 @@ export type Props = {
   };
   totalCount: number;
   sort?: { field?: FieldSelectorInput; direction?: SortDirection };
+  columns: Record<string, ColumnsState>;
+  setColumns: (input: Record<string, ColumnsState>) => void;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -78,6 +81,8 @@ const ContentTable: React.FC<Props> = ({
   pageSize,
   requests,
   addItemToRequestModalShown,
+  columns,
+  setColumns,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -96,6 +101,7 @@ const ContentTable: React.FC<Props> = ({
   onItemsReload,
 }) => {
   const t = useT();
+
   const actionsColumn: ProColumns<ContentTableField>[] = useMemo(
     () => [
       {
@@ -104,11 +110,13 @@ const ContentTable: React.FC<Props> = ({
             <Icon icon="edit" />
           </Link>
         ),
+        hideInSetting: true,
         width: 48,
         minWidth: 48,
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
         key: "commentsCount",
@@ -352,8 +360,14 @@ const ContentTable: React.FC<Props> = ({
           tableAlertOptionRender={AlertOptions}
           rowSelection={rowSelection}
           columns={[...actionsColumn, ...contentColumn]}
+          columnsState={{
+            value: columns,
+            onChange: setColumns,
+          }}
           onChange={(pagination, _, sorter: any) => {
             console.log("sorter", sorter);
+            console.log("contentTableFields", contentTableFields);
+            console.log("contentTableColumns", contentTableColumns);
             onContentTableChange(
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
