@@ -15,7 +15,7 @@ services:
     # env_file:
     #   - ./.env
   reearth-cms-mongo:
-    image: mongo:5-focal
+    image: mongo:6-focal
     ports:
       - 27017:27017
     volumes:
