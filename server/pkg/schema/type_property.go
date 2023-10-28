@@ -19,11 +19,14 @@ type TypeProperty struct {
 	markdown  *FieldMarkdown
 	dateTime  *FieldDateTime
 	bool      *FieldBool
+	checkbox  *FieldCheckbox
 	selectt   *FieldSelect
+	tag       *FieldTag
 	integer   *FieldInteger
 	number    *FieldNumber
 	reference *FieldReference
 	url       *FieldURL
+	group     *FieldGroup
 }
 
 type TypePropertyMatch struct {
@@ -34,11 +37,14 @@ type TypePropertyMatch struct {
 	Asset     func(*FieldAsset)
 	DateTime  func(*FieldDateTime)
 	Bool      func(*FieldBool)
+	Checkbox  func(checkbox *FieldCheckbox)
 	Select    func(*FieldSelect)
+	Tag       func(*FieldTag)
 	Integer   func(*FieldInteger)
 	Number    func(*FieldNumber)
 	Reference func(*FieldReference)
 	URL       func(*FieldURL)
+	Group     func(*FieldGroup)
 	Default   func()
 }
 
@@ -50,11 +56,14 @@ type TypePropertyMatch1[T any] struct {
 	Asset     func(*FieldAsset) T
 	DateTime  func(*FieldDateTime) T
 	Bool      func(*FieldBool) T
+	Checkbox  func(checkbox *FieldCheckbox) T
 	Select    func(*FieldSelect) T
+	Tag       func(*FieldTag) T
 	Integer   func(*FieldInteger) T
 	Number    func(*FieldNumber) T
 	Reference func(*FieldReference) T
 	URL       func(*FieldURL) T
+	Group     func(*FieldGroup) T
 	Default   func() T
 }
 
@@ -82,6 +91,9 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		Bool: func(f *FieldBool) error {
 			return f.Validate(v)
 		},
+		Checkbox: func(f *FieldCheckbox) error {
+			return f.Validate(v)
+		},
 		DateTime: func(f *FieldDateTime) error {
 			return f.Validate(v)
 		},
@@ -97,8 +109,61 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		Select: func(f *FieldSelect) error {
 			return f.Validate(v)
 		},
+		Tag: func(f *FieldTag) error {
+			return f.Validate(v)
+		},
 		URL: func(f *FieldURL) error {
 			return f.Validate(v)
+		},
+		Group: func(f *FieldGroup) error {
+			return f.Validate(v)
+		},
+	})
+}
+
+func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
+	return MatchTypeProperty1(t, TypePropertyMatch1[error]{
+		Text: func(f *FieldText) error {
+			return f.ValidateMultiple(v)
+		},
+		TextArea: func(f *FieldTextArea) error {
+			return f.ValidateMultiple(v)
+		},
+		RichText: func(f *FieldRichText) error {
+			return f.ValidateMultiple(v)
+		},
+		Markdown: func(f *FieldMarkdown) error {
+			return f.ValidateMultiple(v)
+		},
+		Asset: func(f *FieldAsset) error {
+			return f.ValidateMultiple(v)
+		},
+		Bool: func(f *FieldBool) error {
+			return f.ValidateMultiple(v)
+		},
+		DateTime: func(f *FieldDateTime) error {
+			return f.ValidateMultiple(v)
+		},
+		Number: func(f *FieldNumber) error {
+			return f.ValidateMultiple(v)
+		},
+		Integer: func(f *FieldInteger) error {
+			return f.ValidateMultiple(v)
+		},
+		Reference: func(f *FieldReference) error {
+			return f.ValidateMultiple(v)
+		},
+		Select: func(f *FieldSelect) error {
+			return f.ValidateMultiple(v)
+		},
+		Tag: func(f *FieldTag) error {
+			return f.ValidateMultiple(v)
+		},
+		URL: func(f *FieldURL) error {
+			return f.ValidateMultiple(v)
+		},
+		Group: func(f *FieldGroup) error {
+			return f.ValidateMultiple(v)
 		},
 	})
 }
@@ -147,6 +212,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.Reference(t.reference)
 			return
 		}
+	case value.TypeGroup:
+		if m.Group != nil {
+			m.Group(t.group)
+			return
+		}
 	case value.TypeNumber:
 		if m.Number != nil {
 			m.Number(t.number)
@@ -162,9 +232,19 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.Select(t.selectt)
 			return
 		}
+	case value.TypeTag:
+		if m.Tag != nil {
+			m.Tag(t.tag)
+			return
+		}
 	case value.TypeBool:
 		if m.Bool != nil {
 			m.Bool(t.bool)
+			return
+		}
+	case value.TypeCheckbox:
+		if m.Checkbox != nil {
+			m.Checkbox(t.checkbox)
 			return
 		}
 	case value.TypeURL:
@@ -193,10 +273,13 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		asset:     t.asset.Clone(),
 		dateTime:  t.dateTime.Clone(),
 		bool:      t.bool.Clone(),
+		checkbox:  t.checkbox.Clone(),
 		selectt:   t.selectt.Clone(),
 		number:    t.number.Clone(),
+		tag:       t.tag.Clone(),
 		integer:   t.integer.Clone(),
 		reference: t.reference.Clone(),
+		group:     t.group.Clone(),
 		url:       t.url.Clone(),
 	}
 }
@@ -250,13 +333,25 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 		if m.Select != nil {
 			return m.Select(t.selectt)
 		}
+	case value.TypeTag:
+		if m.Tag != nil {
+			return m.Tag(t.tag)
+		}
 	case value.TypeBool:
 		if m.Bool != nil {
 			return m.Bool(t.bool)
 		}
+	case value.TypeCheckbox:
+		if m.Checkbox != nil {
+			return m.Checkbox(t.checkbox)
+		}
 	case value.TypeURL:
 		if m.URL != nil {
 			return m.URL(t.url)
+		}
+	case value.TypeGroup:
+		if m.Group != nil {
+			return m.Group(t.group)
 		}
 	}
 

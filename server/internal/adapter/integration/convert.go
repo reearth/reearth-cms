@@ -49,5 +49,6 @@ func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 		Key:   k,
 		Type:  integrationapi.FromValueType(f.Type),
 		Value: v,
+		Group: f.Group,
 	}
 }

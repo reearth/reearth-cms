@@ -2,16 +2,14 @@ package interfaces
 
 import (
 	"context"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
-
-var ErrDuplicatedKey = rerror.NewE(i18n.T("duplicated key"))
 
 type CreateModelParam struct {
 	ProjectId   id.ProjectID
@@ -21,8 +19,17 @@ type CreateModelParam struct {
 	Public      *bool
 }
 
+type FindOrCreateSchemaParam struct {
+	ModelID *id.ModelID
+	GroupID *id.GroupID
+	// boolean that identify if it is a metadata
+	Metadata *bool
+	// boolean to identify if we want to create a metadata schema or just return an error if metadata schema is nil
+	Create bool
+}
+
 type UpdateModelParam struct {
-	ModelId     id.ModelID
+	ModelID     id.ModelID
 	Name        *string
 	Description *string
 	Key         *string
@@ -39,6 +46,7 @@ type Model interface {
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (model.List, *usecasex.PageInfo, error)
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*model.Model, error)
 	FindByIDOrKey(context.Context, id.ProjectID, model.IDOrKey, *usecase.Operator) (*model.Model, error)
+	FindOrCreateSchema(context.Context, FindOrCreateSchemaParam, *usecase.Operator) (*schema.Schema, error)
 	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)

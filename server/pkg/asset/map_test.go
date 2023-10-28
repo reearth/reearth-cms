@@ -3,12 +3,13 @@ package asset
 import (
 	"testing"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMap_List(t *testing.T) {
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 
 	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
 
@@ -18,7 +19,7 @@ func TestMap_List(t *testing.T) {
 
 func TestMap_ListFrom(t *testing.T) {
 	pid := NewProjectID()
-	uid := NewUserID()
+	uid := accountdomain.NewUserID()
 
 	a := New().NewID().Project(pid).CreatedByUser(uid).Size(1000).Thread(NewThreadID()).NewUUID().MustBuild()
 

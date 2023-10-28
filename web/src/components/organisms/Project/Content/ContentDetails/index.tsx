@@ -10,29 +10,42 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    linkedItemsModalList,
+    showPublishAction,
     requests,
     itemId,
     currentModel,
     currentItem,
+    formItemsData,
     initialFormValues,
+    initialMetaFormValues,
     itemCreationLoading,
     itemUpdatingLoading,
+    requestCreationLoading,
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
+    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTotalCount,
+    linkItemModalPage,
+    linkItemModalPageSize,
+    handleReferenceModelUpdate,
+    handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
+    handlePublish,
     handleUnpublish,
     handleAddItemToRequest,
     collapseCommentsPanel,
     collapseModelMenu,
     handleItemCreate,
     handleItemUpdate,
+    handleMetaItemUpdate,
     handleNavigateToModel,
     handleRequestCreate,
     handleModalClose,
@@ -66,7 +79,16 @@ const ContentDetails: React.FC = () => {
 
   return (
     <ContentDetailsMolecule
+      formItemsData={formItemsData}
+      linkItemModalTotalCount={linkItemModalTotalCount}
+      linkItemModalPage={linkItemModalPage}
+      linkItemModalPageSize={linkItemModalPageSize}
+      onLinkItemTableChange={handleLinkItemTableChange}
+      onReferenceModelUpdate={handleReferenceModelUpdate}
+      linkedItemsModalList={linkedItemsModalList}
+      showPublishAction={showPublishAction}
       requests={requests}
+      requestCreationLoading={requestCreationLoading}
       onRequestTableChange={handleRequestTableChange}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
@@ -84,18 +106,23 @@ const ContentDetails: React.FC = () => {
           />
         ) : undefined
       }
+      item={currentItem}
       itemId={itemId}
       model={currentModel}
+      groups={groups}
       initialFormValues={initialFormValues}
+      initialMetaFormValues={initialMetaFormValues}
       loading={itemCreationLoading || itemUpdatingLoading}
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
+      onMetaItemUpdate={handleMetaItemUpdate}
       onBack={handleNavigateToModel}
       modelsMenu={
         <ModelsMenu
           collapsed={collapsedModelMenu}
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
+          displayGroups={false}
         />
       }
       onChange={handleAddItemToRequest}
@@ -111,6 +138,7 @@ const ContentDetails: React.FC = () => {
       uploadUrl={uploadUrl}
       uploadType={uploadType}
       onUnpublish={handleUnpublish}
+      onPublish={handlePublish}
       onUploadModalCancel={handleUploadModalCancel}
       setUploadUrl={setUploadUrl}
       setUploadType={setUploadType}

@@ -9,11 +9,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integration"
-	"github.com/reearth/reearth-cms/server/pkg/user"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase"
+	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
+	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -49,10 +52,11 @@ func authMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 
 func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfig) (context.Context, error) {
 	var u *user.User
+
 	if ai := adapter.GetAuthInfo(ctx); ai != nil {
 		var err error
-		userUsecase := interactor.NewUser(cfg.Repos, cfg.Gateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
-		u, err = userUsecase.FindOrCreate(ctx, interfaces.UserFindOrCreateParam{
+		userUsecase := accountinteractor.NewUser(cfg.AcRepos, cfg.AcGateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
+		u, err = userUsecase.FindOrCreate(ctx, accountinterfaces.UserFindOrCreateParam{
 			Sub:   ai.Sub,
 			ISS:   ai.Iss,
 			Token: ai.Token,
@@ -64,13 +68,13 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 
 	if cfg.Debug {
 		if val := req.Header.Get(debugUserHeaderKey); val != "" {
-			uId, err := id.UserIDFrom(val)
+			uId, err := accountdomain.UserIDFrom(val)
 			if err != nil {
 				return nil, err
 			}
-			u, err = cfg.Repos.User.FindByID(ctx, uId)
-			if err != nil {
-				return nil, err
+			us, err := cfg.Repos.User.FindByID(ctx, uId)
+			if err == nil {
+				u = us
 			}
 		}
 	}
@@ -82,7 +86,6 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 		if err != nil {
 			return nil, err
 		}
-
 		ctx = adapter.AttachUser(ctx, u)
 		ctx = adapter.AttachOperator(ctx, op)
 	}
@@ -199,10 +202,10 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User, 
 		return nil, err
 	}
 
-	rw := w.FilterByUserRole(uid, user.RoleReader).IDs()
-	ww := w.FilterByUserRole(uid, user.RoleWriter).IDs()
-	mw := w.FilterByUserRole(uid, user.RoleMaintainer).IDs()
-	ow := w.FilterByUserRole(uid, user.RoleOwner).IDs()
+	rw := w.FilterByUserRole(uid, workspace.RoleReader).IDs()
+	ww := w.FilterByUserRole(uid, workspace.RoleWriter).IDs()
+	mw := w.FilterByUserRole(uid, workspace.RoleMaintainer).IDs()
+	ow := w.FilterByUserRole(uid, workspace.RoleOwner).IDs()
 
 	rp, wp, mp, op, err := operatorProjects(ctx, cfg, w, rw, ww, mw, ow)
 	if err != nil {
@@ -214,30 +217,36 @@ func generateUserOperator(ctx context.Context, cfg *ServerConfig, u *user.User, 
 		lang = defaultLang
 	}
 
-	return &usecase.Operator{
-		User:        &uid,
-		Integration: nil,
-
-		Lang: lang,
+	acop := &accountusecase.Operator{
+		User: &uid,
 
 		ReadableWorkspaces:     rw,
 		WritableWorkspaces:     ww,
 		MaintainableWorkspaces: mw,
 		OwningWorkspaces:       ow,
+	}
 
+	return &usecase.Operator{
+		Integration:          nil,
+		Lang:                 lang,
 		ReadableProjects:     rp,
 		WritableProjects:     wp,
 		MaintainableProjects: mp,
 		OwningProjects:       op,
+
+		AcOperator: acop,
 	}, nil
 }
 
-func operatorProjects(ctx context.Context, cfg *ServerConfig, w user.WorkspaceList, rw, ww, mw, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
+func operatorProjects(ctx context.Context, cfg *ServerConfig, w workspace.List, rw, ww, mw, ow user.WorkspaceIDList) (id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, id.ProjectIDList, error) {
 	rp := id.ProjectIDList{}
 	wp := id.ProjectIDList{}
 	mp := id.ProjectIDList{}
 	op := id.ProjectIDList{}
 
+	if len(w) == 0 {
+		return rp, wp, op, mp, nil
+	}
 	var cur *usecasex.Cursor
 	for {
 		projects, pi, err := cfg.Repos.Project.FindByWorkspaces(ctx, w.IDs(), usecasex.CursorPagination{
@@ -274,15 +283,19 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}
 
 	iId := i.ID()
-	w, err := cfg.Repos.Workspace.FindByIntegration(ctx, iId)
+	aid, err := accountdomain.IntegrationIDFrom(iId.String())
+	if err != nil {
+		return nil, err
+	}
+	w, err := cfg.Repos.Workspace.FindByIntegration(ctx, aid)
 	if err != nil {
 		return nil, err
 	}
 
-	rw := w.FilterByIntegrationRole(iId, user.RoleReader).IDs()
-	ww := w.FilterByIntegrationRole(iId, user.RoleWriter).IDs()
-	mw := w.FilterByIntegrationRole(iId, user.RoleMaintainer).IDs()
-	ow := w.FilterByIntegrationRole(iId, user.RoleOwner).IDs()
+	rw := w.FilterByIntegrationRole(aid, workspace.RoleReader).IDs()
+	ww := w.FilterByIntegrationRole(aid, workspace.RoleWriter).IDs()
+	mw := w.FilterByIntegrationRole(aid, workspace.RoleMaintainer).IDs()
+	ow := w.FilterByIntegrationRole(aid, workspace.RoleOwner).IDs()
 
 	rp, wp, mp, op, err := operatorProjects(ctx, cfg, w, rw, ww, mw, ow)
 	if err != nil {
@@ -290,14 +303,15 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}
 
 	return &usecase.Operator{
-		User:                   nil,
-		Integration:            &iId,
-		Lang:                   lang,
-		ReadableWorkspaces:     rw,
-		WritableWorkspaces:     ww,
-		MaintainableWorkspaces: mw,
-		OwningWorkspaces:       ow,
-
+		AcOperator: &accountusecase.Operator{
+			User:                   nil,
+			ReadableWorkspaces:     rw,
+			WritableWorkspaces:     ww,
+			MaintainableWorkspaces: mw,
+			OwningWorkspaces:       ow,
+		},
+		Integration:          &iId,
+		Lang:                 lang,
 		ReadableProjects:     rp,
 		WritableProjects:     wp,
 		MaintainableProjects: mp,
@@ -307,7 +321,9 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 
 func generateMachineOperator(ctx context.Context) (*usecase.Operator, error) {
 	return &usecase.Operator{
-		User:        nil,
+		AcOperator: &accountusecase.Operator{
+			User: nil,
+		},
 		Integration: nil,
 		Machine:     true,
 	}, nil

@@ -13,6 +13,7 @@ const TypeTextArea Type = "textArea"
 const TypeRichText Type = "richText"
 const TypeMarkdown Type = "markdown"
 const TypeSelect Type = "select"
+const TypeTag Type = "tag"
 
 type propertyString struct{}
 
@@ -80,5 +81,5 @@ func (m *Multiple) ValuesString() (vv []String, ok bool) {
 	if len(vv) != len(m.v) {
 		return nil, false
 	}
-	return
+	return vv, true
 }

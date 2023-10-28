@@ -5,6 +5,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
@@ -12,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransaction bool) (*repo.Container, error) {
+func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransaction bool, acRepo *accountrepo.Container) (*repo.Container, error) {
 	if databaseName == "" {
 		databaseName = "reearth_cms"
 	}
@@ -31,17 +33,19 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 		Asset:       NewAsset(client),
 		AssetFile:   NewAssetFile(client),
 		AssetUpload: NewAssetUpload(client),
-		Workspace:   NewWorkspace(client),
-		User:        NewUser(client),
+		User:        acRepo.User,
+		Project:     NewProject(client),
+		Workspace:   acRepo.Workspace,
 		Transaction: client.Transaction(),
 		Lock:        lock,
-		Project:     NewProject(client),
 		Request:     NewRequest(client),
 		Item:        NewItem(client),
+		View:        NewView(client),
 		Model:       NewModel(client),
 		Schema:      NewSchema(client),
 		Thread:      NewThread(client),
 		Integration: NewIntegration(client),
+		Group:       NewGroup(client),
 		Event:       NewEvent(client),
 	}
 
@@ -53,8 +57,8 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 	return c, nil
 }
 
-func NewWithDB(ctx context.Context, db *mongo.Database, useTransaction bool) (*repo.Container, error) {
-	return New(ctx, db.Client(), db.Name(), useTransaction)
+func NewWithDB(ctx context.Context, db *mongo.Database, useTransaction bool, acRepo *accountrepo.Container) (*repo.Container, error) {
+	return New(ctx, db.Client(), db.Name(), useTransaction, acRepo)
 }
 
 func Init(r *repo.Container) error {
@@ -66,14 +70,12 @@ func Init(r *repo.Container) error {
 		r.Asset.(*Asset).Init,
 		r.AssetFile.(*AssetFile).Init,
 		r.AssetUpload.(*AssetUpload).Init,
-		r.Workspace.(*Workspace).Init,
-		r.User.(*User).Init,
-		r.Project.(*ProjectRepo).Init,
-		r.Item.(*Item).Init,
 		r.Model.(*Model).Init,
+		r.View.(*View).Init,
 		r.Request.(*Request).Init,
+		r.Project.(*ProjectRepo).Init,
 		r.Schema.(*Schema).Init,
-		r.Thread.(*ThreadRepo).Init,
+		r.Group.(*Group).Init,
 		r.Integration.(*Integration).Init,
 		r.Event.(*Event).Init,
 	)
@@ -105,7 +107,7 @@ func logIndexResult(name string, r mongox.IndexResult) {
 	log.Infof("mongo: %s: index deleted: %v, updated: %v, created: %v", name, d, u, a)
 }
 
-func applyWorkspaceFilter(filter interface{}, ids id.WorkspaceIDList) interface{} {
+func applyWorkspaceFilter(filter interface{}, ids accountdomain.WorkspaceIDList) interface{} {
 	if ids == nil {
 		return filter
 	}
@@ -118,3 +120,17 @@ func applyProjectFilter(filter interface{}, ids id.ProjectIDList) interface{} {
 	}
 	return mongox.And(filter, "project", bson.M{"$in": ids.Strings()})
 }
+
+func applyProjectFilterToPipeline(pipeline []any, ids id.ProjectIDList) []any {
+	if ids == nil {
+		return pipeline
+	}
+	return append([]any{bson.M{"$match": bson.M{"project": bson.M{"$in": ids.Strings()}}}}, pipeline...)
+}
+
+// func applyWorkspaceFilterToPipeline(pipeline []any, ids accountdomain.WorkspaceIDList) []any {
+// 	if ids == nil {
+// 		return pipeline
+// 	}
+// 	return append([]any{bson.M{"$match": bson.M{"workspace": bson.M{"$in": ids.Strings()}}}}, pipeline...)
+// }

@@ -27,6 +27,47 @@ func apply(q version.Query, f any) (res any) {
 	return
 }
 
+func applyToPipeline(q version.Query, pipeline []any) (res []any) {
+	q.Match(version.QueryMatch{
+		All: func() {
+			res = append(
+				[]any{
+					bson.M{
+						"$match": bson.M{
+							metaKey: bson.M{"$exists": false},
+						},
+					},
+				},
+				pipeline...,
+			)
+		},
+		Eq: func(vr version.VersionOrRef) {
+			b := bson.M{
+				metaKey: bson.M{"$exists": false},
+			}
+
+			vr.Match(
+				func(v version.Version) {
+					b[versionKey] = v
+				},
+				func(r version.Ref) {
+					b[refsKey] = bson.M{"$in": []string{r.String()}}
+				},
+			)
+
+			res = append(
+				[]any{
+					bson.M{
+						"$match": b,
+					},
+				},
+				pipeline...,
+			)
+		},
+	})
+	return
+}
+
 func excludeMetadata(f any) any {
 	return mongox.And(f, metaKey, bson.M{"$exists": false})
 }

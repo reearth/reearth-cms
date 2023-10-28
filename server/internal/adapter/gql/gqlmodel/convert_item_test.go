@@ -11,7 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
-	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -21,18 +21,18 @@ func TestToItem(t *testing.T) {
 	iid := id.NewItemID()
 	sid := id.NewSchemaID()
 	mid := id.NewModelID()
-	uid := id.NewUserID()
+	uid := accountdomain.NewUserID()
 	nid := id.NewIntegrationID()
 	tid := id.NewThreadID()
 	pid := id.NewProjectID()
-	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
-	s := schema.New().ID(sid).Fields(sf).Workspace(id.NewWorkspaceID()).Project(pid).MustBuild()
+	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
 	i := item.New().
 		ID(iid).
 		Schema(sid).
 		Project(pid).
-		Fields([]*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple())}).
+		Fields([]*item.Field{item.NewField(sf1.ID(), value.TypeText.Value("test").AsMultiple(), nil)}).
 		Model(mid).
 		Thread(tid).
 		User(uid).
@@ -62,11 +62,12 @@ func TestToItem(t *testing.T) {
 				Fields: []*ItemField{
 					{
 						SchemaFieldID: IDFrom(sf1.ID()),
-						Type:          SchemaFieldTypeBool,
-						Value:         true,
+						Type:          SchemaFieldTypeText,
+						Value:         "test",
 					},
 				},
 				Version: v.String(),
+				Title:   lo.ToPtr("test"),
 			},
 		},
 		{
@@ -78,7 +79,7 @@ func TestToItem(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			got := ToItem(tc.input, s)
+			got := ToItem(tc.input, s, nil)
 			assert.Equal(tt, tc.want, got)
 		})
 	}
@@ -129,8 +130,8 @@ func TestToVersionedItem(t *testing.T) {
 	ref := "a"
 	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
-	s := schema.New().ID(sid).Fields(sf).Workspace(id.NewWorkspaceID()).Project(pId).MustBuild()
-	fs := []*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple())}
+	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).Project(pId).MustBuild()
+	fs := []*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple(), nil)}
 	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(pId).Fields(fs).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()
 	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), time.Time{}, i)
@@ -146,7 +147,7 @@ func TestToVersionedItem(t *testing.T) {
 				Version: vv.Version().String(),
 				Parents: []string{vy.String()},
 				Refs:    []string{ref},
-				Value:   ToItem(&vv, s),
+				Value:   ToItem(&vv, s, nil),
 			},
 		},
 		{
@@ -155,7 +156,7 @@ func TestToVersionedItem(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := ToVersionedItem(tc.args, s)
+			got := ToVersionedItem(tc.args, s, nil)
 			assert.Equal(t, tc.want, got)
 		})
 	}
@@ -167,22 +168,26 @@ func TestToItemQuery(t *testing.T) {
 	str := "foo"
 	tests := []struct {
 		name  string
-		input ItemQuery
+		input SearchItemInput
 		want  *item.Query
 	}{
 		{
 			name: "should pass",
-			input: ItemQuery{
-				Project: IDFrom(pid),
-				Schema:  IDFromRef(sid.Ref()),
-				Q:       &str,
+			input: SearchItemInput{
+				Query: &ItemQueryInput{
+					Project: IDFrom(pid),
+					Schema:  IDFromRef(sid.Ref()),
+					Q:       &str,
+				},
 			},
-			want: item.NewQuery(pid, sid.Ref(), str, nil),
+			want: item.NewQuery(pid, sid.Ref(), nil, str, nil),
 		},
 		{
 			name: "invalid project id",
-			input: ItemQuery{
-				Q: &str,
+			input: SearchItemInput{
+				Query: &ItemQueryInput{
+					Q: &str,
+				},
 			},
 		},
 	}
@@ -193,94 +198,6 @@ func TestToItemQuery(t *testing.T) {
 			t.Parallel()
 			got := ToItemQuery(tc.input)
 			assert.Equal(t, tc.want, got)
-		})
-	}
-}
-
-func TestItemSort_Into(t *testing.T) {
-	tests := []struct {
-		name string
-		sort *ItemSort
-		want *usecasex.Sort
-	}{
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeCreationDate,
-				Direction: lo.ToPtr(SortDirectionAsc),
-			},
-			want: &usecasex.Sort{
-				Key:      "id",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeCreationDate,
-				Direction: nil,
-			},
-			want: &usecasex.Sort{
-				Key:      "id",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeCreationDate,
-				Direction: lo.ToPtr(SortDirectionDesc),
-			},
-			want: &usecasex.Sort{
-				Key:      "id",
-				Reverted: true,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeCreationDate,
-				Direction: nil,
-			},
-			want: &usecasex.Sort{
-				Key:      "id",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeModificationDate,
-				Direction: nil,
-			},
-			want: &usecasex.Sort{
-				Key:      "timestamp",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    ItemSortTypeModificationDate,
-				Direction: nil,
-			},
-			want: &usecasex.Sort{
-				Key:      "timestamp",
-				Reverted: false,
-			},
-		},
-		{
-			name: "success",
-			sort: &ItemSort{
-				SortBy:    "xxx",
-				Direction: nil,
-			},
-			want: nil,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, tt.sort.Into())
 		})
 	}
 }

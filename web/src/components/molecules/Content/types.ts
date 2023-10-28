@@ -4,6 +4,7 @@ export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBL
 
 export type ItemField = {
   schemaFieldId: string;
+  itemGroupId?: string;
   type: FieldType;
   value: any;
 };
@@ -12,14 +13,33 @@ export type Item = {
   id: string;
   version: string;
   schemaId: string;
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  status: ItemStatus;
   fields: ItemField[] | undefined | null;
+  metadata: {
+    id?: string;
+    fields: ItemField[] | undefined | null;
+  };
   threadId: string;
   comments: Comment[];
 };
 
+export type FormItem = {
+  id: string;
+  title: string;
+  schemaId: string;
+  author?: string;
+  status: ItemStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type ContentTableField = {
   id: string;
-  author: string;
+  createdBy: string;
   schemaId: string;
   status: ItemStatus;
   modelId?: string;

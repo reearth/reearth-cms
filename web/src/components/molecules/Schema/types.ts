@@ -4,7 +4,13 @@ export type Model = {
   description?: string;
   key: string;
   schema: Schema;
+  metadataSchema?: MetaDataSchema;
   public: boolean;
+};
+
+export type MetaDataSchema = {
+  id?: string;
+  fields?: Field[];
 };
 
 export type Schema = {
@@ -21,6 +27,8 @@ export type Field = {
   required: boolean;
   unique: boolean;
   multiple: boolean;
+  isTitle: boolean;
+  metadata?: boolean;
   typeProperty?: TypeProperty;
 };
 
@@ -35,8 +43,11 @@ export type FieldType =
   | "Select"
   | "Tag"
   | "Integer"
+  | "Float"
   | "Reference"
-  | "URL";
+  | "Checkbox"
+  | "URL"
+  | "Group";
 
 export type TypeProperty =
   | {
@@ -47,6 +58,9 @@ export type TypeProperty =
       integerDefaultValue?: number;
       min?: number;
       max?: number;
+      correspondingField?: any;
+      modelId?: string;
+      groupId?: string;
     }
   | any;
 
@@ -58,6 +72,23 @@ export type CreationFieldTypePropertyInput = {
   text?: { defaultValue: string; maxLength: number };
   textArea?: { defaultValue: string; maxLength: number };
   url?: { defaultValue: string };
+  reference?: {
+    modelId: string;
+    correspondingField: any;
+  };
+  group?: {
+    groupId: string;
+  };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
+
+export type Group = {
+  id: string;
+  schemaId: string;
+  projectId: string;
+  name: string;
+  description: string;
+  key: string;
+  schema: Schema;
+};

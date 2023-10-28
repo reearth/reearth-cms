@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearthx/account/accountinfrastructure/accountmemory"
 	"github.com/reearth/reearthx/usecasex"
 )
 
@@ -12,16 +13,18 @@ func New() *repo.Container {
 		Asset:       NewAsset(),
 		AssetFile:   NewAssetFile(),
 		Lock:        NewLock(),
-		User:        NewUser(),
 		Request:     NewRequest(),
-		Workspace:   NewWorkspace(),
+		User:        accountmemory.NewUser(),
+		Workspace:   accountmemory.NewWorkspace(),
 		Project:     NewProject(),
 		Model:       NewModel(),
 		Item:        NewItem(),
+		View:        NewView(),
 		Schema:      NewSchema(),
 		Integration: NewIntegration(),
 		Thread:      NewThread(),
 		Event:       NewEvent(),
+		Group:       NewGroup(),
 		Transaction: &usecasex.NopTransaction{},
 	}
 }

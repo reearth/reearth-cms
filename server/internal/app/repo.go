@@ -12,6 +12,9 @@ import (
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
+	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/spf13/afero"
@@ -22,8 +25,9 @@ import (
 
 const databaseName = "reearth_cms"
 
-func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.Container, *gateway.Container) {
+func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
 	gateways := &gateway.Container{}
+	acGateways := &accountgateway.Container{}
 
 	// Mongo
 	client, err := mongo.Connect(
@@ -37,11 +41,21 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
-	repos, err := mongorepo.New(ctx, client, databaseName, mongox.IsTransactionAvailable(conf.DB))
+	txAvailable := mongox.IsTransactionAvailable(conf.DB)
+
+	accountDatabase := conf.DB_Account
+	if accountDatabase == "" {
+		accountDatabase = databaseName
+	}
+	acRepos, err := accountmongo.New(ctx, client, accountDatabase, txAvailable, false)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)
 	}
 
+	repos, err := mongorepo.New(ctx, client, databaseName, txAvailable, acRepos)
+	if err != nil {
+		log.Fatalf("Failed to init mongo: %+v\n", err)
+	}
 	// File
 	var fileRepo gateway.File
 	if conf.GCS.BucketName != "" {
@@ -57,17 +71,19 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 			log.Fatalf("file: failed to init S3 storage: %s\n", err.Error())
 		}
 	} else {
-		log.Infoln("file: local storage is used")
+		log.Infoc(ctx, "file: local storage is used")
 		datafs := afero.NewBasePathFs(afero.NewOsFs(), "data")
 		fileRepo, err = fs.NewFile(datafs, conf.AssetBaseURL)
 	}
 	if err != nil {
-		log.Fatalln(fmt.Sprintf("file: init error: %+v", err))
+		log.Fatalc(ctx, fmt.Sprintf("file: init error: %+v", err))
 	}
 	gateways.File = fileRepo
 
 	// Auth0
-	gateways.Authenticator = auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
+	auth := auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
+	gateways.Authenticator = auth
+	acGateways.Authenticator = auth
 
 	// CloudTasks
 	if conf.Task.GCPProject != "" {
@@ -75,12 +91,20 @@ func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.
 		conf.Task.GCSBucket = conf.GCS.BucketName
 		taskRunner, err := gcp.NewTaskRunner(ctx, &conf.Task)
 		if err != nil {
-			log.Fatalln(fmt.Sprintf("task runner: init error: %+v", err))
+			log.Fatalc(ctx, fmt.Sprintf("task runner: gcp init error: %+v", err))
 		}
 		gateways.TaskRunner = taskRunner
+		log.Infofc(ctx, "task runner: GCP is used")
+	} else if conf.AWSTask.TopicARN != "" || conf.AWSTask.WebhookARN != "" {
+		taskRunner, err := aws.NewTaskRunner(ctx, &conf.AWSTask)
+		if err != nil {
+			log.Fatalc(ctx, fmt.Sprintf("task runner: aws init error: %+v", err))
+		}
+		gateways.TaskRunner = taskRunner
+		log.Infofc(ctx, "task runner: AWS is used")
 	} else {
-		log.Infof("task runner: not used")
+		log.Infofc(ctx, "task runner: not used")
 	}
 
-	return repos, gateways
+	return repos, gateways, acRepos, acGateways
 }

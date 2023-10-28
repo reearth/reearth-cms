@@ -11,8 +11,8 @@ type List []*Integration
 
 func (l List) SortByID() List {
 	m := slices.Clone(l)
-	slices.SortFunc(m, func(a, b *Integration) bool {
-		return a.ID().Compare(b.ID()) < 0
+	slices.SortFunc(m, func(a, b *Integration) int {
+		return a.ID().Compare(b.ID())
 	})
 	return m
 }

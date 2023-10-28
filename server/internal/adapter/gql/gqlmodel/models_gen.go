@@ -14,6 +14,10 @@ import (
 	"golang.org/x/text/language"
 )
 
+type Condition interface {
+	IsCondition()
+}
+
 type Node interface {
 	IsNode()
 	GetID() ID
@@ -51,6 +55,16 @@ type AddUsersToWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type AndCondition struct {
+	Conditions []Condition `json:"conditions"`
+}
+
+func (AndCondition) IsCondition() {}
+
+type AndConditionInput struct {
+	Conditions []*ConditionInput `json:"conditions"`
+}
+
 type ApproveRequestInput struct {
 	RequestID ID `json:"requestId"`
 }
@@ -63,15 +77,15 @@ type Asset struct {
 	CreatedBy               Operator                 `json:"createdBy"`
 	CreatedByType           OperatorType             `json:"createdByType"`
 	CreatedByID             ID                       `json:"createdById"`
-	Items                   []*AssetItem             `json:"items"`
+	Items                   []*AssetItem             `json:"items,omitempty"`
 	Size                    int64                    `json:"size"`
-	PreviewType             *PreviewType             `json:"previewType"`
+	PreviewType             *PreviewType             `json:"previewType,omitempty"`
 	UUID                    string                   `json:"uuid"`
-	Thread                  *Thread                  `json:"thread"`
+	Thread                  *Thread                  `json:"thread,omitempty"`
 	ThreadID                ID                       `json:"threadId"`
 	URL                     string                   `json:"url"`
 	FileName                string                   `json:"fileName"`
-	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus"`
+	ArchiveExtractionStatus *ArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
 }
 
 func (Asset) IsNode()        {}
@@ -86,15 +100,15 @@ type AssetConnection struct {
 
 type AssetEdge struct {
 	Cursor usecasex.Cursor `json:"cursor"`
-	Node   *Asset          `json:"node"`
+	Node   *Asset          `json:"node,omitempty"`
 }
 
 type AssetFile struct {
 	Name        string       `json:"name"`
 	Size        int64        `json:"size"`
-	ContentType *string      `json:"contentType"`
+	ContentType *string      `json:"contentType,omitempty"`
 	Path        string       `json:"path"`
-	Children    []*AssetFile `json:"children"`
+	Children    []*AssetFile `json:"children,omitempty"`
 }
 
 type AssetItem struct {
@@ -104,14 +118,42 @@ type AssetItem struct {
 
 type AssetSort struct {
 	SortBy    AssetSortType  `json:"sortBy"`
-	Direction *SortDirection `json:"direction"`
+	Direction *SortDirection `json:"direction,omitempty"`
+}
+
+type BasicFieldCondition struct {
+	FieldID  *FieldSelector `json:"fieldId"`
+	Operator BasicOperator  `json:"operator"`
+	Value    interface{}    `json:"value"`
+}
+
+func (BasicFieldCondition) IsCondition() {}
+
+type BasicFieldConditionInput struct {
+	FieldID  *FieldSelectorInput `json:"fieldId"`
+	Operator BasicOperator       `json:"operator"`
+	Value    interface{}         `json:"value"`
+}
+
+type BoolFieldCondition struct {
+	FieldID  *FieldSelector `json:"fieldId"`
+	Operator BoolOperator   `json:"operator"`
+	Value    bool           `json:"value"`
+}
+
+func (BoolFieldCondition) IsCondition() {}
+
+type BoolFieldConditionInput struct {
+	FieldID  *FieldSelectorInput `json:"fieldId"`
+	Operator BoolOperator        `json:"operator"`
+	Value    bool                `json:"value"`
 }
 
 type Comment struct {
 	ID          ID           `json:"id"`
 	ThreadID    ID           `json:"threadId"`
 	WorkspaceID ID           `json:"workspaceId"`
-	Author      Operator     `json:"author"`
+	Author      Operator     `json:"author,omitempty"`
 	AuthorType  OperatorType `json:"authorType"`
 	AuthorID    ID           `json:"authorId"`
 	Content     string       `json:"content"`
@@ -123,12 +165,32 @@ type CommentPayload struct {
 	Comment *Comment `json:"comment"`
 }
 
+type ConditionInput struct {
+	And      *AndConditionInput           `json:"and,omitempty"`
+	Or       *OrConditionInput            `json:"or,omitempty"`
+	Basic    *BasicFieldConditionInput    `json:"basic,omitempty"`
+	Nullable *NullableFieldConditionInput `json:"nullable,omitempty"`
+	Multiple *MultipleFieldConditionInput `json:"multiple,omitempty"`
+	Bool     *BoolFieldConditionInput     `json:"bool,omitempty"`
+	String   *StringFieldConditionInput   `json:"string,omitempty"`
+	Number   *NumberFieldConditionInput   `json:"number,omitempty"`
+	Time     *TimeFieldConditionInput     `json:"time,omitempty"`
+}
+
+type CorrespondingFieldInput struct {
+	FieldID     *ID     `json:"fieldId,omitempty"`
+	Title       *string `json:"title,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Required    *bool   `json:"required,omitempty"`
+}
+
 type CreateAssetInput struct {
 	ProjectID         ID              `json:"projectId"`
-	File              *graphql.Upload `json:"file"`
-	URL               *string         `json:"url"`
-	Token             *string         `json:"token"`
-	SkipDecompression *bool           `json:"skipDecompression"`
+	File              *graphql.Upload `json:"file,omitempty"`
+	URL               *string         `json:"url,omitempty"`
+	Token             *string         `json:"token,omitempty"`
+	SkipDecompression *bool           `json:"skipDecompression,omitempty"`
 }
 
 type CreateAssetPayload struct {
@@ -147,55 +209,76 @@ type CreateAssetUploadPayload struct {
 }
 
 type CreateFieldInput struct {
-	ModelID      ID                            `json:"modelId"`
+	ModelID      *ID                           `json:"modelId,omitempty"`
+	GroupID      *ID                           `json:"groupId,omitempty"`
 	Type         SchemaFieldType               `json:"type"`
 	Title        string                        `json:"title"`
-	Description  *string                       `json:"description"`
+	Metadata     *bool                         `json:"metadata,omitempty"`
+	Description  *string                       `json:"description,omitempty"`
 	Key          string                        `json:"key"`
 	Multiple     bool                          `json:"multiple"`
 	Unique       bool                          `json:"unique"`
 	Required     bool                          `json:"required"`
+	IsTitle      bool                          `json:"isTitle"`
 	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
+}
+
+type CreateGroupInput struct {
+	ProjectID   ID      `json:"projectId"`
+	Name        string  `json:"name"`
+	Key         string  `json:"key"`
+	Description *string `json:"description,omitempty"`
 }
 
 type CreateIntegrationInput struct {
 	Name        string          `json:"name"`
-	Description *string         `json:"description"`
+	Description *string         `json:"description,omitempty"`
 	LogoURL     url.URL         `json:"logoUrl"`
 	Type        IntegrationType `json:"type"`
 }
 
 type CreateItemInput struct {
-	SchemaID ID                `json:"schemaId"`
-	ModelID  ID                `json:"modelId"`
-	Fields   []*ItemFieldInput `json:"fields"`
+	SchemaID   ID                `json:"schemaId"`
+	ModelID    ID                `json:"modelId"`
+	MetadataID *ID               `json:"metadataId,omitempty"`
+	Fields     []*ItemFieldInput `json:"fields"`
 }
 
 type CreateModelInput struct {
 	ProjectID   ID      `json:"projectId"`
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-	Key         *string `json:"key"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
 }
 
 type CreateProjectInput struct {
-	WorkspaceID ID      `json:"workspaceId"`
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-	Alias       *string `json:"alias"`
+	WorkspaceID  ID      `json:"workspaceId"`
+	Name         *string `json:"name,omitempty"`
+	Description  *string `json:"description,omitempty"`
+	Alias        *string `json:"alias,omitempty"`
+	RequestRoles []Role  `json:"requestRoles,omitempty"`
 }
 
 type CreateRequestInput struct {
 	ProjectID   ID                  `json:"projectId"`
 	Title       string              `json:"title"`
-	Description *string             `json:"description"`
-	State       *RequestState       `json:"state"`
-	ReviewersID []ID                `json:"reviewersId"`
+	Description *string             `json:"description,omitempty"`
+	State       *RequestState       `json:"state,omitempty"`
+	ReviewersID []ID                `json:"reviewersId,omitempty"`
 	Items       []*RequestItemInput `json:"items"`
 }
 
 type CreateThreadInput struct {
 	WorkspaceID ID `json:"workspaceId"`
+}
+
+type CreateViewInput struct {
+	Name      string                `json:"name"`
+	ModelID   ID                    `json:"modelId"`
+	ProjectID ID                    `json:"projectId"`
+	Sort      *ItemSortInput        `json:"sort,omitempty"`
+	Filter    *ConditionInput       `json:"filter,omitempty"`
+	Columns   []*FieldSelectorInput `json:"columns,omitempty"`
 }
 
 type CreateWebhookInput struct {
@@ -242,12 +325,22 @@ type DeleteCommentPayload struct {
 }
 
 type DeleteFieldInput struct {
-	ModelID ID `json:"modelId"`
-	FieldID ID `json:"fieldId"`
+	ModelID  *ID   `json:"modelId,omitempty"`
+	GroupID  *ID   `json:"groupId,omitempty"`
+	FieldID  ID    `json:"fieldId"`
+	Metadata *bool `json:"metadata,omitempty"`
 }
 
 type DeleteFieldPayload struct {
 	FieldID ID `json:"fieldId"`
+}
+
+type DeleteGroupInput struct {
+	GroupID ID `json:"groupId"`
+}
+
+type DeleteGroupPayload struct {
+	GroupID ID `json:"groupId"`
 }
 
 type DeleteIntegrationInput struct {
@@ -299,6 +392,14 @@ type DeleteRequestPayload struct {
 	Requests []ID `json:"requests"`
 }
 
+type DeleteViewInput struct {
+	ViewID ID `json:"viewId"`
+}
+
+type DeleteViewPayload struct {
+	ViewID ID `json:"viewId"`
+}
+
 type DeleteWebhookInput struct {
 	IntegrationID ID `json:"integrationId"`
 	WebhookID     ID `json:"webhookId"`
@@ -320,19 +421,48 @@ type FieldPayload struct {
 	Field *SchemaField `json:"field"`
 }
 
+type FieldSelector struct {
+	Type FieldType `json:"type"`
+	ID   *ID       `json:"id,omitempty"`
+}
+
+type FieldSelectorInput struct {
+	ID   *ID       `json:"id,omitempty"`
+	Type FieldType `json:"type"`
+}
+
 type FieldsPayload struct {
 	Fields []*SchemaField `json:"fields"`
+}
+
+type Group struct {
+	ID          ID             `json:"id"`
+	SchemaID    ID             `json:"schemaId"`
+	ProjectID   ID             `json:"projectId"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Key         string         `json:"key"`
+	Schema      *Schema        `json:"schema"`
+	Project     *Project       `json:"project"`
+	Fields      []*SchemaField `json:"fields"`
+}
+
+func (Group) IsNode()        {}
+func (this Group) GetID() ID { return this.ID }
+
+type GroupPayload struct {
+	Group *Group `json:"group"`
 }
 
 type Integration struct {
 	ID          ID                 `json:"id"`
 	Name        string             `json:"name"`
-	Description *string            `json:"description"`
+	Description *string            `json:"description,omitempty"`
 	LogoURL     url.URL            `json:"logoUrl"`
 	IType       IntegrationType    `json:"iType"`
 	DeveloperID ID                 `json:"developerId"`
 	Developer   *User              `json:"developer"`
-	Config      *IntegrationConfig `json:"config"`
+	Config      *IntegrationConfig `json:"config,omitempty"`
 	CreatedAt   time.Time          `json:"createdAt"`
 	UpdatedAt   time.Time          `json:"updatedAt"`
 }
@@ -352,25 +482,30 @@ type IntegrationPayload struct {
 }
 
 type Item struct {
-	ID            ID           `json:"id"`
-	SchemaID      ID           `json:"schemaId"`
-	ThreadID      ID           `json:"threadId"`
-	ModelID       ID           `json:"modelId"`
-	ProjectID     ID           `json:"projectId"`
-	IntegrationID *ID          `json:"integrationId"`
-	UserID        *ID          `json:"userId"`
-	Integration   *Integration `json:"integration"`
-	User          *User        `json:"user"`
-	Schema        *Schema      `json:"schema"`
-	Model         *Model       `json:"model"`
-	Status        ItemStatus   `json:"status"`
-	Project       *Project     `json:"project"`
-	Thread        *Thread      `json:"thread"`
-	Fields        []*ItemField `json:"fields"`
-	Assets        []*Asset     `json:"assets"`
-	CreatedAt     time.Time    `json:"createdAt"`
-	UpdatedAt     time.Time    `json:"updatedAt"`
-	Version       string       `json:"version"`
+	ID                     ID           `json:"id"`
+	SchemaID               ID           `json:"schemaId"`
+	ThreadID               ID           `json:"threadId"`
+	ModelID                ID           `json:"modelId"`
+	ProjectID              ID           `json:"projectId"`
+	IntegrationID          *ID          `json:"integrationId,omitempty"`
+	UpdatedByUserID        *ID          `json:"updatedByUserId,omitempty"`
+	UpdatedByIntegrationID *ID          `json:"updatedByIntegrationId,omitempty"`
+	UserID                 *ID          `json:"userId,omitempty"`
+	MetadataID             *ID          `json:"metadataId,omitempty"`
+	CreatedBy              Operator     `json:"createdBy,omitempty"`
+	Schema                 *Schema      `json:"schema"`
+	Model                  *Model       `json:"model"`
+	Status                 ItemStatus   `json:"status"`
+	Project                *Project     `json:"project"`
+	Thread                 *Thread      `json:"thread"`
+	Fields                 []*ItemField `json:"fields"`
+	Assets                 []*Asset     `json:"assets"`
+	CreatedAt              time.Time    `json:"createdAt"`
+	UpdatedAt              time.Time    `json:"updatedAt"`
+	UpdatedBy              Operator     `json:"updatedBy,omitempty"`
+	Version                string       `json:"version"`
+	Metadata               *Item        `json:"metadata,omitempty"`
+	Title                  *string      `json:"title,omitempty"`
 }
 
 func (Item) IsNode()        {}
@@ -385,17 +520,19 @@ type ItemConnection struct {
 
 type ItemEdge struct {
 	Cursor usecasex.Cursor `json:"cursor"`
-	Node   *Item           `json:"node"`
+	Node   *Item           `json:"node,omitempty"`
 }
 
 type ItemField struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
+	ItemGroupID   *ID             `json:"itemGroupId,omitempty"`
 	Type          SchemaFieldType `json:"type"`
-	Value         interface{}     `json:"value"`
+	Value         interface{}     `json:"value,omitempty"`
 }
 
 type ItemFieldInput struct {
 	SchemaFieldID ID              `json:"schemaFieldId"`
+	ItemGroupID   *ID             `json:"itemGroupId,omitempty"`
 	Type          SchemaFieldType `json:"type"`
 	Value         interface{}     `json:"value"`
 }
@@ -404,15 +541,21 @@ type ItemPayload struct {
 	Item *Item `json:"item"`
 }
 
-type ItemQuery struct {
+type ItemQueryInput struct {
 	Project ID      `json:"project"`
-	Schema  *ID     `json:"schema"`
-	Q       *string `json:"q"`
+	Schema  *ID     `json:"schema,omitempty"`
+	Model   *ID     `json:"model,omitempty"`
+	Q       *string `json:"q,omitempty"`
 }
 
 type ItemSort struct {
-	SortBy    ItemSortType   `json:"sortBy"`
-	Direction *SortDirection `json:"direction"`
+	Field     *FieldSelector `json:"field"`
+	Direction *SortDirection `json:"direction,omitempty"`
+}
+
+type ItemSortInput struct {
+	Field     *FieldSelectorInput `json:"field"`
+	Direction *SortDirection      `json:"direction,omitempty"`
 }
 
 type KeyAvailability struct {
@@ -439,17 +582,19 @@ type MemberInput struct {
 }
 
 type Model struct {
-	ID          ID        `json:"id"`
-	ProjectID   ID        `json:"projectId"`
-	SchemaID    ID        `json:"schemaId"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Key         string    `json:"key"`
-	Project     *Project  `json:"project"`
-	Schema      *Schema   `json:"schema"`
-	Public      bool      `json:"public"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID               ID        `json:"id"`
+	ProjectID        ID        `json:"projectId"`
+	SchemaID         ID        `json:"schemaId"`
+	MetadataSchemaID *ID       `json:"metadataSchemaId,omitempty"`
+	Name             string    `json:"name"`
+	Description      string    `json:"description"`
+	Key              string    `json:"key"`
+	Project          *Project  `json:"project"`
+	Schema           *Schema   `json:"schema"`
+	MetadataSchema   *Schema   `json:"metadataSchema,omitempty"`
+	Public           bool      `json:"public"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
 }
 
 func (Model) IsNode()        {}
@@ -464,38 +609,98 @@ type ModelConnection struct {
 
 type ModelEdge struct {
 	Cursor usecasex.Cursor `json:"cursor"`
-	Node   *Model          `json:"node"`
+	Node   *Model          `json:"node,omitempty"`
 }
 
 type ModelPayload struct {
 	Model *Model `json:"model"`
 }
 
+type MultipleFieldCondition struct {
+	FieldID  *FieldSelector   `json:"fieldId"`
+	Operator MultipleOperator `json:"operator"`
+	Value    []interface{}    `json:"value"`
+}
+
+func (MultipleFieldCondition) IsCondition() {}
+
+type MultipleFieldConditionInput struct {
+	FieldID  *FieldSelectorInput `json:"fieldId"`
+	Operator MultipleOperator    `json:"operator"`
+	Value    []interface{}       `json:"value"`
+}
+
+type NullableFieldCondition struct {
+	FieldID  *FieldSelector   `json:"fieldId"`
+	Operator NullableOperator `json:"operator"`
+}
+
+func (NullableFieldCondition) IsCondition() {}
+
+type NullableFieldConditionInput struct {
+	FieldID  *FieldSelectorInput `json:"fieldId"`
+	Operator NullableOperator    `json:"operator"`
+}
+
+type NumberFieldCondition struct {
+	FieldID  *FieldSelector `json:"fieldId"`
+	Operator NumberOperator `json:"operator"`
+	Value    float64        `json:"value"`
+}
+
+func (NumberFieldCondition) IsCondition() {}
+
+type NumberFieldConditionInput struct {
+	FieldID  *FieldSelectorInput `json:"fieldId"`
+	Operator NumberOperator      `json:"operator"`
+	Value    float64             `json:"value"`
+}
+
+type OperatorInput struct {
+	Basic    *BasicOperator    `json:"basic,omitempty"`
+	Nullable *NullableOperator `json:"nullable,omitempty"`
+	Bool     *BoolOperator     `json:"bool,omitempty"`
+	String   *StringOperator   `json:"string,omitempty"`
+	Number   *NumberOperator   `json:"number,omitempty"`
+	Time     *TimeOperator     `json:"time,omitempty"`
+}
+
+type OrCondition struct {
+	Conditions []Condition `json:"conditions"`
+}
+
+func (OrCondition) IsCondition() {}
+
+type OrConditionInput struct {
+	Conditions []*ConditionInput `json:"conditions"`
+}
+
 type PageInfo struct {
-	StartCursor     *usecasex.Cursor `json:"startCursor"`
-	EndCursor       *usecasex.Cursor `json:"endCursor"`
+	StartCursor     *usecasex.Cursor `json:"startCursor,omitempty"`
+	EndCursor       *usecasex.Cursor `json:"endCursor,omitempty"`
 	HasNextPage     bool             `json:"hasNextPage"`
 	HasPreviousPage bool             `json:"hasPreviousPage"`
 }
 
 type Pagination struct {
-	First  *int             `json:"first"`
-	Last   *int             `json:"last"`
-	Offset *int             `json:"offset"`
-	After  *usecasex.Cursor `json:"after"`
-	Before *usecasex.Cursor `json:"before"`
+	First  *int             `json:"first,omitempty"`
+	Last   *int             `json:"last,omitempty"`
+	Offset *int             `json:"offset,omitempty"`
+	After  *usecasex.Cursor `json:"after,omitempty"`
+	Before *usecasex.Cursor `json:"before,omitempty"`
 }
 
 type Project struct {
-	ID          ID                  `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Alias       string              `json:"alias"`
-	WorkspaceID ID                  `json:"workspaceId"`
-	Workspace   *Workspace          `json:"workspace"`
-	CreatedAt   time.Time           `json:"createdAt"`
-	UpdatedAt   time.Time           `json:"updatedAt"`
-	Publication *ProjectPublication `json:"publication"`
+	ID           ID                  `json:"id"`
+	Name         string              `json:"name"`
+	Description  string              `json:"description"`
+	Alias        string              `json:"alias"`
+	WorkspaceID  ID                  `json:"workspaceId"`
+	Workspace    *Workspace          `json:"workspace,omitempty"`
+	CreatedAt    time.Time           `json:"createdAt"`
+	UpdatedAt    time.Time           `json:"updatedAt"`
+	Publication  *ProjectPublication `json:"publication,omitempty"`
+	RequestRoles []Role              `json:"requestRoles,omitempty"`
 }
 
 func (Project) IsNode()        {}
@@ -515,7 +720,7 @@ type ProjectConnection struct {
 
 type ProjectEdge struct {
 	Cursor usecasex.Cursor `json:"cursor"`
-	Node   *Project        `json:"node"`
+	Node   *Project        `json:"node,omitempty"`
 }
 
 type ProjectPayload struct {
@@ -525,6 +730,14 @@ type ProjectPayload struct {
 type ProjectPublication struct {
 	Scope       ProjectPublicationScope `json:"scope"`
 	AssetPublic bool                    `json:"assetPublic"`
+}
+
+type PublishItemInput struct {
+	ItemIds []ID `json:"itemIds"`
+}
+
+type PublishItemPayload struct {
+	Items []*Item `json:"items"`
 }
 
 type PublishModelInput struct {
@@ -559,7 +772,7 @@ type Request struct {
 	ID          ID             `json:"id"`
 	Items       []*RequestItem `json:"items"`
 	Title       string         `json:"title"`
-	Description *string        `json:"description"`
+	Description *string        `json:"description,omitempty"`
 	CreatedByID ID             `json:"createdById"`
 	WorkspaceID ID             `json:"workspaceId"`
 	ProjectID   ID             `json:"projectId"`
@@ -568,12 +781,12 @@ type Request struct {
 	State       RequestState   `json:"state"`
 	CreatedAt   time.Time      `json:"createdAt"`
 	UpdatedAt   time.Time      `json:"updatedAt"`
-	ApprovedAt  *time.Time     `json:"approvedAt"`
-	ClosedAt    *time.Time     `json:"closedAt"`
-	Thread      *Thread        `json:"thread"`
-	CreatedBy   *User          `json:"createdBy"`
-	Workspace   *Workspace     `json:"workspace"`
-	Project     *Project       `json:"project"`
+	ApprovedAt  *time.Time     `json:"approvedAt,omitempty"`
+	ClosedAt    *time.Time     `json:"closedAt,omitempty"`
+	Thread      *Thread        `json:"thread,omitempty"`
+	CreatedBy   *User          `json:"createdBy,omitempty"`
+	Workspace   *Workspace     `json:"workspace,omitempty"`
+	Project     *Project       `json:"project,omitempty"`
 	Reviewers   []*User        `json:"reviewers"`
 }
 
@@ -589,14 +802,14 @@ type RequestConnection struct {
 
 type RequestEdge struct {
 	Cursor usecasex.Cursor `json:"cursor"`
-	Node   *Request        `json:"node"`
+	Node   *Request        `json:"node,omitempty"`
 }
 
 type RequestItem struct {
 	ItemID  ID             `json:"itemId"`
-	Version *string        `json:"version"`
-	Ref     *string        `json:"ref"`
-	Item    *VersionedItem `json:"item"`
+	Version *string        `json:"version,omitempty"`
+	Ref     *string        `json:"ref,omitempty"`
+	Item    *VersionedItem `json:"item,omitempty"`
 }
 
 type RequestItemInput struct {
@@ -608,10 +821,12 @@ type RequestPayload struct {
 }
 
 type Schema struct {
-	ID        ID             `json:"id"`
-	ProjectID ID             `json:"projectId"`
-	Fields    []*SchemaField `json:"fields"`
-	Project   *Project       `json:"project"`
+	ID           ID             `json:"id"`
+	ProjectID    ID             `json:"projectId"`
+	Fields       []*SchemaField `json:"fields"`
+	TitleFieldID *ID            `json:"titleFieldId,omitempty"`
+	TitleField   *SchemaField   `json:"titleField,omitempty"`
+	Project      *Project       `json:"project"`
 }
 
 func (Schema) IsNode()        {}
@@ -619,180 +834,244 @@ func (this Schema) GetID() ID { return this.ID }
 
 type SchemaField struct {
 	ID           ID                      `json:"id"`
-	ModelID      ID                      `json:"modelId"`
-	Model        *Model                  `json:"model"`
+	ModelID      *ID                     `json:"modelId,omitempty"`
+	GroupID      *ID                     `json:"groupId,omitempty"`
+	Model        *Model                  `json:"model,omitempty"`
+	Group        *Group                  `json:"group,omitempty"`
 	Type         SchemaFieldType         `json:"type"`
-	TypeProperty SchemaFieldTypeProperty `json:"typeProperty"`
+	TypeProperty SchemaFieldTypeProperty `json:"typeProperty,omitempty"`
 	Key          string                  `json:"key"`
 	Title        string                  `json:"title"`
-	Order        *int                    `json:"order"`
-	Description  *string                 `json:"description"`
+	Order        *int                    `json:"order,omitempty"`
+	Description  *string                 `json:"description,omitempty"`
 	Multiple     bool                    `json:"multiple"`
 	Unique       bool                    `json:"unique"`
 	Required     bool                    `json:"required"`
+	IsTitle      bool                    `json:"isTitle"`
 	CreatedAt    time.Time               `json:"createdAt"`
 	UpdatedAt    time.Time               `json:"updatedAt"`
 }
 
 type SchemaFieldAsset struct {
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldAsset) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldAssetInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldBool struct {
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldBool) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldBoolInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+type SchemaFieldCheckbox struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+func (SchemaFieldCheckbox) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldCheckboxInput struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldDate struct {
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldDate) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldDateInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+type SchemaFieldGroup struct {
+	GroupID ID `json:"groupId"`
+}
+
+func (SchemaFieldGroup) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldGroupInput struct {
+	GroupID ID `json:"groupId"`
 }
 
 type SchemaFieldInteger struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	Min          *int        `json:"min"`
-	Max          *int        `json:"max"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Min          *int        `json:"min,omitempty"`
+	Max          *int        `json:"max,omitempty"`
 }
 
 func (SchemaFieldInteger) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldIntegerInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	Min          *int        `json:"min"`
-	Max          *int        `json:"max"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	Min          *int        `json:"min,omitempty"`
+	Max          *int        `json:"max,omitempty"`
 }
 
 type SchemaFieldMarkdown struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	MaxLength    *int        `json:"maxLength"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	MaxLength    *int        `json:"maxLength,omitempty"`
 }
 
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID ID `json:"modelId"`
+	ModelID               ID           `json:"modelId"`
+	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
+	CorrespondingSchema   *Schema      `json:"correspondingSchema,omitempty"`
+	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
+	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID ID `json:"modelId"`
+	ModelID               ID                       `json:"modelId"`
+	CorrespondingSchemaID *ID                      `json:"correspondingSchemaId,omitempty"`
+	CorrespondingField    *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	MaxLength    *int        `json:"maxLength"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	MaxLength    *int        `json:"maxLength,omitempty"`
 }
 
 func (SchemaFieldRichText) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldRichTextInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	MaxLength    *int        `json:"maxLength"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	MaxLength    *int        `json:"maxLength,omitempty"`
 }
 
 type SchemaFieldSelect struct {
 	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldSelect) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldSelectInput struct {
 	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 type SchemaFieldTag struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue"`
+	Tags         []*SchemaFieldTagValue `json:"tags"`
+	DefaultValue interface{}            `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldTag) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTagInput struct {
-	Values       []string    `json:"values"`
-	DefaultValue interface{} `json:"defaultValue"`
+	Tags         []*SchemaFieldTagValueInput `json:"tags"`
+	DefaultValue interface{}                 `json:"defaultValue,omitempty"`
+}
+
+type SchemaFieldTagValue struct {
+	ID    ID                  `json:"id"`
+	Name  string              `json:"name"`
+	Color SchemaFieldTagColor `json:"color"`
+}
+
+type SchemaFieldTagValueInput struct {
+	ID    *ID                  `json:"id,omitempty"`
+	Name  *string              `json:"name,omitempty"`
+	Color *SchemaFieldTagColor `json:"color,omitempty"`
 }
 
 type SchemaFieldText struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	MaxLength    *int        `json:"maxLength"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	MaxLength    *int        `json:"maxLength,omitempty"`
 }
 
 func (SchemaFieldText) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTextArea struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	MaxLength    *int        `json:"maxLength"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	MaxLength    *int        `json:"maxLength,omitempty"`
 }
 
 func (SchemaFieldTextArea) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldTextAreaInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	MaxLength    *int        `json:"maxLength"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	MaxLength    *int        `json:"maxLength,omitempty"`
 }
 
 type SchemaFieldTextInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	MaxLength    *int        `json:"maxLength"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	MaxLength    *int        `json:"maxLength,omitempty"`
 }
 
 type SchemaFieldTypePropertyInput struct {
-	Text         *SchemaFieldTextInput      `json:"text"`
-	TextArea     *SchemaFieldTextAreaInput  `json:"textArea"`
-	RichText     *SchemaFieldRichTextInput  `json:"richText"`
-	MarkdownText *SchemaMarkdownTextInput   `json:"markdownText"`
-	Asset        *SchemaFieldAssetInput     `json:"asset"`
-	Date         *SchemaFieldDateInput      `json:"date"`
-	Bool         *SchemaFieldBoolInput      `json:"bool"`
-	Select       *SchemaFieldSelectInput    `json:"select"`
-	Tag          *SchemaFieldTagInput       `json:"tag"`
-	Integer      *SchemaFieldIntegerInput   `json:"integer"`
-	Reference    *SchemaFieldReferenceInput `json:"reference"`
-	URL          *SchemaFieldURLInput       `json:"url"`
+	Text         *SchemaFieldTextInput      `json:"text,omitempty"`
+	TextArea     *SchemaFieldTextAreaInput  `json:"textArea,omitempty"`
+	RichText     *SchemaFieldRichTextInput  `json:"richText,omitempty"`
+	MarkdownText *SchemaMarkdownTextInput   `json:"markdownText,omitempty"`
+	Asset        *SchemaFieldAssetInput     `json:"asset,omitempty"`
+	Date         *SchemaFieldDateInput      `json:"date,omitempty"`
+	Bool         *SchemaFieldBoolInput      `json:"bool,omitempty"`
+	Select       *SchemaFieldSelectInput    `json:"select,omitempty"`
+	Tag          *SchemaFieldTagInput       `json:"tag,omitempty"`
+	Checkbox     *SchemaFieldCheckboxInput  `json:"checkbox,omitempty"`
+	Integer      *SchemaFieldIntegerInput   `json:"integer,omitempty"`
+	Reference    *SchemaFieldReferenceInput `json:"reference,omitempty"`
+	URL          *SchemaFieldURLInput       `json:"url,omitempty"`
+	Group        *SchemaFieldGroupInput     `json:"group,omitempty"`
 }
 
 type SchemaFieldURL struct {
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 func (SchemaFieldURL) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldURLInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
 type SchemaMarkdownTextInput struct {
-	DefaultValue interface{} `json:"defaultValue"`
-	MaxLength    *int        `json:"maxLength"`
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+	MaxLength    *int        `json:"maxLength,omitempty"`
+}
+
+type SearchItemInput struct {
+	Query      *ItemQueryInput `json:"query"`
+	Sort       *ItemSortInput  `json:"sort,omitempty"`
+	Filter     *ConditionInput `json:"filter,omitempty"`
+	Pagination *Pagination     `json:"pagination,omitempty"`
 }
 
 type Sort struct {
 	Key      string `json:"key"`
-	Reverted *bool  `json:"reverted"`
+	Reverted *bool  `json:"reverted,omitempty"`
+}
+
+type StringFieldCondition struct {
+	FieldID  *FieldSelector `json:"fieldId"`
+	Operator StringOperator `json:"operator"`
+	Value    string         `json:"value"`
+}
+
+func (StringFieldCondition) IsCondition() {}
+
+type StringFieldConditionInput struct {
+	FieldID  *FieldSelectorInput `json:"fieldId"`
+	Operator StringOperator      `json:"operator"`
+	Value    string              `json:"value"`
 }
 
 type Thread struct {
 	ID          ID         `json:"id"`
-	Workspace   *Workspace `json:"workspace"`
+	Workspace   *Workspace `json:"workspace,omitempty"`
 	WorkspaceID ID         `json:"workspaceId"`
 	Comments    []*Comment `json:"comments"`
 }
@@ -801,8 +1080,22 @@ type ThreadPayload struct {
 	Thread *Thread `json:"thread"`
 }
 
+type TimeFieldCondition struct {
+	FieldID  *FieldSelector `json:"fieldId"`
+	Operator TimeOperator   `json:"operator"`
+	Value    time.Time      `json:"value"`
+}
+
+func (TimeFieldCondition) IsCondition() {}
+
+type TimeFieldConditionInput struct {
+	FieldID  *FieldSelectorInput `json:"fieldId"`
+	Operator TimeOperator        `json:"operator"`
+	Value    time.Time           `json:"value"`
+}
+
 type UnpublishItemInput struct {
-	ItemID []ID `json:"itemId"`
+	ItemIds []ID `json:"itemIds"`
 }
 
 type UnpublishItemPayload struct {
@@ -811,7 +1104,7 @@ type UnpublishItemPayload struct {
 
 type UpdateAssetInput struct {
 	ID          ID           `json:"id"`
-	PreviewType *PreviewType `json:"previewType"`
+	PreviewType *PreviewType `json:"previewType,omitempty"`
 }
 
 type UpdateAssetPayload struct {
@@ -825,23 +1118,33 @@ type UpdateCommentInput struct {
 }
 
 type UpdateFieldInput struct {
-	ModelID      ID                            `json:"modelId"`
+	ModelID      *ID                           `json:"modelId,omitempty"`
+	GroupID      *ID                           `json:"groupId,omitempty"`
 	FieldID      ID                            `json:"fieldId"`
-	Title        *string                       `json:"title"`
-	Description  *string                       `json:"description"`
-	Order        *int                          `json:"order"`
-	Key          *string                       `json:"key"`
-	Required     *bool                         `json:"required"`
-	Unique       *bool                         `json:"unique"`
-	Multiple     *bool                         `json:"multiple"`
-	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty"`
+	Title        *string                       `json:"title,omitempty"`
+	Description  *string                       `json:"description,omitempty"`
+	Order        *int                          `json:"order,omitempty"`
+	Metadata     *bool                         `json:"metadata,omitempty"`
+	Key          *string                       `json:"key,omitempty"`
+	Required     *bool                         `json:"required,omitempty"`
+	Unique       *bool                         `json:"unique,omitempty"`
+	Multiple     *bool                         `json:"multiple,omitempty"`
+	IsTitle      *bool                         `json:"isTitle,omitempty"`
+	TypeProperty *SchemaFieldTypePropertyInput `json:"typeProperty,omitempty"`
+}
+
+type UpdateGroupInput struct {
+	GroupID     ID      `json:"groupId"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
 }
 
 type UpdateIntegrationInput struct {
 	IntegrationID ID       `json:"integrationId"`
-	Name          *string  `json:"name"`
-	Description   *string  `json:"description"`
-	LogoURL       *url.URL `json:"logoUrl"`
+	Name          *string  `json:"name,omitempty"`
+	Description   *string  `json:"description,omitempty"`
+	LogoURL       *url.URL `json:"logoUrl,omitempty"`
 }
 
 type UpdateIntegrationOfWorkspaceInput struct {
@@ -851,18 +1154,19 @@ type UpdateIntegrationOfWorkspaceInput struct {
 }
 
 type UpdateItemInput struct {
-	ItemID  ID                `json:"itemId"`
-	Fields  []*ItemFieldInput `json:"fields"`
-	Version *string           `json:"version"`
+	ItemID     ID                `json:"itemId"`
+	MetadataID *ID               `json:"metadataId,omitempty"`
+	Fields     []*ItemFieldInput `json:"fields"`
+	Version    *string           `json:"version,omitempty"`
 }
 
 type UpdateMeInput struct {
-	Name                 *string       `json:"name"`
-	Email                *string       `json:"email"`
-	Lang                 *language.Tag `json:"lang"`
-	Theme                *Theme        `json:"theme"`
-	Password             *string       `json:"password"`
-	PasswordConfirmation *string       `json:"passwordConfirmation"`
+	Name                 *string       `json:"name,omitempty"`
+	Email                *string       `json:"email,omitempty"`
+	Lang                 *language.Tag `json:"lang,omitempty"`
+	Theme                *Theme        `json:"theme,omitempty"`
+	Password             *string       `json:"password,omitempty"`
+	PasswordConfirmation *string       `json:"passwordConfirmation,omitempty"`
 }
 
 type UpdateMePayload struct {
@@ -875,32 +1179,33 @@ type UpdateMemberOfWorkspacePayload struct {
 
 type UpdateModelInput struct {
 	ModelID     ID      `json:"modelId"`
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-	Key         *string `json:"key"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
 	Public      bool    `json:"public"`
 }
 
 type UpdateProjectInput struct {
-	ProjectID   ID                             `json:"projectId"`
-	Name        *string                        `json:"name"`
-	Description *string                        `json:"description"`
-	Alias       *string                        `json:"alias"`
-	Publication *UpdateProjectPublicationInput `json:"publication"`
+	ProjectID    ID                             `json:"projectId"`
+	Name         *string                        `json:"name,omitempty"`
+	Description  *string                        `json:"description,omitempty"`
+	Alias        *string                        `json:"alias,omitempty"`
+	Publication  *UpdateProjectPublicationInput `json:"publication,omitempty"`
+	RequestRoles []Role                         `json:"requestRoles,omitempty"`
 }
 
 type UpdateProjectPublicationInput struct {
-	Scope       *ProjectPublicationScope `json:"scope"`
-	AssetPublic *bool                    `json:"assetPublic"`
+	Scope       *ProjectPublicationScope `json:"scope,omitempty"`
+	AssetPublic *bool                    `json:"assetPublic,omitempty"`
 }
 
 type UpdateRequestInput struct {
 	RequestID   ID                  `json:"requestId"`
-	Title       *string             `json:"title"`
-	Description *string             `json:"description"`
-	State       *RequestState       `json:"state"`
-	ReviewersID []ID                `json:"reviewersId"`
-	Items       []*RequestItemInput `json:"items"`
+	Title       *string             `json:"title,omitempty"`
+	Description *string             `json:"description,omitempty"`
+	State       *RequestState       `json:"state,omitempty"`
+	ReviewersID []ID                `json:"reviewersId,omitempty"`
+	Items       []*RequestItemInput `json:"items,omitempty"`
 }
 
 type UpdateUserOfWorkspaceInput struct {
@@ -909,14 +1214,22 @@ type UpdateUserOfWorkspaceInput struct {
 	Role        Role `json:"role"`
 }
 
+type UpdateViewInput struct {
+	ViewID  ID                    `json:"viewId"`
+	Name    *string               `json:"name,omitempty"`
+	Sort    *ItemSortInput        `json:"sort,omitempty"`
+	Filter  *ConditionInput       `json:"filter,omitempty"`
+	Columns []*FieldSelectorInput `json:"columns,omitempty"`
+}
+
 type UpdateWebhookInput struct {
 	IntegrationID ID                   `json:"integrationId"`
 	WebhookID     ID                   `json:"webhookId"`
-	Name          *string              `json:"name"`
-	URL           *url.URL             `json:"url"`
-	Active        *bool                `json:"active"`
-	Trigger       *WebhookTriggerInput `json:"trigger"`
-	Secret        *string              `json:"secret"`
+	Name          *string              `json:"name,omitempty"`
+	URL           *url.URL             `json:"url,omitempty"`
+	Active        *bool                `json:"active,omitempty"`
+	Trigger       *WebhookTriggerInput `json:"trigger,omitempty"`
+	Secret        *string              `json:"secret,omitempty"`
 }
 
 type UpdateWorkspaceInput struct {
@@ -941,9 +1254,26 @@ func (this User) GetID() ID { return this.ID }
 
 type VersionedItem struct {
 	Version string   `json:"version"`
-	Parents []string `json:"parents"`
+	Parents []string `json:"parents,omitempty"`
 	Refs    []string `json:"refs"`
 	Value   *Item    `json:"value"`
+}
+
+type View struct {
+	ID        ID               `json:"id"`
+	Name      string           `json:"name"`
+	ModelID   ID               `json:"modelId"`
+	ProjectID ID               `json:"projectId"`
+	Sort      *ItemSort        `json:"sort,omitempty"`
+	Filter    Condition        `json:"filter,omitempty"`
+	Columns   []*FieldSelector `json:"columns,omitempty"`
+}
+
+func (View) IsNode()        {}
+func (this View) GetID() ID { return this.ID }
+
+type ViewPayload struct {
+	View *View `json:"view"`
 }
 
 type Webhook struct {
@@ -962,25 +1292,25 @@ type WebhookPayload struct {
 }
 
 type WebhookTrigger struct {
-	OnItemCreate      *bool `json:"onItemCreate"`
-	OnItemUpdate      *bool `json:"onItemUpdate"`
-	OnItemDelete      *bool `json:"onItemDelete"`
-	OnItemPublish     *bool `json:"onItemPublish"`
-	OnItemUnPublish   *bool `json:"onItemUnPublish"`
-	OnAssetUpload     *bool `json:"onAssetUpload"`
-	OnAssetDecompress *bool `json:"onAssetDecompress"`
-	OnAssetDelete     *bool `json:"onAssetDelete"`
+	OnItemCreate      *bool `json:"onItemCreate,omitempty"`
+	OnItemUpdate      *bool `json:"onItemUpdate,omitempty"`
+	OnItemDelete      *bool `json:"onItemDelete,omitempty"`
+	OnItemPublish     *bool `json:"onItemPublish,omitempty"`
+	OnItemUnPublish   *bool `json:"onItemUnPublish,omitempty"`
+	OnAssetUpload     *bool `json:"onAssetUpload,omitempty"`
+	OnAssetDecompress *bool `json:"onAssetDecompress,omitempty"`
+	OnAssetDelete     *bool `json:"onAssetDelete,omitempty"`
 }
 
 type WebhookTriggerInput struct {
-	OnItemCreate      *bool `json:"onItemCreate"`
-	OnItemUpdate      *bool `json:"onItemUpdate"`
-	OnItemDelete      *bool `json:"onItemDelete"`
-	OnItemPublish     *bool `json:"onItemPublish"`
-	OnItemUnPublish   *bool `json:"onItemUnPublish"`
-	OnAssetUpload     *bool `json:"onAssetUpload"`
-	OnAssetDecompress *bool `json:"onAssetDecompress"`
-	OnAssetDelete     *bool `json:"onAssetDelete"`
+	OnItemCreate      *bool `json:"onItemCreate,omitempty"`
+	OnItemUpdate      *bool `json:"onItemUpdate,omitempty"`
+	OnItemDelete      *bool `json:"onItemDelete,omitempty"`
+	OnItemPublish     *bool `json:"onItemPublish,omitempty"`
+	OnItemUnPublish   *bool `json:"onItemUnPublish,omitempty"`
+	OnAssetUpload     *bool `json:"onAssetUpload,omitempty"`
+	OnAssetDecompress *bool `json:"onAssetDecompress,omitempty"`
+	OnAssetDelete     *bool `json:"onAssetDelete,omitempty"`
 }
 
 type Workspace struct {
@@ -998,8 +1328,8 @@ type WorkspaceIntegrationMember struct {
 	Role          Role         `json:"role"`
 	Active        bool         `json:"active"`
 	InvitedByID   ID           `json:"invitedById"`
-	InvitedBy     *User        `json:"invitedBy"`
-	Integration   *Integration `json:"integration"`
+	InvitedBy     *User        `json:"invitedBy,omitempty"`
+	Integration   *Integration `json:"integration,omitempty"`
 }
 
 func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
@@ -1007,7 +1337,7 @@ func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
 type WorkspaceUserMember struct {
 	UserID ID    `json:"userId"`
 	Role   Role  `json:"role"`
-	User   *User `json:"user"`
+	User   *User `json:"user,omitempty"`
 }
 
 func (WorkspaceUserMember) IsWorkspaceMember() {}
@@ -1102,6 +1432,141 @@ func (e AssetSortType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type BasicOperator string
+
+const (
+	BasicOperatorEquals    BasicOperator = "EQUALS"
+	BasicOperatorNotEquals BasicOperator = "NOT_EQUALS"
+)
+
+var AllBasicOperator = []BasicOperator{
+	BasicOperatorEquals,
+	BasicOperatorNotEquals,
+}
+
+func (e BasicOperator) IsValid() bool {
+	switch e {
+	case BasicOperatorEquals, BasicOperatorNotEquals:
+		return true
+	}
+	return false
+}
+
+func (e BasicOperator) String() string {
+	return string(e)
+}
+
+func (e *BasicOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BasicOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BasicOperator", str)
+	}
+	return nil
+}
+
+func (e BasicOperator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type BoolOperator string
+
+const (
+	BoolOperatorEquals    BoolOperator = "EQUALS"
+	BoolOperatorNotEquals BoolOperator = "NOT_EQUALS"
+)
+
+var AllBoolOperator = []BoolOperator{
+	BoolOperatorEquals,
+	BoolOperatorNotEquals,
+}
+
+func (e BoolOperator) IsValid() bool {
+	switch e {
+	case BoolOperatorEquals, BoolOperatorNotEquals:
+		return true
+	}
+	return false
+}
+
+func (e BoolOperator) String() string {
+	return string(e)
+}
+
+func (e *BoolOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BoolOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BoolOperator", str)
+	}
+	return nil
+}
+
+func (e BoolOperator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type FieldType string
+
+const (
+	FieldTypeID               FieldType = "ID"
+	FieldTypeCreationDate     FieldType = "CREATION_DATE"
+	FieldTypeCreationUser     FieldType = "CREATION_USER"
+	FieldTypeModificationDate FieldType = "MODIFICATION_DATE"
+	FieldTypeModificationUser FieldType = "MODIFICATION_USER"
+	FieldTypeStatus           FieldType = "STATUS"
+	FieldTypeField            FieldType = "FIELD"
+	FieldTypeMetaField        FieldType = "META_FIELD"
+)
+
+var AllFieldType = []FieldType{
+	FieldTypeID,
+	FieldTypeCreationDate,
+	FieldTypeCreationUser,
+	FieldTypeModificationDate,
+	FieldTypeModificationUser,
+	FieldTypeStatus,
+	FieldTypeField,
+	FieldTypeMetaField,
+}
+
+func (e FieldType) IsValid() bool {
+	switch e {
+	case FieldTypeID, FieldTypeCreationDate, FieldTypeCreationUser, FieldTypeModificationDate, FieldTypeModificationUser, FieldTypeStatus, FieldTypeField, FieldTypeMetaField:
+		return true
+	}
+	return false
+}
+
+func (e FieldType) String() string {
+	return string(e)
+}
+
+func (e *FieldType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FieldType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FieldType", str)
+	}
+	return nil
+}
+
+func (e FieldType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type IntegrationType string
 
 const (
@@ -1140,47 +1605,6 @@ func (e *IntegrationType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e IntegrationType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type ItemSortType string
-
-const (
-	ItemSortTypeCreationDate     ItemSortType = "CREATION_DATE"
-	ItemSortTypeModificationDate ItemSortType = "MODIFICATION_DATE"
-)
-
-var AllItemSortType = []ItemSortType{
-	ItemSortTypeCreationDate,
-	ItemSortTypeModificationDate,
-}
-
-func (e ItemSortType) IsValid() bool {
-	switch e {
-	case ItemSortTypeCreationDate, ItemSortTypeModificationDate:
-		return true
-	}
-	return false
-}
-
-func (e ItemSortType) String() string {
-	return string(e)
-}
-
-func (e *ItemSortType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ItemSortType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ItemSortType", str)
-	}
-	return nil
-}
-
-func (e ItemSortType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1231,6 +1655,51 @@ func (e ItemStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type MultipleOperator string
+
+const (
+	MultipleOperatorIncludesAny    MultipleOperator = "INCLUDES_ANY"
+	MultipleOperatorNotIncludesAny MultipleOperator = "NOT_INCLUDES_ANY"
+	MultipleOperatorIncludesAll    MultipleOperator = "INCLUDES_ALL"
+	MultipleOperatorNotIncludesAll MultipleOperator = "NOT_INCLUDES_ALL"
+)
+
+var AllMultipleOperator = []MultipleOperator{
+	MultipleOperatorIncludesAny,
+	MultipleOperatorNotIncludesAny,
+	MultipleOperatorIncludesAll,
+	MultipleOperatorNotIncludesAll,
+}
+
+func (e MultipleOperator) IsValid() bool {
+	switch e {
+	case MultipleOperatorIncludesAny, MultipleOperatorNotIncludesAny, MultipleOperatorIncludesAll, MultipleOperatorNotIncludesAll:
+		return true
+	}
+	return false
+}
+
+func (e MultipleOperator) String() string {
+	return string(e)
+}
+
+func (e *MultipleOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MultipleOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MultipleOperator", str)
+	}
+	return nil
+}
+
+func (e MultipleOperator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type NodeType string
 
 const (
@@ -1242,7 +1711,9 @@ const (
 	NodeTypeModel       NodeType = "Model"
 	NodeTypeSchema      NodeType = "Schema"
 	NodeTypeItem        NodeType = "Item"
+	NodeTypeView        NodeType = "View"
 	NodeTypeIntegration NodeType = "Integration"
+	NodeTypeGroup       NodeType = "Group"
 )
 
 var AllNodeType = []NodeType{
@@ -1254,12 +1725,14 @@ var AllNodeType = []NodeType{
 	NodeTypeModel,
 	NodeTypeSchema,
 	NodeTypeItem,
+	NodeTypeView,
 	NodeTypeIntegration,
+	NodeTypeGroup,
 }
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeIntegration:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeView, NodeTypeIntegration, NodeTypeGroup:
 		return true
 	}
 	return false
@@ -1283,6 +1756,92 @@ func (e *NodeType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e NodeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type NullableOperator string
+
+const (
+	NullableOperatorEmpty    NullableOperator = "EMPTY"
+	NullableOperatorNotEmpty NullableOperator = "NOT_EMPTY"
+)
+
+var AllNullableOperator = []NullableOperator{
+	NullableOperatorEmpty,
+	NullableOperatorNotEmpty,
+}
+
+func (e NullableOperator) IsValid() bool {
+	switch e {
+	case NullableOperatorEmpty, NullableOperatorNotEmpty:
+		return true
+	}
+	return false
+}
+
+func (e NullableOperator) String() string {
+	return string(e)
+}
+
+func (e *NullableOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NullableOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NullableOperator", str)
+	}
+	return nil
+}
+
+func (e NullableOperator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type NumberOperator string
+
+const (
+	NumberOperatorGreaterThan          NumberOperator = "GREATER_THAN"
+	NumberOperatorLessThan             NumberOperator = "LESS_THAN"
+	NumberOperatorGreaterThanOrEqualTo NumberOperator = "GREATER_THAN_OR_EQUAL_TO"
+	NumberOperatorLessThanOrEqualTo    NumberOperator = "LESS_THAN_OR_EQUAL_TO"
+)
+
+var AllNumberOperator = []NumberOperator{
+	NumberOperatorGreaterThan,
+	NumberOperatorLessThan,
+	NumberOperatorGreaterThanOrEqualTo,
+	NumberOperatorLessThanOrEqualTo,
+}
+
+func (e NumberOperator) IsValid() bool {
+	switch e {
+	case NumberOperatorGreaterThan, NumberOperatorLessThan, NumberOperatorGreaterThanOrEqualTo, NumberOperatorLessThanOrEqualTo:
+		return true
+	}
+	return false
+}
+
+func (e NumberOperator) String() string {
+	return string(e)
+}
+
+func (e *NumberOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NumberOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NumberOperator", str)
+	}
+	return nil
+}
+
+func (e NumberOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1511,6 +2070,65 @@ func (e Role) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type SchemaFieldTagColor string
+
+const (
+	SchemaFieldTagColorMagenta  SchemaFieldTagColor = "MAGENTA"
+	SchemaFieldTagColorRed      SchemaFieldTagColor = "RED"
+	SchemaFieldTagColorVolcano  SchemaFieldTagColor = "VOLCANO"
+	SchemaFieldTagColorOrange   SchemaFieldTagColor = "ORANGE"
+	SchemaFieldTagColorGold     SchemaFieldTagColor = "GOLD"
+	SchemaFieldTagColorLime     SchemaFieldTagColor = "LIME"
+	SchemaFieldTagColorGreen    SchemaFieldTagColor = "GREEN"
+	SchemaFieldTagColorCyan     SchemaFieldTagColor = "CYAN"
+	SchemaFieldTagColorBlue     SchemaFieldTagColor = "BLUE"
+	SchemaFieldTagColorGeekblue SchemaFieldTagColor = "GEEKBLUE"
+	SchemaFieldTagColorPurple   SchemaFieldTagColor = "PURPLE"
+)
+
+var AllSchemaFieldTagColor = []SchemaFieldTagColor{
+	SchemaFieldTagColorMagenta,
+	SchemaFieldTagColorRed,
+	SchemaFieldTagColorVolcano,
+	SchemaFieldTagColorOrange,
+	SchemaFieldTagColorGold,
+	SchemaFieldTagColorLime,
+	SchemaFieldTagColorGreen,
+	SchemaFieldTagColorCyan,
+	SchemaFieldTagColorBlue,
+	SchemaFieldTagColorGeekblue,
+	SchemaFieldTagColorPurple,
+}
+
+func (e SchemaFieldTagColor) IsValid() bool {
+	switch e {
+	case SchemaFieldTagColorMagenta, SchemaFieldTagColorRed, SchemaFieldTagColorVolcano, SchemaFieldTagColorOrange, SchemaFieldTagColorGold, SchemaFieldTagColorLime, SchemaFieldTagColorGreen, SchemaFieldTagColorCyan, SchemaFieldTagColorBlue, SchemaFieldTagColorGeekblue, SchemaFieldTagColorPurple:
+		return true
+	}
+	return false
+}
+
+func (e SchemaFieldTagColor) String() string {
+	return string(e)
+}
+
+func (e *SchemaFieldTagColor) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SchemaFieldTagColor(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SchemaFieldTagColor", str)
+	}
+	return nil
+}
+
+func (e SchemaFieldTagColor) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type SchemaFieldType string
 
 const (
@@ -1525,7 +2143,9 @@ const (
 	SchemaFieldTypeTag          SchemaFieldType = "Tag"
 	SchemaFieldTypeInteger      SchemaFieldType = "Integer"
 	SchemaFieldTypeReference    SchemaFieldType = "Reference"
+	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
+	SchemaFieldTypeGroup        SchemaFieldType = "Group"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
@@ -1540,12 +2160,14 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeTag,
 	SchemaFieldTypeInteger,
 	SchemaFieldTypeReference,
+	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
+	SchemaFieldTypeGroup,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeURL:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup:
 		return true
 	}
 	return false
@@ -1613,6 +2235,55 @@ func (e SortDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type StringOperator string
+
+const (
+	StringOperatorContains      StringOperator = "CONTAINS"
+	StringOperatorNotContains   StringOperator = "NOT_CONTAINS"
+	StringOperatorStartsWith    StringOperator = "STARTS_WITH"
+	StringOperatorEndsWith      StringOperator = "ENDS_WITH"
+	StringOperatorNotStartsWith StringOperator = "NOT_STARTS_WITH"
+	StringOperatorNotEndsWith   StringOperator = "NOT_ENDS_WITH"
+)
+
+var AllStringOperator = []StringOperator{
+	StringOperatorContains,
+	StringOperatorNotContains,
+	StringOperatorStartsWith,
+	StringOperatorEndsWith,
+	StringOperatorNotStartsWith,
+	StringOperatorNotEndsWith,
+}
+
+func (e StringOperator) IsValid() bool {
+	switch e {
+	case StringOperatorContains, StringOperatorNotContains, StringOperatorStartsWith, StringOperatorEndsWith, StringOperatorNotStartsWith, StringOperatorNotEndsWith:
+		return true
+	}
+	return false
+}
+
+func (e StringOperator) String() string {
+	return string(e)
+}
+
+func (e *StringOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StringOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StringOperator", str)
+	}
+	return nil
+}
+
+func (e StringOperator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type Theme string
 
 const (
@@ -1653,5 +2324,56 @@ func (e *Theme) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Theme) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TimeOperator string
+
+const (
+	TimeOperatorBefore      TimeOperator = "BEFORE"
+	TimeOperatorAfter       TimeOperator = "AFTER"
+	TimeOperatorBeforeOrOn  TimeOperator = "BEFORE_OR_ON"
+	TimeOperatorAfterOrOn   TimeOperator = "AFTER_OR_ON"
+	TimeOperatorOfThisWeek  TimeOperator = "OF_THIS_WEEK"
+	TimeOperatorOfThisMonth TimeOperator = "OF_THIS_MONTH"
+	TimeOperatorOfThisYear  TimeOperator = "OF_THIS_YEAR"
+)
+
+var AllTimeOperator = []TimeOperator{
+	TimeOperatorBefore,
+	TimeOperatorAfter,
+	TimeOperatorBeforeOrOn,
+	TimeOperatorAfterOrOn,
+	TimeOperatorOfThisWeek,
+	TimeOperatorOfThisMonth,
+	TimeOperatorOfThisYear,
+}
+
+func (e TimeOperator) IsValid() bool {
+	switch e {
+	case TimeOperatorBefore, TimeOperatorAfter, TimeOperatorBeforeOrOn, TimeOperatorAfterOrOn, TimeOperatorOfThisWeek, TimeOperatorOfThisMonth, TimeOperatorOfThisYear:
+		return true
+	}
+	return false
+}
+
+func (e TimeOperator) String() string {
+	return string(e)
+}
+
+func (e *TimeOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TimeOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TimeOperator", str)
+	}
+	return nil
+}
+
+func (e TimeOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

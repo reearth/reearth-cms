@@ -7,22 +7,26 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
 type ItemDocument struct {
-	ID          string
-	Project     string
-	Schema      string
-	Thread      string
-	ModelID     string
-	Fields      []ItemFieldDocument
-	Timestamp   time.Time
-	User        *string
-	Integration *string
-	Assets      []string `bson:"assets,omitempty"`
+	ID                   string
+	Project              string
+	Schema               string
+	Thread               string
+	ModelID              string
+	Fields               []ItemFieldDocument
+	Timestamp            time.Time
+	User                 *string
+	Integration          *string
+	Assets               []string `bson:"assets,omitempty"`
+	MetadataItem         *string
+	UpdatedByUser        *string
+	UpdatedByIntegration *string
 }
 
 type ItemFieldDocument struct {
@@ -31,6 +35,7 @@ type ItemFieldDocument struct {
 	Field     string        `bson:"schemafield,omitempty"` // compat
 	ValueType string        `bson:"valuetype,omitempty"`   // compat
 	Value     any           `bson:"value,omitempty"`       // compat
+	ItemGroup *string
 }
 
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
@@ -56,11 +61,12 @@ func NewVersionedItemConsumer() *VersionedItemConsumer {
 func NewItem(i *item.Item) (*ItemDocument, string) {
 	itmId := i.ID().String()
 	return &ItemDocument{
-		ID:      itmId,
-		Schema:  i.Schema().String(),
-		ModelID: i.Model().String(),
-		Project: i.Project().String(),
-		Thread:  i.Thread().String(),
+		ID:           itmId,
+		Schema:       i.Schema().String(),
+		ModelID:      i.Model().String(),
+		Project:      i.Project().String(),
+		Thread:       i.Thread().String(),
+		MetadataItem: i.MetadataItem().StringRef(),
 		Fields: lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (ItemFieldDocument, bool) {
 			v := NewMultipleValue(f.Value())
 			if v == nil {
@@ -68,14 +74,17 @@ func NewItem(i *item.Item) (*ItemDocument, string) {
 			}
 
 			return ItemFieldDocument{
-				F: f.FieldID().String(),
-				V: *v,
+				ItemGroup: f.ItemGroup().StringRef(),
+				F:         f.FieldID().String(),
+				V:         *v,
 			}, true
 		}),
-		Timestamp:   i.Timestamp(),
-		User:        i.User().StringRef(),
-		Integration: i.Integration().StringRef(),
-		Assets:      i.AssetIDs().Strings(),
+		Timestamp:            i.Timestamp(),
+		User:                 i.User().StringRef(),
+		UpdatedByUser:        i.UpdatedByUser().StringRef(),
+		UpdatedByIntegration: i.UpdatedByIntegration().StringRef(),
+		Integration:          i.Integration().StringRef(),
+		Assets:               i.AssetIDs().Strings(),
 	}, itmId
 }
 
@@ -123,8 +132,8 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 				V: f.Value,
 			}
 		}
-
-		return item.NewField(sf, f.V.MultipleValue()), nil
+		ig := id.ItemGroupIDFromRef(f.ItemGroup)
+		return item.NewField(sf, f.V.MultipleValue(), ig), nil
 	})
 	if err != nil {
 		return nil, err
@@ -134,12 +143,15 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 		ID(itmId).
 		Project(pid).
 		Schema(sid).
+		UpdatedByUser(accountdomain.UserIDFromRef(d.UpdatedByUser)).
+		UpdatedByIntegration(id.IntegrationIDFromRef(d.UpdatedByIntegration)).
 		Model(mid).
+		MetadataItem(id.ItemIDFromRef(d.MetadataItem)).
 		Thread(tid).
 		Fields(fields).
 		Timestamp(d.Timestamp)
 
-	if uId := id.UserIDFromRef(d.User); uId != nil {
+	if uId := accountdomain.UserIDFromRef(d.User); uId != nil {
 		ib = ib.User(*uId)
 	}
 

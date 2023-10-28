@@ -10,13 +10,32 @@ enum SchemaFieldType {
   Tag
   Integer
   Reference
+  Checkbox
   URL
+  Group
 }
+
+enum SchemaFieldTagColor {
+  MAGENTA
+  RED
+  VOLCANO
+  ORANGE
+  GOLD
+  LIME
+  GREEN
+  CYAN
+  BLUE
+  GEEKBLUE
+  PURPLE
+}
+
 
 type SchemaField {
   id: ID!
-  modelId: ID!
-  model: Model!
+  modelId: ID
+  groupId: ID
+  model: Model
+  group: Group
   type: SchemaFieldType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
@@ -27,6 +46,7 @@ type SchemaField {
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
 
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -45,7 +65,8 @@ union SchemaFieldTypeProperty =
   | SchemaFieldInteger
   | SchemaFieldReference
   | SchemaFieldURL
-
+  | SchemaFieldCheckbox
+  | SchemaFieldGroup
 
 type SchemaFieldText {
   defaultValue: Any
@@ -85,8 +106,14 @@ type SchemaFieldSelect {
 }
 
 type SchemaFieldTag {
-  values: [String!]!
+  tags: [SchemaFieldTagValue!]!
   defaultValue: Any
+}
+
+type SchemaFieldTagValue {
+  id: ID!
+  name: String!
+  color: SchemaFieldTagColor!
 }
 
 type SchemaFieldInteger {
@@ -97,10 +124,22 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
+  correspondingSchemaId: ID
+  correspondingSchema: Schema
+  correspondingFieldId: ID
+  correspondingField: SchemaField
 }
 
 type SchemaFieldURL {
   defaultValue: Any
+}
+
+type SchemaFieldCheckbox {
+  defaultValue: Any
+}
+
+type SchemaFieldGroup {
+  groupId: ID!
 }
 
 # Inputs
@@ -137,14 +176,24 @@ input SchemaFieldBoolInput {
   defaultValue: Any
 }
 
+input SchemaFieldCheckboxInput {
+  defaultValue: Any
+}
+
 input SchemaFieldSelectInput {
   values: [String!]!
   defaultValue: Any
 }
 
 input SchemaFieldTagInput {
-  values: [String!]!
+  tags: [SchemaFieldTagValueInput!]!
   defaultValue: Any
+}
+
+input SchemaFieldTagValueInput {
+  id: ID
+  name: String
+  color: SchemaFieldTagColor
 }
 
 input SchemaFieldIntegerInput {
@@ -153,12 +202,26 @@ input SchemaFieldIntegerInput {
   max: Int
 }
 
+input CorrespondingFieldInput {
+  fieldId: ID
+  title: String
+  key: String
+  description: String
+  required: Boolean
+} 
+
 input SchemaFieldReferenceInput {
   modelId: ID!
+  correspondingSchemaId: ID
+  correspondingField: CorrespondingFieldInput
 }
 
 input SchemaFieldURLInput {
   defaultValue: Any
+}
+
+input SchemaFieldGroupInput {
+  groupId: ID!
 }
 
 input SchemaFieldTypePropertyInput @onlyOne {
@@ -171,39 +234,49 @@ input SchemaFieldTypePropertyInput @onlyOne {
   bool: SchemaFieldBoolInput
   select: SchemaFieldSelectInput
   tag: SchemaFieldTagInput
+  checkbox: SchemaFieldCheckboxInput
   integer: SchemaFieldIntegerInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
+  group: SchemaFieldGroupInput
 }
 
 input CreateFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   type: SchemaFieldType!
   title: String!
+  metadata: Boolean
   description: String
   key: String!
   multiple: Boolean!
   unique: Boolean!
   required: Boolean!
+  isTitle: Boolean!
   typeProperty: SchemaFieldTypePropertyInput!
 }
 
 input UpdateFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   fieldId: ID!
   title: String
   description: String
   order: Int
+  metadata: Boolean
   key: String
   required: Boolean
   unique: Boolean
   multiple: Boolean
+  isTitle: Boolean
   typeProperty: SchemaFieldTypePropertyInput
 }
 
 input DeleteFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   fieldId: ID!
+  metadata: Boolean
 }
 
 # Payloads

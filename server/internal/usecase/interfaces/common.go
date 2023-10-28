@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 )
@@ -14,13 +15,15 @@ var (
 
 type Container struct {
 	Asset       Asset
-	Workspace   Workspace
-	User        User
+	Workspace   accountinterfaces.Workspace
+	User        accountinterfaces.User
 	Item        Item
+	View        View
 	Project     Project
 	Request     Request
 	Model       Model
 	Schema      Schema
 	Integration Integration
 	Thread      Thread
+	Group       Group
 }

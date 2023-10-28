@@ -3,6 +3,7 @@ package request
 import (
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 )
 
@@ -82,7 +83,7 @@ func (b *Builder) Project(p ProjectID) *Builder {
 	return b
 }
 
-func (b *Builder) Workspace(w WorkspaceID) *Builder {
+func (b *Builder) Workspace(w accountdomain.WorkspaceID) *Builder {
 	b.r.workspace = w
 	return b
 }

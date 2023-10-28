@@ -3,7 +3,6 @@ package interactor
 import (
 	"context"
 	"errors"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -12,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -63,12 +63,13 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				return nil, err
 			}
 			if m != nil {
-				return nil, interfaces.ErrDuplicatedKey
+				return nil, id.ErrDuplicatedKey
 			}
-			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).Build()
+			s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
 			if err != nil {
 				return nil, err
 			}
+
 			if err := i.repos.Schema.Save(ctx, s); err != nil {
 				return nil, err
 			}
@@ -111,7 +112,7 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
-			m, err := i.repos.Model.FindByID(ctx, param.ModelId)
+			m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 			if err != nil {
 				return nil, err
 			}
@@ -193,5 +194,64 @@ func (i Model) Publish(ctx context.Context, modelID id.ModelID, b bool, operator
 				return false, err
 			}
 			return b, nil
+		})
+}
+
+func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ *schema.Schema, err error) {
+			var sid id.SchemaID
+			if param.ModelID != nil {
+				m, err := i.repos.Model.FindByID(ctx, *param.ModelID)
+				if err != nil {
+					return nil, err
+				}
+				sid = m.Schema()
+				// check if the finding a metadata schema
+				if param.Metadata != nil && *param.Metadata {
+					if m.Metadata() != nil {
+						return i.repos.Schema.FindByID(ctx, *m.Metadata())
+					}
+					// check if allowing creation
+					if param.Create {
+						p, err := i.repos.Project.FindByID(ctx, m.Project())
+						if err != nil {
+							return nil, err
+						}
+						if !operator.IsMaintainingProject(p.ID()) {
+							return nil, interfaces.ErrOperationDenied
+						}
+
+						s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
+						if err != nil {
+							return nil, err
+						}
+
+						m.SetMetadata(s.ID())
+
+						if err := i.repos.Schema.Save(ctx, s); err != nil {
+							return nil, err
+						}
+
+						if err := i.repos.Model.Save(ctx, m); err != nil {
+							return nil, err
+						}
+						return s, nil
+					}
+					// otherwise return error
+					return nil, rerror.NewE(i18n.T("metadata schema not found"))
+				}
+			} else if param.GroupID != nil {
+				g, err := i.repos.Group.FindByID(ctx, *param.GroupID)
+				if err != nil {
+					return nil, err
+				}
+				sid = g.Schema()
+			} else {
+				return nil, interfaces.ErrEitherModelOrGroup
+			}
+
+			// otherwise return standard schema
+			return i.repos.Schema.FindByID(ctx, sid)
 		})
 }

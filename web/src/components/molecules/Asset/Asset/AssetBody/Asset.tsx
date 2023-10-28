@@ -99,7 +99,17 @@ const AssetMolecule: React.FC<Props> = ({
     <BodyContainer>
       <BodyWrapper>
         <Card
-          title={asset.fileName}
+          title={
+            <>
+              {asset.fileName}{" "}
+              <CopyIcon
+                icon="copy"
+                onClick={() => {
+                  navigator.clipboard.writeText(asset.url);
+                }}
+              />
+            </>
+          }
           toolbar={
             <PreviewToolbar
               url={assetUrl}
@@ -115,17 +125,7 @@ const AssetMolecule: React.FC<Props> = ({
         </Card>
         {displayUnzipFileList && asset.file && (
           <Card
-            title={
-              <>
-                {asset.fileName}{" "}
-                <CopyIcon
-                  icon="copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(asset.url);
-                  }}
-                />
-              </>
-            }
+            title={asset.fileName}
             toolbar={
               <>
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />

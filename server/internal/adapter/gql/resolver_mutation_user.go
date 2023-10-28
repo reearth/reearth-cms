@@ -2,21 +2,26 @@ package gql
 
 import (
 	"context"
-
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/user"
+	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error) {
-	res, err := usecases(ctx).User.UpdateMe(ctx, interfaces.UpdateMeParam{
+	var theme *user.Theme
+	if input.Theme != nil {
+		theme = lo.ToPtr(user.ThemeFrom(input.Theme.String()))
+	}
+	res, err := usecases(ctx).User.UpdateMe(ctx, accountinterfaces.UpdateMeParam{
 		Name:                 input.Name,
 		Email:                input.Email,
 		Lang:                 input.Lang,
-		Theme:                gqlmodel.ToTheme(input.Theme),
+		Theme:                theme,
 		Password:             input.Password,
 		PasswordConfirmation: input.PasswordConfirmation,
-	}, getOperator(ctx))
+	}, getAcOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +30,7 @@ func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMe
 }
 
 func (r *mutationResolver) RemoveMyAuth(ctx context.Context, input gqlmodel.RemoveMyAuthInput) (*gqlmodel.UpdateMePayload, error) {
-	res, err := usecases(ctx).User.RemoveMyAuth(ctx, input.Auth, getOperator(ctx))
+	res, err := usecases(ctx).User.RemoveMyAuth(ctx, input.Auth, getAcOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -34,12 +39,12 @@ func (r *mutationResolver) RemoveMyAuth(ctx context.Context, input gqlmodel.Remo
 }
 
 func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMeInput) (*gqlmodel.DeleteMePayload, error) {
-	uid, err := gqlmodel.ToID[id.User](input.UserID)
+	uid, err := gqlmodel.ToID[accountdomain.User](input.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := usecases(ctx).User.DeleteMe(ctx, uid, getOperator(ctx)); err != nil {
+	if err := usecases(ctx).User.DeleteMe(ctx, uid, getAcOperator(ctx)); err != nil {
 		return nil, err
 	}
 

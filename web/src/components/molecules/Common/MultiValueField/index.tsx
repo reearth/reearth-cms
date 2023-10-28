@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import moment, { Moment } from "moment";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -11,8 +12,9 @@ import { moveItemInArray } from "./moveItemArray";
 
 type Props = {
   className?: string;
-  value?: (string | number)[];
-  onChange?: (value: (string | number)[]) => void;
+  value?: (string | number | Moment)[];
+  onChange?: (value: (string | number | Moment)[]) => void;
+  onBlur?: () => Promise<void>;
   FieldInput: React.FunctionComponent<any>;
 } & TextAreaProps &
   InputProps;
@@ -21,6 +23,7 @@ const MultiValueField: React.FC<Props> = ({
   className,
   value = [],
   onChange,
+  onBlur,
   FieldInput,
   ...props
 }) => {
@@ -29,7 +32,11 @@ const MultiValueField: React.FC<Props> = ({
     (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {
       onChange?.(
         value?.map((valueItem, index) =>
-          index === id ? (typeof e === "number" ? e : e?.target.value) : valueItem,
+          index === id
+            ? typeof e === "number" || moment.isMoment(e)
+              ? e
+              : e?.target.value
+            : valueItem,
         ),
       );
     },
@@ -38,6 +45,7 @@ const MultiValueField: React.FC<Props> = ({
 
   useEffect(() => {
     if (!value) onChange?.([]);
+    if (moment.isMoment(value)) onChange?.([value]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(
@@ -61,13 +69,19 @@ const MultiValueField: React.FC<Props> = ({
                 <FieldButton
                   type="link"
                   icon={<Icon icon="arrowUp" />}
-                  onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
+                  onClick={() => {
+                    onChange?.(moveItemInArray(value, key, key - 1));
+                    onBlur?.();
+                  }}
                   disabled={key === 0}
                 />
                 <FieldButton
                   type="link"
                   icon={<Icon icon="arrowDown" />}
-                  onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
+                  onClick={() => {
+                    onChange?.(moveItemInArray(value, key, key + 1));
+                    onBlur?.();
+                  }}
                   disabled={key === value.length - 1}
                 />
               </>
@@ -76,13 +90,17 @@ const MultiValueField: React.FC<Props> = ({
               style={{ flex: 1 }}
               {...props}
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
+              onBlur={() => onBlur?.()}
               value={valueItem}
             />
             {!props.disabled && (
               <FieldButton
                 type="link"
                 icon={<Icon icon="delete" />}
-                onClick={() => handleInputDelete(key)}
+                onClick={() => {
+                  handleInputDelete(key);
+                  onBlur?.();
+                }}
               />
             )}
           </FieldWrapper>
@@ -92,8 +110,15 @@ const MultiValueField: React.FC<Props> = ({
           icon={<Icon icon="plus" />}
           type="primary"
           onClick={() => {
-            if (!value) value = [];
-            onChange?.([...value, ""]);
+            const currentValues = value || [];
+            const defaultValue = props.type === "date" ? moment() : "";
+            if (Array.isArray(currentValues)) {
+              onChange?.([...currentValues, defaultValue]);
+              onBlur?.();
+            } else {
+              onChange?.([currentValues, defaultValue]);
+              onBlur?.();
+            }
           }}>
           {t("New")}
         </Button>

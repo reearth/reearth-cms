@@ -2,7 +2,6 @@ package gql
 
 import (
 	"context"
-
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -23,20 +22,27 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.Create
 	if err != nil {
 		return nil, err
 	}
+	m, err := usecases(ctx).Model.FindByID(ctx, mid, op)
+	if err != nil {
+		return nil, err
+	}
+
+	ss, gs, err := usecases(ctx).Schema.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{m.Schema()}, op)
+	if err != nil {
+		return nil, err
+	}
 	res, err := usecases(ctx).Item.Create(ctx, interfaces.CreateItemParam{
-		SchemaID: sid,
-		ModelID:  mid,
-		Fields:   util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
+		SchemaID:   sid,
+		ModelID:    mid,
+		MetadataID: gqlmodel.ToIDRef[id.Item](input.MetadataID),
+		Fields:     util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
 	}, op)
 	if err != nil {
 		return nil, err
 	}
-	s, err := usecases(ctx).Schema.FindByID(ctx, sid, op)
-	if err != nil {
-		return nil, err
-	}
+
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, s),
+		Item: gqlmodel.ToItem(res, ss[0], gs),
 	}, nil
 }
 
@@ -57,19 +63,22 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 	}
 
 	res, err := usecases(ctx).Item.Update(ctx, interfaces.UpdateItemParam{
-		ItemID:  iid,
-		Fields:  util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
-		Version: &v,
+		ItemID:     iid,
+		MetadataID: gqlmodel.ToIDRef[id.Item](input.MetadataID),
+		Fields:     util.DerefSlice(util.Map(input.Fields, gqlmodel.ToItemParam)),
+		Version:    &v,
 	}, op)
 	if err != nil {
 		return nil, err
 	}
-	s, err := usecases(ctx).Schema.FindByID(ctx, res.Value().Schema(), op)
+
+	ss, gs, err := usecases(ctx).Schema.GetSchemasAndGroupSchemasByIDs(ctx, id.SchemaIDList{res.Value().Schema()}, op)
 	if err != nil {
 		return nil, err
 	}
+
 	return &gqlmodel.ItemPayload{
-		Item: gqlmodel.ToItem(res, s),
+		Item: gqlmodel.ToItem(res, ss[0], gs),
 	}, nil
 }
 
@@ -88,7 +97,7 @@ func (r *mutationResolver) DeleteItem(ctx context.Context, input gqlmodel.Delete
 
 func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.UnpublishItemInput) (*gqlmodel.UnpublishItemPayload, error) {
 	op := getOperator(ctx)
-	iid, err := gqlmodel.ToIDs[id.Item](input.ItemID)
+	iid, err := gqlmodel.ToIDs[id.Item](input.ItemIds)
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +110,27 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 		return nil, err
 	}
 	return &gqlmodel.UnpublishItemPayload{
-		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s) }),
+		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
+	}, nil
+}
+
+func (r *mutationResolver) PublishItem(ctx context.Context, input gqlmodel.PublishItemInput) (*gqlmodel.PublishItemPayload, error) {
+	op := getOperator(ctx)
+
+	iid, err := gqlmodel.ToIDs[id.Item](input.ItemIds)
+	if err != nil {
+		return nil, err
+	}
+	itm, err := usecases(ctx).Item.Publish(ctx, iid, op)
+	if err != nil {
+		return nil, err
+	}
+	s, err := usecases(ctx).Schema.FindByID(ctx, itm[0].Value().Schema(), op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.PublishItemPayload{
+		Items: lo.Map(itm, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
 	}, nil
 }

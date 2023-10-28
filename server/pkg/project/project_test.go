@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -99,8 +101,15 @@ func TestProject_UpdateDescription(t *testing.T) {
 
 func TestProject_UpdateTeam(t *testing.T) {
 	p := &Project{}
-	p.UpdateTeam(NewWorkspaceID())
+	p.UpdateTeam(accountdomain.NewWorkspaceID())
 	assert.NotNil(t, p.Workspace())
+}
+
+func TestProject_SetRequestRoles(t *testing.T) {
+	p := &Project{}
+	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
+	p.SetRequestRoles(r)
+	assert.Equal(t, p.RequestRoles(), r)
 }
 
 func TestProject_UpdateAlias(t *testing.T) {
@@ -140,7 +149,8 @@ func TestProject_UpdateAlias(t *testing.T) {
 
 func TestProject_Clone(t *testing.T) {
 	pub := &Publication{}
-	p := New().NewID().Name("a").Publication(pub).MustBuild()
+	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
+	p := New().NewID().Name("a").Publication(pub).RequestRoles(r).MustBuild()
 
 	got := p.Clone()
 	assert.Equal(t, p, got)

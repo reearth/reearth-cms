@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -279,10 +280,10 @@ func TestSchema_ID(t *testing.T) {
 }
 
 func TestSchema_SetWorkspace(t *testing.T) {
-	wid := id.NewWorkspaceID()
+	wid := accountdomain.NewWorkspaceID()
 	tests := []struct {
 		name string
-		wid  id.WorkspaceID
+		wid  accountdomain.WorkspaceID
 		want *Schema
 	}{
 		{
@@ -305,15 +306,15 @@ func TestSchema_SetWorkspace(t *testing.T) {
 }
 
 func TestSchema_Workspace(t *testing.T) {
-	wId := id.NewWorkspaceID()
+	wId := accountdomain.NewWorkspaceID()
 	tests := []struct {
 		name string
 		s    Schema
-		want id.WorkspaceID
+		want accountdomain.WorkspaceID
 	}{
 		{
 			name: "id",
-			want: id.WorkspaceID{},
+			want: accountdomain.WorkspaceID{},
 		},
 		{
 			name: "id",
@@ -364,8 +365,54 @@ func TestSchema_Project(t *testing.T) {
 	}
 }
 
+func TestSchema_TitleField(t *testing.T) {
+	s1 := &Schema{}
+	assert.Nil(t, s1.TitleField())
+
+	fid := id.NewFieldID()
+	s2 := &Schema{
+		titleField: &fid,
+		fields:     []*Field{{id: fid, name: "f1"}},
+	}
+	assert.Equal(t, fid.Ref(), s2.TitleField().Ref())
+
+	fid3 := id.NewFieldID()
+	s3 := &Schema{
+		titleField: fid3.Ref(),
+	}
+	assert.Nil(t, s3.TitleField())
+
+	s4 := &Schema{
+		fields:     []*Field{},
+		titleField: fid3.Ref(),
+	}
+	assert.Nil(t, s4.TitleField())
+}
+
+func TestSchema_SetTitleField(t *testing.T) {
+	sf := NewField(NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	f := []*Field{sf}
+	s := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f).MustBuild()
+
+	err := s.SetTitleField(id.NewFieldID().Ref())
+	assert.ErrorIs(t, err, ErrInvalidTitleField)
+
+	err = s.SetTitleField(sf.ID().Ref())
+	assert.NoError(t, err)
+	assert.Equal(t, sf.ID().Ref(), s.TitleField().Ref())
+
+	f2 := []*Field{}
+	s2 := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(f2).MustBuild()
+	err = s2.SetTitleField(id.NewFieldID().Ref())
+	assert.ErrorIs(t, err, ErrInvalidTitleField)
+
+	s3 := New().NewID().Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).Fields(nil).MustBuild()
+	err = s3.SetTitleField(id.NewFieldID().Ref())
+	assert.ErrorIs(t, err, ErrInvalidTitleField)
+}
+
 func TestSchema_Clone(t *testing.T) {
-	s := &Schema{id: NewID()}
+	s := &Schema{id: NewID(), fields: []*Field{{id: id.NewFieldID(), name: "f1"}}, titleField: NewFieldID().Ref()}
 	c := s.Clone()
 	assert.Equal(t, s, c)
 	assert.NotSame(t, s, c)

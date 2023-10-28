@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 )
 
@@ -50,32 +51,32 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{"error": "not found"})
+		IsEqual(map[string]any{"error": "not found"})
 
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey2).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{"error": "not found"})
+		IsEqual(map[string]any{"error": "not found"})
 
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, "invalid-key").
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{"error": "not found"})
+		IsEqual(map[string]any{"error": "not found"})
 
 	e.GET("/api/p/{project}/{model}/{item}", publicAPIProjectAlias, publicAPIModelKey, id.NewItemID()).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{"error": "not found"})
+		IsEqual(map[string]any{"error": "not found"})
 
 	// ok
 	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias, publicAPIModelKey).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"results": []map[string]any{
 				{
 					"id":               publicAPIItem1ID.String(),
@@ -117,7 +118,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"results": []map[string]any{
 				{
 					"id":               publicAPIItem2ID.String(),
@@ -138,7 +139,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"results": []map[string]any{
 				{
 					"id":               publicAPIItem2ID.String(),
@@ -154,7 +155,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"id":               publicAPIItem1ID.String(),
 			publicAPIField1Key: "aaa",
 			publicAPIField2Key: map[string]any{
@@ -168,7 +169,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"error": "not found",
 		})
 
@@ -176,7 +177,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"error": "not found",
 		})
 
@@ -184,7 +185,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"type": "asset",
 			"id":   publicAPIAsset1ID.String(),
 			"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", publicAPIAssetUUID[:2], publicAPIAssetUUID[2:]),
@@ -203,7 +204,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"results": []map[string]any{
 				{
 					"id":               publicAPIItem1ID.String(),
@@ -232,7 +233,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"id":               publicAPIItem1ID.String(),
 			publicAPIField1Key: "aaa",
 			// publicAPIField2Key should be removed
@@ -246,7 +247,7 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"error": "not found",
 		})
 
@@ -254,14 +255,14 @@ func TestPublicAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
-		Equal(map[string]any{
+		IsEqual(map[string]any{
 			"error": "not found",
 		})
 }
 
 func publicAPISeeder(ctx context.Context, r *repo.Container) error {
-	uid := id.NewUserID()
-	p1 := project.New().ID(publicAPIProjectID).Workspace(id.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
+	uid := accountdomain.NewUserID()
+	p1 := project.New().ID(publicAPIProjectID).Workspace(accountdomain.NewWorkspaceID()).Alias(publicAPIProjectAlias).Publication(
 		project.NewPublication(project.PublicationScopePublic, true),
 	).MustBuild()
 
@@ -269,41 +270,42 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		FileName("aaa.zip").UUID(publicAPIAssetUUID).MustBuild()
 	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
 
+	fid := id.NewFieldID()
 	s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField1Key)).MustBuild(),
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Key(key.New(publicAPIField1Key)).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField2Key)).MustBuild(),
 		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
-	}).MustBuild()
+	}).TitleField(fid.Ref()).MustBuild()
 
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
 	// not public model
 	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
 
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple()),
-		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
 	i2 := item.New().ID(publicAPIItem2ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple(), nil),
 	}).MustBuild()
 
 	i3 := item.New().ID(publicAPIItem3ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple()),
-		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple()),
-		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"})),
-		item.NewField(s.Fields()[3].ID(), value.TypeAsset.Value(a.ID()).AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ccc").AsMultiple(), nil),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(publicAPIAsset2ID).AsMultiple(), nil),
+		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
+		item.NewField(s.Fields()[3].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
 	// not public
 	i4 := item.New().ID(publicAPIItem4ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").AsMultiple(), nil),
 	}).MustBuild()
 	// not public model
 	i5 := item.New().ID(publicAPIItem1ID).Model(m2.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
-		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple()),
-		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple()),
+		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
+		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
 
 	lo.Must0(r.Project.Save(ctx, p1))

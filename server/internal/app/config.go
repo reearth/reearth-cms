@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
@@ -32,6 +33,7 @@ type Config struct {
 	GCS          GCSConfig
 	S3           S3Config
 	Task         gcp.TaskConfig
+	AWSTask      aws.TaskConfig
 	AssetBaseURL string
 	Web          WebConfig
 	Web_Disabled bool
@@ -47,6 +49,8 @@ type Config struct {
 	Auth_JWKSURI  *string
 	// auth for m2m
 	AuthM2M AuthM2MConfig
+
+	DB_Account string
 }
 
 type AuthConfig struct {

@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -26,7 +27,7 @@ func TestBuilder_SchemaID(t *testing.T) {
 
 func TestBuilder_Fields(t *testing.T) {
 	fid := schema.NewFieldID()
-	fields := []*Field{NewField(fid, value.TypeBool.Value(true).AsMultiple())}
+	fields := Fields{NewField(fid, value.TypeBool.Value(true).AsMultiple(), nil)}
 	b := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).Fields(fields).Thread(id.NewThreadID()).MustBuild()
 	assert.Equal(t, fields, b.Fields())
 	b = New().NewID().Schema(id.NewSchemaID()).Project(id.NewProjectID()).Model(id.NewModelID()).Fields(nil).Thread(id.NewThreadID()).MustBuild()
@@ -56,7 +57,7 @@ func TestBuilder_Model(t *testing.T) {
 }
 
 func TestBuilder_User(t *testing.T) {
-	uId := id.NewUserID()
+	uId := accountdomain.NewUserID()
 	b := New().User(uId)
 	assert.Equal(t, &uId, b.i.user)
 }
@@ -205,4 +206,10 @@ func TestBuilder_Build(t *testing.T) {
 func TestBuilder_NewThread(t *testing.T) {
 	b := New().NewThread()
 	assert.NotNil(t, b.i.thread)
+}
+
+func TestBuilder_MetadataItem(t *testing.T) {
+	iId := id.NewItemID().Ref()
+	b := New().MetadataItem(iId)
+	assert.Equal(t, iId, b.i.metadataItem)
 }

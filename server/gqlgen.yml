@@ -1,20 +1,7 @@
 # Refer to https://gqlgen.com/config/
 # for detailed .gqlgen.yml documentation.
 
-schema:
-  - ./schemas/_shared.graphql
-  - ./schemas/asset.graphql
-  - ./schemas/user.graphql
-  - ./schemas/workspace.graphql
-  - ./schemas/project.graphql
-  - ./schemas/model.graphql
-  - ./schemas/request.graphql
-  - ./schemas/schema.graphql
-  - ./schemas/field.graphql
-  - ./schemas/item.graphql
-  - ./schemas/integration.graphql
-  - ./schemas/integration_webhook.graphql
-  - ./schemas/thread.graphql
+schema: ./schemas/*.graphql
 exec:
   filename: internal/adapter/gql/generated.go
 model:
@@ -55,22 +42,35 @@ models:
         resolver: true
       model:
         resolver: true
-      user:
+      createdBy:
         resolver: true
-      integration:
+      metadata:
         resolver: true
       status:
         resolver: true
       assets:
         resolver: true
+      updatedBy:
+        resolver: true
+
   Model:
     fields:
       project:
         resolver: true
       schema:
         resolver: true
+      metadataSchema:
+        resolver: true
   Schema:
     fields:
+      project:
+        resolver: true
+      titleField:
+        resolver: true
+  Group:
+    fields:
+      schema:
+        resolver: true
       project:
         resolver: true
   Request:
@@ -92,6 +92,12 @@ models:
   SchemaField:
     fields:
       model:
+        resolver: true
+  SchemaFieldReference:
+    fields:
+      correspondingField:
+        resolver: true
+      correspondingSchema:
         resolver: true
   Asset:
     fields:

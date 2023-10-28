@@ -769,3 +769,9 @@ func TestBuilder_UpdatedAt(t *testing.T) {
 		})
 	}
 }
+
+func TestBuilder_Metadata(t *testing.T) {
+	msId := id.NewSchemaID().Ref()
+	b := New().Metadata(msId)
+	assert.Equal(t, msId, b.model.metadata)
+}

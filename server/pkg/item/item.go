@@ -3,6 +3,8 @@ package item
 import (
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/id"
+
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -13,15 +15,18 @@ import (
 )
 
 type Item struct {
-	id          ID
-	schema      SchemaID
-	model       ModelID
-	project     ProjectID
-	fields      []*Field
-	timestamp   time.Time
-	thread      ThreadID
-	user        *UserID
-	integration *IntegrationID
+	id                   ID
+	schema               SchemaID
+	model                ModelID
+	project              ProjectID
+	fields               []*Field
+	timestamp            time.Time
+	thread               ThreadID
+	user                 *UserID
+	updatedByUser        *UserID
+	updatedByIntegration *IntegrationID
+	metadataItem         *id.ItemID
+	integration          *IntegrationID
 }
 
 type Versioned = *version.Value[*Item]
@@ -38,7 +43,7 @@ func (i *Item) Integration() *IntegrationID {
 	return i.integration
 }
 
-func (i *Item) Fields() []*Field {
+func (i *Item) Fields() Fields {
 	return slices.Clone(i.fields)
 }
 
@@ -58,9 +63,23 @@ func (i *Item) Timestamp() time.Time {
 	return i.timestamp
 }
 
+func (i *Item) MetadataItem() *ID {
+	return i.metadataItem
+}
+
 func (i *Item) Field(f FieldID) *Field {
 	ff, _ := lo.Find(i.fields, func(g *Field) bool {
 		return g.FieldID() == f
+	})
+	return ff
+}
+
+func (i *Item) FieldByItemGroupAndID(fid FieldID, igID ItemGroupID) *Field {
+	ff, _ := lo.Find(i.fields, func(g *Field) bool {
+		if g.group == nil {
+			return false
+		}
+		return g.FieldID() == fid && *g.group == igID
 	})
 	return ff
 }
@@ -69,18 +88,48 @@ func (i *Item) Thread() ThreadID {
 	return i.thread
 }
 
+func (i *Item) UpdatedByUser() *UserID {
+	return i.updatedByUser
+}
+
+func (i *Item) UpdatedByIntegration() *IntegrationID {
+	return i.updatedByIntegration
+}
+
+func (i *Item) SetUpdatedByIntegration(u IntegrationID) {
+	i.updatedByIntegration = &u
+	i.updatedByUser = nil
+}
+
+func (i *Item) SetUpdatedByUser(u UserID) {
+	i.updatedByUser = &u
+	i.updatedByIntegration = nil
+}
+
 func (i *Item) UpdateFields(fields []*Field) {
 	if fields == nil {
 		return
 	}
 
 	newFields := lo.Filter(fields, func(field *Field, _ int) bool {
-		return i.Field(field.field) == nil
+		if field == nil {
+			return false
+		}
+		if field.ItemGroup() == nil {
+			return i.Field(field.field) == nil
+		}
+		return i.FieldByItemGroupAndID(field.FieldID(), *field.ItemGroup()) == nil
 	})
 
 	i.fields = append(lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
 		ff, found := lo.Find(fields, func(g *Field) bool {
-			return g.FieldID() == f.FieldID()
+			if g == nil || f == nil {
+				return false
+			}
+			if g.group == nil || f.group == nil {
+				return g.FieldID() == f.FieldID()
+			}
+			return g.FieldID() == f.FieldID() && *g.group == *f.group
 		})
 
 		if !found {
@@ -89,6 +138,22 @@ func (i *Item) UpdateFields(fields []*Field) {
 
 		return ff, true
 	}), newFields...)
+
+	i.timestamp = util.Now()
+}
+
+func (i *Item) ClearField(fid FieldID) {
+	i.fields = lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
+		return f, f.FieldID() != fid
+	})
+
+	i.timestamp = util.Now()
+}
+
+func (i *Item) ClearReferenceFields() {
+	i.fields = lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
+		return f, f.Type() != value.TypeReference
+	})
 
 	i.timestamp = util.Now()
 }
@@ -123,8 +188,34 @@ func (i *Item) AssetIDs() AssetIDList {
 	})
 }
 
+func (i *Item) GetTitle(s *schema.Schema) *string {
+	if s == nil || s.TitleField() == nil {
+		return nil
+	}
+	sf := s.Field(*s.TitleField())
+	if sf == nil {
+		return nil
+	}
+	f := i.Field(sf.ID())
+	if f == nil {
+		return nil
+	}
+	vv, ok := f.Value().First().Value().(string)
+	if !ok {
+		return nil
+	}
+	return &vv
+}
+
 type ItemModelSchema struct {
-	Item   *Item
-	Model  *model.Model
-	Schema *schema.Schema
+	Item            *Item
+	ReferencedItems []Versioned
+	MetadataFields  Fields
+	Model           *model.Model
+	Schema          *schema.Schema
+	Changes         FieldChanges
+}
+
+func (i *Item) SetMetadataItem(iid id.ItemID) {
+	i.metadataItem = &iid
 }

@@ -39,7 +39,9 @@ enum NodeType {
   Model
   Schema
   Item
+  View
   Integration
+  Group
 }
 
 input Pagination{

@@ -1,6 +1,9 @@
 package id
 
-import "github.com/reearth/reearthx/idx"
+import (
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/idx"
+)
 
 type Workspace struct{}
 type User struct{}
@@ -37,12 +40,12 @@ var UserIDFromRef = idx.FromRef[User]
 var AssetIDFromRef = idx.FromRef[Asset]
 var EventIDFromRef = idx.FromRef[Event]
 
-type WorkspaceIDList = idx.List[Workspace]
-type UserIDList = idx.List[User]
+type WorkspaceIDList = idx.List[accountdomain.Workspace]
+type UserIDList = idx.List[accountdomain.User]
 type AssetIDList = idx.List[Asset]
 
-var WorkspaceIDListFrom = idx.ListFrom[Workspace]
-var UserIDListFrom = idx.ListFrom[User]
+var WorkspaceIDListFrom = idx.ListFrom[accountdomain.Workspace]
+var UserIDListFrom = idx.ListFrom[accountdomain.User]
 var AssetIDListFrom = idx.ListFrom[Asset]
 
 type WorkspaceIDSet = idx.Set[Workspace]
@@ -92,6 +95,19 @@ var FieldIDFrom = idx.From[Field]
 var FieldIDFromRef = idx.FromRef[Field]
 var FieldIDListFrom = idx.ListFrom[Field]
 
+type Tag struct{}
+
+func (Tag) Type() string { return "tag" }
+
+type TagID = idx.ID[Tag]
+type TagIDList = idx.List[Tag]
+
+var MustTagID = idx.Must[Tag]
+var NewTagID = idx.New[Tag]
+var TagIDFrom = idx.From[Tag]
+var TagIDFromRef = idx.FromRef[Tag]
+var TagIDListFrom = idx.ListFrom[Tag]
+
 type Schema struct{}
 
 func (Schema) Type() string { return "schema" }
@@ -104,6 +120,32 @@ var NewSchemaID = idx.New[Schema]
 var SchemaIDFrom = idx.From[Schema]
 var SchemaIDFromRef = idx.FromRef[Schema]
 var SchemaIDListFrom = idx.ListFrom[Schema]
+
+type Group struct{}
+
+func (Group) Type() string { return "group" }
+
+type GroupID = idx.ID[Group]
+type GroupIDList = idx.List[Group]
+
+var MustGroupID = idx.Must[Group]
+var NewGroupID = idx.New[Group]
+var GroupIDFrom = idx.From[Group]
+var GroupIDFromRef = idx.FromRef[Group]
+var GroupIDListFrom = idx.ListFrom[Group]
+
+type ItemGroup struct{}
+
+func (ItemGroup) Type() string { return "item_group" }
+
+type ItemGroupID = idx.ID[ItemGroup]
+type ItemGroupIDList = idx.List[ItemGroup]
+
+var MustItemGroupID = idx.Must[ItemGroup]
+var NewItemGroupID = idx.New[ItemGroup]
+var ItemGroupIDFrom = idx.From[ItemGroup]
+var ItemGroupIDFromRef = idx.FromRef[ItemGroup]
+var ItemGroupIDListFrom = idx.ListFrom[ItemGroup]
 
 type Thread struct{}
 
@@ -198,3 +240,15 @@ var NewRequestID = idx.New[Request]
 var MustRequestID = idx.Must[Request]
 var RequestIDFrom = idx.From[Request]
 var RequestIDFromRef = idx.FromRef[Request]
+
+type View struct{}
+
+func (View) Type() string { return "request" }
+
+type ViewID = idx.ID[View]
+type ViewIDList = idx.List[View]
+
+var NewViewID = idx.New[View]
+var MustViewID = idx.Must[View]
+var ViewIDFrom = idx.From[View]
+var ViewIDFromRef = idx.FromRef[View]

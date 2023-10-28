@@ -7,20 +7,23 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error) {
-	wid, err := gqlmodel.ToID[id.Workspace](input.WorkspaceID)
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	res, err := usecases(ctx).Project.Create(ctx, interfaces.CreateProjectParam{
-		WorkspaceID: wid,
-		Name:        input.Name,
-		Description: input.Description,
-		Alias:       input.Alias,
+		WorkspaceID:  wid,
+		Name:         input.Name,
+		Description:  input.Description,
+		Alias:        input.Alias,
+		RequestRoles: lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) workspace.Role { return workspace.Role(r) }),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
@@ -48,11 +51,12 @@ func (r *mutationResolver) UpdateProject(ctx context.Context, input gqlmodel.Upd
 	}
 
 	res, err := usecases(ctx).Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:          pid,
-		Name:        input.Name,
-		Description: input.Description,
-		Alias:       input.Alias,
-		Publication: pub,
+		ID:           pid,
+		Name:         input.Name,
+		Description:  input.Description,
+		Alias:        input.Alias,
+		Publication:  pub,
+		RequestRoles: lo.Map(input.RequestRoles, func(r gqlmodel.Role, _ int) workspace.Role { return gqlmodel.FromRole(r) }),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

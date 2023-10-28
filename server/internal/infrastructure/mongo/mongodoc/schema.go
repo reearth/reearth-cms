@@ -7,15 +7,18 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type SchemaDocument struct {
-	ID        string
-	Workspace string
-	Project   string
-	Fields    []FieldDocument
+	ID         string
+	Workspace  string
+	Project    string
+	Fields     []FieldDocument
+	TitleField *string
 }
 
 type FieldDocument struct {
@@ -39,9 +42,11 @@ type TypePropertyDocument struct {
 	RichText  *FieldTextPropertyDocument      `bson:",omitempty"`
 	Markdown  *FieldTextPropertyDocument      `bson:",omitempty"`
 	Select    *FieldSelectPropertyDocument    `bson:",omitempty"`
+	Tag       *FieldTagPropertyDocument       `bson:",omitempty"`
 	Number    *FieldNumberPropertyDocument    `bson:",omitempty"`
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
+	Group     *FieldGroupPropertyDocument     `bson:",omitempty"`
 }
 
 type FieldTextPropertyDocument struct {
@@ -49,6 +54,16 @@ type FieldTextPropertyDocument struct {
 }
 type FieldSelectPropertyDocument struct {
 	Values []string
+}
+
+type FieldTagValueDocument struct {
+	ID    string
+	Name  string
+	Color string
+}
+
+type FieldTagPropertyDocument struct {
+	Tags []FieldTagValueDocument
 }
 
 type FieldNumberPropertyDocument struct {
@@ -62,7 +77,13 @@ type FieldIntegerPropertyDocument struct {
 }
 
 type FieldReferencePropertyDocument struct {
-	Model string
+	Model               string
+	CorrespondingSchema *string
+	CorrespondingField  *string
+}
+
+type FieldGroupPropertyDocument struct {
+	Group string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -108,9 +129,22 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Asset:    func(fp *schema.FieldAsset) {},
 			DateTime: func(fp *schema.FieldDateTime) {},
 			Bool:     func(fp *schema.FieldBool) {},
+			Checkbox: func(fp *schema.FieldCheckbox) {},
 			Select: func(fp *schema.FieldSelect) {
 				fd.TypeProperty.Select = &FieldSelectPropertyDocument{
 					Values: fp.Values(),
+				}
+			},
+			Tag: func(fp *schema.FieldTag) {
+				tags := lo.Map(fp.Tags(), func(item *schema.Tag, _ int) FieldTagValueDocument {
+					return FieldTagValueDocument{
+						ID:    item.ID().String(),
+						Name:  item.Name(),
+						Color: item.Color().String(),
+					}
+				})
+				fd.TypeProperty.Tag = &FieldTagPropertyDocument{
+					Tags: tags,
 				}
 			},
 			Number: func(fp *schema.FieldNumber) {
@@ -127,7 +161,14 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			},
 			Reference: func(fp *schema.FieldReference) {
 				fd.TypeProperty.Reference = &FieldReferencePropertyDocument{
-					Model: fp.Model().String(),
+					Model:               fp.Model().String(),
+					CorrespondingSchema: fp.CorrespondingSchema().StringRef(),
+					CorrespondingField:  fp.CorrespondingFieldID().StringRef(),
+				}
+			},
+			Group: func(fp *schema.FieldGroup) {
+				fd.TypeProperty.Group = &FieldGroupPropertyDocument{
+					Group: fp.Group().String(),
 				}
 			},
 			URL: func(fp *schema.FieldURL) {},
@@ -135,10 +176,11 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 		return fd
 	})
 	return &SchemaDocument{
-		ID:        sId,
-		Workspace: s.Workspace().String(),
-		Project:   s.Project().String(),
-		Fields:    fieldsDoc,
+		ID:         sId,
+		Workspace:  s.Workspace().String(),
+		Project:    s.Project().String(),
+		Fields:     fieldsDoc,
+		TitleField: s.TitleField().StringRef(),
 	}, sId
 }
 
@@ -147,7 +189,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 	if err != nil {
 		return nil, err
 	}
-	wId, err := id.WorkspaceIDFrom(d.Workspace)
+	wId, err := accountdomain.WorkspaceIDFrom(d.Workspace)
 	if err != nil {
 		return nil, err
 	}
@@ -155,9 +197,31 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 	if err != nil {
 		return nil, err
 	}
+	fid := id.FieldIDFromRef(d.TitleField)
 
 	f, err := util.TryMap(d.Fields, func(fd FieldDocument) (*schema.Field, error) {
 		tpd := fd.TypeProperty
+		var tags schema.TagList
+		if tpd.Tag != nil {
+			tags, err = util.TryMap(tpd.Tag.Tags, func(tag FieldTagValueDocument) (*schema.Tag, error) {
+				tid, err := id.TagIDFrom(tag.ID)
+				if err != nil {
+					return nil, err
+				}
+				return schema.NewTagWithID(tid, tag.Name, schema.TagColorFrom(tag.Color))
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
+		var gid id.GroupID
+		if tpd.Group != nil {
+			gid, err = id.GroupIDFrom(tpd.Group.Group)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		var tp *schema.TypeProperty
 		switch value.Type(tpd.Type) {
 		case value.TypeText:
@@ -174,8 +238,16 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			tp = schema.NewDateTime().TypeProperty()
 		case value.TypeBool:
 			tp = schema.NewBool().TypeProperty()
+		case value.TypeCheckbox:
+			tp = schema.NewCheckbox().TypeProperty()
 		case value.TypeSelect:
 			tp = schema.NewSelect(tpd.Select.Values).TypeProperty()
+		case value.TypeTag:
+			tag, err := schema.NewFieldTag(tags)
+			if err != nil {
+				return nil, err
+			}
+			tp = tag.TypeProperty()
 		case value.TypeNumber:
 			tpi, err := schema.NewNumber(tpd.Number.Min, tpd.Number.Max)
 			if err != nil {
@@ -193,9 +265,19 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			if err != nil {
 				return nil, err
 			}
-			tp = schema.NewReference(mid).TypeProperty()
+			var cfid *id.FieldID
+			if tpd.Reference.CorrespondingField != nil {
+				cfid = id.FieldIDFromRef(tpd.Reference.CorrespondingField)
+			}
+			var sid *id.SchemaID
+			if tpd.Reference.CorrespondingSchema != nil {
+				sid = id.SchemaIDFromRef(tpd.Reference.CorrespondingSchema)
+			}
+			tp = schema.NewReference(mid, sid, nil, cfid).TypeProperty()
 		case value.TypeURL:
 			tp = schema.NewURL().TypeProperty()
+		case value.TypeGroup:
+			tp = schema.NewGroup(gid).TypeProperty()
 		}
 
 		fid, err := id.FieldIDFrom(fd.ID)
@@ -225,6 +307,7 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		Workspace(wId).
 		Project(pId).
 		Fields(f).
+		TitleField(fid).
 		Build()
 }
 

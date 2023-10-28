@@ -5,9 +5,11 @@ type Item implements Node {
   modelId: ID!
   projectId: ID!
   integrationId: ID
+  updatedByUserId: ID
+  updatedByIntegrationId: ID
   userId: ID
-  integration: Integration
-  user: User
+  metadataId: ID
+  createdBy: Operator
   schema: Schema!
   model: Model!
   status: ItemStatus!
@@ -17,11 +19,15 @@ type Item implements Node {
   assets: [Asset]!
   createdAt: DateTime!
   updatedAt: DateTime!
+  updatedBy: Operator
   version: String!
+  metadata: Item
+  title: String
 }
 
 type ItemField {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any
 }
@@ -44,6 +50,7 @@ enum ItemStatus {
 # Inputs
 input ItemFieldInput {
   schemaFieldId: ID!
+  itemGroupId: ID
   type: SchemaFieldType!
   value: Any!
 }
@@ -51,11 +58,13 @@ input ItemFieldInput {
 input CreateItemInput {
   schemaId: ID!
   modelId: ID!
+  metadataId: ID
   fields: [ItemFieldInput!]!
 }
 
 input UpdateItemInput {
   itemId: ID!
+  metadataId: ID
   fields: [ItemFieldInput!]!
   version: String
 }
@@ -65,7 +74,25 @@ input DeleteItemInput {
 }
 
 input UnpublishItemInput {
-  itemId: [ID!]!
+  itemIds: [ID!]!
+}
+
+input PublishItemInput {
+  itemIds: [ID!]!
+}
+
+input ItemQueryInput {
+  project: ID!
+  schema: ID
+  model: ID
+  q: String
+}
+
+input SearchItemInput {
+  query: ItemQueryInput!
+  sort: ItemSortInput
+  filter: ConditionInput
+  pagination: Pagination
 }
 
 # Payloads
@@ -81,6 +108,10 @@ type UnpublishItemPayload {
   items: [Item!]!
 }
 
+type PublishItemPayload {
+  items: [Item!]!
+}
+
 type ItemConnection {
   edges: [ItemEdge!]!
   nodes: [Item]!
@@ -93,35 +124,16 @@ type ItemEdge {
   node: Item
 }
 
-enum ItemSortType {
-  CREATION_DATE
-  MODIFICATION_DATE
-}
-
-input ItemSort {
-  sortBy: ItemSortType!
-  direction: SortDirection
-}
-
-input ItemQuery {
-  project: ID!
-  schema: ID
-  q: String
-}
-
 extend type Query {
-  items(schemaId: ID!, sort: ItemSort, pagination: Pagination): ItemConnection!
   versionsByItem(itemId: ID!): [VersionedItem!]!
-  searchItem(
-    query: ItemQuery!
-    sort: ItemSort
-    pagination: Pagination
-  ): ItemConnection!
+  searchItem(input: SearchItemInput!): ItemConnection!
+  isItemReferenced(itemId: ID!, correspondingFieldId: ID!): Boolean!
 }
 
 extend type Mutation {
   createItem(input: CreateItemInput!): ItemPayload
   updateItem(input: UpdateItemInput!): ItemPayload
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
+  publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
 }

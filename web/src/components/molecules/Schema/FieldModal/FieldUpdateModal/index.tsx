@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -6,39 +8,53 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
+import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
+import {
+  Field,
+  FieldModalTabs,
+  FieldType,
+  Group,
+} from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-import { fieldTypes } from "../../fieldTypes";
-import { Field, FieldModalTabs, FieldType } from "../../types";
-
 export interface FormValues {
-  fieldId: string;
+  fieldId?: string;
+  groupId?: string;
   title: string;
   description: string;
   key: string;
+  meta: boolean;
   multiple: boolean;
   unique: boolean;
+  isTitle: boolean;
   required: boolean;
+  type?: FieldType;
   typeProperty: SchemaFieldTypePropertyInput;
 }
 
 export interface Props {
+  groups?: Group[];
   open?: boolean;
+  fieldUpdateLoading: boolean;
   selectedType: FieldType;
+  isMeta?: boolean;
   selectedField?: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
@@ -75,17 +91,22 @@ const initialValues: FormValues = {
   description: "",
   key: "",
   multiple: false,
+  meta: false,
   unique: false,
+  isTitle: false,
   required: false,
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
 const FieldUpdateModal: React.FC<Props> = ({
+  groups,
   open,
+  fieldUpdateLoading,
   onClose,
   onSubmit,
   handleFieldKeyUnique,
   selectedType,
+  isMeta,
   selectedField,
   assetList,
   fileList,
@@ -111,10 +132,26 @@ const FieldUpdateModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [buttonDisabled, setButtonDisabled] = useState(false);
-  const multipleValue: boolean = Form.useWatch("multiple", form);
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
+  const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
+  const [multipleValue, setMultipleValue] = useState(selectedField?.multiple);
+
+  const handleMultipleChange = useCallback(
+    (e: CheckboxChangeEvent) => {
+      if (selectedType === "Date") {
+        if (e.target.checked) {
+          form.setFieldValue("defaultValue", []);
+        } else {
+          form.setFieldValue("defaultValue", null);
+        }
+      }
+
+      setMultipleValue(e.target.checked);
+    },
+    [form, selectedType],
+  );
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -134,6 +171,51 @@ const FieldUpdateModal: React.FC<Props> = ({
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
+    if (selectedType === "Tag" && form.getFieldValue("defaultValue") && selectedTags) {
+      const defaultValues = form.getFieldValue("defaultValue");
+      const isDefaultValueArray = Array.isArray(defaultValues);
+
+      const result = selectedTags
+        .filter(selectedTag =>
+          isDefaultValueArray
+            ? defaultValues.includes(selectedTag.name) || defaultValues.includes(selectedTag.id)
+            : selectedTag.name === defaultValues || selectedTag.id === defaultValues,
+        )
+        .map(item => item.name);
+
+      form.setFieldValue("defaultValue", result);
+    }
+  }, [form, selectedTags, selectedType]);
+
+  useEffect(() => {
+    let value =
+      selectedField?.typeProperty.defaultValue ||
+      selectedField?.typeProperty.selectDefaultValue ||
+      selectedField?.typeProperty.integerDefaultValue ||
+      selectedField?.typeProperty.assetDefaultValue;
+
+    if (selectedType === "Date") {
+      if (Array.isArray(value)) {
+        value = value.map(valueItem => moment(valueItem));
+      } else {
+        value = moment(value);
+      }
+    }
+    if (selectedType === "Tag") {
+      if (Array.isArray(value)) {
+        value = value.map(
+          valueItem =>
+            selectedField?.typeProperty.tags?.find(
+              (tag: { id: string; name: string }) => tag.id === valueItem,
+            )?.name,
+        );
+      } else {
+        value = selectedField?.typeProperty.tags?.find(
+          (tag: { id: string; name: string }) => tag.id === value,
+        )?.name;
+      }
+    }
+
     form.setFieldsValue({
       fieldId: selectedField?.id,
       title: selectedField?.title,
@@ -141,18 +223,17 @@ const FieldUpdateModal: React.FC<Props> = ({
       key: selectedField?.key,
       multiple: selectedField?.multiple,
       unique: selectedField?.unique,
+      isTitle: selectedField?.isTitle,
       required: selectedField?.required,
-      defaultValue:
-        selectedField?.typeProperty.defaultValue ||
-        selectedField?.typeProperty.selectDefaultValue ||
-        selectedField?.typeProperty.integerDefaultValue ||
-        selectedField?.typeProperty.assetDefaultValue,
+      defaultValue: value,
       min: selectedField?.typeProperty.min,
       max: selectedField?.typeProperty.max,
       maxLength: selectedField?.typeProperty.maxLength,
       values: selectedField?.typeProperty.values,
+      tags: selectedField?.typeProperty.tags,
+      group: selectedField?.typeProperty.groupId,
     });
-  }, [form, selectedField]);
+  }, [form, selectedField, selectedType]);
 
   const handleSubmit = useCallback(() => {
     form
@@ -190,12 +271,35 @@ const FieldUpdateModal: React.FC<Props> = ({
           values.typeProperty = {
             bool: { defaultValue: values.defaultValue },
           };
+        } else if (selectedType === "Date") {
+          values.typeProperty = {
+            date: { defaultValue: transformMomentToString(values.defaultValue) },
+          };
+        } else if (selectedType === "Tag") {
+          values.typeProperty = {
+            tag: {
+              defaultValue: values.defaultValue,
+              tags: values.tags.map((tag: any) => ({
+                id: tag.id,
+                name: tag.name,
+                color: tag.color.toUpperCase(),
+              })),
+            },
+          };
+        } else if (selectedType === "Checkbox") {
+          values.typeProperty = {
+            checkbox: { defaultValue: values.defaultValue },
+          };
         } else if (selectedType === "URL") {
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
           };
+        } else if (selectedType === "Group") {
+          values.typeProperty = {
+            group: { groupId: values.group },
+          };
         }
-
+        values.metadata = isMeta;
         await onSubmit?.({
           ...values,
           fieldId: selectedField?.id,
@@ -205,12 +309,17 @@ const FieldUpdateModal: React.FC<Props> = ({
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit, selectedType, selectedField?.id]);
+  }, [form, selectedType, isMeta, onSubmit, selectedField?.id, onClose]);
 
   const handleModalReset = useCallback(() => {
     form.resetFields();
     setActiveTab("settings");
   }, [form]);
+
+  const handleModalCancel = useCallback(() => {
+    setMultipleValue(selectedField?.multiple);
+    onClose?.(true);
+  }, [onClose, selectedField?.multiple]);
 
   return (
     <Modal
@@ -227,9 +336,10 @@ const FieldUpdateModal: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      visible={open}
-      onCancel={() => onClose?.(true)}
+      open={open}
+      onCancel={handleModalCancel}
       onOk={handleSubmit}
+      confirmLoading={fieldUpdateLoading}
       okButtonProps={{ disabled: buttonDisabled }}
       afterClose={handleModalReset}>
       <Form
@@ -294,17 +404,69 @@ const FieldUpdateModal: React.FC<Props> = ({
                       if (!values || values.length < 1) {
                         return Promise.reject(new Error("At least 1 option"));
                       }
+                      if (values.some((value: string) => value.length === 0)) {
+                        return Promise.reject(new Error("Empty values are not allowed"));
+                      }
                     },
                   },
                 ]}>
                 <MultiValueField FieldInput={Input} />
               </Form.Item>
             )}
+            {selectedType === "Tag" && (
+              <Form.Item
+                name="tags"
+                label={t("Set Tags")}
+                rules={[
+                  {
+                    validator: async (_, values) => {
+                      if (!values || values.length < 1) {
+                        return Promise.reject(new Error("At least 1 option"));
+                      }
+                      if (values.some((value: string) => value.length === 0)) {
+                        return Promise.reject(new Error("Empty values are not allowed"));
+                      }
+                      const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
+                      if (uniqueNames.size !== values.length) {
+                        return Promise.reject(new Error("Labels must be unique"));
+                      }
+                    },
+                  },
+                ]}>
+                <MultiValueColoredTag />
+              </Form.Item>
+            )}
+            {selectedType === "Group" && (
+              <Form.Item
+                name="group"
+                label={t("Select Group")}
+                rules={[{ required: true, message: t("Please select the group!") }]}>
+                <Select>
+                  {groups?.map(group => (
+                    <Select.Option key={group.id} value={group.id}>
+                      {group.name}{" "}
+                      <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
+                        #{group.key}
+                      </span>
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            )}
             <Form.Item
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox>{t("Support multiple values")}</Checkbox>
+              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+                {t("Support multiple values")}
+              </Checkbox>
+            </Form.Item>
+            <Form.Item
+              name="isTitle"
+              hidden={isMeta || selectedType === "Group"}
+              valuePropName="checked"
+              extra={t("Only one field can be used as the title")}>
+              <Checkbox>{t("Use as title")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -313,18 +475,19 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="required"
               valuePropName="checked"
               extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox>{t("Make field required")}</Checkbox>
+              <Checkbox disabled={selectedType === "Group"}>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
               extra={t("Ensures that multiple entries can't have the same value for this field")}>
-              <Checkbox>{t("Set field as unique")}</Checkbox>
+              <Checkbox disabled={selectedType === "Group"}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs
               selectedValues={selectedValues}
+              selectedTags={selectedTags}
               multiple={multipleValue}
               selectedType={selectedType}
               assetList={assetList}

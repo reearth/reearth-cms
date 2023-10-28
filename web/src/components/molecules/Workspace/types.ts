@@ -2,6 +2,7 @@ export type Project = {
   id: string;
   name: string;
   description: string;
+  requestRoles?: Role[] | null;
 };
 
 export type User = {

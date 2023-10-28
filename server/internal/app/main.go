@@ -11,6 +11,8 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -27,15 +29,17 @@ func Start(debug bool, version string) {
 	log.Infof("config: %s", conf.Print())
 
 	// Init repositories
-	repos, gateways := initReposAndGateways(ctx, conf, debug)
+	repos, gateways, acRepos, acGateways := initReposAndGateways(ctx, conf, debug)
 
 	// Start web server
 	NewServer(ctx, &ServerConfig{
-		Config:   conf,
-		Debug:    debug,
-		Repos:    repos,
-		Gateways: gateways,
-	}).Run()
+		Config:     conf,
+		Debug:      debug,
+		Repos:      repos,
+		Gateways:   gateways,
+		AcRepos:    acRepos,
+		AcGateways: acGateways,
+	}).Run(ctx)
 }
 
 type WebServer struct {
@@ -44,10 +48,12 @@ type WebServer struct {
 }
 
 type ServerConfig struct {
-	Config   *Config
-	Debug    bool
-	Repos    *repo.Container
-	Gateways *gateway.Container
+	Config     *Config
+	Debug      bool
+	Repos      *repo.Container
+	Gateways   *gateway.Container
+	AcRepos    *accountrepo.Container
+	AcGateways *accountgateway.Container
 }
 
 func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
@@ -74,8 +80,8 @@ func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
 	return w
 }
 
-func (w *WebServer) Run() {
-	defer log.Infoln("Server shutdown")
+func (w *WebServer) Run(ctx context.Context) {
+	defer log.Infoc(ctx, "Server shutdown")
 
 	debugLog := ""
 	if w.appServer.Debug {
@@ -85,7 +91,7 @@ func (w *WebServer) Run() {
 
 	go func() {
 		err := w.appServer.StartH2CServer(w.address, &http2.Server{})
-		log.Fatalln(err.Error())
+		log.Fatalc(ctx, err.Error())
 	}()
 
 	quit := make(chan os.Signal, 1)

@@ -37,7 +37,7 @@ func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gq
 	}
 
 	return lo.Map(res, func(m *integration.Integration, _ int) *gqlmodel.Integration {
-		return gqlmodel.ToIntegration(m, op.User)
+		return gqlmodel.ToIntegration(m, op.AcOperator.User)
 	}), nil
 }
 
@@ -50,7 +50,7 @@ func (c *IntegrationLoader) FindByMe(ctx context.Context) ([]*gqlmodel.Integrati
 	}
 	integrations := make([]*gqlmodel.Integration, 0, len(res))
 	for _, i := range res {
-		integrations = append(integrations, gqlmodel.ToIntegration(i, op.User))
+		integrations = append(integrations, gqlmodel.ToIntegration(i, op.AcOperator.User))
 	}
 	return integrations, nil
 }
