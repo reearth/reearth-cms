@@ -202,6 +202,7 @@ export default () => {
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
               createdBy: item.createdBy?.name,
+              updatedBy: item.updatedBy?.name || "",
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {

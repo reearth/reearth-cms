@@ -40,6 +40,7 @@ export type FormItem = {
 export type ContentTableField = {
   id: string;
   createdBy: string;
+  updatedBy: string;
   schemaId: string;
   status: ItemStatus;
   modelId?: string;
