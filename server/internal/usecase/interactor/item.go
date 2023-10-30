@@ -115,14 +115,7 @@ func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usec
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	s, err := i.repos.Schema.FindByID(ctx, schemaID)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	sfIds := s.Fields().IDs()
-	res, page, err := i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
-	return res.FilterFields(sfIds), page, err
+	return i.repos.Item.FindBySchema(ctx, schemaID, nil, sort, p)
 }
 
 func (i Item) FindByAssets(ctx context.Context, list id.AssetIDList, _ *usecase.Operator) (map[id.AssetID]item.VersionedList, error) {
@@ -282,15 +275,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		var metaItemFields item.Fields
-		if vi.Value().MetadataItem() != nil {
-			mi, err := i.repos.Item.FindByID(ctx, *vi.Value().MetadataItem(), nil)
-			if err != nil {
-				return nil, err
-			}
-			metaItemFields = mi.Value().Fields()
-		}
-
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -300,7 +284,6 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				Item:            vi.Value(),
 				Model:           m,
 				Schema:          s,
-				MetadataFields:  metaItemFields,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 			},
 			Operator: operator.Operator(),
@@ -399,14 +382,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return nil, err
 		}
-		var metaItemFields item.Fields
-		if itv.MetadataItem() != nil {
-			mi, err := i.repos.Item.FindByID(ctx, *itv.MetadataItem(), nil)
-			if err != nil {
-				return nil, err
-			}
-			metaItemFields = mi.Value().Fields()
-		}
+
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -416,7 +392,6 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Item:            itv,
 				Model:           m,
 				Schema:          s,
-				MetadataFields:  metaItemFields,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 				Changes:         item.CompareFields(itv.Fields(), oldFields),
 			},
