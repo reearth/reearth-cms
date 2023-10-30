@@ -88,13 +88,15 @@ export default () => {
   const { data: itemsData } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
-      query: {
-        project: currentProject?.id as string,
-        schema: model?.schemaId ?? "",
-      },
-      pagination: {
-        first: linkItemModalPageSize,
-        offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+      searchItemInput: {
+        query: {
+          project: currentProject?.id as string,
+          schema: model?.schemaId ?? "",
+        },
+        pagination: {
+          first: linkItemModalPageSize,
+          offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+        },
       },
     },
     skip: !currentProject?.id,
