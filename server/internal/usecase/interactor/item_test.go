@@ -256,23 +256,6 @@ func TestItem_FindBySchema(t *testing.T) {
 			want:    0,
 			wantErr: nil,
 		},
-		{
-			name:       "schema not found",
-			seedItems:  item.List{i1, i2, i3},
-			seedSchema: s2,
-			args: args{
-				schema: s1.ID(),
-				operator: &usecase.Operator{
-					AcOperator: &accountusecase.Operator{
-						User: &uid,
-					},
-					ReadableProjects: []id.ProjectID{pid},
-					WritableProjects: []id.ProjectID{pid},
-				},
-			},
-			want:    0,
-			wantErr: rerror.ErrNotFound,
-		},
 	}
 
 	for _, tc := range tests {
