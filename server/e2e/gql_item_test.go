@@ -3,6 +3,7 @@ package e2e
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
@@ -653,6 +654,55 @@ func TestSearchItem(t *testing.T) {
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+
+	// user
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"id":   nil,
+					"type": "CREATION_USER",
+				},
+				"operator": "EQUALS",
+				"value":    uId1.String(),
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"id":   nil,
+					"type": "CREATION_USER",
+				},
+				"operator": "NOT_EQUALS",
+				"value":    uId1.String(),
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(0)
+	res.Path("$.data.searchItem.nodes").Array().IsEmpty()
 	// endregion
 
 	// region filter nullable
@@ -1129,6 +1179,56 @@ func TestSearchItem(t *testing.T) {
 	}, map[string]any{
 		"first": 2,
 	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
+
+	// region filters date
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"time": map[string]any{
+				"fieldId": map[string]any{
+					"id":   nil,
+					"type": "CREATION_DATE",
+				},
+				"operator": "AFTER",
+				"value":    time.Now().Format(time.RFC3339),
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(0)
+	res.Path("$.data.searchItem.nodes").Array().IsEmpty()
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"time": map[string]any{
+				"fieldId": map[string]any{
+					"id":   nil,
+					"type": "CREATION_DATE",
+				},
+				"operator": "AFTER",
+				"value":    time.Now().Add(-1 * time.Hour).Format(time.RFC3339),
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
 	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
