@@ -872,6 +872,7 @@ components:
         - reference
         - url
         - group
+        - tag
     schemaField:
       type: object
       properties:
@@ -904,6 +905,9 @@ components:
       type: object
       properties:
         id:
+          x-go-type: id.ItemID
+          type: string
+        metadataItemId:
           x-go-type: id.ItemID
           type: string
         modelId:
