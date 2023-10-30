@@ -210,7 +210,6 @@ func (i *Item) GetTitle(s *schema.Schema) *string {
 type ItemModelSchema struct {
 	Item            *Item
 	ReferencedItems []Versioned
-	MetadataFields  Fields
 	Model           *model.Model
 	Schema          *schema.Schema
 	Changes         FieldChanges

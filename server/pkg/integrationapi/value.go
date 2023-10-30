@@ -33,6 +33,8 @@ func FromValueType(t *ValueType) value.Type {
 		return value.TypeReference
 	case ValueTypeUrl:
 		return value.TypeURL
+	case ValueTypeTag:
+		return value.TypeTag
 	case ValueTypeGroup:
 		return value.TypeGroup
 	default:
@@ -66,6 +68,8 @@ func ToValueType(t value.Type) ValueType {
 		return ValueTypeUrl
 	case value.TypeGroup:
 		return ValueTypeGroup
+	case value.TypeTag:
+		return ValueTypeTag
 	default:
 		return ""
 	}
