@@ -259,6 +259,8 @@ export default () => {
       key: field.id,
       ellipsis: true,
       type: field.type,
+      width: 128,
+      minWidth: 128,
     }));
 
     const metadataColumns =
@@ -269,6 +271,8 @@ export default () => {
         key: field.id,
         ellipsis: true,
         type: field.type,
+        width: 128,
+        minWidth: 128,
       })) || [];
 
     return fieldsColumns.concat(metadataColumns);

@@ -141,6 +141,24 @@ export const SEARCH_ITEM = gql`
           type
           value
         }
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        updatedBy {
+          ... on Integration {
+            name
+            __typename
+          }
+          ... on User {
+            name
+            __typename
+          }
+        }
         metadata {
           id
           fields {
@@ -208,7 +226,7 @@ export const UPDATE_ITEM = gql`
         schemaId
         fields {
           value
-          types
+          type
           schemaFieldId
           itemGroupId
         }

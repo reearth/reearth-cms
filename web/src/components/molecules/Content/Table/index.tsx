@@ -116,7 +116,7 @@ const ContentTable: React.FC<Props> = ({
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
-  const actionsColumn: ExtendedColumns[] = useMemo(
+  const actionsColumns: ExtendedColumns[] = useMemo(
     () => [
       {
         render: (_, contentField) => (
@@ -238,7 +238,7 @@ const ContentTable: React.FC<Props> = ({
     [t, sort?.field?.type, sort?.direction, selectedItem?.id, onItemSelect],
   );
 
-  const contentColumn: ProColumns<ContentTableField>[] | undefined = useMemo(
+  const contentColumns: ProColumns<ContentTableField>[] | undefined = useMemo(
     () =>
       contentTableColumns?.map(column => ({
         sorter: true,
@@ -252,6 +252,12 @@ const ContentTable: React.FC<Props> = ({
       })),
     [contentTableColumns],
   );
+
+  const tableColumns = useMemo(() => {
+    const items = [...actionsColumns];
+    if (contentColumns) items.push(...contentColumns);
+    return items;
+  }, [actionsColumns, contentColumns]);
 
   const rowSelection: TableRowSelection = {
     selectedRowKeys: selection.selectedRowKeys,
@@ -302,7 +308,7 @@ const ContentTable: React.FC<Props> = ({
         const columns: ExtendedColumns[] =
           fieldId.type === "FIELD" || fieldId.type === "CREATION_USER"
             ? contentTableColumns
-            : actionsColumn;
+            : actionsColumns;
         for (const c of columns) {
           if (c.key === fieldId.id) {
             column = c;
@@ -322,7 +328,7 @@ const ContentTable: React.FC<Props> = ({
       setFilters(newFilters);
       defaultFilterValues.current = newDefaultValues;
     }
-  }, [filter, contentTableColumns, actionsColumn, currentWorkspace?.members]);
+  }, [filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
 
   const isFilter = useRef<boolean>(true);
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
@@ -384,7 +390,7 @@ const ContentTable: React.FC<Props> = ({
       };
 
       return [
-        ...((actionsColumn ?? [])
+        ...((actionsColumns ?? [])
           .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
           .map(column => ({
             key: column.key,
@@ -404,7 +410,7 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [actionsColumn, contentTableColumns, currentWorkspace?.members],
+    [actionsColumns, contentTableColumns, currentWorkspace?.members],
   );
 
   const defaultItems = getOptions(false);
@@ -566,15 +572,12 @@ const ContentTable: React.FC<Props> = ({
           dataSource={contentTableFields}
           tableAlertOptionRender={AlertOptions}
           rowSelection={rowSelection}
-          columns={[...actionsColumn, ...contentColumn]}
+          columns={tableColumns}
           columnsState={{
             value: columns,
             onChange: setColumns,
           }}
           onChange={(pagination, _, sorter: any) => {
-            console.log("sorter", sorter);
-            console.log("contentTableFields", contentTableFields);
-            console.log("contentTableColumns", contentTableColumns);
             onContentTableChange(
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
