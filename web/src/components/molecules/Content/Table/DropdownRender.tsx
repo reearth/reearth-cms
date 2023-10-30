@@ -23,6 +23,7 @@ import {
   TimeOperator,
   StringOperator,
   SortDirection,
+  ConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -53,10 +54,12 @@ const DropdownRender: React.FC<Props> = ({
     }
   }, [open, form, defaultValue]);
 
-  const options = useMemo<
-    { operatorType: string; value: Operator | SortDirection; label: string }[]
-  >(() => {
-    const result = [];
+  const options = useMemo(() => {
+    const result: {
+      operatorType: keyof ConditionInput | "sort";
+      value: Operator | SortDirection;
+      label: string;
+    }[] = [];
 
     if (isFilter) {
       switch (filter.type) {
@@ -118,13 +121,13 @@ const DropdownRender: React.FC<Props> = ({
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
-            { operatorType: "basic", value: NumberOperator.GreaterThan, label: t("greater than") },
+            { operatorType: "number", value: NumberOperator.GreaterThan, label: t("greater than") },
             {
               operatorType: "number",
               value: NumberOperator.GreaterThanOrEqualTo,
               label: t("greater than or equal to"),
             },
-            { operatorType: "basic", value: NumberOperator.LessThan, label: t("less than") },
+            { operatorType: "number", value: NumberOperator.LessThan, label: t("less than") },
             {
               operatorType: "number",
               value: NumberOperator.LessThanOrEqualTo,
@@ -208,7 +211,7 @@ const DropdownRender: React.FC<Props> = ({
       const type = typeof filter.dataIndex === "string" ? filter.id : "FIELD";
       const operatorValue = filterOption.current.value;
       let params = searchParams.get("filter") ?? "";
-      const newCondition = `${operatorType}:${value};${type}:${filter.id};${operatorValue}`;
+      const newCondition = `${operatorType}:${value};${type}:${filter.id};${operatorValue}:${filter.type}`;
       const conditions = params.split(",");
       conditions[index] = newCondition;
       params = conditions.filter(Boolean).join(",");
@@ -218,7 +221,16 @@ const DropdownRender: React.FC<Props> = ({
       searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
       setSearchParams(searchParams);
     }
-  }, [close, filter.dataIndex, filter.id, index, isFilter, searchParams, setSearchParams]);
+  }, [
+    close,
+    filter.dataIndex,
+    filter.id,
+    filter.type,
+    index,
+    isFilter,
+    searchParams,
+    setSearchParams,
+  ]);
 
   const onFilterSelect = useCallback(
     (value: Operator | SortDirection, option: { operatorType: string }) => {
