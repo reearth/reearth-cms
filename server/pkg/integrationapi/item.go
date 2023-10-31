@@ -33,6 +33,8 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 		Refs:            &rs,
 		Version:         lo.ToPtr(types.UUID(ver.Version())),
 		ReferencedItems: f,
+		MetadataItemId:  ii.MetadataItemId,
+		OriginalItemId:  ii.OriginalItemId,
 	}
 }
 
@@ -60,12 +62,14 @@ func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
 	}
 
 	return Item{
-		Id:             i.ID().Ref(),
-		ModelId:        i.Model().Ref().StringRef(),
-		Fields:         &fs,
-		MetadataItemId: i.MetadataItem(),
-		OriginalItemId: i.OriginalItem(),
-		CreatedAt:      lo.ToPtr(i.ID().Timestamp()),
-		UpdatedAt:      lo.ToPtr(i.Timestamp()),
+		Id:              i.ID().Ref(),
+		ModelId:         i.Model().Ref().StringRef(),
+		Fields:          &fs,
+		MetadataItemId:  i.MetadataItem(),
+		OriginalItemId:  i.OriginalItem(),
+		CreatedAt:       lo.ToPtr(i.ID().Timestamp()),
+		UpdatedAt:       lo.ToPtr(i.Timestamp()),
+		MetadataFields:  nil, // TODO
+		ReferencedItems: nil, // TODO
 	}
 }

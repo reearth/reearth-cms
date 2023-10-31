@@ -199,13 +199,15 @@ type File struct {
 
 // Item defines model for item.
 type Item struct {
-	CreatedAt      *time.Time `json:"createdAt,omitempty"`
-	Fields         *[]Field   `json:"fields,omitempty"`
-	Id             *id.ItemID `json:"id,omitempty"`
-	MetadataItemId *id.ItemID `json:"metadataItemId,omitempty"`
-	ModelId        *string    `json:"modelId,omitempty"`
-	OriginalItemId *id.ItemID `json:"originalItemId,omitempty"`
-	UpdatedAt      *time.Time `json:"updatedAt,omitempty"`
+	CreatedAt       *time.Time       `json:"createdAt,omitempty"`
+	Fields          *[]Field         `json:"fields,omitempty"`
+	Id              *id.ItemID       `json:"id,omitempty"`
+	MetadataFields  *[]Field         `json:"metadataFields,omitempty"`
+	MetadataItemId  *id.ItemID       `json:"metadataItemId,omitempty"`
+	ModelId         *string          `json:"modelId,omitempty"`
+	OriginalItemId  *id.ItemID       `json:"originalItemId,omitempty"`
+	ReferencedItems *[]VersionedItem `json:"referencedItems,omitempty"`
+	UpdatedAt       *time.Time       `json:"updatedAt,omitempty"`
 }
 
 // Model defines model for model.
@@ -265,7 +267,9 @@ type VersionedItem struct {
 	Fields          *[]Field              `json:"fields,omitempty"`
 	Id              *id.ItemID            `json:"id,omitempty"`
 	MetadataFields  *[]Field              `json:"metadataFields,omitempty"`
+	MetadataItemId  *id.ItemID            `json:"metadataItemId,omitempty"`
 	ModelId         *string               `json:"modelId,omitempty"`
+	OriginalItemId  *id.ItemID            `json:"originalItemId,omitempty"`
 	Parents         *[]openapi_types.UUID `json:"parents,omitempty"`
 	ReferencedItems *[]VersionedItem      `json:"referencedItems,omitempty"`
 	Refs            *[]string             `json:"refs,omitempty"`
