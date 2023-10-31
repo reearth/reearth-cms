@@ -258,6 +258,7 @@ export type CreateItemInput = {
   fields: Array<ItemFieldInput>;
   metadataId?: InputMaybe<Scalars['ID']>;
   modelId: Scalars['ID'];
+  originalId?: InputMaybe<Scalars['ID']>;
   schemaId: Scalars['ID'];
 };
 
@@ -541,6 +542,8 @@ export type Item = Node & {
   metadataId?: Maybe<Scalars['ID']>;
   model: Model;
   modelId: Scalars['ID'];
+  original?: Maybe<Item>;
+  originalId?: Maybe<Scalars['ID']>;
   project: Project;
   projectId: Scalars['ID'];
   schema: Schema;
@@ -1795,6 +1798,7 @@ export type UpdateItemInput = {
   fields: Array<ItemFieldInput>;
   itemId: Scalars['ID'];
   metadataId?: InputMaybe<Scalars['ID']>;
+  originalId?: InputMaybe<Scalars['ID']>;
   version?: InputMaybe<Scalars['String']>;
 };
 
