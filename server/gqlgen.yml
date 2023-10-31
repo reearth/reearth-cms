@@ -46,6 +46,8 @@ models:
         resolver: true
       metadata:
         resolver: true
+      original:
+        resolver: true
       status:
         resolver: true
       assets:

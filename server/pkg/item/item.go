@@ -26,6 +26,7 @@ type Item struct {
 	updatedByUser        *UserID
 	updatedByIntegration *IntegrationID
 	metadataItem         *id.ItemID
+	originalItem         *id.ItemID
 	integration          *IntegrationID
 }
 
@@ -65,6 +66,10 @@ func (i *Item) Timestamp() time.Time {
 
 func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
+}
+
+func (i *Item) OriginalItem() *ID {
+	return i.originalItem
 }
 
 func (i *Item) Field(f FieldID) *Field {
@@ -217,4 +222,8 @@ type ItemModelSchema struct {
 
 func (i *Item) SetMetadataItem(iid id.ItemID) {
 	i.metadataItem = &iid
+}
+
+func (i *Item) SetOriginalItem(iid id.ItemID) {
+	i.originalItem = &iid
 }

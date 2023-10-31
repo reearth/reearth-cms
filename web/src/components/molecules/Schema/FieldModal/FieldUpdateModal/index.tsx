@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import moment from "moment";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
@@ -321,6 +321,16 @@ const FieldUpdateModal: React.FC<Props> = ({
     onClose?.(true);
   }, [onClose, selectedField?.multiple]);
 
+  const isRequiredDisabled = useMemo(
+    () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
+    [selectedType],
+  );
+
+  const isUniqueDisabled = useMemo(
+    () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
+    [selectedType],
+  );
+
   return (
     <Modal
       title={
@@ -475,13 +485,13 @@ const FieldUpdateModal: React.FC<Props> = ({
               name="required"
               valuePropName="checked"
               extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox disabled={selectedType === "Group"}>{t("Make field required")}</Checkbox>
+              <Checkbox disabled={isRequiredDisabled}>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
               extra={t("Ensures that multiple entries can't have the same value for this field")}>
-              <Checkbox disabled={selectedType === "Group"}>{t("Set field as unique")}</Checkbox>
+              <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>

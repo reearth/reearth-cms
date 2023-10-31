@@ -9,6 +9,7 @@ type Item implements Node {
   updatedByIntegrationId: ID
   userId: ID
   metadataId: ID
+  originalId: ID
   createdBy: Operator
   schema: Schema!
   model: Model!
@@ -22,6 +23,7 @@ type Item implements Node {
   updatedBy: Operator
   version: String!
   metadata: Item
+  original: Item
   title: String
 }
 
@@ -59,12 +61,14 @@ input CreateItemInput {
   schemaId: ID!
   modelId: ID!
   metadataId: ID
+  originalId: ID
   fields: [ItemFieldInput!]!
 }
 
 input UpdateItemInput {
   itemId: ID!
   metadataId: ID
+  originalId: ID
   fields: [ItemFieldInput!]!
   version: String
 }
