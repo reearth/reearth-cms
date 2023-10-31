@@ -216,7 +216,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
-		groupFields, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
+		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
 		if err != nil {
 			return nil, err
 		}
@@ -292,6 +292,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				Item:            vi.Value(),
 				Model:           m,
 				Schema:          s,
+				GroupSchemas:    groupSchemas,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 			},
 			Operator: operator.Operator(),
@@ -356,7 +357,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		groupFields, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
+		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
 		if err != nil {
 			return nil, err
 		}
@@ -407,6 +408,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Item:            itv,
 				Model:           m,
 				Schema:          s,
+				GroupSchemas:    groupSchemas,
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 				Changes:         item.CompareFields(itv.Fields(), oldFields),
 			},
@@ -714,8 +716,9 @@ func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, it *it
 	return nil
 }
 
-func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFieldParam, s *schema.Schema, mId id.ModelID, itemFields item.Fields) (item.Fields, error) {
+func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFieldParam, s *schema.Schema, mId id.ModelID, itemFields item.Fields) (item.Fields, schema.List, error) {
 	var res item.Fields
+	var groupSchemas schema.List
 	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
 		sf := s.Field(field.FieldID())
 		var fieldGroup *schema.FieldGroup
@@ -727,17 +730,21 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 
 		group, err := i.repos.Group.FindByID(ctx, fieldGroup.Group())
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		groupSchema, err := i.repos.Schema.FindByID(ctx, group.Schema())
 		if err != nil {
-			return nil, err
+			return nil, nil, err
+		}
+
+		if groupSchema != nil {
+			groupSchemas = append(groupSchemas, groupSchema)
 		}
 
 		mvg, ok := field.Value().ValuesGroup()
 		if !ok {
-			return nil, interfaces.ErrInvalidField
+			return nil, nil, interfaces.ErrInvalidField
 		}
 
 		groupItemParams := lo.Filter(params, func(param interfaces.ItemFieldParam, _ int) bool {
@@ -753,15 +760,15 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 
 		fields, err := itemFieldsFromParams(groupItemParams, groupSchema)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		if err := i.checkUnique(ctx, fields, groupSchema, mId, nil); err != nil {
-			return nil, err
+		if err = i.checkUnique(ctx, fields, groupSchema, mId, nil); err != nil {
+			return nil, nil, err
 		}
 
 		res = append(res, fields...)
 	}
-	return res, nil
+	return res, groupSchemas, nil
 }
 
 func filterFieldParamsBySchema(params []interfaces.ItemFieldParam, s *schema.Schema) (res []interfaces.ItemFieldParam, other []interfaces.ItemFieldParam) {
