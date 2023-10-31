@@ -1,3 +1,5 @@
+import { Buffer } from "buffer";
+
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
 import { useRef, useEffect, useCallback, useMemo } from "react";
@@ -207,7 +209,7 @@ const DropdownRender: React.FC<Props> = ({
     close();
     if (isFilter) {
       const operatorType = filterOption.current.operatorType;
-      const value = filterValue.current ?? "";
+      const value = filterValue.current ? Buffer.from(filterValue.current).toString("base64") : "";
       const type = typeof filter.dataIndex === "string" ? filter.id : "FIELD";
       const operatorValue = filterOption.current.value;
       let params = searchParams.get("filter") ?? "";

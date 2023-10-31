@@ -1,3 +1,5 @@
+import { Buffer } from "buffer";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -79,6 +81,7 @@ export default () => {
         const conditions = param.split(";");
         key = conditions[0].split(":")[0] as keyof ConditionInput;
         value = conditions[0].split(":")[1];
+        value = value && Buffer.from(value, "base64").toString();
         [type, id] = conditions[1].split(":");
         operator = conditions[2].split(":")[0];
         valueType = conditions[2].split(":")[1] as FilterType;
