@@ -83,8 +83,6 @@ const DropdownRender: React.FC<Props> = ({
         case "MarkdownText":
         case "Asset":
         case "URL":
-        case "Select":
-        case "Tag":
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
@@ -109,6 +107,25 @@ const DropdownRender: React.FC<Props> = ({
               operatorType: "string",
               value: StringOperator.NotEndsWith,
               label: t("doesn't end with"),
+            },
+            { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
+            {
+              operatorType: "nullable",
+              value: NullableOperator.NotEmpty,
+              label: t("is not empty"),
+            },
+          );
+          break;
+        case "Select":
+        case "Tag":
+          result.push(
+            { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
+            { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
+            { operatorType: "string", value: StringOperator.Contains, label: t("contains") },
+            {
+              operatorType: "string",
+              value: StringOperator.NotContains,
+              label: t("doesn't contain"),
             },
             { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
             {
