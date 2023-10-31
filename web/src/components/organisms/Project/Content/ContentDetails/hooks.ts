@@ -433,24 +433,32 @@ export default () => {
               break;
             case "Date":
               if (Array.isArray(field.typeProperty.defaultValue)) {
-                initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
-                  (valueItem: string) => {
-                    if (valueItem) {
-                      if (
-                        typeof initialValues[field.id] === "object" &&
-                        !Array.isArray(initialValues[field.id])
-                      ) {
+                if (
+                  typeof initialValues[field.id] === "object" &&
+                  !Array.isArray(initialValues[field.id])
+                ) {
+                  initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
+                    (valueItem: string) => {
+                      if (valueItem) {
                         return moment(field.typeProperty.defaultValue);
                       } else {
+                        return [];
+                      }
+                    },
+                  );
+                } else {
+                  initialValues[field.id] = {
+                    [itemGroupId]: field.typeProperty.defaultValue.map((valueItem: string) => {
+                      if (valueItem) {
                         return {
                           [itemGroupId]: moment(field.typeProperty.defaultValue),
                         };
+                      } else {
+                        return [];
                       }
-                    } else {
-                      return "";
-                    }
-                  },
-                );
+                    }),
+                  };
+                }
               } else {
                 if (field.typeProperty.defaultValue) {
                   if (
