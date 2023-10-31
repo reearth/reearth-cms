@@ -910,6 +910,9 @@ components:
         metadataItemId:
           x-go-type: id.ItemID
           type: string
+        originalItemId:
+          x-go-type: id.ItemID
+          type: string
         modelId:
           type: string
         fields:

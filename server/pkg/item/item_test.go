@@ -256,6 +256,13 @@ func TestItem_SetMetadataItem(t *testing.T) {
 	assert.Equal(t, mid.Ref(), itm.MetadataItem())
 }
 
+func TestItem_SetOriginalItem(t *testing.T) {
+	oid := NewID()
+	itm := &Item{}
+	itm.SetOriginalItem(oid)
+	assert.Equal(t, oid.Ref(), itm.OriginalItem())
+}
+
 func TestItem_GetTitle(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()

@@ -81,3 +81,10 @@ func (i itemResolver) Metadata(ctx context.Context, obj *gqlmodel.Item) (*gqlmod
 	}
 	return dataloaders(ctx).Item.Load(*obj.MetadataID)
 }
+
+func (i itemResolver) Original(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.Item, error) {
+	if obj.OriginalID == nil {
+		return nil, nil
+	}
+	return dataloaders(ctx).Item.Load(*obj.OriginalID)
+}

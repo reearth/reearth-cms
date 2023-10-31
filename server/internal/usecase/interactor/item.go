@@ -246,8 +246,9 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			ib = ib.Integration(*operator.Integration)
 		}
 
+		var mi item.Versioned
 		if param.MetadataID != nil {
-			mi, err := i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+			mi, err = i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -268,6 +269,13 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 
 		if err := i.repos.Item.Save(ctx, it); err != nil {
 			return nil, err
+		}
+
+		if mi != nil {
+			mi.Value().SetOriginalItem(it.ID())
+			if err := i.repos.Item.Save(ctx, mi.Value()); err != nil {
+				return nil, err
+			}
 		}
 
 		vi, err := i.repos.Item.FindByID(ctx, it.ID(), nil)
@@ -364,8 +372,9 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			itv.SetUpdatedByIntegration(*operator.Integration)
 		}
 
+		var mi item.Versioned
 		if param.MetadataID != nil {
-			mi, err := i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
+			mi, err = i.repos.Item.FindByID(ctx, *param.MetadataID, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -373,6 +382,12 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				return nil, interfaces.ErrMetadataMismatch
 			}
 			itv.SetMetadataItem(*param.MetadataID)
+			if mi.Value().OriginalItem() == nil {
+				mi.Value().SetOriginalItem(itv.ID())
+				if err = i.repos.Item.Save(ctx, mi.Value()); err != nil {
+					return nil, err
+				}
+			}
 		}
 
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
