@@ -39,6 +39,7 @@ import FilterDropdown from "./filterDropdown";
 type ExtendedColumns = ProColumns<ContentTableField> & {
   type?: string;
   fieldType?: string;
+  sortOrder?: "descend" | "ascend" | null;
   typeProperty?: { values?: string[] };
 };
 
@@ -176,6 +177,12 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "createdAt",
         fieldType: "CREATION_DATE",
         key: "CREATION_DATE",
+        sortOrder:
+          sort?.field?.type === "CREATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
         defaultSortOrder:
@@ -192,6 +199,12 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "createdBy",
         fieldType: "CREATION_USER",
         key: "CREATION_USER",
+        sortOrder:
+          sort?.field?.type === "CREATION_USER"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         sorter: true,
         defaultSortOrder:
           sort?.field?.type === "CREATION_USER"
@@ -208,6 +221,12 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "updatedAt",
         fieldType: "MODIFICATION_DATE",
         key: "MODIFICATION_DATE",
+        sortOrder:
+          sort?.field?.type === "MODIFICATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
         defaultSortOrder:
@@ -224,6 +243,12 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "updatedBy",
         fieldType: "MODIFICATION_USER",
         key: "MODIFICATION_USER",
+        sortOrder:
+          sort?.field?.type === "MODIFICATION_USER"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         sorter: true,
         defaultSortOrder:
           sort?.field?.type === "MODIFICATION_USER"
@@ -243,6 +268,12 @@ const ContentTable: React.FC<Props> = ({
     () =>
       contentTableColumns?.map(column => ({
         sorter: true,
+        sortOrder:
+          sort?.field?.id === column.key
+            ? sort?.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         key: column.key,
         fieldType: column.fieldType,
         title: column.title,
@@ -251,7 +282,7 @@ const ContentTable: React.FC<Props> = ({
         minWidth: 128,
         ellipsis: true,
       })),
-    [contentTableColumns],
+    [contentTableColumns, sort],
   );
 
   const tableColumns = useMemo(() => {
