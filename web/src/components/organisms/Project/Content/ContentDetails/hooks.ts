@@ -355,7 +355,7 @@ export default () => {
                 : "";
             }
             break;
-          case "Group": {
+          case "Group":
             if (field.multiple) {
               initialValues[field.id] = [];
             } else {
@@ -364,7 +364,6 @@ export default () => {
               itemGroupIdsMap.set(field.typeProperty?.groupId, id);
             }
             break;
-          }
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
             break;
@@ -382,103 +381,40 @@ export default () => {
       groupsInCurrentModel.forEach(group => {
         const itemGroupId = itemGroupIdsMap.get(group.id);
         group?.schema?.fields?.forEach(field => {
+          function updateInitialValues(value: any) {
+            if (
+              typeof initialValues[field.id] === "object" &&
+              !Array.isArray(initialValues[field.id])
+            ) {
+              initialValues[field.id][itemGroupId] = value;
+            } else {
+              initialValues[field.id] = { [itemGroupId]: value };
+            }
+          }
+
           switch (field.type) {
             case "Select":
-              if (
-                typeof initialValues[field.id] === "object" &&
-                !Array.isArray(initialValues[field.id])
-              ) {
-                initialValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
-              } else {
-                initialValues[field.id] = {
-                  [itemGroupId]: field.typeProperty.selectDefaultValue,
-                };
-              }
-              break;
-            case "Tag":
-              if (
-                typeof initialValues[field.id] === "object" &&
-                !Array.isArray(initialValues[field.id])
-              ) {
-                initialValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
-              } else {
-                initialValues[field.id] = {
-                  [itemGroupId]: field.typeProperty.selectDefaultValue,
-                };
-              }
-              break;
             case "Integer":
-              if (
-                typeof initialValues[field.id] === "object" &&
-                !Array.isArray(initialValues[field.id])
-              ) {
-                initialValues[field.id][itemGroupId] = field.typeProperty.integerDefaultValue;
-              } else {
-                initialValues[field.id] = {
-                  [itemGroupId]: field.typeProperty.integerDefaultValue,
-                };
-              }
-              break;
             case "Asset":
-              if (
-                typeof initialValues[field.id] === "object" &&
-                !Array.isArray(initialValues[field.id])
-              ) {
-                initialValues[field.id][itemGroupId] = field.typeProperty.assetDefaultValue;
-              } else {
-                initialValues[field.id] = {
-                  [itemGroupId]: field.typeProperty.assetDefaultValue,
-                };
-              }
+              updateInitialValues(field.typeProperty[field.type.toLowerCase() + "DefaultValue"]);
               break;
             case "Date":
               if (Array.isArray(field.typeProperty.defaultValue)) {
-                initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
-                  (valueItem: string) => {
-                    if (valueItem) {
-                      if (
-                        typeof initialValues[field.id] === "object" &&
-                        !Array.isArray(initialValues[field.id])
-                      ) {
-                        return moment(field.typeProperty.defaultValue);
-                      } else {
-                        return {
-                          [itemGroupId]: moment(field.typeProperty.defaultValue),
-                        };
-                      }
-                    } else {
-                      return "";
-                    }
-                  },
+                updateInitialValues(
+                  field.typeProperty.defaultValue.map((valueItem: any) =>
+                    valueItem ? moment(valueItem) : "",
+                  ),
                 );
               } else {
                 if (field.typeProperty.defaultValue) {
-                  if (
-                    typeof initialValues[field.id] === "object" &&
-                    !Array.isArray(initialValues[field.id])
-                  ) {
-                    initialValues[field.id][itemGroupId] = moment(field.typeProperty.defaultValue);
-                  } else {
-                    initialValues[field.id] = {
-                      [itemGroupId]: moment(field.typeProperty.defaultValue),
-                    };
-                  }
+                  updateInitialValues(moment(field.typeProperty.defaultValue));
                 } else if (initialValues[field.id]?.[itemGroupId]) {
                   initialValues[field.id][itemGroupId] = "";
                 }
               }
               break;
             default:
-              if (
-                typeof initialValues[field.id] === "object" &&
-                !Array.isArray(initialValues[field.id])
-              ) {
-                initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue;
-              } else {
-                initialValues[field.id] = {
-                  [itemGroupId]: field.typeProperty.defaultValue,
-                };
-              }
+              updateInitialValues(field.typeProperty.defaultValue);
               break;
           }
         });

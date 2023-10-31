@@ -132,85 +132,32 @@ const MultiValueGroup: React.FC<Props> = ({
     // set default value
     const newValues = { ...form?.getFieldsValue() };
     group?.schema.fields.forEach((field: Field) => {
+      const defaultValue = field.typeProperty.defaultValue;
+      const setValue = (value: any) => {
+        if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
+          form?.setFieldValue([field.id, itemGroupId], value);
+        } else {
+          form?.setFieldValue(field.id, { [itemGroupId]: value });
+        }
+      };
+
       switch (field.type) {
         case "Select":
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            newValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
-          } else {
-            newValues[field.id] = {
-              [itemGroupId]: field.typeProperty.selectDefaultValue,
-            };
-          }
-          break;
-        case "Tag":
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            newValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
-          } else {
-            newValues[field.id] = {
-              [itemGroupId]: field.typeProperty.selectDefaultValue,
-            };
-          }
-          break;
         case "Integer":
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            newValues[field.id][itemGroupId] = field.typeProperty.integerDefaultValue;
-          } else {
-            newValues[field.id] = {
-              [itemGroupId]: field.typeProperty.integerDefaultValue,
-            };
-          }
-          break;
         case "Asset":
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            newValues[field.id][itemGroupId] = field.typeProperty.assetDefaultValue;
-          } else {
-            newValues[field.id] = {
-              [itemGroupId]: field.typeProperty.assetDefaultValue,
-            };
-          }
+          setValue(field.typeProperty[field.type.toLowerCase() + "DefaultValue"]);
           break;
         case "Date":
-          if (Array.isArray(field.typeProperty.defaultValue)) {
-            newValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
-              (valueItem: string) => {
-                if (valueItem) {
-                  if (
-                    typeof newValues[field.id] === "object" &&
-                    !Array.isArray(newValues[field.id])
-                  ) {
-                    return moment(field.typeProperty.defaultValue);
-                  } else {
-                    return {
-                      [itemGroupId]: moment(field.typeProperty.defaultValue),
-                    };
-                  }
-                } else {
-                  return "";
-                }
-              },
-            );
+          if (Array.isArray(defaultValue)) {
+            setValue(defaultValue.map(valueItem => (valueItem ? moment(valueItem) : "")));
+          } else if (defaultValue) {
+            setValue(moment(defaultValue));
           } else {
-            if (field.typeProperty.defaultValue) {
-              if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-                newValues[field.id][itemGroupId] = moment(field.typeProperty.defaultValue);
-              } else {
-                newValues[field.id] = {
-                  [itemGroupId]: moment(field.typeProperty.defaultValue),
-                };
-              }
-            } else {
-              newValues[field.id][itemGroupId] = "";
-            }
+            form?.setFieldValue([field.id, itemGroupId], "");
           }
           break;
         default:
-          if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
-            form?.setFieldValue([field.id, itemGroupId], field.typeProperty.defaultValue);
-          } else {
-            form?.setFieldValue(field.id, {
-              [itemGroupId]: field.typeProperty.defaultValue,
-            });
-          }
+          setValue(defaultValue);
           break;
       }
     });
