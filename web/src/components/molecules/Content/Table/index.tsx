@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -108,6 +108,7 @@ const ContentTable: React.FC<Props> = ({
   onItemDelete,
   onItemsReload,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
   const actionsColumn: ExtendedColumns[] = useMemo(
@@ -229,6 +230,22 @@ const ContentTable: React.FC<Props> = ({
 
   const [filters, setFilters] = useState<DropdownFilterType[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<DropdownFilterType>();
+  const filterRemove = useCallback(
+    (index: number) => {
+      setFilters(prev => {
+        prev.splice(index, 1);
+        return prev;
+      });
+      defaultFilterValues.current.splice(index, 1);
+      let params = searchParams.get("filter") ?? "";
+      const conditions = params.split(",");
+      conditions.splice(index, 1);
+      params = conditions.filter(Boolean).join(",");
+      searchParams.set("filter", params);
+      setSearchParams(searchParams);
+    },
+    [searchParams, setSearchParams],
+  );
 
   useEffect(() => {
     if (filter && contentTableColumns) {
@@ -390,6 +407,7 @@ const ContentTable: React.FC<Props> = ({
                 filter={filter}
                 defaultValue={defaultFilterValues.current[index]}
                 index={index}
+                filterRemove={filterRemove}
               />
             ))}
           </StyledFilterSpace>
