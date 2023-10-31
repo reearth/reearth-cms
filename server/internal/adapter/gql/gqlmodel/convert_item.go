@@ -29,6 +29,7 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 		IntegrationID:          IDFromRef(i.Integration()),
 		ThreadID:               IDFrom(i.Thread()),
 		MetadataID:             IDFromRef(i.MetadataItem()),
+		OriginalID:             IDFromRef(i.MetadataItem()),
 		UpdatedByIntegrationID: IDFromRef(i.UpdatedByIntegration()),
 		UpdatedByUserID:        IDFromRef(i.UpdatedByUser()),
 		CreatedAt:              i.ID().Timestamp(),

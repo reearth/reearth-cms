@@ -64,6 +64,7 @@ func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
 		ModelId:        i.Model().Ref().StringRef(),
 		Fields:         &fs,
 		MetadataItemId: i.MetadataItem(),
+		OriginalItemId: i.OriginalItem(),
 		CreatedAt:      lo.ToPtr(i.ID().Timestamp()),
 		UpdatedAt:      lo.ToPtr(i.Timestamp()),
 	}
