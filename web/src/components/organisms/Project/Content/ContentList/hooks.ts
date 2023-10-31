@@ -59,30 +59,24 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<{ field: FieldSelector; direction: SortDirection } | undefined>({
-    field: {
-      id: sortFieldId,
-      type: sortFieldType
-        ? (sortFieldType as FieldSelector["type"])
-        : ("MODIFICATION_DATE" as FieldSelector["type"]),
-    },
-    direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
-  });
+  const [sort, setSort] = useState<
+    { field: FieldSelector; direction: SortDirection } | undefined
+  >();
   const [columns, setColumns] = useState<Record<string, ColumnsState>>({});
   const [filter, setFilter] = useState<ConditionInput[]>();
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-    setSort({
-      field: {
-        id: sortFieldId,
-        type: sortFieldType
-          ? (sortFieldType as FieldSelector["type"])
-          : ("MODIFICATION_DATE" as FieldSelector["type"]),
-      },
-      direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
-    });
+    if (sortFieldType)
+      setSort({
+        field: {
+          id: sortFieldId,
+          type: sortFieldType as FieldSelector["type"],
+        },
+        direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
+      });
+    else setSort(undefined);
     const newFilter = [];
     if (filterParam) {
       const params = filterParam.split(",");
