@@ -26,6 +26,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { SortDirection, ConditionInput, FieldSelector } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -35,7 +36,7 @@ import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 type ExtendedColumns = ProColumns<ContentTableField> & {
-  type?: string;
+  type?: FieldType;
   typeProperty?: { values?: string[] };
 };
 
@@ -159,7 +160,6 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 148,
         minWidth: 148,
-        type: "STATUS",
       },
       {
         title: t("Created At"),
@@ -354,7 +354,7 @@ const ContentTable: React.FC<Props> = ({
             },
           })) as any),
         ...((contentTableColumns ?? [])
-          .filter(column => !!column.title && typeof column.title === "string")
+          .filter(column => column.type !== "Group" && column.type !== "Reference")
           .map(column => ({
             key: column.key,
             label: column.title,
