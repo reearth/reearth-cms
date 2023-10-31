@@ -355,7 +355,7 @@ export default () => {
                 : "";
             }
             break;
-          case "Group": {
+          case "Group":
             if (field.multiple) {
               initialValues[field.id] = [];
             } else {
@@ -364,7 +364,6 @@ export default () => {
               itemGroupIdsMap.set(field.typeProperty?.groupId, id);
             }
             break;
-          }
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
             break;
@@ -384,18 +383,6 @@ export default () => {
         group?.schema?.fields?.forEach(field => {
           switch (field.type) {
             case "Select":
-              if (
-                typeof initialValues[field.id] === "object" &&
-                !Array.isArray(initialValues[field.id])
-              ) {
-                initialValues[field.id][itemGroupId] = field.typeProperty.selectDefaultValue;
-              } else {
-                initialValues[field.id] = {
-                  [itemGroupId]: field.typeProperty.selectDefaultValue,
-                };
-              }
-              break;
-            case "Tag":
               if (
                 typeof initialValues[field.id] === "object" &&
                 !Array.isArray(initialValues[field.id])
