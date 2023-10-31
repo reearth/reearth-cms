@@ -1,6 +1,0 @@
-package: integrationapi
-generate:
-  models: true
-output: types.gen.go
-output-options:
-  skip-prune: true
