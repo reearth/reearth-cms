@@ -556,7 +556,13 @@ const ContentForm: React.FC<Props> = ({
                 name={field.id}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
+                }
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please select an option!"),
+                  },
+                ]}>
                 {field.multiple ? (
                   <MultiValueSelect selectedValues={field.typeProperty?.values} />
                 ) : (
