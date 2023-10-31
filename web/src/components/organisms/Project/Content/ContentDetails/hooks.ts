@@ -438,25 +438,20 @@ export default () => {
                   !Array.isArray(initialValues[field.id])
                 ) {
                   initialValues[field.id][itemGroupId] = field.typeProperty.defaultValue.map(
-                    (valueItem: string) => {
-                      if (valueItem) {
-                        return moment(field.typeProperty.defaultValue);
-                      } else {
-                        return [];
-                      }
-                    },
+                    (valueItem: string) =>
+                      valueItem ? moment(field.typeProperty.defaultValue) : "",
                   );
                 } else {
                   initialValues[field.id] = {
-                    [itemGroupId]: field.typeProperty.defaultValue.map((valueItem: string) => {
-                      if (valueItem) {
-                        return {
-                          [itemGroupId]: moment(field.typeProperty.defaultValue),
-                        };
-                      } else {
-                        return [];
-                      }
-                    }),
+                    [itemGroupId]: field.typeProperty.defaultValue.map((valueItem: string) =>
+                      valueItem
+                        ? {
+                            [itemGroupId]: moment(field.typeProperty.defaultValue),
+                          }
+                        : {
+                            [itemGroupId]: "",
+                          },
+                    ),
                   };
                 }
               } else {
