@@ -261,12 +261,12 @@ const FieldCreationModal: React.FC<Props> = ({
   }, [onClose]);
 
   const isRequiredDisabled = useMemo(
-    () => selectedType === "Group" || selectedType === "Bool",
+    () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
     [selectedType],
   );
 
   const isUniqueDisabled = useMemo(
-    () => selectedType === "Group" || selectedType === "Bool",
+    () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
     [selectedType],
   );
 
