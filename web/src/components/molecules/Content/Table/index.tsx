@@ -442,15 +442,16 @@ const ContentTable: React.FC<Props> = ({
       };
 
       return [
-        ...((actionsColumns ?? [])
-          .filter(column => column.key === "CREATION_USER" || column.key === "MODIFICATION_USER")
-          .map(column => ({
-            key: column.key,
-            label: column.title,
-            onClick: () => {
-              optionClick(isFilter.current, column);
-            },
-          })) as any),
+        // TODO: Uncomment this when we have a way to filter by creation/modification date
+        // ...((actionsColumns ?? [])
+        //   .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
+        //   .map(column => ({
+        //     key: column.key,
+        //     label: column.title,
+        //     onClick: () => {
+        //       optionClick(isFilter.current, column);
+        //     },
+        //   })) as any),
         ...((contentTableColumns ?? [])
           .filter(column => column.type !== "Group" && column.type !== "Reference")
           .map(column => ({
@@ -462,7 +463,7 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [actionsColumns, contentTableColumns, currentWorkspace?.members],
+    [/*actionsColumns,*/ contentTableColumns, currentWorkspace?.members],
   );
 
   const defaultItems = getOptions(false);
