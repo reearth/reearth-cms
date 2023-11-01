@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { View } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import ViewsMenuItem from "./viewMenuItem";
@@ -44,14 +44,14 @@ const ViewsMenuMolecule: React.FC<Props> = ({
     };
   });
 
-  const handleSelectView = (key: any) => {
+  const handleSelectView = (key: string) => {
     setSelectedKey(key);
+    console.log("view key", key);
   };
 
   return (
     <Wrapper>
       <StyledTabs
-        defaultActiveKey="1"
         activeKey={selectedKey}
         tabPosition="top"
         items={menuItems}
