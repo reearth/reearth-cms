@@ -38,7 +38,7 @@ import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 type ExtendedColumns = ProColumns<ContentTableField> & {
-  type?: FieldType;
+  type?: FieldType | "Person";
   fieldType?: string;
   sortOrder?: "descend" | "ascend" | null;
   typeProperty?: { values?: string[] };
@@ -194,6 +194,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        type: "Date",
       },
       {
         title: t("Created By"),
@@ -215,7 +216,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
-        type: "Date",
+        type: "Person",
       },
       {
         title: t("Updated At"),
@@ -238,6 +239,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        type: "Date",
       },
       {
         title: t("Updated By"),
@@ -259,7 +261,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
-        type: "Date",
+        type: "Person",
       },
     ],
     [t, sort?.field?.type, sort?.direction, selectedItem?.id, onItemSelect],
@@ -355,9 +357,7 @@ const ContentTable: React.FC<Props> = ({
         let column;
 
         const columns: ExtendedColumns[] =
-          fieldId.type === "FIELD" || fieldId.type === "CREATION_USER"
-            ? contentTableColumns
-            : actionsColumns;
+          fieldId.type === "FIELD" ? contentTableColumns : actionsColumns;
         for (const c of columns) {
           if (c.key === fieldId.id) {
             column = c;
@@ -443,7 +443,7 @@ const ContentTable: React.FC<Props> = ({
 
       return [
         ...((actionsColumns ?? [])
-          .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
+          .filter(column => column.key === "CREATION_USER" || column.key === "MODIFICATION_USER")
           .map(column => ({
             key: column.key,
             label: column.title,
