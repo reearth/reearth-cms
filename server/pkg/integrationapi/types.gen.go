@@ -249,6 +249,13 @@ type SchemaField struct {
 	Type     *ValueType  `json:"type,omitempty"`
 }
 
+// TagResponse defines model for tagResponse.
+type TagResponse struct {
+	Color *string   `json:"color,omitempty"`
+	Id    *id.TagID `json:"id,omitempty"`
+	Name  *string   `json:"name,omitempty"`
+}
+
 // ValueType defines model for valueType.
 type ValueType string
 

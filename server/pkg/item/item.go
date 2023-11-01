@@ -217,6 +217,7 @@ type ItemModelSchema struct {
 	ReferencedItems []Versioned
 	Model           *model.Model
 	Schema          *schema.Schema
+	GroupSchemas    schema.List
 	Changes         FieldChanges
 }
 

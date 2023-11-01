@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -67,4 +68,13 @@ func TestTagList_FindByName(t *testing.T) {
 
 	assert.Equal(t, tag4, TagList{tag1, tag2, tag3, tag4}.FindByName("ppp"))
 	assert.Nil(t, TagList{tag1, tag2, tag3, tag4}.FindByName("some value"))
+}
+
+func TestTagList_FindByID(t *testing.T) {
+	tag1 := NewTag("xxx", TagColorOrange)
+	tag2 := NewTag("yyy", TagColorOrange)
+	tag3 := NewTag("zzz", TagColorOrange)
+
+	assert.Equal(t, tag3, TagList{tag1, tag2, tag3}.FindByID(tag3.ID()))
+	assert.Nil(t, TagList{tag1, tag2, tag3}.FindByID(id.NewTagID()))
 }
