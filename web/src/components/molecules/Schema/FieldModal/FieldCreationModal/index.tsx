@@ -247,6 +247,7 @@ const FieldCreationModal: React.FC<Props> = ({
         }
         values.metadata = isMeta;
         await onSubmit?.(values);
+        setMultipleValue(false);
         onClose?.(true);
       })
       .catch(info => {
