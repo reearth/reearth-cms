@@ -1,9 +1,12 @@
+import { Buffer } from "buffer";
+
 import { ColumnsState } from "@ant-design/pro-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import type { FilterType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -80,20 +83,23 @@ export default () => {
     const newFilter = [];
     if (filterParam) {
       const params = filterParam.split(",");
-      let key, type, id, operator, value;
+      let key: keyof ConditionInput, type, id, operator, value, valueType: FilterType;
       for (const param of params) {
         const conditions = param.split(";");
-        [key, value] = conditions[0].split(":");
+        key = conditions[0].split(":")[0] as keyof ConditionInput;
+        value = conditions[0].split(":")[1];
+        value = value && Buffer.from(value, "base64").toString();
         [type, id] = conditions[1].split(":");
-        operator = conditions[2];
+        operator = conditions[2].split(":")[0];
+        valueType = conditions[2].split(":")[1] as FilterType;
         const data: {
-          [x: string]: {
+          [x: keyof ConditionInput | string]: {
             fieldId: {
               type: string;
               id: string;
             };
             operator: string;
-            value?: string | Date;
+            value?: string | boolean | number | Date;
           };
         } = {
           [key]: {
@@ -102,9 +108,14 @@ export default () => {
           },
         };
 
-        if (key === "time") {
+        if (valueType === "Bool") {
+          value = value === "true";
+        } else if (valueType === "Integer" || valueType === "Float") {
+          value = Number(value);
+        } else if (valueType === "Date") {
           value = new Date(value);
         }
+
         if (key !== "nullable") {
           data[key].value = value;
         }
@@ -254,6 +265,7 @@ export default () => {
       key: field.id,
       ellipsis: true,
       type: field.type,
+      typeProperty: field.typeProperty,
       width: 128,
       minWidth: 128,
     }));
@@ -266,6 +278,7 @@ export default () => {
         key: field.id,
         ellipsis: true,
         type: field.type,
+        typeProperty: field.typeProperty,
         width: 128,
         minWidth: 128,
       })) || [];

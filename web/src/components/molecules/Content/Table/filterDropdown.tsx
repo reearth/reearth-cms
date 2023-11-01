@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import Icon from "@reearth-cms/components/atoms/Icon";
+import Space from "@reearth-cms/components/atoms/Space";
 import {
   DefaultFilterValueType,
   DropdownFilterType,
@@ -15,9 +17,10 @@ type Props = {
   filter: DropdownFilterType;
   index: number;
   defaultValue: DefaultFilterValueType;
+  filterRemove: (index: number) => void;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value }) => {
+const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value, filterRemove }) => {
   const [open, setOpen] = useState(false);
 
   const close = () => {
@@ -27,6 +30,14 @@ const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value })
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
   };
+
+  const remove = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      filterRemove(index);
+    },
+    [index, filterRemove],
+  );
 
   return (
     <Dropdown
@@ -47,7 +58,14 @@ const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value })
       open={open}
       onOpenChange={handleOpenChange}>
       <Badge offset={[-3, 3]} color="blue" dot>
-        <StyledButton type="text">{filter.title}</StyledButton>
+        <StyledButton type="text">
+          <Space size={10}>
+            {filter.title}
+            <div onClick={remove}>
+              <StyledIcon icon="close" size={12} />
+            </div>
+          </Space>
+        </StyledButton>
       </Badge>
     </Dropdown>
   );
@@ -57,6 +75,13 @@ const StyledButton = styled(Button)`
   color: rgba(0, 0, 0, 0.45);
   background-color: #f8f8f8;
   margin: 0 5px;
+`;
+
+const StyledIcon = styled(Icon)`
+  color: rgba(0, 0, 0, 0.45);
+  :hover {
+    color: rgba(0, 0, 0, 0.85);
+  }
 `;
 
 export default FilterDropdown;
