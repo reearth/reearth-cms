@@ -1,6 +1,5 @@
 import { Buffer } from "buffer";
 
-import { ColumnsState } from "@ant-design/pro-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -32,8 +31,8 @@ import { fileName } from "./utils";
 
 export type CurrentViewType = {
   sort?: ItemSortInput;
-  filter?: ConditionInput;
-  columns?: FieldSelector;
+  filter?: ConditionInput[];
+  columns?: FieldSelector[];
 };
 
 export default () => {
@@ -69,33 +68,21 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  // const [sort, setSort] = useState<
-  //   { field: FieldSelector; direction?: SortDirection } | undefined
-  // >();
-  const [columns, setColumns] = useState<Record<string, ColumnsState>>({});
   const [filter, setFilter] = useState<ConditionInput[]>();
   const [currentView, setCurrentView] = useState<CurrentViewType>({});
 
   useEffect(() => {
-    console.log("Field and Id : ", sortFieldType, sortFieldId);
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
+    let sort: ItemSortInput | undefined;
     if (sortFieldType)
-      setCurrentView({
-        ...currentView,
-        sort: {
-          field: {
-            id: sortFieldId,
-            type: sortFieldType as FieldSelector["type"],
-          },
-          direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
+      sort = {
+        field: {
+          id: sortFieldId,
+          type: sortFieldType as FieldSelector["type"],
         },
-      });
-    else
-      setCurrentView({
-        ...currentView,
-        sort: undefined,
-      });
+        direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
+      };
     const newFilter = [];
     if (filterParam) {
       const params = filterParam.split(",");
@@ -138,6 +125,11 @@ export default () => {
         newFilter.push(data);
       }
     }
+    setCurrentView({
+      columns: currentView.columns,
+      sort: sort,
+      filter: newFilter.length > 0 ? newFilter : undefined,
+    });
     setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -422,8 +414,7 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
-    columns,
-    setColumns,
+    setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,

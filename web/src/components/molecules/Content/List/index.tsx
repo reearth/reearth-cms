@@ -42,8 +42,7 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
-  columns: Record<string, ColumnsState>;
-  setColumns: (input: Record<string, ColumnsState>) => void;
+  setCurrentView: (CurrentViewType: CurrentViewType) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onContentTableChange: (
@@ -85,8 +84,7 @@ const ContentListMolecule: React.FC<Props> = ({
   pageSize,
   requests,
   addItemToRequestModalShown,
-  columns,
-  setColumns,
+  setCurrentView,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -166,8 +164,7 @@ const ContentListMolecule: React.FC<Props> = ({
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
-            columns={columns}
-            setColumns={setColumns}
+            setCurrentView={setCurrentView}
           />
         </Content>
       }

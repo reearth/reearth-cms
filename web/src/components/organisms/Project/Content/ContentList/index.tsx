@@ -20,14 +20,12 @@ const ContentList: React.FC = () => {
     loading,
     totalCount,
     currentView,
-    filter,
     searchTerm,
     page,
     pageSize,
     requests,
     addItemToRequestModalShown,
-    columns,
-    setColumns,
+    setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
@@ -80,12 +78,10 @@ const ContentList: React.FC = () => {
       collapsed={collapsedModelMenu}
       itemsDataLoading={loading}
       currentView={currentView}
-      columns={columns}
-      setColumns={setColumns}
+      setCurrentView={setCurrentView}
       totalCount={totalCount}
       searchTerm={searchTerm}
       page={page}
-      filter={filter}
       pageSize={pageSize}
       model={currentModel}
       contentTableFields={contentTableFields}
