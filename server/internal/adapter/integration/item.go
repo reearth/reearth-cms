@@ -179,11 +179,7 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		if err != nil {
 			return ItemCreate400Response{}, err
 		}
-		metaFields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.MetadataFields))
-		for _, f := range *request.Body.MetadataFields {
-			metaFields = append(metaFields, fromItemFieldParam(f))
-		}
-
+		metaFields := convertMetaFields(*request.Body.MetadataFields, metaSchema)
 		cpMeta := interfaces.CreateItemParam{
 			SchemaID: metaSchema.ID(),
 			Fields:   metaFields,
@@ -258,10 +254,7 @@ func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWit
 		if err != nil {
 			return ItemCreateWithProject400Response{}, err
 		}
-		metaFields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.MetadataFields))
-		for _, f := range *request.Body.MetadataFields {
-			metaFields = append(metaFields, fromItemFieldParam(f))
-		}
+		metaFields := convertMetaFields(*request.Body.MetadataFields, metaSchema)
 
 		cpMeta := interfaces.CreateItemParam{
 			SchemaID: metaSchema.ID(),
@@ -321,22 +314,19 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 	var metaItem item.Versioned
 	var metaItemID *id.ItemID
 	if request.Body.MetadataFields != nil {
-		metaFields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.MetadataFields))
-		for _, f := range *request.Body.MetadataFields {
-			metaFields = append(metaFields, fromItemFieldParam(f))
-		}
-		if i.Value().MetadataItem() == nil {
-			m, err := uc.Model.FindByID(ctx, i.Value().Model(), op)
-			if err != nil {
-				if errors.Is(err, rerror.ErrNotFound) {
-					return ItemUpdate400Response{}, err
-				}
-				return nil, err
-			}
-			metaSchema, err = uc.Schema.FindByID(ctx, *m.Metadata(), op)
-			if err != nil {
+		m, err := uc.Model.FindByID(ctx, i.Value().Model(), op)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
 				return ItemUpdate400Response{}, err
 			}
+			return nil, err
+		}
+		metaSchema, err = uc.Schema.FindByID(ctx, *m.Metadata(), op)
+		if err != nil {
+			return ItemUpdate400Response{}, err
+		}
+		metaFields := convertMetaFields(*request.Body.MetadataFields, metaSchema)
+		if i.Value().MetadataItem() == nil {
 
 			cpMeta := interfaces.CreateItemParam{
 				SchemaID: metaSchema.ID(),
@@ -353,10 +343,7 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 			if err != nil {
 				return ItemUpdate400Response{}, err
 			}
-			metaSchema, err = uc.Schema.FindByID(ctx, metaItem.Value().Schema(), op)
-			if err != nil {
-				return ItemUpdate400Response{}, err
-			}
+
 			upMeta := interfaces.UpdateItemParam{
 				ItemID: metaItem.Value().ID(),
 				Fields: metaFields,
@@ -575,4 +562,39 @@ func getMetaSchemasAndItems(ctx context.Context, itemList item.VersionedList) (s
 	}
 
 	return ms, mi
+}
+
+func convertMetaFields(fields []integrationapi.Field, s *schema.Schema) []interfaces.ItemFieldParam {
+	res := make([]interfaces.ItemFieldParam, 0, len(fields))
+
+	for _, field := range fields {
+		if *field.Type == integrationapi.ValueTypeTag {
+			sf := s.Field(*field.Id)
+			var tagList schema.TagList
+			sf.TypeProperty().Match(schema.TypePropertyMatch{
+				Tag: func(f *schema.FieldTag) {
+					tagList = f.Tags()
+				},
+			})
+			if !sf.Multiple() {
+				name := lo.FromPtr(field.Value).(string)
+				tag := tagList.FindByName(name)
+				if tag != nil {
+					var value interface{} = tag.ID()
+					field.Value = &value
+				}
+			} else {
+				names := lo.FromPtr(field.Value).([]string)
+				tagIDs := util.Map(names, func(n string) id.TagID {
+					t := lo.FromPtr(tagList.FindByName(n))
+					return t.ID()
+				})
+				var value interface{} = tagIDs
+				field.Value = &value
+			}
+
+		}
+		res = append(res, fromItemFieldParam(field))
+	}
+	return res
 }

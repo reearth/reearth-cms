@@ -157,3 +157,12 @@ func (tl TagList) FindByName(name string) *Tag {
 	}
 	return nil
 }
+
+func (tl TagList) FindByID(tid TagID) *Tag {
+	for _, i := range tl {
+		if i.ID() == tid {
+			return i
+		}
+	}
+	return nil
+}

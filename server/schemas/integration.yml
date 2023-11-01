@@ -873,6 +873,16 @@ components:
         - url
         - group
         - tag
+    tagResponse:
+      type: object
+      properties:
+        id:
+          x-go-type: id.TagID
+          type: string
+        name:
+          type: string
+        color:
+          type: string
     schemaField:
       type: object
       properties:

@@ -158,10 +158,14 @@ const FieldCreationModal: React.FC<Props> = ({
   useEffect(() => {
     if (selectedType === "Asset" || selectedType === "Select") {
       form.setFieldValue("defaultValue", null);
-    } else if (selectedType === "Bool" || selectedType === "Checkbox") {
-      form.setFieldValue("defaultValue", []);
     }
   }, [form, selectedType, multipleValue]);
+
+  useEffect(() => {
+    if (selectedType === "Bool" || selectedType === "Checkbox") {
+      form.setFieldValue("defaultValue", multipleValue ? [] : false);
+    }
+  }, [form, multipleValue, selectedType]);
 
   useEffect(() => {
     if (selectedType === "Select") {
@@ -243,6 +247,7 @@ const FieldCreationModal: React.FC<Props> = ({
         }
         values.metadata = isMeta;
         await onSubmit?.(values);
+        setMultipleValue(false);
         onClose?.(true);
       })
       .catch(info => {

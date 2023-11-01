@@ -238,6 +238,19 @@ const DropdownRender: React.FC<Props> = ({
       setSearchParams(searchParams);
     } else {
       searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
+      switch (filter.id as string) {
+        case "CREATION_DATE":
+        case "CREATION_USER":
+        case "MODIFICATION_DATE":
+        case "MODIFICATION_USER":
+        case "STATUS":
+          searchParams.set("sortFieldType", filter.id);
+          break;
+        default:
+          if (filter.dataIndex[0] === "fields") searchParams.set("sortFieldType", "FIELD");
+          else searchParams.set("sortFieldType", "META_FIELD");
+          searchParams.set("sortFieldId", filter.id);
+      }
       setSearchParams(searchParams);
     }
   }, [

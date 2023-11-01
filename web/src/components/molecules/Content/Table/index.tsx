@@ -1,3 +1,5 @@
+// import { LightFilter } from "@ant-design/pro-components";
+import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -37,6 +39,8 @@ import FilterDropdown from "./filterDropdown";
 
 type ExtendedColumns = ProColumns<ContentTableField> & {
   type?: FieldType;
+  fieldType?: string;
+  sortOrder?: "descend" | "ascend" | null;
   typeProperty?: { values?: string[] };
 };
 
@@ -52,6 +56,8 @@ export type Props = {
   totalCount: number;
   sort?: { field?: FieldSelector; direction?: SortDirection };
   filter?: Omit<ConditionInput, "and" | "or">[];
+  columns: Record<string, ColumnsState>;
+  setColumns: (input: Record<string, ColumnsState>) => void;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -93,6 +99,8 @@ const ContentTable: React.FC<Props> = ({
   pageSize,
   requests,
   addItemToRequestModalShown,
+  columns,
+  setColumns,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -112,7 +120,7 @@ const ContentTable: React.FC<Props> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
-  const actionsColumn: ExtendedColumns[] = useMemo(
+  const actionsColumns: ExtendedColumns[] = useMemo(
     () => [
       {
         render: (_, contentField) => (
@@ -120,12 +128,15 @@ const ContentTable: React.FC<Props> = ({
             <Icon icon="edit" />
           </Link>
         ),
+        hideInSetting: true,
         width: 48,
         minWidth: 48,
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
+        fieldType: "commentsCount",
         key: "commentsCount",
         render: (_, item) => {
           return (
@@ -142,7 +153,8 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: t("Status"),
-        dataIndex: "status",
+        dataIndex: "Status",
+        fieldType: "STATUS",
         key: "STATUS",
         render: (_, item) => {
           const itemStatus: StateType[] = item.status.split("_") as StateType[];
@@ -164,11 +176,39 @@ const ContentTable: React.FC<Props> = ({
       {
         title: t("Created At"),
         dataIndex: "createdAt",
+        fieldType: "CREATION_DATE",
         key: "CREATION_DATE",
+        sortOrder:
+          sort?.field?.type === "CREATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
         defaultSortOrder:
           sort?.field?.type === "CREATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
+        width: 148,
+        minWidth: 148,
+      },
+      {
+        title: t("Created By"),
+        dataIndex: "createdBy",
+        fieldType: "CREATION_USER",
+        key: "CREATION_USER",
+        sortOrder:
+          sort?.field?.type === "CREATION_USER"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
+        sorter: true,
+        defaultSortOrder:
+          sort?.field?.type === "CREATION_USER"
             ? sort.direction === "ASC"
               ? "ascend"
               : "descend"
@@ -180,12 +220,40 @@ const ContentTable: React.FC<Props> = ({
       {
         title: t("Updated At"),
         dataIndex: "updatedAt",
+        fieldType: "MODIFICATION_DATE",
         key: "MODIFICATION_DATE",
+        sortOrder:
+          sort?.field?.type === "MODIFICATION_DATE"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
         defaultSortOrder:
           sort?.field?.type === "MODIFICATION_DATE"
-            ? sort?.direction === "ASC"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
+        width: 148,
+        minWidth: 148,
+      },
+      {
+        title: t("Updated By"),
+        dataIndex: "updatedBy",
+        fieldType: "MODIFICATION_USER",
+        key: "MODIFICATION_USER",
+        sortOrder:
+          sort?.field?.type === "MODIFICATION_USER"
+            ? sort.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
+        sorter: true,
+        defaultSortOrder:
+          sort?.field?.type === "MODIFICATION_USER"
+            ? sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -196,6 +264,33 @@ const ContentTable: React.FC<Props> = ({
     ],
     [t, sort?.field?.type, sort?.direction, selectedItem?.id, onItemSelect],
   );
+
+  const contentColumns: ProColumns<ContentTableField>[] | undefined = useMemo(
+    () =>
+      contentTableColumns?.map(column => ({
+        sorter: true,
+        sortOrder:
+          sort?.field?.id === column.key
+            ? sort?.direction === "ASC"
+              ? "ascend"
+              : "descend"
+            : null,
+        key: column.key,
+        fieldType: column.fieldType,
+        title: column.title,
+        dataIndex: column.dataIndex,
+        width: 128,
+        minWidth: 128,
+        ellipsis: true,
+      })),
+    [contentTableColumns, sort],
+  );
+
+  const tableColumns = useMemo(() => {
+    const items = [...actionsColumns];
+    if (contentColumns) items.push(...contentColumns);
+    return items;
+  }, [actionsColumns, contentColumns]);
 
   const rowSelection: TableRowSelection = {
     selectedRowKeys: selection.selectedRowKeys,
@@ -262,7 +357,7 @@ const ContentTable: React.FC<Props> = ({
         const columns: ExtendedColumns[] =
           fieldId.type === "FIELD" || fieldId.type === "CREATION_USER"
             ? contentTableColumns
-            : actionsColumn;
+            : actionsColumns;
         for (const c of columns) {
           if (c.key === fieldId.id) {
             column = c;
@@ -285,7 +380,7 @@ const ContentTable: React.FC<Props> = ({
       setFilters([]);
       defaultFilterValues.current = [];
     }
-  }, [filter, contentTableColumns, actionsColumn, currentWorkspace?.members]);
+  }, [filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
 
   const isFilter = useRef<boolean>(true);
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
@@ -347,7 +442,7 @@ const ContentTable: React.FC<Props> = ({
       };
 
       return [
-        ...((actionsColumn ?? [])
+        ...((actionsColumns ?? [])
           .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
           .map(column => ({
             key: column.key,
@@ -367,7 +462,7 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [actionsColumn, contentTableColumns, currentWorkspace?.members],
+    [actionsColumns, contentTableColumns, currentWorkspace?.members],
   );
 
   const defaultItems = getOptions(false);
@@ -530,15 +625,25 @@ const ContentTable: React.FC<Props> = ({
           dataSource={contentTableFields}
           tableAlertOptionRender={AlertOptions}
           rowSelection={rowSelection}
-          columns={[...actionsColumn, ...contentTableColumns]}
+          columns={tableColumns}
+          columnsState={{
+            value: columns,
+            onChange: setColumns,
+          }}
           onChange={(pagination, _, sorter: any) => {
             onContentTableChange(
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
               sorter?.order
                 ? {
-                    field: { type: sorter.columnKey },
-                    direction: sorter.order === "ascend" ? SortDirection.Asc : SortDirection.Desc,
+                    field: {
+                      id: sorter?.columnKey,
+                      type: sorter.column.fieldType as FieldSelector["type"],
+                    },
+                    direction:
+                      sorter.order === "ascend"
+                        ? ("ASC" as SortDirection)
+                        : ("DESC" as SortDirection),
                   }
                 : undefined,
             );

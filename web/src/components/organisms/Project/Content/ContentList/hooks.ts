@@ -1,5 +1,6 @@
 import { Buffer } from "buffer";
 
+import { ColumnsState } from "@ant-design/pro-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -22,7 +23,6 @@ import {
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
-  FieldType,
   ConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
@@ -51,28 +51,35 @@ export default () => {
 
   const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
   const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const sortType = useMemo(() => searchParams.get("sortType"), [searchParams]);
+  const sortFieldType = useMemo(() => searchParams.get("sortFieldType"), [searchParams]);
   const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
+  const sortFieldId = useMemo(() => searchParams.get("sortFieldId"), [searchParams]);
   const filterParam = useMemo(() => searchParams.get("filter"), [searchParams]);
+
   const navigate = useNavigate();
   const { modelId } = useParams();
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<{ field: FieldSelector; direction: SortDirection } | undefined>({
-    field: sortType ? { type: sortType as FieldType } : { type: FieldType.ModificationDate },
-    direction: direction ? (direction as SortDirection) : SortDirection.Desc,
-  });
+  const [sort, setSort] = useState<
+    { field: FieldSelector; direction: SortDirection } | undefined
+  >();
+  const [columns, setColumns] = useState<Record<string, ColumnsState>>({});
   const [filter, setFilter] = useState<ConditionInput[]>();
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-    setSort({
-      field: sortType ? { type: sortType as FieldType } : { type: FieldType.ModificationDate },
-      direction: direction ? (direction as SortDirection) : SortDirection.Desc,
-    });
+    if (sortFieldType)
+      setSort({
+        field: {
+          id: sortFieldId,
+          type: sortFieldType as FieldSelector["type"],
+        },
+        direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
+      });
+    else setSort(undefined);
     const newFilter = [];
     if (filterParam) {
       const params = filterParam.split(",");
@@ -117,30 +124,37 @@ export default () => {
     }
     setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
-  }, [pageParam, pageSizeParam, sortType, direction, searchTermParam, filterParam]);
+  }, [
+    pageParam,
+    pageSizeParam,
+    sortFieldType,
+    direction,
+    searchTermParam,
+    sortFieldId,
+    filterParam,
+  ]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
-      query: {
-        project: currentProject?.id as string,
-        schema: currentModel?.schema.id,
-        q: searchTerm,
+      searchItemInput: {
+        query: {
+          project: currentProject?.id as string,
+          model: currentModel?.id,
+          q: searchTerm,
+        },
+        pagination: { first: pageSize, offset: (page - 1) * pageSize },
+        sort: sort,
+        filter: filter
+          ? {
+              and: {
+                conditions: filter,
+              },
+            }
+          : undefined,
       },
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: {
-        field: { type: FieldType.ModificationDate, id: null },
-        direction: SortDirection.Desc,
-      },
-      filter: filter
-        ? {
-            and: {
-              conditions: filter,
-            },
-          }
-        : undefined,
     },
-    skip: !currentModel?.schema.id,
+    skip: !currentModel?.id,
   });
 
   const handleItemsReload = useCallback(() => {
@@ -193,6 +207,7 @@ export default () => {
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
               createdBy: item.createdBy?.name,
+              updatedBy: item.updatedBy?.name || "",
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
@@ -224,6 +239,17 @@ export default () => {
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
+              metadata: item?.metadata?.fields?.reduce(
+                (obj, field) =>
+                  Object.assign(obj, {
+                    [field.schemaFieldId]: Array.isArray(field.value)
+                      ? field.value.join(", ")
+                      : field.value
+                      ? "" + field.value
+                      : field.value,
+                  }),
+                {},
+              ),
             }
           : undefined,
       )
@@ -232,28 +258,31 @@ export default () => {
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
-    return [
-      {
-        title: t("Created By"),
-        dataIndex: "createdBy",
-        key: "CREATION_USER",
-        width: 128,
-        minWidth: 128,
-        ellipsis: true,
-        type: "Person",
-      },
-      ...currentModel.schema.fields.map(field => ({
+    const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
+      title: field.title,
+      dataIndex: ["fields", field.id],
+      fieldType: "FIELD",
+      key: field.id,
+      ellipsis: true,
+      type: field.type,
+      width: 128,
+      minWidth: 128,
+    }));
+
+    const metadataColumns =
+      currentModel?.metadataSchema?.fields?.map(field => ({
         title: field.title,
-        dataIndex: ["fields", field.id],
+        dataIndex: ["metadata", field.id],
+        fieldType: "META_FIELD",
         key: field.id,
-        width: 128,
-        minWidth: 128,
         ellipsis: true,
         type: field.type,
-        typeProperty: field.typeProperty,
-      })),
-    ];
-  }, [currentModel, t]);
+        width: 128,
+        minWidth: 128,
+      })) || [];
+
+    return fieldsColumns.concat(metadataColumns);
+  }, [currentModel]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
@@ -332,11 +361,12 @@ export default () => {
     ) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
-      searchParams.set("sortType", sorter?.field?.type ?? "");
+      searchParams.set("sortFieldType", sorter?.field?.type ? sorter?.field?.type : "");
       searchParams.set("direction", sorter?.direction ? sorter.direction : "");
+      searchParams.set("sortFieldId", sorter?.field?.id ? sorter?.field?.id : "");
       setSearchParams(searchParams);
     },
-    [setSearchParams, searchParams],
+    [searchParams, setSearchParams],
   );
 
   const handleSearchTerm = useCallback(
@@ -373,6 +403,8 @@ export default () => {
     pageSize,
     requests,
     addItemToRequestModalShown,
+    columns,
+    setColumns,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
