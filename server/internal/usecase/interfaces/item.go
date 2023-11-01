@@ -40,12 +40,14 @@ type CreateItemParam struct {
 	SchemaID   schema.ID
 	ModelID    model.ID
 	MetadataID *item.ID
+	OriginalID *item.ID
 	Fields     []ItemFieldParam
 }
 
 type UpdateItemParam struct {
 	ItemID     item.ID
 	MetadataID *item.ID
+	OriginalID *item.ID
 	Fields     []ItemFieldParam
 	Version    *version.Version
 }

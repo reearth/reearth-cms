@@ -241,6 +241,7 @@ type CreateItemInput struct {
 	SchemaID   ID                `json:"schemaId"`
 	ModelID    ID                `json:"modelId"`
 	MetadataID *ID               `json:"metadataId,omitempty"`
+	OriginalID *ID               `json:"originalId,omitempty"`
 	Fields     []*ItemFieldInput `json:"fields"`
 }
 
@@ -492,6 +493,7 @@ type Item struct {
 	UpdatedByIntegrationID *ID          `json:"updatedByIntegrationId,omitempty"`
 	UserID                 *ID          `json:"userId,omitempty"`
 	MetadataID             *ID          `json:"metadataId,omitempty"`
+	OriginalID             *ID          `json:"originalId,omitempty"`
 	CreatedBy              Operator     `json:"createdBy,omitempty"`
 	Schema                 *Schema      `json:"schema"`
 	Model                  *Model       `json:"model"`
@@ -505,6 +507,7 @@ type Item struct {
 	UpdatedBy              Operator     `json:"updatedBy,omitempty"`
 	Version                string       `json:"version"`
 	Metadata               *Item        `json:"metadata,omitempty"`
+	Original               *Item        `json:"original,omitempty"`
 	Title                  *string      `json:"title,omitempty"`
 }
 
@@ -1156,6 +1159,7 @@ type UpdateIntegrationOfWorkspaceInput struct {
 type UpdateItemInput struct {
 	ItemID     ID                `json:"itemId"`
 	MetadataID *ID               `json:"metadataId,omitempty"`
+	OriginalID *ID               `json:"originalId,omitempty"`
 	Fields     []*ItemFieldInput `json:"fields"`
 	Version    *string           `json:"version,omitempty"`
 }

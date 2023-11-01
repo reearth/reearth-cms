@@ -275,12 +275,21 @@ func aliasStages(query *item.Query) []any {
 			},
 		}
 	}
-	if len(aliases) <= 0 {
-		return []any{}
-	}
 
 	stages := []any{
-		bson.M{"$set": aliases},
+		// append creation date time stamp to aliases
+		bson.M{"$set": lo.Assign(aliases, map[string]any{"__temp.creationdate": bson.M{
+			"$function": bson.M{
+				"body": "function(ulid) { const ENCODING = '0123456789ABCDEFGHJKMNPQRSTVWXYZ', ENCODING_LEN = ENCODING.length, TIME_LEN = 10; return new Date( ulid.substr(0, TIME_LEN).toUpperCase().split('').reverse().reduce((carry, char, index) => (carry += ENCODING.indexOf(char) * Math.pow(ENCODING_LEN, index)), 0)); }",
+				"args": bson.A{"$id"},
+				"lang": "js",
+			},
+		},
+		})},
+	}
+
+	if len(aliases) <= 0 {
+		return stages
 	}
 
 	// flatten the value object
@@ -307,83 +316,83 @@ func filter(f *view.Condition) any {
 	if f.BasicCondition != nil {
 		switch f.BasicCondition.Op {
 		case view.BasicOperatorEquals:
-			ff[fieldKey(f.BasicCondition.Field)+".0"] = f.BasicCondition.Value
+			ff[fieldKey(f.BasicCondition.Field)] = f.BasicCondition.Value
 		case view.BasicOperatorNotEquals:
-			ff[fieldKey(f.BasicCondition.Field)+".0"] = bson.M{"$ne": f.BasicCondition.Value}
+			ff[fieldKey(f.BasicCondition.Field)] = bson.M{"$ne": f.BasicCondition.Value}
 		}
 	}
 	if f.NullableCondition != nil {
 		switch f.NullableCondition.Op {
 		case view.NullableOperatorEmpty:
-			ff[fieldKey(f.NullableCondition.Field)+".0"] = bson.M{"$exists": false}
+			ff[fieldKey(f.NullableCondition.Field)] = bson.M{"$exists": false}
 		case view.NullableOperatorNotEmpty:
-			ff[fieldKey(f.NullableCondition.Field)+".0"] = bson.M{"$exists": true}
+			ff[fieldKey(f.NullableCondition.Field)] = bson.M{"$exists": true}
 		}
 	}
 	if f.BoolCondition != nil {
 		switch f.BoolCondition.Op {
 		case view.BoolOperatorEquals:
-			ff[fieldKey(f.BoolCondition.Field)+".0"] = f.BoolCondition.Value
+			ff[fieldKey(f.BoolCondition.Field)] = f.BoolCondition.Value
 		case view.BoolOperatorNotEquals:
-			ff[fieldKey(f.BoolCondition.Field)+".0"] = bson.M{"$ne": f.BoolCondition.Value}
+			ff[fieldKey(f.BoolCondition.Field)] = bson.M{"$ne": f.BoolCondition.Value}
 		}
 	}
 	if f.StringCondition != nil {
 		switch f.StringCondition.Op {
 		case view.StringOperatorContains:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(f.StringCondition.Value))}
+			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(f.StringCondition.Value))}
 		case view.StringOperatorNotContains:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(f.StringCondition.Value))}}
+			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(f.StringCondition.Value))}}
 		case view.StringOperatorStartsWith:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(f.StringCondition.Value))}
+			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(f.StringCondition.Value))}
 		case view.StringOperatorNotStartsWith:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(f.StringCondition.Value))}}
+			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(f.StringCondition.Value))}}
 		case view.StringOperatorEndsWith:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(f.StringCondition.Value))}
+			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(f.StringCondition.Value))}
 		case view.StringOperatorNotEndsWith:
-			ff[fieldKey(f.StringCondition.Field)+".0"] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(f.StringCondition.Value))}}
+			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(f.StringCondition.Value))}}
 		}
 	}
 	if f.NumberCondition != nil {
 		switch f.NumberCondition.Op {
 		case view.NumberOperatorGreaterThan:
-			ff[fieldKey(f.NumberCondition.Field)+".0"] = bson.M{"$gt": f.NumberCondition.Value}
+			ff[fieldKey(f.NumberCondition.Field)] = bson.M{"$gt": f.NumberCondition.Value}
 		case view.NumberOperatorGreaterThanOrEqualTo:
-			ff[fieldKey(f.NumberCondition.Field)+".0"] = bson.M{"$gte": f.NumberCondition.Value}
+			ff[fieldKey(f.NumberCondition.Field)] = bson.M{"$gte": f.NumberCondition.Value}
 		case view.NumberOperatorLessThan:
-			ff[fieldKey(f.NumberCondition.Field)+".0"] = bson.M{"$lt": f.NumberCondition.Value}
+			ff[fieldKey(f.NumberCondition.Field)] = bson.M{"$lt": f.NumberCondition.Value}
 		case view.NumberOperatorLessThanOrEqualTo:
-			ff[fieldKey(f.NumberCondition.Field)+".0"] = bson.M{"$lte": f.NumberCondition.Value}
+			ff[fieldKey(f.NumberCondition.Field)] = bson.M{"$lte": f.NumberCondition.Value}
 		}
 	}
 	if f.TimeCondition != nil {
 		switch f.TimeCondition.Op {
 		case view.TimeOperatorAfter:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gt": f.TimeCondition.Value}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gt": f.TimeCondition.Value}
 		case view.TimeOperatorAfterOrOn:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gte": f.TimeCondition.Value}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": f.TimeCondition.Value}
 		case view.TimeOperatorBefore:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$lt": f.TimeCondition.Value}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$lt": f.TimeCondition.Value}
 		case view.TimeOperatorBeforeOrOn:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$lte": f.TimeCondition.Value}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$lte": f.TimeCondition.Value}
 		case view.TimeOperatorOfThisWeek:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gte": time.Now().AddDate(0, 0, -7)}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": time.Now().AddDate(0, 0, -7)}
 		case view.TimeOperatorOfThisMonth:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gte": time.Now().AddDate(0, -1, 0)}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": time.Now().AddDate(0, -1, 0)}
 		case view.TimeOperatorOfThisYear:
-			ff[fieldKey(f.TimeCondition.Field)+".0"] = bson.M{"$gte": time.Now().AddDate(-1, 0, 0)}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": time.Now().AddDate(-1, 0, 0)}
 		}
 	}
 	if f.MultipleCondition != nil {
 		switch f.MultipleCondition.Op {
 		case view.MultipleOperatorIncludesAny:
-			ff[fieldKey(f.MultipleCondition.Field)+".0"] = bson.M{"$in": f.MultipleCondition.Value}
+			ff[fieldKey(f.MultipleCondition.Field)] = bson.M{"$in": f.MultipleCondition.Value}
 		case view.MultipleOperatorIncludesAll:
-			ff[fieldKey(f.MultipleCondition.Field)+".0"] = bson.M{"$all": f.MultipleCondition.Value}
+			ff[fieldKey(f.MultipleCondition.Field)] = bson.M{"$all": f.MultipleCondition.Value}
 		case view.MultipleOperatorNotIncludesAny:
-			ff[fieldKey(f.MultipleCondition.Field)+".0"] = bson.M{"$nin": f.MultipleCondition.Value}
+			ff[fieldKey(f.MultipleCondition.Field)] = bson.M{"$nin": f.MultipleCondition.Value}
 		case view.MultipleOperatorNotIncludesAll:
-			ff[fieldKey(f.MultipleCondition.Field)+".0"] = bson.M{"$not": bson.M{"$all": f.MultipleCondition.Value}}
+			ff[fieldKey(f.MultipleCondition.Field)] = bson.M{"$not": bson.M{"$all": f.MultipleCondition.Value}}
 		}
 	}
 	if f.AndCondition != nil {
@@ -401,9 +410,24 @@ func filter(f *view.Condition) any {
 
 func fieldKey(f view.FieldSelector) string {
 	if f.Type == view.FieldTypeMetaField || f.Type == view.FieldTypeField {
-		return "__temp." + f.ID.String()
+		return "__temp." + f.ID.String() + ".0"
 	}
-	return string(f.Type)
+	switch f.Type {
+	case view.FieldTypeId:
+		return "id"
+	case view.FieldTypeCreationDate:
+		return "__temp.creationdate"
+	case view.FieldTypeCreationUser:
+		return "user"
+	case view.FieldTypeModificationDate:
+		return "Timestamp"
+	case view.FieldTypeModificationUser:
+		return "UpdatedByUser"
+	case view.FieldTypeStatus:
+		return "status"
+	default:
+		return "id"
+	}
 }
 
 func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.VersionedList, error) {

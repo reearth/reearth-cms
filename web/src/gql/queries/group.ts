@@ -52,6 +52,9 @@ export const GET_GROUPS = gql`
             ... on SchemaFieldURL {
               defaultValue
             }
+            ... on SchemaFieldDate {
+              defaultValue
+            }
           }
         }
       }
@@ -110,6 +113,9 @@ export const GET_GROUP = gql`
                 defaultValue
               }
               ... on SchemaFieldURL {
+                defaultValue
+              }
+              ... on SchemaFieldDate {
                 defaultValue
               }
             }
