@@ -281,6 +281,9 @@ const ContentTable: React.FC<Props> = ({
       }
       setFilters(newFilters);
       defaultFilterValues.current = newDefaultValues;
+    } else {
+      setFilters([]);
+      defaultFilterValues.current = [];
     }
   }, [filter, contentTableColumns, actionsColumn, currentWorkspace?.members]);
 
