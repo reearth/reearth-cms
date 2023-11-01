@@ -138,6 +138,10 @@ const FieldUpdateModal: React.FC<Props> = ({
   const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
   const [multipleValue, setMultipleValue] = useState(selectedField?.multiple);
 
+  useEffect(() => {
+    setMultipleValue(selectedField?.multiple);
+  }, [selectedField?.multiple]);
+
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
       if (selectedType === "Date") {
