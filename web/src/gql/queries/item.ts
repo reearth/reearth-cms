@@ -121,13 +121,8 @@ export const GET_ITEMS_BY_IDS = gql`
 `;
 
 export const SEARCH_ITEM = gql`
-  query SearchItem(
-    $query: ItemQueryInput!
-    $sort: ItemSortInput
-    $filter: ConditionInput
-    $pagination: Pagination
-  ) {
-    searchItem(input: { query: $query, sort: $sort, filter: $filter, pagination: $pagination }) {
+  query SearchItem($searchItemInput: SearchItemInput!) {
+    searchItem(input: $searchItemInput) {
       nodes {
         id
         title
@@ -135,9 +130,16 @@ export const SEARCH_ITEM = gql`
         createdAt
         updatedAt
         status
+        version
         assets {
           id
           url
+        }
+        fields {
+          schemaFieldId
+          itemGroupId
+          type
+          value
         }
         createdBy {
           ... on Integration {
@@ -147,17 +149,35 @@ export const SEARCH_ITEM = gql`
             name
           }
         }
-        fields {
-          schemaFieldId
-          itemGroupId
-          type
-          value
+        updatedBy {
+          ... on Integration {
+            name
+            __typename
+          }
+          ... on User {
+            name
+            __typename
+          }
+        }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            type
+            value
+          }
         }
         thread {
           ...threadFragment
         }
       }
       totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
 
