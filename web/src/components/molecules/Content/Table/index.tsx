@@ -2,7 +2,7 @@
 import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -28,6 +28,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { SortDirection, ConditionInput, FieldSelector } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
@@ -38,7 +39,7 @@ import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 type ExtendedColumns = ProColumns<ContentTableField> & {
-  type?: string;
+  type?: FieldType | "Person";
   fieldType?: string;
   sortOrder?: "descend" | "ascend" | null;
   typeProperty?: { values?: string[] };
@@ -117,6 +118,7 @@ const ContentTable: React.FC<Props> = ({
   onItemDelete,
   onItemsReload,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
   console.log("currentView", currentView);
@@ -173,7 +175,6 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 148,
         minWidth: 148,
-        type: "STATUS",
       },
       {
         title: t("Created At"),
@@ -196,6 +197,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        type: "Date",
       },
       {
         title: t("Created By"),
@@ -217,7 +219,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
-        type: "Date",
+        type: "Person",
       },
       {
         title: t("Updated At"),
@@ -240,6 +242,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        type: "Date",
       },
       {
         title: t("Updated By"),
@@ -261,7 +264,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
-        type: "Date",
+        type: "Person",
       },
     ],
     [t, currentView.sort, selectedItem?.id, onItemSelect],
@@ -327,6 +330,22 @@ const ContentTable: React.FC<Props> = ({
 
   const [filters, setFilters] = useState<DropdownFilterType[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<DropdownFilterType>();
+  const filterRemove = useCallback(
+    (index: number) => {
+      setFilters(prev => {
+        prev.splice(index, 1);
+        return prev;
+      });
+      defaultFilterValues.current.splice(index, 1);
+      let params = searchParams.get("filter") ?? "";
+      const conditions = params.split(",");
+      conditions.splice(index, 1);
+      params = conditions.filter(Boolean).join(",");
+      searchParams.set("filter", params);
+      setSearchParams(searchParams);
+    },
+    [searchParams, setSearchParams],
+  );
 
   useEffect(() => {
     if (filter && contentTableColumns) {
@@ -341,9 +360,7 @@ const ContentTable: React.FC<Props> = ({
         let column;
 
         const columns: ExtendedColumns[] =
-          fieldId.type === "FIELD" || fieldId.type === "CREATION_USER"
-            ? contentTableColumns
-            : actionsColumns;
+          fieldId.type === "FIELD" ? contentTableColumns : actionsColumns;
         for (const c of columns) {
           if (c.key === fieldId.id) {
             column = c;
@@ -362,6 +379,9 @@ const ContentTable: React.FC<Props> = ({
       }
       setFilters(newFilters);
       defaultFilterValues.current = newDefaultValues;
+    } else {
+      setFilters([]);
+      defaultFilterValues.current = [];
     }
   }, [filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
 
@@ -425,17 +445,18 @@ const ContentTable: React.FC<Props> = ({
       };
 
       return [
-        ...((actionsColumns ?? [])
-          .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
-          .map(column => ({
-            key: column.key,
-            label: column.title,
-            onClick: () => {
-              optionClick(isFilter.current, column);
-            },
-          })) as any),
+        // TODO: Uncomment this when we have a way to filter by creation/modification date
+        // ...((actionsColumns ?? [])
+        //   .filter(column => column.key === "CREATION_DATE" || column.key === "MODIFICATION_DATE")
+        //   .map(column => ({
+        //     key: column.key,
+        //     label: column.title,
+        //     onClick: () => {
+        //       optionClick(isFilter.current, column);
+        //     },
+        //   })) as any),
         ...((contentTableColumns ?? [])
-          .filter(column => !!column.title && typeof column.title === "string")
+          .filter(column => column.type !== "Group" && column.type !== "Reference")
           .map(column => ({
             key: column.key,
             label: column.title,
@@ -445,7 +466,7 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [actionsColumns, contentTableColumns, currentWorkspace?.members],
+    [/*actionsColumns,*/ contentTableColumns, currentWorkspace?.members],
   );
 
   const defaultItems = getOptions(false);
@@ -488,6 +509,7 @@ const ContentTable: React.FC<Props> = ({
                 filter={filter}
                 defaultValue={defaultFilterValues.current[index]}
                 index={index}
+                filterRemove={filterRemove}
               />
             ))}
           </StyledFilterSpace>
