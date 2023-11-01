@@ -17,7 +17,7 @@ type ItemModelSchema struct {
 	ReferencedItems []*VersionedItem `json:"referencedItems,omitempty"`
 	Model           Model            `json:"model"`
 	Schema          Schema           `json:"schema"`
-	ItemChange      []FieldChange    `json:"itemChange,omitempty"`
+	Changes         []FieldChange    `json:"changes,omitempty"`
 }
 
 type FieldChange struct {
@@ -40,9 +40,9 @@ func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelS
 		ReferencedItems: lo.Map(i.ReferencedItems, func(itm *version.Value[*item.Item], _ int) *VersionedItem {
 			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil, nil, nil, nil))
 		}),
-		Model:      NewModel(i.Model, time.Time{}),
-		Schema:     NewSchema(i.Schema),
-		ItemChange: NewItemFieldChanges(i.Changes),
+		Model:   NewModel(i.Model, time.Time{}),
+		Schema:  NewSchema(i.Schema),
+		Changes: NewItemFieldChanges(i.Changes),
 	}
 }
 
