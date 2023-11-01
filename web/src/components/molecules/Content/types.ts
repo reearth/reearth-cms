@@ -40,6 +40,7 @@ export type FormItem = {
 export type ContentTableField = {
   id: string;
   createdBy: string;
+  updatedBy: string;
   schemaId: string;
   status: ItemStatus;
   modelId?: string;
@@ -47,6 +48,7 @@ export type ContentTableField = {
   comments: Comment[];
   createdAt: Date;
   updatedAt: Date;
+  metadata: { [key: string]: any };
 };
 
 export type Comment = {

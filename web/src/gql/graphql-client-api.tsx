@@ -2273,14 +2273,11 @@ export type GetItemsByIdsQueryVariables = Exact<{
 export type GetItemsByIdsQuery = { __typename?: 'Query', nodes: Array<{ __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null> };
 
 export type SearchItemQueryVariables = Exact<{
-  query: ItemQueryInput;
-  sort?: InputMaybe<ItemSortInput>;
-  filter?: InputMaybe<ConditionInput>;
-  pagination?: InputMaybe<Pagination>;
+  searchItemInput: SearchItemInput;
 }>;
 
 
-export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null> } };
+export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename: 'Integration', name: string } | { __typename: 'User', name: string } | null, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -4374,10 +4371,8 @@ export type GetItemsByIdsQueryHookResult = ReturnType<typeof useGetItemsByIdsQue
 export type GetItemsByIdsLazyQueryHookResult = ReturnType<typeof useGetItemsByIdsLazyQuery>;
 export type GetItemsByIdsQueryResult = Apollo.QueryResult<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>;
 export const SearchItemDocument = gql`
-    query SearchItem($query: ItemQueryInput!, $sort: ItemSortInput, $filter: ConditionInput, $pagination: Pagination) {
-  searchItem(
-    input: {query: $query, sort: $sort, filter: $filter, pagination: $pagination}
-  ) {
+    query SearchItem($searchItemInput: SearchItemInput!) {
+  searchItem(input: $searchItemInput) {
     nodes {
       id
       title
@@ -4385,9 +4380,16 @@ export const SearchItemDocument = gql`
       createdAt
       updatedAt
       status
+      version
       assets {
         id
         url
+      }
+      fields {
+        schemaFieldId
+        itemGroupId
+        type
+        value
       }
       createdBy {
         ... on Integration {
@@ -4397,17 +4399,35 @@ export const SearchItemDocument = gql`
           name
         }
       }
-      fields {
-        schemaFieldId
-        itemGroupId
-        type
-        value
+      updatedBy {
+        ... on Integration {
+          name
+          __typename
+        }
+        ... on User {
+          name
+          __typename
+        }
+      }
+      metadata {
+        id
+        fields {
+          schemaFieldId
+          type
+          value
+        }
       }
       thread {
         ...threadFragment
       }
     }
     totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
   }
 }
     ${ThreadFragmentFragmentDoc}`;
@@ -4424,10 +4444,7 @@ export const SearchItemDocument = gql`
  * @example
  * const { data, loading, error } = useSearchItemQuery({
  *   variables: {
- *      query: // value for 'query'
- *      sort: // value for 'sort'
- *      filter: // value for 'filter'
- *      pagination: // value for 'pagination'
+ *      searchItemInput: // value for 'searchItemInput'
  *   },
  * });
  */

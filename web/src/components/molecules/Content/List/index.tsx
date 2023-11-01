@@ -1,3 +1,4 @@
+import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -40,6 +41,8 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  columns: Record<string, ColumnsState>;
+  setColumns: (input: Record<string, ColumnsState>) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onContentTableChange: (
@@ -81,6 +84,8 @@ const ContentListMolecule: React.FC<Props> = ({
   pageSize,
   requests,
   addItemToRequestModalShown,
+  columns,
+  setColumns,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -160,6 +165,8 @@ const ContentListMolecule: React.FC<Props> = ({
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
+            columns={columns}
+            setColumns={setColumns}
           />
         </Content>
       }
