@@ -21,10 +21,17 @@ import {
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
   ConditionInput,
+  ItemSortInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import { fileName } from "./utils";
+
+export type CurrentViewType = {
+  sort?: ItemSortInput;
+  filter?: ConditionInput;
+  columns?: FieldSelector;
+};
 
 export default () => {
   const {
@@ -59,24 +66,33 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<
-    { field: FieldSelector; direction: SortDirection } | undefined
-  >();
+  // const [sort, setSort] = useState<
+  //   { field: FieldSelector; direction?: SortDirection } | undefined
+  // >();
   const [columns, setColumns] = useState<Record<string, ColumnsState>>({});
   const [filter, setFilter] = useState<ConditionInput[]>();
+  const [currentView, setCurrentView] = useState<CurrentViewType>({});
 
   useEffect(() => {
+    console.log("Field and Id : ", sortFieldType, sortFieldId);
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
     if (sortFieldType)
-      setSort({
-        field: {
-          id: sortFieldId,
-          type: sortFieldType as FieldSelector["type"],
+      setCurrentView({
+        ...currentView,
+        sort: {
+          field: {
+            id: sortFieldId,
+            type: sortFieldType as FieldSelector["type"],
+          },
+          direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
         },
-        direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
       });
-    else setSort(undefined);
+    else
+      setCurrentView({
+        ...currentView,
+        sort: undefined,
+      });
     const newFilter = [];
     if (filterParam) {
       const params = filterParam.split(",");
@@ -113,14 +129,15 @@ export default () => {
     }
     setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    pageParam,
-    pageSizeParam,
     sortFieldType,
+    sortFieldId,
     direction,
     searchTermParam,
-    sortFieldId,
     filterParam,
+    pageSizeParam,
+    pageParam,
   ]);
 
   const { data, refetch, loading } = useSearchItemQuery({
@@ -133,7 +150,7 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: sort,
+        sort: currentView.sort,
         filter: filter
           ? {
               and: {
@@ -385,7 +402,7 @@ export default () => {
     selectedItem,
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
-    sort,
+    currentView,
     filter,
     searchTerm,
     page,

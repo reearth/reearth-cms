@@ -28,6 +28,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { SortDirection, ConditionInput, FieldSelector } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -53,7 +54,7 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { field?: FieldSelector; direction?: SortDirection };
+  currentView: CurrentViewType;
   filter?: Omit<ConditionInput, "and" | "or">[];
   columns: Record<string, ColumnsState>;
   setColumns: (input: Record<string, ColumnsState>) => void;
@@ -91,7 +92,7 @@ const ContentTable: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
-  sort,
+  currentView,
   filter,
   searchTerm,
   page,
@@ -118,6 +119,8 @@ const ContentTable: React.FC<Props> = ({
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
+  console.log("currentView", currentView);
+
   const actionsColumns: ExtendedColumns[] = useMemo(
     () => [
       {
@@ -178,16 +181,16 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "CREATION_DATE",
         key: "CREATION_DATE",
         sortOrder:
-          sort?.field?.type === "CREATION_DATE"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "CREATION_DATE"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
         defaultSortOrder:
-          sort?.field?.type === "CREATION_DATE"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "CREATION_DATE"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -200,15 +203,15 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "CREATION_USER",
         key: "CREATION_USER",
         sortOrder:
-          sort?.field?.type === "CREATION_USER"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "CREATION_USER"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         sorter: true,
         defaultSortOrder:
-          sort?.field?.type === "CREATION_USER"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "CREATION_USER"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -222,16 +225,16 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "MODIFICATION_DATE",
         key: "MODIFICATION_DATE",
         sortOrder:
-          sort?.field?.type === "MODIFICATION_DATE"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "MODIFICATION_DATE"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
         defaultSortOrder:
-          sort?.field?.type === "MODIFICATION_DATE"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "MODIFICATION_DATE"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -244,15 +247,15 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "MODIFICATION_USER",
         key: "MODIFICATION_USER",
         sortOrder:
-          sort?.field?.type === "MODIFICATION_USER"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "MODIFICATION_USER"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         sorter: true,
         defaultSortOrder:
-          sort?.field?.type === "MODIFICATION_USER"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "MODIFICATION_USER"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -261,7 +264,7 @@ const ContentTable: React.FC<Props> = ({
         type: "Date",
       },
     ],
-    [t, sort?.field?.type, sort?.direction, selectedItem?.id, onItemSelect],
+    [t, currentView.sort, selectedItem?.id, onItemSelect],
   );
 
   const contentColumns: ProColumns<ContentTableField>[] | undefined = useMemo(
@@ -269,8 +272,8 @@ const ContentTable: React.FC<Props> = ({
       contentTableColumns?.map(column => ({
         sorter: true,
         sortOrder:
-          sort?.field?.id === column.key
-            ? sort?.direction === "ASC"
+          currentView.sort?.field?.id === column.key
+            ? currentView.sort?.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -282,7 +285,7 @@ const ContentTable: React.FC<Props> = ({
         minWidth: 128,
         ellipsis: true,
       })),
-    [contentTableColumns, sort],
+    [contentTableColumns, currentView.sort],
   );
 
   const tableColumns = useMemo(() => {

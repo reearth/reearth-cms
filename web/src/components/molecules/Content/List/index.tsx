@@ -11,6 +11,7 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import type {
   SortDirection,
   FieldSelector,
@@ -32,7 +33,7 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { field?: FieldSelector; direction?: SortDirection };
+  currentView: CurrentViewType;
   filter?: ConditionInput[];
   searchTerm: string;
   page: number;
@@ -77,7 +78,7 @@ const ContentListMolecule: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
-  sort,
+  currentView,
   filter,
   searchTerm,
   page,
@@ -137,7 +138,7 @@ const ContentListMolecule: React.FC<Props> = ({
           {viewsMenu}
           <ContentTable
             totalCount={totalCount}
-            sort={sort}
+            currentView={currentView}
             filter={filter}
             searchTerm={searchTerm}
             page={page}
