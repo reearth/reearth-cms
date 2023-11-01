@@ -195,7 +195,13 @@ const DropdownRender: React.FC<Props> = ({
     if (filter.type === "Select") {
       if (filter.typeProperty?.values) {
         for (const value of Object.values(filter.typeProperty.values)) {
-          options.push({ value, label: t(value) });
+          options.push({ value, label: value });
+        }
+      }
+    } else if (filter.type === "Tag") {
+      if (filter?.typeProperty?.tags) {
+        for (const tag of Object.values(filter.typeProperty.tags)) {
+          options.push({ value: tag.name, label: tag.name });
         }
       }
     } else if (filter.type === "Person") {
@@ -209,7 +215,7 @@ const DropdownRender: React.FC<Props> = ({
     }
 
     return options;
-  }, [filter, t]);
+  }, [filter]);
 
   const filterOption = useRef<{ value: Operator | SortDirection; operatorType: string }>();
 

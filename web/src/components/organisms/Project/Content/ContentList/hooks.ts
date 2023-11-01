@@ -265,6 +265,7 @@ export default () => {
       key: field.id,
       ellipsis: true,
       type: field.type,
+      typeProperty: field.typeProperty,
       width: 128,
       minWidth: 128,
     }));
@@ -277,6 +278,7 @@ export default () => {
         key: field.id,
         ellipsis: true,
         type: field.type,
+        typeProperty: field.typeProperty,
         width: 128,
         minWidth: 128,
       })) || [];
