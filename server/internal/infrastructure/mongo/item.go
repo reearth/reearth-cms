@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -276,16 +277,26 @@ func aliasStages(query *item.Query) []any {
 		}
 	}
 
+	basicAliases := bson.M{
+		"__temp.createdBy": bson.M{"$ifNull": bson.A{"$user", "$integration"}},
+		// "__temp.createdAt": bson.M{
+		// 	"$function": bson.M{
+		// 		"body": "function(ulid) { const ENCODING = '0123456789ABCDEFGHJKMNPQRSTVWXYZ', ENCODING_LEN = ENCODING.length, TIME_LEN = 10; return new Date( ulid.substr(0, TIME_LEN).toUpperCase().split('').reverse().reduce((carry, char, index) => (carry += ENCODING.indexOf(char) * Math.pow(ENCODING_LEN, index)), 0)); }",
+		// 		"args": bson.A{"$id"},
+		// 		"lang": "js",
+		// 	},
+		// },
+		"__temp.createdAt": "$timestamp",
+		"__temp.updatedBy": bson.M{"$ifNull": bson.A{"$updatedbyuser", "$updatedbyintegration"}},
+		"__temp.updatedAt": "$timestamp",
+	}
+
 	stages := []any{
-		// append creation date time stamp to aliases
-		bson.M{"$set": lo.Assign(aliases, map[string]any{"__temp.creationdate": bson.M{
-			"$function": bson.M{
-				"body": "function(ulid) { const ENCODING = '0123456789ABCDEFGHJKMNPQRSTVWXYZ', ENCODING_LEN = ENCODING.length, TIME_LEN = 10; return new Date( ulid.substr(0, TIME_LEN).toUpperCase().split('').reverse().reduce((carry, char, index) => (carry += ENCODING.indexOf(char) * Math.pow(ENCODING_LEN, index)), 0)); }",
-				"args": bson.A{"$id"},
-				"lang": "js",
-			},
-		},
-		})},
+		bson.M{"$set": lo.Assign(aliases, basicAliases)},
+		bson.M{"$set": bson.M{
+			"__temp.createdAt": resetTime("$__temp.createdAt"),
+			"__temp.updatedAt": resetTime("$__temp.updatedAt"),
+		}},
 	}
 
 	if len(aliases) <= 0 {
@@ -308,6 +319,20 @@ func aliasStages(query *item.Query) []any {
 	return stages
 }
 
+func resetTime(dateField string) bson.M {
+	return bson.M{
+		"$dateFromParts": bson.M{
+			"year":        bson.M{"$year": dateField},
+			"month":       bson.M{"$month": dateField},
+			"day":         bson.M{"$dayOfMonth": dateField},
+			"hour":        0,
+			"minute":      0,
+			"second":      0,
+			"millisecond": 0,
+		},
+	}
+}
+
 func filter(f *view.Condition) any {
 	if f == nil {
 		return nil
@@ -316,9 +341,9 @@ func filter(f *view.Condition) any {
 	if f.BasicCondition != nil {
 		switch f.BasicCondition.Op {
 		case view.BasicOperatorEquals:
-			ff[fieldKey(f.BasicCondition.Field)] = f.BasicCondition.Value
+			ff[fieldKey(f.BasicCondition.Field)] = fieldValue(f.BasicCondition.Field, f.BasicCondition.Value)
 		case view.BasicOperatorNotEquals:
-			ff[fieldKey(f.BasicCondition.Field)] = bson.M{"$ne": f.BasicCondition.Value}
+			ff[fieldKey(f.BasicCondition.Field)] = bson.M{"$ne": fieldValue(f.BasicCondition.Field, f.BasicCondition.Value)}
 		}
 	}
 	if f.NullableCondition != nil {
@@ -366,15 +391,16 @@ func filter(f *view.Condition) any {
 		}
 	}
 	if f.TimeCondition != nil {
+		value := f.TimeCondition.Value.Truncate(24 * time.Hour)
 		switch f.TimeCondition.Op {
 		case view.TimeOperatorAfter:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gt": f.TimeCondition.Value}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gt": value}
 		case view.TimeOperatorAfterOrOn:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": f.TimeCondition.Value}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": value}
 		case view.TimeOperatorBefore:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$lt": f.TimeCondition.Value}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$lt": value}
 		case view.TimeOperatorBeforeOrOn:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$lte": f.TimeCondition.Value}
+			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$lte": value}
 		case view.TimeOperatorOfThisWeek:
 			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": time.Now().AddDate(0, 0, -7)}
 		case view.TimeOperatorOfThisMonth:
@@ -416,17 +442,44 @@ func fieldKey(f view.FieldSelector) string {
 	case view.FieldTypeId:
 		return "id"
 	case view.FieldTypeCreationDate:
-		return "__temp.creationdate"
+		return "__temp.createdAt"
 	case view.FieldTypeCreationUser:
-		return "user"
+		return "__temp.createdBy"
 	case view.FieldTypeModificationDate:
-		return "Timestamp"
+		return "__temp.updateAt"
 	case view.FieldTypeModificationUser:
-		return "UpdatedByUser"
+		return "__temp.updatedBy"
 	case view.FieldTypeStatus:
 		return "status"
 	default:
 		return "id"
+	}
+}
+
+func fieldValue(f view.FieldSelector, v any) any {
+	if f.Type == view.FieldTypeMetaField || f.Type == view.FieldTypeField {
+		return v
+	}
+	switch f.Type {
+	case view.FieldTypeId:
+		res, _ := idx.From[id.Item](v.(string))
+		return res.String()
+	case view.FieldTypeCreationDate:
+		res, _ := time.Parse(time.RFC3339, v.(string))
+		return res.Truncate(24 * time.Hour)
+	case view.FieldTypeCreationUser:
+		res, _ := idx.From[id.User](v.(string))
+		return res.String()
+	case view.FieldTypeModificationDate:
+		res, _ := time.Parse(time.RFC3339, v.(string))
+		return res.Truncate(24 * time.Hour)
+	case view.FieldTypeModificationUser:
+		res, _ := idx.From[id.User](v.(string))
+		return res.String()
+	case view.FieldTypeStatus:
+		return v
+	default:
+		return v
 	}
 }
 

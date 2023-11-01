@@ -703,6 +703,55 @@ func TestSearchItem(t *testing.T) {
 
 	res.Path("$.data.searchItem.totalCount").Number().IsEqual(0)
 	res.Path("$.data.searchItem.nodes").Array().IsEmpty()
+
+	// date
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"id":   nil,
+					"type": "CREATION_DATE",
+				},
+				"operator": "EQUALS",
+				"value":    time.Now(),
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"q":       nil,
+	},
+		nil,
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"id":   nil,
+					"type": "CREATION_DATE",
+				},
+				"operator": "NOT_EQUALS",
+				"value":    time.Now(),
+			},
+		},
+		map[string]any{
+			"first": 2,
+		},
+	)
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(0)
+	res.Path("$.data.searchItem.nodes").Array().IsEmpty()
 	// endregion
 
 	// region filter nullable
@@ -1222,7 +1271,7 @@ func TestSearchItem(t *testing.T) {
 					"type": "CREATION_DATE",
 				},
 				"operator": "AFTER",
-				"value":    time.Now().Add(-1 * time.Hour).Format(time.RFC3339),
+				"value":    time.Now().AddDate(0, 0, -1).Format(time.RFC3339),
 			},
 		},
 		map[string]any{
