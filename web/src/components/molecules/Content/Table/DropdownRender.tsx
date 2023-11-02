@@ -334,6 +334,8 @@ const DropdownRender: React.FC<Props> = ({
                 onChange={onNumberChange}
                 stringMode
                 defaultValue={defaultValue?.value}
+                style={{ width: "100%" }}
+                placeholder="Enter the value"
               />
             ) : filter.type === "Date" ? (
               <DatePicker
@@ -346,7 +348,11 @@ const DropdownRender: React.FC<Props> = ({
                 }
               />
             ) : (
-              <Input onChange={onInputChange} defaultValue={defaultValue?.value} />
+              <Input
+                onChange={onInputChange}
+                defaultValue={defaultValue?.value}
+                placeholder="Enter the value"
+              />
             )}
           </Form.Item>
         )}
