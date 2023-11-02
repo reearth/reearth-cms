@@ -63,7 +63,12 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   return (
     <Wrapper>
       <StyledTabs
-        defaultActiveKey={menuItems[0] ? (menuItems[0].key as string) : ""}
+        tabBarExtraContent={
+          <NewViewButton type="text" onClick={onViewModalOpen}>
+            {t("Save as new view")}
+          </NewViewButton>
+        }
+        defaultActiveKey="1"
         activeKey={selectedKey}
         tabPosition="top"
         items={menuItems}
@@ -71,25 +76,20 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         onChange={handleSelectView}
         moreIcon={<Button>All Views</Button>}
       />
-      <NewViewButton type="text" onClick={onViewModalOpen}>
-        {t("Save as new view")}
-      </NewViewButton>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
-  display: flex;
   padding: 0 24px;
-  align-items: center;
 `;
 
 const StyledTabs = styled(Tabs)`
-  flex: 1;
   height: 46px;
 
   .ant-tabs-nav-wrap {
     width: 0px;
+    max-width: fit-content;
   }
   .ant-tabs-nav {
     height: 46px;
@@ -98,6 +98,7 @@ const StyledTabs = styled(Tabs)`
 
 const NewViewButton = styled(Button)`
   color: rgba(0, 0, 0, 0.25);
+  margin-left: 5px;
 `;
 
 export default ViewsMenuMolecule;
