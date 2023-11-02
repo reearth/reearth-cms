@@ -70,7 +70,7 @@ const ContentList: React.FC = () => {
           onModelSelect={handleModelSelect}
         />
       }
-      viewsMenu={<ViewsMenu />}
+      viewsMenu={<ViewsMenu currentView={currentView} setCurrentView={setCurrentView} />}
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
       selectedItem={selectedItem}

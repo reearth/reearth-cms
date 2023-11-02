@@ -1,4 +1,3 @@
-import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
