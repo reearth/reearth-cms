@@ -124,7 +124,7 @@ const ContentTable: React.FC<Props> = ({
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
-  const actionsColumns: ProColumns<ContentTableField>[] | undefined = useMemo(
+  const actionsColumns: ExtendedColumns[] | undefined = useMemo(
     () => [
       {
         render: (_, contentField) => (
@@ -132,6 +132,7 @@ const ContentTable: React.FC<Props> = ({
             <Icon icon="edit" />
           </Link>
         ),
+        title: t(""),
         hideInSetting: true,
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
@@ -201,7 +202,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
-        type: "Date",
+        // type: "Date",
       },
       {
         title: t("Created By"),
@@ -246,7 +247,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
-        type: "Date",
+        // type: "Date",
       },
       {
         title: t("Updated By"),
@@ -274,7 +275,7 @@ const ContentTable: React.FC<Props> = ({
     [t, currentView.sort, selectedItem?.id, onItemSelect],
   );
 
-  const contentColumns: ProColumns<ContentTableField>[] | undefined = useMemo(
+  const contentColumns: ExtendedColumns[] | undefined = useMemo(
     () =>
       contentTableColumns?.map(column => ({
         sorter: true,
