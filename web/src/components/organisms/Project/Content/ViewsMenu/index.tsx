@@ -20,7 +20,6 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
   const {
     views,
     handleViewModalOpen,
-    // handleViewUpdateModalOpen,
     handleViewRenameModalOpen,
     selectedView,
     viewModalShown,

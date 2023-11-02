@@ -145,10 +145,6 @@ export default () => {
     pageParam,
   ]);
 
-  useEffect(() => {
-    console.log("currentView : ", currentView);
-  }, [currentView]);
-
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {

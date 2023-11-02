@@ -59,9 +59,6 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         });
     });
   };
-  
-  console.log("views:", views);
-  console.log("menuItems: ", menuItems);
 
   return (
     <Wrapper>
