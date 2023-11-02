@@ -69,7 +69,9 @@ export default () => {
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
   const [filter, setFilter] = useState<ConditionInput[]>();
-  const [currentView, setCurrentView] = useState<CurrentViewType>({});
+  const [currentView, setCurrentView] = useState<CurrentViewType>({
+    columns: undefined,
+  });
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
@@ -142,6 +144,10 @@ export default () => {
     pageSizeParam,
     pageParam,
   ]);
+
+  useEffect(() => {
+    console.log("currentView : ", currentView);
+  }, [currentView]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",

@@ -53,7 +53,6 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
       <ViewsMenuMolecule
         views={views as View[]}
         onViewModalOpen={handleViewModalOpen}
-        // onViewUpdateModalOpen={handleViewUpdateModalOpen}
         onViewRenameModalOpen={handleViewRenameModalOpen}
         onDelete={handleViewDelete}
         onUpdate={handleViewUpdate}

@@ -8,7 +8,6 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   view: View;
-  onViewUpdateModalOpen?: (view: View) => void;
   onViewRenameModalOpen?: (view: View) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   onDelete: (viewId: string) => void;

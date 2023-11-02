@@ -12,7 +12,6 @@ import ViewsMenuItem from "./viewMenuItem";
 export interface Props {
   views: View[];
   onViewModalOpen?: () => void;
-  onViewUpdateModalOpen?: () => void;
   onViewRenameModalOpen?: (view: View) => void;
   onDelete: (viewId: string) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
@@ -23,7 +22,6 @@ export interface Props {
 const ViewsMenuMolecule: React.FC<Props> = ({
   views,
   onViewModalOpen,
-  // onViewUpdateModalOpen,
   onViewRenameModalOpen,
   onUpdate,
   onDelete,
@@ -61,11 +59,14 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         });
     });
   };
+  
+  console.log("views:", views);
+  console.log("menuItems: ", menuItems);
 
   return (
     <Wrapper>
       <StyledTabs
-        defaultActiveKey={menuItems[0] ? menuItems[0].key : ""}
+        defaultActiveKey={menuItems[0] ? (menuItems[0].key as string) : ""}
         activeKey={selectedKey}
         tabPosition="top"
         items={menuItems}

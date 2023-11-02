@@ -39,14 +39,6 @@ export default ({ modelId, currentView }: Params) => {
 
   const handleViewModalOpen = useCallback(() => setViewModalShown(true), []);
 
-  const handleViewUpdateModalOpen = useCallback(
-    async (view: View) => {
-      setSelectedView(view);
-      handleViewModalOpen();
-    },
-    [setSelectedView, handleViewModalOpen],
-  );
-
   const handleViewRenameModalOpen = useCallback(
     async (view: View) => {
       setSelectedView(view);
@@ -158,7 +150,6 @@ export default ({ modelId, currentView }: Params) => {
   return {
     views,
     handleViewModalOpen,
-    handleViewUpdateModalOpen,
     handleViewRenameModalOpen,
     handleViewDelete,
     handleViewDeletionModalClose,
