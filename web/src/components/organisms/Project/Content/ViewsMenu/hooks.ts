@@ -67,6 +67,11 @@ export default ({ modelId, currentView }: Params) => {
           modelId: modelId ?? "",
           sort: currentView?.sort,
           columns: currentView?.columns,
+          filter: currentView?.filter && {
+            and: {
+              conditions: currentView?.filter,
+            },
+          },
         },
       });
       if (view.errors || !view.data?.createView) {
@@ -76,7 +81,15 @@ export default ({ modelId, currentView }: Params) => {
       setViewModalShown(false);
       Notification.success({ message: t("Successfully created view!") });
     },
-    [createNewView, projectId, modelId, currentView?.sort, currentView?.columns, t],
+    [
+      createNewView,
+      projectId,
+      modelId,
+      currentView?.sort,
+      currentView?.columns,
+      currentView?.filter,
+      t,
+    ],
   );
 
   const [updateNewView] = useUpdateViewMutation({
