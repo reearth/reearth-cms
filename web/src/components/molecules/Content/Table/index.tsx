@@ -427,6 +427,8 @@ const ContentTable: React.FC<Props> = ({
     setItems(result);
   };
 
+  const isFilterOpen = useRef(false);
+
   const getOptions = useCallback(
     (isFromMenu: boolean): MenuProps["items"] => {
       const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
@@ -445,6 +447,9 @@ const ContentTable: React.FC<Props> = ({
         handleOptionsOpenChange(false);
         if (isFromMenu) {
           handleConditionMenuOpenChange(true);
+          isFilterOpen.current = false;
+        } else {
+          isFilterOpen.current = true;
         }
       };
 
@@ -517,6 +522,7 @@ const ContentTable: React.FC<Props> = ({
                 defaultValue={defaultFilterValues.current[index]}
                 index={index}
                 filterRemove={filterRemove}
+                isFilterOpen={isFilterOpen.current}
               />
             ))}
           </StyledFilterSpace>

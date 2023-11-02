@@ -18,10 +18,17 @@ type Props = {
   index: number;
   defaultValue: DefaultFilterValueType;
   filterRemove: (index: number) => void;
+  isFilterOpen: boolean;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value, filterRemove }) => {
-  const [open, setOpen] = useState(false);
+const FilterDropdown: React.FC<Props> = ({
+  filter,
+  index,
+  defaultValue: value,
+  filterRemove,
+  isFilterOpen,
+}) => {
+  const [open, setOpen] = useState(isFilterOpen);
 
   const close = () => {
     setOpen(false);
