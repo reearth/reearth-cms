@@ -3,7 +3,8 @@ import { useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { FieldSelector, ItemSortInput, View } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import ViewsMenuItem from "./viewMenuItem";
@@ -11,19 +12,21 @@ import ViewsMenuItem from "./viewMenuItem";
 export interface Props {
   views: View[];
   onViewModalOpen?: () => void;
-  onViewUpdateModalOpen?: () => void;
   onViewRenameModalOpen?: (view: View) => void;
   onDelete: (viewId: string) => void;
+  onUpdate: (viewId: string, name: string) => Promise<void>;
   onViewDeletionClose: () => void;
+  setCurrentView: (view: CurrentViewType) => void;
 }
 
 const ViewsMenuMolecule: React.FC<Props> = ({
   views,
   onViewModalOpen,
-  // onViewUpdateModalOpen,
   onViewRenameModalOpen,
+  onUpdate,
   onDelete,
   onViewDeletionClose,
+  setCurrentView,
 }) => {
   const t = useT();
   const [selectedKey, setSelectedKey] = useState<string>(
@@ -37,15 +40,24 @@ const ViewsMenuMolecule: React.FC<Props> = ({
           view={view}
           onViewRenameModalOpen={onViewRenameModalOpen}
           onDelete={onDelete}
+          onUpdate={onUpdate}
           onViewDeletionClose={onViewDeletionClose}
         />
       ),
       key: view.id,
+      data: view,
     };
   });
 
-  const handleSelectView = (key: any) => {
+  const handleSelectView = (key: string) => {
     setSelectedKey(key);
+    views.forEach(view => {
+      if (view.id === key)
+        setCurrentView({
+          sort: view.sort as ItemSortInput,
+          columns: view.columns as FieldSelector[],
+        });
+    });
   };
 
   return (
@@ -61,7 +73,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         tabPosition="top"
         items={menuItems}
         popupClassName="hide-icon-button"
-        onTabClick={handleSelectView}
+        onChange={handleSelectView}
         moreIcon={<Button>All Views</Button>}
       />
     </Wrapper>

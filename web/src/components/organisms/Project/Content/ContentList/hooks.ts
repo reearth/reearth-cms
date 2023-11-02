@@ -1,6 +1,5 @@
 import { Buffer } from "buffer";
 
-import { ColumnsState } from "@ant-design/pro-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -24,10 +23,17 @@ import {
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
   ConditionInput,
+  ItemSortInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import { fileName } from "./utils";
+
+export type CurrentViewType = {
+  sort?: ItemSortInput;
+  filter?: ConditionInput[];
+  columns?: FieldSelector[];
+};
 
 export default () => {
   const {
@@ -62,24 +68,23 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<
-    { field: FieldSelector; direction: SortDirection } | undefined
-  >();
-  const [columns, setColumns] = useState<Record<string, ColumnsState>>({});
   const [filter, setFilter] = useState<ConditionInput[]>();
+  const [currentView, setCurrentView] = useState<CurrentViewType>({
+    columns: undefined,
+  });
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
+    let sort: ItemSortInput | undefined;
     if (sortFieldType)
-      setSort({
+      sort = {
         field: {
           id: sortFieldId,
           type: sortFieldType as FieldSelector["type"],
         },
         direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
-      });
-    else setSort(undefined);
+      };
     const newFilter = [];
     if (filterParam) {
       const params = filterParam.split(",");
@@ -122,16 +127,22 @@ export default () => {
         newFilter.push(data);
       }
     }
+    setCurrentView({
+      columns: currentView.columns,
+      sort: sort,
+      filter: newFilter.length > 0 ? newFilter : undefined,
+    });
     setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    pageParam,
-    pageSizeParam,
     sortFieldType,
+    sortFieldId,
     direction,
     searchTermParam,
-    sortFieldId,
     filterParam,
+    pageSizeParam,
+    pageParam,
   ]);
 
   const { data, refetch, loading } = useSearchItemQuery({
@@ -144,7 +155,7 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: sort,
+        sort: currentView.sort,
         filter: filter
           ? {
               and: {
@@ -398,15 +409,14 @@ export default () => {
     selectedItem,
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
-    sort,
+    currentView,
     filter,
     searchTerm,
     page,
     pageSize,
     requests,
     addItemToRequestModalShown,
-    columns,
-    setColumns,
+    setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
