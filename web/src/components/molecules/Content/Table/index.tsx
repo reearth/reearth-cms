@@ -655,6 +655,44 @@ const ContentTable: React.FC<Props> = ({
         };
     });
 
+    // if (shownCols === undefined) {
+    //   const currentViewCols = tableColumns
+    //     .filter(col => {
+    //       if ((col.key as string) === "EDIT_ICON" || (col.key as string) === "commentsCount")
+    //         return false;
+    //       return true;
+    //     })
+    //     .map(col => {
+    //       switch (col.key as string) {
+    //         case "ID":
+    //         case "STATUS":
+    //         case "CREATION_DATE":
+    //         case "CREATION_USER":
+    //         case "MODIFICATION_DATE":
+    //         case "MODIFICATION_USER":
+    //           return {
+    //             type: col.key,
+    //             id: "",
+    //           } as FieldSelector;
+    //         default:
+    //           if ((col.fieldType as string) === "FIELD")
+    //             return {
+    //               type: FieldType["Field"],
+    //               id: col.key,
+    //             } as FieldSelector;
+    //           else
+    //             return {
+    //               type: FieldType["MetaField"],
+    //               id: col.key,
+    //             } as FieldSelector;
+    //       }
+    //     });
+    //   setCurrentView({
+    //     ...currentView,
+    //     columns: currentViewCols,
+    //   });
+    // }
+
     return settingOptions;
   }, [currentView.columns, tableColumns]);
 
