@@ -1,5 +1,3 @@
-import { Buffer } from "buffer";
-
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
 import { useRef, useEffect, useCallback, useMemo, useState } from "react";
@@ -17,6 +15,7 @@ import {
   Operator,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
   BasicOperator,
   BoolOperator,
@@ -26,6 +25,7 @@ import {
   StringOperator,
   SortDirection,
   ConditionInput,
+  ItemSortInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -36,6 +36,8 @@ type Props = {
   open: boolean;
   isFilter: boolean;
   index: number;
+  currentView: CurrentViewType;
+  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -45,6 +47,8 @@ const DropdownRender: React.FC<Props> = ({
   open,
   isFilter,
   index,
+  currentView,
+  onTableControl,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const t = useT();
@@ -233,16 +237,38 @@ const DropdownRender: React.FC<Props> = ({
     close();
     if (isFilter) {
       const operatorType = filterOption.current.operatorType;
-      const value = filterValue.current ? Buffer.from(filterValue.current).toString("base64") : "";
+      let value: string | boolean | number | Date = filterValue.current ?? "";
       const type = typeof filter.dataIndex === "string" ? filter.id : "FIELD";
       const operatorValue = filterOption.current.value;
-      let params = searchParams.get("filter") ?? "";
-      const newCondition = `${operatorType}:${value};${type}:${filter.id};${operatorValue}:${filter.type}`;
-      const conditions = params.split(",");
-      conditions[index] = newCondition;
-      params = conditions.filter(Boolean).join(",");
-      searchParams.set("filter", params);
-      setSearchParams(searchParams);
+      const currentFilters = currentView.filter ? [...currentView.filter] : [];
+      const newFilter: {
+        [x: keyof ConditionInput | string]: {
+          fieldId: {
+            type: string;
+            id: string;
+          };
+          operator: Operator | SortDirection;
+          value?: string | boolean | number | Date;
+        };
+      } = {
+        [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue },
+      };
+
+      if (filter.type === "Bool") {
+        value = value === "true";
+      } else if (filter.type === "Integer" || filter.type === "Float") {
+        value = Number(value);
+      } else if (filter.type === "Date") {
+        value = new Date(value);
+      }
+
+      if (operatorType !== "nullable") {
+        newFilter[operatorType].value = value;
+      }
+
+      currentFilters[index] = newFilter;
+
+      onTableControl(undefined, currentFilters.filter(Boolean));
     } else {
       searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
       switch (filter.id as string) {
@@ -262,11 +288,13 @@ const DropdownRender: React.FC<Props> = ({
     }
   }, [
     close,
+    isFilter,
     filter.dataIndex,
     filter.id,
     filter.type,
+    currentView.filter,
     index,
-    isFilter,
+    onTableControl,
     searchParams,
     setSearchParams,
   ]);

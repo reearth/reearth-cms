@@ -2,7 +2,7 @@
 import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -29,7 +29,13 @@ import {
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import { SortDirection, FieldSelector, FieldType } from "@reearth-cms/gql/graphql-client-api";
+import {
+  SortDirection,
+  FieldSelector,
+  FieldType,
+  ItemSortInput,
+  ConditionInput,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -65,6 +71,7 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
+  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
   onContentTableChange: (
     page: number,
     pageSize: number,
@@ -107,13 +114,13 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onUnpublish,
   onSearchTerm,
+  onTableControl,
   onContentTableChange,
   onItemSelect,
   setSelection,
   onItemDelete,
   onItemsReload,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
@@ -334,14 +341,11 @@ const ContentTable: React.FC<Props> = ({
         return prev;
       });
       defaultFilterValues.current.splice(index, 1);
-      let params = searchParams.get("filter") ?? "";
-      const conditions = params.split(",");
-      conditions.splice(index, 1);
-      params = conditions.filter(Boolean).join(",");
-      searchParams.set("filter", params);
-      setSearchParams(searchParams);
+      const currentFilters = currentView.filter ? [...currentView.filter] : [];
+      currentFilters.splice(index, 1);
+      onTableControl(undefined, currentFilters);
     },
-    [searchParams, setSearchParams],
+    [currentView.filter, onTableControl],
   );
 
   useEffect(() => {
@@ -516,6 +520,8 @@ const ContentTable: React.FC<Props> = ({
                 index={index}
                 filterRemove={filterRemove}
                 isFilterOpen={isFilterOpen.current}
+                currentView={currentView}
+                onTableControl={onTableControl}
               />
             ))}
           </StyledFilterSpace>
@@ -597,6 +603,8 @@ const ContentTable: React.FC<Props> = ({
                 index={filters.length - 1}
                 open={conditionMenuOpen}
                 isFilter={isFilter.current}
+                currentView={currentView}
+                onTableControl={onTableControl}
               />
             )
           }
