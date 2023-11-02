@@ -124,7 +124,7 @@ const ContentTable: React.FC<Props> = ({
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
-  const actionsColumns: ExtendedColumns[] = useMemo(
+  const actionsColumns: ProColumns<ContentTableField>[] | undefined = useMemo(
     () => [
       {
         render: (_, contentField) => (
