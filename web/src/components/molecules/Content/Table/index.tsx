@@ -132,7 +132,6 @@ const ContentTable: React.FC<Props> = ({
             <Icon icon="edit" />
           </Link>
         ),
-        title: t(""),
         hideInSetting: true,
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
