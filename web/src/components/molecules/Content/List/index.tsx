@@ -1,4 +1,3 @@
-import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -11,6 +10,7 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import type {
   SortDirection,
   FieldSelector,
@@ -32,7 +32,7 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { field?: FieldSelector; direction?: SortDirection };
+  currentView: CurrentViewType;
   filter?: ConditionInput[];
   searchTerm: string;
   page: number;
@@ -41,8 +41,7 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
-  columns: Record<string, ColumnsState>;
-  setColumns: (input: Record<string, ColumnsState>) => void;
+  setCurrentView: (CurrentViewType: CurrentViewType) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onContentTableChange: (
@@ -77,15 +76,14 @@ const ContentListMolecule: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
-  sort,
+  currentView,
   filter,
   searchTerm,
   page,
   pageSize,
   requests,
   addItemToRequestModalShown,
-  columns,
-  setColumns,
+  setCurrentView,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -137,7 +135,7 @@ const ContentListMolecule: React.FC<Props> = ({
           {viewsMenu}
           <ContentTable
             totalCount={totalCount}
-            sort={sort}
+            currentView={currentView}
             filter={filter}
             searchTerm={searchTerm}
             page={page}
@@ -165,8 +163,7 @@ const ContentListMolecule: React.FC<Props> = ({
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
-            columns={columns}
-            setColumns={setColumns}
+            setCurrentView={setCurrentView}
           />
         </Content>
       }

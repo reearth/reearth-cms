@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { View } from "@reearth-cms/components/molecules/View/types";
 import {
-  View as GQLView,
+  View,
   useCreateViewMutation,
   useDeleteViewMutation,
   useGetViewsQuery,
@@ -11,13 +10,16 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
-import { fromGraphQLView } from "@reearth-cms/utils/values";
+
+import { CurrentViewType } from "../ContentList/hooks";
 
 type Params = {
   modelId?: string;
+  currentView: CurrentViewType;
+  // setCurrentView: (view: CurrentViewType) => void;
 };
 
-export default ({ modelId }: Params) => {
+export default ({ modelId, currentView }: Params) => {
   const t = useT();
   const [viewModalShown, setViewModalShown] = useState(false);
   const [selectedView, setSelectedView] = useState<View>();
@@ -32,20 +34,10 @@ export default ({ modelId }: Params) => {
   });
 
   const views = useMemo(() => {
-    return data?.view
-      ?.map(view => (view ? fromGraphQLView(view as GQLView) : undefined))
-      .filter((view): view is View => !!view);
+    return data?.view ? data?.view : [];
   }, [data?.view]);
 
   const handleViewModalOpen = useCallback(() => setViewModalShown(true), []);
-
-  const handleViewUpdateModalOpen = useCallback(
-    async (view: View) => {
-      setSelectedView(view);
-      handleViewModalOpen();
-    },
-    [setSelectedView, handleViewModalOpen],
-  );
 
   const handleViewRenameModalOpen = useCallback(
     async (view: View) => {
@@ -73,6 +65,8 @@ export default ({ modelId }: Params) => {
           name: data.name,
           projectId: projectId ?? "",
           modelId: modelId ?? "",
+          sort: currentView?.sort,
+          columns: currentView?.columns,
         },
       });
       if (view.errors || !view.data?.createView) {
@@ -82,7 +76,7 @@ export default ({ modelId }: Params) => {
       setViewModalShown(false);
       Notification.success({ message: t("Successfully created view!") });
     },
-    [createNewView, projectId, modelId, t, setSubmitting],
+    [createNewView, projectId, modelId, currentView?.sort, currentView?.columns, t],
   );
 
   const [updateNewView] = useUpdateViewMutation({
@@ -90,6 +84,28 @@ export default ({ modelId }: Params) => {
   });
 
   const handleViewUpdate = useCallback(
+    async (viewId: string, name: string) => {
+      if (!viewId) return;
+      setSubmitting(true);
+      const view = await updateNewView({
+        variables: {
+          viewId: viewId,
+          name: name,
+          sort: currentView?.sort,
+          columns: currentView?.columns,
+        },
+      });
+      if (view.errors || !view.data?.updateView) {
+        Notification.error({ message: t("Failed to update view.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated view!") });
+      handleViewModalReset();
+    },
+    [updateNewView, currentView?.sort, currentView?.columns, t, handleViewModalReset],
+  );
+
+  const handleViewRename = useCallback(
     async (data: { viewId?: string; name: string }) => {
       if (!data.viewId) return;
       setSubmitting(true);
@@ -100,10 +116,10 @@ export default ({ modelId }: Params) => {
         },
       });
       if (view.errors || !view.data?.updateView) {
-        Notification.error({ message: t("Failed to update view.") });
+        Notification.error({ message: t("Failed to rename view.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated view!") });
+      Notification.success({ message: t("Successfully renamed view!") });
       handleViewModalReset();
     },
     [handleViewModalReset, t, updateNewView, setSubmitting],
@@ -134,7 +150,6 @@ export default ({ modelId }: Params) => {
   return {
     views,
     handleViewModalOpen,
-    handleViewUpdateModalOpen,
     handleViewRenameModalOpen,
     handleViewDelete,
     handleViewDeletionModalClose,
@@ -144,5 +159,6 @@ export default ({ modelId }: Params) => {
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,
+    handleViewRename,
   };
 };

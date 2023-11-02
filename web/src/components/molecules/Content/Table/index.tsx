@@ -28,8 +28,13 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { SortDirection, ConditionInput, FieldSelector } from "@reearth-cms/gql/graphql-client-api";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import {
+  SortDirection,
+  ConditionInput,
+  FieldSelector,
+  FieldType,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -54,10 +59,9 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { field?: FieldSelector; direction?: SortDirection };
+  currentView: CurrentViewType;
   filter?: Omit<ConditionInput, "and" | "or">[];
-  columns: Record<string, ColumnsState>;
-  setColumns: (input: Record<string, ColumnsState>) => void;
+  setCurrentView: (settings: CurrentViewType) => void;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -92,15 +96,14 @@ const ContentTable: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
-  sort,
+  currentView,
   filter,
   searchTerm,
   page,
   pageSize,
   requests,
   addItemToRequestModalShown,
-  columns,
-  setColumns,
+  setCurrentView,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -120,7 +123,8 @@ const ContentTable: React.FC<Props> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
-  const actionsColumns: ExtendedColumns[] = useMemo(
+
+  const actionsColumns: ExtendedColumns[] | undefined = useMemo(
     () => [
       {
         render: (_, contentField) => (
@@ -129,6 +133,9 @@ const ContentTable: React.FC<Props> = ({
           </Link>
         ),
         hideInSetting: true,
+        dataIndex: "editIcon",
+        fieldType: "EDIT_ICON",
+        key: "EDIT_ICON",
         width: 48,
         minWidth: 48,
       },
@@ -179,22 +186,22 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "CREATION_DATE",
         key: "CREATION_DATE",
         sortOrder:
-          sort?.field?.type === "CREATION_DATE"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "CREATION_DATE"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
         defaultSortOrder:
-          sort?.field?.type === "CREATION_DATE"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "CREATION_DATE"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         width: 148,
         minWidth: 148,
-        type: "Date",
+        // type: "Date",
       },
       {
         title: t("Created By"),
@@ -202,15 +209,15 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "CREATION_USER",
         key: "CREATION_USER",
         sortOrder:
-          sort?.field?.type === "CREATION_USER"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "CREATION_USER"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         sorter: true,
         defaultSortOrder:
-          sort?.field?.type === "CREATION_USER"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "CREATION_USER"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -224,22 +231,22 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "MODIFICATION_DATE",
         key: "MODIFICATION_DATE",
         sortOrder:
-          sort?.field?.type === "MODIFICATION_DATE"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "MODIFICATION_DATE"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
         defaultSortOrder:
-          sort?.field?.type === "MODIFICATION_DATE"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "MODIFICATION_DATE"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         width: 148,
         minWidth: 148,
-        type: "Date",
+        // type: "Date",
       },
       {
         title: t("Updated By"),
@@ -247,15 +254,15 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "MODIFICATION_USER",
         key: "MODIFICATION_USER",
         sortOrder:
-          sort?.field?.type === "MODIFICATION_USER"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "MODIFICATION_USER"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         sorter: true,
         defaultSortOrder:
-          sort?.field?.type === "MODIFICATION_USER"
-            ? sort.direction === "ASC"
+          currentView.sort?.field?.type === "MODIFICATION_USER"
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -264,16 +271,16 @@ const ContentTable: React.FC<Props> = ({
         type: "Person",
       },
     ],
-    [t, sort?.field?.type, sort?.direction, selectedItem?.id, onItemSelect],
+    [t, currentView.sort, selectedItem?.id, onItemSelect],
   );
 
-  const contentColumns: ProColumns<ContentTableField>[] | undefined = useMemo(
+  const contentColumns: ExtendedColumns[] | undefined = useMemo(
     () =>
       contentTableColumns?.map(column => ({
         sorter: true,
         sortOrder:
-          sort?.field?.id === column.key
-            ? sort?.direction === "ASC"
+          currentView.sort?.field?.id === column.key
+            ? currentView.sort?.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -285,7 +292,7 @@ const ContentTable: React.FC<Props> = ({
         minWidth: 128,
         ellipsis: true,
       })),
-    [contentTableColumns, sort],
+    [contentTableColumns, currentView.sort],
   );
 
   const tableColumns = useMemo(() => {
@@ -453,7 +460,10 @@ const ContentTable: React.FC<Props> = ({
         //     },
         //   })) as any),
         ...((contentTableColumns ?? [])
-          .filter(column => column.type !== "Group" && column.type !== "Reference")
+          .filter(
+            column =>
+              (column.type as string) !== "Group" && (column.type as string) !== "Reference",
+          )
           .map(column => ({
             key: column.key,
             label: column.title,
@@ -614,6 +624,87 @@ const ContentTable: React.FC<Props> = ({
     ];
   };
 
+  const settingOptions = useMemo(() => {
+    const shownCols = currentView.columns?.map(col => {
+      switch (col.type as string) {
+        case "ID":
+        case "STATUS":
+        case "CREATION_DATE":
+        case "CREATION_USER":
+        case "MODIFICATION_DATE":
+        case "MODIFICATION_USER":
+          return col.type as string;
+        default:
+          return col.id as string;
+      }
+    });
+    const settingOptions: Record<string, ColumnsState> = {};
+    tableColumns.forEach(col => {
+      if (
+        shownCols?.includes(col.key as string) ||
+        (col.key as string) === "commentsCount" ||
+        (col.key as string) === "EDIT_ICON" ||
+        shownCols === undefined
+      )
+        settingOptions[col.key as string] = {
+          show: true,
+        };
+      else
+        settingOptions[col.key as string] = {
+          show: false,
+        };
+    });
+
+    return settingOptions;
+  }, [currentView.columns, tableColumns]);
+
+  const setSettingOptions = useCallback(
+    (settingOptions: Record<string, ColumnsState>) => {
+      const hiddenCols: string[] = [];
+      for (const key in settingOptions) {
+        if (settingOptions[key].show === false) hiddenCols.push(key);
+      }
+      const cols: FieldSelector[] = tableColumns
+        .filter(col => {
+          if ((col.key as string) === "EDIT_ICON" || (col.key as string) === "commentsCount")
+            return false;
+          if (hiddenCols.includes(col.key as string)) return false;
+          else return true;
+        })
+        .map(col => {
+          switch (col.key as string) {
+            case "ID":
+            case "STATUS":
+            case "CREATION_DATE":
+            case "CREATION_USER":
+            case "MODIFICATION_DATE":
+            case "MODIFICATION_USER":
+              return {
+                type: col.key,
+                id: "",
+              } as FieldSelector;
+            default:
+              if ((col.fieldType as string) === "FIELD")
+                return {
+                  type: FieldType["Field"],
+                  id: col.key,
+                } as FieldSelector;
+              else
+                return {
+                  type: FieldType["MetaField"],
+                  id: col.key,
+                } as FieldSelector;
+          }
+        });
+      setCurrentView({
+        ...currentView,
+        columns: cols,
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [setCurrentView, tableColumns],
+  );
+
   return (
     <>
       {contentTableColumns ? (
@@ -628,8 +719,8 @@ const ContentTable: React.FC<Props> = ({
           rowSelection={rowSelection}
           columns={tableColumns}
           columnsState={{
-            value: columns,
-            onChange: setColumns,
+            value: settingOptions,
+            onChange: setSettingOptions,
           }}
           onChange={(pagination, _, sorter: any) => {
             onContentTableChange(

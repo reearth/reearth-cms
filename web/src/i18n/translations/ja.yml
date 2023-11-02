@@ -390,6 +390,8 @@ Failed to create view.: ''
 Successfully created view!: ''
 Failed to update view.: ''
 Successfully updated view!: ''
+Failed to rename view.: ''
+Successfully renamed view!: ''
 Failed to delete view.: ''
 Successfully deleted view!: ''
 Failed to create model.: モデルの作成に失敗しました。
