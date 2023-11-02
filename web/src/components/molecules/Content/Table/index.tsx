@@ -29,12 +29,7 @@ import {
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import {
-  SortDirection,
-  ConditionInput,
-  FieldSelector,
-  FieldType,
-} from "@reearth-cms/gql/graphql-client-api";
+import { SortDirection, FieldSelector, FieldType } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -60,7 +55,6 @@ export type Props = {
   };
   totalCount: number;
   currentView: CurrentViewType;
-  filter?: Omit<ConditionInput, "and" | "or">[];
   setCurrentView: (settings: CurrentViewType) => void;
   searchTerm: string;
   page: number;
@@ -97,7 +91,6 @@ const ContentTable: React.FC<Props> = ({
   selection,
   totalCount,
   currentView,
-  filter,
   searchTerm,
   page,
   pageSize,
@@ -352,10 +345,10 @@ const ContentTable: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (filter && contentTableColumns) {
+    if (currentView.filter && contentTableColumns) {
       const newFilters: any[] = [];
       const newDefaultValues = [];
-      for (const f of filter) {
+      for (const f of currentView.filter) {
         const condition = Object.values(f)[0];
         if (!condition) break;
         const { operator, fieldId } = condition;
@@ -387,7 +380,7 @@ const ContentTable: React.FC<Props> = ({
       setFilters([]);
       defaultFilterValues.current = [];
     }
-  }, [filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
+  }, [currentView.filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
 
   const isFilter = useRef<boolean>(true);
   const [controlMenuOpen, setControlMenuOpen] = useState(false);

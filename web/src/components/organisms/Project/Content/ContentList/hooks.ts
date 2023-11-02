@@ -31,7 +31,7 @@ import { fileName } from "./utils";
 
 export type CurrentViewType = {
   sort?: ItemSortInput;
-  filter?: ConditionInput[];
+  filter?: Omit<ConditionInput, "and" | "or">[];
   columns?: FieldSelector[];
 };
 
@@ -68,7 +68,6 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [filter, setFilter] = useState<ConditionInput[]>();
   const [currentView, setCurrentView] = useState<CurrentViewType>({
     columns: undefined,
   });
@@ -132,7 +131,6 @@ export default () => {
       sort: sort,
       filter: newFilter.length > 0 ? newFilter : undefined,
     });
-    setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -156,10 +154,10 @@ export default () => {
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
         sort: currentView.sort,
-        filter: filter
+        filter: currentView.filter
           ? {
               and: {
-                conditions: filter,
+                conditions: currentView.filter,
               },
             }
           : undefined,
@@ -410,7 +408,6 @@ export default () => {
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
     currentView,
-    filter,
     searchTerm,
     page,
     pageSize,

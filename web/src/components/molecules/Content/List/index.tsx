@@ -77,7 +77,6 @@ const ContentListMolecule: React.FC<Props> = ({
   selection,
   totalCount,
   currentView,
-  filter,
   searchTerm,
   page,
   pageSize,
@@ -136,7 +135,6 @@ const ContentListMolecule: React.FC<Props> = ({
           <ContentTable
             totalCount={totalCount}
             currentView={currentView}
-            filter={filter}
             searchTerm={searchTerm}
             page={page}
             pageSize={pageSize}
