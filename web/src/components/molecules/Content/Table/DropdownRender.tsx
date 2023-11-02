@@ -2,7 +2,7 @@ import { Buffer } from "buffer";
 
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
-import { useRef, useEffect, useCallback, useMemo } from "react";
+import { useRef, useEffect, useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -53,6 +53,7 @@ const DropdownRender: React.FC<Props> = ({
   useEffect(() => {
     if (open && !defaultValue) {
       form.resetFields();
+      setIsShowInputField(true);
     }
   }, [open, form, defaultValue]);
 
@@ -270,8 +271,15 @@ const DropdownRender: React.FC<Props> = ({
     setSearchParams,
   ]);
 
+  const [isShowInputField, setIsShowInputField] = useState(true);
+
   const onFilterSelect = useCallback(
     (value: Operator | SortDirection, option: { operatorType: string }) => {
+      if (option.operatorType === "nullable") {
+        setIsShowInputField(false);
+      } else {
+        setIsShowInputField(true);
+      }
       filterOption.current = { value, operatorType: option.operatorType };
     },
     [],
@@ -309,7 +317,7 @@ const DropdownRender: React.FC<Props> = ({
             defaultValue={defaultValue?.operator}
           />
         </Form.Item>
-        {isFilter && (
+        {isFilter && isShowInputField && (
           <Form.Item name="value">
             {filter.type === "Select" ||
             filter.type === "Tag" ||
