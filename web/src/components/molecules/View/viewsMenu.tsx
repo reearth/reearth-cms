@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
@@ -49,16 +49,33 @@ const ViewsMenuMolecule: React.FC<Props> = ({
     };
   });
 
-  const handleSelectView = (key: string) => {
-    setSelectedKey(key);
-    views.forEach(view => {
-      if (view.id === key)
-        setCurrentView({
-          sort: view.sort as ItemSortInput,
-          columns: view.columns as FieldSelector[],
-        });
-    });
-  };
+  const handleSelectView = useCallback(
+    (key: string) => {
+      setSelectedKey(key);
+      views.forEach(view => {
+        if (view.id === key)
+          setCurrentView({
+            sort: view.sort as ItemSortInput,
+            columns: view.columns as FieldSelector[],
+          });
+      });
+    },
+    [setCurrentView, views],
+  );
+
+  useEffect(() => {
+    if (views.length > 0) {
+      setSelectedKey(views[0].id);
+      setCurrentView({
+        sort: views[0].sort as ItemSortInput,
+        columns: views[0].columns as FieldSelector[],
+      });
+    } else {
+      setCurrentView({
+        columns: [],
+      });
+    }
+  }, [setCurrentView, views]);
 
   return (
     <Wrapper>

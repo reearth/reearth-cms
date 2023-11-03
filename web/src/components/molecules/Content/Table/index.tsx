@@ -138,6 +138,7 @@ const ContentTable: React.FC<Props> = ({
         key: "EDIT_ICON",
         width: 48,
         minWidth: 48,
+        ellipsis: true,
       },
       {
         title: () => <Icon icon="message" />,
@@ -157,6 +158,7 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 48,
         minWidth: 48,
+        ellipsis: true,
       },
       {
         title: t("Status"),
@@ -179,6 +181,7 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 148,
         minWidth: 148,
+        ellipsis: true,
       },
       {
         title: t("Created At"),
@@ -201,6 +204,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        ellipsis: true,
         // type: "Date",
       },
       {
@@ -224,6 +228,7 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
         type: "Person",
+        ellipsis: true,
       },
       {
         title: t("Updated At"),
@@ -246,6 +251,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        ellipsis: true,
         // type: "Date",
       },
       {
@@ -269,6 +275,7 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
         type: "Person",
+        ellipsis: true,
       },
     ],
     [t, currentView.sort, selectedItem?.id, onItemSelect],
@@ -644,7 +651,8 @@ const ContentTable: React.FC<Props> = ({
         shownCols?.includes(col.key as string) ||
         (col.key as string) === "commentsCount" ||
         (col.key as string) === "EDIT_ICON" ||
-        shownCols === undefined
+        shownCols === undefined ||
+        shownCols.length === 0
       )
         settingOptions[col.key as string] = {
           show: true,

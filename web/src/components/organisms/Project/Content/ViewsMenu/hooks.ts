@@ -16,7 +16,6 @@ import { CurrentViewType } from "../ContentList/hooks";
 type Params = {
   modelId?: string;
   currentView: CurrentViewType;
-  // setCurrentView: (view: CurrentViewType) => void;
 };
 
 export default ({ modelId, currentView }: Params) => {

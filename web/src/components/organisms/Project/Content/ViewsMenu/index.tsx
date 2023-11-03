@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 
 import ViewFormMobal from "@reearth-cms/components/molecules/View/ViewFormModal";
 import ViewsMenuMolecule from "@reearth-cms/components/molecules/View/viewsMenu";
-import { FieldSelector, ItemSortInput, View } from "@reearth-cms/gql/graphql-client-api";
+import { View } from "@reearth-cms/gql/graphql-client-api";
 
 import { CurrentViewType } from "../ContentList/hooks";
 
@@ -31,21 +31,6 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
     handleViewDelete,
     handleViewDeletionModalClose,
   } = useHooks({ modelId, currentView });
-
-  useEffect(() => {
-    if (views.length > 0) {
-      setCurrentView({
-        sort: selectedView?.sort as ItemSortInput,
-        columns: selectedView?.columns as FieldSelector[],
-      });
-    } else {
-      setCurrentView({
-        sort: selectedView?.sort as ItemSortInput,
-        columns: undefined,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [views]);
 
   return (
     <>
