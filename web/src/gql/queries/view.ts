@@ -19,13 +19,19 @@ export const GET_VIEWS = gql`
         id
       }
       filter {
-        ... on BoolFieldCondition {
-          fieldId {
-            type
-            id
+        ... on AndCondition {
+          conditions {
+            ... on BasicFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              operator
+              value
+              __typename
+            }
+            __typename
           }
-          operator
-          value
         }
       }
       __typename

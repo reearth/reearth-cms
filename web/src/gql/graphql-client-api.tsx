@@ -2545,7 +2545,7 @@ export type GetViewsQueryVariables = Exact<{
 }>;
 
 
-export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
+export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', operator: BasicOperator, value: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition' } | { __typename: 'MultipleFieldCondition' } | { __typename: 'NullableFieldCondition' } | { __typename: 'NumberFieldCondition' } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition' } | { __typename: 'TimeFieldCondition' }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
 
 export type CreateViewMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -5938,8 +5938,6 @@ export const GetViewsDocument = gql`
   view(modelId: $modelId) {
     id
     name
-    modelId
-    projectId
     sort {
       field {
         type
@@ -5952,13 +5950,19 @@ export const GetViewsDocument = gql`
       id
     }
     filter {
-      ... on BoolFieldCondition {
-        fieldId {
-          type
-          id
+      ... on AndCondition {
+        conditions {
+          ... on BasicFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            operator
+            value
+            __typename
+          }
+          __typename
         }
-        operator
-        value
       }
     }
     __typename
