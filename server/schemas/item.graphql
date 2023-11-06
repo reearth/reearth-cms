@@ -87,8 +87,8 @@ input PublishItemInput {
 
 input ItemQueryInput {
   project: ID!
+  model: ID!
   schema: ID
-  model: ID
   q: String
 }
 

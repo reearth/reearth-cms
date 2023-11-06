@@ -10,7 +10,7 @@ import (
 type Query struct {
 	project id.ProjectID
 	schema  *id.SchemaID
-	model   *id.ModelID
+	model   id.ModelID
 	q       string
 	ref     *version.Ref
 
@@ -18,7 +18,7 @@ type Query struct {
 	filter *view.Condition
 }
 
-func NewQuery(project id.ProjectID, schema *id.SchemaID, model *id.ModelID, q string, ref *version.Ref) *Query {
+func NewQuery(project id.ProjectID, model id.ModelID, schema *id.SchemaID, q string, ref *version.Ref) *Query {
 	return &Query{
 		project: project,
 		schema:  schema,
@@ -51,7 +51,7 @@ func (q *Query) Schema() *id.SchemaID {
 	return q.schema
 }
 
-func (q *Query) Model() *id.ModelID {
+func (q *Query) Model() id.ModelID {
 	return q.model
 }
 
@@ -95,4 +95,10 @@ func (q *Query) MetaFields() view.FieldSelectorList {
 
 func (q *Query) HasMetaFields() bool {
 	return len(q.MetaFields()) > 0
+}
+
+func (q *Query) Fields() view.FieldSelectorList {
+	res := append(view.FieldSelectorList{}, q.ItemFields()...)
+	res = append(res, q.MetaFields()...)
+	return res
 }
