@@ -20,22 +20,19 @@ on:
       - .github/workflows/pr_title.yml
       - .github/workflows/stage.yml
       - .github/workflows/release.yml
+env:
+  GO_VERSION: "1.21"
+
 jobs:
-  ci:
-    name: ci
+  ci-server-lint:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: server
-    services:
-      mongo:
-        image: mongo:6-focal
-        ports:
-          - 27017:27017
     steps:
       - uses: actions/setup-go@v4
         with:
-          go-version: 1.21
+          go-version: ${{ env.GO_VERSION }}
       - name: checkout
         uses: actions/checkout@v4
       - name: cache
@@ -51,6 +48,50 @@ jobs:
           version: v1.52
           working-directory: server
           args: --config=../.golangci.yml
+  ci-server-i18n:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: check forgotten translations
+        run: make i18n-ci
+  ci-server-test:
+    name: ci
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    services:
+      mongo:
+        image: mongo:6-focal
+        ports:
+          - 27017:27017
+    steps:
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: test
         run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
         env:
@@ -60,5 +101,3 @@ jobs:
         with:
           flags: server
           file: coverage.txt
-      - name: check forgotten translations
-        run: make i18n-ci
