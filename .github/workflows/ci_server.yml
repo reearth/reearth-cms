@@ -69,7 +69,6 @@ jobs:
       - name: check forgotten translations
         run: make i18n-ci
   ci-server-test:
-    name: ci
     runs-on: ubuntu-latest
     defaults:
       run:
