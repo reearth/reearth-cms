@@ -27,12 +27,12 @@ func (p *Package) MetaSchema() *Schema {
 	return p.metaSchema
 }
 
-func (p *Package) GroupSchemas() []Schema {
-	return lo.FilterMap(lo.Values(p.groupSchemas), func(s *Schema, _ int) (Schema, bool) {
+func (p *Package) GroupSchemas() []*Schema {
+	return lo.FilterMap(lo.Values(p.groupSchemas), func(s *Schema, _ int) (*Schema, bool) {
 		if s == nil {
-			return Schema{}, false
+			return nil, false
 		}
-		return *s, true
+		return s, true
 	})
 }
 

@@ -81,7 +81,7 @@ func TestPackage_GroupSchemas(t *testing.T) {
 
 	p := NewPackage(s, meta, groupSchemas)
 
-	assert.Equal(t, []Schema{*groupSchemas[gID]}, p.GroupSchemas())
+	assert.Equal(t, []*Schema{groupSchemas[gID]}, p.GroupSchemas())
 }
 
 func TestPackage_GroupSchema(t *testing.T) {
