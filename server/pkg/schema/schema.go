@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -71,6 +72,12 @@ func (s *Schema) FieldByIDOrKey(fId *FieldID, key *key.Key) *Field {
 func (s *Schema) Fields() FieldList {
 	var fl FieldList = slices.Clone(s.fields)
 	return fl.Ordered()
+}
+
+func (s *Schema) FieldsByType(t value.Type) FieldList {
+	return lo.Filter(s.Fields(), func(f *Field, _ int) bool {
+		return f.Type() == t
+	})
 }
 
 func (s *Schema) RemoveField(fid FieldID) {

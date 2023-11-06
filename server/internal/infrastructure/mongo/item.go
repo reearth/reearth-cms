@@ -12,6 +12,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/mongox"
@@ -186,7 +188,7 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
-func (r *Item) Search(ctx context.Context, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) Search(ctx context.Context, sp schema.Package, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	// apply basic filter like project, model, schema, keyword search
 	pipeline := []any{basicFilterStage(query)}
 
@@ -196,10 +198,10 @@ func (r *Item) Search(ctx context.Context, query *item.Query, pagination *usecas
 	}
 
 	// create aliases for fields used in filter logic or sort
-	pipeline = append(pipeline, aliasStages(query)...)
+	pipeline = append(pipeline, aliasStages(query, sp)...)
 
 	// apply filters and sort to pipeline
-	filterStage := filter(query.Filter())
+	filterStage := filter(query.Filter(), sp)
 	if filterStage != nil {
 		pipeline = append(pipeline, bson.M{"$match": filterStage})
 	}
@@ -223,6 +225,10 @@ func sort(query *item.Query) *usecasex.Sort {
 func basicFilterStage(query *item.Query) any {
 	filter := bson.M{
 		"project": query.Project().String(),
+		"modelid": query.Model().String(),
+	}
+	if query.Schema() != nil {
+		filter["schema"] = query.Schema().String()
 	}
 	if query.Q() != "" {
 		regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(query.Q())), Options: "i"}
@@ -230,12 +236,6 @@ func basicFilterStage(query *item.Query) any {
 			{"fields.v.v": bson.M{"$regex": regex}},
 			{"fields.value": bson.M{"$regex": regex}}, // compat
 		}
-	}
-	if query.Schema() != nil {
-		filter["schema"] = query.Schema().String()
-	}
-	if query.Model() != nil {
-		filter["modelid"] = query.Model().String()
 	}
 	return bson.M{"$match": filter}
 }
@@ -248,6 +248,14 @@ func lookupStages() []any {
 				"localField":   "metadataitem",
 				"foreignField": "id",
 				"as":           "__temp.meta",
+				"pipeline": []bson.M{
+					{
+						"$match": bson.M{
+							"__":  bson.M{"$exists": false},
+							"__r": bson.M{"$in": bson.A{"latest"}},
+						},
+					},
+				},
 			},
 		},
 		bson.M{
@@ -256,23 +264,35 @@ func lookupStages() []any {
 	}
 }
 
-func aliasStages(query *item.Query) []any {
+func aliasStages(query *item.Query, sp schema.Package) []any {
 	aliases := bson.M{}
 	for _, field := range query.ItemFields() {
 		aliases["__temp."+field.ID.String()] = bson.M{
-			"$filter": bson.M{
-				"input": "$fields",
-				"as":    "field",
-				"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+			"$map": bson.M{
+				"input": bson.M{
+					"$filter": bson.M{
+						"input": "$fields",
+						"as":    "field",
+						"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+					},
+				},
+				"as": "field",
+				"in": "$$field.v.v",
 			},
 		}
 	}
 	for _, field := range query.MetaFields() {
 		aliases["__temp."+field.ID.String()] = bson.M{
-			"$filter": bson.M{
-				"input": "$__temp.meta.fields",
-				"as":    "field",
-				"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+			"$map": bson.M{
+				"input": bson.M{
+					"$filter": bson.M{
+						"input": "$__temp.meta.fields",
+						"as":    "field",
+						"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+					},
+				},
+				"as": "field",
+				"in": "$$field.v.v",
 			},
 		}
 	}
@@ -303,28 +323,39 @@ func aliasStages(query *item.Query) []any {
 		return stages
 	}
 
-	// flatten the value object
-	flattenAliases := bson.M{}
-	for key := range aliases {
-		flattenAliases[key] = "$" + key + ".v.v"
-	}
-	stages = append(stages, bson.M{
-		"$set": flattenAliases,
-	})
-
 	// unwind the aliases: will get the field value in side an array
 	for key := range aliases {
 		stages = append(stages, bson.M{"$unwind": bson.M{"path": "$" + key, "preserveNullAndEmptyArrays": true}})
 	}
+
+	// parse dates and reset time part of the dates included in the filter
+	resetTimeAliases := bson.M{}
+	for _, fs := range query.Fields() {
+		if fs.ID == nil {
+			continue
+		}
+		f := sp.Field(*fs.ID)
+		if f != nil && f.Type() == value.TypeDateTime {
+			resetTimeAliases["__temp."+fs.ID.String()] = bson.M{
+				"$map": bson.M{
+					"input": "$__temp." + fs.ID.String(),
+					"as":    "date",
+					"in":    resetTime("$$date"),
+				},
+			}
+		}
+	}
+	stages = append(stages, bson.M{"$set": resetTimeAliases})
+
 	return stages
 }
 
 func resetTime(dateField string) bson.M {
 	return bson.M{
 		"$dateFromParts": bson.M{
-			"year":        bson.M{"$year": dateField},
-			"month":       bson.M{"$month": dateField},
-			"day":         bson.M{"$dayOfMonth": dateField},
+			"year":        bson.M{"$year": bson.M{"$toDate": dateField}},
+			"month":       bson.M{"$month": bson.M{"$toDate": dateField}},
+			"day":         bson.M{"$dayOfMonth": bson.M{"$toDate": dateField}},
 			"hour":        0,
 			"minute":      0,
 			"second":      0,
@@ -333,7 +364,7 @@ func resetTime(dateField string) bson.M {
 	}
 }
 
-func filter(f *view.Condition) any {
+func filter(f *view.Condition, sp schema.Package) any {
 	if f == nil {
 		return nil
 	}
@@ -341,9 +372,9 @@ func filter(f *view.Condition) any {
 	if f.BasicCondition != nil {
 		switch f.BasicCondition.Op {
 		case view.BasicOperatorEquals:
-			ff[fieldKey(f.BasicCondition.Field)] = fieldValue(f.BasicCondition.Field, f.BasicCondition.Value)
+			ff[fieldKey(f.BasicCondition.Field)] = fieldValue(f.BasicCondition.Field, f.BasicCondition.Value, sp)
 		case view.BasicOperatorNotEquals:
-			ff[fieldKey(f.BasicCondition.Field)] = bson.M{"$ne": fieldValue(f.BasicCondition.Field, f.BasicCondition.Value)}
+			ff[fieldKey(f.BasicCondition.Field)] = bson.M{"$ne": fieldValue(f.BasicCondition.Field, f.BasicCondition.Value, sp)}
 		}
 	}
 	if f.NullableCondition != nil {
@@ -423,12 +454,12 @@ func filter(f *view.Condition) any {
 	}
 	if f.AndCondition != nil {
 		ff["$and"] = lo.Map(f.AndCondition.Conditions, func(c view.Condition, _ int) any {
-			return filter(&c)
+			return filter(&c, sp)
 		})
 	}
 	if f.OrCondition != nil {
 		ff["$or"] = lo.Map(f.OrCondition.Conditions, func(c view.Condition, _ int) any {
-			return filter(&c)
+			return filter(&c, sp)
 		})
 	}
 	return ff
@@ -456,11 +487,16 @@ func fieldKey(f view.FieldSelector) string {
 	}
 }
 
-func fieldValue(f view.FieldSelector, v any) any {
-	if f.Type == view.FieldTypeMetaField || f.Type == view.FieldTypeField {
+func fieldValue(fs view.FieldSelector, v any, sp schema.Package) any {
+	if fs.Type == view.FieldTypeMetaField || fs.Type == view.FieldTypeField {
+		f := sp.Field(*fs.ID)
+		if f != nil && f.Type() == value.TypeDateTime {
+			res, _ := time.Parse(time.RFC3339, v.(string))
+			return res
+		}
 		return v
 	}
-	switch f.Type {
+	switch fs.Type {
 	case view.FieldTypeId:
 		res, _ := idx.From[id.Item](v.(string))
 		return res.String()

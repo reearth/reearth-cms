@@ -2,10 +2,12 @@ package interactor
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -33,6 +35,51 @@ func (i Schema) FindByID(ctx context.Context, id id.SchemaID, operator *usecase.
 
 func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usecase.Operator) (schema.List, error) {
 	return i.repos.Schema.FindByIDs(ctx, ids)
+}
+
+func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Operator) (*schema.Package, error) {
+	m, err := i.repos.Model.FindByID(ctx, mID)
+	if err != nil {
+		return nil, err
+	}
+
+	sIDs := id.SchemaIDList{m.Schema()}
+	if m.Metadata() != nil {
+		sIDs = append(sIDs, *m.Metadata())
+	}
+	sList, err := i.repos.Schema.FindByIDs(ctx, sIDs)
+	if err != nil {
+		return nil, err
+	}
+	s := sList.Schema(lo.ToPtr(m.Schema()))
+	if s == nil {
+		return nil, nil
+	}
+
+	gIds := lo.Map(s.FieldsByType(value.TypeGroup), func(f *schema.Field, _ int) id.GroupID {
+		var gID id.GroupID
+		f.TypeProperty().Match(schema.TypePropertyMatch{
+			Group: func(f *schema.FieldGroup) {
+				gID = f.Group()
+			},
+		})
+		return gID
+	})
+
+	groups, err := i.repos.Group.FindByIDs(ctx, gIds)
+	if err != nil {
+		return nil, err
+	}
+
+	gsl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs())
+	if err != nil {
+		return nil, err
+	}
+	gm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+		return g.ID(), gsl.Schema(lo.ToPtr(g.Schema()))
+	})
+
+	return schema.NewPackage(s, sList.Schema(m.Metadata()), gm), nil
 }
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {

@@ -463,6 +463,7 @@ func TestItem_FindByProject(t *testing.T) {
 }
 
 func TestItem_Search(t *testing.T) {
+	mid := id.NewModelID()
 	sid1 := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
@@ -470,11 +471,11 @@ func TestItem_Search(t *testing.T) {
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
-	i1 := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(id1).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
 	id2 := id.NewItemID()
-	i2 := item.New().ID(id2).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(id2).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
 	id3 := id.NewItemID()
-	i3 := item.New().ID(id3).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f2}).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().ID(id3).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f2}).Thread(id.NewThreadID()).MustBuild()
 
 	wid := accountdomain.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
@@ -508,7 +509,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, nil, nil, "foo", nil),
+				query:    item.NewQuery(pid, mid, nil, "foo", nil),
 				operator: op,
 			},
 			want:    2,
@@ -525,7 +526,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, nil, nil, "hoge", nil),
+				query:    item.NewQuery(pid, mid, nil, "hoge", nil),
 				operator: op,
 			},
 			want:    1,
@@ -542,7 +543,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, nil, nil, "xxx", nil),
+				query:    item.NewQuery(pid, mid, nil, "xxx", nil),
 				operator: op,
 			},
 			want:    0,
@@ -567,7 +568,7 @@ func TestItem_Search(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
+			got, _, err := itemUC.Search(ctx, schema.Package{}, tc.args.query, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return

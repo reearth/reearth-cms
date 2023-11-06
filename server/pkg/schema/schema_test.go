@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
@@ -247,6 +248,18 @@ func TestSchema_Fields(t *testing.T) {
 			assert.Equal(t, tc.want, tc.s.Fields())
 		})
 	}
+}
+
+func TestSchema_FieldsByType(t *testing.T) {
+	fid1 := NewFieldID()
+	f1 := Field{id: fid1, name: "f1", typeProperty: &TypeProperty{t: value.TypeBool, bool: NewBool()}}
+	fid2 := NewFieldID()
+	f2 := Field{id: fid2, name: "f2", typeProperty: &TypeProperty{t: value.TypeText, text: NewText(nil)}}
+	fid3 := NewFieldID()
+	f3 := Field{id: fid3, name: "f3", typeProperty: &TypeProperty{t: value.TypeBool, bool: NewBool()}}
+	s := &Schema{fields: []*Field{&f1, &f2, &f3}}
+
+	assert.Equal(t, FieldList{&f1, &f3}, s.FieldsByType(value.TypeBool))
 }
 
 func TestSchema_ID(t *testing.T) {
