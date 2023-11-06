@@ -21,6 +21,24 @@ func (l List) Clone() List {
 	return util.Map(l, func(s *Schema) *Schema { return s.Clone() })
 }
 
+func (l List) Fields() FieldList {
+	var fields []*Field
+	for _, s := range l {
+		fields = append(fields, s.Fields()...)
+	}
+	return fields
+}
+
+func (l List) Schema(sID *id.SchemaID) *Schema {
+	if sID == nil {
+		return nil
+	}
+	s, _ := lo.Find(l, func(s *Schema) bool {
+		return s.ID() == *sID
+	})
+	return s
+}
+
 type FieldList []*Field
 
 func (l FieldList) Find(fid FieldID) *Field {

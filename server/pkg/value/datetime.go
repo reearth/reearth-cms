@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const TypeDateTime Type = "datetime"
@@ -35,6 +36,8 @@ func (p *propertyDateTime) ToValue(i any) (any, bool) {
 		if v != nil {
 			return p.ToValue(*v)
 		}
+	case primitive.DateTime:
+		return time.Unix(int64(v)/1000, 0), true
 	}
 
 	if _, ok := i.(bool); ok {
