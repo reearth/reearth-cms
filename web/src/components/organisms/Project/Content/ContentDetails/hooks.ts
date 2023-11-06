@@ -91,6 +91,7 @@ export default () => {
       searchItemInput: {
         query: {
           project: currentProject?.id as string,
+          model: model?.id ?? "",
           schema: model?.schemaId ?? "",
         },
         pagination: {
