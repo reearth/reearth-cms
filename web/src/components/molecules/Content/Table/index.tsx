@@ -126,11 +126,6 @@ const ContentTable: React.FC<Props> = ({
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
-  useEffect(() => {
-    console.log("contentTableFields", contentTableFields);
-    console.log("contentTableColumns", contentTableColumns);
-  }, [contentTableColumns, contentTableFields]);
-
   const actionsColumns: ExtendedColumns[] | undefined = useMemo(
     () => [
       {
@@ -298,6 +293,8 @@ const ContentTable: React.FC<Props> = ({
         width: 128,
         minWidth: 128,
         ellipsis: true,
+        multiple: column.multiple,
+        required: column.required,
       })),
     [contentTableColumns, currentView.sort],
   );
@@ -444,6 +441,8 @@ const ContentTable: React.FC<Props> = ({
           typeProperty: column.typeProperty,
           members: currentWorkspace?.members,
           id: column.key,
+          required: column.required,
+          multiple: column.multiple,
         };
         if (isFilter) {
           setFilters(prevState => [...prevState, filter] as any);
