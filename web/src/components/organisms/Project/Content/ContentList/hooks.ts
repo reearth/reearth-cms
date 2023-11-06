@@ -280,6 +280,8 @@ export default () => {
       typeProperty: field.typeProperty,
       width: 128,
       minWidth: 128,
+      multiple: field.multiple,
+      required: field.required,
     }));
 
     const metadataColumns =
@@ -293,6 +295,8 @@ export default () => {
         typeProperty: field.typeProperty,
         width: 128,
         minWidth: 128,
+        multiple: field.multiple,
+        required: field.required,
       })) || [];
 
     return fieldsColumns.concat(metadataColumns);
