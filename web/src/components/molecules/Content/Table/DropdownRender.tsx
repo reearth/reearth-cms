@@ -23,6 +23,7 @@ import {
   NullableOperator,
   NumberOperator,
   TimeOperator,
+  MultipleOperator,
   StringOperator,
   SortDirection,
   ConditionInput,
@@ -132,6 +133,26 @@ const DropdownRender: React.FC<Props> = ({
               operatorType: "nullable",
               value: NullableOperator.NotEmpty,
               label: t("is not empty"),
+            },
+            {
+              operatorType: "multiple",
+              value: MultipleOperator.IncludesAll,
+              label: t("Includes all"),
+            },
+            {
+              operatorType: "multiple",
+              value: MultipleOperator.IncludesAny,
+              label: t("Includes any"),
+            },
+            {
+              operatorType: "multiple",
+              value: MultipleOperator.NotIncludesAll,
+              label: t("Not include all"),
+            },
+            {
+              operatorType: "multiple",
+              value: MultipleOperator.NotIncludesAny,
+              label: t("Not Include all"),
             },
           );
           break;

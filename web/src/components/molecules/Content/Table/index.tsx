@@ -47,6 +47,8 @@ type ExtendedColumns = ProColumns<ContentTableField> & {
   fieldType?: string;
   sortOrder?: "descend" | "ascend" | null;
   typeProperty?: { values?: string[] };
+  required?: boolean;
+  multiple?: boolean;
 };
 
 export type Props = {
@@ -123,6 +125,11 @@ const ContentTable: React.FC<Props> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
+
+  useEffect(() => {
+    console.log("contentTableFields", contentTableFields);
+    console.log("contentTableColumns", contentTableColumns);
+  }, [contentTableColumns, contentTableFields]);
 
   const actionsColumns: ExtendedColumns[] | undefined = useMemo(
     () => [
