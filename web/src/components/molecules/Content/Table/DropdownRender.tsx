@@ -23,6 +23,7 @@ import {
   NullableOperator,
   NumberOperator,
   TimeOperator,
+  MultipleOperator,
   StringOperator,
   SortDirection,
   ConditionInput,
@@ -108,12 +109,6 @@ const DropdownRender: React.FC<Props> = ({
               value: StringOperator.NotEndsWith,
               label: t("doesn't end with"),
             },
-            { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
-            {
-              operatorType: "nullable",
-              value: NullableOperator.NotEmpty,
-              label: t("is not empty"),
-            },
           );
           break;
         case "Select":
@@ -126,12 +121,6 @@ const DropdownRender: React.FC<Props> = ({
               operatorType: "string",
               value: StringOperator.NotContains,
               label: t("doesn't contain"),
-            },
-            { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
-            {
-              operatorType: "nullable",
-              value: NullableOperator.NotEmpty,
-              label: t("is not empty"),
             },
           );
           break;
@@ -152,12 +141,6 @@ const DropdownRender: React.FC<Props> = ({
               value: NumberOperator.LessThanOrEqualTo,
               label: t("less than or equal to"),
             },
-            { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
-            {
-              operatorType: "nullable",
-              value: NullableOperator.NotEmpty,
-              label: t("is not empty"),
-            },
           );
           break;
         case "Date":
@@ -174,6 +157,42 @@ const DropdownRender: React.FC<Props> = ({
           );
           break;
       }
+      // add nullable operator to all non required columns
+      if (!filter.required) {
+        result.push(
+          { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
+          {
+            operatorType: "nullable",
+            value: NullableOperator.NotEmpty,
+            label: t("is not empty"),
+          },
+        );
+      }
+      // add multiple operator to all multiple columns
+      if (filter.multiple || filter.type === "Select" || filter.type === "Tag") {
+        result.push(
+          {
+            operatorType: "multiple",
+            value: MultipleOperator.IncludesAll,
+            label: t("Includes all"),
+          },
+          {
+            operatorType: "multiple",
+            value: MultipleOperator.IncludesAny,
+            label: t("Includes any"),
+          },
+          {
+            operatorType: "multiple",
+            value: MultipleOperator.NotIncludesAll,
+            label: t("Not include all"),
+          },
+          {
+            operatorType: "multiple",
+            value: MultipleOperator.NotIncludesAny,
+            label: t("Not Include all"),
+          },
+        );
+      }
     } else {
       result.push(
         { operatorType: "sort", value: SortDirection.Asc, label: t("Ascending") },
@@ -182,7 +201,7 @@ const DropdownRender: React.FC<Props> = ({
     }
 
     return result;
-  }, [filter.type, isFilter, t]);
+  }, [filter.multiple, filter.required, filter.type, isFilter, t]);
 
   const valueOptions = useMemo<
     {
