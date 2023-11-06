@@ -90,9 +90,9 @@ export default () => {
     variables: {
       searchItemInput: {
         query: {
-          project: currentProject?.id as string,
+          project: currentProject?.id ?? "",
           model: model?.id ?? "",
-          schema: model?.schemaId ?? "",
+          schema: model?.schemaId,
         },
         pagination: {
           first: linkItemModalPageSize,
@@ -100,7 +100,7 @@ export default () => {
         },
       },
     },
-    skip: !currentProject?.id,
+    skip: !model?.id,
   });
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {

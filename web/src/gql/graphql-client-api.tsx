@@ -595,7 +595,7 @@ export type ItemPayload = {
 };
 
 export type ItemQueryInput = {
-  model?: InputMaybe<Scalars['ID']>;
+  model: Scalars['ID'];
   project: Scalars['ID'];
   q?: InputMaybe<Scalars['String']>;
   schema?: InputMaybe<Scalars['ID']>;
