@@ -19,9 +19,11 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
 
   const {
     views,
-    handleViewModalOpen,
+    modalState,
     handleViewRenameModalOpen,
+    handleViewCreateModalOpen,
     selectedView,
+    setSelectedView,
     viewModalShown,
     submitting,
     handleViewModalReset,
@@ -30,20 +32,22 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
     handleViewUpdate,
     handleViewDelete,
     handleViewDeletionModalClose,
-  } = useHooks({ modelId, currentView });
+  } = useHooks({ modelId, currentView, setCurrentView });
 
   return (
     <>
       <ViewsMenuMolecule
         views={views as View[]}
-        onViewModalOpen={handleViewModalOpen}
         onViewRenameModalOpen={handleViewRenameModalOpen}
+        onViewCreateModalOpen={handleViewCreateModalOpen}
+        selectedView={selectedView}
+        setSelectedView={setSelectedView}
         onDelete={handleViewDelete}
         onUpdate={handleViewUpdate}
-        setCurrentView={setCurrentView}
         onViewDeletionClose={handleViewDeletionModalClose}
       />
       <ViewFormMobal
+        modalState={modalState}
         view={selectedView}
         open={viewModalShown}
         submitting={submitting}

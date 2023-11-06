@@ -1,7 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
+  FieldSelector,
+  ItemSort,
   View,
   useCreateViewMutation,
   useDeleteViewMutation,
@@ -16,41 +18,63 @@ import { CurrentViewType } from "../ContentList/hooks";
 type Params = {
   modelId?: string;
   currentView: CurrentViewType;
+  setCurrentView: (currentView: CurrentViewType) => void;
 };
 
-export default ({ modelId, currentView }: Params) => {
+export type modalStateType = "rename" | "create";
+
+export default ({ modelId, currentView, setCurrentView }: Params) => {
   const t = useT();
   const [viewModalShown, setViewModalShown] = useState(false);
-  const [selectedView, setSelectedView] = useState<View>();
+  const [selectedView, setSelectedView] = useState<View | undefined>();
+  const [modalState, setModalState] = useState<modalStateType>("create");
   const [submitting, setSubmitting] = useState(false);
   const [currentProject] = useProject();
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
-  const { data } = useGetViewsQuery({
+  const { data, loading } = useGetViewsQuery({
     variables: { modelId: modelId ?? "" },
     skip: !modelId,
   });
 
   const views = useMemo(() => {
+    if (loading && data?.view) {
+      setSelectedView(data?.view && data?.view.length > 0 ? (data?.view[0] as View) : undefined);
+    }
     return data?.view ? data?.view : [];
-  }, [data?.view]);
+  }, [data?.view, loading]);
 
-  const handleViewModalOpen = useCallback(() => setViewModalShown(true), []);
+  useEffect(() => {
+    setSelectedView(data?.view && data?.view.length > 0 ? (data?.view[0] as View) : undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelId, setCurrentView]);
 
-  const handleViewRenameModalOpen = useCallback(
-    async (view: View) => {
-      setSelectedView(view);
-      handleViewModalOpen();
-    },
-    [setSelectedView, handleViewModalOpen],
-  );
+  useEffect(() => {
+    if (selectedView) {
+      setCurrentView({
+        sort: selectedView.sort as ItemSort,
+        columns: selectedView.columns as FieldSelector[],
+      });
+    } else {
+      setCurrentView({ columns: [] });
+    }
+  }, [selectedView, setCurrentView]);
+
+  const handleViewRenameModalOpen = useCallback(() => {
+    setModalState("rename");
+    setViewModalShown(true);
+  }, []);
+
+  const handleViewCreateModalOpen = useCallback(() => {
+    setModalState("create");
+    setViewModalShown(true);
+  }, []);
 
   const handleViewModalReset = useCallback(() => {
-    setSelectedView(undefined);
     setViewModalShown(false);
     setSubmitting(false);
-  }, [setSelectedView, setViewModalShown, setSubmitting]);
+  }, [setViewModalShown, setSubmitting]);
 
   const [createNewView] = useCreateViewMutation({
     refetchQueries: ["GetViews"],
@@ -72,6 +96,7 @@ export default ({ modelId, currentView }: Params) => {
         Notification.error({ message: t("Failed to create view.") });
         return;
       }
+      setSelectedView(view.data.createView.view as View);
       setViewModalShown(false);
       Notification.success({ message: t("Successfully created view!") });
     },
@@ -98,6 +123,7 @@ export default ({ modelId, currentView }: Params) => {
         Notification.error({ message: t("Failed to update view.") });
         return;
       }
+      setSelectedView(view.data.updateView.view as View);
       Notification.success({ message: t("Successfully updated view!") });
       handleViewModalReset();
     },
@@ -118,6 +144,7 @@ export default ({ modelId, currentView }: Params) => {
         Notification.error({ message: t("Failed to rename view.") });
         return;
       }
+      setSelectedView(view.data.updateView.view as View);
       Notification.success({ message: t("Successfully renamed view!") });
       handleViewModalReset();
     },
@@ -129,8 +156,8 @@ export default ({ modelId, currentView }: Params) => {
   });
 
   const handleViewDeletionModalClose = useCallback(() => {
-    setSelectedView(undefined);
-  }, [setSelectedView]);
+    setSelectedView(views[0] as View);
+  }, [views]);
 
   const handleViewDelete = useCallback(
     async (viewId?: string) => {
@@ -148,11 +175,13 @@ export default ({ modelId, currentView }: Params) => {
 
   return {
     views,
-    handleViewModalOpen,
+    modalState,
     handleViewRenameModalOpen,
+    handleViewCreateModalOpen,
     handleViewDelete,
     handleViewDeletionModalClose,
     selectedView,
+    setSelectedView,
     viewModalShown,
     submitting,
     handleViewModalReset,

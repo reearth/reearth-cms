@@ -1,37 +1,35 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import { FieldSelector, ItemSortInput, View } from "@reearth-cms/gql/graphql-client-api";
+import { View } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import ViewsMenuItem from "./viewMenuItem";
 
 export interface Props {
   views: View[];
-  onViewModalOpen?: () => void;
   onViewRenameModalOpen?: (view: View) => void;
   onDelete: (viewId: string) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   onViewDeletionClose: () => void;
-  setCurrentView: (view: CurrentViewType) => void;
+  selectedView: View | undefined;
+  setSelectedView: (view: View | undefined) => void;
+  onViewCreateModalOpen: () => void;
 }
 
 const ViewsMenuMolecule: React.FC<Props> = ({
   views,
-  onViewModalOpen,
   onViewRenameModalOpen,
+  onViewCreateModalOpen,
   onUpdate,
   onDelete,
   onViewDeletionClose,
-  setCurrentView,
+  selectedView,
+  setSelectedView,
 }) => {
   const t = useT();
-  const [selectedKey, setSelectedKey] = useState<string>(
-    views && views.length > 0 ? views[0].id : "",
-  );
 
   const menuItems = views?.map(view => {
     return {
@@ -51,42 +49,25 @@ const ViewsMenuMolecule: React.FC<Props> = ({
 
   const handleSelectView = useCallback(
     (key: string) => {
-      setSelectedKey(key);
       views.forEach(view => {
-        if (view.id === key)
-          setCurrentView({
-            sort: view.sort as ItemSortInput,
-            columns: view.columns as FieldSelector[],
-          });
+        if (view.id === key) {
+          setSelectedView(view);
+        }
       });
     },
-    [setCurrentView, views],
+    [setSelectedView, views],
   );
-
-  useEffect(() => {
-    if (views.length > 0) {
-      setSelectedKey(views[0].id);
-      setCurrentView({
-        sort: views[0].sort as ItemSortInput,
-        columns: views[0].columns as FieldSelector[],
-      });
-    } else {
-      setCurrentView({
-        columns: [],
-      });
-    }
-  }, [setCurrentView, views]);
 
   return (
     <Wrapper>
       <StyledTabs
         tabBarExtraContent={
-          <NewViewButton type="text" onClick={onViewModalOpen}>
+          <NewViewButton type="text" onClick={onViewCreateModalOpen}>
             {t("Save as new view")}
           </NewViewButton>
         }
         defaultActiveKey="1"
-        activeKey={selectedKey}
+        activeKey={selectedView?.id}
         tabPosition="top"
         items={menuItems}
         popupClassName="hide-icon-button"
