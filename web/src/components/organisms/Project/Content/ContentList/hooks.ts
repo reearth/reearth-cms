@@ -150,8 +150,9 @@ export default () => {
     variables: {
       searchItemInput: {
         query: {
-          project: currentProject?.id as string,
-          model: currentModel?.id,
+          project: currentProject?.id ?? "",
+          model: currentModel?.id ?? "",
+          schema: currentModel?.schema.id,
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
