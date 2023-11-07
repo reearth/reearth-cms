@@ -27,6 +27,8 @@ export type DropdownFilterType = {
   typeProperty: { values?: string[]; tags?: { id: string; name: string }[] };
   members: { user: { name: string } }[];
   id: string;
+  multiple: boolean;
+  required: boolean;
 };
 
 export type Operator =

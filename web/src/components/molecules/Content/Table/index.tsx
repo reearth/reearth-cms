@@ -48,6 +48,8 @@ type ExtendedColumns = ProColumns<ContentTableField> & {
   fieldType?: string;
   sortOrder?: "descend" | "ascend" | null;
   typeProperty?: { values?: string[] };
+  required?: boolean;
+  multiple?: boolean;
 };
 
 export type Props = {
@@ -138,6 +140,7 @@ const ContentTable: React.FC<Props> = ({
         key: "EDIT_ICON",
         width: 48,
         minWidth: 48,
+        ellipsis: true,
       },
       {
         title: () => <Icon icon="message" />,
@@ -157,6 +160,7 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 48,
         minWidth: 48,
+        ellipsis: true,
       },
       {
         title: t("Status"),
@@ -179,6 +183,7 @@ const ContentTable: React.FC<Props> = ({
         },
         width: 148,
         minWidth: 148,
+        ellipsis: true,
       },
       {
         title: t("Created At"),
@@ -201,6 +206,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        ellipsis: true,
         // type: "Date",
       },
       {
@@ -224,6 +230,7 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
         type: "Person",
+        ellipsis: true,
       },
       {
         title: t("Updated At"),
@@ -246,6 +253,7 @@ const ContentTable: React.FC<Props> = ({
             : null,
         width: 148,
         minWidth: 148,
+        ellipsis: true,
         // type: "Date",
       },
       {
@@ -269,6 +277,7 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
         type: "Person",
+        ellipsis: true,
       },
     ],
     [t, currentView.sort, selectedItem?.id, onItemSelect],
@@ -291,6 +300,8 @@ const ContentTable: React.FC<Props> = ({
         width: 128,
         minWidth: 128,
         ellipsis: true,
+        multiple: column.multiple,
+        required: column.required,
       })),
     [contentTableColumns, currentView.sort],
   );
@@ -439,6 +450,8 @@ const ContentTable: React.FC<Props> = ({
           typeProperty: column.typeProperty,
           members: currentWorkspace?.members,
           id: column.key,
+          required: column.required,
+          multiple: column.multiple,
         };
         if (isFilter) {
           setFilters(prevState => [...prevState, filter] as any);
@@ -654,7 +667,7 @@ const ContentTable: React.FC<Props> = ({
         shownCols?.includes(col.key as string) ||
         (col.key as string) === "commentsCount" ||
         (col.key as string) === "EDIT_ICON" ||
-        shownCols === undefined
+        shownCols?.length === 0
       )
         settingOptions[col.key as string] = {
           show: true,
