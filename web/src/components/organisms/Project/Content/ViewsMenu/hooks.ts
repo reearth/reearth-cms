@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { filterConvert } from "@reearth-cms/components/organisms/Project/Content/ContentList/utils";
 import {
   FieldType,
   SortDirection,
@@ -9,6 +10,7 @@ import {
   useDeleteViewMutation,
   useGetViewsQuery,
   useUpdateViewMutation,
+  AndCondition,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
@@ -66,6 +68,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
             : SortDirection["Asc"],
         },
         columns: selectedView.columns ? selectedView.columns : [],
+        filter: filterConvert(selectedView.filter as AndCondition),
       });
     } else {
       setCurrentView({ columns: [] });
@@ -101,6 +104,11 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
           modelId: modelId ?? "",
           sort: currentView?.sort,
           columns: currentView?.columns,
+          filter: currentView.filter
+            ? {
+                and: currentView.filter,
+              }
+            : undefined,
         },
       });
       if (view.errors || !view.data?.createView) {
@@ -111,7 +119,15 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
       setViewModalShown(false);
       Notification.success({ message: t("Successfully created view!") });
     },
-    [createNewView, projectId, modelId, currentView?.sort, currentView?.columns, t],
+    [
+      createNewView,
+      projectId,
+      modelId,
+      currentView?.sort,
+      currentView?.columns,
+      currentView?.filter,
+      t,
+    ],
   );
 
   const [updateNewView] = useUpdateViewMutation({
@@ -128,6 +144,11 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
           name: name,
           sort: currentView?.sort,
           columns: currentView?.columns,
+          filter: currentView.filter
+            ? {
+                and: currentView.filter,
+              }
+            : undefined,
         },
       });
       if (view.errors || !view.data?.updateView) {
@@ -138,7 +159,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
       Notification.success({ message: t("Successfully updated view!") });
       handleViewModalReset();
     },
-    [updateNewView, currentView?.sort, currentView?.columns, t, handleViewModalReset],
+    [updateNewView, currentView, t, handleViewModalReset],
   );
 
   const handleViewRename = useCallback(

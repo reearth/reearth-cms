@@ -1,8 +1,7 @@
-// import { LightFilter } from "@ant-design/pro-components";
 import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -31,9 +30,10 @@ import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
   SortDirection,
-  ConditionInput,
   FieldSelector,
   FieldType,
+  ItemSortInput,
+  ConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -62,7 +62,6 @@ export type Props = {
   };
   totalCount: number;
   currentView: CurrentViewType;
-  filter?: Omit<ConditionInput, "and" | "or">[];
   setCurrentView: (settings: CurrentViewType) => void;
   searchTerm: string;
   page: number;
@@ -73,6 +72,7 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
+  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
   onContentTableChange: (
     page: number,
     pageSize: number,
@@ -99,7 +99,6 @@ const ContentTable: React.FC<Props> = ({
   selection,
   totalCount,
   currentView,
-  filter,
   searchTerm,
   page,
   pageSize,
@@ -116,13 +115,13 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onUnpublish,
   onSearchTerm,
+  onTableControl,
   onContentTableChange,
   onItemSelect,
   setSelection,
   onItemDelete,
   onItemsReload,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
@@ -352,30 +351,29 @@ const ContentTable: React.FC<Props> = ({
         return prev;
       });
       defaultFilterValues.current.splice(index, 1);
-      let params = searchParams.get("filter") ?? "";
-      const conditions = params.split(",");
-      conditions.splice(index, 1);
-      params = conditions.filter(Boolean).join(",");
-      searchParams.set("filter", params);
-      setSearchParams(searchParams);
+      const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
+      currentFilters.splice(index, 1);
+      onTableControl(undefined, currentFilters);
     },
-    [searchParams, setSearchParams],
+    [currentView.filter, onTableControl],
   );
 
   useEffect(() => {
-    if (filter && contentTableColumns) {
+    if (currentView.filter && contentTableColumns) {
       const newFilters: any[] = [];
       const newDefaultValues = [];
-      for (const f of filter) {
-        const condition = Object.values(f)[0];
+      for (const c of currentView.filter.conditions) {
+        const condition = Object.values(c)[0];
         if (!condition) break;
-        const { operator, fieldId } = condition;
+        const { operator, fieldId } = condition as any;
         const value = "value" in condition ? condition?.value : "";
-        const operatorType = Object.keys(f)[0];
+        const operatorType = Object.keys(c)[0];
         let column;
 
         const columns: ExtendedColumns[] =
-          fieldId.type === "FIELD" ? contentTableColumns : actionsColumns;
+          fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
+            ? contentTableColumns
+            : actionsColumns;
         for (const c of columns) {
           if (c.key === fieldId.id) {
             column = c;
@@ -398,7 +396,8 @@ const ContentTable: React.FC<Props> = ({
       setFilters([]);
       defaultFilterValues.current = [];
     }
-  }, [filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
+    isFilterOpen.current = false;
+  }, [currentView.filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
 
   const isFilter = useRef<boolean>(true);
   const [controlMenuOpen, setControlMenuOpen] = useState(false);
@@ -438,6 +437,8 @@ const ContentTable: React.FC<Props> = ({
     setItems(result);
   };
 
+  const isFilterOpen = useRef(false);
+
   const getOptions = useCallback(
     (isFromMenu: boolean): MenuProps["items"] => {
       const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
@@ -458,6 +459,9 @@ const ContentTable: React.FC<Props> = ({
         handleOptionsOpenChange(false);
         if (isFromMenu) {
           handleConditionMenuOpenChange(true);
+          isFilterOpen.current = false;
+        } else {
+          isFilterOpen.current = true;
         }
       };
 
@@ -530,6 +534,9 @@ const ContentTable: React.FC<Props> = ({
                 defaultValue={defaultFilterValues.current[index]}
                 index={index}
                 filterRemove={filterRemove}
+                isFilterOpen={isFilterOpen.current}
+                currentView={currentView}
+                onTableControl={onTableControl}
               />
             ))}
           </StyledFilterSpace>
@@ -611,6 +618,8 @@ const ContentTable: React.FC<Props> = ({
                 index={filters.length - 1}
                 open={conditionMenuOpen}
                 isFilter={isFilter.current}
+                currentView={currentView}
+                onTableControl={onTableControl}
               />
             )
           }
