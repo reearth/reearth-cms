@@ -91,4 +91,7 @@ const Wrapper = styled.div`
       width: 100%;
     }
   }
+  .ant-pro-table-column-setting-list-item-option {
+    visibility: hidden;
+  }
 `;
