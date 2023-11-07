@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { filterConvert } from "@reearth-cms/components/organisms/Project/Content/ContentList/utils";
 import {
   FieldType,
   SortDirection,
@@ -9,6 +10,7 @@ import {
   useDeleteViewMutation,
   useGetViewsQuery,
   useUpdateViewMutation,
+  AndCondition,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
@@ -66,6 +68,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
             : SortDirection["Asc"],
         },
         columns: selectedView.columns ? selectedView.columns : [],
+        filter: filterConvert(selectedView.filter as AndCondition),
       });
     } else {
       setCurrentView({ columns: [] });
