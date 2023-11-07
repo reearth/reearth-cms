@@ -12,6 +12,8 @@ export function fileName(url: string | undefined): string {
 }
 
 export function filterConvert(filter: AndCondition) {
+  if (!filter || filter?.conditions?.length === 0) return;
+
   const convertedFilter: { conditions: any[] } = { conditions: [] };
   let key;
   for (const c of filter.conditions as any) {
