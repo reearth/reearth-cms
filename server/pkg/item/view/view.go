@@ -53,16 +53,16 @@ func (v *View) SetName(name string) {
 	v.name = name
 }
 
-func (v *View) SetFilter(condition Condition) {
-	v.filter = &condition
+func (v *View) SetFilter(condition *Condition) {
+	v.filter = condition
 }
 
-func (v *View) SetSort(sort Sort) {
-	v.sort = &sort
+func (v *View) SetSort(sort *Sort) {
+	v.sort = sort
 }
 
-func (v *View) SetColumns(fields FieldSelectorList) {
-	v.columns = &fields
+func (v *View) SetColumns(fields *FieldSelectorList) {
+	v.columns = fields
 }
 
 func (v *View) SetUpdatedAt(now time.Time) {
