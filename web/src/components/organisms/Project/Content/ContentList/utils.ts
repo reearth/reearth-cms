@@ -13,7 +13,7 @@ export function fileName(url: string | undefined): string {
 
 export function filterConvert(filter: AndCondition) {
   const convertedFilter: { conditions: any[] } = { conditions: [] };
-  let key = "basic";
+  let key;
   for (const c of filter.conditions as any) {
     switch (c.__typename) {
       case "NullableFieldCondition":
@@ -34,6 +34,8 @@ export function filterConvert(filter: AndCondition) {
       case "TimeFieldCondition":
         key = "time";
         break;
+      default:
+        key = "basic";
     }
     convertedFilter.conditions.push({
       [key]: {
