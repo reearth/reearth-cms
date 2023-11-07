@@ -41,7 +41,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
   });
 
   const views = useMemo(() => {
-    if (loading && data?.view) {
+    if (!loading && data?.view) {
       setSelectedView(data?.view && data?.view.length > 0 ? (data?.view[0] as View) : undefined);
     }
     return data?.view ? data?.view : [];

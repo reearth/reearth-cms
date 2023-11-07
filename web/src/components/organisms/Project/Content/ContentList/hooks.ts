@@ -66,7 +66,7 @@ export default () => {
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
   const [currentView, setCurrentView] = useState<CurrentViewType>({
-    columns: undefined,
+    columns: [],
   });
 
   useEffect(() => {
