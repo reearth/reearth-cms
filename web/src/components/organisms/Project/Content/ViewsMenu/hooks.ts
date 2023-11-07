@@ -67,11 +67,11 @@ export default ({ modelId, currentView }: Params) => {
           modelId: modelId ?? "",
           sort: currentView?.sort,
           columns: currentView?.columns,
-          filter: currentView?.filter && {
-            and: {
-              conditions: currentView?.filter,
-            },
-          },
+          filter: currentView.filter
+            ? {
+                and: currentView.filter,
+              }
+            : undefined,
         },
       });
       if (view.errors || !view.data?.createView) {
@@ -106,6 +106,11 @@ export default ({ modelId, currentView }: Params) => {
           name: name,
           sort: currentView?.sort,
           columns: currentView?.columns,
+          filter: currentView.filter
+            ? {
+                and: currentView.filter,
+              }
+            : undefined,
         },
       });
       if (view.errors || !view.data?.updateView) {
@@ -115,7 +120,7 @@ export default ({ modelId, currentView }: Params) => {
       Notification.success({ message: t("Successfully updated view!") });
       handleViewModalReset();
     },
-    [updateNewView, currentView?.sort, currentView?.columns, t, handleViewModalReset],
+    [updateNewView, currentView, t, handleViewModalReset],
   );
 
   const handleViewRename = useCallback(

@@ -4,7 +4,13 @@ import { useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import { FieldSelector, ItemSortInput, View } from "@reearth-cms/gql/graphql-client-api";
+import { filterConvert } from "@reearth-cms/components/organisms/Project/Content/ContentList/utils";
+import {
+  FieldSelector,
+  ItemSortInput,
+  View,
+  AndCondition,
+} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import ViewsMenuItem from "./viewMenuItem";
@@ -56,6 +62,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
         setCurrentView({
           sort: view.sort as ItemSortInput,
           columns: view.columns as FieldSelector[],
+          filter: filterConvert(view.filter as AndCondition),
         });
     });
   };

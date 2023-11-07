@@ -71,6 +71,7 @@ const DropdownRender: React.FC<Props> = ({
     if (isFilter) {
       switch (filter.type) {
         case "Bool":
+        case "Checkbox":
           result.push(
             { operatorType: "bool", value: BoolOperator.Equals, label: t("is") },
             { operatorType: "bool", value: BoolOperator.NotEquals, label: t("is not") },
@@ -206,7 +207,7 @@ const DropdownRender: React.FC<Props> = ({
     } else if (filter.type === "Tag") {
       if (filter?.typeProperty?.tags) {
         for (const tag of Object.values(filter.typeProperty.tags)) {
-          options.push({ value: tag.name, label: tag.name });
+          options.push({ value: tag.id, label: tag.name });
         }
       }
     } else if (filter.type === "Person") {
@@ -215,7 +216,7 @@ const DropdownRender: React.FC<Props> = ({
           options.push({ value: member.user?.name, label: member.user?.name });
         }
       }
-    } else if (filter.type === "Bool") {
+    } else if (filter.type === "Bool" || filter.type === "Checkbox") {
       options.push({ value: "true", label: "True" }, { value: "false", label: "False" });
     }
 
@@ -238,9 +239,16 @@ const DropdownRender: React.FC<Props> = ({
     if (isFilter) {
       const operatorType = filterOption.current.operatorType;
       let value: string | boolean | number | Date = filterValue.current ?? "";
-      const type = typeof filter.dataIndex === "string" ? filter.id : "FIELD";
+      const type =
+        typeof filter.dataIndex === "string"
+          ? filter.id
+          : filter.dataIndex[0] === "fields"
+          ? "FIELD"
+          : "META_FIELD";
       const operatorValue = filterOption.current.value;
-      const currentFilters = currentView.filter ? [...currentView.filter] : [];
+      const currentFilters = currentView.filter?.conditions
+        ? [...currentView.filter.conditions]
+        : [];
       const newFilter: {
         [x: keyof ConditionInput | string]: {
           fieldId: {
@@ -259,7 +267,7 @@ const DropdownRender: React.FC<Props> = ({
       } else if (filter.type === "Integer" || filter.type === "Float") {
         value = Number(value);
       } else if (filter.type === "Date") {
-        value = new Date(value);
+        value = value ? new Date(value) : new Date();
       }
 
       if (operatorType !== "nullable") {
@@ -299,11 +307,29 @@ const DropdownRender: React.FC<Props> = ({
     setSearchParams,
   ]);
 
-  const [isShowInputField, setIsShowInputField] = useState(true);
+  const isDefaultShow = useMemo(() => {
+    if (
+      defaultValue?.operatorType === "nullable" ||
+      defaultValue?.operator === TimeOperator.OfThisWeek ||
+      defaultValue?.operator === TimeOperator.OfThisMonth ||
+      defaultValue?.operator === TimeOperator.OfThisYear
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }, [defaultValue]);
+
+  const [isShowInputField, setIsShowInputField] = useState(isDefaultShow);
 
   const onFilterSelect = useCallback(
     (value: Operator | SortDirection, option: { operatorType: string }) => {
-      if (option.operatorType === "nullable") {
+      if (
+        option.operatorType === "nullable" ||
+        value === TimeOperator.OfThisWeek ||
+        value === TimeOperator.OfThisMonth ||
+        value === TimeOperator.OfThisYear
+      ) {
         setIsShowInputField(false);
       } else {
         setIsShowInputField(true);
@@ -350,12 +376,13 @@ const DropdownRender: React.FC<Props> = ({
             {filter.type === "Select" ||
             filter.type === "Tag" ||
             filter.type === "Person" ||
-            filter.type === "Bool" ? (
+            filter.type === "Bool" ||
+            filter.type === "Checkbox" ? (
               <Select
                 placeholder="Select the value"
                 options={valueOptions}
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value}
+                defaultValue={defaultValue?.value.toString()}
               />
             ) : filter.type === "Integer" || filter.type === "Float" ? (
               <InputNumber

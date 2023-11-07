@@ -21,6 +21,7 @@ import {
   useGetItemsByIdsQuery,
   ConditionInput,
   ItemSortInput,
+  AndConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -28,7 +29,7 @@ import { fileName } from "./utils";
 
 export type CurrentViewType = {
   sort?: ItemSortInput;
-  filter?: Omit<ConditionInput, "and" | "or">[];
+  filter?: AndConditionInput;
   columns?: FieldSelector[];
 };
 
@@ -102,9 +103,7 @@ export default () => {
         sort: currentView.sort,
         filter: currentView.filter
           ? {
-              and: {
-                conditions: currentView.filter,
-              },
+              and: currentView.filter,
             }
           : undefined,
       },
@@ -340,7 +339,7 @@ export default () => {
         let filterValue = prev.filter;
         if (filter) {
           if (filter.length > 0) {
-            filterValue = filter;
+            filterValue = { conditions: filter };
           } else {
             filterValue = undefined;
           }

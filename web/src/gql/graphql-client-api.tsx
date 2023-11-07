@@ -125,7 +125,7 @@ export enum AssetSortType {
 }
 
 export type BasicFieldCondition = {
-  __typename?: 'BasicFieldCondition';
+  __typename: 'BasicFieldCondition';
   fieldId: FieldSelector;
   operator: BasicOperator;
   value: Scalars['Any'];
@@ -143,7 +143,7 @@ export enum BasicOperator {
 }
 
 export type BoolFieldCondition = {
-  __typename?: 'BoolFieldCondition';
+  __typename: 'BoolFieldCondition';
   fieldId: FieldSelector;
   operator: BoolOperator;
   value: Scalars['Boolean'];
@@ -1042,7 +1042,7 @@ export enum NodeType {
 }
 
 export type NullableFieldCondition = {
-  __typename?: 'NullableFieldCondition';
+  __typename: 'NullableFieldCondition';
   fieldId: FieldSelector;
   operator: NullableOperator;
 };
@@ -1058,7 +1058,7 @@ export enum NullableOperator {
 }
 
 export type NumberFieldCondition = {
-  __typename?: 'NumberFieldCondition';
+  __typename: 'NumberFieldCondition';
   fieldId: FieldSelector;
   operator: NumberOperator;
   value: Scalars['Float'];
@@ -1670,7 +1670,7 @@ export enum SortDirection {
 }
 
 export type StringFieldCondition = {
-  __typename?: 'StringFieldCondition';
+  __typename: 'StringFieldCondition';
   fieldId: FieldSelector;
   operator: StringOperator;
   value: Scalars['String'];
@@ -1711,7 +1711,7 @@ export type ThreadPayload = {
 };
 
 export type TimeFieldCondition = {
-  __typename?: 'TimeFieldCondition';
+  __typename: 'TimeFieldCondition';
   fieldId: FieldSelector;
   operator: TimeOperator;
   value: Scalars['DateTime'];
@@ -5957,8 +5957,59 @@ export const GetViewsDocument = gql`
               type
               id
             }
-            operator
-            value
+            basicOperator: operator
+            basicValue: value
+            __typename
+            }
+          ... on NullableFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            nullableOperator: operator
+            __typename
+          }
+          ... on MultipleFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              multipleOperator: operator
+              multipleValue: value
+              __typename
+          }
+          ... on BoolFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            boolOperator: operator
+            boolValue: value
+          }
+          ... on StringFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            stringOperator: operator
+            stringValue: value
+          }
+          ... on NumberFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            numberOperator: operator
+            numberValue: value
+            __typename
+          }
+           ... on TimeFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            timeOperator: operator
+            timeValue: value
             __typename
           }
           __typename
@@ -6020,14 +6071,71 @@ export const CreateViewDocument = gql`
         id
       }
       filter {
-        ... on BoolFieldCondition {
-          fieldId {
-            type
-            id
+        ... on AndCondition {
+        conditions {
+          ... on BasicFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            basicOperator: operator
+            basicValue: value
+            __typename
+            }
+          ... on NullableFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            nullableOperator: operator
+            __typename
           }
-          operator
-          value
+          ... on MultipleFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              multipleOperator: operator
+              multipleValue: value
+              __typename
+          }
+          ... on BoolFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            boolOperator: operator
+            boolValue: value
+          }
+          ... on StringFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            stringOperator: operator
+            stringValue: value
+          }
+          ... on NumberFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            numberOperator: operator
+            numberValue: value
+            __typename
+          }
+           ... on TimeFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            timeOperator: operator
+            timeValue: value
+            __typename
+          }
+          __typename
         }
+      }
       }
       __typename
     }
@@ -6087,13 +6195,70 @@ export const UpdateViewDocument = gql`
         id
       }
       filter {
-        ... on BoolFieldCondition {
-          fieldId {
-            type
-            id
+        ... on AndCondition {
+          conditions {
+            ... on BasicFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            basicOperator: operator
+            basicValue: value
+            __typename
+            }
+          ... on NullableFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            nullableOperator: operator
+            __typename
           }
-          operator
-          value
+          ... on MultipleFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              multipleOperator: operator
+              multipleValue: value
+              __typename
+          }
+          ... on BoolFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            boolOperator: operator
+            boolValue: value
+          }
+          ... on StringFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            stringOperator: operator
+            stringValue: value
+          }
+          ... on NumberFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            numberOperator: operator
+            numberValue: value
+            __typename
+          }
+           ... on TimeFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            timeOperator: operator
+            timeValue: value
+            __typename
+          }
+            __typename
+          }
         }
       }
       __typename

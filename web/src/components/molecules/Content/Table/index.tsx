@@ -341,7 +341,7 @@ const ContentTable: React.FC<Props> = ({
         return prev;
       });
       defaultFilterValues.current.splice(index, 1);
-      const currentFilters = currentView.filter ? [...currentView.filter] : [];
+      const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
       currentFilters.splice(index, 1);
       onTableControl(undefined, currentFilters);
     },
@@ -352,16 +352,18 @@ const ContentTable: React.FC<Props> = ({
     if (currentView.filter && contentTableColumns) {
       const newFilters: any[] = [];
       const newDefaultValues = [];
-      for (const f of currentView.filter) {
-        const condition = Object.values(f)[0];
+      for (const c of currentView.filter.conditions) {
+        const condition = Object.values(c)[0];
         if (!condition) break;
-        const { operator, fieldId } = condition;
+        const { operator, fieldId } = condition as any;
         const value = "value" in condition ? condition?.value : "";
-        const operatorType = Object.keys(f)[0];
+        const operatorType = Object.keys(c)[0];
         let column;
 
         const columns: ExtendedColumns[] =
-          fieldId.type === "FIELD" ? contentTableColumns : actionsColumns;
+          fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
+            ? contentTableColumns
+            : actionsColumns;
         for (const c of columns) {
           if (c.key === fieldId.id) {
             column = c;
@@ -384,6 +386,7 @@ const ContentTable: React.FC<Props> = ({
       setFilters([]);
       defaultFilterValues.current = [];
     }
+    isFilterOpen.current = false;
   }, [currentView.filter, contentTableColumns, actionsColumns, currentWorkspace?.members]);
 
   const isFilter = useRef<boolean>(true);
