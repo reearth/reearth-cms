@@ -125,7 +125,7 @@ export enum AssetSortType {
 }
 
 export type BasicFieldCondition = {
-  __typename: 'BasicFieldCondition';
+  __typename?: 'BasicFieldCondition';
   fieldId: FieldSelector;
   operator: BasicOperator;
   value: Scalars['Any'];
@@ -143,7 +143,7 @@ export enum BasicOperator {
 }
 
 export type BoolFieldCondition = {
-  __typename: 'BoolFieldCondition';
+  __typename?: 'BoolFieldCondition';
   fieldId: FieldSelector;
   operator: BoolOperator;
   value: Scalars['Boolean'];
@@ -1042,7 +1042,7 @@ export enum NodeType {
 }
 
 export type NullableFieldCondition = {
-  __typename: 'NullableFieldCondition';
+  __typename?: 'NullableFieldCondition';
   fieldId: FieldSelector;
   operator: NullableOperator;
 };
@@ -1058,7 +1058,7 @@ export enum NullableOperator {
 }
 
 export type NumberFieldCondition = {
-  __typename: 'NumberFieldCondition';
+  __typename?: 'NumberFieldCondition';
   fieldId: FieldSelector;
   operator: NumberOperator;
   value: Scalars['Float'];
@@ -1670,7 +1670,7 @@ export enum SortDirection {
 }
 
 export type StringFieldCondition = {
-  __typename: 'StringFieldCondition';
+  __typename?: 'StringFieldCondition';
   fieldId: FieldSelector;
   operator: StringOperator;
   value: Scalars['String'];
@@ -1711,7 +1711,7 @@ export type ThreadPayload = {
 };
 
 export type TimeFieldCondition = {
-  __typename: 'TimeFieldCondition';
+  __typename?: 'TimeFieldCondition';
   fieldId: FieldSelector;
   operator: TimeOperator;
   value: Scalars['DateTime'];
@@ -5938,6 +5938,8 @@ export const GetViewsDocument = gql`
   view(modelId: $modelId) {
     id
     name
+    modelId
+    projectId
     sort {
       field {
         type
