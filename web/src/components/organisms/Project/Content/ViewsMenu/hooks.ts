@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
@@ -18,7 +18,7 @@ import { CurrentViewType } from "../ContentList/hooks";
 type Params = {
   modelId?: string;
   currentView: CurrentViewType;
-  setCurrentView: (currentView: CurrentViewType) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
 };
 
 export type modalStateType = "rename" | "create";
@@ -52,7 +52,8 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
 
   useEffect(() => {
     if (selectedView) {
-      setCurrentView({
+      setCurrentView(prev => ({
+        ...prev,
         sort: {
           field: {
             id: selectedView.sort?.field.id ? selectedView.sort?.field.id : undefined,
@@ -66,7 +67,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
             : SortDirection["Asc"],
         },
         columns: selectedView.columns ? selectedView.columns : [],
-      });
+      }));
     } else {
       setCurrentView({ columns: [] });
     }

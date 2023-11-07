@@ -85,7 +85,7 @@ export default () => {
         },
         direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
       };
-    const newFilter = [];
+    const newFilter: ConditionInput[] = [];
     if (filterParam) {
       const params = filterParam.split(",");
       let key: keyof ConditionInput, type, id, operator, value, valueType: FilterType;
@@ -127,14 +127,13 @@ export default () => {
         newFilter.push(data);
       }
     }
-    setCurrentView({
-      columns: currentView.columns,
+    setCurrentView(prev => ({
+      ...prev,
       sort: sort,
       filter: newFilter.length > 0 ? newFilter : undefined,
-    });
+    }));
     setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     sortFieldType,
     sortFieldId,
