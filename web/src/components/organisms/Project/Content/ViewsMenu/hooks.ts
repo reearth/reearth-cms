@@ -46,11 +46,6 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
   }, [data?.view, loading]);
 
   useEffect(() => {
-    setSelectedView(data?.view && data?.view.length > 0 ? (data?.view[0] as View) : undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, setCurrentView]);
-
-  useEffect(() => {
     if (selectedView) {
       setCurrentView(prev => ({
         ...prev,
