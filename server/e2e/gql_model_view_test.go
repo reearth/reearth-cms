@@ -266,4 +266,17 @@ func TestViewCRUD(t *testing.T) {
 		HasValue("sort", sort).
 		HasValue("columns", columns).
 		HasValue("filter", filter["bool"])
+
+	// test reset
+	updateView(e, vID, "test updated", nil, nil, nil)
+
+	res = getViews(e, mID)
+	res.Object().
+		Value("data").Object().
+		Value("view").Array().
+		Value(0).Object().
+		HasValue("name", "test updated").
+		HasValue("sort", nil).
+		HasValue("columns", []any{}).
+		HasValue("filter", nil)
 }
