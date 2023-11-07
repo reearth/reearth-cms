@@ -10,6 +10,8 @@ import {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { ConditionInput, ItemSortInput } from "@reearth-cms/gql/graphql-client-api";
 
 import DropdownRender from "./DropdownRender";
 
@@ -18,10 +20,21 @@ type Props = {
   index: number;
   defaultValue: DefaultFilterValueType;
   filterRemove: (index: number) => void;
+  isFilterOpen: boolean;
+  currentView: CurrentViewType;
+  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value, filterRemove }) => {
-  const [open, setOpen] = useState(false);
+const FilterDropdown: React.FC<Props> = ({
+  filter,
+  index,
+  defaultValue: value,
+  filterRemove,
+  isFilterOpen,
+  currentView,
+  onTableControl,
+}) => {
+  const [open, setOpen] = useState(isFilterOpen);
 
   const close = () => {
     setOpen(false);
@@ -50,6 +63,8 @@ const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value, f
           defaultValue={value}
           open={open}
           isFilter={true}
+          currentView={currentView}
+          onTableControl={onTableControl}
         />
       )}
       trigger={["click"]}
