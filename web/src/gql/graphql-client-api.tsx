@@ -2545,7 +2545,7 @@ export type GetViewsQueryVariables = Exact<{
 }>;
 
 
-export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
+export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', basicOperator: BasicOperator, basicValue: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition', boolOperator: BoolOperator, boolValue: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'MultipleFieldCondition', multipleOperator: MultipleOperator, multipleValue: Array<any>, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NullableFieldCondition', nullableOperator: NullableOperator, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NumberFieldCondition', numberOperator: NumberOperator, numberValue: number, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition', stringOperator: StringOperator, stringValue: string, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'TimeFieldCondition', timeOperator: TimeOperator, timeValue: Date, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
 
 export type CreateViewMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2557,7 +2557,7 @@ export type CreateViewMutationVariables = Exact<{
 }>;
 
 
-export type CreateViewMutation = { __typename?: 'Mutation', createView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
+export type CreateViewMutation = { __typename?: 'Mutation', createView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', basicOperator: BasicOperator, basicValue: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition', boolOperator: BoolOperator, boolValue: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'MultipleFieldCondition', multipleOperator: MultipleOperator, multipleValue: Array<any>, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NullableFieldCondition', nullableOperator: NullableOperator, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NumberFieldCondition', numberOperator: NumberOperator, numberValue: number, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition', stringOperator: StringOperator, stringValue: string, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'TimeFieldCondition', timeOperator: TimeOperator, timeValue: Date, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
 
 export type UpdateViewMutationVariables = Exact<{
   viewId: Scalars['ID'];
@@ -2568,7 +2568,7 @@ export type UpdateViewMutationVariables = Exact<{
 }>;
 
 
-export type UpdateViewMutation = { __typename?: 'Mutation', updateView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
+export type UpdateViewMutation = { __typename?: 'Mutation', updateView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', basicOperator: BasicOperator, basicValue: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition', boolOperator: BoolOperator, boolValue: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'MultipleFieldCondition', multipleOperator: MultipleOperator, multipleValue: Array<any>, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NullableFieldCondition', nullableOperator: NullableOperator, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NumberFieldCondition', numberOperator: NumberOperator, numberValue: number, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition', stringOperator: StringOperator, stringValue: string, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'TimeFieldCondition', timeOperator: TimeOperator, timeValue: Date, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
 
 export type DeleteViewMutationVariables = Exact<{
   viewId: Scalars['ID'];
@@ -5952,13 +5952,70 @@ export const GetViewsDocument = gql`
       id
     }
     filter {
-      ... on BoolFieldCondition {
-        fieldId {
-          type
-          id
+      ... on AndCondition {
+        conditions {
+          ... on BasicFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            basicOperator: operator
+            basicValue: value
+            __typename
+          }
+          ... on NullableFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            nullableOperator: operator
+            __typename
+          }
+          ... on MultipleFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            multipleOperator: operator
+            multipleValue: value
+            __typename
+          }
+          ... on BoolFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            boolOperator: operator
+            boolValue: value
+          }
+          ... on StringFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            stringOperator: operator
+            stringValue: value
+          }
+          ... on NumberFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            numberOperator: operator
+            numberValue: value
+            __typename
+          }
+          ... on TimeFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            timeOperator: operator
+            timeValue: value
+            __typename
+          }
+          __typename
         }
-        operator
-        value
       }
     }
     __typename
@@ -6016,13 +6073,70 @@ export const CreateViewDocument = gql`
         id
       }
       filter {
-        ... on BoolFieldCondition {
-          fieldId {
-            type
-            id
+        ... on AndCondition {
+          conditions {
+            ... on BasicFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              basicOperator: operator
+              basicValue: value
+              __typename
+            }
+            ... on NullableFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              nullableOperator: operator
+              __typename
+            }
+            ... on MultipleFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              multipleOperator: operator
+              multipleValue: value
+              __typename
+            }
+            ... on BoolFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              boolOperator: operator
+              boolValue: value
+            }
+            ... on StringFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              stringOperator: operator
+              stringValue: value
+            }
+            ... on NumberFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              numberOperator: operator
+              numberValue: value
+              __typename
+            }
+            ... on TimeFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              timeOperator: operator
+              timeValue: value
+              __typename
+            }
+            __typename
           }
-          operator
-          value
         }
       }
       __typename
@@ -6083,13 +6197,70 @@ export const UpdateViewDocument = gql`
         id
       }
       filter {
-        ... on BoolFieldCondition {
-          fieldId {
-            type
-            id
+        ... on AndCondition {
+          conditions {
+            ... on BasicFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              basicOperator: operator
+              basicValue: value
+              __typename
+            }
+            ... on NullableFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              nullableOperator: operator
+              __typename
+            }
+            ... on MultipleFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              multipleOperator: operator
+              multipleValue: value
+              __typename
+            }
+            ... on BoolFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              boolOperator: operator
+              boolValue: value
+            }
+            ... on StringFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              stringOperator: operator
+              stringValue: value
+            }
+            ... on NumberFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              numberOperator: operator
+              numberValue: value
+              __typename
+            }
+            ... on TimeFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              timeOperator: operator
+              timeValue: value
+              __typename
+            }
+            __typename
           }
-          operator
-          value
         }
       }
       __typename
