@@ -45,7 +45,7 @@ export type Props = {
   setCurrentView: (CurrentViewType: CurrentViewType) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
+  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
   onContentTableChange: (
     page: number,
     pageSize: number,

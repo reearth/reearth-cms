@@ -38,7 +38,7 @@ type Props = {
   isFilter: boolean;
   index: number;
   currentView: CurrentViewType;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
+  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
