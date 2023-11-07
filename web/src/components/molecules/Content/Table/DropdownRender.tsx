@@ -189,7 +189,7 @@ const DropdownRender: React.FC<Props> = ({
           {
             operatorType: "multiple",
             value: MultipleOperator.NotIncludesAny,
-            label: t("Not Include all"),
+            label: t("Not Include any"),
           },
         );
       }
