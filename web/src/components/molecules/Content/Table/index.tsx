@@ -651,8 +651,7 @@ const ContentTable: React.FC<Props> = ({
         shownCols?.includes(col.key as string) ||
         (col.key as string) === "commentsCount" ||
         (col.key as string) === "EDIT_ICON" ||
-        shownCols === undefined ||
-        shownCols.length === 0
+        shownCols?.length === 0
       )
         settingOptions[col.key as string] = {
           show: true,

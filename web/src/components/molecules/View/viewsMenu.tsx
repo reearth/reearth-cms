@@ -14,8 +14,8 @@ export interface Props {
   onDelete: (viewId: string) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   onViewDeletionClose: () => void;
-  selectedView: View | undefined;
-  setSelectedView: (view: View | undefined) => void;
+  selectedView?: View;
+  setSelectedView: (view?: View) => void;
   onViewCreateModalOpen: () => void;
 }
 

@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
-  FieldSelector,
-  ItemSort,
+  FieldType,
+  SortDirection,
   View,
   useCreateViewMutation,
   useDeleteViewMutation,
@@ -26,7 +26,7 @@ export type modalStateType = "rename" | "create";
 export default ({ modelId, currentView, setCurrentView }: Params) => {
   const t = useT();
   const [viewModalShown, setViewModalShown] = useState(false);
-  const [selectedView, setSelectedView] = useState<View | undefined>();
+  const [selectedView, setSelectedView] = useState<View>();
   const [modalState, setModalState] = useState<modalStateType>("create");
   const [submitting, setSubmitting] = useState(false);
   const [currentProject] = useProject();
@@ -53,8 +53,18 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
   useEffect(() => {
     if (selectedView) {
       setCurrentView({
-        sort: selectedView.sort as ItemSort,
-        columns: selectedView.columns as FieldSelector[],
+        sort: {
+          field: {
+            id: selectedView.sort?.field.id,
+            type: selectedView.sort?.field.type
+              ? selectedView.sort?.field.type
+              : FieldType["Field"],
+          },
+          direction: selectedView.sort?.direction
+            ? selectedView.sort?.direction
+            : SortDirection["Asc"],
+        },
+        columns: selectedView.columns ? selectedView.columns : [],
       });
     } else {
       setCurrentView({ columns: [] });
