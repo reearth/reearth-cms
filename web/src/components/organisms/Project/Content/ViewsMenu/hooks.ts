@@ -55,10 +55,11 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
       setCurrentView({
         sort: {
           field: {
-            id: selectedView.sort?.field.id,
-            type: selectedView.sort?.field.type
-              ? selectedView.sort?.field.type
-              : FieldType["Field"],
+            id: selectedView.sort?.field.id ? selectedView.sort?.field.id : undefined,
+            type:
+              selectedView.sort?.field.type && selectedView.sort?.field.id
+                ? selectedView.sort?.field.type
+                : FieldType["Id"],
           },
           direction: selectedView.sort?.direction
             ? selectedView.sort?.direction
