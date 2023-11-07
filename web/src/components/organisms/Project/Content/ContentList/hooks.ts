@@ -70,7 +70,7 @@ export default () => {
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
   const [filter, setFilter] = useState<ConditionInput[]>();
   const [currentView, setCurrentView] = useState<CurrentViewType>({
-    columns: undefined,
+    columns: [],
   });
 
   useEffect(() => {
