@@ -95,15 +95,9 @@ func (i View) Update(ctx context.Context, ID view.ID, param interfaces.UpdateVie
 			if param.Name != nil {
 				v.SetName(*param.Name)
 			}
-			if param.Filter != nil {
-				v.SetFilter(*param.Filter)
-			}
-			if param.Sort != nil {
-				v.SetSort(*param.Sort)
-			}
-			if param.Columns != nil {
-				v.SetColumns(*param.Columns)
-			}
+			v.SetFilter(param.Filter)
+			v.SetSort(param.Sort)
+			v.SetColumns(param.Columns)
 			v.SetUpdatedAt(time.Now())
 
 			if err := i.repos.View.Save(ctx, v); err != nil {
