@@ -853,6 +853,7 @@ const Wrapper = styled.div`
 const menuStyle: React.CSSProperties = {
   boxShadow: "none",
   overflowY: "auto",
+  maxHeight: "256px",
 };
 
 const stateColors: {
