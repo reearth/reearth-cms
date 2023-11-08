@@ -243,14 +243,28 @@ const DropdownRender: React.FC<Props> = ({
   }, [filter]);
 
   const filterOption = useRef<{ value: Operator | SortDirection; operatorType: string }>();
-
-  if (defaultValue) {
-    filterOption.current = {
-      value: defaultValue.operator,
-      operatorType: defaultValue.operatorType,
-    };
-  }
   const filterValue = useRef<string>();
+
+  useEffect(() => {
+    if (defaultValue) {
+      filterOption.current = {
+        value: defaultValue.operator,
+        operatorType: defaultValue.operatorType,
+      };
+      filterValue.current = defaultValue.value;
+    }
+
+    if (
+      defaultValue?.operatorType === "nullable" ||
+      defaultValue?.operator === TimeOperator.OfThisWeek ||
+      defaultValue?.operator === TimeOperator.OfThisMonth ||
+      defaultValue?.operator === TimeOperator.OfThisYear
+    ) {
+      setIsShowInputField(false);
+    } else {
+      setIsShowInputField(true);
+    }
+  }, [defaultValue]);
 
   const confirm = useCallback(() => {
     if (filterOption.current === undefined) return;
@@ -326,20 +340,7 @@ const DropdownRender: React.FC<Props> = ({
     setSearchParams,
   ]);
 
-  const isDefaultShow = useMemo(() => {
-    if (
-      defaultValue?.operatorType === "nullable" ||
-      defaultValue?.operator === TimeOperator.OfThisWeek ||
-      defaultValue?.operator === TimeOperator.OfThisMonth ||
-      defaultValue?.operator === TimeOperator.OfThisYear
-    ) {
-      return false;
-    } else {
-      return true;
-    }
-  }, [defaultValue]);
-
-  const [isShowInputField, setIsShowInputField] = useState(isDefaultShow);
+  const [isShowInputField, setIsShowInputField] = useState(true);
 
   const onFilterSelect = useCallback(
     (value: Operator | SortDirection, option: { operatorType: string }) => {
@@ -388,6 +389,7 @@ const DropdownRender: React.FC<Props> = ({
             options={options}
             onSelect={onFilterSelect}
             defaultValue={defaultValue?.operator}
+            key={defaultValue?.operator}
           />
         </Form.Item>
         {isFilter && isShowInputField && (
@@ -401,7 +403,8 @@ const DropdownRender: React.FC<Props> = ({
                 placeholder="Select the value"
                 options={valueOptions}
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value.toString()}
+                defaultValue={defaultValue?.value?.toString()}
+                key={defaultValue?.value}
               />
             ) : filter.type === "Integer" || filter.type === "Float" ? (
               <InputNumber
@@ -410,6 +413,7 @@ const DropdownRender: React.FC<Props> = ({
                 defaultValue={defaultValue?.value}
                 style={{ width: "100%" }}
                 placeholder="Enter the value"
+                key={defaultValue?.value}
               />
             ) : filter.type === "Date" ? (
               <DatePicker
@@ -420,12 +424,14 @@ const DropdownRender: React.FC<Props> = ({
                 defaultValue={
                   defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
                 }
+                key={defaultValue?.value}
               />
             ) : (
               <Input
                 onChange={onInputChange}
                 defaultValue={defaultValue?.value}
                 placeholder="Enter the value"
+                key={defaultValue?.value}
               />
             )}
           </Form.Item>
