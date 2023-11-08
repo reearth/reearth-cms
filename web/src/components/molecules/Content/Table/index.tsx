@@ -739,6 +739,7 @@ const ContentTable: React.FC<Props> = ({
     <>
       {contentTableColumns ? (
         <ResizableProTable
+          showSorterTooltip={false}
           options={options}
           loading={loading}
           pagination={pagination}
