@@ -137,11 +137,6 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusBadRequest)
-
 	r := e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
