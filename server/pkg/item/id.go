@@ -16,6 +16,7 @@ type UserID = accountdomain.UserID
 type IntegrationID = id.IntegrationID
 type AssetID = id.AssetID
 type AssetIDList = id.AssetIDList
+type ItemGroupID = id.ItemGroupID
 
 var NewID = id.NewItemID
 var NewThreadID = id.NewThreadID

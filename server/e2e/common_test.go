@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"testing"
@@ -17,6 +18,7 @@ import (
 	"github.com/reearth/reearthx/account/accountinfrastructure/accountmongo"
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mailer"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/samber/lo"
@@ -41,6 +43,7 @@ func StartServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Se
 	var accountRepos *accountrepo.Container
 	if useMongo {
 		db := mongotest.Connect(t)(t)
+		log.Infof("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
@@ -84,7 +87,7 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container, 
 
 	ch := make(chan error)
 	go func() {
-		if err := srv.Serve(l); err != http.ErrServerClosed {
+		if err := srv.Serve(l); !errors.Is(err, http.ErrServerClosed) {
 			ch <- err
 		}
 		close(ch)
@@ -100,7 +103,7 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Container, 
 		}
 	})
 
-	return httpexpect.New(t, "http://"+l.Addr().String())
+	return httpexpect.Default(t, "http://"+l.Addr().String())
 }
 
 func StartGQLServer(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, *accountrepo.Container) {
@@ -116,6 +119,7 @@ func StartGQLServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder
 
 	if useMongo {
 		db := mongotest.Connect(t)(t)
+		log.Infof("test: new db created with name: %v", db.Name())
 		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false))
 		repos = lo.Must(mongo.New(ctx, db.Client(), db.Name(), false, accountRepos))
 	} else {
@@ -160,7 +164,7 @@ func StartGQLServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Containe
 
 	ch := make(chan error)
 	go func() {
-		if err := srv.Serve(l); err != http.ErrServerClosed {
+		if err := srv.Serve(l); !errors.Is(err, http.ErrServerClosed) {
 			ch <- err
 		}
 		close(ch)
@@ -174,7 +178,7 @@ func StartGQLServerWithRepos(t *testing.T, cfg *app.Config, repos *repo.Containe
 			t.Fatalf("server serve: %v", err)
 		}
 	})
-	return httpexpect.New(t, "http://"+l.Addr().String())
+	return httpexpect.Default(t, "http://"+l.Addr().String())
 }
 
 type GraphQLRequest struct {

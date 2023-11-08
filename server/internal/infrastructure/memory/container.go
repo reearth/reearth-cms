@@ -19,10 +19,12 @@ func New() *repo.Container {
 		Project:     NewProject(),
 		Model:       NewModel(),
 		Item:        NewItem(),
+		View:        NewView(),
 		Schema:      NewSchema(),
 		Integration: NewIntegration(),
 		Thread:      NewThread(),
 		Event:       NewEvent(),
+		Group:       NewGroup(),
 		Transaction: &usecasex.NopTransaction{},
 	}
 }

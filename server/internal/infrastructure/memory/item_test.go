@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -197,22 +198,23 @@ func TestItem_FindByProject(t *testing.T) {
 
 func TestItem_FindByFieldValue(t *testing.T) {
 	ctx := context.Background()
+	mID := id.NewModelID()
 	sid := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
 	pid := id.NewProjectID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
-	i := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple(), nil)
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
+	i := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().NewID().Schema(sid).Model(mID).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 
 	r := NewItem()
 	_ = r.Save(ctx, i)
 	_ = r.Save(ctx, i2)
 	_ = r.Save(ctx, i3)
-	q := item.NewQuery(pid, sid.Ref(), "foo", nil)
-	got, _, _ := r.Search(ctx, q, nil, nil)
+	q := item.NewQuery(pid, mID, sid.Ref(), "foo", nil)
+	got, _, _ := r.Search(ctx, schema.Package{}, q, nil)
 	assert.Equal(t, 2, len(got))
 
 	wantErr := errors.New("test")
@@ -226,8 +228,8 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
 	pid := id.NewProjectID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple(), nil)
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
 	mid := id.NewModelID()
 	i := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()

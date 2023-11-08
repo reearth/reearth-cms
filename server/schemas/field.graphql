@@ -12,6 +12,7 @@ enum SchemaFieldType {
   Reference
   Checkbox
   URL
+  Group
 }
 
 enum SchemaFieldTagColor {
@@ -31,8 +32,10 @@ enum SchemaFieldTagColor {
 
 type SchemaField {
   id: ID!
-  modelId: ID!
-  model: Model!
+  modelId: ID
+  groupId: ID
+  model: Model
+  group: Group
   type: SchemaFieldType!
   typeProperty: SchemaFieldTypeProperty
   key: String!
@@ -63,7 +66,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldReference
   | SchemaFieldURL
   | SchemaFieldCheckbox
-
+  | SchemaFieldGroup
 
 type SchemaFieldText {
   defaultValue: Any
@@ -133,6 +136,10 @@ type SchemaFieldURL {
 
 type SchemaFieldCheckbox {
   defaultValue: Any
+}
+
+type SchemaFieldGroup {
+  groupId: ID!
 }
 
 # Inputs
@@ -213,6 +220,10 @@ input SchemaFieldURLInput {
   defaultValue: Any
 }
 
+input SchemaFieldGroupInput {
+  groupId: ID!
+}
+
 input SchemaFieldTypePropertyInput @onlyOne {
   text: SchemaFieldTextInput
   textArea: SchemaFieldTextAreaInput
@@ -227,10 +238,12 @@ input SchemaFieldTypePropertyInput @onlyOne {
   integer: SchemaFieldIntegerInput
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
+  group: SchemaFieldGroupInput
 }
 
 input CreateFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   type: SchemaFieldType!
   title: String!
   metadata: Boolean
@@ -244,7 +257,8 @@ input CreateFieldInput {
 }
 
 input UpdateFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   fieldId: ID!
   title: String
   description: String
@@ -259,7 +273,8 @@ input UpdateFieldInput {
 }
 
 input DeleteFieldInput {
-  modelId: ID!
+  modelId: ID
+  groupId: ID
   fieldId: ID!
   metadata: Boolean
 }

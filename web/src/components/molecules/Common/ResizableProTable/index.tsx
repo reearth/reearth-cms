@@ -17,10 +17,12 @@ const ResizableProTable: React.FC<Props> = ({
   loading,
   options,
   toolbar,
+  toolBarRender,
   rowSelection,
   tableAlertOptionRender,
   pagination,
   onChange,
+  columnsState,
 }) => {
   const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>([]);
 
@@ -64,11 +66,13 @@ const ResizableProTable: React.FC<Props> = ({
         search={false}
         loading={loading}
         toolbar={toolbar}
+        toolBarRender={toolBarRender}
         options={options}
         tableAlertOptionRender={tableAlertOptionRender}
         rowSelection={rowSelection}
         pagination={pagination}
         onChange={onChange}
+        columnsState={columnsState}
       />
     </Wrapper>
   );
@@ -86,5 +90,8 @@ const Wrapper = styled.div`
     table {
       width: 100%;
     }
+  }
+  .ant-pro-table-column-setting-list-item-option {
+    visibility: hidden;
   }
 `;

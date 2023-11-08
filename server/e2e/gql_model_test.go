@@ -42,7 +42,7 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 	return res.Path("$.data.createModel.model.id").Raw().(string), res
 }
 
-func getModel(e *httpexpect.Expect, mID string) (string, *httpexpect.Value) {
+func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetModel($modelId: ID!) {
 				  node(id: $modelId, type: Model) {
@@ -55,6 +55,73 @@ func getModel(e *httpexpect.Expect, mID string) (string, *httpexpect.Value) {
 					  public
 					  schema {
 						id
+						fields {
+						  id
+						  type
+						  title
+						  key
+						  description
+						  required
+						  unique
+						  isTitle
+						  multiple
+						  order
+						  typeProperty {
+							... on SchemaFieldText {
+							  defaultValue
+							  maxLength
+							  __typename
+							}
+							... on SchemaFieldTextArea {
+							  defaultValue
+							  maxLength
+							  __typename
+							}
+							... on SchemaFieldMarkdown {
+							  defaultValue
+							  maxLength
+							  __typename
+							}
+							... on SchemaFieldAsset {
+							  assetDefaultValue: defaultValue
+							  __typename
+							}
+							... on SchemaFieldSelect {
+							  selectDefaultValue: defaultValue
+							  values
+							  __typename
+							}
+							... on SchemaFieldTag {
+							  tagDefaultValue: defaultValue
+							  tags{
+							    id
+							    name
+							    color
+		  					  }
+							  __typename
+							}
+							... on SchemaFieldInteger {
+							  integerDefaultValue: defaultValue
+							  min
+							  max
+							  __typename
+							}
+							... on SchemaFieldBool {
+							  defaultValue
+							  __typename
+							}
+							... on SchemaFieldURL {
+							  defaultValue
+							  __typename
+							}
+							__typename
+						  }
+						  __typename
+						}
+						__typename
+					  }
+					  metadataSchema {
+	 					id
 						fields {
 						  id
 						  type
@@ -139,7 +206,14 @@ func getModel(e *httpexpect.Expect, mID string) (string, *httpexpect.Value) {
 		Status(http.StatusOK).
 		JSON()
 
-	return res.Path("$.data.node.id").Raw().(string), res
+	var msId string
+	if res.Path("$.data.node.metadataSchema").Raw() != nil {
+		msId = res.Path("$.data.node.metadataSchema.id").Raw().(string)
+	}
+
+	return res.Path("$.data.node.schema.id").Raw().(string),
+		msId,
+		res
 }
 
 func TestCreateModel(t *testing.T) {
@@ -153,8 +227,8 @@ func TestCreateModel(t *testing.T) {
 		Value("data").Object().
 		Value("createModel").Object().
 		Value("model").Object().
-		ValueEqual("name", "test").
-		ValueEqual("description", "test").
-		ValueEqual("key", "test-1")
+		HasValue("name", "test").
+		HasValue("description", "test").
+		HasValue("key", "test-1")
 
 }

@@ -33,11 +33,13 @@ func New(r *repo.Container, g *gateway.Container,
 		User:        accountinteractor.NewUser(ar, ag, config.SignupSecret, config.AuthSrvUIDomain),
 		Project:     NewProject(r, g),
 		Item:        NewItem(r, g),
+		View:        NewView(r, g),
 		Request:     NewRequest(r, g),
 		Model:       NewModel(r, g),
 		Schema:      NewSchema(r, g),
 		Integration: NewIntegration(r, g),
 		Thread:      NewThread(r, g),
+		Group:       NewGroup(r, g),
 	}
 }
 

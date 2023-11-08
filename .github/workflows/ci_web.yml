@@ -25,10 +25,10 @@ jobs:
       run:
         working-directory: web
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -46,7 +46,7 @@ jobs:
       - name: Test
         run: yarn run coverage
       - name: Send coverage report
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           flags: web
       - name: Check translations

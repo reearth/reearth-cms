@@ -3,8 +3,8 @@ import { gql } from "@apollo/client";
 import { threadFragment } from "@reearth-cms/gql/fragments";
 
 export const GET_ITEMS = gql`
-  query GetItems($modelId: ID!, $pagination: Pagination) {
-    items(modelId: $modelId, pagination: $pagination) {
+  query GetItems($query: ItemQueryInput!, $pagination: Pagination) {
+    searchItem(input: { query: $query, pagination: $pagination }) {
       nodes {
         id
         title
@@ -22,6 +22,7 @@ export const GET_ITEMS = gql`
         }
         fields {
           schemaFieldId
+          itemGroupId
           type
           value
         }
@@ -32,6 +33,7 @@ export const GET_ITEMS = gql`
           id
           fields {
             schemaFieldId
+            itemGroupId
             type
             value
           }
@@ -77,6 +79,7 @@ export const GET_ITEM_NODE = gql`
         }
         fields {
           schemaFieldId
+          itemGroupId
           type
           value
         }
@@ -118,8 +121,8 @@ export const GET_ITEMS_BY_IDS = gql`
 `;
 
 export const SEARCH_ITEM = gql`
-  query SearchItem($query: ItemQuery!, $sort: ItemSort, $pagination: Pagination) {
-    searchItem(query: $query, sort: $sort, pagination: $pagination) {
+  query SearchItem($searchItemInput: SearchItemInput!) {
+    searchItem(input: $searchItemInput) {
       nodes {
         id
         title
@@ -127,9 +130,16 @@ export const SEARCH_ITEM = gql`
         createdAt
         updatedAt
         status
+        version
         assets {
           id
           url
+        }
+        fields {
+          schemaFieldId
+          itemGroupId
+          type
+          value
         }
         createdBy {
           ... on Integration {
@@ -139,16 +149,35 @@ export const SEARCH_ITEM = gql`
             name
           }
         }
-        fields {
-          schemaFieldId
-          type
-          value
+        updatedBy {
+          ... on Integration {
+            name
+            __typename
+          }
+          ... on User {
+            name
+            __typename
+          }
+        }
+        metadata {
+          id
+          fields {
+            schemaFieldId
+            type
+            value
+          }
         }
         thread {
           ...threadFragment
         }
       }
       totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
   }
 
@@ -167,6 +196,7 @@ export const CREATE_ITEM = gql`
           value
           type
           schemaFieldId
+          itemGroupId
         }
       }
     }
@@ -198,6 +228,7 @@ export const UPDATE_ITEM = gql`
           value
           type
           schemaFieldId
+          itemGroupId
         }
       }
     }

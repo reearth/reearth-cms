@@ -27,7 +27,7 @@ func TestItem_FindByID(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
 	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 	tests := []struct {
 		Name               string
@@ -82,7 +82,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	iid := id.NewItemID()
 	sfid := schema.NewFieldID()
 	pid := id.NewProjectID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
 	i1 := item.New().ID(iid).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).Timestamp(now1).MustBuild()
 	i2 := item.New().ID(iid).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).Thread(id.NewThreadID()).Timestamp(now2).MustBuild()
 
@@ -128,7 +128,7 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 	iid2 := id.NewItemID()
 	sfid := schema.NewFieldID()
 	pid := id.NewProjectID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
 	i1 := item.New().ID(iid1).Fields(fs).Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).Timestamp(now1).MustBuild()
 	i2 := item.New().ID(iid2).Fields(fs).Schema(i1.Schema()).Model(id.NewModelID()).Project(i1.Project()).Thread(id.NewThreadID()).Timestamp(now2).MustBuild()
 
@@ -170,7 +170,7 @@ func TestItem_FindByIDs(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
 	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	tests := []struct {
@@ -221,7 +221,7 @@ func TestItem_FindBySchema(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
 	i1 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 	i2 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
 	i3 := item.New().NewID().Fields(fs).Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(id.NewProjectID()).MustBuild()
@@ -327,7 +327,7 @@ func TestItem_Remove(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	sfid := schema.NewFieldID()
-	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple())}
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
 	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
@@ -412,17 +412,18 @@ func TestItem_Archive(t *testing.T) {
 }
 
 func TestItem_Search(t *testing.T) {
+	mid := id.NewModelID()
 	sid := id.NewSchemaID()
 	sid2 := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
-	f2 := item.NewField(sf2, value.TypeInteger.Value(2).AsMultiple())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple(), nil)
+	f2 := item.NewField(sf2, value.TypeInteger.Value(2).AsMultiple(), nil)
 	pid := id.NewProjectID()
-	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i3 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i4 := item.New().NewID().Schema(sid2).Model(id.NewModelID()).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+	i4 := item.New().NewID().Schema(sid2).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	tests := []struct {
 		Name     string
 		Input    *item.Query
@@ -431,19 +432,19 @@ func TestItem_Search(t *testing.T) {
 	}{
 		{
 			Name:     "must find two items (first 10)",
-			Input:    item.NewQuery(pid, nil, "foo", nil),
+			Input:    item.NewQuery(pid, mid, nil, "foo", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 2,
 		},
 		{
 			Name:     "must find all items",
-			Input:    item.NewQuery(pid, nil, "", nil),
+			Input:    item.NewQuery(pid, mid, nil, "", nil),
 			RepoData: item.List{i1, i2, i3},
 			Expected: 3,
 		},
 		{
 			Name:     "must find one item",
-			Input:    item.NewQuery(pid, sid2.Ref(), "foo", nil),
+			Input:    item.NewQuery(pid, mid, sid2.Ref(), "foo", nil),
 			RepoData: item.List{i1, i2, i3, i4},
 			Expected: 1,
 		},
@@ -465,7 +466,7 @@ func TestItem_Search(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			got, _, _ := repo.Search(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
+			got, _, _ := repo.Search(ctx, schema.Package{}, tc.Input, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(t, tc.Expected, len(got))
 		})
 	}
@@ -476,8 +477,8 @@ func TestItem_FindByModelAndValue(t *testing.T) {
 	sid := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
-	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple())
-	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple())
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple(), nil)
+	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
 	pid := id.NewProjectID()
 	mid := id.NewModelID()
 	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -566,7 +567,7 @@ func TestItem_FindByAssets(t *testing.T) {
 	aid1 := id.NewAssetID()
 	aid2 := id.NewAssetID()
 	sf1 := id.NewFieldID()
-	f1 := item.NewField(sf1, value.TypeAsset.Value(aid1.String()).AsMultiple())
+	f1 := item.NewField(sf1, value.TypeAsset.Value(aid1.String()).AsMultiple(), nil)
 	pid := id.NewProjectID()
 	mid := id.NewModelID()
 	i1 := item.New().NewID().Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()

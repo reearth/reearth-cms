@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import moment from "moment";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -17,19 +17,25 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
+import {
+  CreationFieldTypePropertyInput,
+  FieldModalTabs,
+  FieldType,
+  Group,
+} from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
-
-import { fieldTypes } from "../../fieldTypes";
-import { CreationFieldTypePropertyInput, FieldModalTabs, FieldType } from "../../types";
 
 export type FormValues = {
   fieldId?: string;
+  groupId?: string;
   title: string;
   description?: string;
   key: string;
@@ -43,6 +49,7 @@ export type FormValues = {
 };
 
 export type Props = {
+  groups?: Group[];
   open?: boolean;
   isMeta?: boolean;
   fieldCreationLoading: boolean;
@@ -90,6 +97,7 @@ const initialValues: FormValues = {
 };
 
 const FieldCreationModal: React.FC<Props> = ({
+  groups,
   open,
   isMeta,
   fieldCreationLoading,
@@ -150,10 +158,14 @@ const FieldCreationModal: React.FC<Props> = ({
   useEffect(() => {
     if (selectedType === "Asset" || selectedType === "Select") {
       form.setFieldValue("defaultValue", null);
-    } else if (selectedType === "Bool" || selectedType === "Checkbox") {
-      form.setFieldValue("defaultValue", []);
     }
   }, [form, selectedType, multipleValue]);
+
+  useEffect(() => {
+    if (selectedType === "Bool" || selectedType === "Checkbox") {
+      form.setFieldValue("defaultValue", multipleValue ? [] : false);
+    }
+  }, [form, multipleValue, selectedType]);
 
   useEffect(() => {
     if (selectedType === "Select") {
@@ -174,18 +186,6 @@ const FieldCreationModal: React.FC<Props> = ({
       }
     }
   }, [form, selectedTags, selectedType]);
-
-  const transformMomentToString = (value: any) => {
-    if (moment.isMoment(value)) {
-      return value.format("YYYY-MM-DDTHH:mm:ssZ");
-    }
-
-    if (Array.isArray(value) && value.every(item => moment.isMoment(item))) {
-      return value.map(item => item.format("YYYY-MM-DDTHH:mm:ssZ"));
-    }
-
-    return value; // return the original value if it's neither a moment object nor an array of moment objects
-  };
 
   const handleSubmit = useCallback(() => {
     form
@@ -240,9 +240,14 @@ const FieldCreationModal: React.FC<Props> = ({
           values.typeProperty = {
             url: { defaultValue: values.defaultValue },
           };
+        } else if (selectedType === "Group") {
+          values.typeProperty = {
+            group: { groupId: values.group },
+          };
         }
         values.metadata = isMeta;
         await onSubmit?.(values);
+        setMultipleValue(false);
         onClose?.(true);
       })
       .catch(info => {
@@ -254,6 +259,21 @@ const FieldCreationModal: React.FC<Props> = ({
     form.resetFields();
     setActiveTab("settings");
   }, [form]);
+
+  const handleModalCancel = useCallback(() => {
+    setMultipleValue(false);
+    onClose?.(true);
+  }, [onClose]);
+
+  const isRequiredDisabled = useMemo(
+    () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
+    [selectedType],
+  );
+
+  const isUniqueDisabled = useMemo(
+    () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
+    [selectedType],
+  );
 
   return (
     <Modal
@@ -271,7 +291,7 @@ const FieldCreationModal: React.FC<Props> = ({
         ) : null
       }
       open={open}
-      onCancel={() => onClose?.(true)}
+      onCancel={handleModalCancel}
       onOk={handleSubmit}
       confirmLoading={fieldCreationLoading}
       okButtonProps={{ disabled: buttonDisabled }}
@@ -370,6 +390,23 @@ const FieldCreationModal: React.FC<Props> = ({
                 <MultiValueColoredTag />
               </Form.Item>
             )}
+            {selectedType === "Group" && (
+              <Form.Item
+                name="group"
+                label={t("Select Group")}
+                rules={[{ required: true, message: t("Please select the group!") }]}>
+                <Select>
+                  {groups?.map(group => (
+                    <Select.Option key={group.id} value={group.id}>
+                      {group.name}{" "}
+                      <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
+                        #{group.key}
+                      </span>
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            )}
             <Form.Item
               name="multiple"
               valuePropName="checked"
@@ -380,7 +417,7 @@ const FieldCreationModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
-              hidden={isMeta}
+              hidden={isMeta || selectedType === "Group"}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>
@@ -392,13 +429,13 @@ const FieldCreationModal: React.FC<Props> = ({
               name="required"
               valuePropName="checked"
               extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox>{t("Make field required")}</Checkbox>
+              <Checkbox disabled={isRequiredDisabled}>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
               extra={t("Ensures that a multiple entries can't have the same value for this field")}>
-              <Checkbox>{t("Set field as unique")}</Checkbox>
+              <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>

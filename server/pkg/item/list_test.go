@@ -33,13 +33,45 @@ func TestList_Filtered(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
+func TestList_Item(t *testing.T) {
+	sfid1 := id.NewFieldID()
+	sfid2 := id.NewFieldID()
+	sfid3 := id.NewFieldID()
+	sfid4 := id.NewFieldID()
+	f1 := &Field{field: sfid1}
+	f2 := &Field{field: sfid2}
+	f3 := &Field{field: sfid3}
+	f4 := &Field{field: sfid4}
+
+	i1Id := id.NewItemID()
+	i1 := &Item{
+		id:     i1Id,
+		fields: []*Field{f1, f3},
+	}
+
+	i2Id := id.NewItemID()
+	i2 := &Item{
+		id:     i2Id,
+		fields: []*Field{f2, f4},
+	}
+	il := List{i1, i2}
+
+	got, ok := il.Item(i1Id)
+	assert.True(t, ok)
+	assert.Equal(t, i1, got)
+
+	got, ok = il.Item(id.NewItemID())
+	assert.False(t, ok)
+	assert.Nil(t, got)
+}
+
 func TestList_ItemsByField(t *testing.T) {
 	sid := id.NewSchemaID()
 	pid := id.NewProjectID()
 	mid := id.NewModelID()
-	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple())
-	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").AsMultiple())
-	f3 := NewField(id.NewFieldID(), value.TypeBool.Value(true).AsMultiple())
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
+	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").AsMultiple(), nil)
+	f3 := NewField(id.NewFieldID(), value.TypeBool.Value(true).AsMultiple(), nil)
 	i1 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1, f2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i2 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f2, f3}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	i3 := New().NewID().Schema(sid).Model(mid).Fields([]*Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
@@ -96,7 +128,7 @@ func TestVersionedList_FilterFields(t *testing.T) {
 		Model(id.NewModelID()).
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID()).
-		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple())}).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	vl := VersionedList{
 		version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i),
@@ -114,7 +146,7 @@ func TestVersionedList_Item(t *testing.T) {
 		Model(id.NewModelID()).
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID()).
-		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple())}).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	v := version.New()
 	vl := VersionedList{
@@ -133,7 +165,7 @@ func TestVersionedList_Unwrap(t *testing.T) {
 		Model(id.NewModelID()).
 		Project(id.NewProjectID()).
 		Thread(id.NewThreadID()).
-		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple())}).
+		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	v := version.New()
 	vl := VersionedList{

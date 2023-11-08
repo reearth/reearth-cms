@@ -54,7 +54,7 @@ export const fieldTypes: {
   Reference: {
     icon: "arrowUpRight",
     title: i18next.t("Reference"),
-    description: i18next.t("Reference field"),
+    description: i18next.t("Reference other models and items"),
     color: "#597EF7",
   },
   Date: {
@@ -74,5 +74,11 @@ export const fieldTypes: {
     title: i18next.t("Check Box"),
     description: i18next.t("Select from a list of checkboxes"),
     color: "#FFC069",
+  },
+  Group: {
+    icon: "group",
+    title: i18next.t("Group"),
+    description: i18next.t("Customize a group of fields"),
+    color: "#36CFC9",
   },
 };

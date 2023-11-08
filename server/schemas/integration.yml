@@ -95,6 +95,10 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
+                metadataFields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
       responses:
         '200':
           description: A JSON array of user names
@@ -198,6 +202,10 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
+                metadataFields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
       responses:
         '200':
           description: A JSON array of user names
@@ -254,6 +262,10 @@ paths:
               type: object
               properties:
                 fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+                metadataFields:
                   type: array
                   items:
                     $ref: '#/components/schemas/field'
@@ -805,6 +817,9 @@ components:
         schemaId:
           x-go-type: id.SchemaID
           type: string
+        metadataSchemaId:
+          x-go-type: id.SchemaID
+          type: string
         name:
           type: string
         description:
@@ -856,6 +871,18 @@ components:
         - integer
         - reference
         - url
+        - group
+        - tag
+    tagResponse:
+      type: object
+      properties:
+        id:
+          x-go-type: id.TagID
+          type: string
+        name:
+          type: string
+        color:
+          type: string
     schemaField:
       type: object
       properties:
@@ -888,6 +915,12 @@ components:
       type: object
       properties:
         id:
+          x-go-type: id.ItemID
+          type: string
+        metadataItemId:
+          x-go-type: id.ItemID
+          type: string
+        originalItemId:
           x-go-type: id.ItemID
           type: string
         modelId:
@@ -935,7 +968,11 @@ components:
         referencedItems:
           type: array
           items:
-            $ref: '#/components/schemas/versionedItem' 
+            $ref: '#/components/schemas/versionedItem'
+        metadataFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
     field:
       type: object
       properties:
@@ -946,6 +983,9 @@ components:
           $ref: '#/components/schemas/valueType'
         value: {}
         key:
+          type: string
+        group:
+          x-go-type: id.ItemGroupID
           type: string
     refOrVersion:
       type: object

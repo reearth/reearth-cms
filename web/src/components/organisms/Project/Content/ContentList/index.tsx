@@ -1,5 +1,6 @@
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -18,12 +19,13 @@ const ContentList: React.FC = () => {
     selection,
     loading,
     totalCount,
-    sort,
+    currentView,
     searchTerm,
     page,
     pageSize,
     requests,
     addItemToRequestModalShown,
+    setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
@@ -34,6 +36,7 @@ const ContentList: React.FC = () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
+    handleTableControl,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
@@ -61,13 +64,23 @@ const ContentList: React.FC = () => {
           threadId={selectedItem?.threadId}
         />
       }
+      modelsMenu={
+        <ModelsMenu
+          title={t("Content")}
+          collapsed={collapsedModelMenu}
+          onModelSelect={handleModelSelect}
+        />
+      }
+      viewsMenu={<ViewsMenu currentView={currentView} setCurrentView={setCurrentView} />}
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
+      onTableControl={handleTableControl}
       selectedItem={selectedItem}
       onItemSelect={handleItemSelect}
       collapsed={collapsedModelMenu}
       itemsDataLoading={loading}
-      sort={sort}
+      currentView={currentView}
+      setCurrentView={setCurrentView}
       totalCount={totalCount}
       searchTerm={searchTerm}
       page={page}
@@ -82,13 +95,6 @@ const ContentList: React.FC = () => {
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      modelsMenu={
-        <ModelsMenu
-          title={t("Content")}
-          collapsed={collapsedModelMenu}
-          onModelSelect={handleModelSelect}
-        />
-      }
       setSelection={setSelection}
       onCollapse={collapseModelMenu}
       onItemsReload={handleItemsReload}

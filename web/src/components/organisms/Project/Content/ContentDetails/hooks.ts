@@ -9,7 +9,7 @@ import {
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/convertItem";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
@@ -17,6 +17,7 @@ import { convertModel } from "@reearth-cms/components/organisms/Project/ModelsMe
 import {
   Item as GQLItem,
   Model as GQLModel,
+  Group as GQLGroup,
   RequestState as GQLRequestState,
   SchemaFieldType,
   useCreateItemMutation,
@@ -28,8 +29,11 @@ import {
   useUpdateRequestMutation,
   useSearchItemQuery,
   useGetItemsByIdsQuery,
+  useGetGroupsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { newID } from "@reearth-cms/utils/id";
+import { fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const {
@@ -61,6 +65,8 @@ export default () => {
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
   const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
 
+  const projectId = useMemo(() => currentProject?.id, [currentProject]);
+
   useEffect(() => {
     setLinkItemModalPage(+linkItemModalPage);
     setLinkItemModalPageSize(+linkItemModalPageSize);
@@ -82,16 +88,19 @@ export default () => {
   const { data: itemsData } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
-      query: {
-        project: currentProject?.id as string,
-        schema: model?.schemaId ?? "",
-      },
-      pagination: {
-        first: linkItemModalPageSize,
-        offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+      searchItemInput: {
+        query: {
+          project: currentProject?.id ?? "",
+          model: model?.id ?? "",
+          schema: model?.schemaId,
+        },
+        pagination: {
+          first: linkItemModalPageSize,
+          offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+        },
       },
     },
-    skip: !currentProject?.id,
+    skip: !model?.id,
   });
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
@@ -162,6 +171,17 @@ export default () => {
     () => gqlFormItemsData?.nodes as FormItem[],
     [gqlFormItemsData?.nodes],
   );
+
+  const { data: groupData } = useGetGroupsQuery({
+    variables: { projectId: projectId ?? "" },
+    skip: !projectId,
+  });
+
+  const groups = useMemo(() => {
+    return groupData?.groups
+      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
+      .filter((group): group is Group => !!group);
+  }, [groupData?.groups]);
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
@@ -315,6 +335,7 @@ export default () => {
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
     if (!currentItem) {
+      const itemGroupIdsMap = new Map();
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
           case "Select":
@@ -326,18 +347,111 @@ export default () => {
           case "Asset":
             initialValues[field.id] = field.typeProperty.assetDefaultValue;
             break;
+          case "Date":
+            if (Array.isArray(field.typeProperty.defaultValue)) {
+              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
+                valueItem ? moment(valueItem) : "",
+              );
+            } else {
+              initialValues[field.id] = field.typeProperty.defaultValue
+                ? moment(field.typeProperty.defaultValue)
+                : "";
+            }
+            break;
+          case "Group":
+            if (field.multiple) {
+              initialValues[field.id] = [];
+            } else {
+              const id = newID();
+              initialValues[field.id] = id;
+              itemGroupIdsMap.set(field.typeProperty?.groupId, id);
+            }
+            break;
           default:
             initialValues[field.id] = field.typeProperty.defaultValue;
             break;
         }
       });
+
+      const groupsInCurrentModel = new Set<Group>();
+      currentModel?.schema.fields?.forEach(field => {
+        if (field.type === "Group") {
+          const group = groups?.find(group => group.id === field.typeProperty.groupId);
+          if (group) groupsInCurrentModel.add(group);
+        }
+      });
+
+      groupsInCurrentModel.forEach(group => {
+        const itemGroupId = itemGroupIdsMap.get(group.id);
+        group?.schema?.fields?.forEach(field => {
+          function updateInitialValues(value: any) {
+            if (
+              typeof initialValues[field.id] === "object" &&
+              !Array.isArray(initialValues[field.id])
+            ) {
+              initialValues[field.id][itemGroupId] = value;
+            } else {
+              initialValues[field.id] = { [itemGroupId]: value };
+            }
+          }
+
+          switch (field.type) {
+            case "Select":
+            case "Integer":
+            case "Asset":
+              updateInitialValues(field.typeProperty[field.type.toLowerCase() + "DefaultValue"]);
+              break;
+            case "Date":
+              if (Array.isArray(field.typeProperty.defaultValue)) {
+                updateInitialValues(
+                  field.typeProperty.defaultValue.map((valueItem: any) =>
+                    valueItem ? moment(valueItem) : "",
+                  ),
+                );
+              } else {
+                if (field.typeProperty.defaultValue) {
+                  updateInitialValues(moment(field.typeProperty.defaultValue));
+                } else if (initialValues[field.id]?.[itemGroupId]) {
+                  initialValues[field.id][itemGroupId] = "";
+                }
+              }
+              break;
+            default:
+              updateInitialValues(field.typeProperty.defaultValue);
+              break;
+          }
+        });
+      });
     } else {
       currentItem?.fields?.forEach(field => {
-        initialValues[field.schemaFieldId] = field.value;
+        if (field.type === "Date") {
+          if (Array.isArray(field.value)) {
+            field.value = field.value.map((valueItem: string) =>
+              valueItem ? moment(valueItem) : "",
+            );
+          } else {
+            field.value = field.value ? moment(field.value) : "";
+          }
+        }
+        if (field.itemGroupId) {
+          if (
+            typeof initialValues[field.schemaFieldId] === "object" &&
+            !Array.isArray(initialValues[field.schemaFieldId]) &&
+            !moment.isMoment(initialValues[field.schemaFieldId])
+          ) {
+            initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
+          } else {
+            initialValues[field.schemaFieldId] = {
+              [field.itemGroupId]: field.value,
+            };
+          }
+        } else {
+          initialValues[field.schemaFieldId] = field.value;
+        }
       });
     }
     return initialValues;
-  }, [currentItem, currentModel?.schema.fields]);
+  }, [currentItem, currentModel, groups]);
 
   const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
@@ -492,6 +606,7 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
+    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,

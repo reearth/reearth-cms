@@ -1,0 +1,53 @@
+type View implements Node {
+  id: ID!
+  name: String!
+  modelId: ID!
+  projectId: ID!
+  sort: ItemSort
+  filter: Condition
+  columns: [FieldSelector!]
+}
+
+
+# inputs
+
+input CreateViewInput {
+  name: String!
+  modelId: ID!
+  projectId: ID!
+  sort: ItemSortInput
+  filter: ConditionInput
+  columns: [FieldSelectorInput!]
+}
+
+input UpdateViewInput {
+  viewId: ID!
+  name: String
+  sort: ItemSortInput
+  filter: ConditionInput
+  columns: [FieldSelectorInput!]
+}
+
+input DeleteViewInput {
+  viewId: ID!
+}
+
+# payloads
+
+type ViewPayload {
+  view: View!
+}
+
+type DeleteViewPayload {
+  viewId: ID!
+}
+
+extend type Query {
+  view(modelId: ID!): [View!]!
+}
+
+extend type Mutation {
+  createView(input: CreateViewInput!): ViewPayload
+  updateView(input: UpdateViewInput!): ViewPayload
+  deleteView(input: DeleteViewInput!): DeleteViewPayload
+}

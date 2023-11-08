@@ -131,11 +131,13 @@ func TestNew(t *testing.T) {
 		Workspace:   accountinteractor.NewWorkspace(nil, nil),
 		User:        accountinteractor.NewUser(nil, nil, "", ""),
 		Item:        NewItem(nil, nil),
+		View:        NewView(nil, nil),
 		Project:     NewProject(nil, nil),
 		Request:     NewRequest(nil, nil),
 		Model:       NewModel(nil, nil),
 		Schema:      NewSchema(nil, nil),
 		Integration: NewIntegration(nil, nil),
 		Thread:      NewThread(nil, nil),
+		Group:       NewGroup(nil, nil),
 	}, uc)
 }

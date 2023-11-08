@@ -17,7 +17,7 @@ import (
 func TestItem_UpdateFields(t *testing.T) {
 	now := time.Now()
 	defer util.MockNow(now)()
-	f := NewField(id.NewFieldID(), value.TypeText.Value("test").AsMultiple())
+	f := NewField(id.NewFieldID(), value.TypeText.Value("test").AsMultiple(), nil)
 	fid, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
 
 	tests := []struct {
@@ -38,20 +38,20 @@ func TestItem_UpdateFields(t *testing.T) {
 		{
 			name: "should update fields",
 			input: []*Field{
-				NewField(fid, value.TypeText.Value("test2").AsMultiple()),
-				NewField(fid3, value.TypeText.Value("test!!").AsMultiple()),
+				NewField(fid, value.TypeText.Value("test2").AsMultiple(), nil),
+				NewField(fid3, value.TypeText.Value("test!!").AsMultiple(), nil),
 			},
 			target: &Item{
 				fields: []*Field{
-					NewField(fid, value.TypeText.Value("test").AsMultiple()),
-					NewField(fid2, value.TypeText.Value("test!").AsMultiple()),
+					NewField(fid, value.TypeText.Value("test").AsMultiple(), nil),
+					NewField(fid2, value.TypeText.Value("test!").AsMultiple(), nil),
 				},
 			},
 			want: &Item{
 				fields: []*Field{
-					NewField(fid, value.TypeText.Value("test2").AsMultiple()),
-					NewField(fid2, value.TypeText.Value("test!").AsMultiple()),
-					NewField(fid3, value.TypeText.Value("test!!").AsMultiple()),
+					NewField(fid, value.TypeText.Value("test2").AsMultiple(), nil),
+					NewField(fid2, value.TypeText.Value("test!").AsMultiple(), nil),
+					NewField(fid3, value.TypeText.Value("test!!").AsMultiple(), nil),
 				},
 				timestamp: now,
 			},
@@ -70,6 +70,36 @@ func TestItem_UpdateFields(t *testing.T) {
 			assert.Equal(t, tt.want, tt.target)
 		})
 	}
+}
+
+func TestItem_ClearField(t *testing.T) {
+	now := time.Now()
+	defer util.MockNow(now)()
+
+	fid1, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
+	f1 := NewField(fid1, value.TypeText.Value("test").AsMultiple(), nil)
+	f2 := NewField(fid2, value.TypeText.Value("test").AsMultiple(), nil)
+	f3 := NewField(fid3, value.TypeText.Value("test").AsMultiple(), nil)
+
+	i := &Item{fields: []*Field{f1, f2, f3}}
+
+	i.ClearField(fid2)
+	assert.Equal(t, []*Field{f1, f3}, i.fields)
+}
+
+func TestItem_ClearReferenceFields(t *testing.T) {
+	now := time.Now()
+	defer util.MockNow(now)()
+
+	fid1, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
+	f1 := NewField(fid1, value.TypeText.Value("test").AsMultiple(), nil)
+	f2 := NewField(fid2, value.TypeText.Value("test").AsMultiple(), nil)
+	f3 := NewField(fid3, value.TypeReference.Value(id.NewItemID()).AsMultiple(), nil)
+
+	i := &Item{fields: []*Field{f1, f2, f3}}
+
+	i.ClearReferenceFields()
+	assert.Equal(t, []*Field{f1, f2}, i.fields)
 }
 
 func TestItem_Filtered(t *testing.T) {
@@ -120,8 +150,8 @@ func TestItem_Filtered(t *testing.T) {
 }
 
 func TestItem_HasField(t *testing.T) {
-	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple())
-	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").AsMultiple())
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
+	f2 := NewField(id.NewFieldID(), value.TypeText.Value("hoge").AsMultiple(), nil)
 	i1 := New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1, f2}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
 	type args struct {
@@ -182,7 +212,7 @@ func TestItem_AssetIDs(t *testing.T) {
 }
 
 func TestItem_User(t *testing.T) {
-	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple())
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	uid := accountdomain.NewUserID()
 	i1 := New().NewID().User(uid).Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
@@ -190,7 +220,7 @@ func TestItem_User(t *testing.T) {
 }
 
 func TestItem_Integration(t *testing.T) {
-	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple())
+	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	iid := id.NewIntegrationID()
 	i1 := New().NewID().Integration(iid).Schema(id.NewSchemaID()).Model(id.NewModelID()).Fields([]*Field{f1}).Project(id.NewProjectID()).Thread(id.NewThreadID()).MustBuild()
 
@@ -226,14 +256,21 @@ func TestItem_SetMetadataItem(t *testing.T) {
 	assert.Equal(t, mid.Ref(), itm.MetadataItem())
 }
 
+func TestItem_SetOriginalItem(t *testing.T) {
+	oid := NewID()
+	itm := &Item{}
+	itm.SetOriginalItem(oid)
+	assert.Equal(t, oid.Ref(), itm.OriginalItem())
+}
+
 func TestItem_GetTitle(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()
 	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	s1 := schema.New().NewID().Workspace(wid).Project(pid).Fields(schema.FieldList{sf1, sf2}).MustBuild()
-	if1 := NewField(sf1.ID(), value.TypeBool.Value(false).AsMultiple())
-	if2 := NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple())
+	if1 := NewField(sf1.ID(), value.TypeBool.Value(false).AsMultiple(), nil)
+	if2 := NewField(sf2.ID(), value.TypeText.Value("test").AsMultiple(), nil)
 	i1 := New().NewID().Schema(s1.ID()).Model(id.NewModelID()).Fields([]*Field{if1, if2}).Project(pid).Thread(id.NewThreadID()).MustBuild()
 	// schema is nil
 	title := i1.GetTitle(nil)

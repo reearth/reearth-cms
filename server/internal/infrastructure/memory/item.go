@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -235,12 +236,13 @@ func (r *Item) Len() int {
 }
 
 func sortItems(items []*version.Value[*item.Item]) {
-	slices.SortStableFunc(items, func(a, b *version.Value[*item.Item]) bool {
-		return a.Value().Timestamp().Before(b.Value().Timestamp())
+	slices.SortStableFunc(items, func(a, b *version.Value[*item.Item]) int {
+		return a.Value().Timestamp().Compare(b.Value().Timestamp())
 	})
 }
 
-func (r *Item) Search(_ context.Context, q *item.Query, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	// TODO: support filters, sort, and pagination
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -251,7 +253,7 @@ func (r *Item) Search(_ context.Context, q *item.Query, sort *usecasex.Sort, pag
 	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
 		it := v.Get(version.Latest.OrVersion())
 		itv := it.Value()
-		if _, ok := lo.Find(itv.Fields(), func(f *item.Field) bool {
+		_, searchMatched := lo.Find(itv.Fields(), func(f *item.Field) bool {
 			return lo.SomeBy(f.Value().Values(), func(v *value.Value) bool {
 				if s, ok := v.ValueString(); ok {
 					if strings.Contains(s, qq) {
@@ -260,7 +262,10 @@ func (r *Item) Search(_ context.Context, q *item.Query, sort *usecasex.Sort, pag
 				}
 				return false
 			})
-		}); ok {
+		})
+		schemaMatched := q.Schema() == nil || itv.Schema() == *q.Schema()
+		modelMatched := itv.Model() == q.Model()
+		if searchMatched && schemaMatched && modelMatched && r.f.CanRead(itv.Project()) {
 			res = append(res, it)
 		}
 		return true

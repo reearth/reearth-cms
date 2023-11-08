@@ -26,6 +26,7 @@ type Item struct {
 	updatedByUser        *UserID
 	updatedByIntegration *IntegrationID
 	metadataItem         *id.ItemID
+	originalItem         *id.ItemID
 	integration          *IntegrationID
 }
 
@@ -43,7 +44,7 @@ func (i *Item) Integration() *IntegrationID {
 	return i.integration
 }
 
-func (i *Item) Fields() []*Field {
+func (i *Item) Fields() Fields {
 	return slices.Clone(i.fields)
 }
 
@@ -67,9 +68,23 @@ func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
 }
 
+func (i *Item) OriginalItem() *ID {
+	return i.originalItem
+}
+
 func (i *Item) Field(f FieldID) *Field {
 	ff, _ := lo.Find(i.fields, func(g *Field) bool {
 		return g.FieldID() == f
+	})
+	return ff
+}
+
+func (i *Item) FieldByItemGroupAndID(fid FieldID, igID ItemGroupID) *Field {
+	ff, _ := lo.Find(i.fields, func(g *Field) bool {
+		if g.group == nil {
+			return false
+		}
+		return g.FieldID() == fid && *g.group == igID
 	})
 	return ff
 }
@@ -105,7 +120,10 @@ func (i *Item) UpdateFields(fields []*Field) {
 		if field == nil {
 			return false
 		}
-		return i.Field(field.field) == nil
+		if field.ItemGroup() == nil {
+			return i.Field(field.field) == nil
+		}
+		return i.FieldByItemGroupAndID(field.FieldID(), *field.ItemGroup()) == nil
 	})
 
 	i.fields = append(lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
@@ -113,7 +131,10 @@ func (i *Item) UpdateFields(fields []*Field) {
 			if g == nil || f == nil {
 				return false
 			}
-			return g.FieldID() == f.FieldID()
+			if g.group == nil || f.group == nil {
+				return g.FieldID() == f.FieldID()
+			}
+			return g.FieldID() == f.FieldID() && *g.group == *f.group
 		})
 
 		if !found {
@@ -122,6 +143,22 @@ func (i *Item) UpdateFields(fields []*Field) {
 
 		return ff, true
 	}), newFields...)
+
+	i.timestamp = util.Now()
+}
+
+func (i *Item) ClearField(fid FieldID) {
+	i.fields = lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
+		return f, f.FieldID() != fid
+	})
+
+	i.timestamp = util.Now()
+}
+
+func (i *Item) ClearReferenceFields() {
+	i.fields = lo.FilterMap(i.fields, func(f *Field, _ int) (*Field, bool) {
+		return f, f.Type() != value.TypeReference
+	})
 
 	i.timestamp = util.Now()
 }
@@ -180,9 +217,14 @@ type ItemModelSchema struct {
 	ReferencedItems []Versioned
 	Model           *model.Model
 	Schema          *schema.Schema
+	GroupSchemas    schema.List
 	Changes         FieldChanges
 }
 
 func (i *Item) SetMetadataItem(iid id.ItemID) {
 	i.metadataItem = &iid
+}
+
+func (i *Item) SetOriginalItem(iid id.ItemID) {
+	i.originalItem = &iid
 }

@@ -14,17 +14,24 @@ import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
-  SortDirection as GQLSortDirection,
-  ItemSortType as GQLItemSortType,
+  SortDirection,
+  FieldSelector,
   useSearchItemQuery,
   Asset as GQLAsset,
+  useGetItemsByIdsQuery,
+  ConditionInput,
+  ItemSortInput,
+  AndConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import { fileName } from "./utils";
 
-export type ItemSortType = "CREATION_DATE" | "MODIFICATION_DATE";
-export type SortDirection = "ASC" | "DESC";
+export type CurrentViewType = {
+  sort?: ItemSortInput;
+  filter?: AndConditionInput;
+  columns?: FieldSelector[];
+};
 
 export default () => {
   const {
@@ -48,43 +55,61 @@ export default () => {
 
   const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
   const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const sortType = useMemo(() => searchParams.get("sortType"), [searchParams]);
+  const sortFieldType = useMemo(() => searchParams.get("sortFieldType"), [searchParams]);
   const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
+  const sortFieldId = useMemo(() => searchParams.get("sortFieldId"), [searchParams]);
+
   const navigate = useNavigate();
   const { modelId } = useParams();
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [sort, setSort] = useState<{ type?: ItemSortType; direction?: SortDirection } | undefined>({
-    type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
-    direction: direction ? (direction as SortDirection) : "DESC",
+  const [currentView, setCurrentView] = useState<CurrentViewType>({
+    columns: [],
   });
 
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-    setSort({
-      type: sortType ? (sortType as ItemSortType) : "MODIFICATION_DATE",
-      direction: direction ? (direction as SortDirection) : "DESC",
+    let sort: ItemSortInput | undefined;
+    if (sortFieldType)
+      sort = {
+        field: {
+          id: sortFieldId,
+          type: sortFieldType as FieldSelector["type"],
+        },
+        direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
+      };
+    setCurrentView({
+      columns: currentView.columns,
+      sort: sort,
+      filter: currentView.filter,
     });
     setSearchTerm(searchTermParam ?? "");
-  }, [pageParam, pageSizeParam, sortType, direction, searchTermParam]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortFieldType, sortFieldId, direction, searchTermParam, pageSizeParam, pageParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
-      query: {
-        project: currentProject?.id as string,
-        schema: currentModel?.schema.id,
-        q: searchTerm,
+      searchItemInput: {
+        query: {
+          project: currentProject?.id ?? "",
+          model: currentModel?.id ?? "",
+          schema: currentModel?.schema.id,
+          q: searchTerm,
+        },
+        pagination: { first: pageSize, offset: (page - 1) * pageSize },
+        sort: currentView.sort,
+        filter: currentView.filter
+          ? {
+              and: currentView.filter,
+            }
+          : undefined,
       },
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: sort
-        ? { sortBy: sort.type as GQLItemSortType, direction: sort.direction as GQLSortDirection }
-        : undefined,
     },
-    skip: !currentModel?.schema.id,
+    skip: !currentModel?.id,
   });
 
   const handleItemsReload = useCallback(() => {
@@ -98,6 +123,36 @@ export default () => {
     selectedRowKeys: [],
   });
 
+  const referencedItemsIds = useMemo(
+    () =>
+      data?.searchItem?.nodes
+        ? data.searchItem.nodes
+            .filter(item => item?.fields && item?.fields.length > 0)
+            .flatMap(item =>
+              item?.fields
+                .filter(field => field.type === "Reference" && field.value)
+                .map(field => field.value),
+            )
+        : [],
+    [data],
+  );
+
+  const { data: referencedItems } = useGetItemsByIdsQuery({
+    fetchPolicy: "no-cache",
+    variables: {
+      id: referencedItemsIds,
+    },
+    skip: !referencedItemsIds.length,
+  });
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const referencedItemsMap = new Map<string, any>();
+  (referencedItems?.nodes ?? []).forEach(item => {
+    if (item && item.__typename === "Item") {
+      referencedItemsMap.set(item.id, item);
+    }
+  });
+
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.searchItem.nodes
       ?.map(item =>
@@ -106,7 +161,8 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              author: item.createdBy?.name,
+              createdBy: item.createdBy?.name,
+              updatedBy: item.updatedBy?.name || "",
               fields: item?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
@@ -126,7 +182,7 @@ export default () => {
                                 ?.url,
                             )
                         : field.type === "Reference"
-                        ? item?.title || field.value
+                        ? referencedItemsMap.get(field.value)?.title ?? ""
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -138,33 +194,56 @@ export default () => {
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
+              metadata: item?.metadata?.fields?.reduce(
+                (obj, field) =>
+                  Object.assign(obj, {
+                    [field.schemaFieldId]: Array.isArray(field.value)
+                      ? field.value.join(", ")
+                      : field.value
+                      ? "" + field.value
+                      : field.value,
+                  }),
+                {},
+              ),
             }
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [data?.searchItem.nodes]);
+  }, [data?.searchItem.nodes, referencedItemsMap]);
 
   const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
     if (!currentModel) return;
-    return [
-      {
-        title: t("Created By"),
-        dataIndex: "author",
-        key: "author",
-        width: 128,
-        minWidth: 128,
-        ellipsis: true,
-      },
-      ...currentModel.schema.fields.map(field => ({
+    const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
+      title: field.title,
+      dataIndex: ["fields", field.id],
+      fieldType: "FIELD",
+      key: field.id,
+      ellipsis: true,
+      type: field.type,
+      typeProperty: field.typeProperty,
+      width: 128,
+      minWidth: 128,
+      multiple: field.multiple,
+      required: field.required,
+    }));
+
+    const metadataColumns =
+      currentModel?.metadataSchema?.fields?.map(field => ({
         title: field.title,
-        dataIndex: ["fields", field.id],
+        dataIndex: ["metadata", field.id],
+        fieldType: "META_FIELD",
         key: field.id,
+        ellipsis: true,
+        type: field.type,
+        typeProperty: field.typeProperty,
         width: 128,
         minWidth: 128,
-        ellipsis: true,
-      })),
-    ];
-  }, [currentModel, t]);
+        multiple: field.multiple,
+        required: field.required,
+      })) || [];
+
+    return fieldsColumns.concat(metadataColumns);
+  }, [currentModel]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
@@ -239,15 +318,16 @@ export default () => {
     (
       page: number,
       pageSize: number,
-      sorter?: { type?: ItemSortType; direction?: SortDirection },
+      sorter?: { field?: FieldSelector; direction?: SortDirection },
     ) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
-      searchParams.set("sortType", sorter?.type ? sorter.type : "");
+      searchParams.set("sortFieldType", sorter?.field?.type ? sorter?.field?.type : "");
       searchParams.set("direction", sorter?.direction ? sorter.direction : "");
+      searchParams.set("sortFieldId", sorter?.field?.id ? sorter?.field?.id : "");
       setSearchParams(searchParams);
     },
-    [setSearchParams, searchParams],
+    [searchParams, setSearchParams],
   );
 
   const handleSearchTerm = useCallback(
@@ -256,6 +336,27 @@ export default () => {
       setSearchParams(searchParams);
     },
     [setSearchParams, searchParams],
+  );
+
+  const handleTableControl = useCallback(
+    (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => {
+      setCurrentView(prev => {
+        let filterValue = prev.filter;
+        if (filter) {
+          if (filter.length > 0) {
+            filterValue = { conditions: filter };
+          } else {
+            filterValue = undefined;
+          }
+        }
+        return {
+          columns: prev.columns,
+          sort: sort ?? prev.sort,
+          filter: filterValue,
+        };
+      });
+    },
+    [],
   );
 
   const handleBulkAddItemToRequest = useCallback(
@@ -277,12 +378,13 @@ export default () => {
     selectedItem,
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
-    sort,
+    currentView,
     searchTerm,
     page,
     pageSize,
     requests,
     addItemToRequestModalShown,
+    setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
@@ -293,6 +395,7 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
+    handleTableControl,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,

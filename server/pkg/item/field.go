@@ -3,18 +3,24 @@ package item
 import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/util"
 )
 
 type Field struct {
 	field FieldID
+	group *ItemGroupID
 	value *value.Multiple
 }
 
-func NewField(field FieldID, v *value.Multiple) *Field {
+func NewField(field FieldID, v *value.Multiple, ig *ItemGroupID) *Field {
 	if v == nil {
 		return nil
 	}
-	return &Field{field: field, value: v}
+	return &Field{
+		field: field,
+		value: v,
+		group: ig,
+	}
 }
 
 func (f *Field) FieldID() schema.FieldID {
@@ -26,19 +32,15 @@ func (f *Field) Type() value.Type {
 }
 
 func (f *Field) Value() *value.Multiple {
+	if f == nil {
+		return nil
+	}
 	return f.value
 }
 
-type Fields []*Field
-
-type FieldMap map[FieldID]*Field
-
-func (f Fields) Map() FieldMap {
-	m := make(map[FieldID]*Field)
-	for _, field := range f {
-		if field != nil {
-			m[field.FieldID()] = field
-		}
+func (f *Field) ItemGroup() *ItemGroupID {
+	if f == nil {
+		return nil
 	}
-	return m
+	return util.CloneRef(f.group)
 }

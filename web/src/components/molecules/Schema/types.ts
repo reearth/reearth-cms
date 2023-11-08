@@ -43,9 +43,11 @@ export type FieldType =
   | "Select"
   | "Tag"
   | "Integer"
+  | "Float"
   | "Reference"
   | "Checkbox"
-  | "URL";
+  | "URL"
+  | "Group";
 
 export type TypeProperty =
   | {
@@ -58,6 +60,7 @@ export type TypeProperty =
       max?: number;
       correspondingField?: any;
       modelId?: string;
+      groupId?: string;
     }
   | any;
 
@@ -73,6 +76,19 @@ export type CreationFieldTypePropertyInput = {
     modelId: string;
     correspondingField: any;
   };
+  group?: {
+    groupId: string;
+  };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
+
+export type Group = {
+  id: string;
+  schemaId: string;
+  projectId: string;
+  name: string;
+  description: string;
+  key: string;
+  schema: Schema;
+};

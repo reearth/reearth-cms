@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -16,6 +17,8 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import GroupItem from "@reearth-cms/components/molecules//Common/Form/GroupItem";
+import MultiValueGroup from "@reearth-cms/components/molecules//Common/MultiValueField/MultiValueGroup";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
@@ -31,17 +34,19 @@ import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishI
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
 import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldType, Group, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
+import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
   item?: Item;
+  groups?: Group[];
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
@@ -124,6 +129,7 @@ export interface Props {
 
 const ContentForm: React.FC<Props> = ({
   item,
+  groups,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -205,15 +211,53 @@ const ContentForm: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     try {
+      const modelFieldTypes = new Map(
+        (model?.schema.fields || []).map(field => [field.id, field.type]),
+      );
+      const groupIdsInCurrentModel = new Set();
+      model?.schema.fields?.forEach(field => {
+        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty.groupId);
+      });
+      const groupFieldTypes = new Map();
+      groups
+        ?.filter(group => groupIdsInCurrentModel.has(group.id))
+        .forEach(group => {
+          group?.schema.fields?.forEach(field => groupFieldTypes.set(field.id, field.type));
+        });
       const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
-      const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
+      const fields: {
+        schemaFieldId: string;
+        itemGroupId?: string;
+        type: FieldType;
+        value: string;
+      }[] = [];
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
+      // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
+        const isGroup =
+          typeof value === "object" && !Array.isArray(value) && !moment.isMoment(value);
+        // group fields
+        if (value && isGroup) {
+          for (const [key1, value1] of Object.entries(value)) {
+            const type1 = groupFieldTypes.get(key) || "";
+            fields.push({
+              value: (moment.isMoment(value1)
+                ? transformMomentToString(value1)
+                : value1 ?? "") as string,
+              schemaFieldId: key,
+              itemGroupId: key1,
+              type: type1 as FieldType,
+            });
+          }
+          continue;
+        }
+        // model fields
+        const type = modelFieldTypes.get(key) || "";
         fields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
-          type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
+          type: type as FieldType,
         });
       }
       for (const [key, value] of Object.entries(metaValues)) {
@@ -240,12 +284,13 @@ const ContentForm: React.FC<Props> = ({
       console.log("Validate Failed:", info);
     }
   }, [
+    model?.schema.fields,
+    model?.schema.id,
+    model?.metadataSchema?.fields,
+    model?.metadataSchema?.id,
+    groups,
     form,
     metaForm,
-    model?.schema.fields,
-    model?.metadataSchema?.id,
-    model?.metadataSchema?.fields,
-    model?.schema.id,
     itemId,
     onItemCreate,
     onItemUpdate,
@@ -511,7 +556,13 @@ const ContentForm: React.FC<Props> = ({
                 name={field.id}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
+                }
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please select an option!"),
+                  },
+                ]}>
                 {field.multiple ? (
                   <MultiValueSelect selectedValues={field.typeProperty?.values} />
                 ) : (
@@ -522,6 +573,26 @@ const ContentForm: React.FC<Props> = ({
                       </Option>
                     ))}
                   </Select>
+                )}
+              </StyledFormItem>
+            ) : field.type === "Date" ? (
+              <StyledFormItem
+                key={field.id}
+                extra={field.description}
+                name={field.id}
+                rules={[
+                  {
+                    required: field.required,
+                    message: t("Please input field!"),
+                  },
+                ]}
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
+                {field.multiple ? (
+                  <MultiValueField type="date" FieldInput={StyledDatePicker} />
+                ) : (
+                  <StyledDatePicker />
                 )}
               </StyledFormItem>
             ) : field.type === "Bool" ? (
@@ -593,6 +664,80 @@ const ContentForm: React.FC<Props> = ({
                   />
                 ) : (
                   <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                )}
+              </StyledFormItem>
+            ) : field.type === "Group" ? (
+              <StyledFormItem
+                key={field.id}
+                extra={field.description}
+                name={field.id}
+                label={
+                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
+                }>
+                {field.multiple ? (
+                  <MultiValueGroup
+                    parentField={field}
+                    form={form}
+                    groups={groups}
+                    linkedItemsModalList={linkedItemsModalList}
+                    formItemsData={formItemsData}
+                    assetList={assetList}
+                    fileList={fileList}
+                    loadingAssets={loadingAssets}
+                    uploading={uploading}
+                    uploadModalVisibility={uploadModalVisibility}
+                    uploadUrl={uploadUrl}
+                    uploadType={uploadType}
+                    totalCount={totalCount}
+                    page={page}
+                    pageSize={pageSize}
+                    linkItemModalTotalCount={linkItemModalTotalCount}
+                    linkItemModalPage={linkItemModalPage}
+                    linkItemModalPageSize={linkItemModalPageSize}
+                    onReferenceModelUpdate={onReferenceModelUpdate}
+                    onLinkItemTableChange={onLinkItemTableChange}
+                    onAssetTableChange={onAssetTableChange}
+                    onUploadModalCancel={onUploadModalCancel}
+                    setUploadUrl={setUploadUrl}
+                    setUploadType={setUploadType}
+                    onAssetsCreate={onAssetsCreate}
+                    onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsReload={onAssetsReload}
+                    onAssetSearchTerm={onAssetSearchTerm}
+                    setFileList={setFileList}
+                    setUploadModalVisibility={setUploadModalVisibility}
+                  />
+                ) : (
+                  <GroupItem
+                    parentField={field}
+                    linkedItemsModalList={linkedItemsModalList}
+                    formItemsData={formItemsData}
+                    assetList={assetList}
+                    fileList={fileList}
+                    loadingAssets={loadingAssets}
+                    uploading={uploading}
+                    uploadModalVisibility={uploadModalVisibility}
+                    uploadUrl={uploadUrl}
+                    uploadType={uploadType}
+                    totalCount={totalCount}
+                    page={page}
+                    pageSize={pageSize}
+                    linkItemModalTotalCount={linkItemModalTotalCount}
+                    linkItemModalPage={linkItemModalPage}
+                    linkItemModalPageSize={linkItemModalPageSize}
+                    onReferenceModelUpdate={onReferenceModelUpdate}
+                    onLinkItemTableChange={onLinkItemTableChange}
+                    onAssetTableChange={onAssetTableChange}
+                    onUploadModalCancel={onUploadModalCancel}
+                    setUploadUrl={setUploadUrl}
+                    setUploadType={setUploadType}
+                    onAssetsCreate={onAssetsCreate}
+                    onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsReload={onAssetsReload}
+                    onAssetSearchTerm={onAssetSearchTerm}
+                    setFileList={setFileList}
+                    setUploadModalVisibility={setUploadModalVisibility}
+                  />
                 )}
               </StyledFormItem>
             ) : (
