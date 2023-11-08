@@ -130,33 +130,33 @@ Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
 We found some referenced items that not published yet. Please select to add the items to the same request.: まだ公開されていない参照アイテムが見つかりました。同じリクエストに追加する場合は選択してください。
-is: ''
-is not: ''
-contains: ''
-doesn't contain: ''
-start with: ''
-doesn't start with: ''
-end with: ''
-doesn't end with: ''
-greater than: ''
-greater than or equal to: ''
-less than: ''
-less than or equal to: ''
-after: ''
-after or on: ''
-before: ''
-before or on: ''
-of this week: ''
-of this month: ''
-of this year: ''
-is empty: ''
-is not empty: ''
-Includes all: ''
-Includes any: ''
-Not include all: ''
-Not Include any: ''
-Ascending: ''
-Descending: ''
+is: 同値
+is not: 異なる
+contains: 含む
+doesn't contain: 含まない
+start with: 始まる
+doesn't start with: 始まらない
+end with: 終わる
+doesn't end with: 終わらない
+greater than: 超過
+greater than or equal to: 以上
+less than: 未満
+less than or equal to: 以下
+after: 後
+after or on: 以降
+before: 前
+before or on: 以前
+of this week: 今週
+of this month: 今月
+of this year: 今年
+is empty: 空である
+is not empty: 空でない
+Includes all: すべてを含む
+Includes any: いずれかを含む
+Not include all: すべてを含まない
+Not Include any: どれも含まない
+Ascending: 昇順
+Descending: 降順
 Confirm: 確認
 Please enter: 入力してください
 Connect Integration: インテグレーションを連携
@@ -324,21 +324,21 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
-Are you sure to delete this view?: ''
-Permanently remove the view, the contents won’t be removed, please don’t worry This action is not reversible, so please continue with caution.: ''
-New View: ''
-Update View: ''
-Submitting: ''
+Are you sure to delete this view?: このビューを削除してもよろしいですか？
+Permanently remove the view, the contents won’t be removed, please don’t worry This action is not reversible, so please continue with caution.: ビューを削除します（コンテンツは削除されません）。
+New View: 新しいビュー
+Update View: ビューを更新します
+Submitting: 送信
 OK: ''
-View Name: ''
-This is the title of the view: ''
-Please input the view name!: ''
-Rename: ''
-Remove View: ''
-Are you sure you want to delete this view?: ''
-Deleting the view is a permanent action. However, the contents will remain unaffected.: ''
-Please proceed with caution as this action cannot be undone.: ''
-Save as new view: ''
+View Name: ビュー名
+This is the title of the view: ビューのタイトル
+Please input the view name!: ビュー名を入力してください！
+Rename: 名前の変更
+Remove View: ビューを削除します
+Are you sure you want to delete this view?: 本当にこのビューを削除しますか？
+Deleting the view is a permanent action. However, the contents will remain unaffected.: ビューの削除は元に戻せませんが、コンテンツは影響を受けません。
+Please proceed with caution as this action cannot be undone.: この操作は元に戻せませんので、注意して行ってください。
+Save as new view: 新しいビューとして保存します
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
 search projects: 検索
 Create a Workspace: 新規ワークスペース
@@ -390,14 +390,14 @@ Failed to publish items.: アイテムの公開に失敗しました。
 Successfully published items!: アイテムの公開に成功しました!
 Failed to unpublish items.: エラーによりアイテムを非公開にできませんでした。
 Successfully unpublished items!: アイテムを非公開にしました。
-Failed to create view.: ''
-Successfully created view!: ''
-Failed to update view.: ''
-Successfully updated view!: ''
-Failed to rename view.: ''
-Successfully renamed view!: ''
-Failed to delete view.: ''
-Successfully deleted view!: ''
+Failed to create view.: ビューの作成に失敗しました。
+Successfully created view!: ビューの作成に成功しました!
+Failed to update view.: ビューの更新に失敗しました。
+Successfully updated view!: ビューの更新に成功しました!
+Failed to rename view.: ビューの名前変更に失敗しました。
+Successfully renamed view!: ビューの名前変更に成功しました!
+Failed to delete view.: ビューの削除に失敗しました。
+Successfully deleted view!: ビューの削除に成功しました!
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to create group.: グループの作成に失敗しました。
@@ -416,9 +416,9 @@ Failed to update field.: フィールドの更新に失敗しました。
 Successfully updated field!: フィールドの更新に成功しました。
 Failed to create field.: フィールドの作成に失敗しました。
 Successfully created field!: フィールドの作成に成功しました。
-Group cannot be deleted: ''
+Group cannot be deleted: グループを削除できません。
 is used in: ''
-If you want to delete it, please delete the field that uses it first.: ''
+If you want to delete it, please delete the field that uses it first.: 削除したい場合は、まずそれを使っているフィールドを削除してください。
 Failed to delete group.: グループの削除に失敗しました
 Successfully deleted group!: グループの削除に成功しました！
 Failed to update group.: グループの更新に失敗しました。
