@@ -387,6 +387,8 @@ const ContentTable: React.FC<Props> = ({
           typeProperty: column?.typeProperty,
           members: currentWorkspace?.members,
           id: column?.key,
+          required: column?.required,
+          multiple: column?.multiple,
         });
         newDefaultValues.push({ operatorType, operator, value });
       }
