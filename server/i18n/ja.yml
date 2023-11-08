@@ -58,7 +58,6 @@ items should be on the same model: アイテムは全て同じモデルに対応
 max must be larger then min: 最大値は最小値より大きい必要があります。
 metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
 metadata schema not found: メタデータのスキーマが見つかりません。
-missing fields: フィールドが不足しています。
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
 model should have at least one view: モデルには少なくとも 1 つのビューが必要です
 not found: 見つかりませんでした。
