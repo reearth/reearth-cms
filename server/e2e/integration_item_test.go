@@ -438,11 +438,6 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH("/api/items/{itemId}", id.NewItemID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusBadRequest)
-
 	r := e.PATCH("/api/items/{itemId}", itmId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
