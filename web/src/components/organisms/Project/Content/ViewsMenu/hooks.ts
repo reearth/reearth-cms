@@ -27,6 +27,7 @@ export type modalStateType = "rename" | "create";
 
 export default ({ modelId, currentView, setCurrentView }: Params) => {
   const t = useT();
+  const [prevModelId, setPrevModelId] = useState<string>();
   const [viewModalShown, setViewModalShown] = useState(false);
   const [selectedView, setSelectedView] = useState<View>();
   const [modalState, setModalState] = useState<modalStateType>("create");
@@ -35,17 +36,18 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
-  const { data, loading } = useGetViewsQuery({
+  const { data } = useGetViewsQuery({
     variables: { modelId: modelId ?? "" },
     skip: !modelId,
   });
 
   const views = useMemo(() => {
-    if (loading && data?.view) {
+    if (prevModelId !== modelId && data?.view) {
       setSelectedView(data?.view && data?.view.length > 0 ? (data?.view[0] as View) : undefined);
+      setPrevModelId(modelId);
     }
     return data?.view ? data?.view : [];
-  }, [data?.view, loading]);
+  }, [data?.view, modelId, prevModelId]);
 
   useEffect(() => {
     if (selectedView) {

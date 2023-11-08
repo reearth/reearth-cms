@@ -1,5 +1,3 @@
-import { useParams } from "react-router-dom";
-
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
@@ -10,7 +8,6 @@ import useHooks from "./hooks";
 
 const ContentList: React.FC = () => {
   const t = useT();
-  const { modelId } = useParams();
 
   const {
     currentModel,
@@ -74,9 +71,7 @@ const ContentList: React.FC = () => {
           onModelSelect={handleModelSelect}
         />
       }
-      viewsMenu={
-        <ViewsMenu currentView={currentView} setCurrentView={setCurrentView} key={modelId} />
-      }
+      viewsMenu={<ViewsMenu currentView={currentView} setCurrentView={setCurrentView} />}
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
       onTableControl={handleTableControl}
