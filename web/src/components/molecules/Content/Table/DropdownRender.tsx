@@ -295,7 +295,7 @@ const DropdownRender: React.FC<Props> = ({
         [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue },
       };
 
-      if (filter.type === "Bool") {
+      if (filter.type === "Bool" || filter.type === "Checkbox") {
         value = value === "true";
       } else if (filter.type === "Integer" || filter.type === "Float") {
         value = Number(value);
