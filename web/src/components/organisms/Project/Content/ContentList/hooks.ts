@@ -81,13 +81,11 @@ export default () => {
         },
         direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
       };
-    setCurrentView({
-      columns: currentView.columns,
+    setCurrentView(prev => ({
+      ...prev,
       sort: sort,
-      filter: currentView.filter,
-    });
+    }));
     setSearchTerm(searchTermParam ?? "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortFieldType, sortFieldId, direction, searchTermParam, pageSizeParam, pageParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
