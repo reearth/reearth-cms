@@ -1,8 +1,6 @@
-import { Buffer } from "buffer";
-
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
-import { useRef, useEffect, useCallback, useMemo } from "react";
+import { useRef, useEffect, useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -17,6 +15,7 @@ import {
   Operator,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
   BasicOperator,
   BoolOperator,
@@ -27,6 +26,7 @@ import {
   StringOperator,
   SortDirection,
   ConditionInput,
+  ItemSortInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -37,6 +37,8 @@ type Props = {
   open: boolean;
   isFilter: boolean;
   index: number;
+  currentView: CurrentViewType;
+  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -46,6 +48,8 @@ const DropdownRender: React.FC<Props> = ({
   open,
   isFilter,
   index,
+  currentView,
+  onTableControl,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const t = useT();
@@ -54,6 +58,7 @@ const DropdownRender: React.FC<Props> = ({
   useEffect(() => {
     if (open && !defaultValue) {
       form.resetFields();
+      setIsShowInputField(true);
     }
   }, [open, form, defaultValue]);
 
@@ -67,6 +72,7 @@ const DropdownRender: React.FC<Props> = ({
     if (isFilter) {
       switch (filter.type) {
         case "Bool":
+        case "Checkbox":
           result.push(
             { operatorType: "bool", value: BoolOperator.Equals, label: t("is") },
             { operatorType: "bool", value: BoolOperator.NotEquals, label: t("is not") },
@@ -189,7 +195,7 @@ const DropdownRender: React.FC<Props> = ({
           {
             operatorType: "multiple",
             value: MultipleOperator.NotIncludesAny,
-            label: t("Not Include all"),
+            label: t("Not Include any"),
           },
         );
       }
@@ -220,7 +226,7 @@ const DropdownRender: React.FC<Props> = ({
     } else if (filter.type === "Tag") {
       if (filter?.typeProperty?.tags) {
         for (const tag of Object.values(filter.typeProperty.tags)) {
-          options.push({ value: tag.name, label: tag.name });
+          options.push({ value: tag.id, label: tag.name });
         }
       }
     } else if (filter.type === "Person") {
@@ -229,7 +235,7 @@ const DropdownRender: React.FC<Props> = ({
           options.push({ value: member.user?.name, label: member.user?.name });
         }
       }
-    } else if (filter.type === "Bool") {
+    } else if (filter.type === "Bool" || filter.type === "Checkbox") {
       options.push({ value: "true", label: "True" }, { value: "false", label: "False" });
     }
 
@@ -251,16 +257,45 @@ const DropdownRender: React.FC<Props> = ({
     close();
     if (isFilter) {
       const operatorType = filterOption.current.operatorType;
-      const value = filterValue.current ? Buffer.from(filterValue.current).toString("base64") : "";
-      const type = typeof filter.dataIndex === "string" ? filter.id : "FIELD";
+      let value: string | boolean | number | Date = filterValue.current ?? "";
+      const type =
+        typeof filter.dataIndex === "string"
+          ? filter.id
+          : filter.dataIndex[0] === "fields"
+          ? "FIELD"
+          : "META_FIELD";
       const operatorValue = filterOption.current.value;
-      let params = searchParams.get("filter") ?? "";
-      const newCondition = `${operatorType}:${value};${type}:${filter.id};${operatorValue}:${filter.type}`;
-      const conditions = params.split(",");
-      conditions[index] = newCondition;
-      params = conditions.filter(Boolean).join(",");
-      searchParams.set("filter", params);
-      setSearchParams(searchParams);
+      const currentFilters = currentView.filter?.conditions
+        ? [...currentView.filter.conditions]
+        : [];
+      const newFilter: {
+        [x: keyof ConditionInput | string]: {
+          fieldId: {
+            type: string;
+            id: string;
+          };
+          operator: Operator | SortDirection;
+          value?: string | boolean | number | Date;
+        };
+      } = {
+        [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue },
+      };
+
+      if (filter.type === "Bool") {
+        value = value === "true";
+      } else if (filter.type === "Integer" || filter.type === "Float") {
+        value = Number(value);
+      } else if (filter.type === "Date") {
+        value = value ? new Date(value) : new Date();
+      }
+
+      if (operatorType !== "nullable") {
+        newFilter[operatorType].value = value;
+      }
+
+      currentFilters[index] = newFilter;
+
+      onTableControl(undefined, currentFilters.filter(Boolean));
     } else {
       searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
       switch (filter.id as string) {
@@ -280,17 +315,44 @@ const DropdownRender: React.FC<Props> = ({
     }
   }, [
     close,
+    isFilter,
     filter.dataIndex,
     filter.id,
     filter.type,
+    currentView.filter,
     index,
-    isFilter,
+    onTableControl,
     searchParams,
     setSearchParams,
   ]);
 
+  const isDefaultShow = useMemo(() => {
+    if (
+      defaultValue?.operatorType === "nullable" ||
+      defaultValue?.operator === TimeOperator.OfThisWeek ||
+      defaultValue?.operator === TimeOperator.OfThisMonth ||
+      defaultValue?.operator === TimeOperator.OfThisYear
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }, [defaultValue]);
+
+  const [isShowInputField, setIsShowInputField] = useState(isDefaultShow);
+
   const onFilterSelect = useCallback(
     (value: Operator | SortDirection, option: { operatorType: string }) => {
+      if (
+        option.operatorType === "nullable" ||
+        value === TimeOperator.OfThisWeek ||
+        value === TimeOperator.OfThisMonth ||
+        value === TimeOperator.OfThisYear
+      ) {
+        setIsShowInputField(false);
+      } else {
+        setIsShowInputField(true);
+      }
       filterOption.current = { value, operatorType: option.operatorType };
     },
     [],
@@ -328,23 +390,26 @@ const DropdownRender: React.FC<Props> = ({
             defaultValue={defaultValue?.operator}
           />
         </Form.Item>
-        {isFilter && (
+        {isFilter && isShowInputField && (
           <Form.Item name="value">
             {filter.type === "Select" ||
             filter.type === "Tag" ||
             filter.type === "Person" ||
-            filter.type === "Bool" ? (
+            filter.type === "Bool" ||
+            filter.type === "Checkbox" ? (
               <Select
                 placeholder="Select the value"
                 options={valueOptions}
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value}
+                defaultValue={defaultValue?.value.toString()}
               />
             ) : filter.type === "Integer" || filter.type === "Float" ? (
               <InputNumber
                 onChange={onNumberChange}
                 stringMode
                 defaultValue={defaultValue?.value}
+                style={{ width: "100%" }}
+                placeholder="Enter the value"
               />
             ) : filter.type === "Date" ? (
               <DatePicker
@@ -357,7 +422,11 @@ const DropdownRender: React.FC<Props> = ({
                 }
               />
             ) : (
-              <Input onChange={onInputChange} defaultValue={defaultValue?.value} />
+              <Input
+                onChange={onInputChange}
+                defaultValue={defaultValue?.value}
+                placeholder="Enter the value"
+              />
             )}
           </Form.Item>
         )}

@@ -16,6 +16,7 @@ import type {
   SortDirection,
   FieldSelector,
   ConditionInput,
+  ItemSortInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -45,6 +46,7 @@ export type Props = {
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
+  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
   onContentTableChange: (
     page: number,
     pageSize: number,
@@ -78,7 +80,6 @@ const ContentListMolecule: React.FC<Props> = ({
   selection,
   totalCount,
   currentView,
-  filter,
   searchTerm,
   page,
   pageSize,
@@ -95,6 +96,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onSearchTerm,
+  onTableControl,
   onContentTableChange,
   setSelection,
   onItemSelect,
@@ -137,7 +139,6 @@ const ContentListMolecule: React.FC<Props> = ({
           <ContentTable
             totalCount={totalCount}
             currentView={currentView}
-            filter={filter}
             searchTerm={searchTerm}
             page={page}
             pageSize={pageSize}
@@ -145,6 +146,7 @@ const ContentListMolecule: React.FC<Props> = ({
             selectedItem={selectedItem}
             selection={selection}
             onUnpublish={onUnpublish}
+            onTableControl={onTableControl}
             onSearchTerm={onSearchTerm}
             onContentTableChange={onContentTableChange}
             setSelection={setSelection}

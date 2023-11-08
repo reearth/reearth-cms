@@ -1,11 +1,8 @@
-import { Buffer } from "buffer";
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
-import type { FilterType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -24,6 +21,7 @@ import {
   useGetItemsByIdsQuery,
   ConditionInput,
   ItemSortInput,
+  AndConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -31,7 +29,7 @@ import { fileName } from "./utils";
 
 export type CurrentViewType = {
   sort?: ItemSortInput;
-  filter?: ConditionInput[];
+  filter?: AndConditionInput;
   columns?: FieldSelector[];
 };
 
@@ -61,16 +59,14 @@ export default () => {
   const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
   const sortFieldId = useMemo(() => searchParams.get("sortFieldId"), [searchParams]);
-  const filterParam = useMemo(() => searchParams.get("filter"), [searchParams]);
 
   const navigate = useNavigate();
   const { modelId } = useParams();
   const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [filter, setFilter] = useState<ConditionInput[]>();
   const [currentView, setCurrentView] = useState<CurrentViewType>({
-    columns: undefined,
+    columns: [],
   });
 
   useEffect(() => {
@@ -85,64 +81,12 @@ export default () => {
         },
         direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
       };
-    const newFilter: ConditionInput[] = [];
-    if (filterParam) {
-      const params = filterParam.split(",");
-      let key: keyof ConditionInput, type, id, operator, value, valueType: FilterType;
-      for (const param of params) {
-        const conditions = param.split(";");
-        key = conditions[0].split(":")[0] as keyof ConditionInput;
-        value = conditions[0].split(":")[1];
-        value = value && Buffer.from(value, "base64").toString();
-        [type, id] = conditions[1].split(":");
-        operator = conditions[2].split(":")[0];
-        valueType = conditions[2].split(":")[1] as FilterType;
-        const data: {
-          [x: keyof ConditionInput | string]: {
-            fieldId: {
-              type: string;
-              id: string;
-            };
-            operator: string;
-            value?: string | boolean | number | Date;
-          };
-        } = {
-          [key]: {
-            fieldId: { type, id },
-            operator,
-          },
-        };
-
-        if (valueType === "Bool") {
-          value = value === "true";
-        } else if (valueType === "Integer" || valueType === "Float") {
-          value = Number(value);
-        } else if (valueType === "Date") {
-          value = new Date(value);
-        }
-
-        if (key !== "nullable") {
-          data[key].value = value;
-        }
-        newFilter.push(data);
-      }
-    }
     setCurrentView(prev => ({
       ...prev,
       sort: sort,
-      filter: newFilter.length > 0 ? newFilter : undefined,
     }));
-    setFilter(newFilter.length > 0 ? newFilter : undefined);
     setSearchTerm(searchTermParam ?? "");
-  }, [
-    sortFieldType,
-    sortFieldId,
-    direction,
-    searchTermParam,
-    filterParam,
-    pageSizeParam,
-    pageParam,
-  ]);
+  }, [sortFieldType, sortFieldId, direction, searchTermParam, pageSizeParam, pageParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -156,11 +100,9 @@ export default () => {
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
         sort: currentView.sort,
-        filter: filter
+        filter: currentView.filter
           ? {
-              and: {
-                conditions: filter,
-              },
+              and: currentView.filter,
             }
           : undefined,
       },
@@ -394,6 +336,27 @@ export default () => {
     [setSearchParams, searchParams],
   );
 
+  const handleTableControl = useCallback(
+    (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => {
+      setCurrentView(prev => {
+        let filterValue = prev.filter;
+        if (filter) {
+          if (filter.length > 0) {
+            filterValue = { conditions: filter };
+          } else {
+            filterValue = undefined;
+          }
+        }
+        return {
+          columns: prev.columns,
+          sort: sort ?? prev.sort,
+          filter: filterValue,
+        };
+      });
+    },
+    [],
+  );
+
   const handleBulkAddItemToRequest = useCallback(
     async (request: Request, itemIds: string[]) => {
       await handleAddItemToRequest(request, itemIds);
@@ -414,7 +377,6 @@ export default () => {
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
     currentView,
-    filter,
     searchTerm,
     page,
     pageSize,
@@ -431,6 +393,7 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
+    handleTableControl,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
