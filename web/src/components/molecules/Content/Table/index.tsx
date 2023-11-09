@@ -397,6 +397,8 @@ const ContentTable: React.FC<Props> = ({
           typeProperty: column?.typeProperty,
           members: currentWorkspace?.members,
           id: column?.key,
+          required: column?.required,
+          multiple: column?.multiple,
         });
         newDefaultValues.push({ operatorType, operator, value });
       }
@@ -862,6 +864,7 @@ const Wrapper = styled.div`
 const menuStyle: React.CSSProperties = {
   boxShadow: "none",
   overflowY: "auto",
+  maxHeight: "256px",
 };
 
 const stateColors: {
