@@ -254,13 +254,15 @@ const DropdownRender: React.FC<Props> = ({
       filterValue.current = defaultValue.value;
     }
 
-    if (
-      defaultValue?.operatorType === "nullable" ||
+    if (defaultValue?.operatorType === "nullable") {
+      setIsShowInputField(false);
+    } else if (
       defaultValue?.operator === TimeOperator.OfThisWeek ||
       defaultValue?.operator === TimeOperator.OfThisMonth ||
       defaultValue?.operator === TimeOperator.OfThisYear
     ) {
       setIsShowInputField(false);
+      defaultValue.value = "";
     } else {
       setIsShowInputField(true);
     }
@@ -305,6 +307,15 @@ const DropdownRender: React.FC<Props> = ({
 
       if (operatorType !== "nullable") {
         newFilter[operatorType].value = value;
+        if (
+          operatorValue === TimeOperator.OfThisWeek ||
+          operatorValue === TimeOperator.OfThisMonth ||
+          operatorValue === TimeOperator.OfThisYear
+        ) {
+          form.resetFields(["value"]);
+        }
+      } else {
+        form.resetFields(["value"]);
       }
 
       currentFilters[index] = newFilter;
@@ -338,6 +349,7 @@ const DropdownRender: React.FC<Props> = ({
     onTableControl,
     searchParams,
     setSearchParams,
+    form,
   ]);
 
   const [isShowInputField, setIsShowInputField] = useState(true);
