@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -364,105 +365,161 @@ func resetTime(dateField string) bson.M {
 	}
 }
 
-func filter(f *view.Condition, sp schema.Package) any {
-	if f == nil {
+func filter(c *view.Condition, sp schema.Package) any {
+	if c == nil {
 		return nil
 	}
 	ff := bson.M{}
-	if f.BasicCondition != nil {
-		switch f.BasicCondition.Op {
-		case view.BasicOperatorEquals:
-			ff[fieldKey(f.BasicCondition.Field)] = fieldValue(f.BasicCondition.Field, f.BasicCondition.Value, sp)
-		case view.BasicOperatorNotEquals:
-			ff[fieldKey(f.BasicCondition.Field)] = bson.M{"$ne": fieldValue(f.BasicCondition.Field, f.BasicCondition.Value, sp)}
-		}
-	}
-	if f.NullableCondition != nil {
-		switch f.NullableCondition.Op {
-		case view.NullableOperatorEmpty:
-			ff[fieldKey(f.NullableCondition.Field)] = bson.M{"$exists": false}
-		case view.NullableOperatorNotEmpty:
-			ff[fieldKey(f.NullableCondition.Field)] = bson.M{"$exists": true}
-		}
-	}
-	if f.BoolCondition != nil {
-		switch f.BoolCondition.Op {
-		case view.BoolOperatorEquals:
-			ff[fieldKey(f.BoolCondition.Field)] = f.BoolCondition.Value
-		case view.BoolOperatorNotEquals:
-			ff[fieldKey(f.BoolCondition.Field)] = bson.M{"$ne": f.BoolCondition.Value}
-		}
-	}
-	if f.StringCondition != nil {
-		switch f.StringCondition.Op {
-		case view.StringOperatorContains:
-			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(f.StringCondition.Value))}
-		case view.StringOperatorNotContains:
-			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(f.StringCondition.Value))}}
-		case view.StringOperatorStartsWith:
-			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(f.StringCondition.Value))}
-		case view.StringOperatorNotStartsWith:
-			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(f.StringCondition.Value))}}
-		case view.StringOperatorEndsWith:
-			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(f.StringCondition.Value))}
-		case view.StringOperatorNotEndsWith:
-			ff[fieldKey(f.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(f.StringCondition.Value))}}
-		}
-	}
-	if f.NumberCondition != nil {
-		switch f.NumberCondition.Op {
-		case view.NumberOperatorGreaterThan:
-			ff[fieldKey(f.NumberCondition.Field)] = bson.M{"$gt": f.NumberCondition.Value}
-		case view.NumberOperatorGreaterThanOrEqualTo:
-			ff[fieldKey(f.NumberCondition.Field)] = bson.M{"$gte": f.NumberCondition.Value}
-		case view.NumberOperatorLessThan:
-			ff[fieldKey(f.NumberCondition.Field)] = bson.M{"$lt": f.NumberCondition.Value}
-		case view.NumberOperatorLessThanOrEqualTo:
-			ff[fieldKey(f.NumberCondition.Field)] = bson.M{"$lte": f.NumberCondition.Value}
-		}
-	}
-	if f.TimeCondition != nil {
-		value := f.TimeCondition.Value.Truncate(24 * time.Hour)
-		switch f.TimeCondition.Op {
-		case view.TimeOperatorAfter:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gt": value}
-		case view.TimeOperatorAfterOrOn:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": value}
-		case view.TimeOperatorBefore:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$lt": value}
-		case view.TimeOperatorBeforeOrOn:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$lte": value}
-		case view.TimeOperatorOfThisWeek:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": time.Now().AddDate(0, 0, -7)}
-		case view.TimeOperatorOfThisMonth:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": time.Now().AddDate(0, -1, 0)}
-		case view.TimeOperatorOfThisYear:
-			ff[fieldKey(f.TimeCondition.Field)] = bson.M{"$gte": time.Now().AddDate(-1, 0, 0)}
-		}
-	}
-	if f.MultipleCondition != nil {
-		switch f.MultipleCondition.Op {
-		case view.MultipleOperatorIncludesAny:
-			ff[fieldKey(f.MultipleCondition.Field)] = bson.M{"$in": f.MultipleCondition.Value}
-		case view.MultipleOperatorIncludesAll:
-			ff[fieldKey(f.MultipleCondition.Field)] = bson.M{"$all": f.MultipleCondition.Value}
-		case view.MultipleOperatorNotIncludesAny:
-			ff[fieldKey(f.MultipleCondition.Field)] = bson.M{"$nin": f.MultipleCondition.Value}
-		case view.MultipleOperatorNotIncludesAll:
-			ff[fieldKey(f.MultipleCondition.Field)] = bson.M{"$not": bson.M{"$all": f.MultipleCondition.Value}}
-		}
-	}
-	if f.AndCondition != nil {
-		ff["$and"] = lo.Map(f.AndCondition.Conditions, func(c view.Condition, _ int) any {
+	switch c.ConditionType {
+	case view.ConditionTypeBasic:
+		ff = lo.Assign(ff, filterBasic(c, sp))
+	case view.ConditionTypeNullable:
+		ff = lo.Assign(ff, filterNullable(c, sp))
+	case view.ConditionTypeBool:
+		ff = lo.Assign(ff, filterBool(c, sp))
+	case view.ConditionTypeString:
+		ff = lo.Assign(ff, filterString(c, sp))
+	case view.ConditionTypeNumber:
+		ff = lo.Assign(ff, filterNumber(c, sp))
+	case view.ConditionTypeTime:
+		ff = lo.Assign(ff, filterDate(c, sp))
+	case view.ConditionTypeMultiple:
+		ff = lo.Assign(ff, filterMultiple(c, sp))
+	case view.ConditionTypeAnd:
+		ff["$and"] = lo.Map(c.AndCondition.Conditions, func(c view.Condition, _ int) any {
 			return filter(&c, sp)
 		})
-	}
-	if f.OrCondition != nil {
-		ff["$or"] = lo.Map(f.OrCondition.Conditions, func(c view.Condition, _ int) any {
+	case view.ConditionTypeOr:
+		ff["$or"] = lo.Map(c.OrCondition.Conditions, func(c view.Condition, _ int) any {
 			return filter(&c, sp)
 		})
+	default:
+		return nil
 	}
 	return ff
+}
+
+func filterMultiple(c *view.Condition, sp schema.Package) bson.M {
+	f := bson.M{}
+	switch c.MultipleCondition.Op {
+	case view.MultipleOperatorIncludesAny:
+		f[fieldKey(c.MultipleCondition.Field)] = bson.M{"$in": c.MultipleCondition.Value}
+	case view.MultipleOperatorIncludesAll:
+		f[fieldKey(c.MultipleCondition.Field)] = bson.M{"$all": c.MultipleCondition.Value}
+	case view.MultipleOperatorNotIncludesAny:
+		f[fieldKey(c.MultipleCondition.Field)] = bson.M{"$nin": c.MultipleCondition.Value}
+	case view.MultipleOperatorNotIncludesAll:
+		f[fieldKey(c.MultipleCondition.Field)] = bson.M{"$not": bson.M{"$all": c.MultipleCondition.Value}}
+	}
+	return f
+}
+
+func filterDate(c *view.Condition, sp schema.Package) bson.M {
+	f := bson.M{}
+	v := c.TimeCondition.Value.Truncate(24 * time.Hour)
+	switch c.TimeCondition.Op {
+	case view.TimeOperatorAfter:
+		f[fieldKey(c.TimeCondition.Field)] = bson.M{"$gt": v}
+	case view.TimeOperatorAfterOrOn:
+		f[fieldKey(c.TimeCondition.Field)] = bson.M{"$gte": v}
+	case view.TimeOperatorBefore:
+		f[fieldKey(c.TimeCondition.Field)] = bson.M{"$lt": v}
+	case view.TimeOperatorBeforeOrOn:
+		f[fieldKey(c.TimeCondition.Field)] = bson.M{"$lte": v}
+	case view.TimeOperatorOfThisWeek:
+		v = startDayOfWeek(util.Now())
+		f[fieldKey(c.TimeCondition.Field)] = bson.M{"$gte": v}
+	case view.TimeOperatorOfThisMonth:
+		v = startDayOfMonth(util.Now())
+		f[fieldKey(c.TimeCondition.Field)] = bson.M{"$gte": v}
+	case view.TimeOperatorOfThisYear:
+		v = startDayOfYear(util.Now())
+		f[fieldKey(c.TimeCondition.Field)] = bson.M{"$gte": v}
+	}
+	return f
+}
+
+func startDayOfWeek(t time.Time) time.Time {
+	weekday := time.Duration(t.Weekday())
+	if weekday == 0 {
+		weekday = 7
+	}
+	return t.Truncate(24 * time.Hour).Add(-1 * (weekday - 1) * 24 * time.Hour)
+}
+
+func startDayOfMonth(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, t.Location())
+}
+
+func startDayOfYear(t time.Time) time.Time {
+	return time.Date(t.Year(), 1, 1, 0, 0, 0, 0, t.Location())
+}
+
+func filterNumber(c *view.Condition, sp schema.Package) bson.M {
+	f := bson.M{}
+	switch c.NumberCondition.Op {
+	case view.NumberOperatorGreaterThan:
+		f[fieldKey(c.NumberCondition.Field)] = bson.M{"$gt": c.NumberCondition.Value}
+	case view.NumberOperatorGreaterThanOrEqualTo:
+		f[fieldKey(c.NumberCondition.Field)] = bson.M{"$gte": c.NumberCondition.Value}
+	case view.NumberOperatorLessThan:
+		f[fieldKey(c.NumberCondition.Field)] = bson.M{"$lt": c.NumberCondition.Value}
+	case view.NumberOperatorLessThanOrEqualTo:
+		f[fieldKey(c.NumberCondition.Field)] = bson.M{"$lte": c.NumberCondition.Value}
+	}
+	return f
+}
+
+func filterString(c *view.Condition, sp schema.Package) bson.M {
+	f := bson.M{}
+	switch c.StringCondition.Op {
+	case view.StringOperatorContains:
+		f[fieldKey(c.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(c.StringCondition.Value))}
+	case view.StringOperatorNotContains:
+		f[fieldKey(c.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf(".*%s.*", regexp.QuoteMeta(c.StringCondition.Value))}}
+	case view.StringOperatorStartsWith:
+		f[fieldKey(c.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(c.StringCondition.Value))}
+	case view.StringOperatorNotStartsWith:
+		f[fieldKey(c.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("^%s", regexp.QuoteMeta(c.StringCondition.Value))}}
+	case view.StringOperatorEndsWith:
+		f[fieldKey(c.StringCondition.Field)] = bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(c.StringCondition.Value))}
+	case view.StringOperatorNotEndsWith:
+		f[fieldKey(c.StringCondition.Field)] = bson.M{"$not": bson.M{"$regex": fmt.Sprintf("%s$", regexp.QuoteMeta(c.StringCondition.Value))}}
+	}
+	return f
+}
+
+func filterBool(c *view.Condition, sp schema.Package) bson.M {
+	f := bson.M{}
+	switch c.BoolCondition.Op {
+	case view.BoolOperatorEquals:
+		f[fieldKey(c.BoolCondition.Field)] = c.BoolCondition.Value
+	case view.BoolOperatorNotEquals:
+		f[fieldKey(c.BoolCondition.Field)] = bson.M{"$ne": c.BoolCondition.Value}
+	}
+	return f
+}
+
+func filterNullable(c *view.Condition, sp schema.Package) bson.M {
+	f := bson.M{}
+	switch c.NullableCondition.Op {
+	case view.NullableOperatorEmpty:
+		f[fieldKey(c.NullableCondition.Field)] = bson.M{"$exists": false}
+	case view.NullableOperatorNotEmpty:
+		f[fieldKey(c.NullableCondition.Field)] = bson.M{"$exists": true}
+	}
+	return f
+}
+
+func filterBasic(c *view.Condition, sp schema.Package) bson.M {
+	f := bson.M{}
+	switch c.BasicCondition.Op {
+	case view.BasicOperatorEquals:
+		f[fieldKey(c.BasicCondition.Field)] = fieldValue(c.BasicCondition.Field, c.BasicCondition.Value, sp)
+	case view.BasicOperatorNotEquals:
+		f[fieldKey(c.BasicCondition.Field)] = bson.M{"$ne": fieldValue(c.BasicCondition.Field, c.BasicCondition.Value, sp)}
+	}
+	return f
 }
 
 func fieldKey(f view.FieldSelector) string {
