@@ -72,7 +72,7 @@ const ViewsMenuItem: React.FC<Props> = ({
 
   return (
     <Wrapper>
-      {t(view.name)}
+      {view.name}
       <Dropdown trigger={["click"]} menu={{ items: children }}>
         <Icon icon="more" size={16} style={{ marginRight: 0 }} />
       </Dropdown>
