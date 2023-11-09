@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { useParams } from "react-router-dom";
 
 import ViewFormMobal from "@reearth-cms/components/molecules/View/ViewFormModal";
@@ -11,7 +11,7 @@ import useHooks from "./hooks";
 
 export type Props = {
   currentView: CurrentViewType;
-  setCurrentView: (view: CurrentViewType) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
 };
 
 const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
