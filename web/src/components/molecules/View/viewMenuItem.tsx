@@ -71,31 +71,23 @@ const ViewsMenuItem: React.FC<Props> = ({
   ];
 
   return (
-    <StyledDropdownButton
-      trigger={["click"]}
-      type="text"
-      icon={<Icon icon="more" />}
-      menu={{ items: children }}>
-      {t(view.name)}
-    </StyledDropdownButton>
+    <Wrapper>
+      {view.name}
+      <StyledDropdown trigger={["click"]} menu={{ items: children }}>
+        <Icon icon="more" size={16} />
+      </StyledDropdown>
+    </Wrapper>
   );
 };
 
 export default ViewsMenuItem;
 
-const StyledDropdownButton = styled(Dropdown.Button)`
+const Wrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  .ant-btn-compact-first-item {
-    padding: 0px;
-  }
-  .ant-btn-compact-last-item {
-    height: 16px;
-    width: 16px;
-  }
-  .ant-btn-icon-only {
-    display: flex;
-    align-items: center;
-  }
+`;
+
+const StyledDropdown = styled(Dropdown)`
+  margin-right: 0 !important;
 `;
