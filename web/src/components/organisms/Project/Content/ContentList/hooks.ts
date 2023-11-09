@@ -25,9 +25,8 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
+import { renderTags } from "./renderFields";
 import { fileName } from "./utils";
-
-import { renderTags } from ".";
 
 export type CurrentViewType = {
   sort?: ItemSortInput;
