@@ -27,6 +27,8 @@ import { useT } from "@reearth-cms/i18n";
 
 import { fileName } from "./utils";
 
+import { renderTags } from ".";
+
 export type CurrentViewType = {
   sort?: ItemSortInput;
   filter?: AndConditionInput;
@@ -228,19 +230,25 @@ export default () => {
     }));
 
     const metadataColumns =
-      currentModel?.metadataSchema?.fields?.map(field => ({
-        title: field.title,
-        dataIndex: ["metadata", field.id],
-        fieldType: "META_FIELD",
-        key: field.id,
-        ellipsis: true,
-        type: field.type,
-        typeProperty: field.typeProperty,
-        width: 128,
-        minWidth: 128,
-        multiple: field.multiple,
-        required: field.required,
-      })) || [];
+      currentModel?.metadataSchema?.fields?.map(field => {
+        const result: any = {
+          title: field.title,
+          dataIndex: ["metadata", field.id],
+          fieldType: "META_FIELD",
+          key: field.id,
+          ellipsis: true,
+          type: field.type,
+          typeProperty: field.typeProperty,
+          width: 128,
+          minWidth: 128,
+          multiple: field.multiple,
+          required: field.required,
+        };
+        if (field.type === "Tag") {
+          result.render = (el: any) => renderTags(el, field);
+        }
+        return result;
+      }) || [];
 
     return fieldsColumns.concat(metadataColumns);
   }, [currentModel]);

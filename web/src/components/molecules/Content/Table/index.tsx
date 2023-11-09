@@ -301,6 +301,7 @@ const ContentTable: React.FC<Props> = ({
         ellipsis: true,
         multiple: column.multiple,
         required: column.required,
+        render: column.render,
       })),
     [contentTableColumns, currentView.sort],
   );
