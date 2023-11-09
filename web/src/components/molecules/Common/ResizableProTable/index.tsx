@@ -23,6 +23,7 @@ const ResizableProTable: React.FC<Props> = ({
   pagination,
   onChange,
   columnsState,
+  showSorterTooltip,
 }) => {
   const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>([]);
 
@@ -73,6 +74,7 @@ const ResizableProTable: React.FC<Props> = ({
         pagination={pagination}
         onChange={onChange}
         columnsState={columnsState}
+        showSorterTooltip={showSorterTooltip}
       />
     </Wrapper>
   );
