@@ -253,6 +253,11 @@ const DropdownRender: React.FC<Props> = ({
         operatorType: defaultValue.operatorType,
       };
       filterValue.current = defaultValue.value;
+    } else {
+      filterOption.current = {
+        value: options[0].value,
+        operatorType: options[0].operatorType,
+      };
     }
 
     if (defaultValue?.operatorType === "nullable") {
@@ -267,7 +272,7 @@ const DropdownRender: React.FC<Props> = ({
     } else {
       setIsShowInputField(true);
     }
-  }, [defaultValue]);
+  }, [defaultValue, options]);
 
   const confirm = useCallback(() => {
     if (filterOption.current === undefined) return;
@@ -401,7 +406,7 @@ const DropdownRender: React.FC<Props> = ({
             style={{ width: 160 }}
             options={options}
             onSelect={onFilterSelect}
-            defaultValue={defaultValue?.operator}
+            defaultValue={defaultValue?.operator ?? options[0].value}
             key={defaultValue?.operator}
           />
         </StyledFormItem>
