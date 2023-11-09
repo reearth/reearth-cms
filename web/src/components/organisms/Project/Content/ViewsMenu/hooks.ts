@@ -53,18 +53,21 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
     if (selectedView) {
       setCurrentView(prev => ({
         ...prev,
-        sort: {
-          field: {
-            id: selectedView.sort?.field.id ? selectedView.sort?.field.id : undefined,
-            type:
-              selectedView.sort?.field.type && selectedView.sort?.field.id
-                ? selectedView.sort?.field.type
-                : FieldType["Id"],
-          },
-          direction: selectedView.sort?.direction
-            ? selectedView.sort?.direction
-            : SortDirection["Asc"],
-        },
+        sort: selectedView.sort
+          ? {
+              field: {
+                id:
+                  selectedView.sort.field.type === FieldType["Field"] ||
+                  selectedView.sort.field.type === FieldType["MetaField"]
+                    ? selectedView.sort.field.id
+                    : undefined,
+                type: selectedView.sort.field.type,
+              },
+              direction: selectedView.sort?.direction
+                ? selectedView.sort?.direction
+                : SortDirection["Asc"],
+            }
+          : undefined,
         columns: selectedView.columns ? selectedView.columns : [],
         filter: filterConvert(selectedView.filter as AndCondition),
       }));
