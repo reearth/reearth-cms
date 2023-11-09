@@ -69,7 +69,7 @@ const FilterDropdown: React.FC<Props> = ({
       )}
       trigger={["click"]}
       placement="bottomLeft"
-      arrow
+      arrow={false}
       open={open}
       onOpenChange={handleOpenChange}>
       <Badge offset={[-3, 3]} color="blue" dot>
@@ -86,6 +86,8 @@ const FilterDropdown: React.FC<Props> = ({
   );
 };
 
+export default FilterDropdown;
+
 const StyledButton = styled(Button)`
   color: rgba(0, 0, 0, 0.45);
   background-color: #f8f8f8;
@@ -98,5 +100,3 @@ const StyledIcon = styled(Icon)`
     color: rgba(0, 0, 0, 0.85);
   }
 `;
-
-export default FilterDropdown;

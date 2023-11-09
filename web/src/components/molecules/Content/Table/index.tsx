@@ -520,7 +520,7 @@ const ContentTable: React.FC<Props> = ({
         {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
       </Wrapper>
     ),
-    arrow: true,
+    arrow: false,
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
@@ -637,14 +637,14 @@ const ContentTable: React.FC<Props> = ({
           }
           trigger={["contextMenu"]}
           placement="bottom"
-          arrow
+          arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
             menu={{ items: toolBarItems }}
             placement="bottom"
             trigger={["click"]}
-            arrow
+            arrow={false}
             open={controlMenuOpen}
             onOpenChange={handleControlMenuOpenChange}>
             <Tooltip title="Control">
