@@ -47,11 +47,7 @@ export type Props = {
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
-  onContentTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { field?: FieldSelector; direction?: SortDirection },
-  ) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSortInput) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;

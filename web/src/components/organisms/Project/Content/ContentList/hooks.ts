@@ -320,11 +320,7 @@ export default () => {
   );
 
   const handleContentTableChange = useCallback(
-    (
-      page: number,
-      pageSize: number,
-      sorter?: { field?: FieldSelector; direction?: SortDirection },
-    ) => {
+    (page: number, pageSize: number, sorter?: ItemSortInput) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
       searchParams.set("sortFieldType", sorter?.field?.type ? sorter?.field?.type : "");

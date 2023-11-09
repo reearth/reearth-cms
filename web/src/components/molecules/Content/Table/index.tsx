@@ -82,11 +82,7 @@ export type Props = {
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
   onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
-  onContentTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { field?: FieldSelector; direction?: SortDirection },
-  ) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSortInput) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onItemEdit: (itemId: string) => void;
@@ -763,13 +759,15 @@ const ContentTable: React.FC<Props> = ({
               sorter?.order
                 ? {
                     field: {
-                      id: sorter?.columnKey,
-                      type: sorter.column.fieldType as FieldSelector["type"],
+                      id:
+                        sorter.column.fieldType === "FIELD" ||
+                        sorter.column.fieldType === "META_FIELD"
+                          ? sorter.columnKey
+                          : undefined,
+                      type: sorter.column.fieldType as FieldType,
                     },
                     direction:
-                      sorter.order === "ascend"
-                        ? ("ASC" as SortDirection)
-                        : ("DESC" as SortDirection),
+                      sorter.order === "ascend" ? SortDirection["Asc"] : SortDirection["Desc"],
                   }
                 : undefined,
             );
