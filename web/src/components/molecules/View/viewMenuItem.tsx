@@ -73,9 +73,9 @@ const ViewsMenuItem: React.FC<Props> = ({
   return (
     <Wrapper>
       {view.name}
-      <Dropdown trigger={["click"]} menu={{ items: children }}>
-        <Icon icon="more" size={16} style={{ marginRight: 0 }} />
-      </Dropdown>
+      <StyledDropdown trigger={["click"]} menu={{ items: children }}>
+        <Icon icon="more" size={16} />
+      </StyledDropdown>
     </Wrapper>
   );
 };
@@ -86,4 +86,8 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+const StyledDropdown = styled(Dropdown)`
+  margin-right: 0 !important;
 `;
