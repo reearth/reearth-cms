@@ -15,7 +15,7 @@ export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
 export type DefaultFilterValueType = {
   operatorType: string;
   operator: Operator;
-  value: string;
+  value?: string;
 };
 
 export type FilterType = FieldType | "Person";
