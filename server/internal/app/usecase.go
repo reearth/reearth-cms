@@ -11,10 +11,12 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountusecase/accountgateway"
 	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
+	"github.com/reearth/reearthx/log"
 )
 
 func UsecaseMiddleware(r *repo.Container, g *gateway.Container, ar *accountrepo.Container, ag *accountgateway.Container, config interactor.ContainerConfig) echo.MiddlewareFunc {
 	return ContextMiddleware(func(ctx context.Context) context.Context {
+		log.Infof("[DEBUG] UsecaseMiddleware")
 		var r2 *repo.Container
 		var ar2 *accountrepo.Container
 		if op := adapter.Operator(ctx); op != nil && r != nil {

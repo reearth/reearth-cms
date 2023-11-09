@@ -18,6 +18,7 @@ import (
 	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
 	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 	"github.com/reearth/reearthx/appx"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -165,6 +166,7 @@ func PublicAPIAuthMiddleware(cfg *ServerConfig) echo.MiddlewareFunc {
 func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			log.Infof("[DEBUG] M2MAuthMiddleware")
 			ctx := c.Request().Context()
 			if ai, ok := ctx.Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
 				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {

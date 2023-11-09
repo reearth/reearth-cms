@@ -19,7 +19,7 @@ func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input rhttp.NotifyInput
 		var err error
-
+		log.Infof("[DEBUG] notify handler")
 		if isAWS(c.Request()) {
 			input, err = parseSNSMessage(c.Request().Body)
 		} else if isGCP(c.Request()) {
