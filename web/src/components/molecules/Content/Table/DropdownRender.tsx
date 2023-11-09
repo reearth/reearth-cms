@@ -27,6 +27,7 @@ import {
   SortDirection,
   ConditionInput,
   ItemSortInput,
+  FieldType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -322,20 +323,31 @@ const DropdownRender: React.FC<Props> = ({
 
       onTableControl(undefined, currentFilters.filter(Boolean));
     } else {
-      searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
+      const direction =
+        filterOption.current.value === "ASC" ? SortDirection["Asc"] : SortDirection["Desc"];
+      let fieldType: FieldType;
+      let fieldId = "";
       switch (filter.id as string) {
         case "CREATION_DATE":
         case "CREATION_USER":
         case "MODIFICATION_DATE":
         case "MODIFICATION_USER":
         case "STATUS":
-          searchParams.set("sortFieldType", filter.id);
+          fieldType = filter.id as FieldType;
           break;
         default:
-          if (filter.dataIndex[0] === "fields") searchParams.set("sortFieldType", "FIELD");
-          else searchParams.set("sortFieldType", "META_FIELD");
-          searchParams.set("sortFieldId", filter.id);
+          if (filter.dataIndex[0] === "fields") fieldType = "FIELD" as FieldType;
+          else fieldType = "META_FIELD" as FieldType;
+          fieldId = filter.id;
       }
+      const sort = {
+        field: {
+          id: fieldId ? fieldId : undefined,
+          type: fieldType,
+        },
+        direction: direction,
+      };
+      onTableControl(sort, undefined);
       setSearchParams(searchParams);
     }
   }, [

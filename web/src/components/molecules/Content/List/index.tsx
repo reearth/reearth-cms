@@ -12,12 +12,7 @@ import { ContentTableField, Item } from "@reearth-cms/components/molecules/Conte
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import type {
-  SortDirection,
-  FieldSelector,
-  ConditionInput,
-  ItemSortInput,
-} from "@reearth-cms/gql/graphql-client-api";
+import type { ConditionInput, ItemSortInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {

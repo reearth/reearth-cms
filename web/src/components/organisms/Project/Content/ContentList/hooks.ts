@@ -14,7 +14,6 @@ import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
-  SortDirection,
   FieldSelector,
   useSearchItemQuery,
   Asset as GQLAsset,
@@ -56,10 +55,7 @@ export default () => {
 
   const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
   const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const sortFieldType = useMemo(() => searchParams.get("sortFieldType"), [searchParams]);
-  const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
-  const sortFieldId = useMemo(() => searchParams.get("sortFieldId"), [searchParams]);
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -73,21 +69,8 @@ export default () => {
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-    let sort: ItemSortInput | undefined;
-    if (sortFieldType)
-      sort = {
-        field: {
-          id: sortFieldId,
-          type: sortFieldType as FieldSelector["type"],
-        },
-        direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
-      };
-    setCurrentView(prev => ({
-      ...prev,
-      sort: sort,
-    }));
     setSearchTerm(searchTermParam ?? "");
-  }, [sortFieldType, sortFieldId, direction, searchTermParam, pageSizeParam, pageParam]);
+  }, [searchTermParam, pageSizeParam, pageParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -323,9 +306,10 @@ export default () => {
     (page: number, pageSize: number, sorter?: ItemSortInput) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
-      searchParams.set("sortFieldType", sorter?.field?.type ? sorter?.field?.type : "");
-      searchParams.set("direction", sorter?.direction ? sorter.direction : "");
-      searchParams.set("sortFieldId", sorter?.field?.id ? sorter?.field?.id : "");
+      setCurrentView(prev => ({
+        ...prev,
+        sort: sorter,
+      }));
       setSearchParams(searchParams);
     },
     [searchParams, setSearchParams],
