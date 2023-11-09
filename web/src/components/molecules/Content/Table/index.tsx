@@ -40,6 +40,7 @@ import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Conte
 import {
   SortDirection,
   FieldSelector,
+  SchemaFieldType,
   FieldType,
   ItemSortInput,
   ConditionInput,
@@ -52,7 +53,7 @@ import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 type ExtendedColumns = ProColumns<ContentTableField> & {
-  type?: FieldType | "Person";
+  type?: SchemaFieldType | "Person";
   fieldType?: string;
   sortOrder?: "descend" | "ascend" | null;
   typeProperty?: { values?: string[] };
@@ -196,7 +197,7 @@ const ContentTable: React.FC<Props> = ({
         key: "CREATION_DATE",
         sortOrder:
           currentView.sort?.field?.type === "CREATION_DATE"
-            ? currentView.sort.direction === "ASC"
+            ? currentView.sort.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
@@ -204,14 +205,14 @@ const ContentTable: React.FC<Props> = ({
         sorter: true,
         defaultSortOrder:
           currentView.sort?.field?.type === "CREATION_DATE"
-            ? currentView.sort.direction === "ASC"
+            ? currentView.sort.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        // type: "Date",
+        type: SchemaFieldType["Date"] as string,
       },
       {
         title: t("Created By"),
@@ -220,14 +221,14 @@ const ContentTable: React.FC<Props> = ({
         key: "CREATION_USER",
         sortOrder:
           currentView.sort?.field?.type === "CREATION_USER"
-            ? currentView.sort.direction === "ASC"
+            ? currentView.sort.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
         sorter: true,
         defaultSortOrder:
           currentView.sort?.field?.type === "CREATION_USER"
-            ? currentView.sort.direction === "ASC"
+            ? currentView.sort.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
@@ -243,7 +244,7 @@ const ContentTable: React.FC<Props> = ({
         key: "MODIFICATION_DATE",
         sortOrder:
           currentView.sort?.field?.type === "MODIFICATION_DATE"
-            ? currentView.sort.direction === "ASC"
+            ? currentView.sort.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
@@ -251,14 +252,14 @@ const ContentTable: React.FC<Props> = ({
         sorter: true,
         defaultSortOrder:
           currentView.sort?.field?.type === "MODIFICATION_DATE"
-            ? currentView.sort.direction === "ASC"
+            ? currentView.sort.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        // type: "Date",
+        type: SchemaFieldType["Date"] as string,
       },
       {
         title: t("Updated By"),
@@ -267,14 +268,14 @@ const ContentTable: React.FC<Props> = ({
         key: "MODIFICATION_USER",
         sortOrder:
           currentView.sort?.field?.type === "MODIFICATION_USER"
-            ? currentView.sort.direction === "ASC"
+            ? currentView.sort.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
         sorter: true,
         defaultSortOrder:
           currentView.sort?.field?.type === "MODIFICATION_USER"
-            ? currentView.sort.direction === "ASC"
+            ? currentView.sort.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
@@ -292,8 +293,8 @@ const ContentTable: React.FC<Props> = ({
       contentTableColumns?.map(column => ({
         sorter: true,
         sortOrder:
-          currentView.sort?.field?.id === column.key
-            ? currentView.sort?.direction === "ASC"
+          currentView.sort?.field.id === column.key
+            ? currentView.sort?.direction === SortDirection["Asc"]
               ? "ascend"
               : "descend"
             : null,
