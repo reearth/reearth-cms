@@ -212,7 +212,7 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        type: SchemaFieldType["Date"] as string,
+        type: SchemaFieldType["Date"],
       },
       {
         title: t("Created By"),
@@ -259,7 +259,7 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        type: SchemaFieldType["Date"] as string,
+        type: SchemaFieldType["Date"],
       },
       {
         title: t("Updated By"),
