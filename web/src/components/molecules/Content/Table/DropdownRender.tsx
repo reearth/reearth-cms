@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
+import Divider from "@reearth-cms/components/atoms/Divider";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
@@ -253,6 +254,11 @@ const DropdownRender: React.FC<Props> = ({
         operatorType: defaultValue.operatorType,
       };
       filterValue.current = defaultValue.value;
+    } else {
+      filterOption.current = {
+        value: options[0].value,
+        operatorType: options[0].operatorType,
+      };
     }
 
     if (defaultValue?.operatorType === "nullable") {
@@ -267,7 +273,7 @@ const DropdownRender: React.FC<Props> = ({
     } else {
       setIsShowInputField(true);
     }
-  }, [defaultValue]);
+  }, [defaultValue, options]);
 
   const confirm = useCallback(() => {
     if (filterOption.current === undefined) return;
@@ -405,19 +411,19 @@ const DropdownRender: React.FC<Props> = ({
   );
 
   return (
-    <Container>
-      <Form form={form} name="basic" autoComplete="off">
-        <Form.Item label={filter.title} name="condition">
+    <StyledForm form={form} name="basic" autoComplete="off" colon={false}>
+      <Container>
+        <StyledFormItem label={<TextWrapper>{filter.title}</TextWrapper>} name="condition">
           <Select
             style={{ width: 160 }}
             options={options}
             onSelect={onFilterSelect}
-            defaultValue={defaultValue?.operator}
+            defaultValue={defaultValue?.operator ?? options[0].value}
             key={defaultValue?.operator}
           />
-        </Form.Item>
+        </StyledFormItem>
         {isFilter && isShowInputField && (
-          <Form.Item name="value">
+          <StyledFormItem name="value">
             {filter.type === "Select" ||
             filter.type === "Tag" ||
             filter.type === "Person" ||
@@ -458,28 +464,50 @@ const DropdownRender: React.FC<Props> = ({
                 key={defaultValue?.value}
               />
             )}
-          </Form.Item>
+          </StyledFormItem>
         )}
-        <Form.Item style={{ textAlign: "right" }}>
-          <Space size="small">
-            <Button type="default" style={{ marginRight: 10 }} onClick={close}>
-              {t("Cancel")}
-            </Button>
-            <Button type="primary" htmlType="submit" onClick={confirm}>
-              {t("Confirm")}
-            </Button>
-          </Space>
-        </Form.Item>
-      </Form>
-    </Container>
+      </Container>
+      <StyledDivider />
+      <ButtonsFormItem>
+        <Space size="small">
+          <Button type="default" onClick={close}>
+            {t("Cancel")}
+          </Button>
+          <Button type="primary" htmlType="submit" onClick={confirm}>
+            {t("Confirm")}
+          </Button>
+        </Space>
+      </ButtonsFormItem>
+    </StyledForm>
   );
 };
 
-const Container = styled.div`
+export default DropdownRender;
+
+const StyledForm = styled(Form)`
   background-color: white;
-  padding: 10px;
   box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 
-export default DropdownRender;
+const Container = styled.div`
+  padding: 9px 12px 0;
+`;
+
+const StyledFormItem = styled(Form.Item)`
+  margin-bottom: 8px;
+`;
+
+const TextWrapper = styled.span`
+  min-width: 137px;
+  text-align: left;
+`;
+
+const StyledDivider = styled(Divider)`
+  margin: 0;
+`;
+
+const ButtonsFormItem = styled(Form.Item)`
+  text-align: right;
+  padding: 8px 4px;
+`;
