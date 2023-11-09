@@ -1,6 +1,15 @@
 import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
-import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
+import React, {
+  Key,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -62,7 +71,7 @@ export type Props = {
   };
   totalCount: number;
   currentView: CurrentViewType;
-  setCurrentView: (settings: CurrentViewType) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -719,12 +728,11 @@ const ContentTable: React.FC<Props> = ({
                 } as FieldSelector;
           }
         });
-      setCurrentView({
-        ...currentView,
+      setCurrentView(prev => ({
+        ...prev,
         columns: cols,
-      });
+      }));
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setCurrentView, tableColumns],
   );
 
