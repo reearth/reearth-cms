@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"encoding/json"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -26,6 +27,23 @@ func TestNewItem(t *testing.T) {
 		NewUUID().
 		MustBuild()
 	af := asset.NewFile().Name("name.json").Path("name.json").Size(1).Build()
+	s2 := schema.New().
+		NewID().
+		Project(id.NewProjectID()).
+		Workspace(accountdomain.NewWorkspaceID()).
+		Fields([]*schema.Field{
+			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("test1")).MustBuild(),
+		}).
+		MustBuild()
+
+	g := group.New().
+		NewID().
+		Name("test group").
+		Project(id.NewProjectID()).
+		Key(key.New("group1")).
+		Schema(s2.ID()).
+		MustBuild()
+
 	s := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -33,8 +51,10 @@ func TestNewItem(t *testing.T) {
 		Fields([]*schema.Field{
 			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New("aaaaa")).MustBuild(),
 			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New("bbbbb")).MustBuild(),
+			schema.NewField(schema.NewGroup(g.ID()).TypeProperty()).NewID().Key(key.New("ggggg")).MustBuild(),
 		}).
 		MustBuild()
+	ig := id.NewItemGroupID()
 	it := item.New().
 		NewID().
 		Schema(id.NewSchemaID()).
@@ -44,9 +64,14 @@ func TestNewItem(t *testing.T) {
 		Fields([]*item.Field{
 			item.NewField(s.Fields()[0].ID(), value.New(value.TypeText, "aaaa").AsMultiple(), nil),
 			item.NewField(s.Fields()[1].ID(), value.New(value.TypeAsset, as.ID()).AsMultiple(), nil),
+			item.NewField(s.Fields()[2].ID(), value.New(value.TypeGroup, ig).AsMultiple(), nil),
+			item.NewField(s2.Fields()[0].ID(), value.New(value.TypeText, "xxxx").AsMultiple(), ig.Ref()),
 		}).
 		MustBuild()
-
+	resGroup := map[string]ItemFields{}
+	resGroup[ig.String()] = ItemFields{
+		"test1": "xxxx",
+	}
 	assert.Equal(t, Item{
 		ID: it.ID().String(),
 		Fields: ItemFields(map[string]any{
@@ -56,8 +81,9 @@ func TestNewItem(t *testing.T) {
 				ID:   as.ID().String(),
 				URL:  "https://example.com/" + as.ID().String() + af.Path(),
 			},
+			"ggggg": resGroup,
 		}),
-	}, NewItem(it, s, asset.List{as}, func(a *asset.Asset) string {
+	}, NewItem(it, s, schema.List{s2}, asset.List{as}, func(a *asset.Asset) string {
 		return "https://example.com/" + a.ID().String() + af.Path()
 	}))
 
@@ -66,8 +92,9 @@ func TestNewItem(t *testing.T) {
 		ID: it.ID().String(),
 		Fields: ItemFields(map[string]any{
 			"aaaaa": "aaaa",
+			"ggggg": resGroup,
 		}),
-	}, NewItem(it, s, nil, nil))
+	}, NewItem(it, s, schema.List{s2}, nil, nil))
 }
 
 func TestNewItem_Multiple(t *testing.T) {
@@ -111,7 +138,7 @@ func TestNewItem_Multiple(t *testing.T) {
 				URL:  "https://example.com/" + as.ID().String() + af.Path(),
 			}},
 		}),
-	}, NewItem(it, s, asset.List{as}, func(a *asset.Asset) string {
+	}, NewItem(it, s, nil, asset.List{as}, func(a *asset.Asset) string {
 		return "https://example.com/" + a.ID().String() + af.Path()
 	}))
 
@@ -121,7 +148,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 		}),
-	}, NewItem(it, s, nil, nil))
+	}, NewItem(it, s, nil, nil, nil))
 }
 
 func TestItem_MarshalJSON(t *testing.T) {
