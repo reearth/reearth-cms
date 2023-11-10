@@ -112,6 +112,10 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		}
 		return NewItem(i, s, sgl, assets, c.assetUrlResolver), nil
 	})
+	if err != nil {
+		return ListResult[Item]{}, nil, err
+	}
+
 	res := NewListResult(itms, pi, p.Pagination)
 	return res, s, nil
 }
