@@ -61,7 +61,7 @@ type Item interface {
 	FindPublicByModel(context.Context, id.ModelID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindByProject(context.Context, id.ProjectID, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	FindAllVersionsByID(context.Context, id.ItemID, *usecase.Operator) (item.VersionedList, error)
-	Search(context.Context, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
+	Search(context.Context, schema.Package, *item.Query, *usecasex.Pagination, *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error)
 	ItemStatus(context.Context, id.ItemIDList, *usecase.Operator) (map[id.ItemID]item.Status, error)
 	LastModifiedByModel(context.Context, id.ModelID, *usecase.Operator) (time.Time, error)
 	IsItemReferenced(context.Context, id.ItemID, id.FieldID, *usecase.Operator) (bool, error)

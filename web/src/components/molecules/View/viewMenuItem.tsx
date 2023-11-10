@@ -3,21 +3,21 @@ import styled from "@emotion/styled";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { View } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   view: View;
-  onViewUpdateModalOpen?: (view: View) => void;
   onViewRenameModalOpen?: (view: View) => void;
+  onUpdate: (viewId: string, name: string) => Promise<void>;
   onDelete: (viewId: string) => void;
   onViewDeletionClose: () => void;
 };
 
 const ViewsMenuItem: React.FC<Props> = ({
   view,
-  onViewUpdateModalOpen,
   onViewRenameModalOpen,
+  onUpdate,
   onDelete,
   onViewDeletionClose,
 }) => {
@@ -28,7 +28,7 @@ const ViewsMenuItem: React.FC<Props> = ({
       label: t("Update View"),
       key: "update",
       icon: <Icon icon="reload" />,
-      onClick: () => onViewUpdateModalOpen?.(view),
+      onClick: () => onUpdate?.(view.id, view.name),
     },
     {
       label: t("Rename"),
@@ -71,31 +71,23 @@ const ViewsMenuItem: React.FC<Props> = ({
   ];
 
   return (
-    <StyledDropdownButton
-      trigger={["click"]}
-      type="text"
-      icon={<Icon icon="more" />}
-      menu={{ items: children }}>
-      {t(view.name)}
-    </StyledDropdownButton>
+    <Wrapper>
+      {view.name}
+      <StyledDropdown trigger={["click"]} menu={{ items: children }}>
+        <Icon icon="more" size={16} />
+      </StyledDropdown>
+    </Wrapper>
   );
 };
 
 export default ViewsMenuItem;
 
-const StyledDropdownButton = styled(Dropdown.Button)`
+const Wrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  .ant-btn-compact-first-item {
-    padding: 0px;
-  }
-  .ant-btn-compact-last-item {
-    height: 16px;
-    width: 16px;
-  }
-  .ant-btn-icon-only {
-    display: flex;
-    align-items: center;
-  }
+`;
+
+const StyledDropdown = styled(Dropdown)`
+  margin-right: 0 !important;
 `;

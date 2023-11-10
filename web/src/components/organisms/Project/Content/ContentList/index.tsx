@@ -19,15 +19,13 @@ const ContentList: React.FC = () => {
     selection,
     loading,
     totalCount,
-    sort,
-    filter,
+    currentView,
     searchTerm,
     page,
     pageSize,
     requests,
     addItemToRequestModalShown,
-    columns,
-    setColumns,
+    setCurrentView,
     handleRequestTableChange,
     requestModalLoading,
     requestModalTotalCount,
@@ -38,6 +36,7 @@ const ContentList: React.FC = () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
+    handleTableControl,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
@@ -72,20 +71,19 @@ const ContentList: React.FC = () => {
           onModelSelect={handleModelSelect}
         />
       }
-      viewsMenu={<ViewsMenu />}
+      viewsMenu={<ViewsMenu currentView={currentView} setCurrentView={setCurrentView} />}
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
+      onTableControl={handleTableControl}
       selectedItem={selectedItem}
       onItemSelect={handleItemSelect}
       collapsed={collapsedModelMenu}
       itemsDataLoading={loading}
-      sort={sort}
-      columns={columns}
-      setColumns={setColumns}
+      currentView={currentView}
+      setCurrentView={setCurrentView}
       totalCount={totalCount}
       searchTerm={searchTerm}
       page={page}
-      filter={filter}
       pageSize={pageSize}
       model={currentModel}
       contentTableFields={contentTableFields}

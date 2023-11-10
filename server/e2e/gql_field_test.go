@@ -46,6 +46,44 @@ func createField(e *httpexpect.Expect, mID, title, desc, key string, multiple, u
 	return res.Path("$.data.createField.field.id").Raw().(string), res
 }
 
+func createMetaField(e *httpexpect.Expect, mID, title, desc, key string, multiple, unique, isTitle, required bool, fType string, fTypeProp map[string]any) (string, *httpexpect.Value) {
+	requestBody := GraphQLRequest{
+		Query: `mutation CreateField($modelId: ID!, $type: SchemaFieldType!, $metadata: Boolean, $title: String!, $description: String, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
+				  createField(input: {modelId: $modelId, type: $type, metadata: $metadata, title: $title, description: $description, key: $key, multiple: $multiple, unique: $unique, isTitle: $isTitle, required: $required, typeProperty: $typeProperty}) {
+					field {
+					  id
+					  __typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelId":      mID,
+			"metadata":     true,
+			"title":        title,
+			"description":  desc,
+			"key":          key,
+			"multiple":     multiple,
+			"unique":       unique,
+			"isTitle":      isTitle,
+			"required":     required,
+			"type":         fType,
+			"typeProperty": fTypeProp,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res.Path("$.data.createField.field.id").Raw().(string), res
+}
+
 func updateField(e *httpexpect.Expect, mID, fID, title, desc, key string, multiple, unique, isTitle, required bool, order *int, fType string, fTypeProp map[string]any) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateField($modelId: ID!, $fieldId: ID!, $title: String!, $description: String, $order: Int, $key: String!, $multiple: Boolean!, $unique: Boolean!, $isTitle: Boolean!, $required: Boolean!, $typeProperty: SchemaFieldTypePropertyInput!) {
@@ -94,6 +132,7 @@ type fIds struct {
 	selectFId   string
 	integerFId  string
 	urlFId      string
+	dateFId     string
 }
 
 func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds {
@@ -152,7 +191,13 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 			"url": map[string]any{},
 		})
 
-	_, res := getModel(e, mId)
+	dateFId, _ := createField(e, mId, "date", "date", "date",
+		false, false, false, false, "Date",
+		map[string]any{
+			"date": map[string]any{},
+		})
+
+	_, _, res := getModel(e, mId)
 
 	res.Object().
 		Value("data").Object().
@@ -170,6 +215,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		selectFId,
 		integerFId,
 		urlFId,
+		dateFId,
 	}, ids)
 
 	return fIds{
@@ -180,6 +226,89 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		boolFId:     boolFId,
 		selectFId:   selectFId,
 		integerFId:  integerFId,
+		urlFId:      urlFId,
+		dateFId:     dateFId,
+	}
+}
+
+type mfIds struct {
+	tagFId      string
+	boolFId     string
+	checkboxFId string
+	dateFId     string
+	textFId     string
+	urlFId      string
+}
+
+func createMetaFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) mfIds {
+	tagFId, _ := createMetaField(e, mId, "tag", "tag", "m_tag",
+		false, false, false, false, "Tag",
+		map[string]any{
+			"tag": map[string]any{
+				"tags": []any{
+					map[string]any{"name": "Tag1", "color": "RED"},
+					map[string]any{"name": "Tag2", "color": "MAGENTA"},
+					map[string]any{"name": "Tag3", "color": "GREEN"},
+					map[string]any{"name": "Tag4", "color": "BLUE"},
+					map[string]any{"name": "Tag5", "color": "GOLD"},
+				},
+			},
+		})
+
+	boolFId, _ := createMetaField(e, mId, "bool", "bool", "m_bool",
+		false, false, false, false, "Bool",
+		map[string]any{
+			"bool": map[string]any{},
+		})
+
+	checkboxFId, _ := createMetaField(e, mId, "checkbox", "checkbox", "m_checkbox",
+		false, false, false, false, "Checkbox",
+		map[string]any{
+			"checkbox": map[string]any{},
+		})
+
+	dateFId, _ := createMetaField(e, mId, "date", "date", "m_date",
+		false, false, false, false, "Date",
+		map[string]any{
+			"date": map[string]any{},
+		})
+
+	textFId, _ := createMetaField(e, mId, "text", "text", "m_text",
+		false, false, false, false, "Text",
+		map[string]any{
+			"text": map[string]any{},
+		})
+
+	urlFId, _ := createMetaField(e, mId, "url", "url", "m_url",
+		false, false, false, false, "URL",
+		map[string]any{
+			"url": map[string]any{},
+		})
+
+	_, _, res := getModel(e, mId)
+
+	res.Object().
+		Value("data").Object().
+		Value("node").Object().
+		HasValue("id", mId)
+
+	ids := res.Path("$.data.node.metadataSchema.fields[:].id").Raw().([]any)
+
+	assert.Equal(t, []any{
+		tagFId,
+		boolFId,
+		checkboxFId,
+		dateFId,
+		textFId,
+		urlFId,
+	}, ids)
+
+	return mfIds{
+		tagFId:      tagFId,
+		boolFId:     boolFId,
+		checkboxFId: checkboxFId,
+		dateFId:     dateFId,
+		textFId:     textFId,
 		urlFId:      urlFId,
 	}
 }
@@ -204,7 +333,7 @@ func TestCreateField(t *testing.T) {
 			},
 		})
 
-	_, res := getModel(e, mId)
+	_, _, res := getModel(e, mId)
 
 	res.Object().
 		Value("data").Object().
@@ -222,7 +351,7 @@ func TestCreateField(t *testing.T) {
 			},
 		})
 
-	_, res = getModel(e, mId)
+	_, _, res = getModel(e, mId)
 
 	res.Object().
 		Value("data").Object().
@@ -242,7 +371,7 @@ func TestCreateField(t *testing.T) {
 			},
 		})
 
-	_, res = getModel(e, mId)
+	_, _, res = getModel(e, mId)
 
 	res.Object().
 		Value("data").Object().

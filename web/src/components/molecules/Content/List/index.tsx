@@ -1,5 +1,5 @@
-import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
+import { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -11,10 +11,12 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import type {
   SortDirection,
   FieldSelector,
   ConditionInput,
+  ItemSortInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -32,7 +34,7 @@ export type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  sort?: { field?: FieldSelector; direction?: SortDirection };
+  currentView: CurrentViewType;
   filter?: ConditionInput[];
   searchTerm: string;
   page: number;
@@ -41,10 +43,10 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
-  columns: Record<string, ColumnsState>;
-  setColumns: (input: Record<string, ColumnsState>) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
+  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
   onContentTableChange: (
     page: number,
     pageSize: number,
@@ -77,15 +79,13 @@ const ContentListMolecule: React.FC<Props> = ({
   selectedItem,
   selection,
   totalCount,
-  sort,
-  filter,
+  currentView,
   searchTerm,
   page,
   pageSize,
   requests,
   addItemToRequestModalShown,
-  columns,
-  setColumns,
+  setCurrentView,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -96,6 +96,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onSearchTerm,
+  onTableControl,
   onContentTableChange,
   setSelection,
   onItemSelect,
@@ -137,8 +138,7 @@ const ContentListMolecule: React.FC<Props> = ({
           {viewsMenu}
           <ContentTable
             totalCount={totalCount}
-            sort={sort}
-            filter={filter}
+            currentView={currentView}
             searchTerm={searchTerm}
             page={page}
             pageSize={pageSize}
@@ -146,6 +146,7 @@ const ContentListMolecule: React.FC<Props> = ({
             selectedItem={selectedItem}
             selection={selection}
             onUnpublish={onUnpublish}
+            onTableControl={onTableControl}
             onSearchTerm={onSearchTerm}
             onContentTableChange={onContentTableChange}
             setSelection={setSelection}
@@ -165,8 +166,7 @@ const ContentListMolecule: React.FC<Props> = ({
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
-            columns={columns}
-            setColumns={setColumns}
+            setCurrentView={setCurrentView}
           />
         </Content>
       }

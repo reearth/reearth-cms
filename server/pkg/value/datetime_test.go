@@ -8,6 +8,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Test_propertyDateTime_ToValue(t *testing.T) {
@@ -29,6 +30,12 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 		{
 			name:  "integer",
 			args:  []any{now.Unix(), float64(now.Unix()), json.Number(fmt.Sprintf("%d", now.Unix()))},
+			want1: now,
+			want2: true,
+		},
+		{
+			name:  "primitive",
+			args:  []any{now.Unix(), primitive.DateTime(now.Unix() * 1000)},
 			want1: now,
 			want2: true,
 		},
