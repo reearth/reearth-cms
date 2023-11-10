@@ -48,9 +48,9 @@ func TestView(t *testing.T) {
 
 	// Update fields using Setters
 	v.SetName("updatedName")   // Assuming name is "updatedName"
-	v.SetSort(newSort)         // Assuming newSort has been set
-	v.SetFilter(newCondition)  // Assuming newCondition has been set
-	v.SetColumns(newFields)    // Assuming newFields has been set
+	v.SetSort(&newSort)        // Assuming newSort has been set
+	v.SetFilter(&newCondition) // Assuming newCondition has been set
+	v.SetColumns(&newFields)   // Assuming newFields has been set
 	v.SetUpdatedAt(updateTime) // Assuming updateTime has been set
 
 	// Test that updated fields are set correctly

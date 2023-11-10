@@ -305,14 +305,14 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(values)) {
         fields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });

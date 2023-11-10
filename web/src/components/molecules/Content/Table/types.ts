@@ -15,7 +15,7 @@ export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
 export type DefaultFilterValueType = {
   operatorType: string;
   operator: Operator;
-  value: string;
+  value?: string;
 };
 
 export type FilterType = FieldType | "Person";
@@ -24,9 +24,11 @@ export type DropdownFilterType = {
   dataIndex: string | string[];
   title: string;
   type: FilterType;
-  typeProperty: { values?: string[]; tags?: { name: string }[] };
+  typeProperty: { values?: string[]; tags?: { id: string; name: string }[] };
   members: { user: { name: string } }[];
   id: string;
+  multiple: boolean;
+  required: boolean;
 };
 
 export type Operator =

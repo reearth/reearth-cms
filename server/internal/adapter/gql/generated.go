@@ -5253,8 +5253,8 @@ input PublishItemInput {
 
 input ItemQueryInput {
   project: ID!
+  model: ID!
   schema: ID
-  model: ID
   q: String
 }
 
@@ -32445,7 +32445,7 @@ func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"project", "schema", "model", "q"}
+	fieldsInOrder := [...]string{"project", "model", "schema", "q"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -32461,6 +32461,15 @@ func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, ob
 				return it, err
 			}
 			it.Project = data
+		case "model":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("model"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Model = data
 		case "schema":
 			var err error
 
@@ -32470,15 +32479,6 @@ func (ec *executionContext) unmarshalInputItemQueryInput(ctx context.Context, ob
 				return it, err
 			}
 			it.Schema = data
-		case "model":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("model"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Model = data
 		case "q":
 			var err error
 

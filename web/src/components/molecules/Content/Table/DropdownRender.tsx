@@ -1,12 +1,11 @@
-import { Buffer } from "buffer";
-
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
-import { useRef, useEffect, useCallback, useMemo } from "react";
+import { useRef, useEffect, useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
+import Divider from "@reearth-cms/components/atoms/Divider";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
@@ -17,15 +16,18 @@ import {
   Operator,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
   BasicOperator,
   BoolOperator,
   NullableOperator,
   NumberOperator,
   TimeOperator,
+  MultipleOperator,
   StringOperator,
   SortDirection,
   ConditionInput,
+  ItemSortInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -36,6 +38,8 @@ type Props = {
   open: boolean;
   isFilter: boolean;
   index: number;
+  currentView: CurrentViewType;
+  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -45,6 +49,8 @@ const DropdownRender: React.FC<Props> = ({
   open,
   isFilter,
   index,
+  currentView,
+  onTableControl,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const t = useT();
@@ -53,6 +59,7 @@ const DropdownRender: React.FC<Props> = ({
   useEffect(() => {
     if (open && !defaultValue) {
       form.resetFields();
+      setIsShowInputField(true);
     }
   }, [open, form, defaultValue]);
 
@@ -66,6 +73,7 @@ const DropdownRender: React.FC<Props> = ({
     if (isFilter) {
       switch (filter.type) {
         case "Bool":
+        case "Checkbox":
           result.push(
             { operatorType: "bool", value: BoolOperator.Equals, label: t("is") },
             { operatorType: "bool", value: BoolOperator.NotEquals, label: t("is not") },
@@ -108,12 +116,6 @@ const DropdownRender: React.FC<Props> = ({
               value: StringOperator.NotEndsWith,
               label: t("doesn't end with"),
             },
-            { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
-            {
-              operatorType: "nullable",
-              value: NullableOperator.NotEmpty,
-              label: t("is not empty"),
-            },
           );
           break;
         case "Select":
@@ -126,12 +128,6 @@ const DropdownRender: React.FC<Props> = ({
               operatorType: "string",
               value: StringOperator.NotContains,
               label: t("doesn't contain"),
-            },
-            { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
-            {
-              operatorType: "nullable",
-              value: NullableOperator.NotEmpty,
-              label: t("is not empty"),
             },
           );
           break;
@@ -152,12 +148,6 @@ const DropdownRender: React.FC<Props> = ({
               value: NumberOperator.LessThanOrEqualTo,
               label: t("less than or equal to"),
             },
-            { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
-            {
-              operatorType: "nullable",
-              value: NullableOperator.NotEmpty,
-              label: t("is not empty"),
-            },
           );
           break;
         case "Date":
@@ -174,6 +164,42 @@ const DropdownRender: React.FC<Props> = ({
           );
           break;
       }
+      // add nullable operator to all non required columns
+      if (!filter.required) {
+        result.push(
+          { operatorType: "nullable", value: NullableOperator.Empty, label: t("is empty") },
+          {
+            operatorType: "nullable",
+            value: NullableOperator.NotEmpty,
+            label: t("is not empty"),
+          },
+        );
+      }
+      // add multiple operator to all multiple columns
+      if (filter.multiple || filter.type === "Select" || filter.type === "Tag") {
+        result.push(
+          {
+            operatorType: "multiple",
+            value: MultipleOperator.IncludesAll,
+            label: t("Includes all"),
+          },
+          {
+            operatorType: "multiple",
+            value: MultipleOperator.IncludesAny,
+            label: t("Includes any"),
+          },
+          {
+            operatorType: "multiple",
+            value: MultipleOperator.NotIncludesAll,
+            label: t("Not include all"),
+          },
+          {
+            operatorType: "multiple",
+            value: MultipleOperator.NotIncludesAny,
+            label: t("Not Include any"),
+          },
+        );
+      }
     } else {
       result.push(
         { operatorType: "sort", value: SortDirection.Asc, label: t("Ascending") },
@@ -182,7 +208,7 @@ const DropdownRender: React.FC<Props> = ({
     }
 
     return result;
-  }, [filter.type, isFilter, t]);
+  }, [filter.multiple, filter.required, filter.type, isFilter, t]);
 
   const valueOptions = useMemo<
     {
@@ -201,7 +227,7 @@ const DropdownRender: React.FC<Props> = ({
     } else if (filter.type === "Tag") {
       if (filter?.typeProperty?.tags) {
         for (const tag of Object.values(filter.typeProperty.tags)) {
-          options.push({ value: tag.name, label: tag.name });
+          options.push({ value: tag.id, label: tag.name });
         }
       }
     } else if (filter.type === "Person") {
@@ -210,7 +236,7 @@ const DropdownRender: React.FC<Props> = ({
           options.push({ value: member.user?.name, label: member.user?.name });
         }
       }
-    } else if (filter.type === "Bool") {
+    } else if (filter.type === "Bool" || filter.type === "Checkbox") {
       options.push({ value: "true", label: "True" }, { value: "false", label: "False" });
     }
 
@@ -218,30 +244,89 @@ const DropdownRender: React.FC<Props> = ({
   }, [filter]);
 
   const filterOption = useRef<{ value: Operator | SortDirection; operatorType: string }>();
-
-  if (defaultValue) {
-    filterOption.current = {
-      value: defaultValue.operator,
-      operatorType: defaultValue.operatorType,
-    };
-  }
   const filterValue = useRef<string>();
+
+  useEffect(() => {
+    if (defaultValue) {
+      filterOption.current = {
+        value: defaultValue.operator,
+        operatorType: defaultValue.operatorType,
+      };
+      filterValue.current = defaultValue.value;
+    } else {
+      filterOption.current = {
+        value: options[0].value,
+        operatorType: options[0].operatorType,
+      };
+    }
+
+    if (defaultValue?.operatorType === "nullable") {
+      setIsShowInputField(false);
+    } else if (
+      defaultValue?.operator === TimeOperator.OfThisWeek ||
+      defaultValue?.operator === TimeOperator.OfThisMonth ||
+      defaultValue?.operator === TimeOperator.OfThisYear
+    ) {
+      setIsShowInputField(false);
+      defaultValue.value = "";
+    } else {
+      setIsShowInputField(true);
+    }
+  }, [defaultValue, options]);
 
   const confirm = useCallback(() => {
     if (filterOption.current === undefined) return;
     close();
     if (isFilter) {
       const operatorType = filterOption.current.operatorType;
-      const value = filterValue.current ? Buffer.from(filterValue.current).toString("base64") : "";
-      const type = typeof filter.dataIndex === "string" ? filter.id : "FIELD";
+      let value: string | boolean | number | Date = filterValue.current ?? "";
+      const type =
+        typeof filter.dataIndex === "string"
+          ? filter.id
+          : filter.dataIndex[0] === "fields"
+          ? "FIELD"
+          : "META_FIELD";
       const operatorValue = filterOption.current.value;
-      let params = searchParams.get("filter") ?? "";
-      const newCondition = `${operatorType}:${value};${type}:${filter.id};${operatorValue}:${filter.type}`;
-      const conditions = params.split(",");
-      conditions[index] = newCondition;
-      params = conditions.filter(Boolean).join(",");
-      searchParams.set("filter", params);
-      setSearchParams(searchParams);
+      const currentFilters = currentView.filter?.conditions
+        ? [...currentView.filter.conditions]
+        : [];
+      const newFilter: {
+        [x: keyof ConditionInput | string]: {
+          fieldId: {
+            type: string;
+            id: string;
+          };
+          operator: Operator | SortDirection;
+          value?: string | boolean | number | Date;
+        };
+      } = {
+        [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue },
+      };
+
+      if (filter.type === "Bool" || filter.type === "Checkbox") {
+        value = value === "true";
+      } else if (filter.type === "Integer" || filter.type === "Float") {
+        value = Number(value);
+      } else if (filter.type === "Date") {
+        value = value ? new Date(value) : new Date();
+      }
+
+      if (operatorType !== "nullable") {
+        newFilter[operatorType].value = value;
+        if (
+          operatorValue === TimeOperator.OfThisWeek ||
+          operatorValue === TimeOperator.OfThisMonth ||
+          operatorValue === TimeOperator.OfThisYear
+        ) {
+          form.resetFields(["value"]);
+        }
+      } else {
+        form.resetFields(["value"]);
+      }
+
+      currentFilters[index] = newFilter;
+
+      onTableControl(undefined, currentFilters.filter(Boolean));
     } else {
       searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
       switch (filter.id as string) {
@@ -261,17 +346,32 @@ const DropdownRender: React.FC<Props> = ({
     }
   }, [
     close,
+    isFilter,
     filter.dataIndex,
     filter.id,
     filter.type,
+    currentView.filter,
     index,
-    isFilter,
+    onTableControl,
     searchParams,
     setSearchParams,
+    form,
   ]);
+
+  const [isShowInputField, setIsShowInputField] = useState(true);
 
   const onFilterSelect = useCallback(
     (value: Operator | SortDirection, option: { operatorType: string }) => {
+      if (
+        option.operatorType === "nullable" ||
+        value === TimeOperator.OfThisWeek ||
+        value === TimeOperator.OfThisMonth ||
+        value === TimeOperator.OfThisYear
+      ) {
+        setIsShowInputField(false);
+      } else {
+        setIsShowInputField(true);
+      }
       filterOption.current = { value, operatorType: option.operatorType };
     },
     [],
@@ -299,33 +399,39 @@ const DropdownRender: React.FC<Props> = ({
   );
 
   return (
-    <Container>
-      <Form form={form} name="basic" autoComplete="off">
-        <Form.Item label={filter.title} name="condition">
+    <StyledForm form={form} name="basic" autoComplete="off" colon={false}>
+      <Container>
+        <StyledFormItem label={<TextWrapper>{filter.title}</TextWrapper>} name="condition">
           <Select
             style={{ width: 160 }}
             options={options}
             onSelect={onFilterSelect}
-            defaultValue={defaultValue?.operator}
+            defaultValue={defaultValue?.operator ?? options[0].value}
+            key={defaultValue?.operator}
           />
-        </Form.Item>
-        {isFilter && (
-          <Form.Item name="value">
+        </StyledFormItem>
+        {isFilter && isShowInputField && (
+          <StyledFormItem name="value">
             {filter.type === "Select" ||
             filter.type === "Tag" ||
             filter.type === "Person" ||
-            filter.type === "Bool" ? (
+            filter.type === "Bool" ||
+            filter.type === "Checkbox" ? (
               <Select
                 placeholder="Select the value"
                 options={valueOptions}
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value}
+                defaultValue={defaultValue?.value?.toString()}
+                key={defaultValue?.value}
               />
             ) : filter.type === "Integer" || filter.type === "Float" ? (
               <InputNumber
                 onChange={onNumberChange}
                 stringMode
                 defaultValue={defaultValue?.value}
+                style={{ width: "100%" }}
+                placeholder="Enter the value"
+                key={defaultValue?.value}
               />
             ) : filter.type === "Date" ? (
               <DatePicker
@@ -336,32 +442,60 @@ const DropdownRender: React.FC<Props> = ({
                 defaultValue={
                   defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
                 }
+                key={defaultValue?.value}
               />
             ) : (
-              <Input onChange={onInputChange} defaultValue={defaultValue?.value} />
+              <Input
+                onChange={onInputChange}
+                defaultValue={defaultValue?.value}
+                placeholder="Enter the value"
+                key={defaultValue?.value}
+              />
             )}
-          </Form.Item>
+          </StyledFormItem>
         )}
-        <Form.Item style={{ textAlign: "right" }}>
-          <Space size="small">
-            <Button type="default" style={{ marginRight: 10 }} onClick={close}>
-              {t("Cancel")}
-            </Button>
-            <Button type="primary" htmlType="submit" onClick={confirm}>
-              {t("Confirm")}
-            </Button>
-          </Space>
-        </Form.Item>
-      </Form>
-    </Container>
+      </Container>
+      <StyledDivider />
+      <ButtonsFormItem>
+        <Space size="small">
+          <Button type="default" onClick={close}>
+            {t("Cancel")}
+          </Button>
+          <Button type="primary" htmlType="submit" onClick={confirm}>
+            {t("Confirm")}
+          </Button>
+        </Space>
+      </ButtonsFormItem>
+    </StyledForm>
   );
 };
 
-const Container = styled.div`
+export default DropdownRender;
+
+const StyledForm = styled(Form)`
   background-color: white;
-  padding: 10px;
   box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 
-export default DropdownRender;
+const Container = styled.div`
+  padding: 9px 12px 0;
+`;
+
+const StyledFormItem = styled(Form.Item)`
+  margin-bottom: 8px;
+`;
+
+const TextWrapper = styled.span`
+  min-width: 137px;
+  text-align: left;
+`;
+
+const StyledDivider = styled(Divider)`
+  margin: 0;
+`;
+
+const ButtonsFormItem = styled(Form.Item)`
+  text-align: right;
+  padding: 8px 4px;
+`;
