@@ -55,9 +55,8 @@ type ListParam struct {
 }
 
 type Item struct {
-	ID          string
-	Fields      ItemFields
-	GroupFields ItemFields
+	ID     string
+	Fields ItemFields
 }
 
 func (i Item) MarshalJSON() ([]byte, error) {
