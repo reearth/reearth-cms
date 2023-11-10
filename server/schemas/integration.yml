@@ -929,6 +929,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/field'
+        metadataFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        referencedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/versionedItem'
         createdAt:
           type: string
           format: date-time
@@ -938,7 +946,14 @@ components:
     versionedItem:
       type: object
       properties:
+        # same fields as Item
         id:
+          x-go-type: id.ItemID
+          type: string
+        metadataItemId:
+          x-go-type: id.ItemID
+          type: string
+        originalItemId:
           x-go-type: id.ItemID
           type: string
         modelId:
@@ -947,12 +962,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/field'
+        metadataFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        referencedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/versionedItem'
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
+        # fields contains only in VersionedItem
         version:
           type: string
           format: uuid
@@ -965,14 +989,6 @@ components:
           type: array
           items:
             type: string
-        referencedItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/versionedItem'
-        metadataFields:
-          type: array
-          items:
-            $ref: '#/components/schemas/field'
     field:
       type: object
       properties:
