@@ -3,6 +3,9 @@ package publicapi
 import (
 	"context"
 	"errors"
+	"github.com/reearth/reearth-cms/server/internal/adapter"
+	"github.com/reearth/reearth-cms/server/pkg/group"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -58,8 +61,12 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 			return Item{}, err
 		}
 	}
+	sgl, err := getGroupSchemas(ctx, itv, s)
 
-	return NewItem(itv, s, assets, c.assetUrlResolver), nil
+	if err != nil {
+		return Item{}, err
+	}
+	return NewItem(itv, s, sgl, assets, c.assetUrlResolver), nil
 }
 
 func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], *schema.Schema, error) {
@@ -97,8 +104,46 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		}
 	}
 
-	res := NewListResult(util.Map(items.Unwrap(), func(i *item.Item) Item {
-		return NewItem(i, s, assets, c.assetUrlResolver)
-	}), pi, p.Pagination)
+	itms, err := util.TryMap(items.Unwrap(), func(i *item.Item) (Item, error) {
+		sgl, err := getGroupSchemas(ctx, i, s)
+
+		if err != nil {
+			return Item{}, err
+		}
+		return NewItem(i, s, sgl, assets, c.assetUrlResolver), nil
+	})
+	res := NewListResult(itms, pi, p.Pagination)
 	return res, s, nil
+}
+
+func getGroupSchemas(ctx context.Context, i *item.Item, ss *schema.Schema) (schema.List, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+	gf := i.Fields().FieldsByType(value.TypeGroup)
+
+	var gIds id.GroupIDList
+	for _, field := range gf {
+		gsf := ss.Field(field.FieldID())
+
+		if gsf != nil {
+			var gid id.GroupID
+			gsf.TypeProperty().Match(schema.TypePropertyMatch{
+				Group: func(f *schema.FieldGroup) {
+					gid = f.Group()
+				},
+			})
+			gIds = gIds.Add(gid)
+
+		}
+	}
+	gl, err := uc.Group.FindByIDs(ctx, gIds, op)
+	if err != nil {
+		return nil, err
+	}
+
+	sgIds := util.Map(gl, func(g *group.Group) id.SchemaID {
+		return g.Schema()
+	})
+
+	return uc.Schema.FindByIDs(ctx, sgIds, op)
 }

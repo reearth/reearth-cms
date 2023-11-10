@@ -55,8 +55,9 @@ type ListParam struct {
 }
 
 type Item struct {
-	ID     string
-	Fields ItemFields
+	ID          string
+	Fields      ItemFields
+	GroupFields ItemFields
 }
 
 func (i Item) MarshalJSON() ([]byte, error) {
@@ -65,10 +66,15 @@ func (i Item) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
-func NewItem(i *item.Item, s *schema.Schema, assets asset.List, urlResolver asset.URLResolver) Item {
+func NewItem(i *item.Item, s *schema.Schema, groupSchemas schema.List, assets asset.List, urlResolver asset.URLResolver) Item {
+	gsf := schema.FieldList{}
+	for _, groupSchema := range groupSchemas {
+		gsf = append(gsf, groupSchema.Fields().Clone()...)
+	}
+
 	return Item{
 		ID:     i.ID().String(),
-		Fields: NewItemFields(i.Fields(), s.Fields(), assets, urlResolver),
+		Fields: NewItemFields(i.Fields(), s.Fields(), gsf, assets, urlResolver),
 	}
 }
 
@@ -87,7 +93,7 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 	return i
 }
 
-func NewItemFields(fields []*item.Field, sfields schema.FieldList, assets asset.List, urlResolver asset.URLResolver) ItemFields {
+func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, assets asset.List, urlResolver asset.URLResolver) ItemFields {
 	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (k string, val any) {
 		sf := sfields.Find(f.FieldID())
 		if sf == nil {
@@ -118,6 +124,18 @@ func NewItemFields(fields []*item.Field, sfields schema.FieldList, assets asset.
 			} else if len(itemAssets) > 0 {
 				val = itemAssets[0]
 			}
+		} else if sf.Type() == value.TypeGroup {
+			res := map[string]ItemFields{}
+			for _, v := range f.Value().Values() {
+				itgID, ok := v.ValueGroup()
+				if !ok {
+					continue
+				}
+				gf := fields.FieldsByGroup(itgID)
+				igf := NewItemFields(gf, groupFields, nil, assets, urlResolver)
+				res[itgID.String()] = igf
+			}
+			val = res
 		} else if sf.Multiple() {
 			val = f.Value().Interface()
 		} else {
