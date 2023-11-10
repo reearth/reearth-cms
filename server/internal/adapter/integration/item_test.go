@@ -23,9 +23,10 @@ func Test_convertMetaFields(t *testing.T) {
 	tf, _ := schema.NewFieldTag(schema.TagList{tag1, tag2})
 
 	sf1 := schema.NewField(tf.TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	sf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	var vi any = "日本語"
 	var vi2 any = "xyz"
-	s := schema.New().NewID().Fields(schema.FieldList{sf1}).Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).MustBuild()
+	s := schema.New().NewID().Fields(schema.FieldList{sf1, sf2}).Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).MustBuild()
 
 	tests := []struct {
 		name string
@@ -35,7 +36,7 @@ func Test_convertMetaFields(t *testing.T) {
 		{
 			name: "test japanese tag",
 			args: args{
-				fields: []integrationapi.Field{integrationapi.Field{
+				fields: []integrationapi.Field{{
 					Id:    sf1.ID().Ref(),
 					Key:   lo.ToPtr(sf1.Key().String()),
 					Type:  lo.ToPtr(integrationapi.ValueTypeTag),
@@ -53,18 +54,27 @@ func Test_convertMetaFields(t *testing.T) {
 			},
 		},
 		{
-			name: "test  tag",
+			name: "test all",
 			args: args{
-				fields: []integrationapi.Field{integrationapi.Field{
+				fields: []integrationapi.Field{{
 					Key:   lo.ToPtr(sf1.Key().String()),
 					Value: lo.ToPtr(vi2),
-				}},
+				},
+					{
+						Key:   lo.ToPtr(sf2.Key().String()),
+						Value: lo.ToPtr(any("xxx")),
+					},
+				},
 				s: s,
 			},
 			want: []interfaces.ItemFieldParam{
 				{
 					Key:   sf1.Key().Ref(),
 					Value: tag1.ID(),
+				},
+				{
+					Key:   sf2.Key().Ref(),
+					Value: "xxx",
 				},
 			},
 		},

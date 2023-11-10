@@ -559,7 +559,6 @@ func convertMetaFields(fields []integrationapi.Field, s *schema.Schema) []interf
 		sf := s.FieldByIDOrKey(field.Id, lo.ToPtr(id.NewKey(lo.FromPtr(field.Key))))
 
 		if sf != nil && sf.Type() == value.TypeTag {
-
 			var tagList schema.TagList
 			sf.TypeProperty().Match(schema.TypePropertyMatch{
 				Tag: func(f *schema.FieldTag) {
@@ -582,7 +581,6 @@ func convertMetaFields(fields []integrationapi.Field, s *schema.Schema) []interf
 				var value interface{} = tagIDs
 				field.Value = &value
 			}
-
 		}
 		res = append(res, fromItemFieldParam(field))
 	}
