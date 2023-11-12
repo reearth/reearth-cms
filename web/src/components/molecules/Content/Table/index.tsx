@@ -36,15 +36,14 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { FieldType as SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
-  SortDirection,
-  FieldSelector,
-  SchemaFieldType,
-  FieldType,
-  ItemSortInput,
   ConditionInput,
-} from "@reearth-cms/gql/graphql-client-api";
+  ItemSort,
+  FieldType,
+  FieldSelector,
+} from "@reearth-cms/components/molecules/View/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -82,8 +81,8 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
-  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSortInput) => void;
+  onTableControl: (sort: ItemSort | undefined, filter: ConditionInput[] | undefined) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onItemEdit: (itemId: string) => void;
@@ -197,7 +196,7 @@ const ContentTable: React.FC<Props> = ({
         key: "CREATION_DATE",
         sortOrder:
           currentView.sort?.field?.type === "CREATION_DATE"
-            ? currentView.sort.direction === SortDirection["Asc"]
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -205,14 +204,14 @@ const ContentTable: React.FC<Props> = ({
         sorter: true,
         defaultSortOrder:
           currentView.sort?.field?.type === "CREATION_DATE"
-            ? currentView.sort.direction === SortDirection["Asc"]
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        type: SchemaFieldType["Date"],
+        type: "Date",
       },
       {
         title: t("Created By"),
@@ -221,14 +220,14 @@ const ContentTable: React.FC<Props> = ({
         key: "CREATION_USER",
         sortOrder:
           currentView.sort?.field?.type === "CREATION_USER"
-            ? currentView.sort.direction === SortDirection["Asc"]
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         sorter: true,
         defaultSortOrder:
           currentView.sort?.field?.type === "CREATION_USER"
-            ? currentView.sort.direction === SortDirection["Asc"]
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -244,7 +243,7 @@ const ContentTable: React.FC<Props> = ({
         key: "MODIFICATION_DATE",
         sortOrder:
           currentView.sort?.field?.type === "MODIFICATION_DATE"
-            ? currentView.sort.direction === SortDirection["Asc"]
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -252,14 +251,14 @@ const ContentTable: React.FC<Props> = ({
         sorter: true,
         defaultSortOrder:
           currentView.sort?.field?.type === "MODIFICATION_DATE"
-            ? currentView.sort.direction === SortDirection["Asc"]
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        type: SchemaFieldType["Date"],
+        type: "Date",
       },
       {
         title: t("Updated By"),
@@ -268,14 +267,14 @@ const ContentTable: React.FC<Props> = ({
         key: "MODIFICATION_USER",
         sortOrder:
           currentView.sort?.field?.type === "MODIFICATION_USER"
-            ? currentView.sort.direction === SortDirection["Asc"]
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
         sorter: true,
         defaultSortOrder:
           currentView.sort?.field?.type === "MODIFICATION_USER"
-            ? currentView.sort.direction === SortDirection["Asc"]
+            ? currentView.sort.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -294,7 +293,7 @@ const ContentTable: React.FC<Props> = ({
         sorter: true,
         sortOrder:
           currentView.sort?.field.id === column.key
-            ? currentView.sort?.direction === SortDirection["Asc"]
+            ? currentView.sort?.direction === "ASC"
               ? "ascend"
               : "descend"
             : null,
@@ -711,20 +710,19 @@ const ContentTable: React.FC<Props> = ({
             case "MODIFICATION_DATE":
             case "MODIFICATION_USER":
               return {
-                type: col.key,
-                id: "",
-              } as FieldSelector;
+                type: col.key as FieldType,
+              };
             default:
-              if ((col.fieldType as string) === "FIELD")
+              if (col.fieldType === "FIELD")
                 return {
-                  type: FieldType["Field"],
-                  id: col.key,
-                } as FieldSelector;
+                  type: "FIELD",
+                  id: col.key as string,
+                };
               else
                 return {
-                  type: FieldType["MetaField"],
-                  id: col.key,
-                } as FieldSelector;
+                  type: "META_FIELD",
+                  id: col.key as string,
+                };
           }
         });
       setCurrentView(prev => ({
@@ -765,10 +763,9 @@ const ContentTable: React.FC<Props> = ({
                         sorter.column.fieldType === "META_FIELD"
                           ? sorter.columnKey
                           : undefined,
-                      type: sorter.column.fieldType as FieldType,
+                      type: sorter.column.fieldType,
                     },
-                    direction:
-                      sorter.order === "ascend" ? SortDirection["Asc"] : SortDirection["Desc"],
+                    direction: sorter.order === "ascend" ? "ASC" : "DESC",
                   }
                 : undefined,
             );

@@ -3,10 +3,9 @@ import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { View } from "@reearth-cms/gql/graphql-client-api";
+import { View } from "@reearth-cms/components/molecules/View/types";
+import ViewsMenuItem from "@reearth-cms/components/molecules/View/viewMenuItem";
 import { useT } from "@reearth-cms/i18n";
-
-import ViewsMenuItem from "./viewMenuItem";
 
 export interface Props {
   views: View[];
