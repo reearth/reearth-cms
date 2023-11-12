@@ -326,7 +326,8 @@ export default () => {
     [setSearchParams, searchParams],
   );
 
-  const handleTableControl = useCallback((sort: ItemSort | undefined, filter: ConditionInput[] | undefined) => {
+  const handleTableControl = useCallback(
+    (sort: ItemSort | undefined, filter: ConditionInput[] | undefined) => {
       setCurrentView(prev => {
         let filterValue = prev.filter;
         if (filter) {
