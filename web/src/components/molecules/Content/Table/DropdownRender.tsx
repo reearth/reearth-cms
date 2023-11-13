@@ -22,7 +22,7 @@ import {
   NullableOperator,
   NumberOperator,
   TimeOperator,
-  MultipleOperator,
+  // MultipleOperator,
   StringOperator,
   SortDirection,
   FieldType,
@@ -174,30 +174,31 @@ const DropdownRender: React.FC<Props> = ({
         );
       }
       // add multiple operator to all multiple columns
-      if (filter.multiple || filter.type === "Select" || filter.type === "Tag") {
-        result.push(
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.IncludesAll,
-            label: t("Includes all"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.IncludesAny,
-            label: t("Includes any"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.NotIncludesAll,
-            label: t("Not include all"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.NotIncludesAny,
-            label: t("Not Include any"),
-          },
-        );
-      }
+      // TODO: Uncomment this when we have a way to filter by multiple
+      // if (filter.multiple || filter.type === "Select" || filter.type === "Tag") {
+      //   result.push(
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.IncludesAll,
+      //       label: t("Includes all"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.IncludesAny,
+      //       label: t("Includes any"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.NotIncludesAll,
+      //       label: t("Not include all"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.NotIncludesAny,
+      //       label: t("Not Include any"),
+      //     },
+      //   );
+      // }
     } else {
       result.push(
         { operatorType: "sort", value: "ASC", label: t("Ascending") },
@@ -206,7 +207,7 @@ const DropdownRender: React.FC<Props> = ({
     }
 
     return result;
-  }, [filter.multiple, filter.required, filter.type, isFilter, t]);
+  }, [/*filter.multiple,*/ filter.required, filter.type, isFilter, t]);
 
   const valueOptions = useMemo<
     {
