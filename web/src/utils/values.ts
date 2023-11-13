@@ -108,7 +108,7 @@ export const fromGraphQLView = (view: GQLView): View | undefined => {
     sort: view.sort
       ? {
           field: {
-            id: view.sort.field.id ? view.sort.field.id : undefined,
+            id: view.sort.field.id ?? undefined,
             type: view.sort.field.type,
           },
           direction: view.sort.direction ? view.sort.direction : "ASC",
@@ -117,7 +117,7 @@ export const fromGraphQLView = (view: GQLView): View | undefined => {
     columns: view.columns
       ? view.columns?.map(column => ({
           type: column.type,
-          id: column.id ? column.id : undefined,
+          id: column.id ?? undefined,
         }))
       : undefined,
     filter: view.filter ? (view.filter as Condition) : undefined,
@@ -127,7 +127,7 @@ export const fromGraphQLView = (view: GQLView): View | undefined => {
 export const toGraphItemSort = (sort: ItemSort): GQLItemSortInput | undefined => {
   return {
     field: {
-      id: sort.field.id ? sort.field.id : undefined,
+      id: sort.field.id ?? undefined,
       type: sort.field.type as GQLFieldType,
     },
     direction: sort.direction ? (sort.direction as GQLSortDirection) : GQLSortDirection["Asc"],

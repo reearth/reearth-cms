@@ -54,7 +54,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
       setSelectedView(viewList && viewList.length > 0 ? viewList[0] : undefined);
       setPrevModelId(modelId);
     }
-    return viewList ? viewList : [];
+    return viewList ?? [];
   }, [data?.view, modelId, prevModelId]);
 
   useEffect(() => {

@@ -347,7 +347,7 @@ const DropdownRender: React.FC<Props> = ({
       }
       const sort = {
         field: {
-          id: fieldId ? fieldId : undefined,
+          id: fieldId ?? undefined,
           type: fieldType,
         },
         direction: direction,
