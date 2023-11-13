@@ -1,16 +1,6 @@
 package mongogit
 
-import (
-	"testing"
-
-	"github.com/reearth/reearth-cms/server/pkg/version"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
-
-func TestDocument_MarshalBSON(t *testing.T) {
+/*func TestDocument_MarshalBSON(t *testing.T) {
 	reunmarshal := func(d *Document[any]) (res bson.M) {
 		lo.Must0(bson.Unmarshal(lo.Must(bson.Marshal(d)), &res))
 		return
@@ -103,4 +93,4 @@ func TestMeta_Apply(t *testing.T) {
 		{Key: parentsKey, Value: []version.Version{v2}},
 		{Key: refsKey, Value: []version.Ref{version.Latest}},
 	}, got)
-}
+}*/

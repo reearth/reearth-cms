@@ -39,6 +39,15 @@ type ItemFieldDocument struct {
 	ItemGroup *string
 }
 
+type MetaItemDocument struct {
+	ID        string
+	Project   string
+	Model     string
+	CreatedAt time.Time
+	UpdatedAt *time.Time
+	Status    string
+}
+
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
 
 func NewItemConsumer() *ItemConsumer {
@@ -54,8 +63,22 @@ func NewVersionedItemConsumer() *VersionedItemConsumer {
 			return nil, err
 		}
 
-		v := mongogit.ToValue(d.Meta, itm)
-		return v, nil
+		var parents version.Versions
+		var refs version.Refs
+		if len(d.Parents) > 0 {
+			parents = version.NewVersions(d.Parents...)
+		}
+		if len(d.Refs) > 0 {
+			refs = version.NewRefs(d.Refs...)
+		}
+
+		return version.NewValue(
+			d.Version,
+			parents,
+			refs,
+			d.Timestamp(),
+			itm,
+		), nil
 	})
 }
 

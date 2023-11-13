@@ -41,12 +41,12 @@ var (
 )
 
 type Item struct {
-	client *mongogit.Collection
+	client *mongogit.Collection[mongodoc.ItemDocument, mongodoc.MetaItemDocument]
 	f      repo.ProjectFilter
 }
 
 func NewItem(client *mongox.Client) repo.Item {
-	return &Item{client: mongogit.NewCollection(client.WithCollection("item"))}
+	return &Item{client: mongogit.New[mongodoc.ItemDocument, mongodoc.MetaItemDocument](client.WithCollection("item"), client.WithCollection("item_meta"))}
 }
 
 func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
@@ -614,8 +614,17 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	if !r.f.CanWrite(item.Project()) {
 		return repo.ErrOperationDenied
 	}
-	doc, id := mongodoc.NewItem(item)
-	return r.client.SaveOne(ctx, id, doc, nil)
+	doc, iID := mongodoc.NewItem(item)
+	if err := r.client.SaveOne(ctx, iID, *doc, nil); err != nil {
+		return err
+	}
+	return r.client.UpdateMeta(ctx, iID, mongodoc.MetaItemDocument{
+		ID:        iID,
+		Project:   item.Project().String(),
+		Model:     item.Model().String(),
+		CreatedAt: item.ID().Timestamp(),
+		Status:    "",
+	})
 }
 
 func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {

@@ -41,7 +41,7 @@ func NewDocument(obj any) (doc Document, id string, err error) {
 	case item.Versioned:
 		ty = "item"
 		res, id = NewItem(m.Value())
-		res = mongogit.NewDocument(version.ValueFrom(m, res))
+		res = mongogit.NewDocument[ItemDocument](version.ValueFrom(m, *(res).(*ItemDocument)))
 	case *schema.Schema:
 		ty = "schema"
 		res, id = NewSchema(m)
