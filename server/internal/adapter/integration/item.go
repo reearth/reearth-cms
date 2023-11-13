@@ -556,7 +556,7 @@ func convertMetaFields(fields []integrationapi.Field, s *schema.Schema) []interf
 	res := make([]interfaces.ItemFieldParam, 0, len(fields))
 
 	for _, field := range fields {
-		sf := s.FieldByIDOrKey(field.Id, lo.ToPtr(id.NewKey(lo.FromPtr(field.Key))))
+		sf := s.FieldByIDOrKey(field.Id, id.NewKeyFromPtr(field.Key))
 
 		if sf != nil && sf.Type() == value.TypeTag {
 			var tagList schema.TagList
