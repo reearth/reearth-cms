@@ -11,7 +11,7 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
-import { ConditionInput, ItemSort } from "@reearth-cms/components/molecules/View/types";
+import { ItemSort } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
@@ -40,7 +40,6 @@ export type Props = {
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort?: ItemSort, filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
@@ -86,7 +85,6 @@ const ContentListMolecule: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onSearchTerm,
-  onTableControl,
   onContentTableChange,
   setSelection,
   onItemSelect,
@@ -136,7 +134,6 @@ const ContentListMolecule: React.FC<Props> = ({
             selectedItem={selectedItem}
             selection={selection}
             onUnpublish={onUnpublish}
-            onTableControl={onTableControl}
             onSearchTerm={onSearchTerm}
             onContentTableChange={onContentTableChange}
             setSelection={setSelection}

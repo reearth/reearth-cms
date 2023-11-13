@@ -7,7 +7,6 @@ import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
   AndConditionInput,
-  ConditionInput,
   FieldSelector,
   ItemSort,
 } from "@reearth-cms/components/molecules/View/types";
@@ -326,27 +325,6 @@ export default () => {
     [setSearchParams, searchParams],
   );
 
-  const handleTableControl = useCallback(
-    (sort: ItemSort | undefined, filter: ConditionInput[] | undefined) => {
-      setCurrentView(prev => {
-        let filterValue = prev.filter;
-        if (filter) {
-          if (filter.length > 0) {
-            filterValue = { conditions: filter };
-          } else {
-            filterValue = undefined;
-          }
-        }
-        return {
-          columns: prev.columns,
-          sort: sort ?? prev.sort,
-          filter: filterValue,
-        };
-      });
-    },
-    [],
-  );
-
   const handleBulkAddItemToRequest = useCallback(
     async (request: Request, itemIds: string[]) => {
       await handleAddItemToRequest(request, itemIds);
@@ -383,7 +361,6 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
-    handleTableControl,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
