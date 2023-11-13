@@ -1,4 +1,4 @@
-import { AndCondition } from "@reearth-cms/gql/graphql-client-api";
+import { AndCondition } from "@reearth-cms/components/molecules/View/types";
 
 export function fileName(url: string | undefined): string {
   if (!url) return "";

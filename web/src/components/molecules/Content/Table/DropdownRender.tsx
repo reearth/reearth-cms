@@ -16,8 +16,9 @@ import {
   Operator,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
+  ConditionInput,
+  ItemSort,
   BasicOperator,
   BoolOperator,
   NullableOperator,
@@ -26,9 +27,9 @@ import {
   MultipleOperator,
   StringOperator,
   SortDirection,
-  ConditionInput,
-  ItemSortInput,
-} from "@reearth-cms/gql/graphql-client-api";
+  FieldType,
+} from "@reearth-cms/components/molecules/View/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -39,7 +40,7 @@ type Props = {
   isFilter: boolean;
   index: number;
   currentView: CurrentViewType;
-  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
+  onTableControl: (sort?: ItemSort, filter?: ConditionInput[]) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -202,8 +203,8 @@ const DropdownRender: React.FC<Props> = ({
       }
     } else {
       result.push(
-        { operatorType: "sort", value: SortDirection.Asc, label: t("Ascending") },
-        { operatorType: "sort", value: SortDirection.Desc, label: t("Descending") },
+        { operatorType: "sort", value: "ASC", label: t("Ascending") },
+        { operatorType: "sort", value: "ASC", label: t("Descending") },
       );
     }
 
@@ -328,20 +329,30 @@ const DropdownRender: React.FC<Props> = ({
 
       onTableControl(undefined, currentFilters.filter(Boolean));
     } else {
-      searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
+      const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "ASC";
+      let fieldType: FieldType;
+      let fieldId = "";
       switch (filter.id as string) {
         case "CREATION_DATE":
         case "CREATION_USER":
         case "MODIFICATION_DATE":
         case "MODIFICATION_USER":
         case "STATUS":
-          searchParams.set("sortFieldType", filter.id);
+          fieldType = filter.id as FieldType;
           break;
         default:
-          if (filter.dataIndex[0] === "fields") searchParams.set("sortFieldType", "FIELD");
-          else searchParams.set("sortFieldType", "META_FIELD");
-          searchParams.set("sortFieldId", filter.id);
+          if (filter.dataIndex[0] === "fields") fieldType = "FIELD" as FieldType;
+          else fieldType = "META_FIELD" as FieldType;
+          fieldId = filter.id;
       }
+      const sort = {
+        field: {
+          id: fieldId ?? undefined,
+          type: fieldType,
+        },
+        direction: direction,
+      };
+      onTableControl(sort, undefined);
       setSearchParams(searchParams);
     }
   }, [

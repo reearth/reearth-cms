@@ -324,8 +324,6 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
-Are you sure to delete this view?: このビューを削除してもよろしいですか？
-Permanently remove the view, the contents won’t be removed, please don’t worry This action is not reversible, so please continue with caution.: ビューを削除します（コンテンツは削除されません）。
 New View: 新しいビュー
 Update View: ビューを更新します
 Submitting: 送信
