@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
-import { useRef, useEffect, useCallback, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -18,7 +17,6 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import {
   ConditionInput,
-  ItemSort,
   BasicOperator,
   BoolOperator,
   NullableOperator,
@@ -40,7 +38,7 @@ type Props = {
   isFilter: boolean;
   index: number;
   currentView: CurrentViewType;
-  onTableControl: (sort?: ItemSort, filter?: ConditionInput[]) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -51,9 +49,8 @@ const DropdownRender: React.FC<Props> = ({
   isFilter,
   index,
   currentView,
-  onTableControl,
+  setCurrentView,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const t = useT();
   const [form] = Form.useForm();
 
@@ -204,7 +201,7 @@ const DropdownRender: React.FC<Props> = ({
     } else {
       result.push(
         { operatorType: "sort", value: "ASC", label: t("Ascending") },
-        { operatorType: "sort", value: "ASC", label: t("Descending") },
+        { operatorType: "sort", value: "DESC", label: t("Descending") },
       );
     }
 
@@ -305,7 +302,9 @@ const DropdownRender: React.FC<Props> = ({
       };
 
       if (filter.type === "Bool" || filter.type === "Checkbox") {
-        value = value === "true";
+        if (typeof value !== "boolean") {
+          value = value === "true";
+        }
       } else if (filter.type === "Integer" || filter.type === "Float") {
         value = Number(value);
       } else if (filter.type === "Date") {
@@ -327,9 +326,12 @@ const DropdownRender: React.FC<Props> = ({
 
       currentFilters[index] = newFilter;
 
-      onTableControl(undefined, currentFilters.filter(Boolean));
+      setCurrentView(prev => ({
+        ...prev,
+        filter: { conditions: currentFilters.filter(Boolean) },
+      }));
     } else {
-      const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "ASC";
+      const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
       let fieldType: FieldType;
       let fieldId = "";
       switch (filter.id as string) {
@@ -352,8 +354,11 @@ const DropdownRender: React.FC<Props> = ({
         },
         direction: direction,
       };
-      onTableControl(sort, undefined);
-      setSearchParams(searchParams);
+      setCurrentView(prev => ({
+        ...prev,
+        sort: sort,
+      }));
+      filterOption.current.value = "ASC";
     }
   }, [
     close,
@@ -363,9 +368,7 @@ const DropdownRender: React.FC<Props> = ({
     filter.type,
     currentView.filter,
     index,
-    onTableControl,
-    searchParams,
-    setSearchParams,
+    setCurrentView,
     form,
   ]);
 

@@ -37,12 +37,7 @@ import {
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType as SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  ConditionInput,
-  ItemSort,
-  FieldType,
-  FieldSelector,
-} from "@reearth-cms/components/molecules/View/types";
+import { ItemSort, FieldType, FieldSelector } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -81,7 +76,6 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort: ItemSort | undefined, filter: ConditionInput[] | undefined) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
@@ -120,7 +114,6 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onUnpublish,
   onSearchTerm,
-  onTableControl,
   onContentTableChange,
   onItemSelect,
   setSelection,
@@ -359,9 +352,12 @@ const ContentTable: React.FC<Props> = ({
       defaultFilterValues.current.splice(index, 1);
       const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
       currentFilters.splice(index, 1);
-      onTableControl(undefined, currentFilters);
+      setCurrentView(prev => ({
+        ...prev,
+        filter: currentFilters.length > 0 ? { conditions: currentFilters } : undefined,
+      }));
     },
-    [currentView.filter, onTableControl],
+    [currentView.filter, setCurrentView],
   );
 
   useEffect(() => {
@@ -544,7 +540,7 @@ const ContentTable: React.FC<Props> = ({
                 filterRemove={filterRemove}
                 isFilterOpen={isFilterOpen.current}
                 currentView={currentView}
-                onTableControl={onTableControl}
+                setCurrentView={setCurrentView}
               />
             ))}
           </StyledFilterSpace>
@@ -627,7 +623,7 @@ const ContentTable: React.FC<Props> = ({
                 open={conditionMenuOpen}
                 isFilter={isFilter.current}
                 currentView={currentView}
-                onTableControl={onTableControl}
+                setCurrentView={setCurrentView}
               />
             )
           }
