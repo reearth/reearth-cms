@@ -6,6 +6,12 @@ import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
+  AndConditionInput,
+  ConditionInput,
+  FieldSelector,
+  ItemSort,
+} from "@reearth-cms/components/molecules/View/types";
+import {
   convertItem,
   convertComment,
 } from "@reearth-cms/components/organisms/Project/Content/convertItem";
@@ -14,22 +20,18 @@ import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
-  SortDirection,
-  FieldSelector,
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
-  ConditionInput,
-  ItemSortInput,
-  AndConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
 import { renderTags } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
-  sort?: ItemSortInput;
+  sort?: ItemSort;
   filter?: AndConditionInput;
   columns?: FieldSelector[];
 };
@@ -56,10 +58,7 @@ export default () => {
 
   const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
   const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const sortFieldType = useMemo(() => searchParams.get("sortFieldType"), [searchParams]);
-  const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
-  const sortFieldId = useMemo(() => searchParams.get("sortFieldId"), [searchParams]);
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -73,21 +72,8 @@ export default () => {
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-    let sort: ItemSortInput | undefined;
-    if (sortFieldType)
-      sort = {
-        field: {
-          id: sortFieldId,
-          type: sortFieldType as FieldSelector["type"],
-        },
-        direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
-      };
-    setCurrentView(prev => ({
-      ...prev,
-      sort: sort,
-    }));
     setSearchTerm(searchTermParam ?? "");
-  }, [sortFieldType, sortFieldId, direction, searchTermParam, pageSizeParam, pageParam]);
+  }, [searchTermParam, pageSizeParam, pageParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -100,10 +86,10 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: currentView.sort,
+        sort: currentView.sort ? toGraphItemSort(currentView.sort) : undefined,
         filter: currentView.filter
           ? {
-              and: currentView.filter,
+              and: toGraphAndConditionInput(currentView.filter),
             }
           : undefined,
       },
@@ -320,16 +306,13 @@ export default () => {
   );
 
   const handleContentTableChange = useCallback(
-    (
-      page: number,
-      pageSize: number,
-      sorter?: { field?: FieldSelector; direction?: SortDirection },
-    ) => {
+    (page: number, pageSize: number, sorter?: ItemSort) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
-      searchParams.set("sortFieldType", sorter?.field?.type ? sorter?.field?.type : "");
-      searchParams.set("direction", sorter?.direction ? sorter.direction : "");
-      searchParams.set("sortFieldId", sorter?.field?.id ? sorter?.field?.id : "");
+      setCurrentView(prev => ({
+        ...prev,
+        sort: sorter,
+      }));
       setSearchParams(searchParams);
     },
     [searchParams, setSearchParams],
@@ -344,7 +327,7 @@ export default () => {
   );
 
   const handleTableControl = useCallback(
-    (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => {
+    (sort: ItemSort | undefined, filter: ConditionInput[] | undefined) => {
       setCurrentView(prev => {
         let filterValue = prev.filter;
         if (filter) {
