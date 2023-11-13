@@ -6,7 +6,7 @@ import {
   TimeOperator,
   StringOperator,
   MultipleOperator,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/components/molecules/View/types";
 
 import { FieldType } from "../../Schema/types";
 
@@ -15,7 +15,7 @@ export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
 export type DefaultFilterValueType = {
   operatorType: string;
   operator: Operator;
-  value: string;
+  value?: string;
 };
 
 export type FilterType = FieldType | "Person";

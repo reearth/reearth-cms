@@ -1,6 +1,15 @@
 import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
-import React, { Key, useMemo, useState, useRef, useCallback, useEffect } from "react";
+import React, {
+  Key,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -27,14 +36,14 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { FieldType as SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
-  SortDirection,
-  FieldSelector,
-  FieldType,
-  ItemSortInput,
   ConditionInput,
-} from "@reearth-cms/gql/graphql-client-api";
+  ItemSort,
+  FieldType,
+  FieldSelector,
+} from "@reearth-cms/components/molecules/View/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -43,7 +52,7 @@ import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 type ExtendedColumns = ProColumns<ContentTableField> & {
-  type?: FieldType | "Person";
+  type?: SchemaFieldType | "Person";
   fieldType?: string;
   sortOrder?: "descend" | "ascend" | null;
   typeProperty?: { values?: string[] };
@@ -62,7 +71,7 @@ export type Props = {
   };
   totalCount: number;
   currentView: CurrentViewType;
-  setCurrentView: (settings: CurrentViewType) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -72,12 +81,8 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
-  onContentTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { field?: FieldSelector; direction?: SortDirection },
-  ) => void;
+  onTableControl: (sort: ItemSort | undefined, filter: ConditionInput[] | undefined) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onItemEdit: (itemId: string) => void;
@@ -206,7 +211,7 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        // type: "Date",
+        type: "Date",
       },
       {
         title: t("Created By"),
@@ -253,7 +258,7 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        // type: "Date",
+        type: "Date",
       },
       {
         title: t("Updated By"),
@@ -287,7 +292,7 @@ const ContentTable: React.FC<Props> = ({
       contentTableColumns?.map(column => ({
         sorter: true,
         sortOrder:
-          currentView.sort?.field?.id === column.key
+          currentView.sort?.field.id === column.key
             ? currentView.sort?.direction === "ASC"
               ? "ascend"
               : "descend"
@@ -301,6 +306,7 @@ const ContentTable: React.FC<Props> = ({
         ellipsis: true,
         multiple: column.multiple,
         required: column.required,
+        render: column.render,
       })),
     [contentTableColumns, currentView.sort],
   );
@@ -387,6 +393,8 @@ const ContentTable: React.FC<Props> = ({
           typeProperty: column?.typeProperty,
           members: currentWorkspace?.members,
           id: column?.key,
+          required: column?.required,
+          multiple: column?.multiple,
         });
         newDefaultValues.push({ operatorType, operator, value });
       }
@@ -508,7 +516,7 @@ const ContentTable: React.FC<Props> = ({
         {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
       </Wrapper>
     ),
-    arrow: true,
+    arrow: false,
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
@@ -625,14 +633,14 @@ const ContentTable: React.FC<Props> = ({
           }
           trigger={["contextMenu"]}
           placement="bottom"
-          arrow
+          arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
             menu={{ items: toolBarItems }}
             placement="bottom"
             trigger={["click"]}
-            arrow
+            arrow={false}
             open={controlMenuOpen}
             onOpenChange={handleControlMenuOpenChange}>
             <Tooltip title="Control">
@@ -702,28 +710,26 @@ const ContentTable: React.FC<Props> = ({
             case "MODIFICATION_DATE":
             case "MODIFICATION_USER":
               return {
-                type: col.key,
-                id: "",
-              } as FieldSelector;
+                type: col.key as FieldType,
+              };
             default:
-              if ((col.fieldType as string) === "FIELD")
+              if (col.fieldType === "FIELD")
                 return {
-                  type: FieldType["Field"],
-                  id: col.key,
-                } as FieldSelector;
+                  type: "FIELD",
+                  id: col.key as string,
+                };
               else
                 return {
-                  type: FieldType["MetaField"],
-                  id: col.key,
-                } as FieldSelector;
+                  type: "META_FIELD",
+                  id: col.key as string,
+                };
           }
         });
-      setCurrentView({
-        ...currentView,
+      setCurrentView(prev => ({
+        ...prev,
         columns: cols,
-      });
+      }));
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setCurrentView, tableColumns],
   );
 
@@ -731,6 +737,7 @@ const ContentTable: React.FC<Props> = ({
     <>
       {contentTableColumns ? (
         <ResizableProTable
+          showSorterTooltip={false}
           options={options}
           loading={loading}
           pagination={pagination}
@@ -751,13 +758,14 @@ const ContentTable: React.FC<Props> = ({
               sorter?.order
                 ? {
                     field: {
-                      id: sorter?.columnKey,
-                      type: sorter.column.fieldType as FieldSelector["type"],
+                      id:
+                        sorter.column.fieldType === "FIELD" ||
+                        sorter.column.fieldType === "META_FIELD"
+                          ? sorter.columnKey
+                          : undefined,
+                      type: sorter.column.fieldType,
                     },
-                    direction:
-                      sorter.order === "ascend"
-                        ? ("ASC" as SortDirection)
-                        : ("DESC" as SortDirection),
+                    direction: sorter.order === "ascend" ? "ASC" : "DESC",
                   }
                 : undefined,
             );
@@ -853,6 +861,7 @@ const Wrapper = styled.div`
 const menuStyle: React.CSSProperties = {
   boxShadow: "none",
   overflowY: "auto",
+  maxHeight: "256px",
 };
 
 const stateColors: {

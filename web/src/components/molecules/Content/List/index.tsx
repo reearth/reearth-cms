@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -10,13 +11,8 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { ConditionInput, ItemSort } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import type {
-  SortDirection,
-  FieldSelector,
-  ConditionInput,
-  ItemSortInput,
-} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -34,7 +30,6 @@ export type Props = {
   };
   totalCount: number;
   currentView: CurrentViewType;
-  filter?: ConditionInput[];
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -42,15 +37,11 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
-  setCurrentView: (CurrentViewType: CurrentViewType) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
-  onContentTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { field?: FieldSelector; direction?: SortDirection },
-  ) => void;
+  onTableControl: (sort?: ItemSort, filter?: ConditionInput[]) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;

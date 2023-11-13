@@ -1,32 +1,37 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { AndCondition, View } from "@reearth-cms/components/molecules/View/types";
 import { filterConvert } from "@reearth-cms/components/organisms/Project/Content/ContentList/utils";
 import {
-  FieldType,
-  SortDirection,
-  View,
+  View as GQLView,
   useCreateViewMutation,
   useDeleteViewMutation,
   useGetViewsQuery,
   useUpdateViewMutation,
-  AndCondition,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
+import {
+  fromGraphQLView,
+  toGraphAndConditionInput,
+  toGraphFieldSelector,
+  toGraphItemSort,
+} from "@reearth-cms/utils/values";
 
 import { CurrentViewType } from "../ContentList/hooks";
 
 type Params = {
   modelId?: string;
   currentView: CurrentViewType;
-  setCurrentView: (currentView: CurrentViewType) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
 };
 
 export type modalStateType = "rename" | "create";
 
 export default ({ modelId, currentView, setCurrentView }: Params) => {
   const t = useT();
+  const [prevModelId, setPrevModelId] = useState<string>();
   const [viewModalShown, setViewModalShown] = useState(false);
   const [selectedView, setSelectedView] = useState<View>();
   const [modalState, setModalState] = useState<modalStateType>("create");
@@ -35,41 +40,43 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
-  const { data, loading } = useGetViewsQuery({
+  const { data } = useGetViewsQuery({
     variables: { modelId: modelId ?? "" },
     skip: !modelId,
   });
 
   const views = useMemo(() => {
-    if (!loading && data?.view) {
-      setSelectedView(data?.view && data?.view.length > 0 ? (data?.view[0] as View) : undefined);
-    }
-    return data?.view ? data?.view : [];
-  }, [data?.view, loading]);
+    const viewList = data?.view
+      ?.map<View | undefined>(view => fromGraphQLView(view as GQLView))
+      .filter((view): view is View => !!view);
 
-  useEffect(() => {
-    setSelectedView(data?.view && data?.view.length > 0 ? (data?.view[0] as View) : undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, setCurrentView]);
+    if (prevModelId !== modelId && viewList) {
+      setSelectedView(viewList && viewList.length > 0 ? viewList[0] : undefined);
+      setPrevModelId(modelId);
+    }
+    return viewList ?? [];
+  }, [data?.view, modelId, prevModelId]);
 
   useEffect(() => {
     if (selectedView) {
-      setCurrentView({
-        sort: {
-          field: {
-            id: selectedView.sort?.field.id ? selectedView.sort?.field.id : undefined,
-            type:
-              selectedView.sort?.field.type && selectedView.sort?.field.id
-                ? selectedView.sort?.field.type
-                : FieldType["Id"],
-          },
-          direction: selectedView.sort?.direction
-            ? selectedView.sort?.direction
-            : SortDirection["Asc"],
-        },
+      setCurrentView(prev => ({
+        ...prev,
+        sort: selectedView.sort
+          ? {
+              field: {
+                id:
+                  selectedView.sort.field.type === "FIELD" ||
+                  selectedView.sort.field.type === "META_FIELD"
+                    ? selectedView.sort.field.id
+                    : undefined,
+                type: selectedView.sort.field.type,
+              },
+              direction: selectedView.sort?.direction ? selectedView.sort?.direction : "ASC",
+            }
+          : undefined,
         columns: selectedView.columns ? selectedView.columns : [],
         filter: filterConvert(selectedView.filter as AndCondition),
-      });
+      }));
     } else {
       setCurrentView({ columns: [] });
     }
@@ -102,11 +109,13 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
           name: data.name,
           projectId: projectId ?? "",
           modelId: modelId ?? "",
-          sort: currentView?.sort,
-          columns: currentView?.columns,
+          sort: currentView?.sort ? toGraphItemSort(currentView?.sort) : undefined,
+          columns: currentView?.columns
+            ? currentView?.columns.map(column => toGraphFieldSelector(column))
+            : undefined,
           filter: currentView.filter
             ? {
-                and: currentView.filter,
+                and: toGraphAndConditionInput(currentView.filter),
               }
             : undefined,
         },
@@ -115,7 +124,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         Notification.error({ message: t("Failed to create view.") });
         return;
       }
-      setSelectedView(view.data.createView.view as View);
+      setSelectedView(fromGraphQLView(view.data.createView.view as GQLView));
       setViewModalShown(false);
       Notification.success({ message: t("Successfully created view!") });
     },
@@ -142,11 +151,13 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         variables: {
           viewId: viewId,
           name: name,
-          sort: currentView?.sort,
-          columns: currentView?.columns,
+          sort: currentView?.sort ? toGraphItemSort(currentView?.sort) : undefined,
+          columns: currentView?.columns
+            ? currentView?.columns.map(column => toGraphFieldSelector(column))
+            : undefined,
           filter: currentView.filter
             ? {
-                and: currentView.filter,
+                and: toGraphAndConditionInput(currentView.filter),
               }
             : undefined,
         },
@@ -155,7 +166,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         Notification.error({ message: t("Failed to update view.") });
         return;
       }
-      setSelectedView(view.data.updateView.view as View);
+      setSelectedView(fromGraphQLView(view.data.updateView.view as GQLView));
       Notification.success({ message: t("Successfully updated view!") });
       handleViewModalReset();
     },
@@ -176,7 +187,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         Notification.error({ message: t("Failed to rename view.") });
         return;
       }
-      setSelectedView(view.data.updateView.view as View);
+      setSelectedView(fromGraphQLView(view.data.updateView.view as GQLView));
       Notification.success({ message: t("Successfully renamed view!") });
       handleViewModalReset();
     },
@@ -188,7 +199,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
   });
 
   const handleViewDeletionModalClose = useCallback(() => {
-    setSelectedView(views[0] as View);
+    setSelectedView(fromGraphQLView(views[0] as GQLView));
   }, [views]);
 
   const handleViewDelete = useCallback(

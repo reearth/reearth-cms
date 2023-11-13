@@ -10,8 +10,8 @@ import {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
+import { ConditionInput, ItemSort } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import { ConditionInput, ItemSortInput } from "@reearth-cms/gql/graphql-client-api";
 
 import DropdownRender from "./DropdownRender";
 
@@ -22,7 +22,7 @@ type Props = {
   filterRemove: (index: number) => void;
   isFilterOpen: boolean;
   currentView: CurrentViewType;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
+  onTableControl: (sort: ItemSort | undefined, filter: ConditionInput[] | undefined) => void;
 };
 
 const FilterDropdown: React.FC<Props> = ({
@@ -69,7 +69,7 @@ const FilterDropdown: React.FC<Props> = ({
       )}
       trigger={["click"]}
       placement="bottomLeft"
-      arrow
+      arrow={false}
       open={open}
       onOpenChange={handleOpenChange}>
       <Badge offset={[-3, 3]} color="blue" dot>
@@ -86,6 +86,8 @@ const FilterDropdown: React.FC<Props> = ({
   );
 };
 
+export default FilterDropdown;
+
 const StyledButton = styled(Button)`
   color: rgba(0, 0, 0, 0.45);
   background-color: #f8f8f8;
@@ -98,5 +100,3 @@ const StyledIcon = styled(Icon)`
     color: rgba(0, 0, 0, 0.85);
   }
 `;
-
-export default FilterDropdown;
