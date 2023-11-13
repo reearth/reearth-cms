@@ -6,7 +6,7 @@ import {
   TimeOperator,
   StringOperator,
   MultipleOperator,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/components/molecules/View/types";
 
 import { FieldType } from "../../Schema/types";
 
