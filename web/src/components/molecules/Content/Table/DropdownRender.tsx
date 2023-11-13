@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
-import { useRef, useEffect, useCallback, useMemo, useState } from "react";
+import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -27,7 +27,6 @@ import {
   StringOperator,
   SortDirection,
   ConditionInput,
-  ItemSortInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -39,7 +38,7 @@ type Props = {
   isFilter: boolean;
   index: number;
   currentView: CurrentViewType;
-  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -50,7 +49,7 @@ const DropdownRender: React.FC<Props> = ({
   isFilter,
   index,
   currentView,
-  onTableControl,
+  setCurrentView,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const t = useT();
@@ -304,7 +303,9 @@ const DropdownRender: React.FC<Props> = ({
       };
 
       if (filter.type === "Bool" || filter.type === "Checkbox") {
-        value = value === "true";
+        if (typeof value !== "boolean") {
+          value = value === "true";
+        }
       } else if (filter.type === "Integer" || filter.type === "Float") {
         value = Number(value);
       } else if (filter.type === "Date") {
@@ -326,7 +327,10 @@ const DropdownRender: React.FC<Props> = ({
 
       currentFilters[index] = newFilter;
 
-      onTableControl(undefined, currentFilters.filter(Boolean));
+      setCurrentView(prev => ({
+        ...prev,
+        filter: { conditions: currentFilters.filter(Boolean) },
+      }));
     } else {
       searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
       switch (filter.id as string) {
@@ -352,7 +356,7 @@ const DropdownRender: React.FC<Props> = ({
     filter.type,
     currentView.filter,
     index,
-    onTableControl,
+    setCurrentView,
     searchParams,
     setSearchParams,
     form,

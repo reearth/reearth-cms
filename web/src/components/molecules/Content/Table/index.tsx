@@ -37,13 +37,7 @@ import {
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import {
-  SortDirection,
-  FieldSelector,
-  FieldType,
-  ItemSortInput,
-  ConditionInput,
-} from "@reearth-cms/gql/graphql-client-api";
+import { SortDirection, FieldSelector, FieldType } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -81,7 +75,6 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
   onContentTableChange: (
     page: number,
     pageSize: number,
@@ -124,7 +117,6 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onUnpublish,
   onSearchTerm,
-  onTableControl,
   onContentTableChange,
   onItemSelect,
   setSelection,
@@ -363,9 +355,12 @@ const ContentTable: React.FC<Props> = ({
       defaultFilterValues.current.splice(index, 1);
       const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
       currentFilters.splice(index, 1);
-      onTableControl(undefined, currentFilters);
+      setCurrentView(prev => ({
+        ...prev,
+        filter: currentFilters.length > 0 ? { conditions: currentFilters } : undefined,
+      }));
     },
-    [currentView.filter, onTableControl],
+    [currentView.filter, setCurrentView],
   );
 
   useEffect(() => {
@@ -548,7 +543,7 @@ const ContentTable: React.FC<Props> = ({
                 filterRemove={filterRemove}
                 isFilterOpen={isFilterOpen.current}
                 currentView={currentView}
-                onTableControl={onTableControl}
+                setCurrentView={setCurrentView}
               />
             ))}
           </StyledFilterSpace>
@@ -631,7 +626,7 @@ const ContentTable: React.FC<Props> = ({
                 open={conditionMenuOpen}
                 isFilter={isFilter.current}
                 currentView={currentView}
-                onTableControl={onTableControl}
+                setCurrentView={setCurrentView}
               />
             )
           }
