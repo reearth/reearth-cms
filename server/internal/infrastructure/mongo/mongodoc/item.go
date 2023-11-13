@@ -46,6 +46,9 @@ type MetaItemDocument struct {
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 	Status    string
+
+	// TODO: add meta item fields later
+	// Fields    []ItemFieldDocument
 }
 
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
