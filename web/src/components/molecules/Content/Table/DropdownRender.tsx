@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
-import { useSearchParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -52,7 +51,6 @@ const DropdownRender: React.FC<Props> = ({
   currentView,
   setCurrentView,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const t = useT();
   const [form] = Form.useForm();
 
@@ -203,7 +201,7 @@ const DropdownRender: React.FC<Props> = ({
     } else {
       result.push(
         { operatorType: "sort", value: "ASC", label: t("Ascending") },
-        { operatorType: "sort", value: "ASC", label: t("Descending") },
+        { operatorType: "sort", value: "DESC", label: t("Descending") },
       );
     }
 
@@ -333,7 +331,7 @@ const DropdownRender: React.FC<Props> = ({
         filter: { conditions: currentFilters.filter(Boolean) },
       }));
     } else {
-      const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "ASC";
+      const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
       let fieldType: FieldType;
       let fieldId = "";
       switch (filter.id as string) {
@@ -360,7 +358,7 @@ const DropdownRender: React.FC<Props> = ({
         ...prev,
         sort: sort,
       }));
-      setSearchParams(searchParams);
+      filterOption.current.value = "ASC";
     }
   }, [
     close,
@@ -371,8 +369,6 @@ const DropdownRender: React.FC<Props> = ({
     currentView.filter,
     index,
     setCurrentView,
-    searchParams,
-    setSearchParams,
     form,
   ]);
 
