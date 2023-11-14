@@ -10,6 +10,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import {
   DefaultFilterValueType,
   Operator,
@@ -29,6 +30,8 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
+
+const { Option } = Select;
 
 type Props = {
   filter: DropdownFilterType;
@@ -212,6 +215,7 @@ const DropdownRender: React.FC<Props> = ({
     {
       value: string;
       label: string;
+      color?: string;
     }[]
   >(() => {
     const options = [];
@@ -225,7 +229,7 @@ const DropdownRender: React.FC<Props> = ({
     } else if (filter.type === "Tag") {
       if (filter?.typeProperty?.tags) {
         for (const tag of Object.values(filter.typeProperty.tags)) {
-          options.push({ value: tag.id, label: tag.name });
+          options.push({ value: tag.id, label: tag.name, color: tag.color });
         }
       }
     } else if (filter.type === "Person") {
@@ -433,11 +437,19 @@ const DropdownRender: React.FC<Props> = ({
             filter.type === "Checkbox" ? (
               <Select
                 placeholder="Select the value"
-                options={valueOptions}
                 onSelect={onValueSelect}
                 defaultValue={defaultValue?.value?.toString()}
-                key={defaultValue?.value}
-              />
+                key={defaultValue?.value}>
+                {valueOptions.map(option => (
+                  <Option key={option.value} value={option.value} label={option.label}>
+                    {filter.type === "Tag" ? (
+                      <Tag color={option.color?.toLocaleLowerCase()}>{option.label}</Tag>
+                    ) : (
+                      option.label
+                    )}
+                  </Option>
+                ))}
+              </Select>
             ) : filter.type === "Integer" || filter.type === "Float" ? (
               <InputNumber
                 onChange={onNumberChange}

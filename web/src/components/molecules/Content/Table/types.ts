@@ -24,7 +24,7 @@ export type DropdownFilterType = {
   dataIndex: string | string[];
   title: string;
   type: FilterType;
-  typeProperty: { values?: string[]; tags?: { id: string; name: string }[] };
+  typeProperty: { values?: string[]; tags?: { color: string; id: string; name: string }[] };
   members: { user: { name: string } }[];
   id: string;
   multiple: boolean;
