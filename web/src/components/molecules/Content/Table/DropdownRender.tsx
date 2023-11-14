@@ -121,12 +121,12 @@ const DropdownRender: React.FC<Props> = ({
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
-            { operatorType: "string", value: StringOperator.Contains, label: t("contains") },
-            {
-              operatorType: "string",
-              value: StringOperator.NotContains,
-              label: t("doesn't contain"),
-            },
+            // { operatorType: "string", value: StringOperator.Contains, label: t("contains") },
+            // {
+            //   operatorType: "string",
+            //   value: StringOperator.NotContains,
+            //   label: t("doesn't contain"),
+            // },
           );
           break;
         case "Integer":
