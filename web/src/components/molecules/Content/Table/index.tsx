@@ -483,7 +483,9 @@ const ContentTable: React.FC<Props> = ({
         ...((contentTableColumns ?? [])
           .filter(
             column =>
-              (column.type as string) !== "Group" && (column.type as string) !== "Reference",
+              (column.type as string) !== "Group" &&
+              (column.type as string) !== "Reference" &&
+              !column.multiple,
           )
           .map(column => ({
             key: column.key,
