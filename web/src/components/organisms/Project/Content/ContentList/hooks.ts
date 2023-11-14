@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -195,7 +195,7 @@ export default () => {
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
   }, [data?.searchItem.nodes, referencedItemsMap]);
 
-  const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
+  const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,
@@ -209,11 +209,18 @@ export default () => {
       minWidth: 128,
       multiple: field.multiple,
       required: field.required,
+      sorter: true,
+      sortOrder:
+        currentView.sort?.field.id === field.id
+          ? currentView.sort?.direction === "ASC"
+            ? ("ascend" as const)
+            : ("descend" as const)
+          : null,
     }));
 
     const metadataColumns =
       currentModel?.metadataSchema?.fields?.map(field => {
-        const result: any = {
+        const result = {
           title: field.title,
           dataIndex: ["metadata", field.id],
           fieldType: "META_FIELD",
@@ -225,15 +232,22 @@ export default () => {
           minWidth: 128,
           multiple: field.multiple,
           required: field.required,
+          sorter: true,
+          sortOrder:
+            currentView.sort?.field.id === field.id
+              ? currentView.sort?.direction === "ASC"
+                ? ("ascend" as const)
+                : ("descend" as const)
+              : null,
         };
         if (field.type === "Tag") {
-          result.render = (el: any) => renderTags(el, field);
+          Object.assign(result, { render: (el: any) => renderTags(el, field) });
         }
         return result;
       }) || [];
 
     return fieldsColumns.concat(metadataColumns);
-  }, [currentModel]);
+  }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {

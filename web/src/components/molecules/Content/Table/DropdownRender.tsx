@@ -61,8 +61,11 @@ const DropdownRender: React.FC<Props> = ({
     if (open && !defaultValue) {
       form.resetFields();
       setIsShowInputField(true);
+      if (!isFilter && filterOption.current) {
+        filterOption.current.value = "ASC";
+      }
     }
-  }, [open, form, defaultValue]);
+  }, [open, form, defaultValue, isFilter]);
 
   const options = useMemo(() => {
     const result: {
@@ -339,18 +342,21 @@ const DropdownRender: React.FC<Props> = ({
       const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
       let fieldType: FieldType;
       let fieldId = "";
-      switch (filter.id as string) {
-        case "CREATION_DATE":
-        case "CREATION_USER":
-        case "MODIFICATION_DATE":
-        case "MODIFICATION_USER":
-        case "STATUS":
-          fieldType = filter.id as FieldType;
-          break;
-        default:
-          if (filter.dataIndex[0] === "fields") fieldType = "FIELD" as FieldType;
-          else fieldType = "META_FIELD" as FieldType;
-          fieldId = filter.id;
+      if (
+        filter.id === "CREATION_DATE" ||
+        filter.id === "CREATION_USER" ||
+        filter.id === "MODIFICATION_DATE" ||
+        filter.id === "MODIFICATION_USER" ||
+        filter.id === "STATUS"
+      ) {
+        fieldType = filter.id;
+      } else {
+        if (filter.dataIndex[0] === "fields") {
+          fieldType = "FIELD";
+        } else {
+          fieldType = "META_FIELD";
+        }
+        fieldId = filter.id;
       }
       const sort = {
         field: {
@@ -363,7 +369,6 @@ const DropdownRender: React.FC<Props> = ({
         ...prev,
         sort: sort,
       }));
-      filterOption.current.value = "ASC";
     }
   }, [
     close,

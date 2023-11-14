@@ -1,3 +1,6 @@
+import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
+import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 import {
   BasicOperator,
   BoolOperator,
@@ -7,8 +10,6 @@ import {
   StringOperator,
   MultipleOperator,
 } from "@reearth-cms/components/molecules/View/types";
-
-import { FieldType } from "../../Schema/types";
 
 export type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
@@ -39,3 +40,12 @@ export type Operator =
   | TimeOperator
   | StringOperator
   | MultipleOperator;
+
+export type ExtendedColumns = ProColumns<ContentTableField> & {
+  type?: FieldType | "Person";
+  fieldType?: string;
+  sortOrder?: "descend" | "ascend" | null;
+  typeProperty?: { values?: string[] };
+  required?: boolean;
+  multiple?: boolean;
+};
