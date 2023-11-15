@@ -2,7 +2,8 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import DangerZone from "@reearth-cms/components/molecules/WorkspaceSettings/DangerZone";
-import WorkspaceGeneralForm from "@reearth-cms/components/molecules/WorkspaceSettings/Form";
+import WorkspaceGeneralForm from "@reearth-cms/components/molecules/WorkspaceSettings/GeneralForm";
+import WorkspaceTilesForm from "@reearth-cms/components/molecules/WorkspaceSettings/TilesForm";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -30,14 +31,14 @@ const WorkspaceSettings: React.FC<Props> = ({
           image: "http://127.0.0.1:3000/",
         },
         {
-          id: "1",
-          name: "tile1",
+          id: "2",
+          name: "tile2",
           url: "http://127.0.0.1:3000/",
           image: "http://127.0.0.1:3000/",
         },
         {
-          id: "1",
-          name: "tile1",
+          id: "3",
+          name: "tile3",
           url: "http://127.0.0.1:3000/",
           image: "http://127.0.0.1:3000/",
         },
@@ -56,10 +57,7 @@ const WorkspaceSettings: React.FC<Props> = ({
         />
       </ContentSection>
       <ContentSection title={t("Tiles")}>
-        <WorkspaceGeneralForm
-          workspaceName={workspace.name}
-          onWorkspaceUpdate={onWorkspaceUpdate}
-        />
+        <WorkspaceTilesForm tiles={workspace.tiles} />
       </ContentSection>
       <DangerZone onWorkspaceDelete={onWorkspaceDelete} />
     </InnerContent>
