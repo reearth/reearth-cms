@@ -640,10 +640,12 @@ const ContentTable: React.FC<Props> = ({
       }
       const cols: FieldSelector[] = tableColumns
         .filter(col => {
-          return typeof col.key === "string" &&
-              col.key !== "EDIT_ICON" &&
-              col.key !== "commentsCount" &&
-              !hiddenCols.includes(col.key)
+          return (
+            typeof col.key === "string" &&
+            col.key !== "EDIT_ICON" &&
+            col.key !== "commentsCount" &&
+            !hiddenCols.includes(col.key)
+          );
         })
         .map(col => {
           if (
