@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { useParams } from "react-router-dom";
 
-import ViewFormMobal from "@reearth-cms/components/molecules/View/ViewFormModal";
+import ViewFormModal from "@reearth-cms/components/molecules/View/ViewFormModal";
 import ViewsMenuMolecule from "@reearth-cms/components/molecules/View/viewsMenu";
 
 import { CurrentViewType } from "../ContentList/hooks";
@@ -45,7 +45,7 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
         onUpdate={handleViewUpdate}
         onViewDeletionClose={handleViewDeletionModalClose}
       />
-      <ViewFormMobal
+      <ViewFormModal
         modalState={modalState}
         view={selectedView}
         open={viewModalShown}
