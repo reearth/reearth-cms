@@ -340,24 +340,25 @@ const DropdownRender: React.FC<Props> = ({
       }));
     } else {
       const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
-      let fieldType: FieldType;
       let fieldId = "";
-      if (
-        filter.id === "CREATION_DATE" ||
-        filter.id === "CREATION_USER" ||
-        filter.id === "MODIFICATION_DATE" ||
-        filter.id === "MODIFICATION_USER" ||
-        filter.id === "STATUS"
-      ) {
-        fieldType = filter.id;
-      } else {
-        if (filter.dataIndex[0] === "fields") {
-          fieldType = "FIELD";
+      const fieldType: FieldType = (() => {
+        if (
+          filter.id === "CREATION_DATE" ||
+          filter.id === "CREATION_USER" ||
+          filter.id === "MODIFICATION_DATE" ||
+          filter.id === "MODIFICATION_USER" ||
+          filter.id === "STATUS"
+        ) {
+          return filter.id;
         } else {
-          fieldType = "META_FIELD";
+          fieldId = filter.id;
+          if (filter.dataIndex[0] === "fields") {
+            return "FIELD";
+          } else {
+            return "META_FIELD";
+          }
         }
-        fieldId = filter.id;
-      }
+      })();
       const sort = {
         field: {
           id: fieldId ?? undefined,
