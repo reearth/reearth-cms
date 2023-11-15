@@ -2,10 +2,12 @@ import { useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import ProTable, {
   ProColumns,
   TablePaginationConfig,
+  ListToolBarProps,
 } from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -23,6 +25,7 @@ type Props = {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
+  onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
 };
@@ -35,6 +38,7 @@ const LinkItemModal: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onSearchTerm,
   onLinkItemTableChange,
   onLinkItemModalCancel,
   onChange,
@@ -109,9 +113,6 @@ const LinkItemModal: React.FC<Props> = ({
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
-      render: (_text, record) => {
-        return record?.author;
-      },
     },
     {
       title: t("Created At"),
@@ -120,6 +121,21 @@ const LinkItemModal: React.FC<Props> = ({
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
   ];
+
+  const toolbar: ListToolBarProps = {
+    search: (
+      <Input.Search
+        placeholder={t("input search text")}
+        onSearch={(value: string) => {
+          if (value) {
+            onSearchTerm(value);
+          } else {
+            onSearchTerm();
+          }
+        }}
+      />
+    ),
+  };
 
   return (
     <Modal
@@ -132,6 +148,7 @@ const LinkItemModal: React.FC<Props> = ({
       bodyStyle={{
         minHeight: "50vh",
         position: "relative",
+        paddingTop: "12px",
         paddingBottom: "80px",
       }}>
       <ProTable
@@ -140,6 +157,7 @@ const LinkItemModal: React.FC<Props> = ({
         search={false}
         rowKey="id"
         options={false}
+        toolbar={toolbar}
         pagination={pagination}
         tableStyle={{ overflowX: "scroll" }}
         onChange={pagination => {

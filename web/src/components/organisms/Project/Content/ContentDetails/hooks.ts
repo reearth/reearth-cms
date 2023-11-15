@@ -61,6 +61,7 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
   const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
@@ -93,6 +94,7 @@ export default () => {
           project: currentProject?.id ?? "",
           model: model?.id ?? "",
           schema: model?.schemaId,
+          q: searchTerm,
         },
         pagination: {
           first: linkItemModalPageSize,
@@ -102,6 +104,10 @@ export default () => {
     },
     skip: !model?.id,
   });
+
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+  }, []);
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -116,6 +122,7 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
+              createdBy: item.createdBy?.name,
               createdAt: item.createdAt,
               title: item.title,
               updatedAt: item.updatedAt,
@@ -613,6 +620,7 @@ export default () => {
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,
+    handleSearchTerm,
     handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading: loading,

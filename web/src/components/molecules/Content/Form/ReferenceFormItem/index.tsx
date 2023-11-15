@@ -22,6 +22,7 @@ type Props = {
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
   onReferenceModelUpdate?: (modelId?: string) => void;
+  onSearchTerm: (term?: string) => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
   onChange?: (value?: string) => void;
 };
@@ -38,6 +39,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   linkItemModalPage,
   linkItemModalPageSize,
   onReferenceModelUpdate,
+  onSearchTerm,
   onLinkItemTableChange,
 }) => {
   const { workspaceId, projectId } = useParams();
@@ -98,6 +100,7 @@ const ReferenceFormItem: React.FC<Props> = ({
             linkItemModalPage={linkItemModalPage}
             correspondingFieldId={correspondingFieldId}
             linkItemModalPageSize={linkItemModalPageSize}
+            onSearchTerm={onSearchTerm}
             onLinkItemTableChange={onLinkItemTableChange}
             linkedItemsModalList={linkedItemsModalList}
             visible={visible}

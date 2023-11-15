@@ -32,6 +32,7 @@ const ContentDetails: React.FC = () => {
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,
+    handleSearchTerm,
     handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading,
@@ -70,7 +71,7 @@ const ContentDetails: React.FC = () => {
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleAssetsReload,
-    handleSearchTerm,
+    handleSearchTerm: handleAssetSearchTerm,
     totalCount,
     page,
     pageSize,
@@ -83,6 +84,7 @@ const ContentDetails: React.FC = () => {
       linkItemModalTotalCount={linkItemModalTotalCount}
       linkItemModalPage={linkItemModalPage}
       linkItemModalPageSize={linkItemModalPageSize}
+      onSearchTerm={handleSearchTerm}
       onLinkItemTableChange={handleLinkItemTableChange}
       onReferenceModelUpdate={handleReferenceModelUpdate}
       linkedItemsModalList={linkedItemsModalList}
@@ -145,7 +147,7 @@ const ContentDetails: React.FC = () => {
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetsReload={handleAssetsReload}
-      onAssetSearchTerm={handleSearchTerm}
+      onAssetSearchTerm={handleAssetSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
       requestModalShown={requestModalShown}
