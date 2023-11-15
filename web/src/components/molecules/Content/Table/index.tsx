@@ -301,18 +301,17 @@ const ContentTable: React.FC<Props> = ({
         const { operator, fieldId } = condition;
         const value = "value" in condition ? condition?.value : "";
         const operatorType = Object.keys(c)[0];
-        let column;
-
         const columns =
           fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
             ? contentTableColumns
             : actionsColumns;
-        for (const c of columns) {
-          if (c.key === fieldId.id) {
-            column = c;
-            break;
+        const column = (() => {
+          for (const c of columns) {
+            if (c.key === fieldId.id) {
+              return c;
+            }
           }
-        }
+        })();
         if (column) {
           const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
           const members = currentWorkspace?.members;
@@ -443,10 +442,7 @@ const ContentTable: React.FC<Props> = ({
         //   })) as any),
         ...((contentTableColumns ?? [])
           .filter(
-            column =>
-              (column.type as string) !== "Group" &&
-              (column.type as string) !== "Reference" &&
-              !column.multiple,
+            column => column.type !== "Group" && column.type !== "Reference" && !column.multiple,
           )
           .map(column => ({
             key: column.key,
@@ -478,7 +474,7 @@ const ContentTable: React.FC<Props> = ({
     arrow: false,
   };
 
-  const handleToolbarEvents: ListToolBarProps | undefined = {
+  const handleToolbarEvents: ListToolBarProps = {
     search: (
       <StyledSearchContainer>
         <StyledSearchInput

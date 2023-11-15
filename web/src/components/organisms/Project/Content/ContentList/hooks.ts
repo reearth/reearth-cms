@@ -246,7 +246,7 @@ export default () => {
         return result;
       }) || [];
 
-    return fieldsColumns.concat(metadataColumns);
+    return [...fieldsColumns, ...metadataColumns];
   }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id]);
 
   useEffect(() => {
