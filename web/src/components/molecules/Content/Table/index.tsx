@@ -238,7 +238,7 @@ const ContentTable: React.FC<Props> = ({
   }, [t, currentView.sort, selectedItem?.id, onItemSelect]);
 
   const tableColumns = useMemo(() => {
-    return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : actionsColumns;
+    return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : [...actionsColumns];
   }, [actionsColumns, contentTableColumns]);
 
   const rowSelection: TableRowSelection = {
@@ -305,13 +305,7 @@ const ContentTable: React.FC<Props> = ({
           fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
             ? contentTableColumns
             : actionsColumns;
-        const column = (() => {
-          for (const c of columns) {
-            if (c.key === fieldId.id) {
-              return c;
-            }
-          }
-        })();
+        const column = columns.find(c => c.key === fieldId.id);
         if (column) {
           const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
           const members = currentWorkspace?.members;
@@ -646,17 +640,10 @@ const ContentTable: React.FC<Props> = ({
       }
       const cols: FieldSelector[] = tableColumns
         .filter(col => {
-          if (typeof col.key === "string") {
-            if (
-              col.key === "EDIT_ICON" ||
-              col.key === "commentsCount" ||
-              hiddenCols.includes(col.key)
-            ) {
-              return false;
-            } else {
-              return true;
-            }
-          }
+          return typeof col.key === "string" &&
+              col.key !== "EDIT_ICON" &&
+              col.key !== "commentsCount" &&
+              !hiddenCols.includes(col.key)
         })
         .map(col => {
           if (
