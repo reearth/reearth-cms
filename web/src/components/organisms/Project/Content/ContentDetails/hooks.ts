@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -30,6 +30,8 @@ import {
   useSearchItemQuery,
   useGetItemsByIdsQuery,
   useGetGroupsQuery,
+  FieldType as GQLFieldType,
+  StringOperator,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
@@ -67,6 +69,7 @@ export default () => {
   const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
+  const titleId = useRef("");
 
   useEffect(() => {
     setLinkItemModalPage(+linkItemModalPage);
@@ -94,21 +97,40 @@ export default () => {
           project: currentProject?.id ?? "",
           model: model?.id ?? "",
           schema: model?.schemaId,
-          q: searchTerm,
         },
         pagination: {
           first: linkItemModalPageSize,
           offset: (linkItemModalPage - 1) * linkItemModalPageSize,
         },
+        filter:
+          searchTerm && titleId.current
+            ? {
+                and: {
+                  conditions: [
+                    {
+                      string: {
+                        fieldId: { id: titleId.current, type: GQLFieldType.Field },
+                        operator: StringOperator.Contains,
+                        value: searchTerm,
+                      },
+                    },
+                  ],
+                },
+              }
+            : undefined,
       },
     },
     skip: !model?.id,
   });
 
-  const handleSearchTerm = useCallback((term?: string) => {
-    setSearchTerm(term ?? "");
-    setLinkItemModalPage(1);
-  }, []);
+  const handleSearchTerm = useCallback(
+    (term?: string) => {
+      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1].schemaFieldId ?? "";
+      setSearchTerm(term ?? "");
+      setLinkItemModalPage(1);
+    },
+    [itemsData?.searchItem.nodes],
+  );
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
