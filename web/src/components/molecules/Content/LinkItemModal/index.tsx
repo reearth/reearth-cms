@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -50,6 +50,7 @@ const LinkItemModal: React.FC<Props> = ({
   const t = useT();
   const { confirm } = Modal;
   const { handleCheckItemReference } = useHooks();
+  const [value, setValue] = useState("");
 
   const pagination: TablePaginationConfig = {
     showSizeChanger: true,
@@ -130,6 +131,16 @@ const LinkItemModal: React.FC<Props> = ({
     },
   ];
 
+  useEffect(() => {
+    if (!visible) {
+      setValue("");
+    }
+  }, [visible]);
+
+  const onInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
+
   const toolbar: ListToolBarProps = {
     search: (
       <Input.Search
@@ -141,6 +152,8 @@ const LinkItemModal: React.FC<Props> = ({
             onSearchTerm();
           }
         }}
+        value={value}
+        onChange={onInput}
       />
     ),
   };
