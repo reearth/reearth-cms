@@ -10,6 +10,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import {
   DefaultFilterValueType,
   Operator,
@@ -22,13 +23,15 @@ import {
   NullableOperator,
   NumberOperator,
   TimeOperator,
-  MultipleOperator,
+  // MultipleOperator,
   StringOperator,
   SortDirection,
   FieldType,
 } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
+
+const { Option } = Select;
 
 type Props = {
   filter: DropdownFilterType;
@@ -58,8 +61,11 @@ const DropdownRender: React.FC<Props> = ({
     if (open && !defaultValue) {
       form.resetFields();
       setIsShowInputField(true);
+      if (!isFilter && filterOption.current) {
+        filterOption.current.value = "ASC";
+      }
     }
-  }, [open, form, defaultValue]);
+  }, [open, form, defaultValue, isFilter]);
 
   const options = useMemo(() => {
     const result: {
@@ -121,12 +127,12 @@ const DropdownRender: React.FC<Props> = ({
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
-            { operatorType: "string", value: StringOperator.Contains, label: t("contains") },
-            {
-              operatorType: "string",
-              value: StringOperator.NotContains,
-              label: t("doesn't contain"),
-            },
+            // { operatorType: "string", value: StringOperator.Contains, label: t("contains") },
+            // {
+            //   operatorType: "string",
+            //   value: StringOperator.NotContains,
+            //   label: t("doesn't contain"),
+            // },
           );
           break;
         case "Integer":
@@ -174,30 +180,31 @@ const DropdownRender: React.FC<Props> = ({
         );
       }
       // add multiple operator to all multiple columns
-      if (filter.multiple || filter.type === "Select" || filter.type === "Tag") {
-        result.push(
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.IncludesAll,
-            label: t("Includes all"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.IncludesAny,
-            label: t("Includes any"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.NotIncludesAll,
-            label: t("Not include all"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.NotIncludesAny,
-            label: t("Not Include any"),
-          },
-        );
-      }
+      // TODO: Uncomment this when we have a way to filter by multiple
+      // if (filter.multiple || filter.type === "Select" || filter.type === "Tag") {
+      //   result.push(
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.IncludesAll,
+      //       label: t("Includes all"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.IncludesAny,
+      //       label: t("Includes any"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.NotIncludesAll,
+      //       label: t("Not include all"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.NotIncludesAny,
+      //       label: t("Not Include any"),
+      //     },
+      //   );
+      // }
     } else {
       result.push(
         { operatorType: "sort", value: "ASC", label: t("Ascending") },
@@ -206,12 +213,13 @@ const DropdownRender: React.FC<Props> = ({
     }
 
     return result;
-  }, [filter.multiple, filter.required, filter.type, isFilter, t]);
+  }, [/*filter.multiple,*/ filter.required, filter.type, isFilter, t]);
 
   const valueOptions = useMemo<
     {
       value: string;
       label: string;
+      color?: string;
     }[]
   >(() => {
     const options = [];
@@ -225,7 +233,7 @@ const DropdownRender: React.FC<Props> = ({
     } else if (filter.type === "Tag") {
       if (filter?.typeProperty?.tags) {
         for (const tag of Object.values(filter.typeProperty.tags)) {
-          options.push({ value: tag.id, label: tag.name });
+          options.push({ value: tag.id, label: tag.name, color: tag.color });
         }
       }
     } else if (filter.type === "Person") {
@@ -332,21 +340,25 @@ const DropdownRender: React.FC<Props> = ({
       }));
     } else {
       const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
-      let fieldType: FieldType;
       let fieldId = "";
-      switch (filter.id as string) {
-        case "CREATION_DATE":
-        case "CREATION_USER":
-        case "MODIFICATION_DATE":
-        case "MODIFICATION_USER":
-        case "STATUS":
-          fieldType = filter.id as FieldType;
-          break;
-        default:
-          if (filter.dataIndex[0] === "fields") fieldType = "FIELD" as FieldType;
-          else fieldType = "META_FIELD" as FieldType;
+      const fieldType: FieldType = (() => {
+        if (
+          filter.id === "CREATION_DATE" ||
+          filter.id === "CREATION_USER" ||
+          filter.id === "MODIFICATION_DATE" ||
+          filter.id === "MODIFICATION_USER" ||
+          filter.id === "STATUS"
+        ) {
+          return filter.id;
+        } else {
           fieldId = filter.id;
-      }
+          if (filter.dataIndex[0] === "fields") {
+            return "FIELD";
+          } else {
+            return "META_FIELD";
+          }
+        }
+      })();
       const sort = {
         field: {
           id: fieldId ?? undefined,
@@ -358,7 +370,6 @@ const DropdownRender: React.FC<Props> = ({
         ...prev,
         sort: sort,
       }));
-      filterOption.current.value = "ASC";
     }
   }, [
     close,
@@ -433,11 +444,19 @@ const DropdownRender: React.FC<Props> = ({
             filter.type === "Checkbox" ? (
               <Select
                 placeholder="Select the value"
-                options={valueOptions}
                 onSelect={onValueSelect}
                 defaultValue={defaultValue?.value?.toString()}
-                key={defaultValue?.value}
-              />
+                key={defaultValue?.value}>
+                {valueOptions.map(option => (
+                  <Option key={option.value} value={option.value} label={option.label}>
+                    {filter.type === "Tag" ? (
+                      <Tag color={option.color?.toLocaleLowerCase()}>{option.label}</Tag>
+                    ) : (
+                      option.label
+                    )}
+                  </Option>
+                ))}
+              </Select>
             ) : filter.type === "Integer" || filter.type === "Float" ? (
               <InputNumber
                 onChange={onNumberChange}
