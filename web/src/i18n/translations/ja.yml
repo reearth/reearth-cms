@@ -346,6 +346,11 @@ Permanently removes the current workspace and all of its contents from Re:Earth 
 Workspace Name: ワークスペース名
 This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ワークスペース名はワークスペースを判別するために表示されます。あなたの会社名、部署名、その他プロジェクトのテーマなどを利用することをお勧めします。
 Workspace Settings: ワークスペース設定
+Tiles: ''
+The first one in the list will be the default Tile.: ''
+Add new Tile: ''
+Default Terrain: ''
+Allow user to switch tiles: ''
 Failed to update user.: ユーザーの更新に失敗しました。
 Successfully updated user!: ユーザーの更新に成功しました。
 Failed to update language.: 言語設定の更新に失敗しました。
