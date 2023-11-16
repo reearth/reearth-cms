@@ -47,6 +47,7 @@ export type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  linkItemModalTitle: string;
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
@@ -136,6 +137,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
@@ -182,6 +184,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         <ContentForm
           item={item}
           groups={groups}
+          linkItemModalTitle={linkItemModalTitle}
           linkItemModalTotalCount={linkItemModalTotalCount}
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}

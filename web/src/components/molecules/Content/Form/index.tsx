@@ -74,6 +74,7 @@ export interface Props {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  linkItemModalTitle: string;
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
@@ -159,6 +160,7 @@ const ContentForm: React.FC<Props> = ({
   requestModalPage,
   requestModalPageSize,
   requestCreationLoading,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
@@ -620,6 +622,7 @@ const ContentForm: React.FC<Props> = ({
                   formItemsData={formItemsData}
                   modelId={field.typeProperty.modelId}
                   onReferenceModelUpdate={onReferenceModelUpdate}
+                  linkItemModalTitle={linkItemModalTitle}
                   linkedItemsModalList={linkedItemsModalList}
                   linkItemModalTotalCount={linkItemModalTotalCount}
                   linkItemModalPage={linkItemModalPage}

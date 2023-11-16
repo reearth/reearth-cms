@@ -23,6 +23,7 @@ type Props = {
   visible?: boolean;
   linkedItem?: string;
   correspondingFieldId: string;
+  linkItemModalTitle: string;
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
@@ -36,6 +37,7 @@ const LinkItemModal: React.FC<Props> = ({
   correspondingFieldId,
   linkedItemsModalList,
   linkedItem,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
@@ -146,7 +148,7 @@ const LinkItemModal: React.FC<Props> = ({
   return (
     <Modal
       open={visible}
-      title={t("Link item")}
+      title={linkItemModalTitle}
       centered
       width="70vw"
       footer={null}

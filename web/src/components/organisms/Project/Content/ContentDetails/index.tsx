@@ -28,6 +28,7 @@ const ContentDetails: React.FC = () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTitle,
     linkItemModalTotalCount,
     linkItemModalPage,
     linkItemModalPageSize,
@@ -81,6 +82,7 @@ const ContentDetails: React.FC = () => {
   return (
     <ContentDetailsMolecule
       formItemsData={formItemsData}
+      linkItemModalTitle={linkItemModalTitle}
       linkItemModalTotalCount={linkItemModalTotalCount}
       linkItemModalPage={linkItemModalPage}
       linkItemModalPageSize={linkItemModalPageSize}

@@ -18,6 +18,7 @@ type Props = {
   correspondingFieldId: string;
   modelId?: string;
   formItemsData?: FormItem[];
+  linkItemModalTitle: string;
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
@@ -35,6 +36,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   onChange,
   modelId,
   formItemsData,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
@@ -51,8 +53,9 @@ const ReferenceFormItem: React.FC<Props> = ({
   const handleClick = useCallback(() => {
     if (!onReferenceModelUpdate) return;
     onReferenceModelUpdate(modelId);
+    onSearchTerm("");
     setVisible(true);
-  }, [setVisible, onReferenceModelUpdate, modelId]);
+  }, [setVisible, onReferenceModelUpdate, modelId, onSearchTerm]);
 
   const handleLinkItemModalCancel = useCallback(() => {
     if (disabled) return;
@@ -92,6 +95,7 @@ const ReferenceFormItem: React.FC<Props> = ({
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
       <LinkItemModal
+        linkItemModalTitle={linkItemModalTitle}
         linkItemModalTotalCount={linkItemModalTotalCount}
         linkItemModalPage={linkItemModalPage}
         correspondingFieldId={correspondingFieldId}
