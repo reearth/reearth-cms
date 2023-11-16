@@ -107,6 +107,7 @@ export default () => {
 
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term ?? "");
+    setLinkItemModalPage(1);
   }, []);
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {

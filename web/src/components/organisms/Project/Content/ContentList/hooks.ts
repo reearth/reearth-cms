@@ -320,6 +320,7 @@ export default () => {
   const handleSearchTerm = useCallback(
     (term?: string) => {
       searchParams.set("searchTerm", term ?? "");
+      searchParams.set("page", "1");
       setSearchParams(searchParams);
     },
     [setSearchParams, searchParams],
