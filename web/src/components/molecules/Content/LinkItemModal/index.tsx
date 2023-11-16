@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -58,6 +59,7 @@ const LinkItemModal: React.FC<Props> = ({
   const columns: ProColumns<FormItem>[] = [
     {
       title: "",
+      width: 40,
       render: (_, item) => {
         const link =
           (item.id === linkedItem && hoveredAssetId !== item.id) ||
@@ -103,21 +105,25 @@ const LinkItemModal: React.FC<Props> = ({
       title: "ID",
       dataIndex: "id",
       key: "id",
+      ellipsis: true,
     },
     {
       title: t("Title"),
       dataIndex: "title",
       key: "title",
+      ellipsis: true,
     },
     {
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
+      ellipsis: true,
     },
     {
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
+      ellipsis: true,
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
   ];
@@ -148,10 +154,9 @@ const LinkItemModal: React.FC<Props> = ({
       bodyStyle={{
         minHeight: "50vh",
         position: "relative",
-        paddingTop: "12px",
-        paddingBottom: "80px",
+        padding: "12px 12px 0",
       }}>
-      <ProTable
+      <StyledProTable
         dataSource={linkedItemsModalList}
         columns={columns}
         search={false}
@@ -159,13 +164,22 @@ const LinkItemModal: React.FC<Props> = ({
         options={false}
         toolbar={toolbar}
         pagination={pagination}
-        tableStyle={{ overflowX: "scroll" }}
         onChange={pagination => {
           onLinkItemTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}
+        scroll={{ x: "max-content", y: 330 }}
       />
     </Modal>
   );
 };
 
 export default LinkItemModal;
+
+const StyledProTable = styled(ProTable)`
+  .ant-pro-card-body {
+    padding: 0;
+    .ant-pro-table-list-toolbar {
+      padding-left: 12px;
+    }
+  }
+`;
