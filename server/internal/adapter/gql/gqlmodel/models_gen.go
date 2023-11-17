@@ -149,6 +149,17 @@ type BoolFieldConditionInput struct {
 	Value    bool                `json:"value"`
 }
 
+type Column struct {
+	Field   *FieldSelector `json:"field"`
+	Visible bool           `json:"visible"`
+}
+
+type ColumnSelectionInput struct {
+	ID      *ID       `json:"id,omitempty"`
+	Type    FieldType `json:"type"`
+	Visible bool      `json:"visible"`
+}
+
 type Comment struct {
 	ID          ID           `json:"id"`
 	ThreadID    ID           `json:"threadId"`
@@ -274,12 +285,12 @@ type CreateThreadInput struct {
 }
 
 type CreateViewInput struct {
-	Name      string                `json:"name"`
-	ModelID   ID                    `json:"modelId"`
-	ProjectID ID                    `json:"projectId"`
-	Sort      *ItemSortInput        `json:"sort,omitempty"`
-	Filter    *ConditionInput       `json:"filter,omitempty"`
-	Columns   []*FieldSelectorInput `json:"columns,omitempty"`
+	Name      string                  `json:"name"`
+	ModelID   ID                      `json:"modelId"`
+	ProjectID ID                      `json:"projectId"`
+	Sort      *ItemSortInput          `json:"sort,omitempty"`
+	Filter    *ConditionInput         `json:"filter,omitempty"`
+	Columns   []*ColumnSelectionInput `json:"columns,omitempty"`
 }
 
 type CreateWebhookInput struct {
@@ -1219,11 +1230,11 @@ type UpdateUserOfWorkspaceInput struct {
 }
 
 type UpdateViewInput struct {
-	ViewID  ID                    `json:"viewId"`
-	Name    *string               `json:"name,omitempty"`
-	Sort    *ItemSortInput        `json:"sort,omitempty"`
-	Filter  *ConditionInput       `json:"filter,omitempty"`
-	Columns []*FieldSelectorInput `json:"columns,omitempty"`
+	ViewID  ID                      `json:"viewId"`
+	Name    *string                 `json:"name,omitempty"`
+	Sort    *ItemSortInput          `json:"sort,omitempty"`
+	Filter  *ConditionInput         `json:"filter,omitempty"`
+	Columns []*ColumnSelectionInput `json:"columns,omitempty"`
 }
 
 type UpdateWebhookInput struct {
@@ -1264,13 +1275,13 @@ type VersionedItem struct {
 }
 
 type View struct {
-	ID        ID               `json:"id"`
-	Name      string           `json:"name"`
-	ModelID   ID               `json:"modelId"`
-	ProjectID ID               `json:"projectId"`
-	Sort      *ItemSort        `json:"sort,omitempty"`
-	Filter    Condition        `json:"filter,omitempty"`
-	Columns   []*FieldSelector `json:"columns,omitempty"`
+	ID        ID        `json:"id"`
+	Name      string    `json:"name"`
+	ModelID   ID        `json:"modelId"`
+	ProjectID ID        `json:"projectId"`
+	Sort      *ItemSort `json:"sort,omitempty"`
+	Filter    Condition `json:"filter,omitempty"`
+	Columns   []*Column `json:"columns,omitempty"`
 }
 
 func (View) IsNode()        {}
