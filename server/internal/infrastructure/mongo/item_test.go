@@ -391,6 +391,7 @@ func TestItem_Archive(t *testing.T) {
 	}).Decode(&d)
 	assert.NoError(t, err)
 	assert.Equal(t, bson.M{
+		"__id":      iid.String(),
 		"_id":       d["_id"],
 		"__c":       d["__c"],
 		"__a":       true,

@@ -7,7 +7,6 @@ import (
 )
 
 func apply(q version.Query, f any) (res any) {
-	f = excludeMetadata(f)
 	q.Match(version.QueryMatch{
 		All: func() {
 			res = f
@@ -27,24 +26,13 @@ func apply(q version.Query, f any) (res any) {
 	return
 }
 
-func applyToPipeline(q version.Query, pipeline []any) (res []any) {
+func applyToPipeline(q version.Query, pipeline []any, metadataCollectionName string) (res []any) {
 	q.Match(version.QueryMatch{
 		All: func() {
-			res = append(
-				[]any{
-					bson.M{
-						"$match": bson.M{
-							metaKey: bson.M{"$exists": false},
-						},
-					},
-				},
-				pipeline...,
-			)
+			res = pipeline
 		},
 		Eq: func(vr version.VersionOrRef) {
-			b := bson.M{
-				metaKey: bson.M{"$exists": false},
-			}
+			b := bson.M{}
 
 			vr.Match(
 				func(v version.Version) {
@@ -56,18 +44,43 @@ func applyToPipeline(q version.Query, pipeline []any) (res []any) {
 			)
 
 			res = append(
-				[]any{
-					bson.M{
-						"$match": b,
-					},
+				pipeline,
+				bson.M{
+					"$match": b,
 				},
-				pipeline...,
 			)
 		},
 	})
 	return
 }
 
-func excludeMetadata(f any) any {
-	return mongox.And(f, metaKey, bson.M{"$exists": false})
+func applyMetaToPipeline(query any, pipeline []any, metadataCollectionName string) (res []any) {
+	p := []bson.M{
+		{"$match": bson.M{archivedKey: bson.M{"$ne": true}}},
+	}
+
+	if query != nil {
+		p = append(p, bson.M{"$match": query})
+	}
+
+	// lookup the meta item
+	res = append(
+		pipeline,
+		bson.M{
+			"$lookup": bson.M{
+				"from":         metadataCollectionName,
+				"localField":   "__id",
+				"foreignField": "__id",
+				"as":           "__",
+				"pipeline":     p,
+			},
+		},
+	)
+	// unwind the meta item
+	res = append(res, bson.M{"$unwind": bson.M{"path": "$__", "preserveNullAndEmptyArrays": true}})
+
+	// filter out item which has no meta
+	res = append(res, bson.M{"$match": bson.M{"__": bson.M{"$ne": nil}}})
+
+	return
 }

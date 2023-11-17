@@ -13,8 +13,7 @@ func TestQuery_Apply(t *testing.T) {
 	assert.Equal(
 		t,
 		bson.M{
-			"a":     "b",
-			metaKey: bson.M{"$exists": false},
+			"a": "b",
 		},
 		apply(version.All(), bson.M{"a": "b"}),
 	)
@@ -22,8 +21,7 @@ func TestQuery_Apply(t *testing.T) {
 		t,
 		bson.M{"$and": []any{
 			bson.M{
-				"a":     "b",
-				metaKey: bson.M{"$exists": false},
+				"a": "b",
 			},
 			bson.M{versionKey: v}},
 		},
@@ -33,8 +31,7 @@ func TestQuery_Apply(t *testing.T) {
 		t,
 		bson.M{"$and": []any{
 			bson.M{
-				"a":     "b",
-				metaKey: bson.M{"$exists": false},
+				"a": "b",
 			},
 			bson.M{refsKey: bson.M{"$in": []string{"latest"}}}},
 		},
@@ -47,31 +44,28 @@ func TestQuery_ApplyToPipeline(t *testing.T) {
 	assert.Equal(
 		t,
 		[]any{
-			bson.M{"$match": bson.M{metaKey: bson.M{"$exists": false}}},
 			bson.M{"a": "b"},
 		},
-		applyToPipeline(version.All(), []any{bson.M{"a": "b"}}),
+		applyToPipeline(version.All(), []any{bson.M{"a": "b"}}, "xyz"),
 	)
 	assert.Equal(
 		t,
 		[]any{
 			bson.M{"$match": bson.M{
-				metaKey:    bson.M{"$exists": false},
 				versionKey: v,
 			}},
 			bson.M{"a": "b"},
 		},
-		applyToPipeline(version.Eq(v.OrRef()), []any{bson.M{"a": "b"}}),
+		applyToPipeline(version.Eq(v.OrRef()), []any{bson.M{"a": "b"}}, "xyz"),
 	)
 	assert.Equal(
 		t,
 		[]any{
 			bson.M{"$match": bson.M{
-				metaKey: bson.M{"$exists": false},
 				refsKey: bson.M{"$in": []string{"latest"}},
 			}},
 			bson.M{"a": "b"},
 		},
-		applyToPipeline(version.Eq(version.Latest.OrVersion()), []any{bson.M{"a": "b"}}),
+		applyToPipeline(version.Eq(version.Latest.OrVersion()), []any{bson.M{"a": "b"}}, "xyz"),
 	)
 }

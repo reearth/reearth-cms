@@ -191,6 +191,14 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	return ib.Build()
 }
 
+func (d ItemDocument) IDString() string {
+	return d.ID
+}
+
+func (d MetaItemDocument) IDString() string {
+	return d.ID
+}
+
 func NewItems(items item.List) ([]*ItemDocument, []string) {
 	res := make([]*ItemDocument, 0, len(items))
 	ids := make([]string, 0, len(items))
