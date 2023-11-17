@@ -252,3 +252,27 @@ var NewViewID = idx.New[View]
 var MustViewID = idx.Must[View]
 var ViewIDFrom = idx.From[View]
 var ViewIDFromRef = idx.FromRef[View]
+
+type WorkspaceSettings struct{}
+
+func (WorkspaceSettings) Type() string { return "request" }
+
+type WorkspaceSettingsID = idx.ID[WorkspaceSettings]
+type WorkspaceSettingsIDList = idx.List[WorkspaceSettings]
+
+var NewWorkspaceSettingsID = idx.New[WorkspaceSettings]
+var MustWorkspaceSettingsID = idx.Must[WorkspaceSettings]
+var WorkspaceSettingsIDFrom = idx.From[WorkspaceSettings]
+var WorkspaceSettingsIDFromRef = idx.FromRef[WorkspaceSettings]
+
+type Resource struct{}
+
+func (Resource) Type() string { return "request" }
+
+type ResourceID = idx.ID[Resource]
+type ResourceIDList = idx.List[Resource]
+
+var NewResourceID = idx.New[Resource]
+var MustResourceID = idx.Must[Resource]
+var ResourceIDFrom = idx.From[Resource]
+var ResourceIDFromRef = idx.FromRef[Resource]
