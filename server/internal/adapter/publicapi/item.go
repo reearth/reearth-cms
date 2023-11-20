@@ -4,15 +4,12 @@ import (
 	"context"
 	"errors"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
-	"github.com/reearth/reearth-cms/server/pkg/group"
-	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearth-cms/server/pkg/version"
-
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -63,12 +60,12 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 			return Item{}, err
 		}
 	}
-	sgl, err := getGroupSchemas(ctx, itv, s)
-
+	sMap, err := getGroupSchemas(ctx, item.List{itv}, s)
 	if err != nil {
 		return Item{}, err
 	}
-	return NewItem(itv, s, sgl, assets, c.assetUrlResolver, nil), nil
+
+	return NewItem(itv, s, sMap[itv.ID()], assets, c.assetUrlResolver, getReferencedItems(ctx, itv)), nil
 }
 
 func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], *schema.Schema, error) {
@@ -105,14 +102,14 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 			return ListResult[Item]{}, nil, err
 		}
 	}
+	sMap, err := getGroupSchemas(ctx, items.Unwrap(), s)
 
 	itms, err := util.TryMap(items.Unwrap(), func(i *item.Item) (Item, error) {
-		sgl, err := getGroupSchemas(ctx, i, s)
 
 		if err != nil {
 			return Item{}, err
 		}
-		return NewItem(i, s, sgl, assets, c.assetUrlResolver, nil), nil
+		return NewItem(i, s, sMap[i.ID()], assets, c.assetUrlResolver, getReferencedItems(ctx, i)), nil
 	})
 	if err != nil {
 		return ListResult[Item]{}, nil, err
@@ -122,26 +119,30 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 	return res, s, nil
 }
 
-func getGroupSchemas(ctx context.Context, i *item.Item, ss *schema.Schema) (schema.List, error) {
+func getGroupSchemas(ctx context.Context, il item.List, ss *schema.Schema) (map[id.ItemID]schema.List, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
-	gf := i.Fields().FieldsByType(value.TypeGroup)
-
+	igMap := map[id.ItemID]id.GroupIDList{}
 	var gIds id.GroupIDList
-	for _, field := range gf {
-		gsf := ss.Field(field.FieldID())
 
-		if gsf != nil {
-			var gid id.GroupID
-			gsf.TypeProperty().Match(schema.TypePropertyMatch{
-				Group: func(f *schema.FieldGroup) {
-					gid = f.Group()
-				},
-			})
-			gIds = gIds.Add(gid)
+	for _, i := range il {
+		gf := i.Fields().FieldsByType(value.TypeGroup)
+		for _, field := range gf {
+			gsf := ss.Field(field.FieldID())
 
+			if gsf != nil {
+				var gid id.GroupID
+				gsf.TypeProperty().Match(schema.TypePropertyMatch{
+					Group: func(f *schema.FieldGroup) {
+						gid = f.Group()
+					},
+				})
+				gIds = gIds.Add(gid)
+				igMap[i.ID()] = igMap[i.ID()].Add(gid)
+			}
 		}
 	}
+
 	gl, err := uc.Group.FindByIDs(ctx, gIds, op)
 	if err != nil {
 		return nil, err
@@ -150,10 +151,28 @@ func getGroupSchemas(ctx context.Context, i *item.Item, ss *schema.Schema) (sche
 	sgIds := util.Map(gl, func(g *group.Group) id.SchemaID {
 		return g.Schema()
 	})
+	sl, err := uc.Schema.FindByIDs(ctx, sgIds, op)
+	if err != nil {
+		return nil, err
+	}
 
-	return uc.Schema.FindByIDs(ctx, sgIds, op)
+	res := map[id.ItemID]schema.List{}
+	for itm, gIDList := range igMap {
+		for _, gid := range gIDList {
+			g, ok := lo.Find(gl, func(grp *group.Group) bool {
+				return grp.ID() == gid
+			})
+			if !ok {
+				continue
+			}
+			s := sl.Schema(g.Schema().Ref())
+			res[itm] = append(res[itm], s)
+		}
+	}
+	return res, nil
 }
-func getReferencedItems(ctx context.Context, i *version.Value[*item.Item]) *[]integrationapi.VersionedItem {
+
+func getReferencedItems(ctx context.Context, i *item.Item) []Item {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -161,8 +180,8 @@ func getReferencedItems(ctx context.Context, i *version.Value[*item.Item]) *[]in
 		return nil
 	}
 
-	var vi []integrationapi.VersionedItem
-	for _, f := range i.Value().Fields() {
+	var vi []Item
+	for _, f := range i.Fields() {
 		if f.Type() != value.TypeReference {
 			continue
 		}
@@ -172,12 +191,16 @@ func getReferencedItems(ctx context.Context, i *version.Value[*item.Item]) *[]in
 				continue
 			}
 			ii, err := uc.Item.FindByID(ctx, iid, op)
+			if err != nil || ii == nil {
+				continue
+			}
+			s, err := uc.Schema.FindByID(ctx, ii.Value().Schema(), op)
 			if err != nil {
 				continue
 			}
-			vi = append(vi, integrationapi.NewVersionedItem(ii, nil, nil, nil, nil, nil, nil))
+			vi = append(vi, NewItem(ii.Value(), s, nil, nil, nil, nil))
 		}
 	}
 
-	return &vi
+	return vi
 }

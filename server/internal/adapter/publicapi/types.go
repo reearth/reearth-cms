@@ -55,26 +55,32 @@ type ListParam struct {
 }
 
 type Item struct {
-	ID     string
-	Fields ItemFields
+	ID              string
+	Fields          ItemFields
+	ReferencedItems []Item
 }
 
 func (i Item) MarshalJSON() ([]byte, error) {
 	m := i.Fields
 	m["id"] = i.ID
+	if len(i.ReferencedItems) > 0 {
+		m["referencedItems"] = i.ReferencedItems
+	}
 	return json.Marshal(m)
 }
 
-func NewItem(i *item.Item, s *schema.Schema, groupSchemas schema.List, assets asset.List, urlResolver asset.URLResolver, refItems *ListResult[Item]) Item {
+func NewItem(i *item.Item, s *schema.Schema, groupSchemas schema.List, assets asset.List, urlResolver asset.URLResolver, refItems []Item) Item {
 	gsf := schema.FieldList{}
 	for _, groupSchema := range groupSchemas {
 		gsf = append(gsf, groupSchema.Fields().Clone()...)
 	}
-
-	return Item{
-		ID:     i.ID().String(),
-		Fields: NewItemFields(i.Fields(), s.Fields(), gsf, assets, urlResolver, refItems),
+	itm := Item{
+		ID:              i.ID().String(),
+		Fields:          NewItemFields(i.Fields(), s.Fields(), gsf, assets, urlResolver),
+		ReferencedItems: refItems,
 	}
+
+	return itm
 }
 
 type ItemFields map[string]any
@@ -92,7 +98,7 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 	return i
 }
 
-func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, assets asset.List, urlResolver asset.URLResolver, refItems *ListResult[Item]) ItemFields {
+func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, assets asset.List, urlResolver asset.URLResolver) ItemFields {
 	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (k string, val any) {
 		sf := sfields.Find(f.FieldID())
 		if sf == nil {
@@ -131,7 +137,7 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 					continue
 				}
 				gf := fields.FieldsByGroup(itgID)
-				igf := NewItemFields(gf, groupFields, nil, assets, urlResolver, refItems)
+				igf := NewItemFields(gf, groupFields, nil, assets, urlResolver)
 				res[itgID.String()] = igf
 			}
 			val = res
