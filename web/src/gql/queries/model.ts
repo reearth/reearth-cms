@@ -173,6 +173,7 @@ export const GET_MODEL_NODE = gql`
       ... on Model {
         id
         schemaId
+        name
       }
     }
   }

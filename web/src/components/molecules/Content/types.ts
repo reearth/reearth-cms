@@ -31,7 +31,7 @@ export type FormItem = {
   id: string;
   title: string;
   schemaId: string;
-  author?: string;
+  createdBy: string;
   status: ItemStatus;
   createdAt: Date;
   updatedAt: Date;

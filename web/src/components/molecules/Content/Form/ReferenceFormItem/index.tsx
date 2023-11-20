@@ -18,10 +18,12 @@ type Props = {
   correspondingFieldId: string;
   modelId?: string;
   formItemsData?: FormItem[];
+  linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
   onReferenceModelUpdate?: (modelId?: string) => void;
+  onSearchTerm?: (term?: string) => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
   onChange?: (value?: string) => void;
 };
@@ -34,10 +36,12 @@ const ReferenceFormItem: React.FC<Props> = ({
   onChange,
   modelId,
   formItemsData,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
   onReferenceModelUpdate,
+  onSearchTerm,
   onLinkItemTableChange,
 }) => {
   const { workspaceId, projectId } = useParams();
@@ -50,7 +54,8 @@ const ReferenceFormItem: React.FC<Props> = ({
     if (!onReferenceModelUpdate) return;
     onReferenceModelUpdate(modelId);
     setVisible(true);
-  }, [setVisible, onReferenceModelUpdate, modelId]);
+    onSearchTerm?.("");
+  }, [setVisible, onReferenceModelUpdate, modelId, onSearchTerm]);
 
   const handleLinkItemModalCancel = useCallback(() => {
     if (disabled) return;
@@ -89,23 +94,22 @@ const ReferenceFormItem: React.FC<Props> = ({
       <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
-      {!!linkItemModalTotalCount &&
-        !!linkItemModalPage &&
-        !!linkItemModalPageSize &&
-        !!onLinkItemTableChange && (
-          <LinkItemModal
-            linkItemModalTotalCount={linkItemModalTotalCount}
-            linkItemModalPage={linkItemModalPage}
-            correspondingFieldId={correspondingFieldId}
-            linkItemModalPageSize={linkItemModalPageSize}
-            onLinkItemTableChange={onLinkItemTableChange}
-            linkedItemsModalList={linkedItemsModalList}
-            visible={visible}
-            onLinkItemModalCancel={handleLinkItemModalCancel}
-            linkedItem={value}
-            onChange={onChange}
-          />
-        )}
+      {!!onSearchTerm && !!onLinkItemTableChange && (
+        <LinkItemModal
+          linkItemModalTitle={linkItemModalTitle}
+          linkItemModalTotalCount={linkItemModalTotalCount}
+          linkItemModalPage={linkItemModalPage}
+          correspondingFieldId={correspondingFieldId}
+          linkItemModalPageSize={linkItemModalPageSize}
+          onSearchTerm={onSearchTerm}
+          onLinkItemTableChange={onLinkItemTableChange}
+          linkedItemsModalList={linkedItemsModalList}
+          visible={visible}
+          onLinkItemModalCancel={handleLinkItemModalCancel}
+          linkedItem={value}
+          onChange={onChange}
+        />
+      )}
     </>
   );
 };
