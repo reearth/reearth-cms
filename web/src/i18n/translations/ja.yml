@@ -120,7 +120,7 @@ Updated By: アイテム参照
 Publish State: 公開状態
 This item has been referenced: このアイテムは参照されました
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
-Link item: アイテムをリンクする
+input search text: ''
 State: ステータス
 Reviewers: レビュワー
 New Item: 新規アイテム
@@ -151,10 +151,6 @@ of this month: 今月
 of this year: 今年
 is empty: 空である
 is not empty: 空でない
-Includes all: すべてを含む
-Includes any: いずれかを含む
-Not include all: すべてを含まない
-Not Include any: どれも含まない
 Ascending: 昇順
 Descending: 降順
 Confirm: 確認
@@ -324,8 +320,6 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
-Are you sure to delete this view?: このビューを削除してもよろしいですか？
-Permanently remove the view, the contents won’t be removed, please don’t worry This action is not reversible, so please continue with caution.: ビューを削除します（コンテンツは削除されません）。
 New View: 新しいビュー
 Update View: ビューを更新します
 Submitting: 送信

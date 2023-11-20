@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useCallback } from "react";
+import { useState, useCallback, Dispatch, SetStateAction } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -11,7 +11,6 @@ import {
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import { ConditionInput, ItemSortInput } from "@reearth-cms/gql/graphql-client-api";
 
 import DropdownRender from "./DropdownRender";
 
@@ -22,7 +21,7 @@ type Props = {
   filterRemove: (index: number) => void;
   isFilterOpen: boolean;
   currentView: CurrentViewType;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
 };
 
 const FilterDropdown: React.FC<Props> = ({
@@ -32,7 +31,7 @@ const FilterDropdown: React.FC<Props> = ({
   filterRemove,
   isFilterOpen,
   currentView,
-  onTableControl,
+  setCurrentView,
 }) => {
   const [open, setOpen] = useState(isFilterOpen);
 
@@ -64,7 +63,7 @@ const FilterDropdown: React.FC<Props> = ({
           open={open}
           isFilter={true}
           currentView={currentView}
-          onTableControl={onTableControl}
+          setCurrentView={setCurrentView}
         />
       )}
       trigger={["click"]}
