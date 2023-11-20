@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import moment, { Moment } from "moment";
-import { useRef, useEffect, useCallback, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -11,25 +10,28 @@ import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
+import Tag from "@reearth-cms/components/atoms/Tag";
 import {
   DefaultFilterValueType,
   Operator,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
+  ConditionInput,
   BasicOperator,
   BoolOperator,
   NullableOperator,
   NumberOperator,
   TimeOperator,
-  MultipleOperator,
+  // MultipleOperator,
   StringOperator,
   SortDirection,
-  ConditionInput,
-  ItemSortInput,
-} from "@reearth-cms/gql/graphql-client-api";
+  FieldType,
+} from "@reearth-cms/components/molecules/View/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
+
+const { Option } = Select;
 
 type Props = {
   filter: DropdownFilterType;
@@ -39,7 +41,7 @@ type Props = {
   isFilter: boolean;
   index: number;
   currentView: CurrentViewType;
-  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -50,9 +52,8 @@ const DropdownRender: React.FC<Props> = ({
   isFilter,
   index,
   currentView,
-  onTableControl,
+  setCurrentView,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const t = useT();
   const [form] = Form.useForm();
 
@@ -60,8 +61,11 @@ const DropdownRender: React.FC<Props> = ({
     if (open && !defaultValue) {
       form.resetFields();
       setIsShowInputField(true);
+      if (!isFilter && filterOption.current) {
+        filterOption.current.value = "ASC";
+      }
     }
-  }, [open, form, defaultValue]);
+  }, [open, form, defaultValue, isFilter]);
 
   const options = useMemo(() => {
     const result: {
@@ -123,12 +127,12 @@ const DropdownRender: React.FC<Props> = ({
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
-            { operatorType: "string", value: StringOperator.Contains, label: t("contains") },
-            {
-              operatorType: "string",
-              value: StringOperator.NotContains,
-              label: t("doesn't contain"),
-            },
+            // { operatorType: "string", value: StringOperator.Contains, label: t("contains") },
+            // {
+            //   operatorType: "string",
+            //   value: StringOperator.NotContains,
+            //   label: t("doesn't contain"),
+            // },
           );
           break;
         case "Integer":
@@ -176,44 +180,46 @@ const DropdownRender: React.FC<Props> = ({
         );
       }
       // add multiple operator to all multiple columns
-      if (filter.multiple || filter.type === "Select" || filter.type === "Tag") {
-        result.push(
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.IncludesAll,
-            label: t("Includes all"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.IncludesAny,
-            label: t("Includes any"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.NotIncludesAll,
-            label: t("Not include all"),
-          },
-          {
-            operatorType: "multiple",
-            value: MultipleOperator.NotIncludesAny,
-            label: t("Not Include any"),
-          },
-        );
-      }
+      // TODO: Uncomment this when we have a way to filter by multiple
+      // if (filter.multiple || filter.type === "Select" || filter.type === "Tag") {
+      //   result.push(
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.IncludesAll,
+      //       label: t("Includes all"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.IncludesAny,
+      //       label: t("Includes any"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.NotIncludesAll,
+      //       label: t("Not include all"),
+      //     },
+      //     {
+      //       operatorType: "multiple",
+      //       value: MultipleOperator.NotIncludesAny,
+      //       label: t("Not Include any"),
+      //     },
+      //   );
+      // }
     } else {
       result.push(
-        { operatorType: "sort", value: SortDirection.Asc, label: t("Ascending") },
-        { operatorType: "sort", value: SortDirection.Desc, label: t("Descending") },
+        { operatorType: "sort", value: "ASC", label: t("Ascending") },
+        { operatorType: "sort", value: "DESC", label: t("Descending") },
       );
     }
 
     return result;
-  }, [filter.multiple, filter.required, filter.type, isFilter, t]);
+  }, [/*filter.multiple,*/ filter.required, filter.type, isFilter, t]);
 
   const valueOptions = useMemo<
     {
       value: string;
       label: string;
+      color?: string;
     }[]
   >(() => {
     const options = [];
@@ -227,7 +233,7 @@ const DropdownRender: React.FC<Props> = ({
     } else if (filter.type === "Tag") {
       if (filter?.typeProperty?.tags) {
         for (const tag of Object.values(filter.typeProperty.tags)) {
-          options.push({ value: tag.id, label: tag.name });
+          options.push({ value: tag.id, label: tag.name, color: tag.color });
         }
       }
     } else if (filter.type === "Person") {
@@ -304,7 +310,9 @@ const DropdownRender: React.FC<Props> = ({
       };
 
       if (filter.type === "Bool" || filter.type === "Checkbox") {
-        value = value === "true";
+        if (typeof value !== "boolean") {
+          value = value === "true";
+        }
       } else if (filter.type === "Integer" || filter.type === "Float") {
         value = Number(value);
       } else if (filter.type === "Date") {
@@ -326,23 +334,42 @@ const DropdownRender: React.FC<Props> = ({
 
       currentFilters[index] = newFilter;
 
-      onTableControl(undefined, currentFilters.filter(Boolean));
+      setCurrentView(prev => ({
+        ...prev,
+        filter: { conditions: currentFilters.filter(Boolean) },
+      }));
     } else {
-      searchParams.set("direction", filterOption.current.value === "ASC" ? "ASC" : "DESC");
-      switch (filter.id as string) {
-        case "CREATION_DATE":
-        case "CREATION_USER":
-        case "MODIFICATION_DATE":
-        case "MODIFICATION_USER":
-        case "STATUS":
-          searchParams.set("sortFieldType", filter.id);
-          break;
-        default:
-          if (filter.dataIndex[0] === "fields") searchParams.set("sortFieldType", "FIELD");
-          else searchParams.set("sortFieldType", "META_FIELD");
-          searchParams.set("sortFieldId", filter.id);
-      }
-      setSearchParams(searchParams);
+      const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
+      let fieldId = "";
+      const fieldType: FieldType = (() => {
+        if (
+          filter.id === "CREATION_DATE" ||
+          filter.id === "CREATION_USER" ||
+          filter.id === "MODIFICATION_DATE" ||
+          filter.id === "MODIFICATION_USER" ||
+          filter.id === "STATUS"
+        ) {
+          return filter.id;
+        } else {
+          fieldId = filter.id;
+          if (filter.dataIndex[0] === "fields") {
+            return "FIELD";
+          } else {
+            return "META_FIELD";
+          }
+        }
+      })();
+      const sort = {
+        field: {
+          id: fieldId ?? undefined,
+          type: fieldType,
+        },
+        direction: direction,
+      };
+      setCurrentView(prev => ({
+        ...prev,
+        sort: sort,
+      }));
     }
   }, [
     close,
@@ -352,9 +379,7 @@ const DropdownRender: React.FC<Props> = ({
     filter.type,
     currentView.filter,
     index,
-    onTableControl,
-    searchParams,
-    setSearchParams,
+    setCurrentView,
     form,
   ]);
 
@@ -419,11 +444,19 @@ const DropdownRender: React.FC<Props> = ({
             filter.type === "Checkbox" ? (
               <Select
                 placeholder="Select the value"
-                options={valueOptions}
                 onSelect={onValueSelect}
                 defaultValue={defaultValue?.value?.toString()}
-                key={defaultValue?.value}
-              />
+                key={defaultValue?.value}>
+                {valueOptions.map(option => (
+                  <Option key={option.value} value={option.value} label={option.label}>
+                    {filter.type === "Tag" ? (
+                      <Tag color={option.color?.toLocaleLowerCase()}>{option.label}</Tag>
+                    ) : (
+                      option.label
+                    )}
+                  </Option>
+                ))}
+              </Select>
             ) : filter.type === "Integer" || filter.type === "Float" ? (
               <InputNumber
                 onChange={onNumberChange}

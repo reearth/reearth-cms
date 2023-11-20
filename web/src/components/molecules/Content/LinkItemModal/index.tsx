@@ -1,11 +1,14 @@
-import { useState } from "react";
+import styled from "@emotion/styled";
+import { useState, useEffect, ChangeEvent } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import ProTable, {
   ProColumns,
   TablePaginationConfig,
+  ListToolBarProps,
 } from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -20,9 +23,11 @@ type Props = {
   visible?: boolean;
   linkedItem?: string;
   correspondingFieldId: string;
-  linkItemModalTotalCount: number;
-  linkItemModalPage: number;
-  linkItemModalPageSize: number;
+  linkItemModalTitle?: string;
+  linkItemModalTotalCount?: number;
+  linkItemModalPage?: number;
+  linkItemModalPageSize?: number;
+  onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
 };
@@ -32,9 +37,11 @@ const LinkItemModal: React.FC<Props> = ({
   correspondingFieldId,
   linkedItemsModalList,
   linkedItem,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onSearchTerm,
   onLinkItemTableChange,
   onLinkItemModalCancel,
   onChange,
@@ -43,6 +50,7 @@ const LinkItemModal: React.FC<Props> = ({
   const t = useT();
   const { confirm } = Modal;
   const { handleCheckItemReference } = useHooks();
+  const [value, setValue] = useState("");
 
   const pagination: TablePaginationConfig = {
     showSizeChanger: true,
@@ -54,6 +62,7 @@ const LinkItemModal: React.FC<Props> = ({
   const columns: ProColumns<FormItem>[] = [
     {
       title: "",
+      width: 40,
       render: (_, item) => {
         const link =
           (item.id === linkedItem && hoveredAssetId !== item.id) ||
@@ -99,32 +108,61 @@ const LinkItemModal: React.FC<Props> = ({
       title: "ID",
       dataIndex: "id",
       key: "id",
+      ellipsis: true,
     },
     {
       title: t("Title"),
       dataIndex: "title",
       key: "title",
+      ellipsis: true,
     },
     {
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
-      render: (_text, record) => {
-        return record?.author;
-      },
+      ellipsis: true,
     },
     {
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
+      ellipsis: true,
       render: (_text, record) => dateTimeFormat(record.createdAt),
     },
   ];
 
+  useEffect(() => {
+    if (!visible) {
+      setValue("");
+    }
+  }, [visible]);
+
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
+
+  const toolbar: ListToolBarProps = {
+    search: (
+      <Input.Search
+        allowClear
+        placeholder={t("input search text")}
+        onSearch={(value: string) => {
+          if (value) {
+            onSearchTerm(value);
+          } else {
+            onSearchTerm();
+          }
+        }}
+        value={value}
+        onChange={handleInput}
+      />
+    ),
+  };
+
   return (
     <Modal
       open={visible}
-      title={t("Link item")}
+      title={linkItemModalTitle}
       centered
       width="70vw"
       footer={null}
@@ -132,22 +170,32 @@ const LinkItemModal: React.FC<Props> = ({
       bodyStyle={{
         minHeight: "50vh",
         position: "relative",
-        paddingBottom: "80px",
+        padding: "12px 12px 0",
       }}>
-      <ProTable
+      <StyledProTable
         dataSource={linkedItemsModalList}
         columns={columns}
         search={false}
         rowKey="id"
         options={false}
+        toolbar={toolbar}
         pagination={pagination}
-        tableStyle={{ overflowX: "scroll" }}
         onChange={pagination => {
           onLinkItemTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}
+        scroll={{ x: "max-content", y: 330 }}
       />
     </Modal>
   );
 };
 
 export default LinkItemModal;
+
+const StyledProTable = styled(ProTable)`
+  .ant-pro-card-body {
+    padding: 0;
+    .ant-pro-table-list-toolbar {
+      padding-left: 12px;
+    }
+  }
+`;

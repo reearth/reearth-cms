@@ -2,9 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import {
+  AndConditionInput,
+  FieldSelector,
+  ItemSort,
+} from "@reearth-cms/components/molecules/View/types";
 import {
   convertItem,
   convertComment,
@@ -14,22 +19,18 @@ import {
   Item as GQLItem,
   useDeleteItemMutation,
   Comment as GQLComment,
-  SortDirection,
-  FieldSelector,
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
-  ConditionInput,
-  ItemSortInput,
-  AndConditionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
 import { renderTags } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
-  sort?: ItemSortInput;
+  sort?: ItemSort;
   filter?: AndConditionInput;
   columns?: FieldSelector[];
 };
@@ -56,10 +57,7 @@ export default () => {
 
   const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
   const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const sortFieldType = useMemo(() => searchParams.get("sortFieldType"), [searchParams]);
-  const direction = useMemo(() => searchParams.get("direction"), [searchParams]);
   const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
-  const sortFieldId = useMemo(() => searchParams.get("sortFieldId"), [searchParams]);
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -73,21 +71,8 @@ export default () => {
   useEffect(() => {
     setPage(pageParam ? +pageParam : 1);
     setPageSize(pageSizeParam ? +pageSizeParam : 10);
-    let sort: ItemSortInput | undefined;
-    if (sortFieldType)
-      sort = {
-        field: {
-          id: sortFieldId,
-          type: sortFieldType as FieldSelector["type"],
-        },
-        direction: direction ? (direction as SortDirection) : ("DESC" as SortDirection),
-      };
-    setCurrentView(prev => ({
-      ...prev,
-      sort: sort,
-    }));
     setSearchTerm(searchTermParam ?? "");
-  }, [sortFieldType, sortFieldId, direction, searchTermParam, pageSizeParam, pageParam]);
+  }, [searchTermParam, pageSizeParam, pageParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -100,10 +85,10 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: currentView.sort,
+        sort: currentView.sort ? toGraphItemSort(currentView.sort) : undefined,
         filter: currentView.filter
           ? {
-              and: currentView.filter,
+              and: toGraphAndConditionInput(currentView.filter),
             }
           : undefined,
       },
@@ -210,7 +195,7 @@ export default () => {
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
   }, [data?.searchItem.nodes, referencedItemsMap]);
 
-  const contentTableColumns: ProColumns<ContentTableField>[] | undefined = useMemo(() => {
+  const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,
@@ -224,11 +209,18 @@ export default () => {
       minWidth: 128,
       multiple: field.multiple,
       required: field.required,
+      sorter: true,
+      sortOrder:
+        currentView.sort?.field.id === field.id
+          ? currentView.sort?.direction === "ASC"
+            ? ("ascend" as const)
+            : ("descend" as const)
+          : null,
     }));
 
     const metadataColumns =
       currentModel?.metadataSchema?.fields?.map(field => {
-        const result: any = {
+        const result = {
           title: field.title,
           dataIndex: ["metadata", field.id],
           fieldType: "META_FIELD",
@@ -240,15 +232,22 @@ export default () => {
           minWidth: 128,
           multiple: field.multiple,
           required: field.required,
+          sorter: true,
+          sortOrder:
+            currentView.sort?.field.id === field.id
+              ? currentView.sort?.direction === "ASC"
+                ? ("ascend" as const)
+                : ("descend" as const)
+              : null,
         };
         if (field.type === "Tag") {
-          result.render = (el: any) => renderTags(el, field);
+          Object.assign(result, { render: (el: any) => renderTags(el, field) });
         }
         return result;
       }) || [];
 
-    return fieldsColumns.concat(metadataColumns);
-  }, [currentModel]);
+    return [...fieldsColumns, ...metadataColumns];
+  }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
@@ -320,16 +319,13 @@ export default () => {
   );
 
   const handleContentTableChange = useCallback(
-    (
-      page: number,
-      pageSize: number,
-      sorter?: { field?: FieldSelector; direction?: SortDirection },
-    ) => {
+    (page: number, pageSize: number, sorter?: ItemSort) => {
       searchParams.set("page", page.toString());
       searchParams.set("pageSize", pageSize.toString());
-      searchParams.set("sortFieldType", sorter?.field?.type ? sorter?.field?.type : "");
-      searchParams.set("direction", sorter?.direction ? sorter.direction : "");
-      searchParams.set("sortFieldId", sorter?.field?.id ? sorter?.field?.id : "");
+      setCurrentView(prev => ({
+        ...prev,
+        sort: sorter,
+      }));
       setSearchParams(searchParams);
     },
     [searchParams, setSearchParams],
@@ -338,30 +334,10 @@ export default () => {
   const handleSearchTerm = useCallback(
     (term?: string) => {
       searchParams.set("searchTerm", term ?? "");
+      searchParams.set("page", "1");
       setSearchParams(searchParams);
     },
     [setSearchParams, searchParams],
-  );
-
-  const handleTableControl = useCallback(
-    (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => {
-      setCurrentView(prev => {
-        let filterValue = prev.filter;
-        if (filter) {
-          if (filter.length > 0) {
-            filterValue = { conditions: filter };
-          } else {
-            filterValue = undefined;
-          }
-        }
-        return {
-          columns: prev.columns,
-          sort: sort ?? prev.sort,
-          filter: filterValue,
-        };
-      });
-    },
-    [],
   );
 
   const handleBulkAddItemToRequest = useCallback(
@@ -400,7 +376,6 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
-    handleTableControl,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,

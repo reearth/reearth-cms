@@ -74,10 +74,12 @@ export interface Props {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  linkItemModalTitle: string;
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
   onReferenceModelUpdate: (modelId?: string) => void;
+  onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
@@ -158,10 +160,12 @@ const ContentForm: React.FC<Props> = ({
   requestModalPage,
   requestModalPageSize,
   requestCreationLoading,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
   onReferenceModelUpdate,
+  onSearchTerm,
   onLinkItemTableChange,
   onPublish,
   onUnpublish,
@@ -618,10 +622,12 @@ const ContentForm: React.FC<Props> = ({
                   formItemsData={formItemsData}
                   modelId={field.typeProperty.modelId}
                   onReferenceModelUpdate={onReferenceModelUpdate}
+                  linkItemModalTitle={linkItemModalTitle}
                   linkedItemsModalList={linkedItemsModalList}
                   linkItemModalTotalCount={linkItemModalTotalCount}
                   linkItemModalPage={linkItemModalPage}
                   linkItemModalPageSize={linkItemModalPageSize}
+                  onSearchTerm={onSearchTerm}
                   onLinkItemTableChange={onLinkItemTableChange}
                 />
               </StyledFormItem>
