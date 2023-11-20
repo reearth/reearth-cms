@@ -5,11 +5,15 @@ export type View = {
   projectId: string;
   sort?: ItemSort;
   filter?: Condition;
-  columns?: Column[]; //equals to ColumnSelectionInput graphQL type
+  columns?: Column[];
 };
 
-//equals to ColumnSelectionInput graphQL type
 export type Column = {
+  field: FieldSelector;
+  visible: boolean;
+};
+
+export type ColumnSelectionInput = {
   id: string;
   type: FieldType;
   visible: boolean;

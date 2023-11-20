@@ -3,8 +3,8 @@ import {
   View,
   AndConditionInput,
   ItemSort,
-  FieldSelector,
   Condition,
+  Column,
 } from "@reearth-cms/components/molecules/View/types";
 import {
   Maybe,
@@ -15,7 +15,7 @@ import {
   SortDirection as GQLSortDirection,
   AndConditionInput as GQLAndConditionInput,
   ItemSortInput as GQLItemSortInput,
-  FieldSelector as GQLFieldSelector,
+  ColumnSelectionInput as GQLColumnSelectionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 
 export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
@@ -97,6 +97,7 @@ export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
   };
 };
 
+//view type conversions
 export const fromGraphQLView = (view: GQLView): View | undefined => {
   if (!view) return;
 
@@ -116,8 +117,11 @@ export const fromGraphQLView = (view: GQLView): View | undefined => {
       : undefined,
     columns: view.columns
       ? view.columns?.map(column => ({
-          type: column.type,
-          id: column.id ?? undefined,
+          field: {
+            type: column.field.type,
+            id: column.field.id ?? undefined,
+          },
+          visible: column.visible,
         }))
       : undefined,
     filter: view.filter ? (view.filter as Condition) : undefined,
@@ -134,10 +138,11 @@ export const toGraphItemSort = (sort: ItemSort): GQLItemSortInput | undefined =>
   };
 };
 
-export const toGraphFieldSelector = (fieldSelector: FieldSelector): GQLFieldSelector => {
+export const toGraphColumnSelectionInput = (column: Column): GQLColumnSelectionInput => {
   return {
-    id: fieldSelector.id ? fieldSelector.id : undefined,
-    type: fieldSelector.type as GQLFieldType,
+    id: column.field.id,
+    type: column.field.type as GQLFieldType,
+    visible: column.visible,
   };
 };
 
