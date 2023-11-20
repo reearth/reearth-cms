@@ -54,9 +54,7 @@ const ReferenceFormItem: React.FC<Props> = ({
     if (!onReferenceModelUpdate) return;
     onReferenceModelUpdate(modelId);
     setVisible(true);
-    if (onSearchTerm) {
-      onSearchTerm("");
-    }
+    onSearchTerm?.("");
   }, [setVisible, onReferenceModelUpdate, modelId, onSearchTerm]);
 
   const handleLinkItemModalCancel = useCallback(() => {

@@ -137,7 +137,7 @@ const LinkItemModal: React.FC<Props> = ({
     }
   }, [visible]);
 
-  const onInput = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
@@ -154,7 +154,7 @@ const LinkItemModal: React.FC<Props> = ({
           }
         }}
         value={value}
-        onChange={onInput}
+        onChange={handleInput}
       />
     ),
   };
