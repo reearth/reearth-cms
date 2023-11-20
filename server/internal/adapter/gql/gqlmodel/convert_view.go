@@ -66,12 +66,16 @@ func ToDirection(direction view.Direction) *SortDirection {
 	}
 }
 
-func ToFieldSelectorList(columns *view.FieldSelectorList) []*FieldSelector {
+func ToFieldSelectorList(columns *view.FieldSelectorList) []*Column {
 	if columns == nil {
 		return nil
 	}
-	return lo.Map(*columns, func(c view.FieldSelector, _ int) *FieldSelector {
-		return ToFieldSelector(c)
+	return lo.Map(*columns, func(c view.FieldSelector, _ int) *Column {
+		return &Column{
+			Field: ToFieldSelector(c),
+			// TODO: fix
+			Visible: true,
+		}
 	})
 }
 
