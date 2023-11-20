@@ -5,7 +5,9 @@ import (
 	"errors"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/group"
+	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -66,7 +68,7 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 	if err != nil {
 		return Item{}, err
 	}
-	return NewItem(itv, s, sgl, assets, c.assetUrlResolver), nil
+	return NewItem(itv, s, sgl, assets, c.assetUrlResolver, nil), nil
 }
 
 func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], *schema.Schema, error) {
@@ -110,7 +112,7 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		if err != nil {
 			return Item{}, err
 		}
-		return NewItem(i, s, sgl, assets, c.assetUrlResolver), nil
+		return NewItem(i, s, sgl, assets, c.assetUrlResolver, nil), nil
 	})
 	if err != nil {
 		return ListResult[Item]{}, nil, err
@@ -150,4 +152,32 @@ func getGroupSchemas(ctx context.Context, i *item.Item, ss *schema.Schema) (sche
 	})
 
 	return uc.Schema.FindByIDs(ctx, sgIds, op)
+}
+func getReferencedItems(ctx context.Context, i *version.Value[*item.Item]) *[]integrationapi.VersionedItem {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	if i == nil {
+		return nil
+	}
+
+	var vi []integrationapi.VersionedItem
+	for _, f := range i.Value().Fields() {
+		if f.Type() != value.TypeReference {
+			continue
+		}
+		for _, v := range f.Value().Values() {
+			iid, ok := v.Value().(id.ItemID)
+			if !ok {
+				continue
+			}
+			ii, err := uc.Item.FindByID(ctx, iid, op)
+			if err != nil {
+				continue
+			}
+			vi = append(vi, integrationapi.NewVersionedItem(ii, nil, nil, nil, nil, nil, nil))
+		}
+	}
+
+	return &vi
 }
