@@ -23,10 +23,10 @@ type Props = {
   visible?: boolean;
   linkedItem?: string;
   correspondingFieldId: string;
-  linkItemModalTitle: string;
-  linkItemModalTotalCount: number;
-  linkItemModalPage: number;
-  linkItemModalPageSize: number;
+  linkItemModalTitle?: string;
+  linkItemModalTotalCount?: number;
+  linkItemModalPage?: number;
+  linkItemModalPageSize?: number;
   onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
@@ -144,6 +144,7 @@ const LinkItemModal: React.FC<Props> = ({
   const toolbar: ListToolBarProps = {
     search: (
       <Input.Search
+        allowClear
         placeholder={t("input search text")}
         onSearch={(value: string) => {
           if (value) {

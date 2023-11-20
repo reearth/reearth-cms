@@ -96,27 +96,22 @@ const ReferenceFormItem: React.FC<Props> = ({
       <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
-      {!!linkItemModalTitle &&
-        !!linkItemModalTotalCount &&
-        !!linkItemModalPage &&
-        !!linkItemModalPageSize &&
-        !!onSearchTerm &&
-        !!onLinkItemTableChange && (
-          <LinkItemModal
-            linkItemModalTitle={linkItemModalTitle}
-            linkItemModalTotalCount={linkItemModalTotalCount}
-            linkItemModalPage={linkItemModalPage}
-            correspondingFieldId={correspondingFieldId}
-            linkItemModalPageSize={linkItemModalPageSize}
-            onSearchTerm={onSearchTerm}
-            onLinkItemTableChange={onLinkItemTableChange}
-            linkedItemsModalList={linkedItemsModalList}
-            visible={visible}
-            onLinkItemModalCancel={handleLinkItemModalCancel}
-            linkedItem={value}
-            onChange={onChange}
-          />
-        )}
+      {!!onSearchTerm && !!onLinkItemTableChange && (
+        <LinkItemModal
+          linkItemModalTitle={linkItemModalTitle}
+          linkItemModalTotalCount={linkItemModalTotalCount}
+          linkItemModalPage={linkItemModalPage}
+          correspondingFieldId={correspondingFieldId}
+          linkItemModalPageSize={linkItemModalPageSize}
+          onSearchTerm={onSearchTerm}
+          onLinkItemTableChange={onLinkItemTableChange}
+          linkedItemsModalList={linkedItemsModalList}
+          visible={visible}
+          onLinkItemModalCancel={handleLinkItemModalCancel}
+          linkedItem={value}
+          onChange={onChange}
+        />
+      )}
     </>
   );
 };
