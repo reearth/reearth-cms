@@ -26,7 +26,7 @@ func New[T, MT Identifiable](dataCollection, metaCollection *mongox.Collection) 
 	return &Collection[T, MT]{dataColl: dataCollection, metaColl: metaCollection}
 }
 
-func (c *Collection[T, MT]) Client() *mongox.Collection {
+func (c *Collection[T, MT]) DataClient() *mongox.Collection {
 	return c.dataColl
 }
 
@@ -34,35 +34,74 @@ func (c *Collection[T, MT]) MetaDataClient() *mongox.Collection {
 	return c.metaColl
 }
 
-func (c *Collection[T, MT]) FindOne(ctx context.Context, filter, metaFilter any, q version.Query, consumer mongox.Consumer) error {
-	var p []any
-	if filter != nil {
-		p = append(p, bson.M{"$match": filter})
+func (c *Collection[T, MT]) FindOne(ctx context.Context, filter, metaFilter any, q version.Query, consumer, metaConsumer mongox.Consumer) error {
+	pl := pipeline(filter, metaFilter, q, c.metaColl.Client().Name())
+
+	cw := consumer
+	if metaConsumer != nil {
+		cw = newIdExtractorConsumer(consumer)
 	}
-	p = applyToPipeline(q, p, c.metaColl.Client().Name())
-	p = applyMetaToPipeline(metaFilter, p, c.metaColl.Client().Name())
 
-	return c.dataColl.AggregateOne(ctx, p, consumer)
+	if err := c.dataColl.AggregateOne(ctx, pl, cw); err != nil {
+		return err
+	}
+
+	if metaConsumer != nil {
+		return c.metaColl.FindOne(ctx, bson.M{idKey: bson.M{"$in": cw.(*idExtractorConsumer).IDs()}}, metaConsumer)
+	}
+	return nil
 }
 
-func (c *Collection[T, MT]) Find(ctx context.Context, filter any, q version.Query, consumer mongox.Consumer) error {
-	return c.dataColl.Find(ctx, apply(q, filter), consumer)
+func (c *Collection[T, MT]) Find(ctx context.Context, filter, metaFilter any, q version.Query, consumer, metaConsumer mongox.Consumer) error {
+	pl := pipeline(filter, metaFilter, q, c.metaColl.Client().Name())
+
+	cw := consumer
+	if metaConsumer != nil {
+		cw = newIdExtractorConsumer(consumer)
+	}
+
+	if err := c.dataColl.Aggregate(ctx, pl, cw); err != nil {
+		return err
+	}
+
+	if metaConsumer != nil {
+		return c.metaColl.Find(ctx, bson.M{idKey: bson.M{"$in": cw.(*idExtractorConsumer).IDs()}}, metaConsumer)
+	}
+	return nil
 }
 
-func (c *Collection[T, MT]) Paginate(ctx context.Context, filter any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.dataColl.Paginate(ctx, apply(q, filter), s, p, consumer)
+func (c *Collection[T, MT]) Paginate(ctx context.Context, filter, metaFilter any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer, metaConsumer mongox.Consumer) (*usecasex.PageInfo, error) {
+	pl := pipeline(filter, metaFilter, q, c.metaColl.Client().Name())
+
+	cw := consumer
+	if metaConsumer != nil {
+		cw = newIdExtractorConsumer(consumer)
+	}
+
+	info, err := c.dataColl.PaginateAggregation(ctx, pl, s, p, cw)
+	if err != nil {
+		return nil, err
+	}
+
+	if metaConsumer != nil {
+		if err := c.metaColl.Find(ctx, bson.M{idKey: bson.M{"$in": cw.(*idExtractorConsumer).IDs()}}, metaConsumer); err != nil {
+			return nil, err
+		}
+	}
+	return info, nil
 }
 
-func (c *Collection[T, MT]) Count(ctx context.Context, filter any, q version.Query) (int64, error) {
-	return c.dataColl.Count(ctx, apply(q, filter))
+func (c *Collection[T, MT]) Count(ctx context.Context, filter, metaFilter any, q version.Query) (int64, error) {
+	pl := pipeline(filter, metaFilter, q, c.metaColl.Client().Name())
+	return c.dataColl.CountAggregation(ctx, pl)
 }
 
 func (c *Collection[T, MT]) PaginateAggregation(ctx context.Context, pipeline []any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.dataColl.PaginateAggregation(ctx, applyToPipeline(q, pipeline, c.metaColl.Client().Name()), s, p, consumer)
+	return c.dataColl.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer)
 }
 
 func (c *Collection[T, MT]) CountAggregation(ctx context.Context, pipeline []any, q version.Query) (int64, error) {
-	return c.dataColl.CountAggregation(ctx, applyToPipeline(q, pipeline, c.metaColl.Client().Name()))
+	return c.dataColl.CountAggregation(ctx, applyToPipeline(q, pipeline))
 }
 
 func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent *version.VersionOrRef) error {
@@ -123,7 +162,7 @@ func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent 
 	return nil
 }
 
-func (c *Collection[T, MT]) UpdateMeta(ctx context.Context, id string, d MT) error {
+func (c *Collection[T, MT]) SaveOneMeta(ctx context.Context, id string, d MT) error {
 	metadata, err := c.metadata(ctx, id)
 	if err != nil {
 		return err

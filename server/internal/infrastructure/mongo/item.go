@@ -59,7 +59,7 @@ func (r *Item) Filtered(f repo.ProjectFilter) repo.Item {
 func (r *Item) Init() error {
 	return createIndexes2(
 		context.Background(),
-		r.client.Client(),
+		r.client.DataClient(),
 		append(
 			r.client.Indexes(),
 			mongox.IndexFromKeys(itemIndexes, false)...,
@@ -580,7 +580,7 @@ func (r *Item) FindAllVersionsByID(ctx context.Context, itemID id.ItemID) (item.
 	c := mongodoc.NewVersionedItemConsumer()
 	if err := r.client.Find(ctx, r.readFilter(bson.M{
 		"id": itemID.String(),
-	}), version.All(), c); err != nil {
+	}), nil, version.All(), c, nil); err != nil {
 		return nil, err
 	}
 
@@ -593,7 +593,7 @@ func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (ite
 		"id": bson.M{
 			"$in": ids.Strings(),
 		},
-	}), version.All(), c); err != nil {
+	}), nil, version.All(), c, nil); err != nil {
 		return nil, err
 	}
 
@@ -618,7 +618,7 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	if err := r.client.SaveOne(ctx, iID, *doc, nil); err != nil {
 		return err
 	}
-	return r.client.UpdateMeta(ctx, iID, mongodoc.MetaItemDocument{
+	return r.client.SaveOneMeta(ctx, iID, mongodoc.MetaItemDocument{
 		ID:        iID,
 		Project:   item.Project().String(),
 		Model:     item.Model().String(),
@@ -647,7 +647,7 @@ func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bo
 
 func (r *Item) paginate(ctx context.Context, filter bson.M, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	c := mongodoc.NewVersionedItemConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), sort, pagination, c)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, version.Eq(ref.OrLatest().OrVersion()), sort, pagination, c, nil)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
@@ -665,7 +665,7 @@ func (r *Item) paginateAggregation(ctx context.Context, pipeline []any, ref *ver
 
 func (r *Item) find(ctx context.Context, filter any, ref *version.Ref) (item.VersionedList, error) {
 	c := mongodoc.NewVersionedItemConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
+	if err := r.client.Find(ctx, r.readFilter(filter), nil, version.Eq(ref.OrLatest().OrVersion()), c, nil); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
@@ -673,7 +673,7 @@ func (r *Item) find(ctx context.Context, filter any, ref *version.Ref) (item.Ver
 
 func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.Versioned, error) {
 	c := mongodoc.NewVersionedItemConsumer()
-	if err := r.client.FindOne(ctx, r.readFilter(filter), version.Eq(ref.OrLatest().OrVersion()), c); err != nil {
+	if err := r.client.FindOne(ctx, r.readFilter(filter), nil, version.Eq(ref.OrLatest().OrVersion()), c, nil); err != nil {
 		return nil, err
 	}
 	return c.Result[0], nil

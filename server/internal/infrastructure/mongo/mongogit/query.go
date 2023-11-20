@@ -26,7 +26,7 @@ func apply(q version.Query, f any) (res any) {
 	return
 }
 
-func applyToPipeline(q version.Query, pipeline []any, metadataCollectionName string) (res []any) {
+func applyToPipeline(q version.Query, pipeline []any) (res []any) {
 	q.Match(version.QueryMatch{
 		All: func() {
 			res = pipeline
@@ -83,4 +83,14 @@ func applyMetaToPipeline(query any, pipeline []any, metadataCollectionName strin
 	res = append(res, bson.M{"$match": bson.M{"__": bson.M{"$ne": nil}}})
 
 	return
+}
+
+func pipeline(filter, metaFilter any, q version.Query, metadataCollectionName string) []any {
+	var p []any
+	if filter != nil {
+		p = append(p, bson.M{"$match": filter})
+	}
+	p = applyToPipeline(q, p)
+	p = applyMetaToPipeline(metaFilter, p, metadataCollectionName)
+	return p
 }
