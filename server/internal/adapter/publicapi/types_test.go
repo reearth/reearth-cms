@@ -85,7 +85,7 @@ func TestNewItem(t *testing.T) {
 		}),
 	}, NewItem(it, s, schema.List{s2}, asset.List{as}, func(a *asset.Asset) string {
 		return "https://example.com/" + a.ID().String() + af.Path()
-	}))
+	}, nil))
 
 	// no assets
 	assert.Equal(t, Item{
@@ -94,7 +94,7 @@ func TestNewItem(t *testing.T) {
 			"aaaaa": "aaaa",
 			"ggggg": resGroup,
 		}),
-	}, NewItem(it, s, schema.List{s2}, nil, nil))
+	}, NewItem(it, s, schema.List{s2}, nil, nil, nil))
 }
 
 func TestNewItem_Multiple(t *testing.T) {
@@ -140,7 +140,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		}),
 	}, NewItem(it, s, nil, asset.List{as}, func(a *asset.Asset) string {
 		return "https://example.com/" + a.ID().String() + af.Path()
-	}))
+	}, nil))
 
 	// no assets
 	assert.Equal(t, Item{
@@ -148,7 +148,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 		}),
-	}, NewItem(it, s, nil, nil, nil))
+	}, NewItem(it, s, nil, nil, nil, nil))
 }
 
 func TestItem_MarshalJSON(t *testing.T) {
