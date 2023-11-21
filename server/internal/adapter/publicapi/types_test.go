@@ -71,6 +71,7 @@ func TestNewItem(t *testing.T) {
 	resGroup := ItemFields{
 		"test1": "xxxx",
 	}
+
 	assert.Equal(t, Item{
 		ID: it.ID().String(),
 		Fields: ItemFields(map[string]any{
