@@ -140,8 +140,10 @@ export const toGraphItemSort = (sort: ItemSort): GQLItemSortInput | undefined =>
 
 export const toGraphColumnSelectionInput = (column: Column): GQLColumnSelectionInput => {
   return {
-    id: column.field.id,
-    type: column.field.type as GQLFieldType,
+    field: {
+      id: column.field.id,
+      type: column.field.type as GQLFieldType,
+    },
     visible: column.visible,
   };
 };

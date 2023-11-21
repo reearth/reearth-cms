@@ -603,7 +603,7 @@ const ContentTable: React.FC<Props> = ({
   };
 
   const settingOptions = useMemo(() => {
-    const settingOptions: Record<string, ColumnsState> = {};
+    const cols: Record<string, ColumnsState> = {};
     currentView.columns?.forEach((col, index) => {
       if (
         col.field.type === "ID" ||
@@ -613,19 +613,18 @@ const ContentTable: React.FC<Props> = ({
         col.field.type === "MODIFICATION_DATE" ||
         col.field.type === "MODIFICATION_USER"
       ) {
-        if (col.visible) settingOptions[col.field.type] = { show: true, order: index };
-        else settingOptions[col.field.type] = { show: false, order: index };
+        if (col.visible) cols[col.field.type] = { show: true, order: index };
+        else cols[col.field.type] = { show: false, order: index };
       } else {
-        if (col.visible) settingOptions[col.field.id ?? ""] = { show: true, order: index };
-        else settingOptions[col.field.id ?? ""] = { show: false, order: index };
+        if (col.visible) cols[col.field.id ?? ""] = { show: true, order: index };
+        else cols[col.field.id ?? ""] = { show: false, order: index };
       }
     });
-
-    return settingOptions;
+    return cols;
   }, [currentView.columns]);
 
   const setSettingOptions = useCallback(
-    (settingOptions: Record<string, ColumnsState>) => {
+    (options: Record<string, ColumnsState>) => {
       const cols: Column[] = tableColumns
         .filter(col => {
           if (typeof col.key === "string") {
@@ -634,28 +633,27 @@ const ContentTable: React.FC<Props> = ({
           }
           return false;
         })
-        .map((col, index) => {
-          return {
-            field: {
-              type: col.fieldType as FieldType,
-              id:
-                col.fieldType === "FIELD" || col.fieldType === "META_FIELD"
-                  ? (col.key as string)
-                  : undefined,
-            },
-            visible: settingOptions[col.key as string].show === false ? false : true,
-            order: settingOptions[col.key as string]?.order
-              ? (settingOptions[col.key as string]?.order as number)
+        .map((col, index) => ({
+          field: {
+            type: col.fieldType as FieldType,
+            id:
+              col.fieldType === "FIELD" || col.fieldType === "META_FIELD"
+                ? (col.key as string)
+                : undefined,
+          },
+          visible: (col.key as string) in options ? options[col.key as string].show : true,
+          order:
+            (col.key as string) in options && options[col.key as string].order
+              ? (options[col.key as string]?.order as number)
               : index + 3,
-          };
-        })
+        }))
         .sort(function (a, b) {
           return a.order - b.order;
         })
         .map(col => {
           return {
             field: col.field,
-            visible: col.visible,
+            visible: col.visible as boolean,
           };
         });
 

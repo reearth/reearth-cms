@@ -14,8 +14,7 @@ export type Column = {
 };
 
 export type ColumnSelectionInput = {
-  id: string;
-  type: FieldType;
+  field: FieldSelector;
   visible: boolean;
 };
 
