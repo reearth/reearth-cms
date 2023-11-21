@@ -5589,8 +5589,7 @@ type Column {
 # inputs
 
 input ColumnSelectionInput{
-  id: ID
-  type: FieldType!
+  field: FieldSelectorInput!
   visible: Boolean!
 }
 
@@ -30853,31 +30852,22 @@ func (ec *executionContext) unmarshalInputColumnSelectionInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "type", "visible"}
+	fieldsInOrder := [...]string{"field", "visible"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
+		case "field":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNFieldSelectorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ID = data
-		case "type":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNFieldType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Type = data
+			it.Field = data
 		case "visible":
 			var err error
 

@@ -155,9 +155,8 @@ type Column struct {
 }
 
 type ColumnSelectionInput struct {
-	ID      *ID       `json:"id,omitempty"`
-	Type    FieldType `json:"type"`
-	Visible bool      `json:"visible"`
+	Field   *FieldSelectorInput `json:"field"`
+	Visible bool                `json:"visible"`
 }
 
 type Comment struct {
