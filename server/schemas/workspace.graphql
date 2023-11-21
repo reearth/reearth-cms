@@ -22,11 +22,6 @@ type WorkspaceIntegrationMember {
     integration: Integration
 }
 
-type WorkspaceSettings {
-	workspaceId: ID!
-	avatar: String
-}
-
 enum Role {
     # a role who can read project
     READER
@@ -37,33 +32,51 @@ enum Role {
     # a role who can maintain a project
     MAINTAINER
 }
+type WorkspaceSettings {
+	workspaceId: ID!
+	avatar: String
+    tiles: WorkspaceResourceList!
+    terrains: WorkspaceResourceList!
+}
 
-input Resource {
+type Resource {
 	id: ID!
 	name: String!
 	url: String!
 	image: String!
 }
 
-input WorkspaceResources {
-	resource: [Resource!]!
-	defaultAsset: ID
-	allowSwitch: Boolean!
+type WorkspaceResourceList {
+    resources: [Resource!]!
+    defaultAsset: ID
+    allowSwitch: Boolean!
 }
 
 input CreateWorkspaceInput {
     name: String!
     avatar: String
-	tiles: WorkspaceResources
-	terrains: WorkspaceResources
+	tiles: WorkspaceResourceListInput!
+	terrains: WorkspaceResourceListInput!
 }
 
 input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
     avatar: String
-	tiles: WorkspaceResources
-	terrains: WorkspaceResources
+	tiles: WorkspaceResourceListInput!
+	terrains: WorkspaceResourceListInput!
+}
+
+input WorkspaceResourceListInput {
+    resources: [ResourceInput!]!
+    defaultAsset: ID
+    allowSwitch: Boolean!
+}
+
+input ResourceInput {
+    name: String!
+    url: String!
+    image: String!
 }
 
 input MemberInput {

@@ -579,6 +579,13 @@ type ComplexityRoot struct {
 		Request func(childComplexity int) int
 	}
 
+	Resource struct {
+		ID    func(childComplexity int) int
+		Image func(childComplexity int) int
+		Name  func(childComplexity int) int
+		URL   func(childComplexity int) int
+	}
+
 	Schema struct {
 		Fields       func(childComplexity int) int
 		ID           func(childComplexity int) int
@@ -794,8 +801,16 @@ type ComplexityRoot struct {
 		Role          func(childComplexity int) int
 	}
 
+	WorkspaceResourceList struct {
+		AllowSwitch  func(childComplexity int) int
+		DefaultAsset func(childComplexity int) int
+		Resources    func(childComplexity int) int
+	}
+
 	WorkspaceSettings struct {
 		Avatar      func(childComplexity int) int
+		Terrains    func(childComplexity int) int
+		Tiles       func(childComplexity int) int
 		WorkspaceID func(childComplexity int) int
 	}
 
@@ -3471,6 +3486,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RequestPayload.Request(childComplexity), true
 
+	case "Resource.id":
+		if e.complexity.Resource.ID == nil {
+			break
+		}
+
+		return e.complexity.Resource.ID(childComplexity), true
+
+	case "Resource.image":
+		if e.complexity.Resource.Image == nil {
+			break
+		}
+
+		return e.complexity.Resource.Image(childComplexity), true
+
+	case "Resource.name":
+		if e.complexity.Resource.Name == nil {
+			break
+		}
+
+		return e.complexity.Resource.Name(childComplexity), true
+
+	case "Resource.url":
+		if e.complexity.Resource.URL == nil {
+			break
+		}
+
+		return e.complexity.Resource.URL(childComplexity), true
+
 	case "Schema.fields":
 		if e.complexity.Schema.Fields == nil {
 			break
@@ -4241,12 +4284,47 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkspaceIntegrationMember.Role(childComplexity), true
 
+	case "WorkspaceResourceList.allowSwitch":
+		if e.complexity.WorkspaceResourceList.AllowSwitch == nil {
+			break
+		}
+
+		return e.complexity.WorkspaceResourceList.AllowSwitch(childComplexity), true
+
+	case "WorkspaceResourceList.defaultAsset":
+		if e.complexity.WorkspaceResourceList.DefaultAsset == nil {
+			break
+		}
+
+		return e.complexity.WorkspaceResourceList.DefaultAsset(childComplexity), true
+
+	case "WorkspaceResourceList.resources":
+		if e.complexity.WorkspaceResourceList.Resources == nil {
+			break
+		}
+
+		return e.complexity.WorkspaceResourceList.Resources(childComplexity), true
+
 	case "WorkspaceSettings.avatar":
 		if e.complexity.WorkspaceSettings.Avatar == nil {
 			break
 		}
 
 		return e.complexity.WorkspaceSettings.Avatar(childComplexity), true
+
+	case "WorkspaceSettings.terrains":
+		if e.complexity.WorkspaceSettings.Terrains == nil {
+			break
+		}
+
+		return e.complexity.WorkspaceSettings.Terrains(childComplexity), true
+
+	case "WorkspaceSettings.tiles":
+		if e.complexity.WorkspaceSettings.Tiles == nil {
+			break
+		}
+
+		return e.complexity.WorkspaceSettings.Tiles(childComplexity), true
 
 	case "WorkspaceSettings.workspaceId":
 		if e.complexity.WorkspaceSettings.WorkspaceID == nil {
@@ -4338,7 +4416,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRemoveMyAuthInput,
 		ec.unmarshalInputRemoveUserFromWorkspaceInput,
 		ec.unmarshalInputRequestItemInput,
-		ec.unmarshalInputResource,
+		ec.unmarshalInputResourceInput,
 		ec.unmarshalInputSchemaFieldAssetInput,
 		ec.unmarshalInputSchemaFieldBoolInput,
 		ec.unmarshalInputSchemaFieldCheckboxInput,
@@ -4377,7 +4455,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateWebhookInput,
 		ec.unmarshalInputUpdateWorkspaceInput,
 		ec.unmarshalInputWebhookTriggerInput,
-		ec.unmarshalInputWorkspaceResources,
+		ec.unmarshalInputWorkspaceResourceListInput,
 	)
 	first := true
 
@@ -6062,11 +6140,6 @@ type WorkspaceIntegrationMember {
     integration: Integration
 }
 
-type WorkspaceSettings {
-	workspaceId: ID!
-	avatar: String
-}
-
 enum Role {
     # a role who can read project
     READER
@@ -6077,33 +6150,51 @@ enum Role {
     # a role who can maintain a project
     MAINTAINER
 }
+type WorkspaceSettings {
+	workspaceId: ID!
+	avatar: String
+    tiles: WorkspaceResourceList!
+    terrains: WorkspaceResourceList!
+}
 
-input Resource {
+type Resource {
 	id: ID!
 	name: String!
 	url: String!
 	image: String!
 }
 
-input WorkspaceResources {
-	resource: [Resource!]!
-	defaultAsset: ID
-	allowSwitch: Boolean!
+type WorkspaceResourceList {
+    resources: [Resource!]!
+    defaultAsset: ID
+    allowSwitch: Boolean!
 }
 
 input CreateWorkspaceInput {
     name: String!
     avatar: String
-	tiles: WorkspaceResources
-	terrains: WorkspaceResources
+	tiles: WorkspaceResourceListInput!
+	terrains: WorkspaceResourceListInput!
 }
 
 input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
     avatar: String
-	tiles: WorkspaceResources
-	terrains: WorkspaceResources
+	tiles: WorkspaceResourceListInput!
+	terrains: WorkspaceResourceListInput!
+}
+
+input WorkspaceResourceListInput {
+    resources: [ResourceInput!]!
+    defaultAsset: ID
+    allowSwitch: Boolean!
+}
+
+input ResourceInput {
+    name: String!
+    url: String!
+    image: String!
 }
 
 input MemberInput {
@@ -21708,6 +21799,10 @@ func (ec *executionContext) fieldContext_Query_settings(ctx context.Context, fie
 				return ec.fieldContext_WorkspaceSettings_workspaceId(ctx, field)
 			case "avatar":
 				return ec.fieldContext_WorkspaceSettings_avatar(ctx, field)
+			case "tiles":
+				return ec.fieldContext_WorkspaceSettings_tiles(ctx, field)
+			case "terrains":
+				return ec.fieldContext_WorkspaceSettings_terrains(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WorkspaceSettings", field.Name)
 		},
@@ -23405,6 +23500,182 @@ func (ec *executionContext) fieldContext_RequestPayload_request(ctx context.Cont
 				return ec.fieldContext_Request_reviewers(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Request", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Resource_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Resource_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Resource_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Resource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Resource_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Resource_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Resource_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Resource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Resource_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Resource_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Resource_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Resource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Resource_image(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Resource_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Image, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Resource_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Resource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -28640,6 +28911,145 @@ func (ec *executionContext) fieldContext_WorkspaceIntegrationMember_integration(
 	return fc, nil
 }
 
+func (ec *executionContext) _WorkspaceResourceList_resources(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceResourceList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceResourceList_resources(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Resources, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.Resource)
+	fc.Result = res
+	return ec.marshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkspaceResourceList_resources(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkspaceResourceList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Resource_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Resource_name(ctx, field)
+			case "url":
+				return ec.fieldContext_Resource_url(ctx, field)
+			case "image":
+				return ec.fieldContext_Resource_image(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Resource", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkspaceResourceList_defaultAsset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceResourceList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceResourceList_defaultAsset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultAsset, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkspaceResourceList_defaultAsset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkspaceResourceList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkspaceResourceList_allowSwitch(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceResourceList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceResourceList_allowSwitch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AllowSwitch, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkspaceResourceList_allowSwitch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkspaceResourceList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WorkspaceSettings_workspaceId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceSettings) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkspaceSettings_workspaceId(ctx, field)
 	if err != nil {
@@ -28720,6 +29130,110 @@ func (ec *executionContext) fieldContext_WorkspaceSettings_avatar(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkspaceSettings_tiles(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceSettings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceSettings_tiles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tiles, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.WorkspaceResourceList)
+	fc.Result = res
+	return ec.marshalNWorkspaceResourceList2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkspaceSettings_tiles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkspaceSettings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "resources":
+				return ec.fieldContext_WorkspaceResourceList_resources(ctx, field)
+			case "defaultAsset":
+				return ec.fieldContext_WorkspaceResourceList_defaultAsset(ctx, field)
+			case "allowSwitch":
+				return ec.fieldContext_WorkspaceResourceList_allowSwitch(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkspaceResourceList", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkspaceSettings_terrains(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceSettings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceSettings_terrains(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Terrains, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.WorkspaceResourceList)
+	fc.Result = res
+	return ec.marshalNWorkspaceResourceList2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkspaceSettings_terrains(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkspaceSettings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "resources":
+				return ec.fieldContext_WorkspaceResourceList_resources(ctx, field)
+			case "defaultAsset":
+				return ec.fieldContext_WorkspaceResourceList_defaultAsset(ctx, field)
+			case "allowSwitch":
+				return ec.fieldContext_WorkspaceResourceList_allowSwitch(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkspaceResourceList", field.Name)
 		},
 	}
 	return fc, nil
@@ -32134,7 +32648,7 @@ func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tiles"))
-			data, err := ec.unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx, v)
+			data, err := ec.unmarshalNWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -32143,7 +32657,7 @@ func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrains"))
-			data, err := ec.unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx, v)
+			data, err := ec.unmarshalNWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -33460,29 +33974,20 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputResource(ctx context.Context, obj interface{}) (gqlmodel.Resource, error) {
-	var it gqlmodel.Resource
+func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj interface{}) (gqlmodel.ResourceInput, error) {
+	var it gqlmodel.ResourceInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "url", "image"}
+	fieldsInOrder := [...]string{"name", "url", "image"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ID = data
 		case "name":
 			var err error
 
@@ -35722,7 +36227,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tiles"))
-			data, err := ec.unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx, v)
+			data, err := ec.unmarshalNWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -35731,7 +36236,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrains"))
-			data, err := ec.unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx, v)
+			data, err := ec.unmarshalNWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -35834,29 +36339,29 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputWorkspaceResources(ctx context.Context, obj interface{}) (gqlmodel.WorkspaceResources, error) {
-	var it gqlmodel.WorkspaceResources
+func (ec *executionContext) unmarshalInputWorkspaceResourceListInput(ctx context.Context, obj interface{}) (gqlmodel.WorkspaceResourceListInput, error) {
+	var it gqlmodel.WorkspaceResourceListInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"resource", "defaultAsset", "allowSwitch"}
+	fieldsInOrder := [...]string{"resources", "defaultAsset", "allowSwitch"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "resource":
+		case "resources":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resource"))
-			data, err := ec.unmarshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resources"))
+			data, err := ec.unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Resource = data
+			it.Resources = data
 		case "defaultAsset":
 			var err error
 
@@ -41179,6 +41684,60 @@ func (ec *executionContext) _RequestPayload(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var resourceImplementors = []string{"Resource"}
+
+func (ec *executionContext) _Resource(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Resource) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, resourceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Resource")
+		case "id":
+			out.Values[i] = ec._Resource_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Resource_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "url":
+			out.Values[i] = ec._Resource_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "image":
+			out.Values[i] = ec._Resource_image(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var schemaImplementors = []string{"Schema", "Node"}
 
 func (ec *executionContext) _Schema(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Schema) graphql.Marshaler {
@@ -43029,6 +43588,52 @@ func (ec *executionContext) _WorkspaceIntegrationMember(ctx context.Context, sel
 	return out
 }
 
+var workspaceResourceListImplementors = []string{"WorkspaceResourceList"}
+
+func (ec *executionContext) _WorkspaceResourceList(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.WorkspaceResourceList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workspaceResourceListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkspaceResourceList")
+		case "resources":
+			out.Values[i] = ec._WorkspaceResourceList_resources(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "defaultAsset":
+			out.Values[i] = ec._WorkspaceResourceList_defaultAsset(ctx, field, obj)
+		case "allowSwitch":
+			out.Values[i] = ec._WorkspaceResourceList_allowSwitch(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var workspaceSettingsImplementors = []string{"WorkspaceSettings"}
 
 func (ec *executionContext) _WorkspaceSettings(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.WorkspaceSettings) graphql.Marshaler {
@@ -43047,6 +43652,16 @@ func (ec *executionContext) _WorkspaceSettings(ctx context.Context, sel ast.Sele
 			}
 		case "avatar":
 			out.Values[i] = ec._WorkspaceSettings_avatar(ctx, field, obj)
+		case "tiles":
+			out.Values[i] = ec._WorkspaceSettings_tiles(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "terrains":
+			out.Values[i] = ec._WorkspaceSettings_terrains(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -45168,16 +45783,70 @@ func (ec *executionContext) marshalNRequestState2githubᚗcomᚋreearthᚋreeart
 	return v
 }
 
-func (ec *executionContext) unmarshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.Resource, error) {
+func (ec *executionContext) marshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Resource) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNResource2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNResource2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Resource) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Resource(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.ResourceInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*gqlmodel.Resource, len(vSlice))
+	res := make([]*gqlmodel.ResourceInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNResource2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -45185,8 +45854,8 @@ func (ec *executionContext) unmarshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋre
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNResource2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx context.Context, v interface{}) (*gqlmodel.Resource, error) {
-	res, err := ec.unmarshalInputResource(ctx, v)
+func (ec *executionContext) unmarshalNResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInput(ctx context.Context, v interface{}) (*gqlmodel.ResourceInput, error) {
+	res, err := ec.unmarshalInputResourceInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -45927,6 +46596,21 @@ func (ec *executionContext) marshalNWorkspaceMember2ᚕgithubᚗcomᚋreearthᚋ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNWorkspaceResourceList2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceList(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WorkspaceResourceList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkspaceResourceList(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx context.Context, v interface{}) (*gqlmodel.WorkspaceResourceListInput, error) {
+	res, err := ec.unmarshalInputWorkspaceResourceListInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNWorkspaceSettings2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceSettingsᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.WorkspaceSettings) graphql.Marshaler {
@@ -47674,14 +48358,6 @@ func (ec *executionContext) marshalOWorkspace2ᚖgithubᚗcomᚋreearthᚋreeart
 		return graphql.Null
 	}
 	return ec._Workspace(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx context.Context, v interface{}) (*gqlmodel.WorkspaceResources, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputWorkspaceResources(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

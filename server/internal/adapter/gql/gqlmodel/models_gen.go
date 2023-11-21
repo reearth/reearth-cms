@@ -292,10 +292,10 @@ type CreateWebhookInput struct {
 }
 
 type CreateWorkspaceInput struct {
-	Name     string              `json:"name"`
-	Avatar   *string             `json:"avatar,omitempty"`
-	Tiles    *WorkspaceResources `json:"tiles,omitempty"`
-	Terrains *WorkspaceResources `json:"terrains,omitempty"`
+	Name     string                      `json:"name"`
+	Avatar   *string                     `json:"avatar,omitempty"`
+	Tiles    *WorkspaceResourceListInput `json:"tiles"`
+	Terrains *WorkspaceResourceListInput `json:"terrains"`
 }
 
 type CreateWorkspacePayload struct {
@@ -833,6 +833,12 @@ type Resource struct {
 	Image string `json:"image"`
 }
 
+type ResourceInput struct {
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+	Image string `json:"image"`
+}
+
 type Schema struct {
 	ID           ID             `json:"id"`
 	ProjectID    ID             `json:"projectId"`
@@ -1247,11 +1253,11 @@ type UpdateWebhookInput struct {
 }
 
 type UpdateWorkspaceInput struct {
-	WorkspaceID ID                  `json:"workspaceId"`
-	Name        string              `json:"name"`
-	Avatar      *string             `json:"avatar,omitempty"`
-	Tiles       *WorkspaceResources `json:"tiles,omitempty"`
-	Terrains    *WorkspaceResources `json:"terrains,omitempty"`
+	WorkspaceID ID                          `json:"workspaceId"`
+	Name        string                      `json:"name"`
+	Avatar      *string                     `json:"avatar,omitempty"`
+	Tiles       *WorkspaceResourceListInput `json:"tiles"`
+	Terrains    *WorkspaceResourceListInput `json:"terrains"`
 }
 
 type UpdateWorkspacePayload struct {
@@ -1351,15 +1357,23 @@ type WorkspaceIntegrationMember struct {
 
 func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
 
-type WorkspaceResources struct {
-	Resource     []*Resource `json:"resource"`
+type WorkspaceResourceList struct {
+	Resources    []*Resource `json:"resources"`
 	DefaultAsset *ID         `json:"defaultAsset,omitempty"`
 	AllowSwitch  bool        `json:"allowSwitch"`
 }
 
+type WorkspaceResourceListInput struct {
+	Resources    []*ResourceInput `json:"resources"`
+	DefaultAsset *ID              `json:"defaultAsset,omitempty"`
+	AllowSwitch  bool             `json:"allowSwitch"`
+}
+
 type WorkspaceSettings struct {
-	WorkspaceID ID      `json:"workspaceId"`
-	Avatar      *string `json:"avatar,omitempty"`
+	WorkspaceID ID                     `json:"workspaceId"`
+	Avatar      *string                `json:"avatar,omitempty"`
+	Tiles       *WorkspaceResourceList `json:"tiles"`
+	Terrains    *WorkspaceResourceList `json:"terrains"`
 }
 
 type WorkspaceUserMember struct {
