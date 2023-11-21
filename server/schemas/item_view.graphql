@@ -16,8 +16,7 @@ type Column {
 # inputs
 
 input ColumnSelectionInput{
-  id: ID
-  type: FieldType!
+  field: FieldSelectorInput!
   visible: Boolean!
 }
 
