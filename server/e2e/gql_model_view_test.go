@@ -11,7 +11,7 @@ import (
 
 func createView(e *httpexpect.Expect, pID, mID, name string, sort, filter map[string]any, columns []map[string]any) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
-		Query: `mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+		Query: `mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [ColumnSelectionInput!]) {
 				  createView(input: {projectId: $projectId, modelId: $modelId, name: $name, sort: $sort, filter: $filter, columns: $columns}) {
 					view {
 					  id
@@ -24,8 +24,11 @@ func createView(e *httpexpect.Expect, pID, mID, name string, sort, filter map[st
 						direction
 		              }
 					  columns {
-						type
-						id
+						field {
+							type
+							id
+						}
+						visible
 					  }
 					  filter {
 						
@@ -68,7 +71,7 @@ func createView(e *httpexpect.Expect, pID, mID, name string, sort, filter map[st
 
 func updateView(e *httpexpect.Expect, vID, name string, sort, filter map[string]any, columns []map[string]any) (string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
-		Query: `mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+		Query: `mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [ColumnSelectionInput!]) {
 				  updateView(input: {viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns}) {
 					view {
 					  id
@@ -81,8 +84,11 @@ func updateView(e *httpexpect.Expect, vID, name string, sort, filter map[string]
 						direction
 		              }
 					  columns {
-						type
-						id
+						field {
+							type
+							id
+						}
+						visible
 					  }
 					  filter {
 						
@@ -160,8 +166,11 @@ func getViews(e *httpexpect.Expect, mID string) *httpexpect.Value {
 						direction
 		              }
 					  columns {
-						type
-						id
+						field{
+							type
+							id
+						}
+						visible
 					  }
 					  filter {
 						  ... on BoolFieldCondition {
@@ -210,8 +219,8 @@ func TestViewCRUD(t *testing.T) {
 		"direction": "ASC",
 	}
 	columns := []map[string]any{
-		{"type": "ID", "id": nil},
-		{"type": "CREATION_DATE", "id": nil},
+		{"field": map[string]any{"type": "ID", "id": nil}, "visible": true},
+		{"field": map[string]any{"type": "CREATION_DATE", "id": nil}, "visible": false},
 	}
 	filter := map[string]any{
 		"bool": map[string]any{

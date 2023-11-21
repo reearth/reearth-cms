@@ -64,7 +64,7 @@ func (b *Buildr) Filter(filter *Condition) *Buildr {
 	return b
 }
 
-func (b *Buildr) Columns(columns *FieldSelectorList) *Buildr {
+func (b *Buildr) Columns(columns *ColumnList) *Buildr {
 	b.v.columns = columns
 	return b
 }

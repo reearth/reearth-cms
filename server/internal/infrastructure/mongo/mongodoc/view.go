@@ -19,7 +19,7 @@ type ViewDocument struct {
 	Schema    string
 	Sort      *SortDocument
 	Filter    *FilterDocument
-	Columns   []FieldSelectorDocument
+	Columns   []ColumnDocument
 	UpdatedAt time.Time
 }
 
@@ -39,6 +39,25 @@ func (d FieldSelectorDocument) Model() view.FieldSelector {
 	return view.FieldSelector{
 		Type: view.FieldType(d.Type),
 		ID:   id.FieldIDFromRef(d.Field),
+	}
+}
+
+type ColumnDocument struct {
+	Field   FieldSelectorDocument
+	Visible bool
+}
+
+func NewColumn(i view.Column) ColumnDocument {
+	return ColumnDocument{
+		Field:   NewFieldSelector(i.Field),
+		Visible: i.Visible,
+	}
+}
+
+func (d *ColumnDocument) Model() view.Column {
+	return view.Column{
+		Field:   d.Field.Model(),
+		Visible: d.Visible,
 	}
 }
 
@@ -302,10 +321,10 @@ func NewView(i *view.View) (*ViewDocument, string) {
 	}
 	iId := i.ID().String()
 
-	var columns []FieldSelectorDocument
+	var columns []ColumnDocument
 	if i.Columns() != nil {
-		columns = lo.Map(*i.Columns(), func(c view.FieldSelector, _ int) FieldSelectorDocument {
-			return NewFieldSelector(c)
+		columns = lo.Map(*i.Columns(), func(c view.Column, _ int) ColumnDocument {
+			return NewColumn(c)
 		})
 	}
 	return &ViewDocument{
@@ -348,7 +367,7 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		return nil, err
 	}
 
-	columns := lo.Map(d.Columns, func(c FieldSelectorDocument, _ int) view.FieldSelector { return c.Model() })
+	columns := lo.Map(d.Columns, func(c ColumnDocument, _ int) view.Column { return c.Model() })
 
 	return view.New().
 		ID(vID).
@@ -358,7 +377,7 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		Schema(sID).
 		Sort(d.Sort.Model()).
 		Filter(d.Filter.Model()).
-		Columns((*view.FieldSelectorList)(&columns)).
+		Columns((*view.ColumnList)(&columns)).
 		User(uID).
 		UpdatedAt(d.UpdatedAt).
 		Build()

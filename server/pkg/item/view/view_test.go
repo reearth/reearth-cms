@@ -41,23 +41,23 @@ func TestView(t *testing.T) {
 	assert.Equal(t, v.updatedAt, v.UpdatedAt())
 
 	// Create new settings for Setters
-	newCondition := Condition{}      // assuming Condition struct or type exists
-	newSort := Sort{}                // assuming Sort struct or type exists
-	newFields := FieldSelectorList{} // assuming FieldSelectorList struct or type exists
+	newCondition := Condition{} // assuming Condition struct or type exists
+	newSort := Sort{}           // assuming Sort struct or type exists
+	columns := ColumnList{}     // assuming FieldSelectorList struct or type exists
 	updateTime := time.Now()
 
 	// Update fields using Setters
 	v.SetName("updatedName")   // Assuming name is "updatedName"
 	v.SetSort(&newSort)        // Assuming newSort has been set
 	v.SetFilter(&newCondition) // Assuming newCondition has been set
-	v.SetColumns(&newFields)   // Assuming newFields has been set
+	v.SetColumns(&columns)     // Assuming newFields has been set
 	v.SetUpdatedAt(updateTime) // Assuming updateTime has been set
 
 	// Test that updated fields are set correctly
 	assert.Equal(t, "updatedName", v.Name())
 	assert.Equal(t, &newSort, v.Sort())
 	assert.Equal(t, &newCondition, v.Filter())
-	assert.Equal(t, &newFields, v.Columns())
+	assert.Equal(t, &columns, v.Columns())
 	assert.Equal(t, updateTime, v.UpdatedAt())
 
 	// Test Clone Function
