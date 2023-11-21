@@ -68,8 +68,7 @@ func TestNewItem(t *testing.T) {
 			item.NewField(s2.Fields()[0].ID(), value.New(value.TypeText, "xxxx").AsMultiple(), ig.Ref()),
 		}).
 		MustBuild()
-	resGroup := map[string]ItemFields{}
-	resGroup[ig.String()] = ItemFields{
+	resGroup := ItemFields{
 		"test1": "xxxx",
 	}
 	assert.Equal(t, Item{
