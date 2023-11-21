@@ -613,11 +613,9 @@ const ContentTable: React.FC<Props> = ({
         col.field.type === "MODIFICATION_DATE" ||
         col.field.type === "MODIFICATION_USER"
       ) {
-        if (col.visible) cols[col.field.type] = { show: true, order: index };
-        else cols[col.field.type] = { show: false, order: index };
+        cols[col.field.type] = { show: col.visible, order: index };
       } else {
-        if (col.visible) cols[col.field.id ?? ""] = { show: true, order: index };
-        else cols[col.field.id ?? ""] = { show: false, order: index };
+        cols[col.field.id ?? ""] = { show: col.visible, order: index };
       }
     });
     return cols;
@@ -626,13 +624,10 @@ const ContentTable: React.FC<Props> = ({
   const setSettingOptions = useCallback(
     (options: Record<string, ColumnsState>) => {
       const cols: Column[] = tableColumns
-        .filter(col => {
-          if (typeof col.key === "string") {
-            const newLocal = col.key !== "EDIT_ICON" && col.key !== "commentsCount";
-            return newLocal;
-          }
-          return false;
-        })
+        .filter(
+          col =>
+            typeof col.key === "string" && col.key !== "EDIT_ICON" && col.key !== "commentsCount",
+        )
         .map((col, index) => ({
           field: {
             type: col.fieldType as FieldType,
@@ -647,9 +642,7 @@ const ContentTable: React.FC<Props> = ({
               ? (options[col.key as string]?.order as number)
               : index + 3,
         }))
-        .sort(function (a, b) {
-          return a.order - b.order;
-        })
+        .sort((a, b) => a.order - b.order)
         .map(col => {
           return {
             field: col.field,
