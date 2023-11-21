@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { unstable_useBlocker as useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -198,9 +198,23 @@ const ContentForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const changedKeys = useRef(new Set<string>());
 
   const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) => currentLocation.pathname !== nextLocation.pathname,
+    ({ currentLocation, nextLocation }) =>
+      currentLocation.pathname !== nextLocation.pathname && changedKeys.current.size > 0,
+  );
+
+  const handleValuesChange = useCallback(
+    (changedValues: any) => {
+      const [key, value] = Object.entries(changedValues)[0];
+      if (JSON.stringify(value) === JSON.stringify(initialFormValues[key])) {
+        changedKeys.current.delete(key);
+      } else {
+        changedKeys.current.add(key);
+      }
+    },
+    [initialFormValues],
   );
 
   useEffect(() => {
@@ -246,6 +260,7 @@ const ContentForm: React.FC<Props> = ({
 
   useEffect(() => {
     const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
+      if (changedKeys.current.size === 0) return;
       event.preventDefault();
       event.returnValue = "";
     };
@@ -342,6 +357,7 @@ const ContentForm: React.FC<Props> = ({
           fields,
         });
       }
+      changedKeys.current.clear();
     } catch (info) {
       console.log("Validate Failed:", info);
     }
@@ -438,7 +454,11 @@ const ContentForm: React.FC<Props> = ({
 
   return (
     <>
-      <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
+      <StyledForm
+        form={form}
+        layout="vertical"
+        initialValues={initialFormValues}
+        onValuesChange={handleValuesChange}>
         <PageHeader
           title={model?.name}
           onBack={handleBack}
