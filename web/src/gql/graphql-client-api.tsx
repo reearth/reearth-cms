@@ -167,8 +167,7 @@ export type Column = {
 };
 
 export type ColumnSelectionInput = {
-  id?: InputMaybe<Scalars['ID']>;
-  type: FieldType;
+  field: FieldSelectorInput;
   visible: Scalars['Boolean'];
 };
 
