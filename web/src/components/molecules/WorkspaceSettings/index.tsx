@@ -1,7 +1,7 @@
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import DangerZone from "@reearth-cms/components/molecules/WorkspaceSettings/DangerZone";
-import WorkspaceForm from "@reearth-cms/components/molecules/WorkspaceSettings/GeneralForm";
+import WorkspaceForm from "@reearth-cms/components/molecules/WorkspaceSettings/Form";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
