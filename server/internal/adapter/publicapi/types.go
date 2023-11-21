@@ -55,29 +55,25 @@ type ListParam struct {
 }
 
 type Item struct {
-	ID              string
-	Fields          ItemFields
-	ReferencedItems []Item
+	ID     string
+	Fields ItemFields
 }
 
 func (i Item) MarshalJSON() ([]byte, error) {
 	m := i.Fields
 	m["id"] = i.ID
-	if len(i.ReferencedItems) > 0 {
-		m["referencedItems"] = i.ReferencedItems
-	}
+
 	return json.Marshal(m)
 }
 
-func NewItem(i *item.Item, s *schema.Schema, groupSchemas schema.List, assets asset.List, urlResolver asset.URLResolver, refItems []Item) Item {
+func NewItem(i *item.Item, sp *schema.Package, assets asset.List, urlResolver asset.URLResolver, refItems []Item) Item {
 	gsf := schema.FieldList{}
-	for _, groupSchema := range groupSchemas {
+	for _, groupSchema := range sp.GroupSchemas() {
 		gsf = append(gsf, groupSchema.Fields().Clone()...)
 	}
 	itm := Item{
-		ID:              i.ID().String(),
-		Fields:          NewItemFields(i.Fields(), s.Fields(), gsf, assets, urlResolver),
-		ReferencedItems: refItems,
+		ID:     i.ID().String(),
+		Fields: NewItemFields(i.Fields(), sp.Schema().Fields(), gsf, refItems, assets, urlResolver),
 	}
 
 	return itm
@@ -98,7 +94,7 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 	return i
 }
 
-func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, assets asset.List, urlResolver asset.URLResolver) ItemFields {
+func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, refItems []Item, assets asset.List, urlResolver asset.URLResolver) ItemFields {
 	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (k string, val any) {
 		sf := sfields.Find(f.FieldID())
 		if sf == nil {
@@ -129,18 +125,32 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 			} else if len(itemAssets) > 0 {
 				val = itemAssets[0]
 			}
+		} else if sf.Type() == value.TypeReference {
+			rf, _ := f.Value().ValuesReference()
+			if len(rf) > 0 {
+				v, ok := lo.Find(refItems, func(item Item) bool {
+					return item.ID == rf[0].String()
+				})
+				if ok {
+					val = v
+				}
+			}
 		} else if sf.Type() == value.TypeGroup {
-			res := map[string]ItemFields{}
+			var res []ItemFields
 			for _, v := range f.Value().Values() {
 				itgID, ok := v.ValueGroup()
 				if !ok {
 					continue
 				}
 				gf := fields.FieldsByGroup(itgID)
-				igf := NewItemFields(gf, groupFields, nil, assets, urlResolver)
-				res[itgID.String()] = igf
+				igf := NewItemFields(gf, groupFields, nil, nil, assets, urlResolver)
+				res = append(res, igf)
 			}
-			val = res
+			if sf.Multiple() {
+				val = res
+			} else if len(res) == 1 {
+				val = res[0]
+			}
 		} else if sf.Multiple() {
 			val = f.Value().Interface()
 		} else {

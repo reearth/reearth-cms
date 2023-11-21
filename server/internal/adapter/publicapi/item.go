@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
-	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -48,7 +47,7 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 		return Item{}, rerror.ErrNotFound
 	}
 
-	s, err := c.usecases.Schema.FindByID(ctx, m.Schema(), nil)
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 	if err != nil {
 		return Item{}, err
 	}
@@ -60,12 +59,8 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 			return Item{}, err
 		}
 	}
-	sMap, err := getGroupSchemas(ctx, item.List{itv}, s)
-	if err != nil {
-		return Item{}, err
-	}
 
-	return NewItem(itv, s, sMap[itv.ID()], assets, c.assetUrlResolver, getReferencedItems(ctx, itv)), nil
+	return NewItem(itv, sp, assets, c.assetUrlResolver, getReferencedItems(ctx, itv, pr.Publication().AssetPublic(), c.assetUrlResolver)), nil
 }
 
 func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListParam) (ListResult[Item], *schema.Schema, error) {
@@ -82,7 +77,7 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 		return ListResult[Item]{}, nil, rerror.ErrNotFound
 	}
 
-	s, err := c.usecases.Schema.FindByID(ctx, m.Schema(), nil)
+	sp, err := c.usecases.Schema.FindByModel(ctx, m.ID(), nil)
 	if err != nil {
 		return ListResult[Item]{}, nil, err
 	}
@@ -102,77 +97,23 @@ func (c *Controller) GetItems(ctx context.Context, prj, model string, p ListPara
 			return ListResult[Item]{}, nil, err
 		}
 	}
-	sMap, err := getGroupSchemas(ctx, items.Unwrap(), s)
 
 	itms, err := util.TryMap(items.Unwrap(), func(i *item.Item) (Item, error) {
 
 		if err != nil {
 			return Item{}, err
 		}
-		return NewItem(i, s, sMap[i.ID()], assets, c.assetUrlResolver, getReferencedItems(ctx, i)), nil
+		return NewItem(i, sp, assets, c.assetUrlResolver, getReferencedItems(ctx, i, pr.Publication().AssetPublic(), c.assetUrlResolver)), nil
 	})
 	if err != nil {
 		return ListResult[Item]{}, nil, err
 	}
 
 	res := NewListResult(itms, pi, p.Pagination)
-	return res, s, nil
+	return res, sp.Schema(), nil
 }
 
-func getGroupSchemas(ctx context.Context, il item.List, ss *schema.Schema) (map[id.ItemID]schema.List, error) {
-	op := adapter.Operator(ctx)
-	uc := adapter.Usecases(ctx)
-	igMap := map[id.ItemID]id.GroupIDList{}
-	var gIds id.GroupIDList
-
-	for _, i := range il {
-		gf := i.Fields().FieldsByType(value.TypeGroup)
-		for _, field := range gf {
-			gsf := ss.Field(field.FieldID())
-
-			if gsf != nil {
-				var gid id.GroupID
-				gsf.TypeProperty().Match(schema.TypePropertyMatch{
-					Group: func(f *schema.FieldGroup) {
-						gid = f.Group()
-					},
-				})
-				gIds = gIds.Add(gid)
-				igMap[i.ID()] = igMap[i.ID()].Add(gid)
-			}
-		}
-	}
-
-	gl, err := uc.Group.FindByIDs(ctx, gIds, op)
-	if err != nil {
-		return nil, err
-	}
-
-	sgIds := util.Map(gl, func(g *group.Group) id.SchemaID {
-		return g.Schema()
-	})
-	sl, err := uc.Schema.FindByIDs(ctx, sgIds, op)
-	if err != nil {
-		return nil, err
-	}
-
-	res := map[id.ItemID]schema.List{}
-	for itm, gIDList := range igMap {
-		for _, gid := range gIDList {
-			g, ok := lo.Find(gl, func(grp *group.Group) bool {
-				return grp.ID() == gid
-			})
-			if !ok {
-				continue
-			}
-			s := sl.Schema(g.Schema().Ref())
-			res[itm] = append(res[itm], s)
-		}
-	}
-	return res, nil
-}
-
-func getReferencedItems(ctx context.Context, i *item.Item) []Item {
+func getReferencedItems(ctx context.Context, i *item.Item, prp bool, urlResolver asset.URLResolver) []Item {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -194,11 +135,18 @@ func getReferencedItems(ctx context.Context, i *item.Item) []Item {
 			if err != nil || ii == nil {
 				continue
 			}
-			s, err := uc.Schema.FindByID(ctx, ii.Value().Schema(), op)
+			sp, err := uc.Schema.FindByModel(ctx, ii.Value().Model(), op)
 			if err != nil {
 				continue
 			}
-			vi = append(vi, NewItem(ii.Value(), s, nil, nil, nil, nil))
+			var assets asset.List
+			if prp {
+				assets, err = uc.Asset.FindByIDs(ctx, ii.Value().AssetIDs(), nil)
+				if err != nil {
+					continue
+				}
+			}
+			vi = append(vi, NewItem(ii.Value(), sp, assets, urlResolver, nil))
 		}
 	}
 
