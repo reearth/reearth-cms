@@ -208,8 +208,13 @@ const ContentForm: React.FC<Props> = ({
   const handleValuesChange = useCallback(
     (changedValues: any) => {
       const [key, value] = Object.entries(changedValues)[0];
-      if (JSON.stringify(value) === JSON.stringify(initialFormValues[key])) {
+      if (
+        (!value && !initialFormValues[key]) ||
+        JSON.stringify(value) === JSON.stringify(initialFormValues[key])
+      ) {
         changedKeys.current.delete(key);
+      } else if (Array.isArray(value) && value.length === 0) {
+        return;
       } else {
         changedKeys.current.add(key);
       }
@@ -227,7 +232,7 @@ const ContentForm: React.FC<Props> = ({
               Notification.close(key);
               blocker.reset?.();
             }}>
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             type="primary"
@@ -235,7 +240,7 @@ const ContentForm: React.FC<Props> = ({
               Notification.close(key);
               blocker.proceed?.();
             }}>
-            Leave
+            {t("Leave")}
           </Button>
         </Space>
       );
