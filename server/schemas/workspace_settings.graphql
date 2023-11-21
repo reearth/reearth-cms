@@ -1,19 +1,19 @@
-type WorkspaceSettings implements Node {
-	workspaceId: ID!
-	avatar: string
-	tiles: WorkspaceResources
-	terrains: WorkspaceResources
-}
+# type WorkspaceSettings implements Node {
+# 	workspaceId: ID!
+# 	avatar: string
+# 	tiles: WorkspaceResources
+# 	terrains: WorkspaceResources
+# }
 
-type WorkspaceResources {
-	resource: [Resource!]!
-	defaultAsset: ID
-	allowSwitch: bool!
-}
+# type WorkspaceResources {
+# 	resource: [Resource!]!
+# 	defaultAsset: ID
+# 	allowSwitch: bool!
+# }
 
-type Resource {
-	id :   ID!
-	name : string!
-	url :  string!
-	image: string!
-}
+# type Resource {
+# 	id :   ID!
+# 	name : string!
+# 	url :  string!
+# 	image: string!
+# }

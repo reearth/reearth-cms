@@ -4305,6 +4305,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRemoveMyAuthInput,
 		ec.unmarshalInputRemoveUserFromWorkspaceInput,
 		ec.unmarshalInputRequestItemInput,
+		ec.unmarshalInputResource,
 		ec.unmarshalInputSchemaFieldAssetInput,
 		ec.unmarshalInputSchemaFieldBoolInput,
 		ec.unmarshalInputSchemaFieldCheckboxInput,
@@ -4343,6 +4344,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateWebhookInput,
 		ec.unmarshalInputUpdateWorkspaceInput,
 		ec.unmarshalInputWebhookTriggerInput,
+		ec.unmarshalInputWorkspaceResources,
 	)
 	first := true
 
@@ -6038,13 +6040,32 @@ enum Role {
     MAINTAINER
 }
 
+input Resource {
+	id: ID!
+	name: String!
+	url: String!
+	image: String!
+}
+
+input WorkspaceResources {
+	resource: [Resource!]!
+	defaultAsset: ID
+	allowSwitch: Boolean!
+}
+
 input CreateWorkspaceInput {
     name: String!
+    avatar: String
+	tiles: WorkspaceResources
+	terrains: WorkspaceResources
 }
 
 input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
+    avatar: String
+	tiles: WorkspaceResources
+	terrains: WorkspaceResources
 }
 
 input MemberInput {
@@ -6126,6 +6147,25 @@ extend type Mutation {
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }`, BuiltIn: false},
+	{Name: "../../../schemas/workspace_settings.graphql", Input: `# type WorkspaceSettings implements Node {
+# 	workspaceId: ID!
+# 	avatar: string
+# 	tiles: WorkspaceResources
+# 	terrains: WorkspaceResources
+# }
+
+# type WorkspaceResources {
+# 	resource: [Resource!]!
+# 	defaultAsset: ID
+# 	allowSwitch: bool!
+# }
+
+# type Resource {
+# 	id :   ID!
+# 	name : string!
+# 	url :  string!
+# 	image: string!
+# }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -31862,7 +31902,7 @@ func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name"}
+	fieldsInOrder := [...]string{"name", "avatar", "tiles", "terrains"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -31878,6 +31918,33 @@ func (ec *executionContext) unmarshalInputCreateWorkspaceInput(ctx context.Conte
 				return it, err
 			}
 			it.Name = data
+		case "avatar":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Avatar = data
+		case "tiles":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tiles"))
+			data, err := ec.unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tiles = data
+		case "terrains":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrains"))
+			data, err := ec.unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Terrains = data
 		}
 	}
 
@@ -33184,6 +33251,62 @@ func (ec *executionContext) unmarshalInputRequestItemInput(ctx context.Context, 
 				return it, err
 			}
 			it.ItemID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputResource(ctx context.Context, obj interface{}) (gqlmodel.Resource, error) {
+	var it gqlmodel.Resource
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name", "url", "image"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "url":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URL = data
+		case "image":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Image = data
 		}
 	}
 
@@ -35358,7 +35481,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name"}
+	fieldsInOrder := [...]string{"workspaceId", "name", "avatar", "tiles", "terrains"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -35383,6 +35506,33 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 				return it, err
 			}
 			it.Name = data
+		case "avatar":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Avatar = data
+		case "tiles":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tiles"))
+			data, err := ec.unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tiles = data
+		case "terrains":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrains"))
+			data, err := ec.unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Terrains = data
 		}
 	}
 
@@ -35475,6 +35625,53 @@ func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Contex
 				return it, err
 			}
 			it.OnAssetDelete = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputWorkspaceResources(ctx context.Context, obj interface{}) (gqlmodel.WorkspaceResources, error) {
+	var it gqlmodel.WorkspaceResources
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"resource", "defaultAsset", "allowSwitch"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "resource":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resource"))
+			data, err := ec.unmarshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Resource = data
+		case "defaultAsset":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultAsset"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DefaultAsset = data
+		case "allowSwitch":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowSwitch"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AllowSwitch = data
 		}
 	}
 
@@ -44705,6 +44902,28 @@ func (ec *executionContext) marshalNRequestState2githubᚗcomᚋreearthᚋreeart
 	return v
 }
 
+func (ec *executionContext) unmarshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.Resource, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*gqlmodel.Resource, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNResource2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNResource2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx context.Context, v interface{}) (*gqlmodel.Resource, error) {
+	res, err := ec.unmarshalInputResource(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRole2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRole(ctx context.Context, v interface{}) (gqlmodel.Role, error) {
 	var res gqlmodel.Role
 	err := res.UnmarshalGQL(v)
@@ -47135,6 +47354,14 @@ func (ec *executionContext) marshalOWorkspace2ᚖgithubᚗcomᚋreearthᚋreeart
 		return graphql.Null
 	}
 	return ec._Workspace(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOWorkspaceResources2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResources(ctx context.Context, v interface{}) (*gqlmodel.WorkspaceResources, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputWorkspaceResources(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

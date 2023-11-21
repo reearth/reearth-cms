@@ -33,13 +33,32 @@ enum Role {
     MAINTAINER
 }
 
+input Resource {
+	id: ID!
+	name: String!
+	url: String!
+	image: String!
+}
+
+input WorkspaceResources {
+	resource: [Resource!]!
+	defaultAsset: ID
+	allowSwitch: Boolean!
+}
+
 input CreateWorkspaceInput {
     name: String!
+    avatar: String
+	tiles: WorkspaceResources
+	terrains: WorkspaceResources
 }
 
 input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
+    avatar: String
+	tiles: WorkspaceResources
+	terrains: WorkspaceResources
 }
 
 input MemberInput {

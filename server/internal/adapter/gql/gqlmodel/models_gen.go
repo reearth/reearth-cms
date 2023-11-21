@@ -292,7 +292,10 @@ type CreateWebhookInput struct {
 }
 
 type CreateWorkspaceInput struct {
-	Name string `json:"name"`
+	Name     string              `json:"name"`
+	Avatar   *string             `json:"avatar,omitempty"`
+	Tiles    *WorkspaceResources `json:"tiles,omitempty"`
+	Terrains *WorkspaceResources `json:"terrains,omitempty"`
 }
 
 type CreateWorkspacePayload struct {
@@ -823,6 +826,13 @@ type RequestPayload struct {
 	Request *Request `json:"request"`
 }
 
+type Resource struct {
+	ID    ID     `json:"id"`
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+	Image string `json:"image"`
+}
+
 type Schema struct {
 	ID           ID             `json:"id"`
 	ProjectID    ID             `json:"projectId"`
@@ -1237,8 +1247,11 @@ type UpdateWebhookInput struct {
 }
 
 type UpdateWorkspaceInput struct {
-	WorkspaceID ID     `json:"workspaceId"`
-	Name        string `json:"name"`
+	WorkspaceID ID                  `json:"workspaceId"`
+	Name        string              `json:"name"`
+	Avatar      *string             `json:"avatar,omitempty"`
+	Tiles       *WorkspaceResources `json:"tiles,omitempty"`
+	Terrains    *WorkspaceResources `json:"terrains,omitempty"`
 }
 
 type UpdateWorkspacePayload struct {
@@ -1337,6 +1350,12 @@ type WorkspaceIntegrationMember struct {
 }
 
 func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
+
+type WorkspaceResources struct {
+	Resource     []*Resource `json:"resource"`
+	DefaultAsset *ID         `json:"defaultAsset,omitempty"`
+	AllowSwitch  bool        `json:"allowSwitch"`
+}
 
 type WorkspaceUserMember struct {
 	UserID ID    `json:"userId"`

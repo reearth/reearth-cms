@@ -1,7 +1,13 @@
 package workspace_settings
 
+import (
+	"slices"
+
+	"github.com/reearth/reearthx/account/accountdomain"
+)
+
 type WorkspaceSettings struct {
-	workspaceId ID
+	workspaceId accountdomain.WorkspaceID
 	avatar      *string
 	tiles       *WorkspaceResources
 	terrains    *WorkspaceResources
@@ -20,19 +26,28 @@ type Resource struct {
 	image string
 }
 
-func (ws *WorkspaceSettings) ID() ID {
+func (ws *WorkspaceSettings) ID() accountdomain.WorkspaceID {
 	return ws.workspaceId
 }
 
 func (ws *WorkspaceSettings) Avatar() *string {
+	if ws.avatar == nil {
+		return nil
+	}
 	return ws.avatar
 }
 
 func (ws *WorkspaceSettings) Tiles() *WorkspaceResources {
+	if ws.tiles == nil {
+		return nil
+	}
 	return ws.tiles
 }
 
 func (ws *WorkspaceSettings) Terrains() *WorkspaceResources {
+	if ws.terrains == nil {
+		return nil
+	}
 	return ws.terrains
 }
 
@@ -44,7 +59,15 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 	return &WorkspaceSettings{
 		workspaceId: ws.workspaceId.Clone(),
 		avatar:      ws.avatar,
-		tiles:       ws.tiles,
-		terrains:    ws.terrains,
+		tiles: &WorkspaceResources{
+			resources:       slices.Clone(ws.tiles.resources),
+			defaultResource: ws.tiles.defaultResource,
+			allowSwitch:     ws.tiles.allowSwitch,
+		},
+		terrains: &WorkspaceResources{
+			resources:       slices.Clone(ws.terrains.resources),
+			defaultResource: ws.terrains.defaultResource,
+			allowSwitch:     ws.terrains.allowSwitch,
+		},
 	}
 }
