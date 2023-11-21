@@ -12,23 +12,24 @@ import (
 )
 
 type Container struct {
-	Asset       Asset
-	AssetFile   AssetFile
-	AssetUpload AssetUpload
-	Lock        Lock
-	User        accountrepo.User
-	Workspace   accountrepo.Workspace
-	Project     Project
-	Model       Model
-	Schema      Schema
-	Item        Item
-	View        View
-	Integration Integration
-	Thread      Thread
-	Event       Event
-	Request     Request
-	Group       Group
-	Transaction usecasex.Transaction
+	Asset             Asset
+	AssetFile         AssetFile
+	AssetUpload       AssetUpload
+	Lock              Lock
+	User              accountrepo.User
+	Workspace         accountrepo.Workspace
+	Project           Project
+	Model             Model
+	Schema            Schema
+	Item              Item
+	View              View
+	Integration       Integration
+	Thread            Thread
+	Event             Event
+	Request           Request
+	Group             Group
+	WorkspaceSettings WorkspaceSettings
+	Transaction       usecasex.Transaction
 }
 
 var (
@@ -40,23 +41,24 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		return c
 	}
 	return &Container{
-		Asset:       c.Asset.Filtered(project),
-		AssetFile:   c.AssetFile,
-		AssetUpload: c.AssetUpload,
-		Lock:        c.Lock,
-		Transaction: c.Transaction,
-		Workspace:   c.Workspace,
-		User:        c.User,
-		Request:     c.Request,
-		Group:       c.Group.Filtered(project),
-		Item:        c.Item.Filtered(project),
-		View:        c.View.Filtered(project),
-		Project:     c.Project.Filtered(workspace),
-		Model:       c.Model.Filtered(project),
-		Schema:      c.Schema.Filtered(workspace),
-		Thread:      c.Thread.Filtered(workspace),
-		Integration: c.Integration,
-		Event:       c.Event,
+		Asset:             c.Asset.Filtered(project),
+		AssetFile:         c.AssetFile,
+		AssetUpload:       c.AssetUpload,
+		Lock:              c.Lock,
+		Transaction:       c.Transaction,
+		Workspace:         c.Workspace,
+		User:              c.User,
+		Request:           c.Request,
+		Group:             c.Group.Filtered(project),
+		Item:              c.Item.Filtered(project),
+		View:              c.View.Filtered(project),
+		Project:           c.Project.Filtered(workspace),
+		Model:             c.Model.Filtered(project),
+		Schema:            c.Schema.Filtered(workspace),
+		Thread:            c.Thread.Filtered(workspace),
+		Integration:       c.Integration,
+		WorkspaceSettings: c.WorkspaceSettings,
+		Event:             c.Event,
 	}
 }
 

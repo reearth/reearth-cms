@@ -22,14 +22,19 @@ type WorkspaceIntegrationMember {
     integration: Integration
 }
 
+type WorkspaceSettings {
+	workspaceId: ID!
+	avatar: String
+}
+
 enum Role {
     # a role who can read project
     READER
     # a role who can read and write project
     WRITER
-    # a eole who can have full control of project
+    # a role who can have full control of project
     OWNER
-    # a eole who can maintain a project
+    # a role who can maintain a project
     MAINTAINER
 }
 
@@ -127,6 +132,10 @@ type UpdateMemberOfWorkspacePayload {
 
 type DeleteWorkspacePayload {
     workspaceId: ID!
+}
+
+extend type Query {
+  settings(workspaceId: ID!): [WorkspaceSettings!]!
 }
 
 extend type Mutation {

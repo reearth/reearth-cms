@@ -1357,6 +1357,11 @@ type WorkspaceResources struct {
 	AllowSwitch  bool        `json:"allowSwitch"`
 }
 
+type WorkspaceSettings struct {
+	WorkspaceID ID      `json:"workspaceId"`
+	Avatar      *string `json:"avatar,omitempty"`
+}
+
 type WorkspaceUserMember struct {
 	UserID ID    `json:"userId"`
 	Role   Role  `json:"role"`

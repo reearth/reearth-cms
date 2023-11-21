@@ -26,6 +26,7 @@ type UpdateWorkspaceSettingsParam struct {
 }
 
 type WorkspaceSettings interface {
+	Fetch(context.Context, []accountdomain.WorkspaceID, *usecase.Operator) ([]*workspace_settings.WorkspaceSettings, error)
 	Create(context.Context, CreateWorkspaceSettingsParam, *usecase.Operator) (*workspace_settings.WorkspaceSettings, error)
 	Update(context.Context, UpdateWorkspaceSettingsParam, *usecase.Operator) (*workspace_settings.WorkspaceSettings, error)
 	Delete(context.Context, id.WorkspaceSettingsID, *usecase.Operator) (id.WorkspaceSettingsID, error)
