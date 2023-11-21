@@ -15,8 +15,11 @@ export const GET_VIEWS = gql`
         direction
       }
       columns {
-        type
-        id
+        field {
+          type
+          id
+        }
+        visible
       }
       filter {
         ... on AndCondition {
@@ -98,7 +101,7 @@ export const CREATE_VIEW = gql`
     $name: String!
     $sort: ItemSortInput
     $filter: ConditionInput
-    $columns: [FieldSelectorInput!]
+    $columns: [ColumnSelectionInput!]
   ) {
     createView(
       input: {
@@ -123,8 +126,11 @@ export const CREATE_VIEW = gql`
           direction
         }
         columns {
-          type
-          id
+          field {
+            type
+            id
+          }
+          visible
         }
         filter {
           ... on AndCondition {
@@ -205,7 +211,7 @@ export const UPDATE_VIEW = gql`
     $name: String!
     $sort: ItemSortInput
     $filter: ConditionInput
-    $columns: [FieldSelectorInput!]
+    $columns: [ColumnSelectionInput!]
   ) {
     updateView(
       input: { viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns }
@@ -223,8 +229,11 @@ export const UPDATE_VIEW = gql`
           direction
         }
         columns {
-          type
-          id
+          field {
+            type
+            id
+          }
+          visible
         }
         filter {
           ... on AndCondition {

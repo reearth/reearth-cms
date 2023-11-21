@@ -36,7 +36,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { ItemSort, FieldSelector, FieldType } from "@reearth-cms/components/molecules/View/types";
+import { ItemSort, FieldType, Column } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -603,72 +603,53 @@ const ContentTable: React.FC<Props> = ({
   };
 
   const settingOptions = useMemo(() => {
-    const shownCols = currentView.columns?.map(col => {
+    const cols: Record<string, ColumnsState> = {};
+    currentView.columns?.forEach((col, index) => {
       if (
-        col.type === "ID" ||
-        col.type === "STATUS" ||
-        col.type === "CREATION_DATE" ||
-        col.type === "CREATION_USER" ||
-        col.type === "MODIFICATION_DATE" ||
-        col.type === "MODIFICATION_USER"
+        col.field.type === "ID" ||
+        col.field.type === "STATUS" ||
+        col.field.type === "CREATION_DATE" ||
+        col.field.type === "CREATION_USER" ||
+        col.field.type === "MODIFICATION_DATE" ||
+        col.field.type === "MODIFICATION_USER"
       ) {
-        return col.type;
+        cols[col.field.type] = { show: col.visible, order: index };
       } else {
-        return col.id;
+        cols[col.field.id ?? ""] = { show: col.visible, order: index };
       }
     });
-    const settingOptions: Record<string, ColumnsState> = {};
-    tableColumns.forEach(col => {
-      if (typeof col.key === "string") {
-        const show =
-          shownCols?.includes(col.key) ||
-          col.key === "commentsCount" ||
-          col.key === "EDIT_ICON" ||
-          shownCols?.length === 0;
-        settingOptions[col.key] = { show };
-      }
-    });
-
-    return settingOptions;
-  }, [currentView.columns, tableColumns]);
+    return cols;
+  }, [currentView.columns]);
 
   const setSettingOptions = useCallback(
-    (settingOptions: Record<string, ColumnsState>) => {
-      const hiddenCols: string[] = [];
-      for (const key in settingOptions) {
-        if (settingOptions[key].show === false) hiddenCols.push(key);
-      }
-      const cols: FieldSelector[] = tableColumns
-        .filter(col => {
-          return (
-            typeof col.key === "string" &&
-            col.key !== "EDIT_ICON" &&
-            col.key !== "commentsCount" &&
-            !hiddenCols.includes(col.key)
-          );
-        })
+    (options: Record<string, ColumnsState>) => {
+      const cols: Column[] = tableColumns
+        .filter(
+          col =>
+            typeof col.key === "string" && col.key !== "EDIT_ICON" && col.key !== "commentsCount",
+        )
+        .map((col, index) => ({
+          field: {
+            type: col.fieldType as FieldType,
+            id:
+              col.fieldType === "FIELD" || col.fieldType === "META_FIELD"
+                ? (col.key as string)
+                : undefined,
+          },
+          visible: (col.key as string) in options ? options[col.key as string].show : true,
+          order:
+            (col.key as string) in options && options[col.key as string].order
+              ? (options[col.key as string]?.order as number)
+              : index + 3,
+        }))
+        .sort((a, b) => a.order - b.order)
         .map(col => {
-          if (
-            col.key === "ID" ||
-            col.key === "STATUS" ||
-            col.key === "CREATION_DATE" ||
-            col.key === "CREATION_USER" ||
-            col.key === "MODIFICATION_DATE" ||
-            col.key === "MODIFICATION_USER"
-          ) {
-            return { type: col.key };
-          } else if (col.fieldType === "FIELD") {
-            return {
-              type: "FIELD",
-              id: col.key as string,
-            };
-          } else {
-            return {
-              type: "META_FIELD",
-              id: col.key as string,
-            };
-          }
+          return {
+            field: col.field,
+            visible: col.visible as boolean,
+          };
         });
+
       setCurrentView(prev => ({
         ...prev,
         columns: cols,

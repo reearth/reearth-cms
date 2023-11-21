@@ -5,7 +5,17 @@ export type View = {
   projectId: string;
   sort?: ItemSort;
   filter?: Condition;
-  columns?: FieldSelector[];
+  columns?: Column[];
+};
+
+export type Column = {
+  field: FieldSelector;
+  visible: boolean;
+};
+
+export type ColumnSelectionInput = {
+  field: FieldSelector;
+  visible: boolean;
 };
 
 export type ItemSort = {
