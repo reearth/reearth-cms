@@ -26,7 +26,7 @@ type Resource struct {
 	image string
 }
 
-func (ws *WorkspaceSettings) ID() accountdomain.WorkspaceID {
+func (ws *WorkspaceSettings) Workspace() accountdomain.WorkspaceID {
 	return ws.workspaceId
 }
 
