@@ -15,6 +15,7 @@ export type Config = {
   logoUrl?: string;
   coverImageUrl?: string;
   cesiumIonAccessToken?: string;
+  webDomain: string;
 };
 
 const env = import.meta.env;
@@ -28,6 +29,7 @@ export const defaultConfig: Config = {
   logoUrl: env.REEARTH_CMS_LOGO_URL,
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
   cesiumIonAccessToken: env.REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN || "",
+  webDomain: env.REEARTH_WEB_DOMAIN || "https://test.reearth.dev/",
 };
 
 export default async function loadConfig() {
@@ -65,6 +67,7 @@ declare global {
       authProvider?: string;
       logoUrl?: string;
       coverImageUrl?: string;
+      webDomain: string;
     };
     REEARTH_E2E_ACCESS_TOKEN?: string;
   }

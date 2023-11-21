@@ -146,6 +146,14 @@ const HeaderMolecule: React.FC<Props> = ({
       )}
       <Spacer />
       <AccountDropdown name={username} items={AccountItems} personal={true} />
+      <LinkWrapper>
+        <EditorLink
+          rel="noopener noreferrer"
+          href={`${window.REEARTH_CONFIG?.webDomain}dashboard/${currentWorkspace?.id}`}
+          target="_blank">
+          {t("Go to Editor")}
+        </EditorLink>
+      </LinkWrapper>
     </MainHeader>
   );
 };
@@ -224,6 +232,19 @@ const MenuText = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   width: 140px;
+`;
+
+const LinkWrapper = styled.div`
+  padding-right: 16px;
+`;
+
+const EditorLink = styled.a`
+  border: 1px solid;
+  color: #d9d9d9;
+  padding: 5px 16px;
+  :hover {
+    color: #d9d9d9;
+  }
 `;
 
 export default HeaderMolecule;
