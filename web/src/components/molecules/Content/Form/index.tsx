@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { unstable_useBlocker as useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -11,8 +12,10 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
+import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
+import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -195,6 +198,61 @@ const ContentForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) => currentLocation.pathname !== nextLocation.pathname,
+  );
+
+  useEffect(() => {
+    const openNotification = () => {
+      const key = `open${Date.now()}`;
+      const btn = (
+        <Space>
+          <Button
+            onClick={() => {
+              Notification.close(key);
+              blocker.reset?.();
+            }}>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              Notification.close(key);
+              blocker.proceed?.();
+            }}>
+            Leave
+          </Button>
+        </Space>
+      );
+      Notification.config({
+        maxCount: 1,
+      });
+
+      Notification.info({
+        message: t("This item has unsaved data"),
+        description: t("Are you going to leave?"),
+        btn,
+        key,
+        placement: "top",
+        // TODO: Change to false when antd is updated
+        closeIcon: <span />,
+      });
+    };
+    if (blocker.state === "blocked") {
+      openNotification();
+    }
+  }, [t, blocker]);
+
+  useEffect(() => {
+    const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnloadEvent, true);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnloadEvent, true);
+  }, []);
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
