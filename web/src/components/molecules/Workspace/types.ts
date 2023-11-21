@@ -26,22 +26,8 @@ export type MemberInput = {
 
 export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
 
-export type Tile = {
-  id: string;
-  name: string;
-  url: string;
-  image: string;
-};
-
-export type Tiles = {
-  list: Tile[];
-  default: string;
-  switching: boolean;
-};
-
 export type Workspace = {
   id?: string;
   name?: string;
   members?: Member[];
-  tiles?: Tiles;
 };

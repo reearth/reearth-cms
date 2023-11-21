@@ -10,7 +10,7 @@ export type Props = {
   onWorkspaceUpdate: (name?: string | undefined) => Promise<void>;
 };
 
-const WorkspaceGeneralForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) => {
+const WorkspaceForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) => {
   const [form] = Form.useForm();
   const t = useT();
 
@@ -41,4 +41,4 @@ const WorkspaceGeneralForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdat
   );
 };
 
-export default WorkspaceGeneralForm;
+export default WorkspaceForm;
