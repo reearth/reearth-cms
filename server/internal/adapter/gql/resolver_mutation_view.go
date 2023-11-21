@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateView(ctx context.Context, input gqlmodel.CreateViewInput) (*gqlmodel.ViewPayload, error) {
@@ -15,14 +16,13 @@ func (r *mutationResolver) CreateView(ctx context.Context, input gqlmodel.Create
 		return nil, err
 	}
 
-	var columns *view.FieldSelectorList = nil
-	// Todo: fix columns
-	// if input.Columns != nil {
-	// 	l := lo.Map(input.Columns, func(fs *gqlmodel.FieldSelectorInput, _ int) view.FieldSelector {
-	// 		return fs.Into()
-	// 	})
-	// 	columns = (*view.FieldSelectorList)(&l)
-	// }
+	var columns *view.ColumnList = nil
+	if input.Columns != nil {
+		l := lo.Map(input.Columns, func(fs *gqlmodel.ColumnSelectionInput, _ int) view.Column {
+			return fs.Into()
+		})
+		columns = (*view.ColumnList)(&l)
+	}
 	res, err := usecases(ctx).View.Create(ctx, interfaces.CreateViewParam{
 		Name:    input.Name,
 		Project: pID,
@@ -44,14 +44,13 @@ func (r *mutationResolver) UpdateView(ctx context.Context, input gqlmodel.Update
 		return nil, err
 	}
 
-	var columns *view.FieldSelectorList = nil
-	// Todo: fix columns
-	// if input.Columns != nil {
-	// 	l := lo.Map(input.Columns, func(fs *gqlmodel.FieldSelectorInput, _ int) view.FieldSelector {
-	// 		return fs.Into()
-	// 	})
-	// 	columns = (*view.FieldSelectorList)(&l)
-	// }
+	var columns *view.ColumnList = nil
+	if input.Columns != nil {
+		l := lo.Map(input.Columns, func(fs *gqlmodel.ColumnSelectionInput, _ int) view.Column {
+			return fs.Into()
+		})
+		columns = (*view.ColumnList)(&l)
+	}
 	res, err := usecases(ctx).View.Update(ctx, vID, interfaces.UpdateViewParam{
 		ID:      vID,
 		Name:    input.Name,

@@ -15,7 +15,7 @@ type CreateViewParam struct {
 	Model   view.ModelID
 	Filter  *view.Condition
 	Sort    *view.Sort
-	Columns *view.FieldSelectorList
+	Columns *view.ColumnList
 }
 
 type UpdateViewParam struct {
@@ -23,7 +23,7 @@ type UpdateViewParam struct {
 	Name    *string
 	Filter  *view.Condition
 	Sort    *view.Sort
-	Columns *view.FieldSelectorList
+	Columns *view.ColumnList
 }
 
 var (
