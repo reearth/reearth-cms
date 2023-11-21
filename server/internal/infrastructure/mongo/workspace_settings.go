@@ -19,7 +19,7 @@ type WorkspaceSettingsRepo struct {
 }
 
 func NewWorkspaceSettings(client *mongox.Client) repo.WorkspaceSettings {
-	return &WorkspaceSettingsRepo{client: client.WithCollection("workspace_settings")}
+	return &WorkspaceSettingsRepo{client: client.WithCollection("workspace")}
 }
 
 func (r *WorkspaceSettingsRepo) Init() error {
@@ -32,7 +32,7 @@ func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids []accountdoma
 	}
 
 	filter := bson.M{
-		"workspaceid": bson.M{
+		"id": bson.M{
 			"$in": util.Map(ids, func(id accountdomain.WorkspaceID) string {
 				return id.String()
 			}),
@@ -78,7 +78,6 @@ func filterWorkspaceSettings(ids []accountdomain.WorkspaceID, rows []*workspace_
 	}
 	return res
 }
-
 
 func (r *WorkspaceSettingsRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)

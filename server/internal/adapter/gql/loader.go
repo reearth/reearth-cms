@@ -28,7 +28,6 @@ type Loaders struct {
 	Thread            *ThreadLoader
 	Integration       *IntegrationLoader
 	Group             *GroupLoader
-	WorkspaceSettings *WorkspaceSettingsLoader
 }
 
 type DataLoaders struct {
@@ -46,7 +45,6 @@ type DataLoaders struct {
 	Thread            ThreadDataLoader
 	Integration       IntegrationDataLoader
 	Group             GroupDataLoader
-	WorkspaceSettings WorkspaceSettingsDataLoader
 }
 
 func NewLoaders(usecases *interfaces.Container) *Loaders {
@@ -69,7 +67,6 @@ func NewLoaders(usecases *interfaces.Container) *Loaders {
 		ItemStatus:        NewItemStatusLoader(usecases.Item),
 		Thread:            NewThreadLoader(usecases.Thread),
 		Group:             NewGroupLoader(usecases.Group),
-		WorkspaceSettings: NewWorkspaceSettingsLoader(usecases.WorkspaceSettings),
 	}
 }
 
@@ -96,7 +93,6 @@ func (l Loaders) DataLoaders(ctx context.Context) *DataLoaders {
 		ItemStatus:        l.ItemStatus.DataLoader(ctx),
 		Thread:            l.Thread.DataLoader(ctx),
 		Group:             l.Group.DataLoader(ctx),
-		WorkspaceSettings: l.WorkspaceSettings.DataLoader(ctx),
 	}
 }
 
@@ -116,6 +112,5 @@ func (l Loaders) OrdinaryDataLoaders(ctx context.Context) *DataLoaders {
 		Integration:       l.Integration.OrdinaryDataLoader(ctx),
 		Thread:            l.Thread.OrdinaryDataLoader(ctx),
 		Group:             l.Group.OrdinaryDataLoader(ctx),
-		WorkspaceSettings: l.WorkspaceSettings.OrdinaryDataLoader(ctx),
 	}
 }
