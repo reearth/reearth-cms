@@ -11,6 +11,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { TextArea } = Input;
 
@@ -97,7 +98,7 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
       }
       datetime={
         comment.createdAt && (
-          <Tooltip title={comment.createdAt}>
+          <Tooltip title={dateTimeFormat(comment.createdAt)}>
             <span>{fromNow}</span>
           </Tooltip>
         )
