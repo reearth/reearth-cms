@@ -164,7 +164,7 @@ export default () => {
                             )
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
-                        : field.type === "Date"
+                        : field.type === "Date" && field.value
                         ? dateTimeFormat(field.value)
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
@@ -180,11 +180,14 @@ export default () => {
               metadata: item?.metadata?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
-                    [field.schemaFieldId]: Array.isArray(field.value)
-                      ? field.value.join(", ")
-                      : field.value
-                      ? "" + field.value
-                      : field.value,
+                    [field.schemaFieldId]:
+                      field.type === "Date" && field.value
+                        ? dateTimeFormat(field.value)
+                        : Array.isArray(field.value)
+                        ? field.value.join(", ")
+                        : field.value
+                        ? "" + field.value
+                        : field.value,
                   }),
                 {},
               ),
