@@ -29,25 +29,7 @@ func (c *WorkspaceSettingsLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) 
 		return nil, []error{err}
 	}
 
-	workspaces := make([]*gqlmodel.WorkspaceSettings, 0, 1)
-	// for _, t := range res {
-		workspaces = append(workspaces, gqlmodel.ToWorkspaceSettings(res))
-	// }
-	return workspaces, nil
-}
-
-func (c *WorkspaceSettingsLoader) FindByWorkspace(ctx context.Context, gid gqlmodel.ID) (*gqlmodel.WorkspaceSettings, []error) {
-	wid, err := gqlmodel.ToID[accountdomain.Workspace](gid)
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	res, err := c.usecase.FetchByWorkspace(ctx, wid, getOperator(ctx))
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	return gqlmodel.ToWorkspaceSettings(res), nil
+	return []*gqlmodel.WorkspaceSettings{gqlmodel.ToWorkspaceSettings(res)}, nil
 }
 
 // data loader
