@@ -145,17 +145,18 @@ const ContentTable: React.FC<Props> = ({
         key: "commentsCount",
         render: (_, item) => {
           return (
-            <Button type="link" onClick={() => onItemSelect(item.id)}>
+            <StyledButton type="link" onClick={() => onItemSelect(item.id)}>
               <CustomTag
                 value={item.comments?.length || 0}
                 color={item.id === selectedItem?.id ? "#87e8de" : undefined}
               />
-            </Button>
+            </StyledButton>
           );
         },
         width: 48,
         minWidth: 48,
         ellipsis: true,
+        align: "center",
       },
       {
         title: t("Status"),
@@ -722,6 +723,10 @@ const ContentTable: React.FC<Props> = ({
 };
 
 export default ContentTable;
+
+const StyledButton = styled(Button)`
+  padding: 0;
+`;
 
 const PrimaryButton = styled.a`
   display: flex;
