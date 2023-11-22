@@ -125,7 +125,7 @@ export default () => {
 
   const handleSearchTerm = useCallback(
     (term?: string) => {
-      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1].schemaFieldId ?? "";
+      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1]?.schemaFieldId ?? titleId.current;
       setSearchTerm(term ?? "");
       setLinkItemModalPage(1);
     },
