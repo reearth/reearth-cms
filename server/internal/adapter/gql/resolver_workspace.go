@@ -6,6 +6,18 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 )
 
+// Workspace resolver
+func (r *Resolver) Workspace() WorkspaceResolver {
+	return &workspaceResolver{r}
+}
+
+type workspaceResolver struct{ *Resolver }
+
+func (w workspaceResolver) Settings(ctx context.Context, obj *gqlmodel.Workspace) (*gqlmodel.WorkspaceSettings, error) {
+	return dataloaders(ctx).WorkspaceSettings.Load(obj.ID)
+}
+
+// Workspace User Member resolver
 func (r *Resolver) WorkspaceUserMember() WorkspaceUserMemberResolver {
 	return &workspaceUserMemberResolver{r}
 }
@@ -16,6 +28,7 @@ func (w workspaceUserMemberResolver) User(ctx context.Context, obj *gqlmodel.Wor
 	return dataloaders(ctx).User.Load(obj.UserID)
 }
 
+// Workspace Integration Member resolver
 func (r *Resolver) WorkspaceIntegrationMember() WorkspaceIntegrationMemberResolver {
 	return &workspaceIntegrationMemberResolver{r}
 }

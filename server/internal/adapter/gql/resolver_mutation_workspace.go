@@ -15,16 +15,6 @@ func (r *mutationResolver) CreateWorkspace(ctx context.Context, input gqlmodel.C
 		return nil, err
 	}
 
-	i := interfaces.CreateWorkspaceSettingsParam{
-		WorkspaceID: res.ID(),
-		Avatar:      input.Avatar,
-	}
-
-	_, err = usecases(ctx).WorkspaceSettings.Create(ctx, i, getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-
 	return &gqlmodel.CreateWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
 }
 

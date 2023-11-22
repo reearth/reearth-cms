@@ -10,6 +10,10 @@ resolver:
   filename: internal/adapter/gql/resolver.go
   type: Resolver
 models:
+  Workspace:
+    fields:
+      settings:
+        resolver: true
   Me:
     fields:
       workspaces:
@@ -54,7 +58,6 @@ models:
         resolver: true
       updatedBy:
         resolver: true
-
   Model:
     fields:
       project:

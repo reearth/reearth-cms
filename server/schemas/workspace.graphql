@@ -3,6 +3,8 @@ type Workspace implements Node {
     name: String!
     members: [WorkspaceMember!]!
     personal: Boolean!
+    settingsId: ID!
+    settings: WorkspaceSettings
 }
 
 union WorkspaceMember = WorkspaceUserMember | WorkspaceIntegrationMember
@@ -32,31 +34,9 @@ enum Role {
     # a role who can maintain a project
     MAINTAINER
 }
-type WorkspaceSettings {
-	workspaceId: ID!
-	avatar: String
-    tiles: WorkspaceResourceList!
-    terrains: WorkspaceResourceList!
-}
-
-type Resource {
-	id: ID!
-	name: String!
-	url: String!
-	image: String!
-}
-
-type WorkspaceResourceList {
-    resources: [Resource!]!
-    defaultAsset: ID
-    allowSwitch: Boolean!
-}
 
 input CreateWorkspaceInput {
     name: String!
-    avatar: String
-	tiles: WorkspaceResourceListInput!
-	terrains: WorkspaceResourceListInput!
 }
 
 input UpdateWorkspaceInput {
@@ -65,18 +45,6 @@ input UpdateWorkspaceInput {
     avatar: String
 	tiles: WorkspaceResourceListInput!
 	terrains: WorkspaceResourceListInput!
-}
-
-input WorkspaceResourceListInput {
-    resources: [ResourceInput!]!
-    defaultAsset: ID
-    allowSwitch: Boolean!
-}
-
-input ResourceInput {
-    name: String!
-    url: String!
-    image: String!
 }
 
 input MemberInput {
@@ -145,10 +113,6 @@ type UpdateMemberOfWorkspacePayload {
 
 type DeleteWorkspacePayload {
     workspaceId: ID!
-}
-
-extend type Query {
-  settings(workspaceId: ID!): [WorkspaceSettings!]!
 }
 
 extend type Mutation {
