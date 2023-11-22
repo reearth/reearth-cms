@@ -5,11 +5,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import {
-  AndConditionInput,
-  FieldSelector,
-  ItemSort,
-} from "@reearth-cms/components/molecules/View/types";
+import { AndConditionInput, Column, ItemSort } from "@reearth-cms/components/molecules/View/types";
 import {
   convertItem,
   convertComment,
@@ -24,6 +20,7 @@ import {
   useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
 import { renderTags } from "./renderFields";
@@ -32,7 +29,7 @@ import { fileName } from "./utils";
 export type CurrentViewType = {
   sort?: ItemSort;
   filter?: AndConditionInput;
-  columns?: FieldSelector[];
+  columns?: Column[];
 };
 
 export default () => {
@@ -167,6 +164,8 @@ export default () => {
                             )
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
+                        : field.type === "Date" && field.value
+                        ? dateTimeFormat(field.value)
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -181,11 +180,14 @@ export default () => {
               metadata: item?.metadata?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
-                    [field.schemaFieldId]: Array.isArray(field.value)
-                      ? field.value.join(", ")
-                      : field.value
-                      ? "" + field.value
-                      : field.value,
+                    [field.schemaFieldId]:
+                      field.type === "Date" && field.value
+                        ? dateTimeFormat(field.value)
+                        : Array.isArray(field.value)
+                        ? field.value.join(", ")
+                        : field.value
+                        ? "" + field.value
+                        : field.value,
                   }),
                 {},
               ),

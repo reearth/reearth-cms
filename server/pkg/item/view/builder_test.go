@@ -64,7 +64,7 @@ func TestBuilder_Filter(t *testing.T) {
 }
 
 func TestBuilder_Columns(t *testing.T) {
-	c := &FieldSelectorList{}
+	c := &ColumnList{}
 	b := New().Columns(c)
 	assert.Equal(t, c, b.v.columns)
 }
