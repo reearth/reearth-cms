@@ -7,6 +7,7 @@ import (
 )
 
 type WorkspaceSettingsDocument struct {
+	ID          string
 	WorkspaceID string
 	Avatar      *string
 }
@@ -18,10 +19,10 @@ func NewWorkspaceSettingsConsumer() *WorkspaceSettingsConsumer {
 }
 
 func NewWorkspaceSettings(ws *workspace_settings.WorkspaceSettings) (*WorkspaceSettingsDocument, string) {
-	wsid := ws.Workspace().String()
-
+	wsid := ws.ID().String()
 	return &WorkspaceSettingsDocument{
-		WorkspaceID: wsid,
+		ID:          wsid,
+		WorkspaceID: ws.Workspace().String(),
 		Avatar:      ws.Avatar(),
 	}, wsid
 }
@@ -33,6 +34,7 @@ func (wsd *WorkspaceSettingsDocument) Model() (*workspace_settings.WorkspaceSett
 	}
 
 	return workspace_settings.New().
+		NewID().
 		Workspace(wid).
 		Avatar(wsd.Avatar).
 		Build()

@@ -10,6 +10,7 @@ func ToWorkspaceSettings(ws *workspace_settings.WorkspaceSettings) *WorkspaceSet
 	}
 
 	return &WorkspaceSettings{
+		ID:          IDFrom(ws.ID()),
 		WorkspaceID: IDFrom(ws.Workspace()),
 		Avatar:      ws.Avatar(),
 	}

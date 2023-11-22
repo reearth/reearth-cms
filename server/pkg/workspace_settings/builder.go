@@ -11,6 +11,10 @@ func New() *Builder {
 }
 
 func (b *Builder) Build() (*WorkspaceSettings, error) {
+	if b.ws.id.IsNil() {
+		return nil, ErrInvalidID
+	}
+
 	if b.ws.workspaceId.IsNil() {
 		return nil, ErrInvalidID
 	}
@@ -24,6 +28,16 @@ func (b *Builder) MustBuild() *WorkspaceSettings {
 		panic(err)
 	}
 	return ws
+}
+
+func (b *Builder) ID(id ID) *Builder {
+	b.ws.id = id
+	return b
+}
+
+func (b *Builder) NewID() *Builder {
+	b.ws.id = NewID()
+	return b
 }
 
 func (b *Builder) Workspace(wid accountdomain.WorkspaceID) *Builder {

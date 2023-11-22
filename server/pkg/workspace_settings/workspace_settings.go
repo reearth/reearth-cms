@@ -8,6 +8,7 @@ import (
 )
 
 type WorkspaceSettings struct {
+	id ID
 	workspaceId accountdomain.WorkspaceID
 	avatar      *string
 	tiles       *WorkspaceResources
@@ -25,6 +26,10 @@ type Resource struct {
 	name  string
 	url   string
 	image string
+}
+
+func (ws *WorkspaceSettings) ID() ID {
+	return ws.id
 }
 
 func (ws *WorkspaceSettings) Workspace() accountdomain.WorkspaceID {
