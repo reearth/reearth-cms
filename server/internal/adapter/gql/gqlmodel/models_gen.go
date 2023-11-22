@@ -832,6 +832,7 @@ type Resource struct {
 }
 
 type ResourceInput struct {
+	ID    ID     `json:"id"`
 	Name  string `json:"name"`
 	URL   string `json:"url"`
 	Image string `json:"image"`
@@ -1358,15 +1359,15 @@ type WorkspaceIntegrationMember struct {
 func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
 
 type WorkspaceResourceList struct {
-	Resources    []*Resource `json:"resources"`
-	DefaultAsset *ID         `json:"defaultAsset,omitempty"`
-	AllowSwitch  bool        `json:"allowSwitch"`
+	Resources       []*Resource `json:"resources"`
+	DefaultResource *ID         `json:"defaultResource,omitempty"`
+	AllowSwitch     bool        `json:"allowSwitch"`
 }
 
 type WorkspaceResourceListInput struct {
-	Resources    []*ResourceInput `json:"resources"`
-	DefaultAsset *ID              `json:"defaultAsset,omitempty"`
-	AllowSwitch  bool             `json:"allowSwitch"`
+	Resources       []*ResourceInput `json:"resources"`
+	DefaultResource *ID              `json:"defaultResource,omitempty"`
+	AllowSwitch     bool             `json:"allowSwitch"`
 }
 
 type WorkspaceSettings struct {

@@ -15,17 +15,18 @@ type Resource {
 
 type WorkspaceResourceList {
     resources: [Resource!]!
-    defaultAsset: ID
+    defaultResource: ID
     allowSwitch: Boolean!
 }
 
 input WorkspaceResourceListInput {
     resources: [ResourceInput!]!
-    defaultAsset: ID
+    defaultResource: ID
     allowSwitch: Boolean!
 }
 
 input ResourceInput {
+    id: ID!
     name: String!
     url: String!
     image: String!

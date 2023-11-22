@@ -70,6 +70,8 @@ func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.U
 		ID:          wsid,
 		WorkspaceID: wid,
 		Avatar:      input.Avatar,
+		Tiles:       gqlmodel.FromWorkspaceResourceList(input.Tiles),
+		Terrains:    gqlmodel.FromWorkspaceResourceList(input.Terrains),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

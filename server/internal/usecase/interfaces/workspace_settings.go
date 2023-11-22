@@ -17,8 +17,8 @@ type UpdateWorkspaceSettingsParam struct {
 	ID          id.WorkspaceSettingsID
 	WorkspaceID accountdomain.WorkspaceID
 	Avatar      *string
-	tiles       *workspace_settings.WorkspaceResources
-	terrains    *workspace_settings.WorkspaceResources
+	Tiles       *workspace_settings.WorkspaceResources
+	Terrains    *workspace_settings.WorkspaceResources
 }
 
 type DeleteWorkspaceSettingsParam struct {

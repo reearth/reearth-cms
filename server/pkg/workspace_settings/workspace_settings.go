@@ -65,7 +65,7 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 	if ws == nil {
 		return nil
 	}
-
+	
 	return &WorkspaceSettings{
 		workspaceId: ws.workspaceId.Clone(),
 		avatar:      ws.avatar,
@@ -80,4 +80,61 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 			allowSwitch:     ws.terrains.allowSwitch,
 		},
 	}
+}
+
+func (wr *WorkspaceResources) Resources() []*Resource {
+	return wr.resources
+}
+
+func (wr *WorkspaceResources) DefaultResource() *ResourceID {
+	return wr.defaultResource
+}
+
+func (wr *WorkspaceResources) AllowSwitch() bool {
+	return wr.allowSwitch
+}
+
+func (wr *WorkspaceResources) SetResources(r []*Resource) {
+	wr.resources = r
+}
+
+func (wr *WorkspaceResources) SetDefaultResource(rid *ResourceID) {
+	wr.defaultResource = rid
+}
+
+func (wr *WorkspaceResources) SetAllowSwitch(s bool) {
+	wr.allowSwitch = s
+}
+
+func (r *Resource) ID() ResourceID {
+	return r.id
+}
+
+func (r *Resource) Name() string {
+	return r.name
+}
+
+func (r *Resource) URL() string {
+	return r.url
+}
+
+func (r *Resource) Image() string {
+	return r.image
+}
+
+// this is bad, id should be immutable and set from the backend
+func (r *Resource) SetID(rid ResourceID) {
+	 r.id = rid
+}
+
+func (r *Resource) SetName(n string)  {
+	r.name = n
+}
+
+func (r *Resource) SetURL(u string)  {
+	r.url = u
+}
+
+func (r *Resource) SetImage(i string)  {
+	r.image = i
 }

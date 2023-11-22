@@ -803,9 +803,9 @@ type ComplexityRoot struct {
 	}
 
 	WorkspaceResourceList struct {
-		AllowSwitch  func(childComplexity int) int
-		DefaultAsset func(childComplexity int) int
-		Resources    func(childComplexity int) int
+		AllowSwitch     func(childComplexity int) int
+		DefaultResource func(childComplexity int) int
+		Resources       func(childComplexity int) int
 	}
 
 	WorkspaceSettings struct {
@@ -4290,12 +4290,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkspaceResourceList.AllowSwitch(childComplexity), true
 
-	case "WorkspaceResourceList.defaultAsset":
-		if e.complexity.WorkspaceResourceList.DefaultAsset == nil {
+	case "WorkspaceResourceList.defaultResource":
+		if e.complexity.WorkspaceResourceList.DefaultResource == nil {
 			break
 		}
 
-		return e.complexity.WorkspaceResourceList.DefaultAsset(childComplexity), true
+		return e.complexity.WorkspaceResourceList.DefaultResource(childComplexity), true
 
 	case "WorkspaceResourceList.resources":
 		if e.complexity.WorkspaceResourceList.Resources == nil {
@@ -6268,17 +6268,18 @@ type Resource {
 
 type WorkspaceResourceList {
     resources: [Resource!]!
-    defaultAsset: ID
+    defaultResource: ID
     allowSwitch: Boolean!
 }
 
 input WorkspaceResourceListInput {
     resources: [ResourceInput!]!
-    defaultAsset: ID
+    defaultResource: ID
     allowSwitch: Boolean!
 }
 
 input ResourceInput {
+    id: ID!
     name: String!
     url: String!
     image: String!
@@ -28942,8 +28943,8 @@ func (ec *executionContext) fieldContext_WorkspaceResourceList_resources(ctx con
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkspaceResourceList_defaultAsset(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceResourceList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkspaceResourceList_defaultAsset(ctx, field)
+func (ec *executionContext) _WorkspaceResourceList_defaultResource(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceResourceList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceResourceList_defaultResource(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -28956,7 +28957,7 @@ func (ec *executionContext) _WorkspaceResourceList_defaultAsset(ctx context.Cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.DefaultAsset, nil
+		return obj.DefaultResource, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -28970,7 +28971,7 @@ func (ec *executionContext) _WorkspaceResourceList_defaultAsset(ctx context.Cont
 	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WorkspaceResourceList_defaultAsset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WorkspaceResourceList_defaultResource(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkspaceResourceList",
 		Field:      field,
@@ -29194,8 +29195,8 @@ func (ec *executionContext) fieldContext_WorkspaceSettings_tiles(ctx context.Con
 			switch field.Name {
 			case "resources":
 				return ec.fieldContext_WorkspaceResourceList_resources(ctx, field)
-			case "defaultAsset":
-				return ec.fieldContext_WorkspaceResourceList_defaultAsset(ctx, field)
+			case "defaultResource":
+				return ec.fieldContext_WorkspaceResourceList_defaultResource(ctx, field)
 			case "allowSwitch":
 				return ec.fieldContext_WorkspaceResourceList_allowSwitch(ctx, field)
 			}
@@ -29243,8 +29244,8 @@ func (ec *executionContext) fieldContext_WorkspaceSettings_terrains(ctx context.
 			switch field.Name {
 			case "resources":
 				return ec.fieldContext_WorkspaceResourceList_resources(ctx, field)
-			case "defaultAsset":
-				return ec.fieldContext_WorkspaceResourceList_defaultAsset(ctx, field)
+			case "defaultResource":
+				return ec.fieldContext_WorkspaceResourceList_defaultResource(ctx, field)
 			case "allowSwitch":
 				return ec.fieldContext_WorkspaceResourceList_allowSwitch(ctx, field)
 			}
@@ -33978,13 +33979,22 @@ func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "url", "image"}
+	fieldsInOrder := [...]string{"id", "name", "url", "image"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
 		case "name":
 			var err error
 
@@ -36352,7 +36362,7 @@ func (ec *executionContext) unmarshalInputWorkspaceResourceListInput(ctx context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"resources", "defaultAsset", "allowSwitch"}
+	fieldsInOrder := [...]string{"resources", "defaultResource", "allowSwitch"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36368,15 +36378,15 @@ func (ec *executionContext) unmarshalInputWorkspaceResourceListInput(ctx context
 				return it, err
 			}
 			it.Resources = data
-		case "defaultAsset":
+		case "defaultResource":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultAsset"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultResource"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DefaultAsset = data
+			it.DefaultResource = data
 		case "allowSwitch":
 			var err error
 
@@ -43621,8 +43631,8 @@ func (ec *executionContext) _WorkspaceResourceList(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "defaultAsset":
-			out.Values[i] = ec._WorkspaceResourceList_defaultAsset(ctx, field, obj)
+		case "defaultResource":
+			out.Values[i] = ec._WorkspaceResourceList_defaultResource(ctx, field, obj)
 		case "allowSwitch":
 			out.Values[i] = ec._WorkspaceResourceList_allowSwitch(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
