@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { unstable_useBlocker as useBlocker } from "react-router-dom";
+import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
