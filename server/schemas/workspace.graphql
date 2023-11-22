@@ -42,6 +42,7 @@ input CreateWorkspaceInput {
 input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
+    settingsId: ID!
     avatar: String
 	tiles: WorkspaceResourceListInput
 	terrains: WorkspaceResourceListInput

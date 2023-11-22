@@ -6,7 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -19,12 +19,12 @@ func NewWorkspaceSettingsLoader(usecase interfaces.WorkspaceSettings) *Workspace
 }
 
 func (c *WorkspaceSettingsLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.WorkspaceSettings, []error) {
-	wids, err := util.TryMap(ids, gqlmodel.ToID[accountdomain.Workspace])
+	wsids, err := util.TryMap(ids, gqlmodel.ToID[id.WorkspaceSettings])
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.Fetch(ctx, wids, getOperator(ctx))
+	res, err := c.usecase.Fetch(ctx, wsids, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}

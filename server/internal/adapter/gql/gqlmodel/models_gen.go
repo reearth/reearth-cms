@@ -1252,6 +1252,7 @@ type UpdateWebhookInput struct {
 type UpdateWorkspaceInput struct {
 	WorkspaceID ID                          `json:"workspaceId"`
 	Name        string                      `json:"name"`
+	SettingsID  ID                          `json:"settingsId"`
 	Avatar      *string                     `json:"avatar,omitempty"`
 	Tiles       *WorkspaceResourceListInput `json:"tiles,omitempty"`
 	Terrains    *WorkspaceResourceListInput `json:"terrains,omitempty"`

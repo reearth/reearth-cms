@@ -7,6 +7,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/workspace_settings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
@@ -26,7 +27,18 @@ func (r *WorkspaceSettingsRepo) Init() error {
 	return createIndexes(context.Background(), r.client, projectIndexes, projectUniqueIndexes)
 }
 
-func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id accountdomain.WorkspaceID) (*workspace_settings.WorkspaceSettings, error) {
+func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id id.WorkspaceSettingsID) (*workspace_settings.WorkspaceSettings, error) {
+	filter := bson.M{
+		"id": id.String(),
+	}
+	res, err := r.findOne(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (r *WorkspaceSettingsRepo) FindByWorkspace(ctx context.Context, id accountdomain.WorkspaceID) (*workspace_settings.WorkspaceSettings, error) {
 	filter := bson.M{
 		"workspaceid": id.String(),
 	}
@@ -37,14 +49,14 @@ func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id accountdomain.W
 	return res, nil
 }
 
-func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids []accountdomain.WorkspaceID) ([]*workspace_settings.WorkspaceSettings, error) {
+func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids id.WorkspaceSettingsIDList) ([]*workspace_settings.WorkspaceSettings, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
 
 	filter := bson.M{
-		"workspaceid": bson.M{
-			"$in": util.Map(ids, func(id accountdomain.WorkspaceID) string {
+		"id": bson.M{
+			"$in": util.Map(ids, func(id id.WorkspaceSettingsID) string {
 				return id.String()
 			}),
 		},
@@ -85,11 +97,11 @@ func (r *WorkspaceSettingsRepo) findOne(ctx context.Context, filter any) (*works
 }
 
 
-func filterWorkspaceSettings(ids []accountdomain.WorkspaceID, rows []*workspace_settings.WorkspaceSettings) []*workspace_settings.WorkspaceSettings {
+func filterWorkspaceSettings(ids id.WorkspaceSettingsIDList, rows []*workspace_settings.WorkspaceSettings) []*workspace_settings.WorkspaceSettings {
 	res := make([]*workspace_settings.WorkspaceSettings, 0, len(ids))
 	for _, id := range ids {
 		for _, r := range rows {
-			if r.Workspace() == id {
+			if r.ID() == id {
 				res = append(res, r)
 				break
 			}

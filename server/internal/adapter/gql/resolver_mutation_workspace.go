@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 )
@@ -36,6 +37,10 @@ func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.U
 	if err != nil {
 		return nil, err
 	}
+	wsid, err := gqlmodel.ToID[id.WorkspaceSettings](input.SettingsID)
+	if err != nil {
+		return nil, err
+	}
 
 	res, err := usecases(ctx).Workspace.Update(ctx, wid, input.Name, getAcOperator(ctx))
 	if err != nil {
@@ -43,7 +48,8 @@ func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.U
 	}
 
 	i := interfaces.UpdateWorkspaceSettingsParam{
-		WorkspaceID: res.ID(),
+		ID:          wsid,
+		WorkspaceID: wid,
 		Avatar:      input.Avatar,
 	}
 
