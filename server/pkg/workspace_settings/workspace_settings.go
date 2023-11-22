@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/util"
 )
 
 type WorkspaceSettings struct {
@@ -35,6 +36,10 @@ func (ws *WorkspaceSettings) Avatar() *string {
 		return nil
 	}
 	return ws.avatar
+}
+
+func (ws *WorkspaceSettings) UpdateAvatar(a *string) {
+	ws.avatar = util.CloneRef(a)
 }
 
 func (ws *WorkspaceSettings) Tiles() *WorkspaceResources {

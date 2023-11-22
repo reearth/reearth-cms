@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/workspace_settings"
 )
 
@@ -24,25 +23,22 @@ func NewWorkspaceSettings(r *repo.Container, g *gateway.Container) interfaces.Wo
 }
 
 func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspace_settings.WorkspaceSettings, err error) {
-	work, err := ws.repos.Workspace.FindByID(ctx, inp.WorkspaceID)
+	work, err := ws.repos.WorkspaceSettings.FindByID(ctx, inp.WorkspaceID)
 	if err != nil {
 		return nil, err
 	}
-	return Run1(ctx, operator, ws.repos, Usecase().WithMaintainableWorkspaces(work.ID()).Transaction(),
-		func(ctx context.Context) (_ *project.Project, err error) {
-			if p.Name != nil {
-				work.UpdateName(*p.Name)
+
+	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
+		func(ctx context.Context) (_ *workspace_settings.WorkspaceSettings, err error) {
+			if inp.Avatar != nil {
+				work.UpdateAvatar(inp.Avatar)
 			}
 
-			if p.Description != nil {
-				proj.UpdateDescription(*p.Description)
-			}
-
-			if err := ws.repos.Project.Save(ctx, proj); err != nil {
+			if err := ws.repos.WorkspaceSettings.Save(ctx, work); err != nil {
 				return nil, err
 			}
 
-			return proj, nil
+			return work, nil
 		})
 
 }

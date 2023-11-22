@@ -11,8 +11,8 @@ import (
 type UpdateWorkspaceSettingsParam struct {
 	WorkspaceID accountdomain.WorkspaceID
 	Avatar      *string
-	// tiles       *workspace_settings.WorkspaceResources
-	// terrains    *workspace_settings.WorkspaceResources
+	tiles       *workspace_settings.WorkspaceResources
+	terrains    *workspace_settings.WorkspaceResources
 
 }
 

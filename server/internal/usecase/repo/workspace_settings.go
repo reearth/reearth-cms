@@ -8,6 +8,7 @@ import (
 )
 
 type WorkspaceSettings interface {
+	FindByID(context.Context, accountdomain.WorkspaceID) (*workspace_settings.WorkspaceSettings, error)
 	FindByIDs(context.Context, []accountdomain.WorkspaceID) ([]*workspace_settings.WorkspaceSettings, error)
 	Save(context.Context, *workspace_settings.WorkspaceSettings) error
 	Remove(context.Context, accountdomain.WorkspaceID) error

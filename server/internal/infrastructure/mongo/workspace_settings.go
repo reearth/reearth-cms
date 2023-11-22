@@ -19,11 +19,22 @@ type WorkspaceSettingsRepo struct {
 }
 
 func NewWorkspaceSettings(client *mongox.Client) repo.WorkspaceSettings {
-	return &WorkspaceSettingsRepo{client: client.WithCollection("workspace")}
+	return &WorkspaceSettingsRepo{client: client.WithCollection("workspace_settings")}
 }
 
 func (r *WorkspaceSettingsRepo) Init() error {
 	return createIndexes(context.Background(), r.client, projectIndexes, projectUniqueIndexes)
+}
+
+func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id accountdomain.WorkspaceID) (*workspace_settings.WorkspaceSettings, error) {
+	filter := bson.M{
+		"workspaceid": id.String(),
+	}
+	res, err := r.findOne(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids []accountdomain.WorkspaceID) ([]*workspace_settings.WorkspaceSettings, error) {
@@ -32,7 +43,7 @@ func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids []accountdoma
 	}
 
 	filter := bson.M{
-		"id": bson.M{
+		"workspaceid": bson.M{
 			"$in": util.Map(ids, func(id accountdomain.WorkspaceID) string {
 				return id.String()
 			}),
@@ -63,6 +74,14 @@ func (r *WorkspaceSettingsRepo) find(ctx context.Context, filter any) ([]*worksp
 		return nil, err
 	}
 	return c.Result, nil
+}
+
+func (r *WorkspaceSettingsRepo) findOne(ctx context.Context, filter any) (*workspace_settings.WorkspaceSettings, error) {
+	c := mongodoc.NewWorkspaceSettingsConsumer()
+	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+		return nil, err
+	}
+	return c.Result[0], nil
 }
 
 
