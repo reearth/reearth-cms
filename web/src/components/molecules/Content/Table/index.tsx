@@ -461,7 +461,11 @@ const ContentTable: React.FC<Props> = ({
     dropdownRender: (menu: React.ReactNode): React.ReactNode => (
       <Wrapper>
         <InputWrapper>
-          <Input value={inputValue} placeholder="Filter by..." onChange={handleChange} />
+          <Input
+            value={inputValue}
+            placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
+            onChange={handleChange}
+          />
         </InputWrapper>
         {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
       </Wrapper>
@@ -537,7 +541,7 @@ const ContentTable: React.FC<Props> = ({
           onClick={() => {
             toolBarItemClick(true);
           }}>
-          Add Filter
+          {t("Add Filter")}
         </span>
       ),
       key: "filter",
@@ -549,7 +553,7 @@ const ContentTable: React.FC<Props> = ({
           onClick={() => {
             toolBarItemClick(false);
           }}>
-          Add Sort
+          {t("Add Sort")}
         </span>
       ),
       key: "sort",
@@ -592,7 +596,7 @@ const ContentTable: React.FC<Props> = ({
             arrow={false}
             open={controlMenuOpen}
             onOpenChange={handleControlMenuOpenChange}>
-            <Tooltip title="Control">
+            <Tooltip title={t("Control")}>
               <IconWrapper>
                 <Icon icon="control" size={18} />
               </IconWrapper>

@@ -121,7 +121,7 @@ Updated By: 更新者
 Publish State: 公開状態
 This item has been referenced: このアイテムは参照されました
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
-input search text: ''
+input search text: 検索
 State: ステータス
 Reviewers: レビュワー
 New Item: 新規アイテム
@@ -156,6 +156,9 @@ Ascending: 昇順
 Descending: 降順
 Confirm: 確認
 Please enter: 入力してください
+Add Filter: 絞り込む
+Add Sort: 並び替える
+Control: 操作
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
