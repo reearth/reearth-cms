@@ -85,6 +85,7 @@ Workspaces: ワークスペース
 Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
+Go to Editor: エディタへ移動
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
@@ -109,6 +110,9 @@ API key: APIキー
 Account: アカウント
 unique: ユニーク
 Title: タイトル
+Leave: 離れる
+This item has unsaved data: 保存していないデータがあります。
+Are you going to leave?: ページを離れますか？
 Add to Request: 既存のリクエストに追加
 Unpublish: 非公開
 New Request: 新規リクエスト
@@ -116,11 +120,11 @@ Publish: 公開
 Refer to item: アイテムを参照
 Item Information: アイテムの情報
 Updated At: 更新日時
-Updated By: アイテム参照
+Updated By: 更新者
 Publish State: 公開状態
 This item has been referenced: このアイテムは参照されました
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
-Link item: アイテムをリンクする
+input search text: 検索
 State: ステータス
 Reviewers: レビュワー
 New Item: 新規アイテム
@@ -155,6 +159,9 @@ Ascending: 昇順
 Descending: 降順
 Confirm: 確認
 Please enter: 入力してください
+Add Filter: 絞り込む
+Add Sort: 並び替える
+Control: 操作
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定

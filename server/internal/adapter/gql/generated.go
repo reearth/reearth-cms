@@ -132,6 +132,11 @@ type ComplexityRoot struct {
 		Value    func(childComplexity int) int
 	}
 
+	Column struct {
+		Field   func(childComplexity int) int
+		Visible func(childComplexity int) int
+	}
+
 	Comment struct {
 		Author      func(childComplexity int) int
 		AuthorID    func(childComplexity int) int
@@ -1258,6 +1263,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BoolFieldCondition.Value(childComplexity), true
+
+	case "Column.field":
+		if e.complexity.Column.Field == nil {
+			break
+		}
+
+		return e.complexity.Column.Field(childComplexity), true
+
+	case "Column.visible":
+		if e.complexity.Column.Visible == nil {
+			break
+		}
+
+		return e.complexity.Column.Visible(childComplexity), true
 
 	case "Comment.author":
 		if e.complexity.Comment.Author == nil {
@@ -4376,6 +4395,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAssetSort,
 		ec.unmarshalInputBasicFieldConditionInput,
 		ec.unmarshalInputBoolFieldConditionInput,
+		ec.unmarshalInputColumnSelectionInput,
 		ec.unmarshalInputConditionInput,
 		ec.unmarshalInputCorrespondingFieldInput,
 		ec.unmarshalInputCreateAssetInput,
@@ -5677,11 +5697,20 @@ input TimeFieldConditionInput {
   projectId: ID!
   sort: ItemSort
   filter: Condition
-  columns: [FieldSelector!]
+  columns: [Column!]
 }
 
+type Column {
+  field: FieldSelector!
+  visible: Boolean!
+}
 
 # inputs
+
+input ColumnSelectionInput{
+  field: FieldSelectorInput!
+  visible: Boolean!
+}
 
 input CreateViewInput {
   name: String!
@@ -5689,7 +5718,7 @@ input CreateViewInput {
   projectId: ID!
   sort: ItemSortInput
   filter: ConditionInput
-  columns: [FieldSelectorInput!]
+  columns: [ColumnSelectionInput!]
 }
 
 input UpdateViewInput {
@@ -5697,7 +5726,7 @@ input UpdateViewInput {
   name: String
   sort: ItemSortInput
   filter: ConditionInput
-  columns: [FieldSelectorInput!]
+  columns: [ColumnSelectionInput!]
 }
 
 input DeleteViewInput {
@@ -9302,6 +9331,100 @@ func (ec *executionContext) _BoolFieldCondition_value(ctx context.Context, field
 func (ec *executionContext) fieldContext_BoolFieldCondition_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BoolFieldCondition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Column_field(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Column) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Column_field(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Field, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.FieldSelector)
+	fc.Result = res
+	return ec.marshalNFieldSelector2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelector(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Column_field(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Column",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "type":
+				return ec.fieldContext_FieldSelector_type(ctx, field)
+			case "id":
+				return ec.fieldContext_FieldSelector_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FieldSelector", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Column_visible(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Column) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Column_visible(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Visible, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Column_visible(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Column",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -27528,9 +27651,9 @@ func (ec *executionContext) _View_columns(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*gqlmodel.FieldSelector)
+	res := resTmp.([]*gqlmodel.Column)
 	fc.Result = res
-	return ec.marshalOFieldSelector2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorᚄ(ctx, field.Selections, res)
+	return ec.marshalOColumn2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_View_columns(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27541,12 +27664,12 @@ func (ec *executionContext) fieldContext_View_columns(ctx context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "type":
-				return ec.fieldContext_FieldSelector_type(ctx, field)
-			case "id":
-				return ec.fieldContext_FieldSelector_id(ctx, field)
+			case "field":
+				return ec.fieldContext_Column_field(ctx, field)
+			case "visible":
+				return ec.fieldContext_Column_visible(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type FieldSelector", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Column", field.Name)
 		},
 	}
 	return fc, nil
@@ -31495,6 +31618,44 @@ func (ec *executionContext) unmarshalInputBoolFieldConditionInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputColumnSelectionInput(ctx context.Context, obj interface{}) (gqlmodel.ColumnSelectionInput, error) {
+	var it gqlmodel.ColumnSelectionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "visible"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNFieldSelectorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "visible":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("visible"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Visible = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputConditionInput(ctx context.Context, obj interface{}) (gqlmodel.ConditionInput, error) {
 	var it gqlmodel.ConditionInput
 	asMap := map[string]interface{}{}
@@ -32543,7 +32704,7 @@ func (ec *executionContext) unmarshalInputCreateViewInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("columns"))
-			data, err := ec.unmarshalOFieldSelectorInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorInputᚄ(ctx, v)
+			data, err := ec.unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -36095,7 +36256,7 @@ func (ec *executionContext) unmarshalInputUpdateViewInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("columns"))
-			data, err := ec.unmarshalOFieldSelectorInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorInputᚄ(ctx, v)
+			data, err := ec.unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -37289,6 +37450,50 @@ func (ec *executionContext) _BoolFieldCondition(ctx context.Context, sel ast.Sel
 			}
 		case "value":
 			out.Values[i] = ec._BoolFieldCondition_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var columnImplementors = []string{"Column"}
+
+func (ec *executionContext) _Column(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Column) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, columnImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Column")
+		case "field":
+			out.Values[i] = ec._Column_field(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "visible":
+			out.Values[i] = ec._Column_visible(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -44372,6 +44577,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNColumn2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumn(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Column) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Column(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNColumnSelectionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInput(ctx context.Context, v interface{}) (*gqlmodel.ColumnSelectionInput, error) {
+	res, err := ec.unmarshalInputColumnSelectionInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Comment) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -47107,6 +47327,73 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) marshalOColumn2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Column) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNColumn2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumn(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOColumnSelectionInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.ColumnSelectionInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*gqlmodel.ColumnSelectionInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNColumnSelectionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnSelectionInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) marshalOCommentPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCommentPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CommentPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -47294,73 +47581,6 @@ func (ec *executionContext) marshalOFieldPayload2ᚖgithubᚗcomᚋreearthᚋree
 		return graphql.Null
 	}
 	return ec._FieldPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOFieldSelector2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.FieldSelector) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNFieldSelector2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelector(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalOFieldSelectorInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.FieldSelectorInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*gqlmodel.FieldSelectorInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNFieldSelectorInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelectorInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
 }
 
 func (ec *executionContext) marshalOFieldsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FieldsPayload) graphql.Marshaler {
