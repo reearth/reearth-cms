@@ -14,7 +14,7 @@ func (r *Resolver) Workspace() WorkspaceResolver {
 type workspaceResolver struct{ *Resolver }
 
 func (w workspaceResolver) Settings(ctx context.Context, obj *gqlmodel.Workspace) (*gqlmodel.WorkspaceSettings, error) {
-	return dataloaders(ctx).WorkspaceSettings.Load(obj.ID)
+	return dataloaders(ctx).WorkspaceSettings.Load(obj.SettingsID)
 }
 
 // Workspace User Member resolver
