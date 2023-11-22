@@ -108,7 +108,7 @@
     "react-json-tree": "0.18.0",
     "react-markdown": "8.0.7",
     "react-resizable": "3.0.5",
-    "react-router-dom": "6.10.0",
+    "react-router-dom": "6.19.0",
     "react-svg": "16.1.8",
     "resium": "1.16.1",
     "ulid": "^2.3.0"
