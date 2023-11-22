@@ -636,9 +636,12 @@ const ContentTable: React.FC<Props> = ({
                 ? (col.key as string)
                 : undefined,
           },
-          visible: (col.key as string) in options ? options[col.key as string].show : true,
+          visible:
+            (col.key as string) in options && !!options[col.key as string].show
+              ? options[col.key as string].show
+              : true,
           order:
-            (col.key as string) in options && options[col.key as string].order
+            (col.key as string) in options && !!options[col.key as string].order
               ? (options[col.key as string]?.order as number)
               : index + 3,
         }))
