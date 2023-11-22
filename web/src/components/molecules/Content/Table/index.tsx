@@ -145,17 +145,18 @@ const ContentTable: React.FC<Props> = ({
         key: "commentsCount",
         render: (_, item) => {
           return (
-            <Button type="link" onClick={() => onItemSelect(item.id)}>
+            <StyledButton type="link" onClick={() => onItemSelect(item.id)}>
               <CustomTag
                 value={item.comments?.length || 0}
                 color={item.id === selectedItem?.id ? "#87e8de" : undefined}
               />
-            </Button>
+            </StyledButton>
           );
         },
         width: 48,
         minWidth: 48,
         ellipsis: true,
+        align: "center",
       },
       {
         title: t("Status"),
@@ -460,7 +461,11 @@ const ContentTable: React.FC<Props> = ({
     dropdownRender: (menu: React.ReactNode): React.ReactNode => (
       <Wrapper>
         <InputWrapper>
-          <Input value={inputValue} placeholder="Filter by..." onChange={handleChange} />
+          <Input
+            value={inputValue}
+            placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
+            onChange={handleChange}
+          />
         </InputWrapper>
         {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
       </Wrapper>
@@ -536,7 +541,7 @@ const ContentTable: React.FC<Props> = ({
           onClick={() => {
             toolBarItemClick(true);
           }}>
-          Add Filter
+          {t("Add Filter")}
         </span>
       ),
       key: "filter",
@@ -548,7 +553,7 @@ const ContentTable: React.FC<Props> = ({
           onClick={() => {
             toolBarItemClick(false);
           }}>
-          Add Sort
+          {t("Add Sort")}
         </span>
       ),
       key: "sort",
@@ -591,7 +596,7 @@ const ContentTable: React.FC<Props> = ({
             arrow={false}
             open={controlMenuOpen}
             onOpenChange={handleControlMenuOpenChange}>
-            <Tooltip title="Control">
+            <Tooltip title={t("Control")}>
               <IconWrapper>
                 <Icon icon="control" size={18} />
               </IconWrapper>
@@ -725,6 +730,10 @@ const ContentTable: React.FC<Props> = ({
 };
 
 export default ContentTable;
+
+const StyledButton = styled(Button)`
+  padding: 0;
+`;
 
 const PrimaryButton = styled.a`
   display: flex;
