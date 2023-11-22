@@ -349,6 +349,7 @@ const ContentForm: React.FC<Props> = ({
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
       }
+      changedKeys.current.clear();
       if (!itemId) {
         await onItemCreate?.({
           schemaId: model?.schema.id as string,
@@ -362,7 +363,6 @@ const ContentForm: React.FC<Props> = ({
           fields,
         });
       }
-      changedKeys.current.clear();
     } catch (info) {
       console.log("Validate Failed:", info);
     }
