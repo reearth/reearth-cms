@@ -3,7 +3,6 @@ type Workspace implements Node {
     name: String!
     members: [WorkspaceMember!]!
     personal: Boolean!
-    settingsId: ID!
     settings: WorkspaceSettings
 }
 

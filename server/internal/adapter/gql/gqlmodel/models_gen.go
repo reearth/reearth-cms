@@ -1335,12 +1335,11 @@ type WebhookTriggerInput struct {
 }
 
 type Workspace struct {
-	ID         ID                 `json:"id"`
-	Name       string             `json:"name"`
-	Members    []WorkspaceMember  `json:"members"`
-	Personal   bool               `json:"personal"`
-	SettingsID ID                 `json:"settingsId"`
-	Settings   *WorkspaceSettings `json:"settings,omitempty"`
+	ID       ID                 `json:"id"`
+	Name     string             `json:"name"`
+	Members  []WorkspaceMember  `json:"members"`
+	Personal bool               `json:"personal"`
+	Settings *WorkspaceSettings `json:"settings,omitempty"`
 }
 
 func (Workspace) IsNode()        {}

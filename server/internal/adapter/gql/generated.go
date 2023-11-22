@@ -786,12 +786,11 @@ type ComplexityRoot struct {
 	}
 
 	Workspace struct {
-		ID         func(childComplexity int) int
-		Members    func(childComplexity int) int
-		Name       func(childComplexity int) int
-		Personal   func(childComplexity int) int
-		Settings   func(childComplexity int) int
-		SettingsID func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Members  func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Personal func(childComplexity int) int
+		Settings func(childComplexity int) int
 	}
 
 	WorkspaceIntegrationMember struct {
@@ -4242,13 +4241,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Workspace.Settings(childComplexity), true
 
-	case "Workspace.settingsId":
-		if e.complexity.Workspace.SettingsID == nil {
-			break
-		}
-
-		return e.complexity.Workspace.SettingsID(childComplexity), true
-
 	case "WorkspaceIntegrationMember.active":
 		if e.complexity.WorkspaceIntegrationMember.Active == nil {
 			break
@@ -6135,7 +6127,6 @@ extend type Mutation {
     name: String!
     members: [WorkspaceMember!]!
     personal: Boolean!
-    settingsId: ID!
     settings: WorkspaceSettings
 }
 
@@ -7601,8 +7592,6 @@ func (ec *executionContext) fieldContext_AddUsersToWorkspacePayload_workspace(ct
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -10043,8 +10032,6 @@ func (ec *executionContext) fieldContext_CreateWorkspacePayload_workspace(ctx co
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -14679,8 +14666,6 @@ func (ec *executionContext) fieldContext_Me_workspaces(ctx context.Context, fiel
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -14737,8 +14722,6 @@ func (ec *executionContext) fieldContext_Me_myWorkspace(ctx context.Context, fie
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -19663,8 +19646,6 @@ func (ec *executionContext) fieldContext_Project_workspace(ctx context.Context, 
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -21929,8 +21910,6 @@ func (ec *executionContext) fieldContext_RemoveMemberFromWorkspacePayload_worksp
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -22701,8 +22680,6 @@ func (ec *executionContext) fieldContext_Request_workspace(ctx context.Context, 
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -26242,8 +26219,6 @@ func (ec *executionContext) fieldContext_Thread_workspace(ctx context.Context, f
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -26840,8 +26815,6 @@ func (ec *executionContext) fieldContext_UpdateMemberOfWorkspacePayload_workspac
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -26898,8 +26871,6 @@ func (ec *executionContext) fieldContext_UpdateWorkspacePayload_workspace(ctx co
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
 				return ec.fieldContext_Workspace_personal(ctx, field)
-			case "settingsId":
-				return ec.fieldContext_Workspace_settingsId(ctx, field)
 			case "settings":
 				return ec.fieldContext_Workspace_settings(ctx, field)
 			}
@@ -28570,50 +28541,6 @@ func (ec *executionContext) fieldContext_Workspace_personal(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Workspace_settingsId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Workspace) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Workspace_settingsId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SettingsID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Workspace_settingsId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Workspace",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -43489,11 +43416,6 @@ func (ec *executionContext) _Workspace(ctx context.Context, sel ast.SelectionSet
 			}
 		case "personal":
 			out.Values[i] = ec._Workspace_personal(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "settingsId":
-			out.Values[i] = ec._Workspace_settingsId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
