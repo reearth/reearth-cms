@@ -96,7 +96,6 @@ func (r *WorkspaceSettingsRepo) findOne(ctx context.Context, filter any) (*works
 	return c.Result[0], nil
 }
 
-
 func filterWorkspaceSettings(ids id.WorkspaceSettingsIDList, rows []*workspace_settings.WorkspaceSettings) []*workspace_settings.WorkspaceSettings {
 	res := make([]*workspace_settings.WorkspaceSettings, 0, len(ids))
 	for _, id := range ids {
@@ -109,7 +108,6 @@ func filterWorkspaceSettings(ids id.WorkspaceSettingsIDList, rows []*workspace_s
 	}
 	return res
 }
-
 
 func (r *WorkspaceSettingsRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
