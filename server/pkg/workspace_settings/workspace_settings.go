@@ -8,7 +8,7 @@ import (
 )
 
 type WorkspaceSettings struct {
-	id ID
+	id          ID
 	workspaceId accountdomain.WorkspaceID
 	avatar      *string
 	tiles       *WorkspaceResources

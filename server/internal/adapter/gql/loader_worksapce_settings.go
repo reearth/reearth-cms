@@ -6,7 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 )
 
@@ -19,21 +19,35 @@ func NewWorkspaceSettingsLoader(usecase interfaces.WorkspaceSettings) *Workspace
 }
 
 func (c *WorkspaceSettingsLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.WorkspaceSettings, []error) {
-	wsids, err := util.TryMap(ids, gqlmodel.ToID[id.WorkspaceSettings])
+	wsids, err := util.TryMap(ids, gqlmodel.ToID[accountdomain.Workspace])
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.Fetch(ctx, wsids, getOperator(ctx))
+	res, err := c.usecase.Fetch(ctx, wsids[0], getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	workspaces := make([]*gqlmodel.WorkspaceSettings, 0, len(res))
-	for _, t := range res {
-		workspaces = append(workspaces, gqlmodel.ToWorkspaceSettings(t))
-	}
+	workspaces := make([]*gqlmodel.WorkspaceSettings, 0, 1)
+	// for _, t := range res {
+		workspaces = append(workspaces, gqlmodel.ToWorkspaceSettings(res))
+	// }
 	return workspaces, nil
+}
+
+func (c *WorkspaceSettingsLoader) FindByWorkspace(ctx context.Context, gid gqlmodel.ID) (*gqlmodel.WorkspaceSettings, []error) {
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](gid)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	res, err := c.usecase.FetchByWorkspace(ctx, wid, getOperator(ctx))
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	return gqlmodel.ToWorkspaceSettings(res), nil
 }
 
 // data loader

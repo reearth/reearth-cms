@@ -1,6 +1,7 @@
 package mongodoc
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/workspace_settings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
@@ -28,13 +29,17 @@ func NewWorkspaceSettings(ws *workspace_settings.WorkspaceSettings) (*WorkspaceS
 }
 
 func (wsd *WorkspaceSettingsDocument) Model() (*workspace_settings.WorkspaceSettings, error) {
+	wsid, err := id.WorkspaceSettingsIDFrom(wsd.ID)
+	if err != nil {
+		return nil, err
+	}
 	wid, err := accountdomain.WorkspaceIDFrom(wsd.WorkspaceID)
 	if err != nil {
 		return nil, err
 	}
 
 	return workspace_settings.New().
-		NewID().
+		ID(wsid).
 		Workspace(wid).
 		Avatar(wsd.Avatar).
 		Build()
