@@ -136,6 +136,7 @@ const ContentTable: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         ellipsis: true,
+        align: "center",
       },
       {
         title: () => <Icon icon="message" />,
