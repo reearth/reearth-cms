@@ -43,8 +43,8 @@ input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
     avatar: String
-	tiles: WorkspaceResourceListInput!
-	terrains: WorkspaceResourceListInput!
+	tiles: WorkspaceResourceListInput
+	terrains: WorkspaceResourceListInput
 }
 
 input MemberInput {

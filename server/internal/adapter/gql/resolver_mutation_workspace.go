@@ -32,12 +32,12 @@ func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.D
 }
 
 func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.UpdateWorkspaceInput) (*gqlmodel.UpdateWorkspacePayload, error) {
-	tid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := usecases(ctx).Workspace.Update(ctx, tid, input.Name, getAcOperator(ctx))
+	res, err := usecases(ctx).Workspace.Update(ctx, wid, input.Name, getAcOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

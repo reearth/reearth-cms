@@ -1253,8 +1253,8 @@ type UpdateWorkspaceInput struct {
 	WorkspaceID ID                          `json:"workspaceId"`
 	Name        string                      `json:"name"`
 	Avatar      *string                     `json:"avatar,omitempty"`
-	Tiles       *WorkspaceResourceListInput `json:"tiles"`
-	Terrains    *WorkspaceResourceListInput `json:"terrains"`
+	Tiles       *WorkspaceResourceListInput `json:"tiles,omitempty"`
+	Terrains    *WorkspaceResourceListInput `json:"terrains,omitempty"`
 }
 
 type UpdateWorkspacePayload struct {

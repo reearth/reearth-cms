@@ -6175,8 +6175,8 @@ input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
     avatar: String
-	tiles: WorkspaceResourceListInput!
-	terrains: WorkspaceResourceListInput!
+	tiles: WorkspaceResourceListInput
+	terrains: WorkspaceResourceListInput
 }
 
 input MemberInput {
@@ -36286,7 +36286,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tiles"))
-			data, err := ec.unmarshalNWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
+			data, err := ec.unmarshalOWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -36295,7 +36295,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrains"))
-			data, err := ec.unmarshalNWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
+			data, err := ec.unmarshalOWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -46672,11 +46672,6 @@ func (ec *executionContext) marshalNWorkspaceMember2ᚕgithubᚗcomᚋreearthᚋ
 	return ret
 }
 
-func (ec *executionContext) unmarshalNWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx context.Context, v interface{}) (*gqlmodel.WorkspaceResourceListInput, error) {
-	res, err := ec.unmarshalInputWorkspaceResourceListInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -48375,6 +48370,14 @@ func (ec *executionContext) marshalOWorkspaceResourceList2ᚖgithubᚗcomᚋreea
 		return graphql.Null
 	}
 	return ec._WorkspaceResourceList(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx context.Context, v interface{}) (*gqlmodel.WorkspaceResourceListInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputWorkspaceResourceListInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOWorkspaceSettings2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceSettings(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.WorkspaceSettings) graphql.Marshaler {
