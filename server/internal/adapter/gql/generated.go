@@ -6211,6 +6211,7 @@ input UpdateIntegrationOfWorkspaceInput {
 
 input DeleteWorkspaceInput {
     workspaceId: ID!
+    settingsId: ID!
 }
 
 # extend type Query { }
@@ -33093,7 +33094,7 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId"}
+	fieldsInOrder := [...]string{"workspaceId", "settingsId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -33109,6 +33110,15 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 				return it, err
 			}
 			it.WorkspaceID = data
+		case "settingsId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("settingsId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SettingsID = data
 		}
 	}
 

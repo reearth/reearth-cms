@@ -13,5 +13,5 @@ type WorkspaceSettings interface {
 	FindByIDs(context.Context, id.WorkspaceSettingsIDList) ([]*workspace_settings.WorkspaceSettings, error)
 	FindByWorkspace(context.Context, accountdomain.WorkspaceID) (*workspace_settings.WorkspaceSettings, error)
 	Save(context.Context, *workspace_settings.WorkspaceSettings) error
-	Remove(context.Context, accountdomain.WorkspaceID) error
+	Remove(context.Context, id.WorkspaceSettingsID) error
 }

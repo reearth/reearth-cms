@@ -16,16 +16,35 @@ func (r *mutationResolver) CreateWorkspace(ctx context.Context, input gqlmodel.C
 		return nil, err
 	}
 
-	return &gqlmodel.CreateWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
-}
-
-func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.DeleteWorkspaceInput) (*gqlmodel.DeleteWorkspacePayload, error) {
-	tid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
+	_, err = usecases(ctx).WorkspaceSettings.Create(ctx, interfaces.CreateWorkspaceSettingsParam{
+		WorkspaceID: res.ID(),
+	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	if err := usecases(ctx).Workspace.Remove(ctx, tid, getAcOperator(ctx)); err != nil {
+	return &gqlmodel.CreateWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
+}
+
+func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.DeleteWorkspaceInput) (*gqlmodel.DeleteWorkspacePayload, error) {
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
+	if err != nil {
+		return nil, err
+	}
+	wsid, err := gqlmodel.ToID[id.WorkspaceSettings](input.SettingsID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = usecases(ctx).WorkspaceSettings.Delete(ctx, interfaces.DeleteWorkspaceSettingsParam{
+		ID: wsid,
+		WorkspaceID: wid,
+	}, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	if err := usecases(ctx).Workspace.Remove(ctx, wid, getAcOperator(ctx)); err != nil {
 		return nil, err
 	}
 
@@ -47,13 +66,11 @@ func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.U
 		return nil, err
 	}
 
-	i := interfaces.UpdateWorkspaceSettingsParam{
+	_, err = usecases(ctx).WorkspaceSettings.Update(ctx, interfaces.UpdateWorkspaceSettingsParam{
 		ID:          wsid,
 		WorkspaceID: wid,
 		Avatar:      input.Avatar,
-	}
-
-	_, err = usecases(ctx).WorkspaceSettings.Update(ctx, i, getOperator(ctx))
+	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

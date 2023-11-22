@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/workspace_settings"
 	"github.com/reearth/reearthx/account/accountdomain"
 )
@@ -27,6 +28,25 @@ func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.Worksp
 	return ws.repos.WorkspaceSettings.FindByWorkspace(ctx, wid)
 }
 
+func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspace_settings.WorkspaceSettings, err error) {
+	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
+		func(ctx context.Context) (_ *workspace_settings.WorkspaceSettings, err error) {
+			wsb := workspace_settings.New().
+				NewID().
+				Workspace(inp.WorkspaceID)
+
+			work, err := wsb.Build()
+			if err != nil {
+				return nil, err
+			}
+			err = ws.repos.WorkspaceSettings.Save(ctx, work)
+			if err != nil {
+				return nil, err
+			}
+			return work, nil
+		})
+}
+
 func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspace_settings.WorkspaceSettings, err error) {
 	work, err := ws.repos.WorkspaceSettings.FindByWorkspace(ctx, inp.WorkspaceID)
 	if err != nil {
@@ -43,3 +63,11 @@ func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWo
 			return work, nil
 		})
 }
+
+func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWorkspaceSettingsParam, op *usecase.Operator) (id.WorkspaceSettingsID, error) {
+	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
+		func(ctx context.Context) (id.WorkspaceSettingsID, error) {
+			return inp.ID, ws.repos.WorkspaceSettings.Remove(ctx, inp.ID)
+		})
+}
+

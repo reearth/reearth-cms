@@ -412,6 +412,7 @@ type DeleteWebhookPayload struct {
 
 type DeleteWorkspaceInput struct {
 	WorkspaceID ID `json:"workspaceId"`
+	SettingsID  ID `json:"settingsId"`
 }
 
 type DeleteWorkspacePayload struct {

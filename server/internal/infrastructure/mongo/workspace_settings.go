@@ -76,7 +76,7 @@ func (r *WorkspaceSettingsRepo) Save(ctx context.Context, ws *workspace_settings
 	return r.client.SaveOne(ctx, id, doc)
 }
 
-func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, id accountdomain.WorkspaceID) error {
+func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, id id.WorkspaceSettingsID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }
 

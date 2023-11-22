@@ -87,6 +87,7 @@ input UpdateIntegrationOfWorkspaceInput {
 
 input DeleteWorkspaceInput {
     workspaceId: ID!
+    settingsId: ID!
 }
 
 # extend type Query { }
