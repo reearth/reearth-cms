@@ -20,6 +20,7 @@ import {
   useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
 import { renderTags } from "./renderFields";
@@ -163,6 +164,8 @@ export default () => {
                             )
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
+                        : field.type === "Date"
+                        ? dateTimeFormat(field.value)
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
