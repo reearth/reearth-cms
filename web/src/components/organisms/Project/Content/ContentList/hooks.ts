@@ -23,7 +23,7 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
-import { renderTags } from "./renderFields";
+import { renderTags, renderMultiple } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
@@ -199,26 +199,32 @@ export default () => {
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
-    const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
-      title: field.title,
-      dataIndex: ["fields", field.id],
-      fieldType: "FIELD",
-      key: field.id,
-      ellipsis: true,
-      type: field.type,
-      typeProperty: field.typeProperty,
-      width: 128,
-      minWidth: 128,
-      multiple: field.multiple,
-      required: field.required,
-      sorter: true,
-      sortOrder:
-        currentView.sort?.field.id === field.id
-          ? currentView.sort?.direction === "ASC"
-            ? ("ascend" as const)
-            : ("descend" as const)
-          : null,
-    }));
+    const fieldsColumns = currentModel?.schema?.fields?.map(field => {
+      const result = {
+        title: field.title,
+        dataIndex: ["fields", field.id],
+        fieldType: "FIELD",
+        key: field.id,
+        ellipsis: true,
+        type: field.type,
+        typeProperty: field.typeProperty,
+        width: 128,
+        minWidth: 128,
+        multiple: field.multiple,
+        required: field.required,
+        sorter: true,
+        sortOrder:
+          currentView.sort?.field.id === field.id
+            ? currentView.sort?.direction === "ASC"
+              ? ("ascend" as const)
+              : ("descend" as const)
+            : null,
+      };
+      if (field.multiple) {
+        Object.assign(result, { render: (el: any) => renderMultiple(el, field) });
+      }
+      return result;
+    });
 
     const metadataColumns =
       currentModel?.metadataSchema?.fields?.map(field => {
