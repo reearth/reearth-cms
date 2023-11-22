@@ -98,6 +98,7 @@ func filterWorkspaceSettings(ids []accountdomain.WorkspaceID, rows []*workspace_
 	return res
 }
 
+
 func (r *WorkspaceSettingsRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }

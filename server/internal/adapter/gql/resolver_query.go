@@ -284,3 +284,11 @@ func (r *queryResolver) CheckGroupKeyAvailability(ctx context.Context, projectID
 func (r *queryResolver) ModelsByGroup(ctx context.Context, groupID gqlmodel.ID) ([]*gqlmodel.Model, error) {
 	return loaders(ctx).Group.FindModelsByGroup(ctx, groupID)
 }
+
+func (r *queryResolver) Settings(ctx context.Context, workspaceId gqlmodel.ID) ([]*gqlmodel.WorkspaceSettings, error) {	
+	res, err := loaders(ctx).WorkspaceSettings.Fetch(ctx, []gqlmodel.ID{workspaceId})
+	if err != nil {
+		return nil, err[0]
+	}
+	return res, nil
+}
