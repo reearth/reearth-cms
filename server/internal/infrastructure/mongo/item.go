@@ -647,7 +647,7 @@ func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bo
 
 func (r *Item) paginate(ctx context.Context, filter bson.M, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	c := mongodoc.NewVersionedItemConsumer()
-	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, version.Eq(ref.OrLatest().OrVersion()), sort, pagination, c, nil)
+	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), nil, version.Eq(ref.OrLatest().OrVersion()), sort, nil, pagination, c, nil)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}
@@ -656,7 +656,7 @@ func (r *Item) paginate(ctx context.Context, filter bson.M, ref *version.Ref, so
 
 func (r *Item) paginateAggregation(ctx context.Context, pipeline []any, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	c := mongodoc.NewVersionedItemConsumer()
-	pageInfo, err := r.client.PaginateAggregation(ctx, applyProjectFilterToPipeline(pipeline, r.f.Readable), version.Eq(ref.OrLatest().OrVersion()), sort, pagination, c)
+	pageInfo, err := r.client.PaginateAggregation(ctx, applyProjectFilterToPipeline(pipeline, r.f.Readable), nil, version.Eq(ref.OrLatest().OrVersion()), sort, nil, pagination, c, nil)
 	if err != nil {
 		return nil, nil, rerror.ErrInternalBy(err)
 	}

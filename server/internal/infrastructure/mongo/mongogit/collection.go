@@ -35,7 +35,11 @@ func (c *Collection[T, MT]) MetaDataClient() *mongox.Collection {
 }
 
 func (c *Collection[T, MT]) FindOne(ctx context.Context, filter, metaFilter any, q version.Query, consumer, metaConsumer mongox.Consumer) error {
-	pl := pipeline(filter, metaFilter, q, c.metaColl.Client().Name())
+	pl := newPipeline(c.metaColl.Client().Name()).
+		MatchVersion(q).
+		Match(filter).
+		MatchMeta(metaFilter).
+		Build()
 
 	cw := consumer
 	if metaConsumer != nil {
@@ -53,7 +57,11 @@ func (c *Collection[T, MT]) FindOne(ctx context.Context, filter, metaFilter any,
 }
 
 func (c *Collection[T, MT]) Find(ctx context.Context, filter, metaFilter any, q version.Query, consumer, metaConsumer mongox.Consumer) error {
-	pl := pipeline(filter, metaFilter, q, c.metaColl.Client().Name())
+	pl := newPipeline(c.metaColl.Client().Name()).
+		MatchVersion(q).
+		Match(filter).
+		MatchMeta(metaFilter).
+		Build()
 
 	cw := consumer
 	if metaConsumer != nil {
@@ -70,12 +78,25 @@ func (c *Collection[T, MT]) Find(ctx context.Context, filter, metaFilter any, q 
 	return nil
 }
 
-func (c *Collection[T, MT]) Paginate(ctx context.Context, filter, metaFilter any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer, metaConsumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	pl := pipeline(filter, metaFilter, q, c.metaColl.Client().Name())
+func (c *Collection[T, MT]) Paginate(ctx context.Context, filter, metaFilter any, q version.Query, sort, metaSort *usecasex.Sort, p *usecasex.Pagination, consumer, metaConsumer mongox.Consumer) (*usecasex.PageInfo, error) {
+	pl := newPipeline(c.metaColl.Client().Name()).
+		MatchVersion(q).
+		Match(filter).
+		MatchMeta(metaFilter).
+		Build()
 
 	cw := consumer
 	if metaConsumer != nil {
 		cw = newIdExtractorConsumer(consumer)
+	}
+
+	var s *usecasex.Sort
+	if sort != nil {
+		s = sort
+	}
+	if metaSort != nil {
+		s = metaSort
+		s.Key = metaDocId + "." + s.Key
 	}
 
 	info, err := c.dataColl.PaginateAggregation(ctx, pl, s, p, cw)
@@ -92,16 +113,57 @@ func (c *Collection[T, MT]) Paginate(ctx context.Context, filter, metaFilter any
 }
 
 func (c *Collection[T, MT]) Count(ctx context.Context, filter, metaFilter any, q version.Query) (int64, error) {
-	pl := pipeline(filter, metaFilter, q, c.metaColl.Client().Name())
+	pl := newPipeline(c.metaColl.Client().Name()).
+		MatchVersion(q).
+		Match(filter).
+		MatchMeta(metaFilter).
+		Build()
+
 	return c.dataColl.CountAggregation(ctx, pl)
 }
 
-func (c *Collection[T, MT]) PaginateAggregation(ctx context.Context, pipeline []any, q version.Query, s *usecasex.Sort, p *usecasex.Pagination, consumer mongox.Consumer) (*usecasex.PageInfo, error) {
-	return c.dataColl.PaginateAggregation(ctx, applyToPipeline(q, pipeline), s, p, consumer)
+func (c *Collection[T, MT]) PaginateAggregation(ctx context.Context, pipeline, metaPipeline []any, q version.Query, sort, metaSort *usecasex.Sort, p *usecasex.Pagination, consumer, metaConsumer mongox.Consumer) (*usecasex.PageInfo, error) {
+	pl := newPipeline(c.metaColl.Client().Name()).
+		MatchVersion(q).
+		MatchPipeline(pipeline).
+		MatchMetaPipeline(metaPipeline).
+		Build()
+
+	cw := consumer
+	if metaConsumer != nil {
+		cw = newIdExtractorConsumer(consumer)
+	}
+
+	var s *usecasex.Sort
+	if sort != nil {
+		s = sort
+	}
+	if metaSort != nil {
+		s = metaSort
+		s.Key = metaDocId + "." + s.Key
+	}
+
+	info, err := c.dataColl.PaginateAggregation(ctx, pl, s, p, cw)
+	if err != nil {
+		return nil, err
+	}
+
+	if metaConsumer != nil {
+		if err := c.metaColl.Find(ctx, bson.M{idKey: bson.M{"$in": cw.(*idExtractorConsumer).IDs()}}, metaConsumer); err != nil {
+			return nil, err
+		}
+	}
+	return info, nil
 }
 
-func (c *Collection[T, MT]) CountAggregation(ctx context.Context, pipeline []any, q version.Query) (int64, error) {
-	return c.dataColl.CountAggregation(ctx, applyToPipeline(q, pipeline))
+func (c *Collection[T, MT]) CountAggregation(ctx context.Context, pipeline, metaPipeline []any, q version.Query) (int64, error) {
+	pl := newPipeline(c.metaColl.Client().Name()).
+		MatchVersion(q).
+		MatchPipeline(pipeline).
+		MatchMetaPipeline(metaPipeline).
+		Build()
+
+	return c.dataColl.CountAggregation(ctx, pl)
 }
 
 func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent *version.VersionOrRef) error {
@@ -123,19 +185,19 @@ func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent 
 	parentVr := lo.FromPtrOr(parent, version.Latest.OrVersion())
 	parentVr.Match(nil, func(r version.Ref) { doc.Refs = []version.Ref{r} })
 
-	parentMeta, err := c.meta(ctx, id, parentVr.Ref())
+	parentDoc, err := c.data(ctx, id, parentVr.Ref())
 	if err != nil {
 		return err
 	}
-	if parentMeta == nil && !parentVr.IsRef(version.Latest) {
+	if parentDoc == nil && !parentVr.IsRef(version.Latest) {
 		return rerror.ErrNotFound
 	}
-	if parentMeta != nil {
-		doc.Parents = []version.Version{parentMeta.Version}
+	if parentDoc != nil {
+		doc.Parents = []version.Version{parentDoc.Version}
 	}
 
 	if err := version.MatchVersionOrRef(parentVr, nil, func(r version.Ref) error {
-		return c.UpdateRef(ctx, id, r, nil)
+		return c.ClearRef(ctx, id, r)
 	}); err != nil {
 		return err
 	}
@@ -183,7 +245,18 @@ func (c *Collection[T, MT]) SaveOneMeta(ctx context.Context, id string, d MT) er
 	return nil
 }
 
-func (c *Collection[T, MT]) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
+func (c *Collection[T, MT]) SetRef(ctx context.Context, id string, dest *version.VersionOrRef, ref version.Ref) error {
+	if _, err := c.dataColl.Client().UpdateOne(ctx, apply(version.Eq(*dest), bson.M{
+		idKey: id,
+	}), bson.M{
+		"$push": bson.M{refsKey: ref},
+	}); err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func (c *Collection[T, MT]) ClearRef(ctx context.Context, id string, ref version.Ref) error {
 	if _, err := c.dataColl.Client().UpdateMany(ctx, bson.M{
 		idKey:   id,
 		refsKey: bson.M{"$in": []string{ref.String()}},
@@ -192,14 +265,17 @@ func (c *Collection[T, MT]) UpdateRef(ctx context.Context, id string, ref versio
 	}); err != nil {
 		return rerror.ErrInternalBy(err)
 	}
+	return nil
+}
+
+func (c *Collection[T, MT]) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
+	if err := c.ClearRef(ctx, id, ref); err != nil {
+		return err
+	}
 
 	if dest != nil {
-		if _, err := c.dataColl.Client().UpdateOne(ctx, apply(version.Eq(*dest), bson.M{
-			idKey: id,
-		}), bson.M{
-			"$push": bson.M{refsKey: ref},
-		}); err != nil {
-			return rerror.ErrInternalBy(err)
+		if err := c.SetRef(ctx, id, dest, ref); err != nil {
+			return err
 		}
 	}
 
@@ -279,7 +355,7 @@ func (c *Collection[T, MT]) Indexes() []mongox.Index {
 	}
 }
 
-func (c *Collection[T, MT]) meta(ctx context.Context, id string, v *version.VersionOrRef) (*Document[T], error) {
+func (c *Collection[T, MT]) data(ctx context.Context, id string, v *version.VersionOrRef) (*Document[T], error) {
 	consumer := mongox.SliceConsumer[Document[T]]{}
 	q := apply(version.Eq(lo.FromPtrOr(v, version.Latest.OrVersion())), bson.M{
 		idKey: id,

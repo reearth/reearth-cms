@@ -45,149 +45,192 @@ func (m MetaData) IDString() string {
 func TestCollection_FindOne(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection[Data, MetaData](t)
-	c := col.DataClient().Client()
-	mc := col.MetaDataClient().Client()
-	vx := version.New()
-
-	_, err := c.InsertMany(ctx, []any{
-		&Document[Data]{ID: "xxx", Version: vx, Refs: []version.Ref{"latest", "aaa"}, Data: Data{A: "b"}},
-		&Document[Data]{ID: "yyy", Version: version.New(), Refs: []version.Ref{"latest", "aaa"}, Data: Data{A: "c"}},
-	})
-	assert.NoError(t, err)
-
-	_, err = mc.InsertMany(ctx, []any{
-		&MetadataDocument[MetaData]{ID: "xxx", Archived: false, Metadata: MetaData{C: "mb"}},
-		&MetadataDocument[MetaData]{ID: "yyy", Archived: true, Metadata: MetaData{C: "mc"}},
-	})
-	assert.NoError(t, err)
+	vx1, _, _, _ := seed(t, col, ctx)
 
 	// latest
 	consumer, metaConsumer := &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
-	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, nil, version.Eq(version.Latest.OrVersion()), consumer, metaConsumer))
-	assert.Equal(t, Data{A: "b"}, consumer.Result[0])
-	assert.Equal(t, MetaData{C: "mb"}, metaConsumer.Result[0])
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "xa"}, nil, version.Eq(version.Latest.OrVersion()), consumer, metaConsumer))
+	assert.Equal(t, Data{ID: "xxx", A: "xa", B: "xb"}, consumer.Result[0])
+	assert.Equal(t, MetaData{ID: "xxx", C: "mx"}, metaConsumer.Result[0])
 
 	// version
-	consumer2, metaConsumer2 := &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
-	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, nil, version.Eq(vx.OrRef()), consumer2, metaConsumer2))
-	assert.Equal(t, Data{A: "b"}, consumer2.Result[0])
+	consumer, metaConsumer = &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "xa"}, nil, version.Eq(vx1.OrRef()), consumer, metaConsumer))
+	assert.Equal(t, Data{ID: "xxx", A: "xa"}, consumer.Result[0])
 
 	// ref
-	consumer3, metaConsumer3 := &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
-	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "b"}, nil, version.Eq(version.Ref("aaa").OrVersion()), consumer3, metaConsumer3))
-	assert.Equal(t, Data{A: "b"}, consumer3.Result[0])
+	consumer, metaConsumer = &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
+	assert.NoError(t, col.FindOne(ctx, bson.M{"a": "xa"}, nil, version.Eq(version.Ref("aaa").OrVersion()), consumer, metaConsumer))
+	assert.Equal(t, Data{ID: "xxx", A: "xa", B: "xb"}, consumer.Result[0])
 
 	// meta filter
-	consumer4, metaConsumer4 := &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
-	assert.NoError(t, col.FindOne(ctx, nil, bson.M{"c": "mb"}, version.Eq(version.Latest.OrVersion()), consumer4, metaConsumer4))
-	assert.Equal(t, Data{A: "b"}, consumer4.Result[0])
+	consumer, metaConsumer = &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
+	assert.NoError(t, col.FindOne(ctx, nil, bson.M{"c": "mx"}, version.Eq(version.Latest.OrVersion()), consumer, metaConsumer))
+	assert.Equal(t, Data{ID: "xxx", A: "xa", B: "xb"}, consumer.Result[0])
 
 	// not found
-	consumer5, metaConsumer5 := &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
-	assert.Equal(t, rerror.ErrNotFound, col.FindOne(ctx, bson.M{"a": "b"}, nil, version.Eq(version.Ref("x").OrVersion()), consumer5, metaConsumer5))
-	assert.Empty(t, consumer5.Result)
+	consumer, metaConsumer = &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
+	assert.Equal(t, rerror.ErrNotFound, col.FindOne(ctx, bson.M{"a": "c"}, nil, version.Eq(version.Ref("x").OrVersion()), consumer, metaConsumer))
+	assert.Empty(t, consumer.Result)
 
 	// archived
-	consumer6, metaConsumer6 := &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
-	assert.Equal(t, rerror.ErrNotFound, col.FindOne(ctx, bson.M{idKey: "yyy"}, nil, version.Eq(version.Latest.OrVersion()), consumer6, metaConsumer6))
-	assert.Empty(t, consumer6.Result)
+	consumer, metaConsumer = &mongox.SliceConsumer[Data]{}, &mongox.SliceConsumer[MetaData]{}
+	assert.Equal(t, rerror.ErrNotFound, col.FindOne(ctx, bson.M{idKey: "zzz"}, nil, version.Eq(version.Latest.OrVersion()), consumer, metaConsumer))
+	assert.Empty(t, consumer.Result)
 }
 
 func TestCollection_Find(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection[Data, MetaData](t)
-	c := col.DataClient().Client()
-	mc := col.MetaDataClient().Client()
-	vx, vy := version.New(), version.New()
-
-	_, err := c.InsertMany(ctx, []any{
-		&Document[Data]{ID: "xxx", Data: Data{A: "b"}, Version: vx},
-		&Document[Data]{ID: "yyy", Data: Data{A: "b", B: "c"}, Version: vy, Parents: []version.Version{vx}, Refs: []version.Ref{"latest", "aaa"}},
-		&Document[Data]{ID: "zzz", Data: Data{A: "d", B: "a"}, Version: vy, Refs: []version.Ref{"latest"}},
-	})
-	assert.NoError(t, err)
-
-	_, err = mc.InsertMany(ctx, []any{
-		&MetadataDocument[MetaData]{ID: "xxx", Archived: false, Metadata: MetaData{C: "mb"}},
-		&MetadataDocument[MetaData]{ID: "yyy", Archived: false, Metadata: MetaData{C: "mc"}},
-		&MetadataDocument[MetaData]{ID: "zzz", Archived: false, Metadata: MetaData{C: "mc"}},
-	})
-	assert.NoError(t, err)
+	vx1, vx2, vy, _ := seed(t, col, ctx)
 
 	// all
 	consumer0 := &mongox.SliceConsumer[Document[Data]]{}
-	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, nil, version.All(), consumer0, nil))
+	assert.NoError(t, col.Find(ctx, nil, nil, version.All(), consumer0, nil))
 	assert.Equal(t, []Document[Data]{
 		{
 			ID:       "xxx",
-			Data:     Data{A: "b"},
+			Data:     Data{ID: "xxx", A: "xa"},
 			ObjectID: consumer0.Result[0].ObjectID,
-			Version:  vx,
+			Version:  vx1,
+		},
+		{
+			ID:       "xxx",
+			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
+			ObjectID: consumer0.Result[1].ObjectID,
+			Version:  vx2,
+			Parents:  []version.Version{vx1},
+			Refs:     []version.Ref{"latest", "aaa"},
 		},
 		{
 			ID:       "yyy",
-			Data:     Data{A: "b", B: "c"},
-			ObjectID: consumer0.Result[1].ObjectID,
+			Data:     Data{ID: "yyy", A: "ya", B: "yb"},
+			ObjectID: consumer0.Result[2].ObjectID,
 			Version:  vy,
-			Parents:  []version.Version{vx},
+			Refs:     []version.Ref{"latest", "aaa"},
+		},
+	}, consumer0.Result)
+
+	// filter
+	consumer0 = &mongox.SliceConsumer[Document[Data]]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "xa"}, nil, version.All(), consumer0, nil))
+	assert.Equal(t, []Document[Data]{
+		{
+			ID:       "xxx",
+			Data:     Data{ID: "xxx", A: "xa"},
+			ObjectID: consumer0.Result[0].ObjectID,
+			Version:  vx1,
+		},
+		{
+			ID:       "xxx",
+			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
+			ObjectID: consumer0.Result[1].ObjectID,
+			Version:  vx2,
+			Parents:  []version.Version{vx1},
+			Refs:     []version.Ref{"latest", "aaa"},
+		},
+	}, consumer0.Result)
+
+	// meta filter
+	consumer0 = &mongox.SliceConsumer[Document[Data]]{}
+	assert.NoError(t, col.Find(ctx, nil, bson.M{"c": "mx"}, version.All(), consumer0, nil))
+	assert.Equal(t, []Document[Data]{
+		{
+			ID:       "xxx",
+			Data:     Data{ID: "xxx", A: "xa"},
+			ObjectID: consumer0.Result[0].ObjectID,
+			Version:  vx1,
+		},
+		{
+			ID:       "xxx",
+			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
+			ObjectID: consumer0.Result[1].ObjectID,
+			Version:  vx2,
+			Parents:  []version.Version{vx1},
 			Refs:     []version.Ref{"latest", "aaa"},
 		},
 	}, consumer0.Result)
 
 	// latest
-	consumer1 := &mongox.SliceConsumer[Data]{}
-	assert.NoError(t, col.Find(ctx, bson.M{}, nil, version.Eq(version.Latest.OrVersion()), consumer1, nil))
-	assert.Equal(t, []Data{{A: "b", B: "c"}, {A: "d", B: "a"}}, consumer1.Result)
+	consumer0 = &mongox.SliceConsumer[Document[Data]]{}
+	assert.NoError(t, col.Find(ctx, nil, nil, version.Eq(version.Latest.OrVersion()), consumer0, nil))
+	assert.Equal(t, []Document[Data]{
+		{
+			ID:       "xxx",
+			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
+			ObjectID: consumer0.Result[0].ObjectID,
+			Version:  vx2,
+			Parents:  []version.Version{vx1},
+			Refs:     []version.Ref{"latest", "aaa"},
+		},
+		{
+			ID:       "yyy",
+			Data:     Data{ID: "yyy", A: "ya", B: "yb"},
+			ObjectID: consumer0.Result[1].ObjectID,
+			Version:  vy,
+			Refs:     []version.Ref{"latest", "aaa"},
+		},
+	}, consumer0.Result)
 
 	// version
-	consumer2 := &mongox.SliceConsumer[Data]{}
-	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, nil, version.Eq(vx.OrRef()), consumer2, nil))
-	assert.Equal(t, []Data{{A: "b"}}, consumer2.Result)
+	consumer0 = &mongox.SliceConsumer[Document[Data]]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "xa"}, nil, version.Eq(vx1.OrRef()), consumer0, nil))
+	assert.Equal(t, []Document[Data]{
+		{
+			ID:       "xxx",
+			Data:     Data{ID: "xxx", A: "xa"},
+			ObjectID: consumer0.Result[0].ObjectID,
+			Version:  vx1,
+		},
+	}, consumer0.Result)
 
 	// ref
-	consumer3 := &mongox.SliceConsumer[Data]{}
-	assert.NoError(t, col.Find(ctx, bson.M{"a": "b"}, nil, version.Eq(version.Ref("aaa").OrVersion()), consumer3, nil))
-	assert.Equal(t, []Data{{A: "b", B: "c"}}, consumer3.Result)
+	consumer0 = &mongox.SliceConsumer[Document[Data]]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "xa"}, nil, version.Eq(version.Ref("aaa").OrVersion()), consumer0, nil))
+	assert.Equal(t, []Document[Data]{
+		{
+			ID:       "xxx",
+			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
+			ObjectID: consumer0.Result[0].ObjectID,
+			Version:  vx2,
+			Parents:  []version.Version{vx1},
+			Refs:     []version.Ref{"latest", "aaa"},
+		},
+	}, consumer0.Result)
+
+	// archived
+	consumer0 = &mongox.SliceConsumer[Document[Data]]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "za"}, nil, version.Eq(version.Latest.OrVersion()), consumer0, nil))
+	assert.Empty(t, consumer0.Result)
 
 	// not found
-	consumer4 := &mongox.SliceConsumer[Data]{}
-	assert.NoError(t, col.Find(ctx, bson.M{"a": "c"}, nil, version.Eq(version.Latest.OrVersion()), consumer4, nil))
-	assert.Empty(t, consumer4.Result)
+	consumer0 = &mongox.SliceConsumer[Document[Data]]{}
+	assert.NoError(t, col.Find(ctx, bson.M{"a": "c"}, nil, version.Eq(version.Latest.OrVersion()), consumer0, nil))
+	assert.Empty(t, consumer0.Result)
 }
 
 func TestCollection_Count(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection[Data, MetaData](t)
-	c := col.DataClient().Client()
-	mc := col.MetaDataClient().Client()
-	vx, vy := version.New(), version.New()
-
-	_, err := c.InsertMany(ctx, []any{
-		&Document[Data]{ID: "xxx", Data: Data{A: "b"}, Version: vx},
-		&Document[Data]{ID: "yyy", Data: Data{A: "b", B: "c"}, Version: vy, Parents: []version.Version{vx}, Refs: []version.Ref{"latest", "aaa"}},
-		&Document[Data]{ID: "zzz", Data: Data{A: "d", B: "a"}, Version: vy, Refs: []version.Ref{"latest"}},
-	})
-	assert.NoError(t, err)
-
-	_, err = mc.InsertMany(ctx, []any{
-		&MetadataDocument[MetaData]{ID: "xxx", Archived: false, Metadata: MetaData{C: "mb"}},
-		&MetadataDocument[MetaData]{ID: "yyy", Archived: false, Metadata: MetaData{C: "mc"}},
-		&MetadataDocument[MetaData]{ID: "zzz", Archived: false, Metadata: MetaData{C: "mc"}},
-	})
-	assert.NoError(t, err)
+	vx1, _, _, _ := seed(t, col, ctx)
 
 	// all
-	count, err := col.Count(ctx, bson.M{"a": "b"}, nil, version.All())
+	count, err := col.Count(ctx, nil, nil, version.All())
 	assert.NoError(t, err)
-	assert.Equal(t, int64(2), count)
+	assert.Equal(t, int64(3), count)
 
 	// version
-	count, err = col.Count(ctx, bson.M{"a": "b"}, nil, version.Eq(vx.OrRef()))
+	count, err = col.Count(ctx, bson.M{"a": "xa"}, nil, version.Eq(vx1.OrRef()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), count)
+
+	// meta filter
+	count, err = col.Count(ctx, nil, bson.M{"c": "mx"}, version.Eq(version.Latest.OrVersion()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 
 	// ref
-	count, err = col.Count(ctx, bson.M{"a": "b"}, nil, version.Eq(version.Latest.OrVersion()))
+	count, err = col.Count(ctx, bson.M{"a": "xa"}, nil, version.Eq(version.Latest.OrVersion()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 
@@ -195,57 +238,50 @@ func TestCollection_Count(t *testing.T) {
 	count, err = col.Count(ctx, bson.M{"a": "c"}, nil, version.Eq(version.Latest.OrVersion()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), count)
+
+	// archived
+	count, err = col.Count(ctx, bson.M{idKey: "zzz"}, nil, version.Eq(version.Latest.OrVersion()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), count)
 }
 
 func TestCollection_CountAggregation(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection[Data, MetaData](t)
-	c := col.DataClient().Client()
-	vx, vy := version.New(), version.New()
-
-	_, _ = c.InsertMany(ctx, []any{
-		&Document[Data]{
-			Data: Data{
-				A: "b",
-			},
-			Version: vx,
-		},
-		&Document[Data]{
-			Data: Data{
-				A: "b",
-				B: "c",
-			},
-			Version: vy,
-			Parents: []version.Version{vx},
-			Refs:    []version.Ref{"latest", "aaa"},
-		},
-		&Document[Data]{
-			Data: Data{
-				A: "d",
-				B: "a",
-			},
-			Version: vy,
-			Refs:    []version.Ref{"latest"},
-		},
-	})
+	vx1, _, _, _ := seed(t, col, ctx)
 
 	// all
-	count, err := col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "b"}}}, version.All())
+	count, err := col.CountAggregation(ctx, []any{}, nil, version.All())
+	assert.NoError(t, err)
+	assert.Equal(t, int64(3), count)
+
+	// filter
+	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "xa"}}}, nil, version.All())
+	assert.NoError(t, err)
+	assert.Equal(t, int64(2), count)
+
+	// meta filter
+	count, err = col.CountAggregation(ctx, nil, []any{bson.M{"$match": bson.M{"c": "mx"}}}, version.All())
 	assert.NoError(t, err)
 	assert.Equal(t, int64(2), count)
 
 	// version
-	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "b"}}}, version.Eq(vx.OrRef()))
+	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "xa"}}}, nil, version.Eq(vx1.OrRef()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 
 	// ref
-	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "b"}}}, version.Eq(version.Latest.OrVersion()))
+	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "xa"}}}, nil, version.Eq(version.Latest.OrVersion()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 
 	// not found
-	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "c"}}}, version.Eq(version.Latest.OrVersion()))
+	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{"a": "c"}}}, nil, version.Eq(version.Latest.OrVersion()))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), count)
+
+	// archived
+	count, err = col.CountAggregation(ctx, []any{bson.M{"$match": bson.M{idKey: "zzz"}}}, nil, version.Eq(version.Latest.OrVersion()))
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), count)
 }
@@ -253,83 +289,45 @@ func TestCollection_CountAggregation(t *testing.T) {
 func TestCollection_Paginate(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection[Data, MetaData](t)
-	c := col.DataClient().Client()
-	mc := col.MetaDataClient().Client()
-	vx, vy := version.New(), version.New()
-
-	_, err := c.InsertMany(ctx, []any{
-		&Document[Data]{ID: "xxx", Data: Data{ID: "a", A: "a"}, Version: vx},
-		&Document[Data]{ID: "yyy", Data: Data{ID: "a", A: "b"}, Version: vy, Parents: []version.Version{vx}, Refs: []version.Ref{"latest", "aaa"}},
-		&Document[Data]{ID: "zzz", Data: Data{ID: "b", A: "a"}, Version: vy, Refs: []version.Ref{"latest"}},
-	})
-	assert.NoError(t, err)
-
-	_, err = mc.InsertMany(ctx, []any{
-		&MetadataDocument[MetaData]{ID: "xxx", Archived: false, Metadata: MetaData{C: "mb"}},
-		&MetadataDocument[MetaData]{ID: "yyy", Archived: false, Metadata: MetaData{C: "mc"}},
-		&MetadataDocument[MetaData]{ID: "zzz", Archived: false, Metadata: MetaData{C: "mc"}},
-	})
-	assert.NoError(t, err)
+	_, _, _, _ = seed(t, col, ctx)
 
 	consumer := &mongox.SliceConsumer[Data]{}
 	pi, err := col.Paginate(
 		ctx,
-		bson.M{}, nil,
+		bson.M{},
+		nil,
 		version.Eq(version.Latest.OrVersion()),
 		nil,
+		nil,
 		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
-		consumer, nil,
+		consumer,
+		nil,
 	)
 	assert.NoError(t, err)
-	assert.Equal(t, usecasex.NewPageInfo(2, usecasex.Cursor("a").Ref(), usecasex.Cursor("b").Ref(), false, false), pi)
-	assert.Equal(t, []Data{{ID: "a", A: "b"}, {ID: "b", A: "a"}}, consumer.Result)
+	assert.Equal(t, usecasex.NewPageInfo(2, usecasex.Cursor("xxx").Ref(), usecasex.Cursor("yyy").Ref(), false, false), pi)
+	assert.Equal(t, []Data{{ID: "xxx", A: "xa", B: "xb"}, {ID: "yyy", A: "ya", B: "yb"}}, consumer.Result)
 }
 
 func TestCollection_PaginateAggregation(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection[Data, MetaData](t)
-	c := col.DataClient().Client()
-	vx, vy := version.New(), version.New()
-
-	_, _ = c.InsertMany(ctx, []any{
-		&Document[Data]{
-			Data: Data{
-				ID: "a",
-				A:  "a",
-			},
-			Version: vx,
-		},
-		&Document[Data]{
-			Data: Data{
-				ID: "a",
-				A:  "b",
-			},
-			Version: vy,
-			Parents: []version.Version{vx},
-			Refs:    []version.Ref{"latest", "aaa"},
-		},
-		&Document[Data]{
-			Data: Data{
-				ID: "b",
-				A:  "a",
-			},
-			Version: vy,
-			Refs:    []version.Ref{"latest"},
-		},
-	})
+	_, _, _, _ = seed(t, col, ctx)
 
 	consumer := &mongox.SliceConsumer[Data]{}
 	pi, err := col.PaginateAggregation(
 		ctx,
 		[]any{},
+		nil,
 		version.Eq(version.Latest.OrVersion()),
+		nil,
 		nil,
 		usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
 		consumer,
+		nil,
 	)
 	assert.NoError(t, err)
-	assert.Equal(t, usecasex.NewPageInfo(2, usecasex.Cursor("a").Ref(), usecasex.Cursor("b").Ref(), false, false), pi)
-	assert.Equal(t, []Data{{ID: "a", A: "b"}, {ID: "b", A: "a"}}, consumer.Result)
+	assert.Equal(t, usecasex.NewPageInfo(2, usecasex.Cursor("xxx").Ref(), usecasex.Cursor("yyy").Ref(), false, false), pi)
+	assert.Equal(t, []Data{{ID: "xxx", A: "xa", B: "xb"}, {ID: "yyy", A: "ya", B: "yb"}}, consumer.Result)
 }
 
 func TestCollection_Timestamp(t *testing.T) {
@@ -660,7 +658,7 @@ func TestCollection_Meta(t *testing.T) {
 		Document[Data]{ID: "x", Version: v2, Parents: []version.Version{v1}, Refs: []version.Ref{version.Latest}},
 	})
 
-	got, err := col.meta(ctx, "x", v1.OrRef().Ref())
+	got, err := col.data(ctx, "x", v1.OrRef().Ref())
 	assert.NoError(t, err)
 	assert.Equal(t, &Document[Data]{
 		ID:       "x",
@@ -668,7 +666,7 @@ func TestCollection_Meta(t *testing.T) {
 		Version:  v1,
 	}, got)
 
-	got, err = col.meta(ctx, "x", version.Latest.OrVersion().Ref())
+	got, err = col.data(ctx, "x", version.Latest.OrVersion().Ref())
 	assert.NoError(t, err)
 	assert.Equal(t, &Document[Data]{
 		ID:       "x",
@@ -679,15 +677,15 @@ func TestCollection_Meta(t *testing.T) {
 	}, got)
 	assert.Equal(t, got.ObjectID.Timestamp(), got.Timestamp())
 
-	got, err = col.meta(ctx, "x", v3.OrRef().Ref())
+	got, err = col.data(ctx, "x", v3.OrRef().Ref())
 	assert.Same(t, rerror.ErrNotFound, err)
 	assert.Nil(t, got)
 
-	got, err = col.meta(ctx, "x", version.Ref("a").OrVersion().Ref())
+	got, err = col.data(ctx, "x", version.Ref("a").OrVersion().Ref())
 	assert.Same(t, rerror.ErrNotFound, err)
 	assert.Nil(t, got)
 
-	got, err = col.meta(ctx, "y", version.Latest.OrVersion().Ref())
+	got, err = col.data(ctx, "y", version.Latest.OrVersion().Ref())
 	assert.NoError(t, err)
 	assert.Nil(t, got)
 }
@@ -698,4 +696,26 @@ func initCollection[T, MT Identifiable](t *testing.T) *Collection[T, MT] {
 	client := mongox.NewClientWithDatabase(c)
 	name := "test_" + uuid.NewString()
 	return New[T, MT](client.Collection(name), client.Collection(name+"_meta"))
+}
+
+func seed(t *testing.T, col *Collection[Data, MetaData], ctx context.Context) (version.Version, version.Version, version.Version, version.Version) {
+	c := col.DataClient().Client()
+	mc := col.MetaDataClient().Client()
+	vx1, vx2, vy, vz := version.New(), version.New(), version.New(), version.New()
+
+	_, err := c.InsertMany(ctx, []any{
+		&Document[Data]{ID: "xxx", Data: Data{ID: "xxx", A: "xa"}, Version: vx1},
+		&Document[Data]{ID: "xxx", Data: Data{ID: "xxx", A: "xa", B: "xb"}, Version: vx2, Refs: []version.Ref{"latest", "aaa"}, Parents: []version.Version{vx1}},
+		&Document[Data]{ID: "yyy", Data: Data{ID: "yyy", A: "ya", B: "yb"}, Version: vy, Refs: []version.Ref{"latest", "aaa"}},
+		&Document[Data]{ID: "zzz", Data: Data{ID: "zzz", A: "za", B: "zb"}, Version: vz, Refs: []version.Ref{"latest"}},
+	})
+	assert.NoError(t, err)
+
+	_, err = mc.InsertMany(ctx, []any{
+		&MetadataDocument[MetaData]{ID: "xxx", Archived: false, Metadata: MetaData{ID: "xxx", C: "mx"}},
+		&MetadataDocument[MetaData]{ID: "yyy", Archived: false, Metadata: MetaData{ID: "yyy", C: "my"}},
+		&MetadataDocument[MetaData]{ID: "zzz", Archived: true, Metadata: MetaData{ID: "zzz", C: "mz"}},
+	})
+	assert.NoError(t, err)
+	return vx1, vx2, vy, vz
 }

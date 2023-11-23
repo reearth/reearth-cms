@@ -5,6 +5,7 @@ import (
 )
 
 const (
+	metaDocId    = "__"
 	archivedKey  = "__a"
 	createdAtKey = "__c"
 	updatedUtKey = "__u"
