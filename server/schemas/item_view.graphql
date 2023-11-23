@@ -5,11 +5,20 @@ type View implements Node {
   projectId: ID!
   sort: ItemSort
   filter: Condition
-  columns: [FieldSelector!]
+  columns: [Column!]
 }
 
+type Column {
+  field: FieldSelector!
+  visible: Boolean!
+}
 
 # inputs
+
+input ColumnSelectionInput{
+  field: FieldSelectorInput!
+  visible: Boolean!
+}
 
 input CreateViewInput {
   name: String!
@@ -17,7 +26,7 @@ input CreateViewInput {
   projectId: ID!
   sort: ItemSortInput
   filter: ConditionInput
-  columns: [FieldSelectorInput!]
+  columns: [ColumnSelectionInput!]
 }
 
 input UpdateViewInput {
@@ -25,7 +34,7 @@ input UpdateViewInput {
   name: String
   sort: ItemSortInput
   filter: ConditionInput
-  columns: [FieldSelectorInput!]
+  columns: [ColumnSelectionInput!]
 }
 
 input DeleteViewInput {
