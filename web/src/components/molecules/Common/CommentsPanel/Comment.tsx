@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
@@ -93,7 +95,9 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
           <Form.Item hidden={!showEditor}>
             <TextArea onChange={handleChange} value={value} rows={4} maxLength={1000} showCount />
           </Form.Item>
-          <div hidden={showEditor}>{comment.content}</div>
+          <div hidden={showEditor}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment.content}</ReactMarkdown>
+          </div>
         </>
       }
       datetime={
