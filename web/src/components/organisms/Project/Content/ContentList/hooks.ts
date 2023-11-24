@@ -20,10 +20,9 @@ import {
   useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
-import { renderTags, renderMultiple } from "./renderFields";
+import { renderTags, renderField } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
@@ -164,8 +163,6 @@ export default () => {
                             )
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
-                        : field.type === "Date" && field.value
-                        ? dateTimeFormat(field.value)
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -180,14 +177,11 @@ export default () => {
               metadata: item?.metadata?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
-                    [field.schemaFieldId]:
-                      field.type === "Date" && field.value
-                        ? dateTimeFormat(field.value)
-                        : Array.isArray(field.value)
-                        ? field.value.join(", ")
-                        : field.value
-                        ? "" + field.value
-                        : field.value,
+                    [field.schemaFieldId]: Array.isArray(field.value)
+                      ? field.value.join(", ")
+                      : field.value
+                      ? "" + field.value
+                      : field.value,
                   }),
                 {},
               ),
@@ -219,10 +213,8 @@ export default () => {
               ? ("ascend" as const)
               : ("descend" as const)
             : null,
+        render: (el: any) => renderField(el, field),
       };
-      if (field.multiple) {
-        Object.assign(result, { render: (el: any) => renderMultiple(el, field) });
-      }
       return result;
     });
 
