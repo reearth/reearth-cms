@@ -4,6 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Popover from "@reearth-cms/components/atoms/Popover";
+import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -36,7 +37,13 @@ export const renderField = (el: any, field: any) => {
       case "Date":
         return dateTimeFormat(item);
       case "Bool":
-        return item.charAt(0).toUpperCase() + item.slice(1);
+        return (
+          <Switch
+            checkedChildren={<Icon icon={"check"} />}
+            unCheckedChildren={<Icon icon={"close"} />}
+            checked={item === "true"}
+          />
+        );
       case "Asset":
         return (
           <AssetValue>
