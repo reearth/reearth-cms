@@ -193,11 +193,33 @@ export default () => {
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
-    const fieldsColumns = currentModel?.schema?.fields?.map(field => {
-      const result = {
+    const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
+      title: field.title,
+      dataIndex: ["fields", field.id],
+      fieldType: "FIELD",
+      key: field.id,
+      ellipsis: true,
+      type: field.type,
+      typeProperty: field.typeProperty,
+      width: 128,
+      minWidth: 128,
+      multiple: field.multiple,
+      required: field.required,
+      sorter: true,
+      sortOrder:
+        currentView.sort?.field.id === field.id
+          ? currentView.sort?.direction === "ASC"
+            ? ("ascend" as const)
+            : ("descend" as const)
+          : null,
+      render: (el: any) => renderField(el, field),
+    }));
+
+    const metadataColumns =
+      currentModel?.metadataSchema?.fields?.map(field => ({
         title: field.title,
-        dataIndex: ["fields", field.id],
-        fieldType: "FIELD",
+        dataIndex: ["metadata", field.id],
+        fieldType: "META_FIELD",
         key: field.id,
         ellipsis: true,
         type: field.type,
@@ -214,35 +236,7 @@ export default () => {
               : ("descend" as const)
             : null,
         render: (el: any) => renderField(el, field),
-      };
-      return result;
-    });
-
-    const metadataColumns =
-      currentModel?.metadataSchema?.fields?.map(field => {
-        const result = {
-          title: field.title,
-          dataIndex: ["metadata", field.id],
-          fieldType: "META_FIELD",
-          key: field.id,
-          ellipsis: true,
-          type: field.type,
-          typeProperty: field.typeProperty,
-          width: 128,
-          minWidth: 128,
-          multiple: field.multiple,
-          required: field.required,
-          sorter: true,
-          sortOrder:
-            currentView.sort?.field.id === field.id
-              ? currentView.sort?.direction === "ASC"
-                ? ("ascend" as const)
-                : ("descend" as const)
-              : null,
-          render: (el: any) => renderField(el, field),
-        };
-        return result;
-      }) || [];
+      })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
   }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id]);
