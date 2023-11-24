@@ -8,7 +8,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/workspace_settings"
+	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 )
 
@@ -24,14 +24,14 @@ func NewWorkspaceSettings(r *repo.Container, g *gateway.Container) interfaces.Wo
 	}
 }
 
-func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.WorkspaceID, op *usecase.Operator) (result *workspace_settings.WorkspaceSettings, err error) {
+func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.WorkspaceID, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
 	return ws.repos.WorkspaceSettings.FindByWorkspace(ctx, wid)
 }
 
-func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspace_settings.WorkspaceSettings, err error) {
+func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
 	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
-		func(ctx context.Context) (_ *workspace_settings.WorkspaceSettings, err error) {
-			wsb := workspace_settings.New().
+		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
+			wsb := workspacesettings.New().
 				NewID().
 				Workspace(inp.WorkspaceID)
 
@@ -47,13 +47,13 @@ func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWo
 		})
 }
 
-func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspace_settings.WorkspaceSettings, err error) {
+func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
 	work, err := ws.repos.WorkspaceSettings.FindByWorkspace(ctx, inp.WorkspaceID)
 	if err != nil {
 		return nil, err
 	}
 	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
-		func(ctx context.Context) (_ *workspace_settings.WorkspaceSettings, err error) {
+		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
 			if inp.Avatar != nil {
 				work.UpdateAvatar(inp.Avatar)
 			}

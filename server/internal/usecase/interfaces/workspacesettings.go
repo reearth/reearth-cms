@@ -5,7 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/workspace_settings"
+	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 )
 
@@ -17,8 +17,8 @@ type UpdateWorkspaceSettingsParam struct {
 	ID          id.WorkspaceSettingsID
 	WorkspaceID accountdomain.WorkspaceID
 	Avatar      *string
-	Tiles       *workspace_settings.WorkspaceResources
-	Terrains    *workspace_settings.WorkspaceResources
+	Tiles       *workspacesettings.WorkspaceResources
+	Terrains    *workspacesettings.WorkspaceResources
 }
 
 type DeleteWorkspaceSettingsParam struct {
@@ -27,8 +27,8 @@ type DeleteWorkspaceSettingsParam struct {
 }
 
 type WorkspaceSettings interface {
-	Fetch(context.Context, accountdomain.WorkspaceID, *usecase.Operator) (*workspace_settings.WorkspaceSettings, error)
-	Create(context.Context, CreateWorkspaceSettingsParam, *usecase.Operator) (*workspace_settings.WorkspaceSettings, error)
-	Update(context.Context, UpdateWorkspaceSettingsParam, *usecase.Operator) (*workspace_settings.WorkspaceSettings, error)
+	Fetch(context.Context, accountdomain.WorkspaceID, *usecase.Operator) (*workspacesettings.WorkspaceSettings, error)
+	Create(context.Context, CreateWorkspaceSettingsParam, *usecase.Operator) (*workspacesettings.WorkspaceSettings, error)
+	Update(context.Context, UpdateWorkspaceSettingsParam, *usecase.Operator) (*workspacesettings.WorkspaceSettings, error)
 	Delete(context.Context, DeleteWorkspaceSettingsParam, *usecase.Operator) (id.WorkspaceSettingsID, error)
 }

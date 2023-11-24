@@ -1,4 +1,4 @@
-package workspace_settings
+package workspacesettings
 
 import "github.com/reearth/reearthx/account/accountdomain"
 

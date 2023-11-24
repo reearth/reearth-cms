@@ -2,7 +2,7 @@ package mongodoc
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/workspace_settings"
+	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/samber/lo"
@@ -29,13 +29,13 @@ type ResourceDocument struct {
 	Image string
 }
 
-type WorkspaceSettingsConsumer = mongox.SliceFuncConsumer[*WorkspaceSettingsDocument, *workspace_settings.WorkspaceSettings]
+type WorkspaceSettingsConsumer = mongox.SliceFuncConsumer[*WorkspaceSettingsDocument, *workspacesettings.WorkspaceSettings]
 
 func NewWorkspaceSettingsConsumer() *WorkspaceSettingsConsumer {
-	return NewConsumer[*WorkspaceSettingsDocument, *workspace_settings.WorkspaceSettings]()
+	return NewConsumer[*WorkspaceSettingsDocument, *workspacesettings.WorkspaceSettings]()
 }
 
-func NewWorkspaceSettings(ws *workspace_settings.WorkspaceSettings) (*WorkspaceSettingsDocument, string) {
+func NewWorkspaceSettings(ws *workspacesettings.WorkspaceSettings) (*WorkspaceSettingsDocument, string) {
 	wsid := ws.ID().String()
 	return &WorkspaceSettingsDocument{
 		ID:          wsid,
@@ -44,7 +44,7 @@ func NewWorkspaceSettings(ws *workspace_settings.WorkspaceSettings) (*WorkspaceS
 	}, wsid
 }
 
-func (wsd *WorkspaceSettingsDocument) Model() (*workspace_settings.WorkspaceSettings, error) {
+func (wsd *WorkspaceSettingsDocument) Model() (*workspacesettings.WorkspaceSettings, error) {
 	wsid, err := id.WorkspaceSettingsIDFrom(wsd.ID)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (wsd *WorkspaceSettingsDocument) Model() (*workspace_settings.WorkspaceSett
 		return nil, err
 	}
 
-	return workspace_settings.New().
+	return workspacesettings.New().
 		ID(wsid).
 		Workspace(wid).
 		Avatar(wsd.Avatar).
@@ -63,28 +63,28 @@ func (wsd *WorkspaceSettingsDocument) Model() (*workspace_settings.WorkspaceSett
 		Build()
 }
 
-func NewWorkspaceResources(wr *WorkspaceResourceListDocument) *workspace_settings.WorkspaceResources {
+func NewWorkspaceResources(wr *WorkspaceResourceListDocument) *workspacesettings.WorkspaceResources {
 	if wr == nil {
 		return nil
 	}
 	// this doesn't work, need to find a better way
-	var res *workspace_settings.WorkspaceResources
+	var res *workspacesettings.WorkspaceResources
 	res.SetResources(NewResources(wr.Resources))
 	res.SetDefaultResource(id.ResourceIDFromRef(wr.DefaultResource))
 	res.SetAllowSwitch(wr.AllowSwitch)
 	return res
 }
 
-func NewResources(rd []*ResourceDocument) []*workspace_settings.Resource {
+func NewResources(rd []*ResourceDocument) []*workspacesettings.Resource {
 	if rd == nil {
 		return nil
 	}
-	return lo.Map(rd, func(r *ResourceDocument, _ int) *workspace_settings.Resource {
+	return lo.Map(rd, func(r *ResourceDocument, _ int) *workspacesettings.Resource {
 		return NewResource(r)
 	})
 }
 
-func NewResource(r *ResourceDocument) *workspace_settings.Resource {
+func NewResource(r *ResourceDocument) *workspacesettings.Resource {
 	if r == nil {
 		return nil
 	}
@@ -93,7 +93,7 @@ func NewResource(r *ResourceDocument) *workspace_settings.Resource {
 		return nil
 	}
 	// this doesn't work, need to find a better way
-	var res *workspace_settings.Resource
+	var res *workspacesettings.Resource
 	res.SetID(rid)
 	res.SetName(r.Name)
 	res.SetURL(r.URL)

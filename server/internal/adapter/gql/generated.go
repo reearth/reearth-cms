@@ -6280,7 +6280,7 @@ extend type Mutation {
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }`, BuiltIn: false},
-	{Name: "../../../schemas/workspace_settings.graphql", Input: `type WorkspaceSettings {
+	{Name: "../../../schemas/workspacesettings.graphql", Input: `type WorkspaceSettings {
     id: ID!
 	workspaceId: ID!
 	avatar: String
