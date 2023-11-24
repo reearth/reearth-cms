@@ -6194,10 +6194,9 @@ input CreateWorkspaceInput {
 input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
-    settingsId: ID!
     avatar: String
-	tiles: WorkspaceResourceListInput
-	terrains: WorkspaceResourceListInput
+    tiles: WorkspaceResourceListInput
+    terrains: WorkspaceResourceListInput
 }
 
 input MemberInput {
@@ -6240,7 +6239,6 @@ input UpdateIntegrationOfWorkspaceInput {
 
 input DeleteWorkspaceInput {
     workspaceId: ID!
-    settingsId: ID!
 }
 
 # extend type Query { }
@@ -33256,7 +33254,7 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "settingsId"}
+	fieldsInOrder := [...]string{"workspaceId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -33272,15 +33270,6 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 				return it, err
 			}
 			it.WorkspaceID = data
-		case "settingsId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("settingsId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.SettingsID = data
 		}
 	}
 
@@ -36357,7 +36346,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name", "settingsId", "avatar", "tiles", "terrains"}
+	fieldsInOrder := [...]string{"workspaceId", "name", "avatar", "tiles", "terrains"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36382,15 +36371,6 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 				return it, err
 			}
 			it.Name = data
-		case "settingsId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("settingsId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.SettingsID = data
 		case "avatar":
 			var err error
 

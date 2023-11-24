@@ -76,8 +76,11 @@ func (r *WorkspaceSettingsRepo) Save(ctx context.Context, ws *workspacesettings.
 	return r.client.SaveOne(ctx, id, doc)
 }
 
-func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, id id.WorkspaceSettingsID) error {
-	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
+func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, id accountdomain.WorkspaceID) error {
+	if !r.f.CanWrite(id) {
+		return repo.ErrOperationDenied
+	}
+	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"workspaceid": id.String()}))
 }
 
 func (r *WorkspaceSettingsRepo) find(ctx context.Context, filter any) ([]*workspacesettings.WorkspaceSettings, error) {

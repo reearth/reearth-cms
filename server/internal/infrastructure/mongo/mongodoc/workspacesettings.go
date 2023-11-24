@@ -41,6 +41,8 @@ func NewWorkspaceSettings(ws *workspacesettings.WorkspaceSettings) (*WorkspaceSe
 		ID:          wsid,
 		WorkspaceID: ws.Workspace().String(),
 		Avatar:      ws.Avatar(),
+		Tiles:       ToWorkspaceResourceListDocument(ws.Tiles()),
+		Terrains:    ToWorkspaceResourceListDocument(ws.Terrains()),
 	}, wsid
 }
 
@@ -58,33 +60,29 @@ func (wsd *WorkspaceSettingsDocument) Model() (*workspacesettings.WorkspaceSetti
 		ID(wsid).
 		Workspace(wid).
 		Avatar(wsd.Avatar).
-		Tiles(NewWorkspaceResourceList(wsd.Tiles)).
-		Terrains(NewWorkspaceResourceList(wsd.Terrains)).
+		Tiles(FromWorkspaceResourceListDocument(wsd.Tiles)).
+		Terrains(FromWorkspaceResourceListDocument(wsd.Terrains)).
 		Build()
 }
 
-func NewWorkspaceResourceList(wr *WorkspaceResourceListDocument) *workspacesettings.WorkspaceResourceList {
+func FromWorkspaceResourceListDocument(wr *WorkspaceResourceListDocument) *workspacesettings.WorkspaceResourceList {
 	if wr == nil {
 		return nil
 	}
-	// this doesn't work, need to find a better way
-	var res *workspacesettings.WorkspaceResourceList
-	res.SetResources(NewResources(wr.Resources))
-	res.SetDefaultResource(id.ResourceIDFromRef(wr.DefaultResource))
-	res.SetAllowSwitch(wr.AllowSwitch)
-	return res
+
+	return workspacesettings.NewWorkspaceResourceList(FromResourceListDocument(wr.Resources), id.ResourceIDFromRef(wr.DefaultResource), wr.AllowSwitch)
 }
 
-func NewResources(rd []*ResourceDocument) []*workspacesettings.Resource {
+func FromResourceListDocument(rd []*ResourceDocument) []*workspacesettings.Resource {
 	if rd == nil {
 		return nil
 	}
 	return lo.Map(rd, func(r *ResourceDocument, _ int) *workspacesettings.Resource {
-		return NewResource(r)
+		return FromResourceDocument(r)
 	})
 }
 
-func NewResource(r *ResourceDocument) *workspacesettings.Resource {
+func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 	if r == nil {
 		return nil
 	}
@@ -94,4 +92,41 @@ func NewResource(r *ResourceDocument) *workspacesettings.Resource {
 	}
 
 	return workspacesettings.NewResource(rid, r.Name, r.URL, r.Image)
+}
+
+func ToWorkspaceResourceListDocument(wr *workspacesettings.WorkspaceResourceList) *WorkspaceResourceListDocument {
+	if wr == nil {
+		return nil
+	}
+
+	return &WorkspaceResourceListDocument{
+		Resources:       ToResourceDocumentList(wr.Resources()),
+		DefaultResource: wr.DefaultResource().StringRef(),
+		AllowSwitch:     wr.AllowSwitch(),
+	}
+}
+
+func ToResourceDocumentList(rs []*workspacesettings.Resource) []*ResourceDocument {
+	if rs == nil {
+		return nil
+	}
+
+	res := make([]*ResourceDocument, 0, len(rs))
+	for _, r := range rs {
+		res = append(res, ToResourceDocument(r))
+	}
+	return res
+}
+
+func ToResourceDocument(r *workspacesettings.Resource) *ResourceDocument {
+	if r == nil {
+		return nil
+	}
+
+	return &ResourceDocument{
+		ID:    r.ID().String(),
+		Name:  r.Name(),
+		URL:   r.URL(),
+		Image: r.Image(),
+	}
 }

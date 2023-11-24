@@ -41,10 +41,9 @@ input CreateWorkspaceInput {
 input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
-    settingsId: ID!
     avatar: String
-	tiles: WorkspaceResourceListInput
-	terrains: WorkspaceResourceListInput
+    tiles: WorkspaceResourceListInput
+    terrains: WorkspaceResourceListInput
 }
 
 input MemberInput {
@@ -87,7 +86,6 @@ input UpdateIntegrationOfWorkspaceInput {
 
 input DeleteWorkspaceInput {
     workspaceId: ID!
-    settingsId: ID!
 }
 
 # extend type Query { }

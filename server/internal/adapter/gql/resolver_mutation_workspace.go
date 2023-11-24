@@ -5,7 +5,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 )
@@ -31,16 +30,10 @@ func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.D
 	if err != nil {
 		return nil, err
 	}
-	wsid, err := gqlmodel.ToID[id.WorkspaceSettings](input.SettingsID)
-	if err != nil {
-		return nil, err
-	}
 
-	_, err = usecases(ctx).WorkspaceSettings.Delete(ctx, interfaces.DeleteWorkspaceSettingsParam{
-		ID:          wsid,
+	if err := usecases(ctx).WorkspaceSettings.Delete(ctx, interfaces.DeleteWorkspaceSettingsParam{
 		WorkspaceID: wid,
-	}, getOperator(ctx))
-	if err != nil {
+	}, getOperator(ctx)); err != nil {
 		return nil, err
 	}
 
@@ -56,10 +49,6 @@ func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.U
 	if err != nil {
 		return nil, err
 	}
-	wsid, err := gqlmodel.ToID[id.WorkspaceSettings](input.SettingsID)
-	if err != nil {
-		return nil, err
-	}
 
 	res, err := usecases(ctx).Workspace.Update(ctx, wid, input.Name, getAcOperator(ctx))
 	if err != nil {
@@ -67,7 +56,6 @@ func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.U
 	}
 
 	_, err = usecases(ctx).WorkspaceSettings.Update(ctx, interfaces.UpdateWorkspaceSettingsParam{
-		ID:          wsid,
 		WorkspaceID: wid,
 		Avatar:      input.Avatar,
 		Tiles:       gqlmodel.FromWorkspaceResourceList(input.Tiles),
