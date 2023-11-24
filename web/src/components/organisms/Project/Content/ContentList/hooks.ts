@@ -22,7 +22,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
-import { renderTags, renderField } from "./renderFields";
+import { renderField } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
@@ -239,10 +239,8 @@ export default () => {
                 ? ("ascend" as const)
                 : ("descend" as const)
               : null,
+          render: (el: any) => renderField(el, field),
         };
-        if (field.type === "Tag") {
-          Object.assign(result, { render: (el: any) => renderTags(el, field) });
-        }
         return result;
       }) || [];
 

@@ -1,16 +1,14 @@
 import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-export const renderTags = (el: any, field: any) => {
-  const value = el.props.children as string;
-  if (value === "-") return <span>-</span>;
-
+export const renderTags = (value: string, field: any) => {
   type Tag = { id: string; name: string; color: string };
   const tags: Tag[] | undefined = field.typeProperty?.tags;
   const tagIds: Set<string> = new Set(value.split(", "));
@@ -29,6 +27,9 @@ export const renderTags = (el: any, field: any) => {
 export const renderField = (el: any, field: any) => {
   const value = el.props.children as string;
   if (value === "-") return <span>-</span>;
+  if (field.type === "Tag") {
+    return renderTags(value, field);
+  }
 
   const itemFormat = (item: string) => {
     switch (field.type) {
@@ -49,6 +50,8 @@ export const renderField = (el: any, field: any) => {
             {item}
           </StyledTag>
         );
+      case "Checkbox":
+        return <Checkbox checked={item === "true"} />;
       default:
         return item;
     }
@@ -58,7 +61,7 @@ export const renderField = (el: any, field: any) => {
   const content = (
     <>
       {items.map((item, index) => {
-        return <p key={index}>{itemFormat(item)}</p>;
+        return <Content key={index}>{itemFormat(item)}</Content>;
       })}
     </>
   );
@@ -71,32 +74,17 @@ export const renderField = (el: any, field: any) => {
         ))}
       </>
     );
-  } else if (items.length === 1) {
-    switch (field.type) {
-      case "TextArea":
-      case "MarkdownText":
-        return (
-          <Popover content={content} title={field.title} trigger="focus" placement="bottom">
-            <StyledButton>
-              <Icon icon={fieldTypes[field.type].icon} size={16} />
-            </StyledButton>
-          </Popover>
-        );
-      default:
-        return itemFormat(value);
-    }
+  } else if (items.length > 1 || field.type === "TextArea" || field.type === "MarkdownText") {
+    return (
+      <Popover content={content} title={field.title} trigger="click" placement="bottom">
+        <StyledButton>
+          <Icon icon={fieldTypes[field.type].icon} size={16} />
+          {items.length > 1 && <span>x{items.length}</span>}
+        </StyledButton>
+      </Popover>
+    );
   } else {
-    switch (field.type) {
-      default:
-        return (
-          <Popover content={content} title={field.title} trigger="focus" placement="bottom">
-            <StyledButton>
-              <Icon icon={fieldTypes[field.type].icon} size={16} />
-              <span>x{items.length}</span>
-            </StyledButton>
-          </Popover>
-        );
-    }
+    return itemFormat(value);
   }
 };
 
@@ -124,4 +112,12 @@ const StyledButton = styled(Button)`
   font-size: 12px;
   gap: 8px;
   padding: 4px;
+`;
+
+const Content = styled.p`
+  margin: 0;
+  padding: 4px 8px 20px;
+  :last-child {
+    padding-bottom: 0;
+  }
 `;
