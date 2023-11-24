@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -11,8 +12,10 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
+import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
+import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -195,6 +198,81 @@ const ContentForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const changedKeys = useRef(new Set<string>());
+
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      currentLocation.pathname !== nextLocation.pathname && changedKeys.current.size > 0,
+  );
+
+  const handleValuesChange = useCallback(
+    (changedValues: any) => {
+      const [key, value] = Object.entries(changedValues)[0];
+      if (
+        (!value && !initialFormValues[key]) ||
+        JSON.stringify(value) === JSON.stringify(initialFormValues[key])
+      ) {
+        changedKeys.current.delete(key);
+      } else if (Array.isArray(value) && value.length === 0) {
+        return;
+      } else {
+        changedKeys.current.add(key);
+      }
+    },
+    [initialFormValues],
+  );
+
+  useEffect(() => {
+    const openNotification = () => {
+      const key = `open${Date.now()}`;
+      const btn = (
+        <Space>
+          <Button
+            onClick={() => {
+              Notification.close(key);
+              blocker.reset?.();
+            }}>
+            {t("Cancel")}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              Notification.close(key);
+              blocker.proceed?.();
+            }}>
+            {t("Leave")}
+          </Button>
+        </Space>
+      );
+      Notification.config({
+        maxCount: 1,
+      });
+
+      Notification.info({
+        message: t("This item has unsaved data"),
+        description: t("Are you going to leave?"),
+        btn,
+        key,
+        placement: "top",
+        // TODO: Change to false when antd is updated
+        closeIcon: <span />,
+      });
+    };
+    if (blocker.state === "blocked") {
+      openNotification();
+    }
+  }, [t, blocker]);
+
+  useEffect(() => {
+    const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
+      if (changedKeys.current.size === 0) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnloadEvent, true);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnloadEvent, true);
+  }, []);
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
@@ -266,11 +344,12 @@ const ContentForm: React.FC<Props> = ({
       }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
       }
+      changedKeys.current.clear();
       if (!itemId) {
         await onItemCreate?.({
           schemaId: model?.schema.id as string,
@@ -380,7 +459,11 @@ const ContentForm: React.FC<Props> = ({
 
   return (
     <>
-      <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
+      <StyledForm
+        form={form}
+        layout="vertical"
+        initialValues={initialFormValues}
+        onValuesChange={handleValuesChange}>
         <PageHeader
           title={model?.name}
           onBack={handleBack}
