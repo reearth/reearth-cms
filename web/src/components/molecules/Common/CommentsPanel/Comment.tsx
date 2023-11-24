@@ -96,7 +96,17 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
             <TextArea onChange={handleChange} value={value} rows={4} maxLength={1000} showCount />
           </Form.Item>
           <div hidden={showEditor}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment.content}</ReactMarkdown>
+            <ReactMarkdown
+              components={{
+                a(props) {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { node, ...rest } = props;
+                  return <a target="_blank" {...rest} />;
+                },
+              }}
+              remarkPlugins={[remarkGfm]}>
+              {comment.content}
+            </ReactMarkdown>
           </div>
         </>
       }
