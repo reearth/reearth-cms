@@ -29,9 +29,9 @@ func ToWorkspaceResourceList(tiles *workspacesettings.WorkspaceResourceList) *Wo
 		return ToResource(r)
 	})
 	wr := &WorkspaceResourceList{
-		Resources : r,
+		Resources:       r,
 		DefaultResource: IDFromRef(tiles.DefaultResource()),
-		AllowSwitch	: tiles.AllowSwitch(),	
+		AllowSwitch:     tiles.AllowSwitch(),
 	}
 	return wr
 }

@@ -76,4 +76,3 @@ func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWo
 			return inp.ID, ws.repos.WorkspaceSettings.Remove(ctx, inp.ID)
 		})
 }
-

@@ -54,7 +54,7 @@ func (ws *WorkspaceSettings) Tiles() *WorkspaceResourceList {
 	return ws.tiles
 }
 
-func (ws *WorkspaceSettings) SetTiles(wl *WorkspaceResourceList)  {
+func (ws *WorkspaceSettings) SetTiles(wl *WorkspaceResourceList) {
 	ws.tiles = util.CloneRef(wl)
 }
 
@@ -65,7 +65,7 @@ func (ws *WorkspaceSettings) Terrains() *WorkspaceResourceList {
 	return ws.terrains
 }
 
-func (ws *WorkspaceSettings) SetTerrains(wl *WorkspaceResourceList)  {
+func (ws *WorkspaceSettings) SetTerrains(wl *WorkspaceResourceList) {
 	ws.terrains = util.CloneRef(wl)
 }
 
@@ -147,14 +147,14 @@ func NewResource(id ResourceID, name string, url string, image string) *Resource
 	}
 }
 
-func (r *Resource) SetName(n string)  {
+func (r *Resource) SetName(n string) {
 	r.name = n
 }
 
-func (r *Resource) SetURL(u string)  {
+func (r *Resource) SetURL(u string) {
 	r.url = u
 }
 
-func (r *Resource) SetImage(i string)  {
+func (r *Resource) SetImage(i string) {
 	r.image = i
 }

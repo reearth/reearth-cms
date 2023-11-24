@@ -37,7 +37,7 @@ func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.D
 	}
 
 	_, err = usecases(ctx).WorkspaceSettings.Delete(ctx, interfaces.DeleteWorkspaceSettingsParam{
-		ID: wsid,
+		ID:          wsid,
 		WorkspaceID: wid,
 	}, getOperator(ctx))
 	if err != nil {
