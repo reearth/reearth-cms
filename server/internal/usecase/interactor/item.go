@@ -787,6 +787,10 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 	return util.TryMap(fields, func(f interfaces.ItemFieldParam) (*item.Field, error) {
 		sf := s.FieldByIDOrKey(f.Field, f.Key)
 
+		if sf == nil {
+			return nil, fmt.Errorf("%w: id=%s key=%s", interfaces.ErrInvalidField, f.Field, f.Key)
+		}
+
 		if !sf.Multiple() {
 			f.Value = []any{f.Value}
 		}
