@@ -20,7 +20,7 @@ func ToWorkspaceSettings(ws *workspacesettings.WorkspaceSettings) *WorkspaceSett
 	}
 }
 
-func ToWorkspaceResourceList(tiles *workspacesettings.WorkspaceResources) *WorkspaceResourceList {
+func ToWorkspaceResourceList(tiles *workspacesettings.WorkspaceResourceList) *WorkspaceResourceList {
 	if tiles == nil {
 		return nil
 	}
@@ -45,34 +45,26 @@ func ToResource(r *workspacesettings.Resource) *Resource {
 	}
 }
 
-func FromWorkspaceResourceList(wr *WorkspaceResourceListInput) *workspacesettings.WorkspaceResources {
+func FromWorkspaceResourceList(wr *WorkspaceResourceListInput) *workspacesettings.WorkspaceResourceList {
 	if wr == nil {
 		return nil
 	}
 	r := lo.Map(wr.Resources, func(r *ResourceInput, _ int) *workspacesettings.Resource {
 		return FromResource(r)
 	})
-	// this doesn't work, need to find a better way
-	var res *workspacesettings.WorkspaceResources
-	res.SetResources(r)
-	res.SetDefaultResource(ToIDRef[id.Resource](wr.DefaultResource))
-	res.SetAllowSwitch(wr.AllowSwitch)
-	return res
+	rid := ToIDRef[id.Resource](wr.DefaultResource)
+	return workspacesettings.NewWorkspaceResourceList(r, rid, wr.AllowSwitch)
 }
 
 func FromResource(r *ResourceInput) *workspacesettings.Resource {
 	if r == nil {
 		return nil
 	}
-	// this doesn't work, need to find a better way
-	var res *workspacesettings.Resource
+
 	rid, err := ToID[id.Resource](r.ID)
 	if err != nil {
 		return nil
 	}
-	res.SetID(rid)
-	res.SetName(r.Name)
-	res.SetURL(r.URL)
-	res.SetImage(r.Image)
-	return res
+
+	return workspacesettings.NewResource(rid, r.Name, r.URL, r.Image)
 }

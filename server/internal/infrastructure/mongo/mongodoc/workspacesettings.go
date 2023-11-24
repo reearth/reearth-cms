@@ -58,17 +58,17 @@ func (wsd *WorkspaceSettingsDocument) Model() (*workspacesettings.WorkspaceSetti
 		ID(wsid).
 		Workspace(wid).
 		Avatar(wsd.Avatar).
-		Tiles(NewWorkspaceResources(wsd.Tiles)).
-		Terrains(NewWorkspaceResources(wsd.Terrains)).
+		Tiles(NewWorkspaceResourceList(wsd.Tiles)).
+		Terrains(NewWorkspaceResourceList(wsd.Terrains)).
 		Build()
 }
 
-func NewWorkspaceResources(wr *WorkspaceResourceListDocument) *workspacesettings.WorkspaceResources {
+func NewWorkspaceResourceList(wr *WorkspaceResourceListDocument) *workspacesettings.WorkspaceResourceList {
 	if wr == nil {
 		return nil
 	}
 	// this doesn't work, need to find a better way
-	var res *workspacesettings.WorkspaceResources
+	var res *workspacesettings.WorkspaceResourceList
 	res.SetResources(NewResources(wr.Resources))
 	res.SetDefaultResource(id.ResourceIDFromRef(wr.DefaultResource))
 	res.SetAllowSwitch(wr.AllowSwitch)
@@ -92,11 +92,6 @@ func NewResource(r *ResourceDocument) *workspacesettings.Resource {
 	if err != nil {
 		return nil
 	}
-	// this doesn't work, need to find a better way
-	var res *workspacesettings.Resource
-	res.SetID(rid)
-	res.SetName(r.Name)
-	res.SetURL(r.URL)
-	res.SetImage(r.Image)
-	return res
+
+	return workspacesettings.NewResource(rid, r.Name, r.URL, r.Image)
 }

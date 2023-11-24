@@ -55,7 +55,13 @@ func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWo
 	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
 			if inp.Avatar != nil {
-				work.UpdateAvatar(inp.Avatar)
+				work.SetAvatar(inp.Avatar)
+			}
+			if inp.Tiles != nil {
+				work.SetTiles(inp.Tiles)
+			}
+			if inp.Terrains != nil {
+				work.SetTiles(inp.Terrains)
 			}
 			if err := ws.repos.WorkspaceSettings.Save(ctx, work); err != nil {
 				return nil, err

@@ -50,12 +50,12 @@ func (b *Builder) Avatar(a *string) *Builder {
 	return b
 }
 
-func (b *Builder) Tiles(wr *WorkspaceResources) *Builder {
+func (b *Builder) Tiles(wr *WorkspaceResourceList) *Builder {
 	b.ws.tiles = wr
 	return b
 }
 
-func (b *Builder) Terrains(wr *WorkspaceResources) *Builder {
+func (b *Builder) Terrains(wr *WorkspaceResourceList) *Builder {
 	b.ws.terrains = wr
 	return b
 }

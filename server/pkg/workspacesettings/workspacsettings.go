@@ -11,11 +11,11 @@ type WorkspaceSettings struct {
 	id          ID
 	workspaceId accountdomain.WorkspaceID
 	avatar      *string
-	tiles       *WorkspaceResources
-	terrains    *WorkspaceResources
+	tiles       *WorkspaceResourceList
+	terrains    *WorkspaceResourceList
 }
 
-type WorkspaceResources struct {
+type WorkspaceResourceList struct {
 	resources       []*Resource
 	defaultResource *ResourceID
 	allowSwitch     bool
@@ -43,38 +43,46 @@ func (ws *WorkspaceSettings) Avatar() *string {
 	return ws.avatar
 }
 
-func (ws *WorkspaceSettings) UpdateAvatar(a *string) {
+func (ws *WorkspaceSettings) SetAvatar(a *string) {
 	ws.avatar = util.CloneRef(a)
 }
 
-func (ws *WorkspaceSettings) Tiles() *WorkspaceResources {
+func (ws *WorkspaceSettings) Tiles() *WorkspaceResourceList {
 	if ws.tiles == nil {
 		return nil
 	}
 	return ws.tiles
 }
 
-func (ws *WorkspaceSettings) Terrains() *WorkspaceResources {
+func (ws *WorkspaceSettings) SetTiles(wl *WorkspaceResourceList)  {
+	ws.tiles = util.CloneRef(wl)
+}
+
+func (ws *WorkspaceSettings) Terrains() *WorkspaceResourceList {
 	if ws.terrains == nil {
 		return nil
 	}
 	return ws.terrains
 }
 
+func (ws *WorkspaceSettings) SetTerrains(wl *WorkspaceResourceList)  {
+	ws.terrains = util.CloneRef(wl)
+}
+
 func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 	if ws == nil {
 		return nil
 	}
-	
+
 	return &WorkspaceSettings{
 		workspaceId: ws.workspaceId.Clone(),
 		avatar:      ws.avatar,
-		tiles: &WorkspaceResources{
+		tiles: &WorkspaceResourceList{
 			resources:       slices.Clone(ws.tiles.resources),
 			defaultResource: ws.tiles.defaultResource,
 			allowSwitch:     ws.tiles.allowSwitch,
 		},
-		terrains: &WorkspaceResources{
+		terrains: &WorkspaceResourceList{
 			resources:       slices.Clone(ws.terrains.resources),
 			defaultResource: ws.terrains.defaultResource,
 			allowSwitch:     ws.terrains.allowSwitch,
@@ -82,28 +90,36 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 	}
 }
 
-func (wr *WorkspaceResources) Resources() []*Resource {
-	return wr.resources
+func (wr *WorkspaceResourceList) Resources() []*Resource {
+	return slices.Clone(wr.resources)
 }
 
-func (wr *WorkspaceResources) DefaultResource() *ResourceID {
+func (wr *WorkspaceResourceList) DefaultResource() *ResourceID {
 	return wr.defaultResource
 }
 
-func (wr *WorkspaceResources) AllowSwitch() bool {
+func (wr *WorkspaceResourceList) AllowSwitch() bool {
 	return wr.allowSwitch
 }
 
-func (wr *WorkspaceResources) SetResources(r []*Resource) {
-	wr.resources = r
+func (wr *WorkspaceResourceList) SetResources(r []*Resource) {
+	wr.resources = slices.Clone(r)
 }
 
-func (wr *WorkspaceResources) SetDefaultResource(rid *ResourceID) {
+func (wr *WorkspaceResourceList) SetDefaultResource(rid *ResourceID) {
 	wr.defaultResource = rid
 }
 
-func (wr *WorkspaceResources) SetAllowSwitch(s bool) {
+func (wr *WorkspaceResourceList) SetAllowSwitch(s bool) {
 	wr.allowSwitch = s
+}
+
+func NewWorkspaceResourceList(resources []*Resource, defaultResource *ResourceID, allowSwitch bool) *WorkspaceResourceList {
+	return &WorkspaceResourceList{
+		resources:       slices.Clone(resources),
+		defaultResource: defaultResource,
+		allowSwitch:     allowSwitch,
+	}
 }
 
 func (r *Resource) ID() ResourceID {
@@ -122,9 +138,13 @@ func (r *Resource) Image() string {
 	return r.image
 }
 
-// this is bad, id should be immutable and set from the backend
-func (r *Resource) SetID(rid ResourceID) {
-	 r.id = rid
+func NewResource(id ResourceID, name string, url string, image string) *Resource {
+	return &Resource{
+		id:    id,
+		name:  name,
+		url:   url,
+		image: image,
+	}
 }
 
 func (r *Resource) SetName(n string)  {
