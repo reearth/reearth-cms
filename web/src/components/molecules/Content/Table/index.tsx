@@ -25,6 +25,7 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import {
@@ -136,6 +137,7 @@ const ContentTable: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         ellipsis: true,
+        align: "center",
       },
       {
         title: () => <Icon icon="message" />,
@@ -201,6 +203,12 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "CREATION_USER",
         key: "CREATION_USER",
         sortOrder: sortOrderGet("CREATION_USER"),
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.createdBy} size={"small"} />
+            {item.createdBy}
+          </Space>
+        ),
         sorter: true,
         defaultSortOrder: sortOrderGet("CREATION_USER"),
         width: 148,
@@ -228,6 +236,15 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "MODIFICATION_USER",
         key: "MODIFICATION_USER",
         sortOrder: sortOrderGet("MODIFICATION_USER"),
+        render: (_, item) =>
+          item.updatedBy ? (
+            <Space>
+              <UserAvatar username={item.updatedBy} size={"small"} />
+              {item.updatedBy}
+            </Space>
+          ) : (
+            "-"
+          ),
         sorter: true,
         defaultSortOrder: sortOrderGet("MODIFICATION_USER"),
         width: 148,
@@ -641,11 +658,14 @@ const ContentTable: React.FC<Props> = ({
                 ? (col.key as string)
                 : undefined,
           },
-          visible: (col.key as string) in options ? options[col.key as string].show : true,
+          visible:
+            (col.key as string) in options && options[col.key as string].show !== undefined
+              ? options[col.key as string].show
+              : true,
           order:
-            (col.key as string) in options && options[col.key as string].order
+            (col.key as string) in options && options[col.key as string].order !== undefined
               ? (options[col.key as string]?.order as number)
-              : index + 3,
+              : index + 2,
         }))
         .sort((a, b) => a.order - b.order)
         .map(col => {

@@ -78,7 +78,16 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         filter: filterConvert(selectedView.filter as AndCondition),
       }));
     } else {
-      setCurrentView({ columns: [] });
+      //initial currentView when there is no view in the specific model
+      setCurrentView({
+        sort: {
+          field: {
+            type: "MODIFICATION_DATE",
+          },
+          direction: "DESC",
+        },
+        columns: [],
+      });
     }
   }, [selectedView, setCurrentView]);
 
