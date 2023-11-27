@@ -74,6 +74,9 @@ type ServerInterface interface {
 	// create an item
 	// (POST /models/{modelId}/items)
 	ItemCreate(ctx echo.Context, modelId ModelIdParam) error
+	// Returns a models.
+	// (GET /projects/{projectIdOrAlias}/models)
+	ModelFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error
 	// Returns a model.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey})
 	ModelGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
@@ -472,6 +475,40 @@ func (w *ServerInterfaceWrapper) ItemCreate(ctx echo.Context) error {
 	return err
 }
 
+// ModelFilter converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelFilter(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "projectIdOrAlias", runtime.ParamLocationPath, ctx.Param("projectIdOrAlias"), &projectIdOrAlias)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ModelFilterParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ModelFilter(ctx, projectIdOrAlias, params)
+	return err
+}
+
 // ModelGetWithProject converts echo context to params.
 func (w *ServerInterfaceWrapper) ModelGetWithProject(ctx echo.Context) error {
 	var err error
@@ -704,6 +741,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/models/:modelId", wrapper.ModelGet)
 	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
 	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
+	router.GET(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelFilter)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelGetWithProject)
 	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemFilterWithProject)
 	router.POST(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemCreateWithProject)
@@ -1408,6 +1446,60 @@ func (response ItemCreate401Response) VisitItemCreateResponse(w http.ResponseWri
 	return nil
 }
 
+type ModelFilterRequestObject struct {
+	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
+	Params           ModelFilterParams
+}
+
+type ModelFilterResponseObject interface {
+	VisitModelFilterResponse(w http.ResponseWriter) error
+}
+
+type ModelFilter200JSONResponse struct {
+	Models     *[]Model `json:"models,omitempty"`
+	Page       *int     `json:"page,omitempty"`
+	PerPage    *int     `json:"perPage,omitempty"`
+	TotalCount *int     `json:"totalCount,omitempty"`
+}
+
+func (response ModelFilter200JSONResponse) VisitModelFilterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ModelFilter400Response struct {
+}
+
+func (response ModelFilter400Response) VisitModelFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ModelFilter401Response = UnauthorizedErrorResponse
+
+func (response ModelFilter401Response) VisitModelFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ModelFilter404Response struct {
+}
+
+func (response ModelFilter404Response) VisitModelFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ModelFilter500Response struct {
+}
+
+func (response ModelFilter500Response) VisitModelFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type ModelGetWithProjectRequestObject struct {
 	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
 	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
@@ -1684,6 +1776,9 @@ type StrictServerInterface interface {
 	// create an item
 	// (POST /models/{modelId}/items)
 	ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error)
+	// Returns a models.
+	// (GET /projects/{projectIdOrAlias}/models)
+	ModelFilter(ctx context.Context, request ModelFilterRequestObject) (ModelFilterResponseObject, error)
 	// Returns a model.
 	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey})
 	ModelGetWithProject(ctx context.Context, request ModelGetWithProjectRequestObject) (ModelGetWithProjectResponseObject, error)
@@ -2155,6 +2250,32 @@ func (sh *strictHandler) ItemCreate(ctx echo.Context, modelId ModelIdParam) erro
 	return nil
 }
 
+// ModelFilter operation middleware
+func (sh *strictHandler) ModelFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error {
+	var request ModelFilterRequestObject
+
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelFilter(ctx.Request().Context(), request.(ModelFilterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelFilter")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelFilterResponseObject); ok {
+		return validResponse.VisitModelFilterResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // ModelGetWithProject operation middleware
 func (sh *strictHandler) ModelGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
 	var request ModelGetWithProjectRequestObject
@@ -2308,45 +2429,46 @@ func (sh *strictHandler) AssetCreate(ctx echo.Context, projectId ProjectIdParam)
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"AAD//8vdLM67TQAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
