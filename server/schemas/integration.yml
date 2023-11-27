@@ -932,6 +932,8 @@ components:
         createdAt:
           type: string
           format: date-time
+        isMetadata:
+          type: boolean
         updatedAt:
           type: string
           format: date-time
@@ -973,6 +975,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/field'
+        isMetadata:
+          type: boolean
     field:
       type: object
       properties:

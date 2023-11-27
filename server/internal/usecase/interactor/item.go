@@ -229,11 +229,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if err := i.repos.Thread.Save(ctx, th); err != nil {
 			return nil, err
 		}
-
+		isMetadata := false
+		if m.Metadata() != nil && param.SchemaID == *m.Metadata() {
+			isMetadata = true
+		}
 		fields = append(fields, groupFields...)
 		ib := item.New().
 			NewID().
 			Schema(s.ID()).
+			IsMetadata(isMetadata).
 			Project(s.Project()).
 			Model(m.ID()).
 			Thread(th.ID()).

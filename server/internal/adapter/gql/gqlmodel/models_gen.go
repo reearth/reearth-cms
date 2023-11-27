@@ -503,6 +503,7 @@ type Item struct {
 	UpdatedByIntegrationID *ID          `json:"updatedByIntegrationId,omitempty"`
 	UserID                 *ID          `json:"userId,omitempty"`
 	MetadataID             *ID          `json:"metadataId,omitempty"`
+	IsMetadata             bool         `json:"isMetadata"`
 	OriginalID             *ID          `json:"originalId,omitempty"`
 	CreatedBy              Operator     `json:"createdBy,omitempty"`
 	Schema                 *Schema      `json:"schema"`
