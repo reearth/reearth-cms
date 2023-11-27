@@ -85,7 +85,7 @@ export const renderField = (el: any, field: any) => {
     }
   };
 
-  const items = value.split(", ");
+  const items = typeof value === "string" && field.multiple ? value.split(", ") : [value];
   const content = (
     <>
       {items.map((item, index) => {
