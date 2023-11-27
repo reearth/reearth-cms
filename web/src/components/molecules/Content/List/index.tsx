@@ -154,6 +154,7 @@ const ContentListMolecule: React.FC<Props> = ({
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
             setCurrentView={setCurrentView}
+            modelKey={model?.key}
           />
         </Content>
       }

@@ -9,6 +9,7 @@ import React, {
   useEffect,
   Dispatch,
   SetStateAction,
+  ChangeEvent,
 } from "react";
 import { Link } from "react-router-dom";
 
@@ -78,6 +79,7 @@ export type Props = {
   onAddItemToRequest: (request: Request, itemIds: string[]) => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  modelKey?: string;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -109,6 +111,7 @@ const ContentTable: React.FC<Props> = ({
   setSelection,
   onItemDelete,
   onItemsReload,
+  modelKey,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -473,12 +476,21 @@ const ContentTable: React.FC<Props> = ({
     arrow: false,
   };
 
+  const [searchValue, setSearchValue] = useState("");
+
+  useEffect(() => {
+    setSearchValue(searchTerm);
+  }, [modelKey, currentView, searchTerm]);
+
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
+
   const handleToolbarEvents: ListToolBarProps = {
     search: (
       <StyledSearchContainer>
         <StyledSearchInput
           placeholder={t("Please enter")}
-          defaultValue={searchTerm}
           onSearch={(value: string) => {
             if (value) {
               onSearchTerm(value);
@@ -486,6 +498,8 @@ const ContentTable: React.FC<Props> = ({
               onSearchTerm();
             }
           }}
+          value={searchValue}
+          onChange={handleInput}
         />
         <StyledFilterWrapper>
           <StyledFilterSpace size={[0, 8]}>
