@@ -3,6 +3,7 @@ package e2e
 import (
 	"context"
 	"fmt"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"net/http"
 	"testing"
 
@@ -29,6 +30,7 @@ var (
 	publicAPIItem2ID      = id.NewItemID()
 	publicAPIItem3ID      = id.NewItemID()
 	publicAPIItem4ID      = id.NewItemID()
+	publicAPIItem5ID      = id.NewItemID()
 	publicAPIAsset1ID     = id.NewAssetID()
 	publicAPIAsset2ID     = id.NewAssetID()
 	publicAPIAssetUUID    = uuid.NewString()
@@ -39,6 +41,8 @@ var (
 	publicAPIField2Key    = "asset"
 	publicAPIField3Key    = "test-field-2"
 	publicAPIField4Key    = "asset2"
+	publicAPIField5Key    = "group"
+	publicAPIField6Key    = "text-group"
 )
 
 func TestPublicAPI(t *testing.T) {
@@ -103,8 +107,14 @@ func TestPublicAPI(t *testing.T) {
 						},
 					},
 				},
+				{
+					"id": publicAPIItem5ID.String(),
+					publicAPIField5Key: map[string]any{
+						publicAPIField6Key: "foo",
+					},
+				},
 			},
-			"totalCount": 3,
+			"totalCount": 4,
 			"hasMore":    false,
 			"limit":      50,
 			"offset":     0,
@@ -125,8 +135,8 @@ func TestPublicAPI(t *testing.T) {
 					publicAPIField1Key: "bbb",
 				},
 			},
-			"totalCount": 3,
-			"hasMore":    false,
+			"totalCount": 4,
+			"hasMore":    true,
 			"limit":      1,
 			"offset":     1,
 			"page":       2,
@@ -146,7 +156,7 @@ func TestPublicAPI(t *testing.T) {
 					publicAPIField1Key: "bbb",
 				},
 			},
-			"totalCount": 3,
+			"totalCount": 4,
 			"hasMore":    true,
 			"nextCursor": publicAPIItem2ID.String(),
 		})
@@ -221,8 +231,14 @@ func TestPublicAPI(t *testing.T) {
 					publicAPIField3Key: []string{"aaa", "bbb", "ccc"},
 					// publicAPIField4Key should be removed
 				},
+				{
+					"id": publicAPIItem5ID.String(),
+					publicAPIField5Key: map[string]any{
+						publicAPIField6Key: "foo",
+					},
+				},
 			},
-			"totalCount": 3,
+			"totalCount": 4,
 			"hasMore":    false,
 			"limit":      50,
 			"offset":     0,
@@ -271,17 +287,22 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	af := asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build()
 
 	fid := id.NewFieldID()
+	gid := id.NewGroupID()
 	s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
 		schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Key(key.New(publicAPIField1Key)).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField2Key)).MustBuild(),
 		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField3Key)).Multiple(true).MustBuild(),
 		schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(key.New(publicAPIField4Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewGroup(gid).TypeProperty()).NewID().Key(key.New(publicAPIField5Key)).MustBuild(),
 	}).TitleField(fid.Ref()).MustBuild()
-
+	s2 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.New(publicAPIField6Key)).MustBuild(),
+	}).MustBuild()
+	g := group.New().ID(gid).Key(key.Random()).Project(p1.ID()).Schema(s2.ID()).MustBuild()
 	m := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Public(true).Key(key.New(publicAPIModelKey)).MustBuild()
 	// not public model
 	m2 := model.New().ID(publicAPIModelID).Project(p1.ID()).Schema(s.ID()).Key(key.New(publicAPIModelKey2)).Public(false).MustBuild()
-
+	itmGroup := id.NewItemGroupID()
 	i1 := item.New().ID(publicAPIItem1ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
 		item.NewField(s.Fields()[1].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
@@ -297,7 +318,11 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 		item.NewField(s.Fields()[2].ID(), value.NewMultiple(value.TypeText, []any{"aaa", "bbb", "ccc"}), nil),
 		item.NewField(s.Fields()[3].ID(), value.TypeAsset.Value(a.ID()).AsMultiple(), nil),
 	}).MustBuild()
-
+	i6 := item.New().ID(publicAPIItem5ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
+		item.NewField(s.Fields()[4].ID(), value.TypeGroup.Value(itmGroup).AsMultiple(), nil),
+		item.NewField(s2.Fields()[0].ID(), value.TypeText.Value("foo").AsMultiple(), itmGroup.Ref()),
+	}).MustBuild()
+	fmt.Println(i6.Fields())
 	// not public
 	i4 := item.New().ID(publicAPIItem4ID).Model(m.ID()).Schema(s.ID()).Project(p1.ID()).Thread(id.NewThreadID()).User(uid).Fields([]*item.Field{
 		item.NewField(s.Fields()[0].ID(), value.TypeText.Value("ddd").AsMultiple(), nil),
@@ -312,15 +337,19 @@ func publicAPISeeder(ctx context.Context, r *repo.Container) error {
 	lo.Must0(r.Asset.Save(ctx, a))
 	lo.Must0(r.AssetFile.Save(ctx, a.ID(), af))
 	lo.Must0(r.Schema.Save(ctx, s))
+	lo.Must0(r.Schema.Save(ctx, s2))
 	lo.Must0(r.Model.Save(ctx, m))
+	lo.Must0(r.Group.Save(ctx, g))
 	lo.Must0(r.Item.Save(ctx, i1))
 	lo.Must0(r.Item.Save(ctx, i2))
 	lo.Must0(r.Item.Save(ctx, i3))
 	lo.Must0(r.Item.Save(ctx, i4))
 	lo.Must0(r.Item.Save(ctx, i5))
+	lo.Must0(r.Item.Save(ctx, i6))
 	lo.Must0(r.Item.UpdateRef(ctx, i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i2.ID(), version.Public, version.Latest.OrVersion().Ref()))
 	lo.Must0(r.Item.UpdateRef(ctx, i3.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.UpdateRef(ctx, i6.ID(), version.Public, version.Latest.OrVersion().Ref()))
 
 	return nil
 }
