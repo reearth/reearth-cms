@@ -22,7 +22,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
-// import { renderField } from "./renderFields";
+import { renderField } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
@@ -212,7 +212,7 @@ export default () => {
             ? ("ascend" as const)
             : ("descend" as const)
           : null,
-      // render: (el: any) => renderField(el, field),
+      render: (el: any) => renderField(el, field),
     }));
 
     const metadataColumns =
@@ -235,7 +235,7 @@ export default () => {
               ? ("ascend" as const)
               : ("descend" as const)
             : null,
-        // render: (el: any) => renderField(el, field),
+        render: (el: any) => renderField(el, field),
       })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
