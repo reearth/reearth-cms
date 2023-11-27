@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -34,6 +36,19 @@ export const renderField = (el: any, field: any) => {
 
   const itemFormat = (item: string) => {
     switch (field.type) {
+      case "MarkdownText":
+        return (
+          <ReactMarkdown
+            components={{
+              a(props) {
+                const { node: _, ...rest } = props;
+                return <a target="_blank" {...rest} />;
+              },
+            }}
+            remarkPlugins={[remarkGfm]}>
+            {item}
+          </ReactMarkdown>
+        );
       case "Date":
         return dateTimeFormat(item);
       case "Bool":
@@ -50,6 +65,12 @@ export const renderField = (el: any, field: any) => {
             <Icon icon={fieldTypes.Asset.icon} size={18} />
             {item}
           </AssetValue>
+        );
+      case "URL":
+        return (
+          <a href={item} target="_blank" rel="noreferrer">
+            {item}
+          </a>
         );
       case "Reference":
         return (
