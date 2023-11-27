@@ -3,6 +3,7 @@ import {
   UploadChangeParam,
   UploadFile as ANTDFileUpload,
   UploadProps,
+  RcFile,
 } from "antd/lib/upload/interface";
 
 interface UploadFile<T = any> extends ANTDFileUpload<T> {
@@ -10,4 +11,4 @@ interface UploadFile<T = any> extends ANTDFileUpload<T> {
 }
 
 export default Upload;
-export type { UploadChangeParam, UploadFile, UploadProps };
+export type { UploadChangeParam, UploadFile, UploadProps, RcFile };
