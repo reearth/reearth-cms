@@ -27,92 +27,105 @@ export const renderTags = (value: string, field: any) => {
   );
 };
 
+const renderFieldItem = (item: string, field: any) => {
+  switch (field.type) {
+    case "MarkdownText":
+      return (
+        <ReactMarkdown
+          components={{
+            a(props) {
+              const { node: _, ...rest } = props;
+              return <a target="_blank" {...rest} />;
+            },
+          }}
+          remarkPlugins={[remarkGfm]}>
+          {item}
+        </ReactMarkdown>
+      );
+    case "Date":
+      return dateTimeFormat(item);
+    case "Bool":
+      return (
+        <Switch
+          checkedChildren={<Icon icon={"check"} />}
+          unCheckedChildren={<Icon icon={"close"} />}
+          checked={item === "true"}
+        />
+      );
+    case "Asset":
+      return (
+        <AssetValue>
+          <Icon icon={fieldTypes.Asset.icon} size={18} />
+          {item}
+        </AssetValue>
+      );
+    case "URL":
+      return (
+        <a href={item} target="_blank" rel="noreferrer">
+          {item}
+        </a>
+      );
+    case "Reference":
+      return (
+        <StyledTag icon={<StyledIcon icon={fieldTypes.Reference.icon} size={14} />}>
+          {item}
+        </StyledTag>
+      );
+    case "Checkbox":
+      return <Checkbox checked={item === "true"} />;
+    default:
+      return item;
+  }
+};
+
 export const renderField = (el: any, field: any) => {
   const value = el.props.children as string;
-  if (value === "-") return <span>-</span>;
-  if (field.type === "Tag") {
-    return renderTags(value, field);
+
+  console.log("Field Type:", field.type);
+  console.log("Field Title:", field.title);
+  console.log("Field Value:", value);
+
+  if (value === "-") {
+    console.log("Value is '-':", value);
+    return <span>-</span>;
   }
 
-  const itemFormat = (item: string) => {
-    switch (field.type) {
-      case "MarkdownText":
-        return (
-          <ReactMarkdown
-            components={{
-              a(props) {
-                const { node: _, ...rest } = props;
-                return <a target="_blank" {...rest} />;
-              },
-            }}
-            remarkPlugins={[remarkGfm]}>
-            {item}
-          </ReactMarkdown>
-        );
-      case "Date":
-        return dateTimeFormat(item);
-      case "Bool":
-        return (
-          <Switch
-            checkedChildren={<Icon icon={"check"} />}
-            unCheckedChildren={<Icon icon={"close"} />}
-            checked={item === "true"}
-          />
-        );
-      case "Asset":
-        return (
-          <AssetValue>
-            <Icon icon={fieldTypes.Asset.icon} size={18} />
-            {item}
-          </AssetValue>
-        );
-      case "URL":
-        return (
-          <a href={item} target="_blank" rel="noreferrer">
-            {item}
-          </a>
-        );
-      case "Reference":
-        return (
-          <StyledTag icon={<StyledIcon icon={fieldTypes.Reference.icon} size={14} />}>
-            {item}
-          </StyledTag>
-        );
-      case "Checkbox":
-        return <Checkbox checked={item === "true"} />;
-      default:
-        return item;
-    }
-  };
+  if (field.type === "Tag") {
+    console.log("Rendering Tags");
+    return renderTags(value, field);
+  }
 
   const items = value?.split(", ");
   const content = (
     <>
       {items.map((item, index) => {
-        return <Content key={index}>{itemFormat(item)}</Content>;
+        return <Content key={index}>{renderFieldItem(item, field)}</Content>;
       })}
     </>
   );
 
   if (field.type === "Select") {
+    console.log("Rendering Select:", items);
     return (
       <>
-        {items.map((item, index) => (
+        {items?.map((item, index) => (
           <Tag key={index}>{item}</Tag>
         ))}
       </>
     );
-  } else if (items.length > 1 || field.type === "TextArea" || field.type === "MarkdownText") {
+  } else if (items?.length > 1 || field.type === "TextArea" || field.type === "MarkdownText") {
+    console.log("Rendering Popover:", items);
     return (
       <Popover content={content} title={field.title} trigger="click" placement="bottom">
         <StyledButton>
           <Icon icon={fieldTypes[field.type].icon} size={16} />
-          {items.length > 1 && <span>x{items.length}</span>}
+          {items?.length > 1 && <span>x{items.length}</span>}
         </StyledButton>
       </Popover>
     );
   } else {
-    return itemFormat(value);
+    console.log("Rendering Field Item:", value);
+    return renderFieldItem(value, field);
   }
 };
 
