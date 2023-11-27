@@ -109,10 +109,11 @@ export default () => {
       data?.searchItem?.nodes
         ? data.searchItem.nodes
             .filter(item => item?.fields && item?.fields.length > 0)
-            .flatMap(item =>
-              item?.fields
-                .filter(field => field.type === "Reference" && field.value)
-                .map(field => field.value),
+            .flatMap(
+              item =>
+                item?.fields
+                  .filter(field => field.type === "Reference" && field.value)
+                  .map(field => field.value),
             )
         : [],
     [data],
@@ -163,14 +164,14 @@ export default () => {
                                 ?.url,
                             )
                         : field.type === "Reference"
-                        ? referencedItemsMap.get(field.value)?.title ?? ""
-                        : field.type === "Date" && field.value
-                        ? dateTimeFormat(field.value)
-                        : Array.isArray(field.value)
-                        ? field.value.join(", ")
-                        : field.value
-                        ? "" + field.value
-                        : field.value,
+                          ? referencedItemsMap.get(field.value)?.title ?? ""
+                          : field.type === "Date" && field.value
+                            ? dateTimeFormat(field.value)
+                            : Array.isArray(field.value)
+                              ? field.value.join(", ")
+                              : field.value
+                                ? "" + field.value
+                                : field.value,
                   }),
                 {},
               ),
@@ -184,10 +185,10 @@ export default () => {
                       field.type === "Date" && field.value
                         ? dateTimeFormat(field.value)
                         : Array.isArray(field.value)
-                        ? field.value.join(", ")
-                        : field.value
-                        ? "" + field.value
-                        : field.value,
+                          ? field.value.join(", ")
+                          : field.value
+                            ? "" + field.value
+                            : field.value,
                   }),
                 {},
               ),
