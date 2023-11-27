@@ -394,6 +394,15 @@ type ItemCreateJSONBody struct {
 	MetadataFields *[]Field `json:"metadataFields,omitempty"`
 }
 
+// ModelFilterParams defines parameters for ModelFilter.
+type ModelFilterParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
 // ItemFilterWithProjectParams defines parameters for ItemFilterWithProject.
 type ItemFilterWithProjectParams struct {
 	// Sort Used to define the order of the response list
