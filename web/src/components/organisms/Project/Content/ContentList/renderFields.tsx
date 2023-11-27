@@ -95,7 +95,7 @@ export const renderField = (el: any, field: any) => {
     return renderTags(value, field);
   }
 
-  const items = value?.split(", ");
+  const items = value.includes(", ") ? value?.split(", ") : [];
   const content = (
     <>
       {items.map((item, index) => {
