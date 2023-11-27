@@ -5,7 +5,13 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { AndConditionInput, Column, FieldType, ItemSort, SortDirection } from "@reearth-cms/components/molecules/View/types";
+import {
+  AndConditionInput,
+  Column,
+  FieldType,
+  ItemSort,
+  SortDirection,
+} from "@reearth-cms/components/molecules/View/types";
 import {
   convertItem,
   convertComment,
@@ -24,7 +30,6 @@ import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/va
 
 import { renderField } from "./renderFields";
 import { fileName } from "./utils";
-
 
 export type CurrentViewType = {
   sort?: ItemSort;
