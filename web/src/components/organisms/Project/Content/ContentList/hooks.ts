@@ -5,7 +5,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { AndConditionInput, Column, ItemSort } from "@reearth-cms/components/molecules/View/types";
+import { AndConditionInput, Column, FieldType, ItemSort, SortDirection } from "@reearth-cms/components/molecules/View/types";
 import {
   convertItem,
   convertComment,
@@ -26,10 +26,18 @@ import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/va
 import { renderTags } from "./renderFields";
 import { fileName } from "./utils";
 
+
 export type CurrentViewType = {
   sort?: ItemSort;
   filter?: AndConditionInput;
   columns?: Column[];
+};
+
+const DefaultOrder = {
+  direction: "DESC" as SortDirection,
+  field: {
+    type: "MODIFICATION_DATE" as FieldType,
+  },
 };
 
 export default () => {
@@ -82,7 +90,8 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: currentView.sort ? toGraphItemSort(currentView.sort) : undefined,
+        //if no order in the current view, then show data in default order
+        sort: currentView.sort ? toGraphItemSort(currentView.sort) : toGraphItemSort(DefaultOrder),
         filter: currentView.filter
           ? {
               and: toGraphAndConditionInput(currentView.filter),
