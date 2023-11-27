@@ -92,10 +92,11 @@ export const renderField = (el: any, field: any) => {
 
   if (field.type === "Tag") {
     console.log("Rendering Tags");
-    return renderTags(value, field);
+    return <span>-</span>;
+    // return renderTags(value, field);
   }
 
-  const items = value.includes(", ") ? value?.split(", ") : [];
+  const items = value?.includes(", ") ? value?.split(", ") : [];
   const content = (
     <>
       {items.map((item, index) => {
