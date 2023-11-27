@@ -20,10 +20,9 @@ import {
   useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
-import { renderTags } from "./renderFields";
+import { renderField } from "./renderFields";
 import { fileName } from "./utils";
 
 
@@ -173,8 +172,6 @@ export default () => {
                             )
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
-                        : field.type === "Date" && field.value
-                        ? dateTimeFormat(field.value)
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -189,14 +186,11 @@ export default () => {
               metadata: item?.metadata?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
-                    [field.schemaFieldId]:
-                      field.type === "Date" && field.value
-                        ? dateTimeFormat(field.value)
-                        : Array.isArray(field.value)
-                        ? field.value.join(", ")
-                        : field.value
-                        ? "" + field.value
-                        : field.value,
+                    [field.schemaFieldId]: Array.isArray(field.value)
+                      ? field.value.join(", ")
+                      : field.value
+                      ? "" + field.value
+                      : field.value,
                   }),
                 {},
               ),
@@ -227,35 +221,31 @@ export default () => {
             ? ("ascend" as const)
             : ("descend" as const)
           : null,
+      render: (el: any) => renderField(el, field),
     }));
 
     const metadataColumns =
-      currentModel?.metadataSchema?.fields?.map(field => {
-        const result = {
-          title: field.title,
-          dataIndex: ["metadata", field.id],
-          fieldType: "META_FIELD",
-          key: field.id,
-          ellipsis: true,
-          type: field.type,
-          typeProperty: field.typeProperty,
-          width: 128,
-          minWidth: 128,
-          multiple: field.multiple,
-          required: field.required,
-          sorter: true,
-          sortOrder:
-            currentView.sort?.field.id === field.id
-              ? currentView.sort?.direction === "ASC"
-                ? ("ascend" as const)
-                : ("descend" as const)
-              : null,
-        };
-        if (field.type === "Tag") {
-          Object.assign(result, { render: (el: any) => renderTags(el, field) });
-        }
-        return result;
-      }) || [];
+      currentModel?.metadataSchema?.fields?.map(field => ({
+        title: field.title,
+        dataIndex: ["metadata", field.id],
+        fieldType: "META_FIELD",
+        key: field.id,
+        ellipsis: true,
+        type: field.type,
+        typeProperty: field.typeProperty,
+        width: 128,
+        minWidth: 128,
+        multiple: field.multiple,
+        required: field.required,
+        sorter: true,
+        sortOrder:
+          currentView.sort?.field.id === field.id
+            ? currentView.sort?.direction === "ASC"
+              ? ("ascend" as const)
+              : ("descend" as const)
+            : null,
+        render: (el: any) => renderField(el, field),
+      })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
   }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id]);
