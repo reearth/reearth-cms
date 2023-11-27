@@ -66,12 +66,15 @@ func ToDirection(direction view.Direction) *SortDirection {
 	}
 }
 
-func ToFieldSelectorList(columns *view.FieldSelectorList) []*FieldSelector {
+func ToFieldSelectorList(columns *view.ColumnList) []*Column {
 	if columns == nil {
 		return nil
 	}
-	return lo.Map(*columns, func(c view.FieldSelector, _ int) *FieldSelector {
-		return ToFieldSelector(c)
+	return lo.Map(*columns, func(c view.Column, _ int) *Column {
+		return &Column{
+			Field:   ToFieldSelector(c.Field),
+			Visible: c.Visible,
+		}
 	})
 }
 
@@ -199,6 +202,13 @@ func (i FieldSelectorInput) Into() view.FieldSelector {
 	return view.FieldSelector{
 		Type: i.Type.Into(),
 		ID:   ToIDRef[id.Field](i.ID),
+	}
+}
+
+func (i ColumnSelectionInput) Into() view.Column {
+	return view.Column{
+		Field:   i.Field.Into(),
+		Visible: i.Visible,
 	}
 }
 

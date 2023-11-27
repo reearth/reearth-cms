@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -30,6 +30,8 @@ import {
   useSearchItemQuery,
   useGetItemsByIdsQuery,
   useGetGroupsQuery,
+  FieldType as GQLFieldType,
+  StringOperator,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
@@ -61,11 +63,13 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
   const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
+  const titleId = useRef("");
 
   useEffect(() => {
     setLinkItemModalPage(+linkItemModalPage);
@@ -98,10 +102,35 @@ export default () => {
           first: linkItemModalPageSize,
           offset: (linkItemModalPage - 1) * linkItemModalPageSize,
         },
+        filter:
+          searchTerm && titleId.current
+            ? {
+                and: {
+                  conditions: [
+                    {
+                      string: {
+                        fieldId: { id: titleId.current, type: GQLFieldType.Field },
+                        operator: StringOperator.Contains,
+                        value: searchTerm,
+                      },
+                    },
+                  ],
+                },
+              }
+            : undefined,
       },
     },
     skip: !model?.id,
   });
+
+  const handleSearchTerm = useCallback(
+    (term?: string) => {
+      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1]?.schemaFieldId ?? titleId.current;
+      setSearchTerm(term ?? "");
+      setLinkItemModalPage(1);
+    },
+    [itemsData?.searchItem.nodes],
+  );
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -116,6 +145,7 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
+              createdBy: item.createdBy?.name,
               createdAt: item.createdAt,
               title: item.title,
               updatedAt: item.updatedAt,
@@ -609,10 +639,12 @@ export default () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTitle: model.name,
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,
+    handleSearchTerm,
     handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading: loading,

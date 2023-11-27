@@ -15,7 +15,7 @@ import { useProject } from "@reearth-cms/state";
 import {
   fromGraphQLView,
   toGraphAndConditionInput,
-  toGraphFieldSelector,
+  toGraphColumnSelectionInput,
   toGraphItemSort,
 } from "@reearth-cms/utils/values";
 
@@ -78,7 +78,16 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         filter: filterConvert(selectedView.filter as AndCondition),
       }));
     } else {
-      setCurrentView({ columns: [] });
+      //initial currentView when there is no view in the specific model
+      setCurrentView({
+        sort: {
+          field: {
+            type: "MODIFICATION_DATE",
+          },
+          direction: "DESC",
+        },
+        columns: [],
+      });
     }
   }, [selectedView, setCurrentView]);
 
@@ -111,7 +120,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
           modelId: modelId ?? "",
           sort: currentView?.sort ? toGraphItemSort(currentView?.sort) : undefined,
           columns: currentView?.columns
-            ? currentView?.columns.map(column => toGraphFieldSelector(column))
+            ? currentView?.columns.map(column => toGraphColumnSelectionInput(column))
             : undefined,
           filter: currentView.filter
             ? {
@@ -153,7 +162,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
           name: name,
           sort: currentView?.sort ? toGraphItemSort(currentView?.sort) : undefined,
           columns: currentView?.columns
-            ? currentView?.columns.map(column => toGraphFieldSelector(column))
+            ? currentView?.columns.map(column => toGraphColumnSelectionInput(column))
             : undefined,
           filter: currentView.filter
             ? {
