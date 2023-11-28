@@ -62,19 +62,26 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 		return nil
 	}
 
-	return &WorkspaceSettings{
+	res := &WorkspaceSettings{
+		id:          ws.id.Clone(),
 		workspaceId: ws.workspaceId.Clone(),
-		tiles: &WorkspaceResourceList{
-			resources:       slices.Clone(ws.tiles.resources),
-			defaultResource: ws.tiles.defaultResource,
-			allowSwitch:     ws.tiles.allowSwitch,
-		},
-		terrains: &WorkspaceResourceList{
-			resources:       slices.Clone(ws.terrains.resources),
-			defaultResource: ws.terrains.defaultResource,
-			allowSwitch:     ws.terrains.allowSwitch,
-		},
 	}
+	if ws.tiles != nil {
+		res.tiles = &WorkspaceResourceList{
+			resources:       slices.Clone(ws.tiles.resources),
+			defaultResource: ws.tiles.defaultResource.CloneRef(),
+			allowSwitch:     ws.tiles.allowSwitch,
+		}
+	}
+	if ws.terrains != nil {
+		res.terrains = &WorkspaceResourceList{
+			resources:       slices.Clone(ws.terrains.resources),
+			defaultResource: ws.terrains.defaultResource.CloneRef(),
+			allowSwitch:     ws.terrains.allowSwitch,
+		}
+	}
+
+	return res
 }
 
 func (wr *WorkspaceResourceList) Resources() []*Resource {
