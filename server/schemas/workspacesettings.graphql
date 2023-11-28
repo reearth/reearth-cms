@@ -31,3 +31,18 @@ input ResourceInput {
     url: String!
     image: String!
 }
+
+input UpdateWorkspaceSettingsInput {
+    workspaceId: ID!
+    avatar: String
+    tiles: WorkspaceResourceListInput
+    terrains: WorkspaceResourceListInput
+}
+
+type UpdateWorkspaceSettingsPayload {
+    workspaceSettings: WorkspaceSettings!
+}
+
+extend type Mutation {
+    updateWorkspaceSettings(input: UpdateWorkspaceSettingsInput!): UpdateWorkspaceSettingsPayload
+}

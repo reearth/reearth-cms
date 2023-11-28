@@ -1272,6 +1272,17 @@ type UpdateWorkspacePayload struct {
 	Workspace *Workspace `json:"workspace"`
 }
 
+type UpdateWorkspaceSettingsInput struct {
+	WorkspaceID ID                          `json:"workspaceId"`
+	Avatar      *string                     `json:"avatar,omitempty"`
+	Tiles       *WorkspaceResourceListInput `json:"tiles,omitempty"`
+	Terrains    *WorkspaceResourceListInput `json:"terrains,omitempty"`
+}
+
+type UpdateWorkspaceSettingsPayload struct {
+	WorkspaceSettings *WorkspaceSettings `json:"workspaceSettings"`
+}
+
 type User struct {
 	ID    ID     `json:"id"`
 	Name  string `json:"name"`
