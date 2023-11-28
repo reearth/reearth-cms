@@ -255,7 +255,7 @@ var ViewIDFromRef = idx.FromRef[View]
 
 type WorkspaceSettings struct{}
 
-func (WorkspaceSettings) Type() string { return "request" }
+func (WorkspaceSettings) Type() string { return "workspacesettings" }
 
 type WorkspaceSettingsID = idx.ID[WorkspaceSettings]
 type WorkspaceSettingsIDList = idx.List[WorkspaceSettings]
@@ -267,7 +267,7 @@ var WorkspaceSettingsIDFromRef = idx.FromRef[WorkspaceSettings]
 
 type Resource struct{}
 
-func (Resource) Type() string { return "request" }
+func (Resource) Type() string { return "resource" }
 
 type ResourceID = idx.ID[Resource]
 type ResourceIDList = idx.List[Resource]
