@@ -37,7 +37,7 @@ export type CurrentViewType = {
   columns?: Column[];
 };
 
-const DefaultOrder = {
+const defaultViewSort = {
   direction: "DESC" as SortDirection,
   field: {
     type: "MODIFICATION_DATE" as FieldType,
@@ -94,8 +94,10 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        //if no order in the current view, then show data in default order
-        sort: currentView.sort ? toGraphItemSort(currentView.sort) : toGraphItemSort(DefaultOrder),
+        //if there is no sort in the current view, show data in the default view sort
+        sort: currentView.sort
+          ? toGraphItemSort(currentView.sort)
+          : toGraphItemSort(defaultViewSort),
         filter: currentView.filter
           ? {
               and: toGraphAndConditionInput(currentView.filter),
