@@ -689,7 +689,6 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"key":   sfKey6.String(),
 			},
 		})
-	r = r
 }
 
 // GET /items/{itemId}
