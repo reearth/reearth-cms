@@ -164,7 +164,9 @@ export default () => {
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
                         : Array.isArray(field.value)
-                        ? field.value.join(", ")
+                        ? field.value.length
+                          ? field.value.map(v => "" + v)
+                          : null
                         : field.value
                         ? "" + field.value
                         : field.value,
@@ -178,7 +180,9 @@ export default () => {
                 (obj, field) =>
                   Object.assign(obj, {
                     [field.schemaFieldId]: Array.isArray(field.value)
-                      ? field.value.join(", ")
+                      ? field.value.length
+                        ? field.value.map(v => "" + v)
+                        : null
                       : field.value
                       ? "" + field.value
                       : field.value,

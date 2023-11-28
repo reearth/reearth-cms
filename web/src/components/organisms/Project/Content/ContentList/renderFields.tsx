@@ -11,11 +11,10 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-export const renderTags = (value: string, field: any) => {
+export const renderTags = (value: string[], field: any) => {
   type Tag = { id: string; name: string; color: string };
   const tags: Tag[] | undefined = field.typeProperty?.tags;
-  const tagIds: Set<string> = new Set(value.split(", "));
-  const filteredTags: Tag[] = tags?.filter((tag: Tag) => tagIds.has(tag.id)) || [];
+  const filteredTags: Tag[] = tags?.filter((tag: Tag) => value.includes(tag.id)) || [];
   return (
     <>
       {filteredTags.map(({ id, name, color }: Tag) => (
@@ -28,10 +27,11 @@ export const renderTags = (value: string, field: any) => {
 };
 
 export const renderField = (el: any, field: any) => {
-  const value = el.props.children as string;
+  const value = el.props.children as string | string[];
   if (value === "-") return <span>-</span>;
+  const items = Array.isArray(value) ? value : [value];
   if (field.type === "Tag") {
-    return renderTags(value, field);
+    return renderTags(items, field);
   }
 
   const itemFormat = (item: string) => {
@@ -85,7 +85,6 @@ export const renderField = (el: any, field: any) => {
     }
   };
 
-  const items = typeof value === "string" && field.multiple ? value.split(", ") : [value];
   const content = (
     <>
       {items.map((item, index) => {
@@ -112,7 +111,7 @@ export const renderField = (el: any, field: any) => {
       </Popover>
     );
   } else {
-    return itemFormat(value);
+    return itemFormat(items[0]);
   }
 };
 
