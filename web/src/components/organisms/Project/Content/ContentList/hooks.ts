@@ -5,7 +5,13 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { AndConditionInput, Column, ItemSort } from "@reearth-cms/components/molecules/View/types";
+import {
+  AndConditionInput,
+  Column,
+  FieldType,
+  ItemSort,
+  SortDirection,
+} from "@reearth-cms/components/molecules/View/types";
 import {
   convertItem,
   convertComment,
@@ -29,6 +35,13 @@ export type CurrentViewType = {
   sort?: ItemSort;
   filter?: AndConditionInput;
   columns?: Column[];
+};
+
+const defaultViewSort = {
+  direction: "DESC" as SortDirection,
+  field: {
+    type: "MODIFICATION_DATE" as FieldType,
+  },
 };
 
 export default () => {
@@ -81,7 +94,10 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: currentView.sort ? toGraphItemSort(currentView.sort) : undefined,
+        //if there is no sort in the current view, show data in the default view sort
+        sort: currentView.sort
+          ? toGraphItemSort(currentView.sort)
+          : toGraphItemSort(defaultViewSort),
         filter: currentView.filter
           ? {
               and: toGraphAndConditionInput(currentView.filter),
