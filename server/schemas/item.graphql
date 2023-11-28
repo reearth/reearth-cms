@@ -9,6 +9,7 @@ type Item implements Node {
   updatedByIntegrationId: ID
   userId: ID
   metadataId: ID
+  isMetadata: Boolean!
   originalId: ID
   createdBy: Operator
   schema: Schema!
