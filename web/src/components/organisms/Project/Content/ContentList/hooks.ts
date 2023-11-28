@@ -5,7 +5,13 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { AndConditionInput, Column, ItemSort } from "@reearth-cms/components/molecules/View/types";
+import {
+  AndConditionInput,
+  Column,
+  FieldType,
+  ItemSort,
+  SortDirection,
+} from "@reearth-cms/components/molecules/View/types";
 import {
   convertItem,
   convertComment,
@@ -20,16 +26,22 @@ import {
   useGetItemsByIdsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
-import { renderTags } from "./renderFields";
+import { renderField } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
   sort?: ItemSort;
   filter?: AndConditionInput;
   columns?: Column[];
+};
+
+const defaultViewSort = {
+  direction: "DESC" as SortDirection,
+  field: {
+    type: "MODIFICATION_DATE" as FieldType,
+  },
 };
 
 export default () => {
@@ -82,7 +94,10 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: currentView.sort ? toGraphItemSort(currentView.sort) : undefined,
+        //if there is no sort in the current view, show data in the default view sort
+        sort: currentView.sort
+          ? toGraphItemSort(currentView.sort)
+          : toGraphItemSort(defaultViewSort),
         filter: currentView.filter
           ? {
               and: toGraphAndConditionInput(currentView.filter),
@@ -164,8 +179,6 @@ export default () => {
                             )
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
-                        : field.type === "Date" && field.value
-                        ? dateTimeFormat(field.value)
                         : Array.isArray(field.value)
                         ? field.value.join(", ")
                         : field.value
@@ -180,14 +193,11 @@ export default () => {
               metadata: item?.metadata?.fields?.reduce(
                 (obj, field) =>
                   Object.assign(obj, {
-                    [field.schemaFieldId]:
-                      field.type === "Date" && field.value
-                        ? dateTimeFormat(field.value)
-                        : Array.isArray(field.value)
-                        ? field.value.join(", ")
-                        : field.value
-                        ? "" + field.value
-                        : field.value,
+                    [field.schemaFieldId]: Array.isArray(field.value)
+                      ? field.value.join(", ")
+                      : field.value
+                      ? "" + field.value
+                      : field.value,
                   }),
                 {},
               ),
@@ -218,35 +228,31 @@ export default () => {
             ? ("ascend" as const)
             : ("descend" as const)
           : null,
+      render: (el: any) => renderField(el, field),
     }));
 
     const metadataColumns =
-      currentModel?.metadataSchema?.fields?.map(field => {
-        const result = {
-          title: field.title,
-          dataIndex: ["metadata", field.id],
-          fieldType: "META_FIELD",
-          key: field.id,
-          ellipsis: true,
-          type: field.type,
-          typeProperty: field.typeProperty,
-          width: 128,
-          minWidth: 128,
-          multiple: field.multiple,
-          required: field.required,
-          sorter: true,
-          sortOrder:
-            currentView.sort?.field.id === field.id
-              ? currentView.sort?.direction === "ASC"
-                ? ("ascend" as const)
-                : ("descend" as const)
-              : null,
-        };
-        if (field.type === "Tag") {
-          Object.assign(result, { render: (el: any) => renderTags(el, field) });
-        }
-        return result;
-      }) || [];
+      currentModel?.metadataSchema?.fields?.map(field => ({
+        title: field.title,
+        dataIndex: ["metadata", field.id],
+        fieldType: "META_FIELD",
+        key: field.id,
+        ellipsis: true,
+        type: field.type,
+        typeProperty: field.typeProperty,
+        width: 128,
+        minWidth: 128,
+        multiple: field.multiple,
+        required: field.required,
+        sorter: true,
+        sortOrder:
+          currentView.sort?.field.id === field.id
+            ? currentView.sort?.direction === "ASC"
+              ? ("ascend" as const)
+              : ("descend" as const)
+            : null,
+        render: (el: any) => renderField(el, field),
+      })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
   }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id]);
