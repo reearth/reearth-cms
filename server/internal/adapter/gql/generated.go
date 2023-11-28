@@ -819,7 +819,6 @@ type ComplexityRoot struct {
 	}
 
 	WorkspaceSettings struct {
-		Avatar      func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Terrains    func(childComplexity int) int
 		Tiles       func(childComplexity int) int
@@ -4348,13 +4347,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkspaceResourceList.Resources(childComplexity), true
 
-	case "WorkspaceSettings.avatar":
-		if e.complexity.WorkspaceSettings.Avatar == nil {
-			break
-		}
-
-		return e.complexity.WorkspaceSettings.Avatar(childComplexity), true
-
 	case "WorkspaceSettings.id":
 		if e.complexity.WorkspaceSettings.ID == nil {
 			break
@@ -6220,9 +6212,6 @@ input CreateWorkspaceInput {
 input UpdateWorkspaceInput {
     workspaceId: ID!
     name: String!
-    avatar: String
-    tiles: WorkspaceResourceListInput
-    terrains: WorkspaceResourceListInput
 }
 
 input MemberInput {
@@ -6307,7 +6296,6 @@ extend type Mutation {
 	{Name: "../../../schemas/workspacesettings.graphql", Input: `type WorkspaceSettings {
     id: ID!
 	workspaceId: ID!
-	avatar: String
     tiles: WorkspaceResourceList
     terrains: WorkspaceResourceList
 }
@@ -6340,7 +6328,6 @@ input ResourceInput {
 
 input UpdateWorkspaceSettingsInput {
     workspaceId: ID!
-    avatar: String
     tiles: WorkspaceResourceListInput
     terrains: WorkspaceResourceListInput
 }
@@ -27158,8 +27145,6 @@ func (ec *executionContext) fieldContext_UpdateWorkspaceSettingsPayload_workspac
 				return ec.fieldContext_WorkspaceSettings_id(ctx, field)
 			case "workspaceId":
 				return ec.fieldContext_WorkspaceSettings_workspaceId(ctx, field)
-			case "avatar":
-				return ec.fieldContext_WorkspaceSettings_avatar(ctx, field)
 			case "tiles":
 				return ec.fieldContext_WorkspaceSettings_tiles(ctx, field)
 			case "terrains":
@@ -28877,8 +28862,6 @@ func (ec *executionContext) fieldContext_Workspace_settings(ctx context.Context,
 				return ec.fieldContext_WorkspaceSettings_id(ctx, field)
 			case "workspaceId":
 				return ec.fieldContext_WorkspaceSettings_workspaceId(ctx, field)
-			case "avatar":
-				return ec.fieldContext_WorkspaceSettings_avatar(ctx, field)
 			case "tiles":
 				return ec.fieldContext_WorkspaceSettings_tiles(ctx, field)
 			case "terrains":
@@ -29400,47 +29383,6 @@ func (ec *executionContext) fieldContext_WorkspaceSettings_workspaceId(ctx conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkspaceSettings_avatar(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceSettings) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkspaceSettings_avatar(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Avatar, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkspaceSettings_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkspaceSettings",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -36514,7 +36456,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "name", "avatar", "tiles", "terrains"}
+	fieldsInOrder := [...]string{"workspaceId", "name"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36539,33 +36481,6 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceInput(ctx context.Conte
 				return it, err
 			}
 			it.Name = data
-		case "avatar":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Avatar = data
-		case "tiles":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tiles"))
-			data, err := ec.unmarshalOWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Tiles = data
-		case "terrains":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrains"))
-			data, err := ec.unmarshalOWorkspaceResourceListInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐWorkspaceResourceListInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Terrains = data
 		}
 	}
 
@@ -36579,7 +36494,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceSettingsInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"workspaceId", "avatar", "tiles", "terrains"}
+	fieldsInOrder := [...]string{"workspaceId", "tiles", "terrains"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36595,15 +36510,6 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceSettingsInput(ctx conte
 				return it, err
 			}
 			it.WorkspaceID = data
-		case "avatar":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Avatar = data
 		case "tiles":
 			var err error
 
@@ -44134,8 +44040,6 @@ func (ec *executionContext) _WorkspaceSettings(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "avatar":
-			out.Values[i] = ec._WorkspaceSettings_avatar(ctx, field, obj)
 		case "tiles":
 			out.Values[i] = ec._WorkspaceSettings_tiles(ctx, field, obj)
 		case "terrains":

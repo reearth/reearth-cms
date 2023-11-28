@@ -14,7 +14,6 @@ func ToWorkspaceSettings(ws *workspacesettings.WorkspaceSettings) *WorkspaceSett
 	return &WorkspaceSettings{
 		ID:          IDFrom(ws.ID()),
 		WorkspaceID: IDFrom(ws.Workspace()),
-		Avatar:      ws.Avatar(),
 		Tiles:       ToWorkspaceResourceList(ws.Tiles()),
 		Terrains:    ToWorkspaceResourceList(ws.Terrains()),
 	}

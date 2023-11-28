@@ -53,9 +53,6 @@ func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWo
 	}
 	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
-			if inp.Avatar != nil {
-				work.SetAvatar(inp.Avatar)
-			}
 			if inp.Tiles != nil {
 				work.SetTiles(inp.Tiles)
 			}

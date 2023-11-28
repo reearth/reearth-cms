@@ -1261,11 +1261,8 @@ type UpdateWebhookInput struct {
 }
 
 type UpdateWorkspaceInput struct {
-	WorkspaceID ID                          `json:"workspaceId"`
-	Name        string                      `json:"name"`
-	Avatar      *string                     `json:"avatar,omitempty"`
-	Tiles       *WorkspaceResourceListInput `json:"tiles,omitempty"`
-	Terrains    *WorkspaceResourceListInput `json:"terrains,omitempty"`
+	WorkspaceID ID     `json:"workspaceId"`
+	Name        string `json:"name"`
 }
 
 type UpdateWorkspacePayload struct {
@@ -1274,7 +1271,6 @@ type UpdateWorkspacePayload struct {
 
 type UpdateWorkspaceSettingsInput struct {
 	WorkspaceID ID                          `json:"workspaceId"`
-	Avatar      *string                     `json:"avatar,omitempty"`
 	Tiles       *WorkspaceResourceListInput `json:"tiles,omitempty"`
 	Terrains    *WorkspaceResourceListInput `json:"terrains,omitempty"`
 }
@@ -1392,7 +1388,6 @@ type WorkspaceResourceListInput struct {
 type WorkspaceSettings struct {
 	ID          ID                     `json:"id"`
 	WorkspaceID ID                     `json:"workspaceId"`
-	Avatar      *string                `json:"avatar,omitempty"`
 	Tiles       *WorkspaceResourceList `json:"tiles,omitempty"`
 	Terrains    *WorkspaceResourceList `json:"terrains,omitempty"`
 }

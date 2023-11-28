@@ -14,7 +14,6 @@ type CreateWorkspaceSettingsParam struct {
 
 type UpdateWorkspaceSettingsParam struct {
 	WorkspaceID accountdomain.WorkspaceID
-	Avatar      *string
 	Tiles       *workspacesettings.WorkspaceResourceList
 	Terrains    *workspacesettings.WorkspaceResourceList
 }

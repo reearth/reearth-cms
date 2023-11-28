@@ -10,7 +10,6 @@ import (
 type WorkspaceSettings struct {
 	id          ID
 	workspaceId accountdomain.WorkspaceID
-	avatar      *string
 	tiles       *WorkspaceResourceList
 	terrains    *WorkspaceResourceList
 }
@@ -34,17 +33,6 @@ func (ws *WorkspaceSettings) ID() ID {
 
 func (ws *WorkspaceSettings) Workspace() accountdomain.WorkspaceID {
 	return ws.workspaceId
-}
-
-func (ws *WorkspaceSettings) Avatar() *string {
-	if ws.avatar == nil {
-		return nil
-	}
-	return ws.avatar
-}
-
-func (ws *WorkspaceSettings) SetAvatar(a *string) {
-	ws.avatar = util.CloneRef(a)
 }
 
 func (ws *WorkspaceSettings) Tiles() *WorkspaceResourceList {
@@ -76,7 +64,6 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 
 	return &WorkspaceSettings{
 		workspaceId: ws.workspaceId.Clone(),
-		avatar:      ws.avatar,
 		tiles: &WorkspaceResourceList{
 			resources:       slices.Clone(ws.tiles.resources),
 			defaultResource: ws.tiles.defaultResource,

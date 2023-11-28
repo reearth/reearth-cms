@@ -45,11 +45,6 @@ func (b *Builder) Workspace(wid accountdomain.WorkspaceID) *Builder {
 	return b
 }
 
-func (b *Builder) Avatar(a *string) *Builder {
-	b.ws.avatar = a
-	return b
-}
-
 func (b *Builder) Tiles(wr *WorkspaceResourceList) *Builder {
 	b.ws.tiles = wr
 	return b

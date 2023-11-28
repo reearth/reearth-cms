@@ -1,7 +1,6 @@
 type WorkspaceSettings {
     id: ID!
 	workspaceId: ID!
-	avatar: String
     tiles: WorkspaceResourceList
     terrains: WorkspaceResourceList
 }
@@ -34,7 +33,6 @@ input ResourceInput {
 
 input UpdateWorkspaceSettingsInput {
     workspaceId: ID!
-    avatar: String
     tiles: WorkspaceResourceListInput
     terrains: WorkspaceResourceListInput
 }

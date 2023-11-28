@@ -11,7 +11,6 @@ import (
 type WorkspaceSettingsDocument struct {
 	ID          string
 	WorkspaceID string
-	Avatar      *string
 	Tiles       *WorkspaceResourceListDocument
 	Terrains    *WorkspaceResourceListDocument
 }
@@ -40,7 +39,6 @@ func NewWorkspaceSettings(ws *workspacesettings.WorkspaceSettings) (*WorkspaceSe
 	return &WorkspaceSettingsDocument{
 		ID:          wsid,
 		WorkspaceID: ws.Workspace().String(),
-		Avatar:      ws.Avatar(),
 		Tiles:       ToWorkspaceResourceListDocument(ws.Tiles()),
 		Terrains:    ToWorkspaceResourceListDocument(ws.Terrains()),
 	}, wsid
@@ -59,7 +57,6 @@ func (wsd *WorkspaceSettingsDocument) Model() (*workspacesettings.WorkspaceSetti
 	return workspacesettings.New().
 		ID(wsid).
 		Workspace(wid).
-		Avatar(wsd.Avatar).
 		Tiles(FromWorkspaceResourceListDocument(wsd.Tiles)).
 		Terrains(FromWorkspaceResourceListDocument(wsd.Terrains)).
 		Build()
