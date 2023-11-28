@@ -40,21 +40,26 @@ var (
 	auuid  = uuid.NewString()
 	itmId  = id.NewItemID()
 	itmId2 = id.NewItemID()
+	itmId3 = id.NewItemID()
 	fId    = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
+	fId4   = id.NewFieldID()
 	thId   = id.NewThreadID()
 	thId2  = id.NewThreadID()
+	thId3  = id.NewThreadID()
 	icId   = id.NewCommentID()
 	ikey   = key.Random()
 	ikey2  = key.Random()
 	pid    = id.NewProjectID()
 	sid    = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
+	sid3   = id.NewSchemaID()
 	palias = "PROJECT_ALIAS"
 	sfKey  = key.Random()
 	sfKey2 = id.NewKey("asset")
 	sfKey3 = key.Random()
+	sfKey4 = key.Random()
 
 	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
@@ -111,6 +116,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	sf := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId).Key(sfKey).MustBuild()
 	sf2 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
 	sf3 := schema.NewField(schema.NewReference(mId, nil, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
+	sf4 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId4).Key(sfKey4).MustBuild()
 	s := schema.New().ID(sid).
 		Workspace(w.ID()).
 		Project(p.ID()).
@@ -128,6 +134,14 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Schema.Save(ctx, s2); err != nil {
 		return err
 	}
+	s3 := schema.New().ID(sid3).
+		Workspace(w.ID()).
+		Project(p.ID()).
+		Fields([]*schema.Field{sf4}).
+		MustBuild()
+	if err := r.Schema.Save(ctx, s3); err != nil {
+		return err
+	}
 
 	m := model.New().
 		ID(mId).
@@ -137,6 +151,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Key(ikey).
 		Project(p.ID()).
 		Schema(s.ID()).
+		Metadata(s3.ID().Ref()).
 		MustBuild()
 	if err := r.Model.Save(ctx, m); err != nil {
 		return err
@@ -178,6 +193,20 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm2); err != nil {
+		return err
+	}
+
+	itm3 := item.New().ID(itmId3).
+		Schema(s3.ID()).
+		Model(m.ID()).
+		Project(p.ID()).
+		Thread(thId3).
+		IsMetadata(true).
+		Fields([]*item.Field{
+			item.NewField(fId4, value.TypeBool.Value(true).AsMultiple(), nil),
+		}).
+		MustBuild()
+	if err := r.Item.Save(ctx, itm3); err != nil {
 		return err
 	}
 
@@ -351,7 +380,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		JSON().
 		Object()
 	r.Keys().
-		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+		ContainsAll("id", "modelId", "fields", "createdAt", "isMetadata", "updatedAt", "version", "parents", "refs")
 	r.Value("fields").IsEqual([]any{
 		map[string]string{
 			"id":    fId.String(),
@@ -362,8 +391,9 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	})
 	r.Value("modelId").IsEqual(mId.String())
 	r.Value("refs").IsEqual([]string{"latest"})
+	r.Value("isMetadata").IsEqual(false)
 
-	e.POST("/api/models/{modelId}/items", mId).
+	obj := e.POST("/api/models/{modelId}/items", mId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -372,11 +402,18 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 					"value": "test value 2",
 				},
 			},
+			"metadataFields": []interface{}{
+				map[string]string{
+					"key":   sfKey4.String(),
+					"value": "true",
+				},
+			},
 		}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
+		Object()
+	obj.
 		Value("fields").
 		IsEqual([]any{
 			map[string]string{
@@ -386,7 +423,16 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 				"key":   sfKey.String(),
 			},
 		})
-
+	obj.
+		Value("metadataFields").
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId4.String(),
+				"type":  "bool",
+				"value": true,
+				"key":   sfKey4.String(),
+			},
+		})
 	r2 := e.POST("/api/models/{modelId}/items", mId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
@@ -602,6 +648,17 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId.String()
 	raw["modelId"] = mId.String()
+
+	//	get Metadata Item
+	e.GET("/api/items/{itemId}", itmId3).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("isMetadata").
+		IsEqual(true)
+
 }
 
 // DELETE /items/{itemId}
