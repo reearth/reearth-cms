@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
@@ -30,9 +29,6 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   setSelectedView,
 }) => {
   const t = useT();
-  const [searchParams, setSearchParams] = useSearchParams();
-  searchParams.set("searchTerm", "");
-  searchParams.set("page", "1");
 
   const menuItems = views?.map(view => {
     return {
@@ -55,11 +51,10 @@ const ViewsMenuMolecule: React.FC<Props> = ({
       views.forEach(view => {
         if (view.id === key) {
           setSelectedView(view);
-          setSearchParams(searchParams);
         }
       });
     },
-    [searchParams, setSearchParams, setSelectedView, views],
+    [setSelectedView, views],
   );
 
   return (
