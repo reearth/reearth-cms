@@ -192,33 +192,37 @@ const FieldUpdateModal: React.FC<Props> = ({
   }, [form, selectedTags, selectedType]);
 
   useEffect(() => {
-    let value =
-      selectedField?.typeProperty.defaultValue ||
-      selectedField?.typeProperty.selectDefaultValue ||
-      selectedField?.typeProperty.integerDefaultValue ||
-      selectedField?.typeProperty.assetDefaultValue;
-
-    if (selectedType === "Date") {
-      if (Array.isArray(value)) {
-        value = value.map(valueItem => moment(valueItem));
+    const defaultValue = selectedField?.typeProperty?.defaultValue;
+    const selectDefaultValue = selectedField?.typeProperty?.selectDefaultValue;
+    const value = (() => {
+      if (selectedType === "Date") {
+        if (Array.isArray(defaultValue)) {
+          return defaultValue.map(valueItem => moment(valueItem as string));
+        } else {
+          return moment(defaultValue as string);
+        }
+      } else if (selectedType === "Tag") {
+        if (Array.isArray(selectDefaultValue)) {
+          return selectDefaultValue.map(
+            valueItem =>
+              selectedField?.typeProperty?.tags?.find(
+                (tag: { id: string; name: string }) => tag.id === valueItem,
+              )?.name,
+          );
+        } else {
+          return selectedField?.typeProperty?.tags?.find(
+            (tag: { id: string; name: string }) => tag.id === selectDefaultValue,
+          )?.name;
+        }
       } else {
-        value = moment(value);
-      }
-    }
-    if (selectedType === "Tag") {
-      if (Array.isArray(value)) {
-        value = value.map(
-          valueItem =>
-            selectedField?.typeProperty.tags?.find(
-              (tag: { id: string; name: string }) => tag.id === valueItem,
-            )?.name,
+        return (
+          defaultValue ??
+          selectDefaultValue ??
+          selectedField?.typeProperty?.integerDefaultValue ??
+          selectedField?.typeProperty?.assetDefaultValue
         );
-      } else {
-        value = selectedField?.typeProperty.tags?.find(
-          (tag: { id: string; name: string }) => tag.id === value,
-        )?.name;
       }
-    }
+    })();
 
     form.setFieldsValue({
       fieldId: selectedField?.id,
@@ -230,12 +234,12 @@ const FieldUpdateModal: React.FC<Props> = ({
       isTitle: selectedField?.isTitle,
       required: selectedField?.required,
       defaultValue: value,
-      min: selectedField?.typeProperty.min,
-      max: selectedField?.typeProperty.max,
-      maxLength: selectedField?.typeProperty.maxLength,
-      values: selectedField?.typeProperty.values,
-      tags: selectedField?.typeProperty.tags,
-      group: selectedField?.typeProperty.groupId,
+      min: selectedField?.typeProperty?.min,
+      max: selectedField?.typeProperty?.max,
+      maxLength: selectedField?.typeProperty?.maxLength,
+      values: selectedField?.typeProperty?.values,
+      tags: selectedField?.typeProperty?.tags,
+      group: selectedField?.typeProperty?.groupId,
     });
   }, [form, selectedField, selectedType]);
 
