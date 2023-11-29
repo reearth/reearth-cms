@@ -22,6 +22,7 @@ type Item struct {
 	fields               []*Field
 	timestamp            time.Time
 	thread               ThreadID
+	isMetadata           bool
 	user                 *UserID
 	updatedByUser        *UserID
 	updatedByIntegration *IntegrationID
@@ -66,6 +67,9 @@ func (i *Item) Timestamp() time.Time {
 
 func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
+}
+func (i *Item) IsMetadata() bool {
+	return i.isMetadata
 }
 
 func (i *Item) OriginalItem() *ID {
