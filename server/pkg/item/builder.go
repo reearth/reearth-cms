@@ -112,6 +112,11 @@ func (b *Builder) MetadataItem(id *ID) *Builder {
 	return b
 }
 
+func (b *Builder) IsMetadata(im bool) *Builder {
+	b.i.isMetadata = im
+	return b
+}
+
 func (b *Builder) OriginalItem(id *ID) *Builder {
 	b.i.originalItem = id
 	return b

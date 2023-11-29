@@ -32,7 +32,7 @@ func TestIntegrationGetAssetCommentAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	r := e.GET("/api/assets/{assetId}/comments", aid).
+	r := e.GET("/api/assets/{assetId}/comments", aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -69,7 +69,7 @@ func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	c := e.POST("/api/assets/{assetId}/comments", aid).
+	c := e.POST("/api/assets/{assetId}/comments", aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "test",
@@ -107,7 +107,7 @@ func TestIntegrationUpdateAssetCommentAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	r := e.PATCH("/api/assets/{assetId}/comments/{commentId}", aid, icId).
+	r := e.PATCH("/api/assets/{assetId}/comments/{commentId}", aid1, icId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "updated content",
@@ -136,7 +136,7 @@ func TestIntegrationDeleteAssetCommentAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE("/api/assets/{assetId}/comments/{commentId}", aid, icId).
+	e.DELETE("/api/assets/{assetId}/comments/{commentId}", aid1, icId).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -144,7 +144,7 @@ func TestIntegrationDeleteAssetCommentAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id")
 
-	e.GET("/api/assets/{assetId}/comments", aid).
+	e.GET("/api/assets/{assetId}/comments", aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
