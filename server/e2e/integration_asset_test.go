@@ -26,13 +26,13 @@ func TestIntegrationGetAssetAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/assets/{assetId}", aid).
+	e.GET("/api/assets/{assetId}", aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		HasValue("id", aid.String()).
+		HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("name", "aaa.jpg").
 		HasValue("contentType", "image/jpg").
@@ -43,36 +43,36 @@ func TestIntegrationGetAssetAPI(t *testing.T) {
 func TestIntegrationDeleteAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.DELETE("/api/assets/{assetId}", aid).
+	e.DELETE("/api/assets/{assetId}", aid1).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE("/api/assets/{assetId}", aid).
+	e.DELETE("/api/assets/{assetId}", aid1).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetId}", aid).
+	e.GET("/api/assets/{assetId}", aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		HasValue("id", aid.String()).
+		HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("name", "aaa.jpg").
 		HasValue("contentType", "image/jpg").
 		HasValue("totalSize", 1000)
 
-	e.DELETE("/api/assets/{assetId}", aid).
+	e.DELETE("/api/assets/{assetId}", aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		HasValue("id", aid.String())
+		HasValue("id", aid1.String())
 
-	e.GET("/api/assets/{assetId}", aid).
+	e.GET("/api/assets/{assetId}", aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)

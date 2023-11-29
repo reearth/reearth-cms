@@ -361,7 +361,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
+		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), itv.Fields())
 		if err != nil {
 			return nil, err
 		}

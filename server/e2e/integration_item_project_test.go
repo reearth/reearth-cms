@@ -33,7 +33,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	obj := e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId).
+	obj := e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -51,7 +51,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 	assertItem(a.Value(0), false)
 
 	// model key can be also usable
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, ikey).
+	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -68,7 +68,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 	assertItem(a.Value(0), false)
 
 	// project alias can be also usable
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", palias, ikey).
+	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -85,7 +85,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 	assertItem(a.Value(0), false)
 
 	// asset embeded
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId).
+	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -111,7 +111,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 
 	// invalid project
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", id.NewProjectID(), ikey).
+	e.GET("/api/projects/{projectId}/models/{modelId}/items", id.NewProjectID(), ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -137,12 +137,12 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	r := e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey).
+	r := e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
 				map[string]string{
-					"id":    fId.String(),
+					"id":    fId1.String(),
 					"value": "test value",
 				},
 			},
@@ -155,21 +155,21 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 	r.Value("fields").IsEqual([]any{
 		map[string]string{
-			"id":    fId.String(),
+			"id":    fId1.String(),
 			"type":  "text",
 			"value": "test value",
-			"key":   sfKey.String(),
+			"key":   sfKey1.String(),
 		},
 	})
-	r.Value("modelId").IsEqual(mId.String())
+	r.Value("modelId").IsEqual(mId1.String())
 	r.Value("refs").IsEqual([]string{"latest"})
 
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey).
+	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
 				map[string]string{
-					"key":   sfKey.String(),
+					"key":   sfKey1.String(),
 					"value": "test value 2",
 				},
 			},
@@ -181,10 +181,10 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 		Value("fields").
 		IsEqual([]any{
 			map[string]string{
-				"id":    fId.String(),
+				"id":    fId1.String(),
 				"type":  "text",
 				"value": "test value 2",
-				"key":   sfKey.String(),
+				"key":   sfKey1.String(),
 			},
 		})
 }
