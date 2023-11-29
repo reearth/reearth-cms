@@ -611,7 +611,7 @@ func TestSearchItem(t *testing.T) {
 	// region fetch by model
 	// res = SearchItem(e, map[string]any{
 	// 	"project": pId,
-	// 	"model":   mId,
+	// 	"model":   mId1,
 	// }, nil, nil, map[string]any{
 	// 	"first": 2,
 	// })
@@ -622,7 +622,7 @@ func TestSearchItem(t *testing.T) {
 	// // fetch by model with search
 	// res = SearchItem(e, map[string]any{
 	// 	"project": pId,
-	// 	"model":   mId,
+	// 	"model":   mId1,
 	// 	"schema":  sId,
 	// 	"q":       "updated",
 	// }, nil, nil, map[string]any{

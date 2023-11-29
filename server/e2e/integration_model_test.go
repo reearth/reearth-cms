@@ -43,17 +43,17 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 			Object().
 			Value("models").
 			Array()
-		models.Length().IsEqual(2)
+		models.Length().IsEqual(3)
 
 		obj1 := models.Value(0).Object()
 		obj1.
-			HasValue("id", mId.String()).
+			HasValue("id", mId1.String()).
 			HasValue("name", "m1").
 			HasValue("description", "m1 desc").
 			HasValue("public", true).
-			HasValue("key", ikey.String()).
+			HasValue("key", ikey1.String()).
 			HasValue("projectId", pid).
-			HasValue("schemaId", sid)
+			HasValue("schemaId", sid1)
 
 		obj1.Value("createdAt").NotNull()
 		obj1.Value("updatedAt").NotNull()
@@ -113,14 +113,14 @@ func TestIntegrationModelGetAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 
 	// key cannot be used
-	e.GET("/api/models/{modelId}", ikey).
+	e.GET("/api/models/{modelId}", ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusBadRequest)
 
-	obj := e.GET("/api/models/{modelId}", mId).
+	obj := e.GET("/api/models/{modelId}", mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -128,13 +128,13 @@ func TestIntegrationModelGetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		HasValue("id", mId.String()).
+		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
 		HasValue("public", true).
-		HasValue("key", ikey.String()).
+		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
-		HasValue("schemaId", sid)
+		HasValue("schemaId", sid1)
 
 	obj.Value("createdAt").NotNull()
 	obj.Value("updatedAt").NotNull()
@@ -166,7 +166,7 @@ func TestIntegrationModelGetWithProjectAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	obj := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, mId).
+	obj := e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -174,19 +174,19 @@ func TestIntegrationModelGetWithProjectAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		HasValue("id", mId.String()).
+		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
 		HasValue("public", true).
-		HasValue("key", ikey.String()).
+		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
-		HasValue("schemaId", sid)
+		HasValue("schemaId", sid1)
 
 	obj.Value("createdAt").NotNull()
 	obj.Value("updatedAt").NotNull()
 	obj.Value("lastModified").NotNull()
 
-	obj = e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, ikey).
+	obj = e.GET("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}", palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -194,13 +194,13 @@ func TestIntegrationModelGetWithProjectAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		HasValue("id", mId.String()).
+		HasValue("id", mId1.String()).
 		HasValue("name", "m1").
 		HasValue("description", "m1 desc").
 		HasValue("public", true).
-		HasValue("key", ikey.String()).
+		HasValue("key", ikey1.String()).
 		HasValue("projectId", pid).
-		HasValue("schemaId", sid)
+		HasValue("schemaId", sid1)
 
 	obj.Value("createdAt").NotNull()
 	obj.Value("updatedAt").NotNull()

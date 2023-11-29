@@ -56,11 +56,11 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 	al := obj.Value("items").Array()
 	al.Length().IsEqual(1)
 	al.Value(0).Object().
-		HasValue("id", aid.String()).
+		HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("totalSize", 1000).
 		HasValue("previewType", "unknown").
-		HasValue("createdAt", aid.Timestamp().UTC().Format(time.RFC3339Nano)).
+		HasValue("createdAt", aid1.Timestamp().UTC().Format(time.RFC3339Nano)).
 		HasValue("updatedAt", time.Time{}.Format("2006-01-02T15:04:05Z"))
 }
 
@@ -105,7 +105,7 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object().
-		// HasValue("id", aid.String()).
+		// HasValue("id", aid1.String()).
 		HasValue("projectId", pid).
 		HasValue("name", "testFile.jpg").
 		HasValue("contentType", "image/jpeg").
