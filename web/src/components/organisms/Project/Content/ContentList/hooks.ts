@@ -180,7 +180,7 @@ export default () => {
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
                         : Array.isArray(field.value)
-                        ? field.value.length
+                        ? field.value.length > 0
                           ? field.value.map(v => "" + v)
                           : null
                         : field.value
