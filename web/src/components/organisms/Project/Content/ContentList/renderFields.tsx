@@ -67,7 +67,9 @@ export const renderField = (el: { props: { children: string | string[] } }, fiel
   const value = el.props.children;
   const items = Array.isArray(value) ? value : [value];
 
-  if (value === "-") {
+  if ((field.type === "Bool" || field.type === "Checkbox") && !field.multiple) {
+    return itemFormat(items[0], field.type);
+  } else if (value === "-") {
     return <span>-</span>;
   } else if (field.type === "Tag") {
     const tags = field.typeProperty?.tags;

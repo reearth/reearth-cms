@@ -183,9 +183,9 @@ export default () => {
                         ? field.value.length > 0
                           ? field.value.map(v => "" + v)
                           : null
-                        : field.value
-                        ? "" + field.value
-                        : field.value,
+                        : field.value === null
+                        ? null
+                        : "" + field.value,
                   }),
                 {},
               ),
@@ -199,9 +199,9 @@ export default () => {
                       ? field.value.length > 0
                         ? field.value.map(v => "" + v)
                         : null
-                      : field.value
-                      ? "" + field.value
-                      : field.value,
+                      : field.value === null
+                      ? null
+                      : "" + field.value,
                   }),
                 {},
               ),
