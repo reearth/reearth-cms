@@ -196,7 +196,7 @@ export default () => {
                 (obj, field) =>
                   Object.assign(obj, {
                     [field.schemaFieldId]: Array.isArray(field.value)
-                      ? field.value.length
+                      ? field.value.length > 0
                         ? field.value.map(v => "" + v)
                         : null
                       : field.value
