@@ -39,10 +39,12 @@ const HeaderMolecule: React.FC<Props> = ({
   const t = useT();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const url =
-    window.REEARTH_CONFIG?.editorUrl &&
-    currentWorkspace?.id &&
-    new URL(currentWorkspace.id, window.REEARTH_CONFIG?.editorUrl);
+  const url = useMemo(() => {
+    if (window.REEARTH_CONFIG?.editorUrl && currentWorkspace?.id) {
+      return new URL(`dashboard/${currentWorkspace.id}`, window.REEARTH_CONFIG?.editorUrl);
+    }
+    return undefined;
+  }, [currentWorkspace?.id]);
 
   const currentIsPersonal = useMemo(
     () => currentWorkspace?.id === personalWorkspace?.id,
