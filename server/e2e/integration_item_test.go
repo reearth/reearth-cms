@@ -745,6 +745,33 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"key":   sfKey6.String(),
 			},
 		})
+
+	r = e.PATCH("/api/items/{itemId}", itmId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]any{
+					"id":    fId6.String(),
+					"type":  "group",
+					"value": []string{},
+					"key":   sfKey6.String(),
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r.Value("fields").
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId6.String(),
+				"type":  "group",
+				"value": []string{},
+				"key":   sfKey6.String(),
+			},
+		})
 }
 
 // GET /items/{itemId}
