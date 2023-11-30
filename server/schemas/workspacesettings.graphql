@@ -1,4 +1,4 @@
-type WorkspaceSettings {
+type WorkspaceSettings implements Node {
     id: ID! # same as workspaceId
     tiles: TilesList
     terrains: TerrainsList
@@ -66,10 +66,12 @@ input TerrainInput {
 }
 
 input UpdateWorkspaceSettingsInput {
-    workspaceId: ID!
+    id: ID!
     tiles: TilesListInput
     terrains: TerrainsListInput
 }
+
+# extend type Query { }
 
 extend type Mutation {
     updateWorkspaceSettings(input: UpdateWorkspaceSettingsInput!): UpdateWorkspaceSettingsPayload
