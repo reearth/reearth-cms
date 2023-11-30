@@ -16,7 +16,7 @@ export interface Props {
   addField: (fieldType: FieldType) => void;
 }
 
-type FieldListItem = { title: string; fields: string[] };
+type FieldListItem = { title: string; fields: FieldType[] };
 
 const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();
@@ -94,7 +94,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         renderItem={item => (
           <>
             <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>
-            {(item as FieldListItem).fields?.map((field: string) => (
+            {(item as FieldListItem).fields?.map(field => (
               <List.Item key={field} onClick={() => addField(field as FieldType)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}

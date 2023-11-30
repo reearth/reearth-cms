@@ -113,7 +113,7 @@ const GroupItem: React.FC<Props> = ({
   disableMoveDown,
 }) => {
   const { Panel } = Collapse;
-  const { group } = useHooks(parentField?.typeProperty.groupId);
+  const { group } = useHooks(parentField?.typeProperty?.groupId);
   const { Option } = Select;
   const t = useT();
 
@@ -162,11 +162,11 @@ const GroupItem: React.FC<Props> = ({
                   <MultiValueField
                     rows={3}
                     showCount
-                    maxLength={field.typeProperty.maxLength ?? false}
+                    maxLength={field.typeProperty?.maxLength}
                     FieldInput={TextArea}
                   />
                 ) : (
-                  <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+                  <TextArea rows={3} showCount maxLength={field.typeProperty?.maxLength} />
                 )}
               </StyledFormItem>
             ) : field.type === "MarkdownText" ? (
@@ -185,11 +185,11 @@ const GroupItem: React.FC<Props> = ({
                 }>
                 {field.multiple ? (
                   <MultiValueField
-                    maxLength={field.typeProperty.maxLength ?? false}
+                    maxLength={field.typeProperty?.maxLength}
                     FieldInput={MarkdownInput}
                   />
                 ) : (
-                  <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
+                  <MarkdownInput maxLength={field.typeProperty?.maxLength} />
                 )}
               </StyledFormItem>
             ) : field.type === "Integer" ? (
@@ -209,15 +209,15 @@ const GroupItem: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     type="number"
-                    min={field.typeProperty.min}
-                    max={field.typeProperty.max}
+                    min={field.typeProperty?.min}
+                    max={field.typeProperty?.max}
                     FieldInput={InputNumber}
                   />
                 ) : (
                   <InputNumber
                     type="number"
-                    min={field.typeProperty.min}
-                    max={field.typeProperty.max}
+                    min={field.typeProperty?.min}
+                    max={field.typeProperty?.max}
                   />
                 )}
               </StyledFormItem>
@@ -351,7 +351,7 @@ const GroupItem: React.FC<Props> = ({
                   key={field.id}
                   correspondingFieldId={field.id}
                   formItemsData={formItemsData}
-                  modelId={field.typeProperty.modelId}
+                  modelId={field.typeProperty?.modelId}
                   onReferenceModelUpdate={onReferenceModelUpdate}
                   linkedItemsModalList={linkedItemsModalList}
                   linkItemModalTotalCount={linkItemModalTotalCount}
@@ -394,11 +394,11 @@ const GroupItem: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     showCount={true}
-                    maxLength={field.typeProperty.maxLength ?? 500}
+                    maxLength={field.typeProperty?.maxLength ?? 500}
                     FieldInput={Input}
                   />
                 ) : (
-                  <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                  <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
                 )}
               </StyledFormItem>
             ) : (
@@ -418,11 +418,11 @@ const GroupItem: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     showCount={true}
-                    maxLength={field.typeProperty.maxLength ?? 500}
+                    maxLength={field.typeProperty?.maxLength ?? 500}
                     FieldInput={Input}
                   />
                 ) : (
-                  <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                  <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
                 )}
               </StyledFormItem>
             ),
