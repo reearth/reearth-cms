@@ -253,18 +253,6 @@ var MustViewID = idx.Must[View]
 var ViewIDFrom = idx.From[View]
 var ViewIDFromRef = idx.FromRef[View]
 
-type WorkspaceSettings struct{}
-
-func (WorkspaceSettings) Type() string { return "workspacesettings" }
-
-type WorkspaceSettingsID = idx.ID[WorkspaceSettings]
-type WorkspaceSettingsIDList = idx.List[WorkspaceSettings]
-
-var NewWorkspaceSettingsID = idx.New[WorkspaceSettings]
-var MustWorkspaceSettingsID = idx.Must[WorkspaceSettings]
-var WorkspaceSettingsIDFrom = idx.From[WorkspaceSettings]
-var WorkspaceSettingsIDFromRef = idx.FromRef[WorkspaceSettings]
-
 type Resource struct{}
 
 func (Resource) Type() string { return "resource" }

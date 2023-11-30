@@ -9,17 +9,17 @@ import (
 )
 
 type CreateWorkspaceSettingsParam struct {
-	WorkspaceID accountdomain.WorkspaceID
+	ID accountdomain.WorkspaceID // same as workspace ID
 }
 
 type UpdateWorkspaceSettingsParam struct {
-	WorkspaceID accountdomain.WorkspaceID
-	Tiles       *workspacesettings.WorkspaceResourceList
-	Terrains    *workspacesettings.WorkspaceResourceList
+	ID       accountdomain.WorkspaceID // same as workspace ID
+	Tiles    *workspacesettings.WorkspaceResourceList
+	Terrains *workspacesettings.WorkspaceResourceList
 }
 
 type DeleteWorkspaceSettingsParam struct {
-	WorkspaceID accountdomain.WorkspaceID
+	ID accountdomain.WorkspaceID // same as workspace ID
 }
 
 type WorkspaceSettings interface {

@@ -15,9 +15,9 @@ func (r *mutationResolver) UpdateWorkspaceSettings(ctx context.Context, input gq
 	}
 
 	res, err := usecases(ctx).WorkspaceSettings.Update(ctx, interfaces.UpdateWorkspaceSettingsParam{
-		WorkspaceID: wid,
-		Tiles:       gqlmodel.FromWorkspaceResourceList(input.Tiles),
-		Terrains:    gqlmodel.FromWorkspaceResourceList(input.Terrains),
+		ID:       wid,
+		Tiles:    gqlmodel.FromWorkspaceResourceList(input.Tiles),
+		Terrains: gqlmodel.FromWorkspaceResourceList(input.Terrains),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

@@ -819,10 +819,9 @@ type ComplexityRoot struct {
 	}
 
 	WorkspaceSettings struct {
-		ID          func(childComplexity int) int
-		Terrains    func(childComplexity int) int
-		Tiles       func(childComplexity int) int
-		WorkspaceID func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Terrains func(childComplexity int) int
+		Tiles    func(childComplexity int) int
 	}
 
 	WorkspaceUserMember struct {
@@ -4368,13 +4367,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.WorkspaceSettings.Tiles(childComplexity), true
 
-	case "WorkspaceSettings.workspaceId":
-		if e.complexity.WorkspaceSettings.WorkspaceID == nil {
-			break
-		}
-
-		return e.complexity.WorkspaceSettings.WorkspaceID(childComplexity), true
-
 	case "WorkspaceUserMember.role":
 		if e.complexity.WorkspaceUserMember.Role == nil {
 			break
@@ -6294,8 +6286,7 @@ extend type Mutation {
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }`, BuiltIn: false},
 	{Name: "../../../schemas/workspacesettings.graphql", Input: `type WorkspaceSettings {
-    id: ID!
-	workspaceId: ID!
+    id: ID! # same as workspaceId
     tiles: WorkspaceResourceList
     terrains: WorkspaceResourceList
 }
@@ -27143,8 +27134,6 @@ func (ec *executionContext) fieldContext_UpdateWorkspaceSettingsPayload_workspac
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_WorkspaceSettings_id(ctx, field)
-			case "workspaceId":
-				return ec.fieldContext_WorkspaceSettings_workspaceId(ctx, field)
 			case "tiles":
 				return ec.fieldContext_WorkspaceSettings_tiles(ctx, field)
 			case "terrains":
@@ -28860,8 +28849,6 @@ func (ec *executionContext) fieldContext_Workspace_settings(ctx context.Context,
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_WorkspaceSettings_id(ctx, field)
-			case "workspaceId":
-				return ec.fieldContext_WorkspaceSettings_workspaceId(ctx, field)
 			case "tiles":
 				return ec.fieldContext_WorkspaceSettings_tiles(ctx, field)
 			case "terrains":
@@ -29332,50 +29319,6 @@ func (ec *executionContext) _WorkspaceSettings_id(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_WorkspaceSettings_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkspaceSettings",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkspaceSettings_workspaceId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceSettings) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkspaceSettings_workspaceId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.WorkspaceID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkspaceSettings_workspaceId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkspaceSettings",
 		Field:      field,
@@ -44032,11 +43975,6 @@ func (ec *executionContext) _WorkspaceSettings(ctx context.Context, sel ast.Sele
 			out.Values[i] = graphql.MarshalString("WorkspaceSettings")
 		case "id":
 			out.Values[i] = ec._WorkspaceSettings_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "workspaceId":
-			out.Values[i] = ec._WorkspaceSettings_workspaceId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

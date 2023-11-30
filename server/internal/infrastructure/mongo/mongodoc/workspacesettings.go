@@ -9,10 +9,9 @@ import (
 )
 
 type WorkspaceSettingsDocument struct {
-	ID          string
-	WorkspaceID string
-	Tiles       *WorkspaceResourceListDocument
-	Terrains    *WorkspaceResourceListDocument
+	ID       string
+	Tiles    *WorkspaceResourceListDocument
+	Terrains *WorkspaceResourceListDocument
 }
 
 type WorkspaceResourceListDocument struct {
@@ -37,26 +36,20 @@ func NewWorkspaceSettingsConsumer() *WorkspaceSettingsConsumer {
 func NewWorkspaceSettings(ws *workspacesettings.WorkspaceSettings) (*WorkspaceSettingsDocument, string) {
 	wsid := ws.ID().String()
 	return &WorkspaceSettingsDocument{
-		ID:          wsid,
-		WorkspaceID: ws.Workspace().String(),
-		Tiles:       ToWorkspaceResourceListDocument(ws.Tiles()),
-		Terrains:    ToWorkspaceResourceListDocument(ws.Terrains()),
+		ID:       wsid,
+		Tiles:    ToWorkspaceResourceListDocument(ws.Tiles()),
+		Terrains: ToWorkspaceResourceListDocument(ws.Terrains()),
 	}, wsid
 }
 
 func (wsd *WorkspaceSettingsDocument) Model() (*workspacesettings.WorkspaceSettings, error) {
-	wsid, err := id.WorkspaceSettingsIDFrom(wsd.ID)
-	if err != nil {
-		return nil, err
-	}
-	wid, err := accountdomain.WorkspaceIDFrom(wsd.WorkspaceID)
+	wid, err := accountdomain.WorkspaceIDFrom(wsd.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	return workspacesettings.New().
-		ID(wsid).
-		Workspace(wid).
+		ID(wid).
 		Tiles(FromWorkspaceResourceListDocument(wsd.Tiles)).
 		Terrains(FromWorkspaceResourceListDocument(wsd.Terrains)).
 		Build()

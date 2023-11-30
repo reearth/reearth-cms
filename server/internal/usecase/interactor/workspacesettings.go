@@ -28,11 +28,10 @@ func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.Worksp
 }
 
 func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
+	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),
 		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
 			wsb := workspacesettings.New().
-				NewID().
-				Workspace(inp.WorkspaceID)
+				ID(inp.ID)
 
 			work, err := wsb.Build()
 			if err != nil {
@@ -47,11 +46,11 @@ func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWo
 }
 
 func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	work, err := ws.repos.WorkspaceSettings.FindByWorkspace(ctx, inp.WorkspaceID)
+	work, err := ws.repos.WorkspaceSettings.FindByWorkspace(ctx, inp.ID)
 	if err != nil {
 		return nil, err
 	}
-	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
+	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),
 		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
 			if inp.Tiles != nil {
 				work.SetTiles(inp.Tiles)
@@ -67,8 +66,8 @@ func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWo
 }
 
 func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWorkspaceSettingsParam, op *usecase.Operator) error {
-	return Run0(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.WorkspaceID).Transaction(),
+	return Run0(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),
 		func(ctx context.Context) error {
-			return ws.repos.WorkspaceSettings.Remove(ctx, inp.WorkspaceID)
+			return ws.repos.WorkspaceSettings.Remove(ctx, inp.ID)
 		})
 }

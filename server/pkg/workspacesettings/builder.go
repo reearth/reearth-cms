@@ -1,7 +1,5 @@
 package workspacesettings
 
-import "github.com/reearth/reearthx/account/accountdomain"
-
 type Builder struct {
 	ws *WorkspaceSettings
 }
@@ -12,10 +10,6 @@ func New() *Builder {
 
 func (b *Builder) Build() (*WorkspaceSettings, error) {
 	if b.ws.id.IsNil() {
-		return nil, ErrInvalidID
-	}
-
-	if b.ws.workspaceId.IsNil() {
 		return nil, ErrInvalidID
 	}
 
@@ -37,11 +31,6 @@ func (b *Builder) ID(id ID) *Builder {
 
 func (b *Builder) NewID() *Builder {
 	b.ws.id = NewID()
-	return b
-}
-
-func (b *Builder) Workspace(wid accountdomain.WorkspaceID) *Builder {
-	b.ws.workspaceId = wid
 	return b
 }
 

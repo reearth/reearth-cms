@@ -3,13 +3,11 @@ package workspacesettings
 import (
 	"slices"
 
-	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
 )
 
 type WorkspaceSettings struct {
 	id          ID
-	workspaceId accountdomain.WorkspaceID
 	tiles       *WorkspaceResourceList
 	terrains    *WorkspaceResourceList
 }
@@ -29,10 +27,6 @@ type Resource struct {
 
 func (ws *WorkspaceSettings) ID() ID {
 	return ws.id
-}
-
-func (ws *WorkspaceSettings) Workspace() accountdomain.WorkspaceID {
-	return ws.workspaceId
 }
 
 func (ws *WorkspaceSettings) Tiles() *WorkspaceResourceList {
@@ -64,7 +58,6 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 
 	res := &WorkspaceSettings{
 		id:          ws.id.Clone(),
-		workspaceId: ws.workspaceId.Clone(),
 	}
 	if ws.tiles != nil {
 		res.tiles = &WorkspaceResourceList{

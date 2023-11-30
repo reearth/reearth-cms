@@ -1386,10 +1386,9 @@ type WorkspaceResourceListInput struct {
 }
 
 type WorkspaceSettings struct {
-	ID          ID                     `json:"id"`
-	WorkspaceID ID                     `json:"workspaceId"`
-	Tiles       *WorkspaceResourceList `json:"tiles,omitempty"`
-	Terrains    *WorkspaceResourceList `json:"terrains,omitempty"`
+	ID       ID                     `json:"id"`
+	Tiles    *WorkspaceResourceList `json:"tiles,omitempty"`
+	Terrains *WorkspaceResourceList `json:"terrains,omitempty"`
 }
 
 type WorkspaceUserMember struct {

@@ -1,6 +1,5 @@
 type WorkspaceSettings {
-    id: ID!
-	workspaceId: ID!
+    id: ID! # same as workspaceId
     tiles: WorkspaceResourceList
     terrains: WorkspaceResourceList
 }

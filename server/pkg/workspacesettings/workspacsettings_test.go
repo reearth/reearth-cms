@@ -3,7 +3,6 @@ package workspacesettings
 import (
 	"testing"
 
-	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -76,7 +75,7 @@ func TestWorkspaceSettings_Clone(t *testing.T) {
 	r2 := NewResource(rid2, "foo", "bar", "baz")
 	tiles := NewWorkspaceResourceList([]*Resource{r}, rid.Ref(), true)
 	terrains := NewWorkspaceResourceList([]*Resource{r2}, rid2.Ref(), true)
-	ws := New().NewID().Workspace(accountdomain.NewWorkspaceID()).Tiles(tiles).Terrains(terrains).MustBuild()
+	ws := New().NewID().Tiles(tiles).Terrains(terrains).MustBuild()
 	got := ws.Clone()
 	assert.Equal(t, ws, got)
 	assert.NotSame(t, ws, got)
