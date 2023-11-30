@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useGetGroupQuery, Group } from "@reearth-cms/gql/graphql-client-api";
 import { fromGraphQLGroup } from "@reearth-cms/utils/values";
 
-export default (groupId: string) => {
+export default (groupId?: string) => {
   const { data } = useGetGroupQuery({
     fetchPolicy: "no-cache",
     variables: { id: groupId ?? "" },
