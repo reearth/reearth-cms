@@ -110,12 +110,13 @@ func TestBuilder_Build(t *testing.T) {
 				},
 			},
 			want: &Item{
-				id:        iid,
-				schema:    sid,
-				project:   pid,
-				model:     mid,
-				thread:    tid,
-				timestamp: now,
+				id:         iid,
+				schema:     sid,
+				project:    pid,
+				model:      mid,
+				thread:     tid,
+				timestamp:  now,
+				isMetadata: false,
 			},
 			wantErr: nil,
 		},
@@ -212,4 +213,9 @@ func TestBuilder_MetadataItem(t *testing.T) {
 	iId := id.NewItemID().Ref()
 	b := New().MetadataItem(iId)
 	assert.Equal(t, iId, b.i.metadataItem)
+}
+
+func TestBuilder_IsMetadata(t *testing.T) {
+	b := New().IsMetadata(true)
+	assert.Equal(t, true, b.i.isMetadata)
 }
