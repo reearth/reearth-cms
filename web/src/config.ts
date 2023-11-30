@@ -29,7 +29,7 @@ export const defaultConfig: Config = {
   logoUrl: env.REEARTH_CMS_LOGO_URL,
   coverImageUrl: env.REEARTH_CMS_COVER_URL,
   cesiumIonAccessToken: env.REEARTH_CMS_CESIUM_ION_ACCESS_TOKEN || "",
-  editorUrl: env.REEARTH_CMS_EDITOR_DOMAIN,
+  editorUrl: env.REEARTH_CMS_EDITOR_URL,
 };
 
 export default async function loadConfig() {
