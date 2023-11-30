@@ -1,43 +1,74 @@
 type WorkspaceSettings {
     id: ID! # same as workspaceId
-    tiles: WorkspaceResourceList
-    terrains: WorkspaceResourceList
+    tiles: TilesList
+    terrains: TerrainsList
 }
 
-type Resource {
+type Tile {
 	id: ID!
+    type: String!
 	name: String!
 	url: String!
 	image: String!
 }
 
-type WorkspaceResourceList {
-    resources: [Resource!]!
-    defaultResource: ID
-    allowSwitch: Boolean!
+type TilesList {
+    tiles: [Tile!]!
+    selectedTile: ID
 }
 
-input WorkspaceResourceListInput {
-    resources: [ResourceInput!]!
-    defaultResource: ID
-    allowSwitch: Boolean!
+type Terrain {
+	id: ID!
+    type: String!
+    cesiumIonAssetId: String!
+    cesiumIonAccessToken: String!
+	url: String!
+	image: String!
 }
 
-input ResourceInput {
+type TerrainsList {
+    Terrains: [Terrain!]!
+    selectedTerrain: ID
+    enabled: Boolean!
+}
+
+type UpdateWorkspaceSettingsPayload {
+    workspaceSettings: WorkspaceSettings!
+}
+
+# Inputs
+input TilesListInput {
+    tiles: [TileInput!]!
+    selectedTile: ID
+}
+
+input TileInput {
     id: ID!
+    type: String!
     name: String!
+    url: String!
+    image: String!
+}
+
+input TerrainsListInput {
+    terrains: [TerrainInput!]!
+    selectedTerrain: ID
+    enabled: Boolean!
+}
+
+input TerrainInput {
+    id: ID!
+    type: String!
+    cesiumIonAssetId: String!
+    cesiumIonAccessToken: String!
     url: String!
     image: String!
 }
 
 input UpdateWorkspaceSettingsInput {
     workspaceId: ID!
-    tiles: WorkspaceResourceListInput
-    terrains: WorkspaceResourceListInput
-}
-
-type UpdateWorkspaceSettingsPayload {
-    workspaceSettings: WorkspaceSettings!
+    tiles: TilesListInput
+    terrains: TerrainsListInput
 }
 
 extend type Mutation {
