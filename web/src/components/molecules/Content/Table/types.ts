@@ -1,6 +1,6 @@
 import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
-import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldType, TypeProperty } from "@reearth-cms/components/molecules/Schema/types";
 import {
   BasicOperator,
   BoolOperator,
@@ -45,7 +45,7 @@ export type ExtendedColumns = ProColumns<ContentTableField> & {
   type?: FieldType | "Person";
   fieldType?: string;
   sortOrder?: "descend" | "ascend" | null;
-  typeProperty?: { values?: string[] };
+  typeProperty?: TypeProperty;
   required?: boolean;
   multiple?: boolean;
 };
