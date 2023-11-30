@@ -148,6 +148,29 @@ func (i *Item) UpdateFields(fields []*Field) {
 		return ff, true
 	}), newFields...)
 
+	i.cleanGroups()
+
+	i.timestamp = util.Now()
+}
+
+func (i *Item) cleanGroups() {
+	i.fields = lo.Filter(i.fields, func(f *Field, _ int) bool {
+		if f.ItemGroup() == nil {
+			return true
+		}
+		for _, gf := range i.Fields().FieldsByType(value.TypeGroup) {
+			igs, ok := gf.value.ValuesGroup()
+			if !ok {
+				continue
+			}
+			for _, ig := range igs {
+				if *f.ItemGroup() == ig {
+					return true
+				}
+			}
+		}
+		return false
+	})
 	i.timestamp = util.Now()
 }
 
