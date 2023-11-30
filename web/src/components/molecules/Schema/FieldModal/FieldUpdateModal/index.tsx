@@ -194,7 +194,7 @@ const FieldUpdateModal: React.FC<Props> = ({
   useEffect(() => {
     const defaultValue = selectedField?.typeProperty?.defaultValue;
     const selectDefaultValue = selectedField?.typeProperty?.selectDefaultValue;
-    const value = (() => {
+    const getValue = () => {
       if (selectedType === "Date") {
         if (Array.isArray(defaultValue)) {
           return defaultValue.map(valueItem => moment(valueItem as string));
@@ -222,7 +222,7 @@ const FieldUpdateModal: React.FC<Props> = ({
           selectedField?.typeProperty?.assetDefaultValue
         );
       }
-    })();
+    };
 
     form.setFieldsValue({
       fieldId: selectedField?.id,
@@ -233,7 +233,7 @@ const FieldUpdateModal: React.FC<Props> = ({
       unique: selectedField?.unique,
       isTitle: selectedField?.isTitle,
       required: selectedField?.required,
-      defaultValue: value,
+      defaultValue: getValue(),
       min: selectedField?.typeProperty?.min,
       max: selectedField?.typeProperty?.max,
       maxLength: selectedField?.typeProperty?.maxLength,
