@@ -32,6 +32,7 @@ import { renderField } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
+  id?: string;
   sort?: ItemSort;
   filter?: AndConditionInput;
   columns?: Column[];
@@ -269,6 +270,11 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
+  const handleViewChange = useCallback(() => {
+    setSearchTerm("");
+    setPage(1);
+  }, []);
+
   const handleNavigateToItemForm = useCallback(() => {
     navigate(
       `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details`,
@@ -338,6 +344,14 @@ export default () => {
     setPage(1);
   }, []);
 
+  const handleFilterChange = useCallback((filter?: AndConditionInput) => {
+    setCurrentView(prev => ({
+      ...prev,
+      filter,
+    }));
+    setPage(1);
+  }, []);
+
   const handleBulkAddItemToRequest = useCallback(
     async (request: Request, itemIds: string[]) => {
       await handleAddItemToRequest(request, itemIds);
@@ -374,11 +388,13 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
+    handleFilterChange,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
     handleModelSelect,
+    handleViewChange,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,

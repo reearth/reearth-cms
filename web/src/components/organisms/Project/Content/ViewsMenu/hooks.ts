@@ -61,6 +61,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
     if (selectedView) {
       setCurrentView(prev => ({
         ...prev,
+        id: selectedView.id,
         sort: selectedView.sort
           ? {
               field: {
