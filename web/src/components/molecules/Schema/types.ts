@@ -35,7 +35,7 @@ export type Field = {
 export type FieldType =
   | "Text"
   | "TextArea"
-  | "RichText"
+  // | "RichText"
   | "MarkdownText"
   | "Asset"
   | "Date"
@@ -43,26 +43,28 @@ export type FieldType =
   | "Select"
   | "Tag"
   | "Integer"
-  | "Float"
+  // | "Float"
   | "Reference"
   | "Checkbox"
   | "URL"
   | "Group";
 
-export type TypeProperty =
-  | {
-      defaultValue?: string | number;
-      maxLength?: number;
-      assetDefaultValue?: string;
-      selectDefaultValue?: string;
-      integerDefaultValue?: number;
-      min?: number;
-      max?: number;
-      correspondingField?: any;
-      modelId?: string;
-      groupId?: string;
-    }
-  | any;
+type Tag = { id: string; name: string; color: string };
+
+export type TypeProperty = {
+  defaultValue?: string | boolean | string[] | boolean[];
+  maxLength?: number;
+  assetDefaultValue?: string;
+  selectDefaultValue?: string | string[];
+  integerDefaultValue?: number;
+  min?: number;
+  max?: number;
+  correspondingField?: any;
+  modelId?: string;
+  groupId?: string;
+  tags?: Tag[];
+  values?: string[];
+};
 
 export type CreationFieldTypePropertyInput = {
   asset?: { defaultValue: string };

@@ -63,16 +63,16 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   useEffect(() => {
     modelForm.setFieldsValue({
-      model: selectedField?.typeProperty.modelId,
-      direction: selectedField?.typeProperty.correspondingField ? 2 : 1,
+      model: selectedField?.typeProperty?.modelId,
+      direction: selectedField?.typeProperty?.correspondingField ? 2 : 1,
     });
 
-    setSelectedModel(selectedField?.typeProperty.modelId);
-    setNumSteps(selectedField?.typeProperty.correspondingField ? 2 : 1);
+    setSelectedModel(selectedField?.typeProperty?.modelId);
+    setNumSteps(selectedField?.typeProperty?.correspondingField ? 2 : 1);
     field1Form.setFieldsValue({
       ...selectedField,
     });
-    if (selectedField?.typeProperty.correspondingField) {
+    if (selectedField?.typeProperty?.correspondingField) {
       field2Form.setFieldsValue({
         ...selectedField.typeProperty.correspondingField,
       });
@@ -166,7 +166,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             modelId: selectedModel ?? "",
             correspondingField: {
               ...fields2Values,
-              fieldId: selectedField?.typeProperty.correspondingField.id,
+              fieldId: selectedField?.typeProperty?.correspondingField.id,
             },
           },
         };

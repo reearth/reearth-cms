@@ -1,7 +1,14 @@
 import i18next from "i18next";
 
+import type { FieldType } from "./types";
+
 export const fieldTypes: {
-  [P: string]: { icon: string; title: string; description: string; color: string };
+  [key in FieldType]: {
+    icon: string;
+    title: string;
+    description: string;
+    color: string;
+  };
 } = {
   Text: {
     icon: "textT",

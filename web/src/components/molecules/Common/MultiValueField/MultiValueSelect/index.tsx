@@ -10,7 +10,7 @@ import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
   className?: string;
-  selectedValues: string[];
+  selectedValues?: string[];
   value?: string[];
   onChange?: (value: string[]) => void;
   disabled?: boolean;
