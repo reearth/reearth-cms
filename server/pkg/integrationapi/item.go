@@ -30,6 +30,7 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 		ModelId:         ii.ModelId,
 		Parents:         &ps,
 		MetadataFields:  metaFields,
+		IsMetadata:      lo.ToPtr(ver.Value().IsMetadata()),
 		Refs:            &rs,
 		Version:         lo.ToPtr(types.UUID(ver.Version())),
 		ReferencedItems: f,
@@ -65,6 +66,7 @@ func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
 		Fields:         &fs,
 		MetadataItemId: i.MetadataItem(),
 		OriginalItemId: i.OriginalItem(),
+		IsMetadata:     lo.ToPtr(i.IsMetadata()),
 		CreatedAt:      lo.ToPtr(i.ID().Timestamp()),
 		UpdatedAt:      lo.ToPtr(i.Timestamp()),
 	}

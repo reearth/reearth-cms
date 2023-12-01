@@ -229,11 +229,15 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 		if err := i.repos.Thread.Save(ctx, th); err != nil {
 			return nil, err
 		}
-
+		isMetadata := false
+		if m.Metadata() != nil && param.SchemaID == *m.Metadata() {
+			isMetadata = true
+		}
 		fields = append(fields, groupFields...)
 		ib := item.New().
 			NewID().
 			Schema(s.ID()).
+			IsMetadata(isMetadata).
 			Project(s.Project()).
 			Model(m.ID()).
 			Thread(th.ID()).
@@ -357,15 +361,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), fields)
+		oldFields := itv.Fields()
+		itv.UpdateFields(fields)
+
+		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), itv.Fields())
 		if err != nil {
 			return nil, err
 		}
-
-		oldFields := itv.Fields()
-
-		fields = append(fields, groupFields...)
-		itv.UpdateFields(fields)
+		itv.UpdateFields(groupFields)
 
 		if operator.AcOperator.User != nil {
 			itv.SetUpdatedByUser(*operator.AcOperator.User)
