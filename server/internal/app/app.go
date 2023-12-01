@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	glog "github.com/labstack/gommon/log"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/integration"
 	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
@@ -37,8 +38,13 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	e.Use(
 		logger.AccessLogger(),
 		middleware.Recover(),
+		middleware.Logger(),
 		otelecho.Middleware("reearth-cms"),
 	)
+
+	if l, ok := e.Logger.(*glog.Logger); ok {
+		l.SetLevel(glog.DEBUG)
+	}
 	origins := allowedOrigins(cfg)
 	if len(origins) > 0 {
 		e.Use(
@@ -78,7 +84,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	)
 	api.POST(
 		"/notify", NotifyHandler(),
-		//	m2mJWTMiddleware,
+		m2mJWTMiddleware,
 		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
 		usecaseMiddleware,
 	)
