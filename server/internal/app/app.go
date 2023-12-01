@@ -78,7 +78,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	)
 	api.POST(
 		"/notify", NotifyHandler(),
-		m2mJWTMiddleware,
+		//	m2mJWTMiddleware,
 		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
 		usecaseMiddleware,
 	)
