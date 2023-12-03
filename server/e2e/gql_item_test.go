@@ -18,6 +18,7 @@ func createItem(e *httpexpect.Expect, mID, sID string, metaId *string, fields []
 					item {
 					  id
 					  schemaId
+                      isMetadata
 					  fields {
 						value
 						type
@@ -516,7 +517,7 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": mfids.dateFId, "value": "2023-01-01T00:00:00.000Z", "type": "Date"},
 	})
 
-	i1Id, _ := createItem(e, mId, sId, &mi1Id, []map[string]any{
+	i1Id, r1 := createItem(e, mId, sId, &mi1Id, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1", "type": "Text"},
 		{"schemaFieldId": fids.textAreaFId, "value": "test1", "type": "TextArea"},
 		{"schemaFieldId": fids.markdownFId, "value": "test1", "type": "MarkdownText"},
@@ -527,13 +528,14 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test1.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00.000Z", "type": "Date"},
 	})
+	r1.Path("$.data.createItem.item.isMetadata").IsEqual(false)
 
 	i1ver, _ := getItem(e, i1Id)
 	updateItem(e, i1Id, i1ver, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test1 updated", "type": "Text"},
 	})
 
-	mi2Id, _ := createItem(e, mId, msID, nil, []map[string]any{
+	mi2Id, r2 := createItem(e, mId, msID, nil, []map[string]any{
 		{"schemaFieldId": mfids.tagFId, "value": tagIds[2], "type": "Tag"},
 		{"schemaFieldId": mfids.boolFId, "value": true, "type": "Bool"},
 		{"schemaFieldId": mfids.checkboxFId, "value": true, "type": "Checkbox"},
@@ -541,7 +543,7 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": mfids.urlFId, "value": "https://www.test2.com", "type": "URL"},
 		{"schemaFieldId": mfids.dateFId, "value": "2023-01-02T00:00:00.000Z", "type": "Date"},
 	})
-
+	r2.Path("$.data.createItem.item.isMetadata").IsEqual(true)
 	i2Id, _ := createItem(e, mId, sId, &mi2Id, []map[string]any{
 		{"schemaFieldId": fids.textFId, "value": "test2", "type": "Text"},
 		{"schemaFieldId": fids.textAreaFId, "value": "test2", "type": "TextArea"},
@@ -609,7 +611,7 @@ func TestSearchItem(t *testing.T) {
 	// region fetch by model
 	// res = SearchItem(e, map[string]any{
 	// 	"project": pId,
-	// 	"model":   mId,
+	// 	"model":   mId1,
 	// }, nil, nil, map[string]any{
 	// 	"first": 2,
 	// })
@@ -620,7 +622,7 @@ func TestSearchItem(t *testing.T) {
 	// // fetch by model with search
 	// res = SearchItem(e, map[string]any{
 	// 	"project": pId,
-	// 	"model":   mId,
+	// 	"model":   mId1,
 	// 	"schema":  sId,
 	// 	"q":       "updated",
 	// }, nil, nil, map[string]any{

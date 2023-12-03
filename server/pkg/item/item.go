@@ -22,6 +22,7 @@ type Item struct {
 	fields               []*Field
 	timestamp            time.Time
 	thread               ThreadID
+	isMetadata           bool
 	user                 *UserID
 	updatedByUser        *UserID
 	updatedByIntegration *IntegrationID
@@ -66,6 +67,9 @@ func (i *Item) Timestamp() time.Time {
 
 func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
+}
+func (i *Item) IsMetadata() bool {
+	return i.isMetadata
 }
 
 func (i *Item) OriginalItem() *ID {
@@ -144,6 +148,29 @@ func (i *Item) UpdateFields(fields []*Field) {
 		return ff, true
 	}), newFields...)
 
+	i.cleanGroups()
+
+	i.timestamp = util.Now()
+}
+
+func (i *Item) cleanGroups() {
+	i.fields = lo.Filter(i.fields, func(f *Field, _ int) bool {
+		if f.ItemGroup() == nil {
+			return true
+		}
+		for _, gf := range i.Fields().FieldsByType(value.TypeGroup) {
+			igs, ok := gf.value.ValuesGroup()
+			if !ok {
+				continue
+			}
+			for _, ig := range igs {
+				if *f.ItemGroup() == ig {
+					return true
+				}
+			}
+		}
+		return false
+	})
 	i.timestamp = util.Now()
 }
 

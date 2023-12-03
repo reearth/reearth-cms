@@ -298,7 +298,7 @@ const ContentForm: React.FC<Props> = ({
       );
       const groupIdsInCurrentModel = new Set();
       model?.schema.fields?.forEach(field => {
-        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty.groupId);
+        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty?.groupId);
       });
       const groupFieldTypes = new Map();
       groups
@@ -344,7 +344,7 @@ const ContentForm: React.FC<Props> = ({
       }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
@@ -514,11 +514,11 @@ const ContentForm: React.FC<Props> = ({
                   <MultiValueField
                     rows={3}
                     showCount
-                    maxLength={field.typeProperty.maxLength ?? false}
+                    maxLength={field.typeProperty?.maxLength}
                     FieldInput={TextArea}
                   />
                 ) : (
-                  <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+                  <TextArea rows={3} showCount maxLength={field.typeProperty?.maxLength} />
                 )}
               </StyledFormItem>
             ) : field.type === "MarkdownText" ? (
@@ -537,11 +537,11 @@ const ContentForm: React.FC<Props> = ({
                 }>
                 {field.multiple ? (
                   <MultiValueField
-                    maxLength={field.typeProperty.maxLength ?? false}
+                    maxLength={field.typeProperty?.maxLength}
                     FieldInput={MarkdownInput}
                   />
                 ) : (
-                  <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
+                  <MarkdownInput maxLength={field.typeProperty?.maxLength} />
                 )}
               </StyledFormItem>
             ) : field.type === "Integer" ? (
@@ -561,15 +561,15 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     type="number"
-                    min={field.typeProperty.min}
-                    max={field.typeProperty.max}
+                    min={field.typeProperty?.min}
+                    max={field.typeProperty?.max}
                     FieldInput={InputNumber}
                   />
                 ) : (
                   <InputNumber
                     type="number"
-                    min={field.typeProperty.min}
-                    max={field.typeProperty.max}
+                    min={field.typeProperty?.min}
+                    max={field.typeProperty?.max}
                   />
                 )}
               </StyledFormItem>
@@ -703,7 +703,7 @@ const ContentForm: React.FC<Props> = ({
                   key={field.id}
                   correspondingFieldId={field.id}
                   formItemsData={formItemsData}
-                  modelId={field.typeProperty.modelId}
+                  modelId={field.typeProperty?.modelId}
                   onReferenceModelUpdate={onReferenceModelUpdate}
                   linkItemModalTitle={linkItemModalTitle}
                   linkedItemsModalList={linkedItemsModalList}
@@ -748,11 +748,11 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     showCount={true}
-                    maxLength={field.typeProperty.maxLength ?? 500}
+                    maxLength={field.typeProperty?.maxLength ?? 500}
                     FieldInput={Input}
                   />
                 ) : (
-                  <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                  <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
                 )}
               </StyledFormItem>
             ) : field.type === "Group" ? (
@@ -846,11 +846,11 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     showCount={true}
-                    maxLength={field.typeProperty.maxLength ?? 500}
+                    maxLength={field.typeProperty?.maxLength ?? 500}
                     FieldInput={Input}
                   />
                 ) : (
-                  <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                  <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
                 )}
               </StyledFormItem>
             ),
@@ -995,14 +995,14 @@ const ContentForm: React.FC<Props> = ({
                     <MultiValueField
                       onBlur={handleMetaUpdate}
                       showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
+                      maxLength={field.typeProperty?.maxLength ?? 500}
                       FieldInput={Input}
                     />
                   ) : (
                     <Input
                       onBlur={handleMetaUpdate}
                       showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
+                      maxLength={field.typeProperty?.maxLength ?? 500}
                     />
                   )}
                 </Form.Item>
@@ -1025,14 +1025,14 @@ const ContentForm: React.FC<Props> = ({
                     <MultiValueField
                       onBlur={handleMetaUpdate}
                       showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
+                      maxLength={field.typeProperty?.maxLength ?? 500}
                       FieldInput={Input}
                     />
                   ) : (
                     <Input
                       onBlur={handleMetaUpdate}
                       showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
+                      maxLength={field.typeProperty?.maxLength ?? 500}
                     />
                   )}
                 </Form.Item>

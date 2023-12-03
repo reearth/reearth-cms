@@ -202,6 +202,7 @@ type Item struct {
 	CreatedAt      *time.Time `json:"createdAt,omitempty"`
 	Fields         *[]Field   `json:"fields,omitempty"`
 	Id             *id.ItemID `json:"id,omitempty"`
+	IsMetadata     *bool      `json:"isMetadata,omitempty"`
 	MetadataItemId *id.ItemID `json:"metadataItemId,omitempty"`
 	ModelId        *string    `json:"modelId,omitempty"`
 	OriginalItemId *id.ItemID `json:"originalItemId,omitempty"`
@@ -271,6 +272,7 @@ type VersionedItem struct {
 	CreatedAt       *time.Time            `json:"createdAt,omitempty"`
 	Fields          *[]Field              `json:"fields,omitempty"`
 	Id              *id.ItemID            `json:"id,omitempty"`
+	IsMetadata      *bool                 `json:"isMetadata,omitempty"`
 	MetadataFields  *[]Field              `json:"metadataFields,omitempty"`
 	ModelId         *string               `json:"modelId,omitempty"`
 	Parents         *[]openapi_types.UUID `json:"parents,omitempty"`
@@ -392,6 +394,15 @@ type ItemFilterParamsRef string
 type ItemCreateJSONBody struct {
 	Fields         *[]Field `json:"fields,omitempty"`
 	MetadataFields *[]Field `json:"metadataFields,omitempty"`
+}
+
+// ModelFilterParams defines parameters for ModelFilter.
+type ModelFilterParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
 
 // ItemFilterWithProjectParams defines parameters for ItemFilterWithProject.
