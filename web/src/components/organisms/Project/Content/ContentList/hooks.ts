@@ -1,3 +1,4 @@
+import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -24,8 +25,10 @@ import {
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
+  useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import { transformMomentToString } from "@reearth-cms/utils/format";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
 import { renderField } from "./renderFields";
@@ -149,6 +152,52 @@ export default () => {
     }
   });
 
+  const [updateItemMutation] = useUpdateItemMutation();
+  //   {
+  //   refetchQueries: ["SearchItem", "GetItem"],
+  // }
+
+  const handleMetaItemUpdate = useCallback(
+    async (
+      updateItemId: string,
+      version: string,
+      key: string,
+      value: string | boolean,
+      index?: number,
+    ) => {
+      const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
+      if (!target?.metadata?.id || !target?.metadata?.fields) {
+        Notification.error({ message: t("Failed to update item.") });
+        return;
+      }
+      const fields = target.metadata.fields.map(field => {
+        if (field.schemaFieldId === key) {
+          field.value = value;
+        } else if (moment.isMoment(value)) {
+          field.value = transformMomentToString(value);
+        } else {
+          field.value = field.value ?? "";
+        }
+        return field;
+      });
+
+      const item = await updateItemMutation({
+        variables: {
+          itemId: target.metadata?.id,
+          fields: fields as any,
+          version,
+        },
+      });
+      if (item.errors || !item.data?.updateItem) {
+        Notification.error({ message: t("Failed to update item.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully updated Item!") });
+    },
+    [data?.searchItem.nodes, t, updateItemMutation],
+  );
+
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.searchItem.nodes
       ?.map(item =>
@@ -205,6 +254,8 @@ export default () => {
                   }),
                 {},
               ),
+              metadataId: item.metadata?.id,
+              version: item.version,
             }
           : undefined,
       )
@@ -255,11 +306,15 @@ export default () => {
               ? ("ascend" as const)
               : ("descend" as const)
             : null,
-        render: (el: any) => renderField(el, field),
+        render: (el: any, record: ContentTableField) => {
+          return renderField(el, field, (value: string | boolean, index?: number) => {
+            handleMetaItemUpdate(record.id, record.version, field.id, value, index);
+          });
+        },
       })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
-  }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id]);
+  }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id, handleMetaItemUpdate]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {

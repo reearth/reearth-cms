@@ -9,11 +9,16 @@ import Popover from "@reearth-cms/components/atoms/Popover";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import type { Field, FieldType } from "@reearth-cms/components/molecules/Schema/types";
+import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-const itemFormat = (item: string, type: FieldType) => {
-  switch (type) {
+const itemFormat = (
+  item: string,
+  field: Field,
+  update?: (value: string | boolean, index?: number) => void,
+  index?: number,
+) => {
+  switch (field.type) {
     case "MarkdownText":
       return (
         <ReactMarkdown
@@ -30,7 +35,16 @@ const itemFormat = (item: string, type: FieldType) => {
     case "Date":
       return dateTimeFormat(item);
     case "Bool":
-      return (
+      return update ? (
+        <Switch
+          checkedChildren={<Icon icon={"check"} />}
+          unCheckedChildren={<Icon icon={"close"} />}
+          defaultChecked={item === "true"}
+          onChange={checked => {
+            update(checked, index);
+          }}
+        />
+      ) : (
         <Switch
           checkedChildren={<Icon icon={"check"} />}
           unCheckedChildren={<Icon icon={"close"} />}
@@ -63,12 +77,16 @@ const itemFormat = (item: string, type: FieldType) => {
   }
 };
 
-export const renderField = (el: { props: { children: string | string[] } }, field: Field) => {
+export const renderField = (
+  el: { props: { children: string | string[] } },
+  field: Field,
+  update?: (value: string | boolean, index?: number) => void,
+) => {
   const value = el.props.children;
   const items = Array.isArray(value) ? value : [value];
 
   if ((field.type === "Bool" || field.type === "Checkbox") && !field.multiple) {
-    return itemFormat(items[0], field.type);
+    return itemFormat(items[0], field, update);
   } else if (value === "-") {
     return <span>-</span>;
   } else if (field.type === "Tag") {
@@ -95,7 +113,7 @@ export const renderField = (el: { props: { children: string | string[] } }, fiel
     const content = (
       <>
         {items.map((item, index) => {
-          return <Content key={index}>{itemFormat(item, field.type)}</Content>;
+          return <Content key={index}>{itemFormat(item, field, update, index)}</Content>;
         })}
       </>
     );
@@ -108,7 +126,7 @@ export const renderField = (el: { props: { children: string | string[] } }, fiel
       </Popover>
     );
   } else {
-    return itemFormat(items[0], field.type);
+    return itemFormat(items[0], field, update);
   }
 };
 
