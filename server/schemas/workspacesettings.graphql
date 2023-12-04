@@ -4,12 +4,16 @@ type WorkspaceSettings implements Node {
     terrains: TerrainsList
 }
 
+type Resource {
+    name: String!
+    url: String!
+    image: String!
+}
+
 type Tile {
 	id: ID!
     type: String!
-	name: String!
-	url: String!
-	image: String!
+    resource: Resource!
 }
 
 type TilesList {
@@ -22,8 +26,7 @@ type Terrain {
     type: String!
     cesiumIonAssetId: String!
     cesiumIonAccessToken: String!
-	url: String!
-	image: String!
+    resource: Resource!
 }
 
 type TerrainsList {
@@ -37,6 +40,13 @@ type UpdateWorkspaceSettingsPayload {
 }
 
 # Inputs
+
+input ResourceInput {
+    name: String!
+    url: String!
+    image: String!
+}
+
 input TilesListInput {
     tiles: [TileInput!]!
     selectedTile: ID
@@ -45,9 +55,7 @@ input TilesListInput {
 input TileInput {
     id: ID!
     type: String!
-    name: String!
-    url: String!
-    image: String!
+    resource: ResourceInput!
 }
 
 input TerrainsListInput {
@@ -60,9 +68,7 @@ input TerrainInput {
     id: ID!
     type: String!
     cesiumIonAssetId: String!
-    cesiumIonAccessToken: String!
-    url: String!
-    image: String!
+    resource: ResourceInput!
 }
 
 input UpdateWorkspaceSettingsInput {
