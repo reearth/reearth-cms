@@ -7,47 +7,51 @@ import (
 )
 
 type WorkspaceSettings struct {
-	id          ID
-	tiles       *WorkspaceResourceList
-	terrains    *WorkspaceResourceList
+	id       ID
+	tiles    *ResourceList
+	terrains *ResourceList
 }
 
-type WorkspaceResourceList struct {
-	resources       []*Resource
-	defaultResource *ResourceID
-	allowSwitch     bool
+type ResourceList struct {
+	resources        []*Resource
+	selectedResource *ResourceID
+	enabled          *bool
 }
 
 type Resource struct {
-	id    ResourceID
-	name  string
-	url   string
-	image string
+	id                   ResourceID
+	rtype                string
+	name                 string
+	url                  string
+	image                string
+	cesiumIonAssetId     *string // only in terrains
+	cesiumIonAccessToken *string // only in terrains
+
 }
 
 func (ws *WorkspaceSettings) ID() ID {
 	return ws.id
 }
 
-func (ws *WorkspaceSettings) Tiles() *WorkspaceResourceList {
+func (ws *WorkspaceSettings) Tiles() *ResourceList {
 	if ws.tiles == nil {
 		return nil
 	}
 	return ws.tiles
 }
 
-func (ws *WorkspaceSettings) SetTiles(wl *WorkspaceResourceList) {
+func (ws *WorkspaceSettings) SetTiles(wl *ResourceList) {
 	ws.tiles = util.CloneRef(wl)
 }
 
-func (ws *WorkspaceSettings) Terrains() *WorkspaceResourceList {
+func (ws *WorkspaceSettings) Terrains() *ResourceList {
 	if ws.terrains == nil {
 		return nil
 	}
 	return ws.terrains
 }
 
-func (ws *WorkspaceSettings) SetTerrains(wl *WorkspaceResourceList) {
+func (ws *WorkspaceSettings) SetTerrains(wl *ResourceList) {
 	ws.terrains = util.CloneRef(wl)
 }
 
@@ -57,60 +61,64 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 	}
 
 	res := &WorkspaceSettings{
-		id:          ws.id.Clone(),
+		id: ws.id.Clone(),
 	}
 	if ws.tiles != nil {
-		res.tiles = &WorkspaceResourceList{
-			resources:       slices.Clone(ws.tiles.resources),
-			defaultResource: ws.tiles.defaultResource.CloneRef(),
-			allowSwitch:     ws.tiles.allowSwitch,
+		res.tiles = &ResourceList{
+			resources:        slices.Clone(ws.tiles.resources),
+			selectedResource: ws.tiles.selectedResource.CloneRef(),
+			enabled:          ws.tiles.enabled,
 		}
 	}
 	if ws.terrains != nil {
-		res.terrains = &WorkspaceResourceList{
-			resources:       slices.Clone(ws.terrains.resources),
-			defaultResource: ws.terrains.defaultResource.CloneRef(),
-			allowSwitch:     ws.terrains.allowSwitch,
+		res.terrains = &ResourceList{
+			resources:        slices.Clone(ws.terrains.resources),
+			selectedResource: ws.terrains.selectedResource.CloneRef(),
+			enabled:          ws.terrains.enabled,
 		}
 	}
 
 	return res
 }
 
-func (wr *WorkspaceResourceList) Resources() []*Resource {
+func (wr *ResourceList) Resources() []*Resource {
 	return slices.Clone(wr.resources)
 }
 
-func (wr *WorkspaceResourceList) DefaultResource() *ResourceID {
-	return wr.defaultResource
+func (wr *ResourceList) SelectedResource() *ResourceID {
+	return wr.selectedResource
 }
 
-func (wr *WorkspaceResourceList) AllowSwitch() bool {
-	return wr.allowSwitch
+func (wr *ResourceList) Enabled() *bool {
+	return wr.enabled
 }
 
-func (wr *WorkspaceResourceList) SetResources(r []*Resource) {
+func (wr *ResourceList) SetResources(r []*Resource) {
 	wr.resources = slices.Clone(r)
 }
 
-func (wr *WorkspaceResourceList) SetDefaultResource(rid *ResourceID) {
-	wr.defaultResource = rid
+func (wr *ResourceList) SetSelectedResource(rid *ResourceID) {
+	wr.selectedResource = rid
 }
 
-func (wr *WorkspaceResourceList) SetAllowSwitch(s bool) {
-	wr.allowSwitch = s
+func (wr *ResourceList) SetEnabled(s *bool) {
+	wr.enabled = s
 }
 
-func NewWorkspaceResourceList(resources []*Resource, defaultResource *ResourceID, allowSwitch bool) *WorkspaceResourceList {
-	return &WorkspaceResourceList{
+func NewResourceList(resources []*Resource, selectedResource *ResourceID, enabled *bool) *ResourceList {
+	return &ResourceList{
 		resources:       slices.Clone(resources),
-		defaultResource: defaultResource,
-		allowSwitch:     allowSwitch,
+		selectedResource: selectedResource,
+		enabled:     enabled,
 	}
 }
 
 func (r *Resource) ID() ResourceID {
 	return r.id
+}
+
+func (r *Resource) Type() string {
+	return r.rtype
 }
 
 func (r *Resource) Name() string {
@@ -125,13 +133,28 @@ func (r *Resource) Image() string {
 	return r.image
 }
 
-func NewResource(id ResourceID, name string, url string, image string) *Resource {
+func (r *Resource) CesiumIonAssetID() *string {
+	return r.cesiumIonAssetId
+}
+
+func (r *Resource) CesiumIonAccessToken() *string {
+	return r.cesiumIonAccessToken
+}
+
+func NewResource(id ResourceID, rtype string, name string, url string, image string, cesiumIonAssetId *string ,cesiumIonAccessToken *string) *Resource {
 	return &Resource{
 		id:    id,
+		rtype: rtype,
 		name:  name,
 		url:   url,
 		image: image,
+		cesiumIonAssetId: cesiumIonAssetId,
+		cesiumIonAccessToken: cesiumIonAccessToken,
 	}
+}
+
+func (r *Resource) SetType(n string) {
+	r.rtype = n
 }
 
 func (r *Resource) SetName(n string) {
@@ -144,4 +167,12 @@ func (r *Resource) SetURL(u string) {
 
 func (r *Resource) SetImage(i string) {
 	r.image = i
+}
+
+func (r *Resource) SetCesiumIonAssetID(i *string) {
+	r.cesiumIonAssetId = i
+}
+
+func (r *Resource) SetCesiumIonAccessToken(i *string) {
+	r.cesiumIonAccessToken = i
 }

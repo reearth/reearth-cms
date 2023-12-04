@@ -1,38 +1,23 @@
 type WorkspaceSettings implements Node {
     id: ID! # same as workspaceId
-    tiles: TilesList
-    terrains: TerrainsList
+    tiles: ResourceList
+    terrains: ResourceList
+}
+
+type ResourceList {
+    Resources: [Resource!]!
+    selectedResource: ID
+    enabled: Boolean # only in terrains
 }
 
 type Resource {
+	id: ID!
+    type: String!
     name: String!
     url: String!
     image: String!
-}
-
-type Tile {
-	id: ID!
-    type: String!
-    resource: Resource!
-}
-
-type TilesList {
-    tiles: [Tile!]!
-    selectedTile: ID
-}
-
-type Terrain {
-	id: ID!
-    type: String!
-    cesiumIonAssetId: String!
-    cesiumIonAccessToken: String!
-    resource: Resource!
-}
-
-type TerrainsList {
-    Terrains: [Terrain!]!
-    selectedTerrain: ID
-    enabled: Boolean!
+    cesiumIonAssetId: String # only in terrains
+    cesiumIonAccessToken: String # only in terrains
 }
 
 type UpdateWorkspaceSettingsPayload {
@@ -41,40 +26,26 @@ type UpdateWorkspaceSettingsPayload {
 
 # Inputs
 
+input ResourcesListInput {
+    resources: [ResourceInput!]!
+    selectedResource: ID
+    enabled: Boolean # only in terrains
+}
+
 input ResourceInput {
+    id: ID!
+    type: String!
     name: String!
     url: String!
     image: String!
-}
-
-input TilesListInput {
-    tiles: [TileInput!]!
-    selectedTile: ID
-}
-
-input TileInput {
-    id: ID!
-    type: String!
-    resource: ResourceInput!
-}
-
-input TerrainsListInput {
-    terrains: [TerrainInput!]!
-    selectedTerrain: ID
-    enabled: Boolean!
-}
-
-input TerrainInput {
-    id: ID!
-    type: String!
-    cesiumIonAssetId: String!
-    resource: ResourceInput!
+    cesiumIonAssetId: String # only in terrains
+    cesiumIonAccessToken: String # only in terrains
 }
 
 input UpdateWorkspaceSettingsInput {
     id: ID!
-    tiles: TilesListInput
-    terrains: TerrainsListInput
+    tiles: ResourcesListInput
+    terrains: ResourcesListInput
 }
 
 # extend type Query { }

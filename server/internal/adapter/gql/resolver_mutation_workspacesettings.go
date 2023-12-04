@@ -9,15 +9,15 @@ import (
 )
 
 func (r *mutationResolver) UpdateWorkspaceSettings(ctx context.Context, input gqlmodel.UpdateWorkspaceSettingsInput) (*gqlmodel.UpdateWorkspaceSettingsPayload, error) {
-	wid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](input.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	res, err := usecases(ctx).WorkspaceSettings.Update(ctx, interfaces.UpdateWorkspaceSettingsParam{
 		ID:       wid,
-		Tiles:    gqlmodel.FromWorkspaceResourceList(input.Tiles),
-		Terrains: gqlmodel.FromWorkspaceResourceList(input.Terrains),
+		Tiles:    gqlmodel.FromResourceList(input.Tiles),
+		Terrains: gqlmodel.FromResourceList(input.Terrains),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err

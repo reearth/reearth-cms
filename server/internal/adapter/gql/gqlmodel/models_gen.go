@@ -834,17 +834,35 @@ type RequestPayload struct {
 }
 
 type Resource struct {
-	ID    ID     `json:"id"`
-	Name  string `json:"name"`
-	URL   string `json:"url"`
-	Image string `json:"image"`
+	ID                   ID      `json:"id"`
+	Type                 string  `json:"type"`
+	Name                 string  `json:"name"`
+	URL                  string  `json:"url"`
+	Image                string  `json:"image"`
+	CesiumIonAssetID     *string `json:"cesiumIonAssetId,omitempty"`
+	CesiumIonAccessToken *string `json:"cesiumIonAccessToken,omitempty"`
 }
 
 type ResourceInput struct {
-	ID    ID     `json:"id"`
-	Name  string `json:"name"`
-	URL   string `json:"url"`
-	Image string `json:"image"`
+	ID                   ID      `json:"id"`
+	Type                 string  `json:"type"`
+	Name                 string  `json:"name"`
+	URL                  string  `json:"url"`
+	Image                string  `json:"image"`
+	CesiumIonAssetID     *string `json:"cesiumIonAssetId,omitempty"`
+	CesiumIonAccessToken *string `json:"cesiumIonAccessToken,omitempty"`
+}
+
+type ResourceList struct {
+	Resources        []*Resource `json:"Resources"`
+	SelectedResource *ID         `json:"selectedResource,omitempty"`
+	Enabled          *bool       `json:"enabled,omitempty"`
+}
+
+type ResourcesListInput struct {
+	Resources        []*ResourceInput `json:"resources"`
+	SelectedResource *ID              `json:"selectedResource,omitempty"`
+	Enabled          *bool            `json:"enabled,omitempty"`
 }
 
 type Schema struct {
@@ -1270,9 +1288,9 @@ type UpdateWorkspacePayload struct {
 }
 
 type UpdateWorkspaceSettingsInput struct {
-	WorkspaceID ID                          `json:"workspaceId"`
-	Tiles       *WorkspaceResourceListInput `json:"tiles,omitempty"`
-	Terrains    *WorkspaceResourceListInput `json:"terrains,omitempty"`
+	ID       ID                  `json:"id"`
+	Tiles    *ResourcesListInput `json:"tiles,omitempty"`
+	Terrains *ResourcesListInput `json:"terrains,omitempty"`
 }
 
 type UpdateWorkspaceSettingsPayload struct {
@@ -1352,11 +1370,10 @@ type WebhookTriggerInput struct {
 }
 
 type Workspace struct {
-	ID       ID                 `json:"id"`
-	Name     string             `json:"name"`
-	Members  []WorkspaceMember  `json:"members"`
-	Personal bool               `json:"personal"`
-	Settings *WorkspaceSettings `json:"settings,omitempty"`
+	ID       ID                `json:"id"`
+	Name     string            `json:"name"`
+	Members  []WorkspaceMember `json:"members"`
+	Personal bool              `json:"personal"`
 }
 
 func (Workspace) IsNode()        {}
@@ -1373,23 +1390,14 @@ type WorkspaceIntegrationMember struct {
 
 func (WorkspaceIntegrationMember) IsWorkspaceMember() {}
 
-type WorkspaceResourceList struct {
-	Resources       []*Resource `json:"resources"`
-	DefaultResource *ID         `json:"defaultResource,omitempty"`
-	AllowSwitch     bool        `json:"allowSwitch"`
-}
-
-type WorkspaceResourceListInput struct {
-	Resources       []*ResourceInput `json:"resources"`
-	DefaultResource *ID              `json:"defaultResource,omitempty"`
-	AllowSwitch     bool             `json:"allowSwitch"`
-}
-
 type WorkspaceSettings struct {
-	ID       ID                     `json:"id"`
-	Tiles    *WorkspaceResourceList `json:"tiles,omitempty"`
-	Terrains *WorkspaceResourceList `json:"terrains,omitempty"`
+	ID       ID            `json:"id"`
+	Tiles    *ResourceList `json:"tiles,omitempty"`
+	Terrains *ResourceList `json:"terrains,omitempty"`
 }
+
+func (WorkspaceSettings) IsNode()        {}
+func (this WorkspaceSettings) GetID() ID { return this.ID }
 
 type WorkspaceUserMember struct {
 	UserID ID    `json:"userId"`

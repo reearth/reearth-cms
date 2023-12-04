@@ -34,12 +34,12 @@ func (b *Builder) NewID() *Builder {
 	return b
 }
 
-func (b *Builder) Tiles(wr *WorkspaceResourceList) *Builder {
+func (b *Builder) Tiles(wr *ResourceList) *Builder {
 	b.ws.tiles = wr
 	return b
 }
 
-func (b *Builder) Terrains(wr *WorkspaceResourceList) *Builder {
+func (b *Builder) Terrains(wr *ResourceList) *Builder {
 	b.ws.terrains = wr
 	return b
 }

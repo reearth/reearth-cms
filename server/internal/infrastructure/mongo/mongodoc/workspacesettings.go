@@ -10,21 +10,24 @@ import (
 
 type WorkspaceSettingsDocument struct {
 	ID       string
-	Tiles    *WorkspaceResourceListDocument
-	Terrains *WorkspaceResourceListDocument
+	Tiles    *ResourceListDocument
+	Terrains *ResourceListDocument
 }
 
-type WorkspaceResourceListDocument struct {
-	Resources       []*ResourceDocument
-	DefaultResource *string
-	AllowSwitch     bool
+type ResourceListDocument struct {
+	Resources        []*ResourceDocument
+	SelectedResource *string
+	Enabled          *bool // only in terrains
 }
 
 type ResourceDocument struct {
-	ID    string
-	Name  string
-	URL   string
-	Image string
+	ID                   string
+	Type                 string
+	Name                 string
+	URL                  string
+	Image                string
+	CesiumIonAssetID     *string // only in terrains
+	CesiumIonAccessToken *string // only in terrains
 }
 
 type WorkspaceSettingsConsumer = mongox.SliceFuncConsumer[*WorkspaceSettingsDocument, *workspacesettings.WorkspaceSettings]
@@ -37,8 +40,8 @@ func NewWorkspaceSettings(ws *workspacesettings.WorkspaceSettings) (*WorkspaceSe
 	wsid := ws.ID().String()
 	return &WorkspaceSettingsDocument{
 		ID:       wsid,
-		Tiles:    ToWorkspaceResourceListDocument(ws.Tiles()),
-		Terrains: ToWorkspaceResourceListDocument(ws.Terrains()),
+		Tiles:    ToResourceListDocument(ws.Tiles()),
+		Terrains: ToResourceListDocument(ws.Terrains()),
 	}, wsid
 }
 
@@ -50,20 +53,20 @@ func (wsd *WorkspaceSettingsDocument) Model() (*workspacesettings.WorkspaceSetti
 
 	return workspacesettings.New().
 		ID(wid).
-		Tiles(FromWorkspaceResourceListDocument(wsd.Tiles)).
-		Terrains(FromWorkspaceResourceListDocument(wsd.Terrains)).
+		Tiles(FromResourceListDocument(wsd.Tiles)).
+		Terrains(FromResourceListDocument(wsd.Terrains)).
 		Build()
 }
 
-func FromWorkspaceResourceListDocument(wr *WorkspaceResourceListDocument) *workspacesettings.WorkspaceResourceList {
+func FromResourceListDocument(wr *ResourceListDocument) *workspacesettings.ResourceList {
 	if wr == nil {
 		return nil
 	}
 
-	return workspacesettings.NewWorkspaceResourceList(FromResourceListDocument(wr.Resources), id.ResourceIDFromRef(wr.DefaultResource), wr.AllowSwitch)
+	return workspacesettings.NewResourceList(FromResources(wr.Resources), id.ResourceIDFromRef(wr.SelectedResource), wr.Enabled)
 }
 
-func FromResourceListDocument(rd []*ResourceDocument) []*workspacesettings.Resource {
+func FromResources(rd []*ResourceDocument) []*workspacesettings.Resource {
 	if rd == nil {
 		return nil
 	}
@@ -81,22 +84,22 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 		return nil
 	}
 
-	return workspacesettings.NewResource(rid, r.Name, r.URL, r.Image)
+	return workspacesettings.NewResource(rid, r.Type, r.Name, r.URL, r.Image, r.CesiumIonAssetID, r.CesiumIonAccessToken)
 }
 
-func ToWorkspaceResourceListDocument(wr *workspacesettings.WorkspaceResourceList) *WorkspaceResourceListDocument {
+func ToResourceListDocument(wr *workspacesettings.ResourceList) *ResourceListDocument {
 	if wr == nil {
 		return nil
 	}
 
-	return &WorkspaceResourceListDocument{
-		Resources:       ToResourceDocumentList(wr.Resources()),
-		DefaultResource: wr.DefaultResource().StringRef(),
-		AllowSwitch:     wr.AllowSwitch(),
+	return &ResourceListDocument{
+		Resources:        ToResources(wr.Resources()),
+		SelectedResource: wr.SelectedResource().StringRef(),
+		Enabled:          wr.Enabled(),
 	}
 }
 
-func ToResourceDocumentList(rs []*workspacesettings.Resource) []*ResourceDocument {
+func ToResources(rs []*workspacesettings.Resource) []*ResourceDocument {
 	if rs == nil {
 		return nil
 	}
@@ -114,9 +117,12 @@ func ToResourceDocument(r *workspacesettings.Resource) *ResourceDocument {
 	}
 
 	return &ResourceDocument{
-		ID:    r.ID().String(),
-		Name:  r.Name(),
-		URL:   r.URL(),
-		Image: r.Image(),
+		ID:                   r.ID().String(),
+		Type:                 r.Type(),
+		Name:                 r.Name(),
+		URL:                  r.URL(),
+		Image:                r.Image(),
+		CesiumIonAssetID:     r.CesiumIonAssetID(),
+		CesiumIonAccessToken: r.CesiumIonAccessToken(),
 	}
 }

@@ -24,7 +24,7 @@ func NewWorkspaceSettings(r *repo.Container, g *gateway.Container) interfaces.Wo
 }
 
 func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.WorkspaceID, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	return ws.repos.WorkspaceSettings.FindByWorkspace(ctx, wid)
+	return ws.repos.WorkspaceSettings.FindByID(ctx, wid)
 }
 
 func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
@@ -46,7 +46,7 @@ func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWo
 }
 
 func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	work, err := ws.repos.WorkspaceSettings.FindByWorkspace(ctx, inp.ID)
+	work, err := ws.repos.WorkspaceSettings.FindByID(ctx, inp.ID)
 	if err != nil {
 		return nil, err
 	}

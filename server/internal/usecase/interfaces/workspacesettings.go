@@ -14,8 +14,8 @@ type CreateWorkspaceSettingsParam struct {
 
 type UpdateWorkspaceSettingsParam struct {
 	ID       accountdomain.WorkspaceID // same as workspace ID
-	Tiles    *workspacesettings.WorkspaceResourceList
-	Terrains *workspacesettings.WorkspaceResourceList
+	Tiles    *workspacesettings.ResourceList
+	Terrains *workspacesettings.ResourceList
 }
 
 type DeleteWorkspaceSettingsParam struct {

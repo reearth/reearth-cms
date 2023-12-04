@@ -37,17 +37,6 @@ func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id accountdomain.W
 	return res, nil
 }
 
-func (r *WorkspaceSettingsRepo) FindByWorkspace(ctx context.Context, id accountdomain.WorkspaceID) (*workspacesettings.WorkspaceSettings, error) {
-	filter := bson.M{
-		"workspaceid": id.String(),
-	}
-	res, err := r.findOne(ctx, filter)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
 func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids []accountdomain.WorkspaceID) ([]*workspacesettings.WorkspaceSettings, error) {
 	if len(ids) == 0 {
 		return nil, nil
