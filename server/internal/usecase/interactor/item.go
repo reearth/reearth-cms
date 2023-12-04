@@ -361,15 +361,14 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
+		oldFields := itv.Fields()
+		itv.UpdateFields(fields)
+
 		groupFields, groupSchemas, err := i.handleGroupFields(ctx, otherFields, s, m.ID(), itv.Fields())
 		if err != nil {
 			return nil, err
 		}
-
-		oldFields := itv.Fields()
-
-		fields = append(fields, groupFields...)
-		itv.UpdateFields(fields)
+		itv.UpdateFields(groupFields)
 
 		if operator.AcOperator.User != nil {
 			itv.SetUpdatedByUser(*operator.AcOperator.User)

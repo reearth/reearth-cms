@@ -73,6 +73,7 @@ var (
 	gKey1  = key.Random()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
+	gId3   = id.NewItemGroupID()
 
 	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
@@ -686,6 +687,88 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"id":    fId6.String(),
 				"type":  "group",
 				"value": []string{gId1.String(), gId2.String()},
+				"key":   sfKey6.String(),
+			},
+		})
+
+	r = e.PATCH("/api/items/{itemId}", itmId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]any{
+					"group": gId3.String(),
+					"id":    fId5.String(),
+					"type":  "asset",
+					"value": []string{aid2.String()},
+					"key":   sfKey5.String(),
+				},
+				map[string]any{
+					"id":    fId6.String(),
+					"type":  "group",
+					"value": []string{gId1.String(), gId2.String(), gId3.String()},
+					"key":   sfKey6.String(),
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r.Value("fields").
+		IsEqual([]any{
+			map[string]any{
+				"group": gId1.String(),
+				"id":    fId5.String(),
+				"type":  "asset",
+				"value": []string{aid1.String()},
+				"key":   sfKey5.String(),
+			},
+			map[string]any{
+				"group": gId2.String(),
+				"id":    fId5.String(),
+				"type":  "asset",
+				"value": []string{aid2.String(), aid1.String()},
+				"key":   sfKey5.String(),
+			},
+			map[string]any{
+				"group": gId3.String(),
+				"id":    fId5.String(),
+				"type":  "asset",
+				"value": []string{aid2.String()},
+				"key":   sfKey5.String(),
+			},
+			map[string]any{
+				"id":    fId6.String(),
+				"type":  "group",
+				"value": []string{gId1.String(), gId2.String(), gId3.String()},
+				"key":   sfKey6.String(),
+			},
+		})
+
+	r = e.PATCH("/api/items/{itemId}", itmId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]any{
+					"id":    fId6.String(),
+					"type":  "group",
+					"value": []string{},
+					"key":   sfKey6.String(),
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r.Value("fields").
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId6.String(),
+				"type":  "group",
+				"value": []string{},
 				"key":   sfKey6.String(),
 			},
 		})
