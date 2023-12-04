@@ -180,10 +180,22 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
     async (data: { viewId?: string; name: string }) => {
       if (!data.viewId) return;
       setSubmitting(true);
+      const sort = selectedView?.sort ? toGraphItemSort(selectedView?.sort) : undefined;
+      const columns = selectedView?.columns
+        ? selectedView?.columns.map(column => toGraphColumnSelectionInput(column))
+        : undefined;
+      const currentfilter = filterConvert(selectedView?.filter as AndCondition);
       const view = await updateNewView({
         variables: {
           viewId: data.viewId,
           name: data.name,
+          sort: sort,
+          columns: columns,
+          filter: currentfilter
+            ? {
+                and: toGraphAndConditionInput(currentfilter),
+              }
+            : undefined,
         },
       });
       if (view.errors || !view.data?.updateView) {
@@ -194,7 +206,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
       Notification.success({ message: t("Successfully renamed view!") });
       handleViewModalReset();
     },
-    [handleViewModalReset, t, updateNewView, setSubmitting],
+    [handleViewModalReset, t, updateNewView, setSubmitting, selectedView],
   );
 
   const [deleteView] = useDeleteViewMutation({
