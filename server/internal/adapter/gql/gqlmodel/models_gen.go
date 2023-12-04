@@ -1768,17 +1768,18 @@ func (e MultipleOperator) MarshalGQL(w io.Writer) {
 type NodeType string
 
 const (
-	NodeTypeUser        NodeType = "USER"
-	NodeTypeWorkspace   NodeType = "WORKSPACE"
-	NodeTypeProject     NodeType = "PROJECT"
-	NodeTypeAsset       NodeType = "ASSET"
-	NodeTypeRequest     NodeType = "REQUEST"
-	NodeTypeModel       NodeType = "Model"
-	NodeTypeSchema      NodeType = "Schema"
-	NodeTypeItem        NodeType = "Item"
-	NodeTypeView        NodeType = "View"
-	NodeTypeIntegration NodeType = "Integration"
-	NodeTypeGroup       NodeType = "Group"
+	NodeTypeUser              NodeType = "USER"
+	NodeTypeWorkspace         NodeType = "WORKSPACE"
+	NodeTypeProject           NodeType = "PROJECT"
+	NodeTypeAsset             NodeType = "ASSET"
+	NodeTypeRequest           NodeType = "REQUEST"
+	NodeTypeModel             NodeType = "Model"
+	NodeTypeSchema            NodeType = "Schema"
+	NodeTypeItem              NodeType = "Item"
+	NodeTypeView              NodeType = "View"
+	NodeTypeIntegration       NodeType = "Integration"
+	NodeTypeGroup             NodeType = "Group"
+	NodeTypeWorkspaceSettings NodeType = "WorkspaceSettings"
 )
 
 var AllNodeType = []NodeType{
@@ -1793,11 +1794,12 @@ var AllNodeType = []NodeType{
 	NodeTypeView,
 	NodeTypeIntegration,
 	NodeTypeGroup,
+	NodeTypeWorkspaceSettings,
 }
 
 func (e NodeType) IsValid() bool {
 	switch e {
-	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeView, NodeTypeIntegration, NodeTypeGroup:
+	case NodeTypeUser, NodeTypeWorkspace, NodeTypeProject, NodeTypeAsset, NodeTypeRequest, NodeTypeModel, NodeTypeSchema, NodeTypeItem, NodeTypeView, NodeTypeIntegration, NodeTypeGroup, NodeTypeWorkspaceSettings:
 		return true
 	}
 	return false

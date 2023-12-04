@@ -4645,6 +4645,7 @@ enum NodeType {
   View
   Integration
   Group
+  WorkspaceSettings
 }
 
 input Pagination{
