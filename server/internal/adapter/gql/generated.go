@@ -3567,7 +3567,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ResourceList.Enabled(childComplexity), true
 
-	case "ResourceList.Resources":
+	case "ResourceList.resources":
 		if e.complexity.ResourceList.Resources == nil {
 			break
 		}
@@ -6304,7 +6304,7 @@ extend type Mutation {
 }
 
 type ResourceList {
-    Resources: [Resource!]!
+    resources: [Resource!]!
     selectedResource: ID
     enabled: Boolean # only in terrains
 }
@@ -23945,8 +23945,8 @@ func (ec *executionContext) fieldContext_Resource_cesiumIonAccessToken(ctx conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ResourceList_Resources(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ResourceList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ResourceList_Resources(ctx, field)
+func (ec *executionContext) _ResourceList_resources(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ResourceList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceList_resources(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -23976,7 +23976,7 @@ func (ec *executionContext) _ResourceList_Resources(ctx context.Context, field g
 	return ec.marshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ResourceList_Resources(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ResourceList_resources(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ResourceList",
 		Field:      field,
@@ -29449,8 +29449,8 @@ func (ec *executionContext) fieldContext_WorkspaceSettings_tiles(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Resources":
-				return ec.fieldContext_ResourceList_Resources(ctx, field)
+			case "resources":
+				return ec.fieldContext_ResourceList_resources(ctx, field)
 			case "selectedResource":
 				return ec.fieldContext_ResourceList_selectedResource(ctx, field)
 			case "enabled":
@@ -29498,8 +29498,8 @@ func (ec *executionContext) fieldContext_WorkspaceSettings_terrains(ctx context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "Resources":
-				return ec.fieldContext_ResourceList_Resources(ctx, field)
+			case "resources":
+				return ec.fieldContext_ResourceList_resources(ctx, field)
 			case "selectedResource":
 				return ec.fieldContext_ResourceList_selectedResource(ctx, field)
 			case "enabled":
@@ -42130,8 +42130,8 @@ func (ec *executionContext) _ResourceList(ctx context.Context, sel ast.Selection
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ResourceList")
-		case "Resources":
-			out.Values[i] = ec._ResourceList_Resources(ctx, field, obj)
+		case "resources":
+			out.Values[i] = ec._ResourceList_resources(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

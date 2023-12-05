@@ -5,7 +5,7 @@ type WorkspaceSettings implements Node {
 }
 
 type ResourceList {
-    Resources: [Resource!]!
+    resources: [Resource!]!
     selectedResource: ID
     enabled: Boolean # only in terrains
 }

@@ -854,7 +854,7 @@ type ResourceInput struct {
 }
 
 type ResourceList struct {
-	Resources        []*Resource `json:"Resources"`
+	Resources        []*Resource `json:"resources"`
 	SelectedResource *ID         `json:"selectedResource,omitempty"`
 	Enabled          *bool       `json:"enabled,omitempty"`
 }
