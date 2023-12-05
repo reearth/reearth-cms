@@ -18,18 +18,18 @@ func ToWorkspaceSettings(ws *workspacesettings.WorkspaceSettings) *WorkspaceSett
 	}
 }
 
-func ToResourceList(tiles *workspacesettings.ResourceList) *ResourceList {
-	if tiles == nil {
+func ToResourceList(resource *workspacesettings.ResourceList) *ResourceList {
+	if resource == nil {
 		return nil
 	}
 
-	r := lo.Map(tiles.Resources(), func(r *workspacesettings.Resource, _ int) *Resource {
+	r := lo.Map(resource.Resources(), func(r *workspacesettings.Resource, _ int) *Resource {
 		return ToResource(r)
 	})
 	wr := &ResourceList{
 		Resources:        r,
-		SelectedResource: IDFromRef(tiles.SelectedResource()),
-		Enabled:          tiles.Enabled(),
+		SelectedResource: IDFromRef(resource.SelectedResource()),
+		Enabled:          resource.Enabled(),
 	}
 	return wr
 }
