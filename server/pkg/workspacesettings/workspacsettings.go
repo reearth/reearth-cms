@@ -67,14 +67,14 @@ func (ws *WorkspaceSettings) Clone() *WorkspaceSettings {
 		res.tiles = &ResourceList{
 			resources:        slices.Clone(ws.tiles.resources),
 			selectedResource: ws.tiles.selectedResource.CloneRef(),
-			enabled:          ws.tiles.enabled,
+			enabled:          util.CloneRef(ws.tiles.enabled),
 		}
 	}
 	if ws.terrains != nil {
 		res.terrains = &ResourceList{
 			resources:        slices.Clone(ws.terrains.resources),
 			selectedResource: ws.terrains.selectedResource.CloneRef(),
-			enabled:          ws.terrains.enabled,
+			enabled:          util.CloneRef(ws.terrains.enabled),
 		}
 	}
 
@@ -98,18 +98,18 @@ func (wr *ResourceList) SetResources(r []*Resource) {
 }
 
 func (wr *ResourceList) SetSelectedResource(rid *ResourceID) {
-	wr.selectedResource = rid
+	wr.selectedResource = rid.CloneRef()
 }
 
 func (wr *ResourceList) SetEnabled(s *bool) {
-	wr.enabled = s
+	wr.enabled = util.CloneRef(s)
 }
 
 func NewResourceList(resources []*Resource, selectedResource *ResourceID, enabled *bool) *ResourceList {
 	return &ResourceList{
-		resources:       slices.Clone(resources),
-		selectedResource: selectedResource,
-		enabled:     enabled,
+		resources:        slices.Clone(resources),
+		selectedResource: util.CloneRef(selectedResource),
+		enabled:          util.CloneRef(enabled),
 	}
 }
 
@@ -141,15 +141,15 @@ func (r *Resource) CesiumIonAccessToken() *string {
 	return r.cesiumIonAccessToken
 }
 
-func NewResource(id ResourceID, rtype string, name string, url string, image string, cesiumIonAssetId *string ,cesiumIonAccessToken *string) *Resource {
+func NewResource(id ResourceID, rtype string, name string, url string, image string, cesiumIonAssetId *string, cesiumIonAccessToken *string) *Resource {
 	return &Resource{
-		id:    id,
-		rtype: rtype,
-		name:  name,
-		url:   url,
-		image: image,
-		cesiumIonAssetId: cesiumIonAssetId,
-		cesiumIonAccessToken: cesiumIonAccessToken,
+		id:                   id,
+		rtype:                rtype,
+		name:                 name,
+		url:                  url,
+		image:                image,
+		cesiumIonAssetId:     util.CloneRef(cesiumIonAssetId),
+		cesiumIonAccessToken: util.CloneRef(cesiumIonAccessToken),
 	}
 }
 
@@ -170,9 +170,9 @@ func (r *Resource) SetImage(i string) {
 }
 
 func (r *Resource) SetCesiumIonAssetID(i *string) {
-	r.cesiumIonAssetId = i
+	r.cesiumIonAssetId = util.CloneRef(i)
 }
 
 func (r *Resource) SetCesiumIonAccessToken(i *string) {
-	r.cesiumIonAccessToken = i
+	r.cesiumIonAccessToken = util.CloneRef(i)
 }
