@@ -151,9 +151,6 @@ export default () => {
   });
 
   const [updateItemMutation] = useUpdateItemMutation();
-  //   {
-  //   refetchQueries: ["SearchItem", "GetItem"],
-  // }
 
   const handleMetaItemUpdate = useCallback(
     async (
@@ -178,13 +175,13 @@ export default () => {
         } else {
           field.value = field.value ?? "";
         }
-        return field;
+        return field as typeof field & { value: any };
       });
 
       const item = await updateItemMutation({
         variables: {
           itemId: target.metadata?.id,
-          fields: fields as any,
+          fields,
           version,
         },
       });
