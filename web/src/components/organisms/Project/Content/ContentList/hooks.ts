@@ -1,4 +1,3 @@
-import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -28,7 +27,6 @@ import {
   useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { transformMomentToString } from "@reearth-cms/utils/format";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
 import { renderField } from "./renderFields";
@@ -162,7 +160,7 @@ export default () => {
       updateItemId: string,
       version: string,
       key: string,
-      value: string | boolean,
+      value?: string | string[] | boolean,
       index?: number,
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
@@ -172,9 +170,11 @@ export default () => {
       }
       const fields = target.metadata.fields.map(field => {
         if (field.schemaFieldId === key) {
-          field.value = value;
-        } else if (moment.isMoment(value)) {
-          field.value = transformMomentToString(value);
+          if (Array.isArray(field.value) && field.type !== "Tag") {
+            field.value[index ?? 0] = value ?? "";
+          } else {
+            field.value = value ?? "";
+          }
         } else {
           field.value = field.value ?? "";
         }
@@ -307,7 +307,7 @@ export default () => {
               : ("descend" as const)
             : null,
         render: (el: any, record: ContentTableField) => {
-          return renderField(el, field, (value: string | boolean, index?: number) => {
+          return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
             handleMetaItemUpdate(record.id, record.version, field.id, value, index);
           });
         },
