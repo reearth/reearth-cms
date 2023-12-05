@@ -119,6 +119,21 @@ func (r *Model) Save(ctx context.Context, model *model.Model) error {
 	return r.client.SaveOne(ctx, mId, doc)
 }
 
+func (r *Model) SaveAll(ctx context.Context, list model.List) error {
+	if len(list) == 0 {
+		return nil
+	}
+	if !r.f.CanWrite(list[0].Project()) {
+		return repo.ErrOperationDenied
+	}
+	docs, ids := mongodoc.NewModels(list)
+	docsAny := make([]any, 0, len(list))
+	for _, d := range docs {
+		docsAny = append(docsAny, d)
+	}
+	return r.client.SaveAll(ctx, ids, docsAny)
+}
+
 func (r *Model) Remove(ctx context.Context, modelID id.ModelID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": modelID.String()}))
 }

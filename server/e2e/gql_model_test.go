@@ -42,6 +42,7 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 
 	return res.Path("$.data.createModel.model.id").Raw().(string), res
 }
+
 func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string, order *int) *httpexpect.Value {
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String, $order: Int, $public: Boolean!) {
@@ -64,6 +65,38 @@ func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string, orde
 			"key":         key,
 			"order":       order,
 			"public":      false,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func updateModelsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateModelsOrder($modelIds:[ID!]!) {
+				  updateModelsOrder(input: {modelIds: $modelIds}) {
+					models {
+					  id
+					  name
+					  description
+					  key
+					  order
+					  __typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelIds": ids,
 		},
 	}
 
@@ -284,4 +317,41 @@ func TestUpdateModel(t *testing.T) {
 		HasValue("description", "updated desc").
 		HasValue("key", "updated_key").
 		HasValue("order", 2)
+}
+
+func TestUpdateModelsOrder(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+
+	mId1, _ := createModel(e, pId, "test1", "test", "test-1")
+	mId2, _ := createModel(e, pId, "test2", "test", "test-2")
+	mId3, _ := createModel(e, pId, "test3", "test", "test-3")
+	mId4, _ := createModel(e, pId, "test4", "test", "test-4")
+	res := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
+	res1 := res.Object().
+		Value("data").Object().
+		Value("updateModelsOrder").Object().
+		Value("models").
+		Array()
+	res1.
+		Value(0).
+		Object().
+		HasValue("order", 0).
+		HasValue("name", "test4")
+	res1.
+		Value(1).
+		Object().
+		HasValue("order", 1).
+		HasValue("name", "test1")
+	res1.
+		Value(2).
+		Object().
+		HasValue("order", 2).
+		HasValue("name", "test2")
+	res1.
+		Value(3).
+		Object().
+		HasValue("order", 3).
+		HasValue("name", "test3")
 }

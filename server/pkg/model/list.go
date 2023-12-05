@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
 	"golang.org/x/exp/slices"
 )
@@ -17,4 +18,18 @@ func (l List) SortByID() List {
 
 func (l List) Clone() List {
 	return util.Map(l, func(m *Model) *Model { return m.Clone() })
+}
+
+func (l List) OrderByIDs(ids id.ModelIDList) List {
+	var res List
+	for i, mid := range ids {
+		for _, model := range l {
+			if model.ID() == mid {
+				model.SetOrder(i)
+				res = append(res, model)
+				continue
+			}
+		}
+	}
+	return res
 }

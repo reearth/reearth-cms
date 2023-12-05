@@ -631,6 +631,10 @@ type ModelPayload struct {
 	Model *Model `json:"model"`
 }
 
+type ModelsPayload struct {
+	Models []*Model `json:"models"`
+}
+
 type MultipleFieldCondition struct {
 	FieldID  *FieldSelector   `json:"fieldId"`
 	Operator MultipleOperator `json:"operator"`
@@ -1197,9 +1201,12 @@ type UpdateModelInput struct {
 	ModelID     ID      `json:"modelId"`
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
-	Order       *int    `json:"order,omitempty"`
 	Key         *string `json:"key,omitempty"`
 	Public      bool    `json:"public"`
+}
+
+type UpdateModelsOrderInput struct {
+	ModelIds []ID `json:"modelIds"`
 }
 
 type UpdateProjectInput struct {

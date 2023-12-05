@@ -179,3 +179,22 @@ func MockModelNow(r repo.Model, t time.Time) func() {
 func SetModelError(r repo.Model, err error) {
 	r.(*Model).err = err
 }
+
+func (r *Model) SaveAll(ctx context.Context, models model.List) error {
+	if r.err != nil {
+		return r.err
+	}
+	if len(models) == 0 {
+		return nil
+	}
+	if !r.f.CanWrite(models[0].Project()) {
+		return repo.ErrOperationDenied
+	}
+	inp := map[id.ModelID]*model.Model{}
+	for _, m := range models {
+		m.SetUpdatedAt(r.now.Now())
+		inp[m.ID()] = m
+	}
+	r.data.StoreAll(inp)
+	return nil
+}

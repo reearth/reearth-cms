@@ -135,9 +135,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 			if param.Public != nil {
 				m.SetPublic(*param.Public)
 			}
-			if param.Order != nil {
-				m.SetOrder(*param.Order)
-			}
+
 			if err := i.repos.Model.Save(ctx, m); err != nil {
 				return nil, err
 			}
@@ -255,5 +253,26 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 
 			// otherwise return standard schema
 			return i.repos.Schema.FindByID(ctx, sid)
+		})
+}
+
+func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *usecase.Operator) (model.List, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ model.List, err error) {
+			models, err := i.repos.Model.FindByIDs(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			if len(models) == 0 {
+				return nil, nil
+			}
+			if !operator.IsMaintainingProject(models[0].Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+			ordered := models.OrderByIDs(ids)
+			if err := i.repos.Model.SaveAll(ctx, ordered); err != nil {
+				return nil, err
+			}
+			return ordered, nil
 		})
 }
