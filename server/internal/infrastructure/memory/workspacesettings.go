@@ -6,7 +6,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
@@ -17,7 +16,7 @@ type WorkspaceSettingsRepo struct {
 	err  error
 }
 
-func NewWorkspaceSettings(client *mongox.Client) repo.WorkspaceSettings {
+func NewWorkspaceSettings() repo.WorkspaceSettings {
 	return &WorkspaceSettingsRepo{
 		data: &util.SyncMap[accountdomain.WorkspaceID, *workspacesettings.WorkspaceSettings]{},
 	}
