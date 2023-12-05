@@ -37,8 +37,8 @@ const ModelsList: React.FC<Props> = ({
     return !selectedSchemaType
       ? [selectedKey ?? ""]
       : selectedSchemaType === "model" && selectedKey
-      ? [selectedKey]
-      : [];
+        ? [selectedKey]
+        : [];
   }, [selectedKey, selectedSchemaType]);
 
   return (
