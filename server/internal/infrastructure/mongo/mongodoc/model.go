@@ -19,6 +19,7 @@ type ModelDocument struct {
 	Schema      string
 	Metadata    *string
 	UpdatedAt   time.Time
+	Order       int
 }
 
 func NewModel(model *model.Model) (*ModelDocument, string) {
@@ -33,6 +34,7 @@ func NewModel(model *model.Model) (*ModelDocument, string) {
 		Project:     model.Project().String(),
 		Schema:      model.Schema().String(),
 		UpdatedAt:   model.UpdatedAt(),
+		Order:       model.Order(),
 	}, mId
 }
 
@@ -60,6 +62,7 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 		Project(pId).
 		Metadata(id.SchemaIDFromRef(d.Metadata)).
 		Schema(sId).
+		Order(d.Order).
 		Build()
 }
 

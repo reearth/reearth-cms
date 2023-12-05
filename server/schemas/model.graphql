@@ -12,6 +12,7 @@ type Model implements Node {
   public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
+  order: Int
 }
 
 # Inputs
@@ -26,6 +27,7 @@ input UpdateModelInput {
   modelId: ID!
   name: String
   description: String
+  order: Int
   key: String
   public: Boolean!
 }

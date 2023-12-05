@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"github.com/samber/lo"
 	"net/http"
 	"testing"
 
@@ -40,6 +41,42 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 		JSON()
 
 	return res.Path("$.data.createModel.model.id").Raw().(string), res
+}
+func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string, order *int) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String, $order: Int, $public: Boolean!) {
+				  updateModel(input: {modelId: $modelId, name: $name, description: $description, key: $key, order: $order, public: $public}) {
+					model {
+					  id
+					  name
+					  description
+					  key
+					  order
+					  __typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelId":     mId,
+			"name":        name,
+			"description": desc,
+			"key":         key,
+			"order":       order,
+			"public":      false,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
 }
 
 func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
@@ -231,4 +268,20 @@ func TestCreateModel(t *testing.T) {
 		HasValue("description", "test").
 		HasValue("key", "test-1")
 
+}
+func TestUpdateModel(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+
+	mId, _ := createModel(e, pId, "test", "test", "test-2")
+	res := updateModel(e, mId, lo.ToPtr("updated name"), lo.ToPtr("updated desc"), lo.ToPtr("updated_key"), lo.ToPtr(2))
+	res.Object().
+		Value("data").Object().
+		Value("updateModel").Object().
+		Value("model").Object().
+		HasValue("name", "updated name").
+		HasValue("description", "updated desc").
+		HasValue("key", "updated_key").
+		HasValue("order", 2)
 }

@@ -609,6 +609,7 @@ type Model struct {
 	Public           bool      `json:"public"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
+	Order            *int      `json:"order,omitempty"`
 }
 
 func (Model) IsNode()        {}
@@ -1196,6 +1197,7 @@ type UpdateModelInput struct {
 	ModelID     ID      `json:"modelId"`
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
+	Order       *int    `json:"order,omitempty"`
 	Key         *string `json:"key,omitempty"`
 	Public      bool    `json:"public"`
 }

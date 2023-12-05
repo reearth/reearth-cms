@@ -135,7 +135,9 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 			if param.Public != nil {
 				m.SetPublic(*param.Public)
 			}
-
+			if param.Order != nil {
+				m.SetOrder(*param.Order)
+			}
 			if err := i.repos.Model.Save(ctx, m); err != nil {
 				return nil, err
 			}

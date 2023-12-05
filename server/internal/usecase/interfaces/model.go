@@ -34,6 +34,7 @@ type UpdateModelParam struct {
 	Description *string
 	Key         *string
 	Public      *bool
+	Order       *int
 }
 
 var (
