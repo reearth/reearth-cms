@@ -43,10 +43,10 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 	return res.Path("$.data.createModel.model.id").Raw().(string), res
 }
 
-func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string, order *int) *httpexpect.Value {
+func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string) *httpexpect.Value {
 	requestBody := GraphQLRequest{
-		Query: `mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String, $order: Int, $public: Boolean!) {
-				  updateModel(input: {modelId: $modelId, name: $name, description: $description, key: $key, order: $order, public: $public}) {
+		Query: `mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String,  $public: Boolean!) {
+				  updateModel(input: {modelId: $modelId, name: $name, description: $description, key: $key, public: $public}) {
 					model {
 					  id
 					  name
@@ -63,7 +63,6 @@ func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string, orde
 			"name":        name,
 			"description": desc,
 			"key":         key,
-			"order":       order,
 			"public":      false,
 		},
 	}
@@ -308,15 +307,14 @@ func TestUpdateModel(t *testing.T) {
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
 
 	mId, _ := createModel(e, pId, "test", "test", "test-2")
-	res := updateModel(e, mId, lo.ToPtr("updated name"), lo.ToPtr("updated desc"), lo.ToPtr("updated_key"), lo.ToPtr(2))
+	res := updateModel(e, mId, lo.ToPtr("updated name"), lo.ToPtr("updated desc"), lo.ToPtr("updated_key"))
 	res.Object().
 		Value("data").Object().
 		Value("updateModel").Object().
 		Value("model").Object().
 		HasValue("name", "updated name").
 		HasValue("description", "updated desc").
-		HasValue("key", "updated_key").
-		HasValue("order", 2)
+		HasValue("key", "updated_key")
 }
 
 func TestUpdateModelsOrder(t *testing.T) {
