@@ -56,7 +56,7 @@ func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWo
 				work.SetTiles(inp.Tiles)
 			}
 			if inp.Terrains != nil {
-				work.SetTiles(inp.Terrains)
+				work.SetTerrains(inp.Terrains)
 			}
 			if err := ws.repos.WorkspaceSettings.Save(ctx, work); err != nil {
 				return nil, err
