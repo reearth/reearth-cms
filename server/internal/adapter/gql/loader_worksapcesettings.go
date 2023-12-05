@@ -6,8 +6,10 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type WorkspaceSettingsLoader struct {
@@ -24,12 +26,14 @@ func (c *WorkspaceSettingsLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) 
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.Fetch(ctx, wsids[0], getOperator(ctx))
+	res, err := c.usecase.Fetch(ctx, wsids, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return []*gqlmodel.WorkspaceSettings{gqlmodel.ToWorkspaceSettings(res)}, nil
+	return lo.Map(res, func(w *workspacesettings.WorkspaceSettings, _ int) *gqlmodel.WorkspaceSettings {
+		return gqlmodel.ToWorkspaceSettings(w)
+	}), nil
 }
 
 // data loader

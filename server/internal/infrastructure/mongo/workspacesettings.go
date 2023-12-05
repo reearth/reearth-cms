@@ -37,7 +37,7 @@ func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id accountdomain.W
 	return res, nil
 }
 
-func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids []accountdomain.WorkspaceID) ([]*workspacesettings.WorkspaceSettings, error) {
+func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids accountdomain.WorkspaceIDList) (workspacesettings.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -68,7 +68,7 @@ func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, id accountdomain.Wor
 	if !r.f.CanWrite(id) {
 		return repo.ErrOperationDenied
 	}
-	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"workspaceid": id.String()}))
+	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }
 
 func (r *WorkspaceSettingsRepo) find(ctx context.Context, filter any) ([]*workspacesettings.WorkspaceSettings, error) {
