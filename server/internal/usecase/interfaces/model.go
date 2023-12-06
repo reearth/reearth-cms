@@ -49,6 +49,7 @@ type Model interface {
 	FindOrCreateSchema(context.Context, FindOrCreateSchemaParam, *usecase.Operator) (*schema.Schema, error)
 	Create(context.Context, CreateModelParam, *usecase.Operator) (*model.Model, error)
 	Update(context.Context, UpdateModelParam, *usecase.Operator) (*model.Model, error)
+	UpdateOrder(context.Context, id.ModelIDList, *usecase.Operator) (model.List, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)
 	Delete(context.Context, id.ModelID, *usecase.Operator) error
 	Publish(context.Context, id.ModelID, bool, *usecase.Operator) (bool, error)

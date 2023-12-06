@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/samber/lo"
 )
 
 func ToModel(m *model.Model) *Model {
@@ -16,11 +17,10 @@ func ToModel(m *model.Model) *Model {
 		Name:             m.Name(),
 		Description:      m.Description(),
 		Key:              m.Key().String(),
-		Project:          nil,
-		Schema:           nil,
 		MetadataSchemaID: IDFromRef(m.Metadata()),
 		Public:           m.Public(),
 		CreatedAt:        m.ID().Timestamp(),
 		UpdatedAt:        m.UpdatedAt(),
+		Order:            lo.ToPtr(m.Order()),
 	}
 }

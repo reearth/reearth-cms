@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -82,5 +83,21 @@ func (r *mutationResolver) PublishModel(ctx context.Context, input gqlmodel.Publ
 	return &gqlmodel.PublishModelPayload{
 		ModelID: input.ModelID,
 		Status:  s,
+	}, nil
+}
+
+func (r *mutationResolver) UpdateModelsOrder(ctx context.Context, input gqlmodel.UpdateModelsOrderInput) (*gqlmodel.ModelsPayload, error) {
+	mIds, err := gqlmodel.ToIDs[id.Model](input.ModelIds)
+	if err != nil {
+		return nil, err
+	}
+	models, err := usecases(ctx).Model.UpdateOrder(ctx, mIds, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	return &gqlmodel.ModelsPayload{
+		Models: lo.Map(models, func(mod *model.Model, _ int) *gqlmodel.Model {
+			return gqlmodel.ToModel(mod)
+		}),
 	}, nil
 }

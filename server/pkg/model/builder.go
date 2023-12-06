@@ -94,3 +94,8 @@ func (b *Builder) UpdatedAt(updatedAt time.Time) *Builder {
 	b.model.updatedAt = updatedAt
 	return b
 }
+
+func (b *Builder) Order(o int) *Builder {
+	b.model.order = o
+	return b
+}

@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -117,6 +116,22 @@ func (r *Model) Save(ctx context.Context, model *model.Model) error {
 	}
 	doc, mId := mongodoc.NewModel(model)
 	return r.client.SaveOne(ctx, mId, doc)
+}
+
+func (r *Model) SaveAll(ctx context.Context, list model.List) error {
+	if len(list) == 0 {
+		return nil
+	}
+
+	if !r.f.CanWrite(list.Projects()...) {
+		return repo.ErrOperationDenied
+	}
+	docs, ids := mongodoc.NewModels(list)
+	docsAny := make([]any, 0, len(list))
+	for _, d := range docs {
+		docsAny = append(docsAny, d)
+	}
+	return r.client.SaveAll(ctx, ids, docsAny)
 }
 
 func (r *Model) Remove(ctx context.Context, modelID id.ModelID) error {
