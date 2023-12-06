@@ -259,12 +259,15 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *usecase.Operator) (model.List, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ model.List, err error) {
+			if len(ids) == 0 {
+				return nil, nil
+			}
 			models, err := i.repos.Model.FindByIDs(ctx, ids)
 			if err != nil {
 				return nil, err
 			}
-			if len(models) == 0 {
-				return nil, nil
+			if len(models) != len(ids) {
+				return nil, // return error here
 			}
 			if !operator.IsMaintainingProject(models[0].Project()) {
 				return nil, interfaces.ErrOperationDenied
