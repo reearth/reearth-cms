@@ -333,7 +333,7 @@ export default () => {
               type: field.type as SchemaFieldType,
             })),
             metadataId: metaItemId,
-            version: currentItem?.version ?? "",
+            version: currentItem?.metadata.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {
@@ -341,6 +341,7 @@ export default () => {
           return;
         }
       } else {
+        console.log(currentItem?.version);
         const item = await updateItem({
           variables: {
             itemId: data.metaItemId as string,
