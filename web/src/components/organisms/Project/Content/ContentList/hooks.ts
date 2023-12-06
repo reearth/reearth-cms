@@ -254,7 +254,7 @@ export default () => {
                 {},
               ),
               metadataId: item.metadata?.id,
-              version: item.version,
+              version: item.metadata?.version,
             }
           : undefined,
       )

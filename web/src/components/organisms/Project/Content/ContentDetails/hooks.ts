@@ -333,7 +333,7 @@ export default () => {
               type: field.type as SchemaFieldType,
             })),
             metadataId: metaItemId,
-            version: currentItem?.metadata.version ?? "",
+            version: currentItem?.metadata?.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {
@@ -341,7 +341,6 @@ export default () => {
           return;
         }
       } else {
-        console.log(currentItem?.version);
         const item = await updateItem({
           variables: {
             itemId: data.metaItemId as string,
@@ -349,7 +348,7 @@ export default () => {
               ...field,
               type: field.type as SchemaFieldType,
             })),
-            version: currentItem?.version ?? "",
+            version: currentItem?.metadata?.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {
