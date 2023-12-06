@@ -70,18 +70,18 @@ func TestModelRepo_FindByID(t *testing.T) {
 				m1.Clone(),
 			},
 			arg:     id1,
-			want:    m1,
+			want:    m1.Clone(),
 			wantErr: nil,
 		},
 		{
 			name: "Found 2",
 			seeds: model.List{
-				m1,
+				m1.Clone(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
 			arg:     id1,
-			want:    m1,
+			want:    m1.Clone(),
 			wantErr: nil,
 		},
 		{
@@ -93,7 +93,7 @@ func TestModelRepo_FindByID(t *testing.T) {
 			},
 			arg:     id1,
 			filter:  &repo.ProjectFilter{Readable: []id.ProjectID{pid1}, Writable: []id.ProjectID{pid1}},
-			want:    m1,
+			want:    m1.Clone(),
 			wantErr: nil,
 		},
 		{
@@ -113,7 +113,7 @@ func TestModelRepo_FindByID(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//t.Parallel()
+			t.Parallel()
 
 			r := NewModel()
 			defer MockModelNow(r, mocknow)()
