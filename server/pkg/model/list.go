@@ -18,12 +18,12 @@ func (l List) SortByID() List {
 }
 
 func (l List) Projects() id.ProjectIDList {
-	return lo.FilterMap(l, func(m *Model, _ int) (id.ProjectID, bool) {
+	return lo.Uniq(lo.FilterMap(l, func(m *Model, _ int) (id.ProjectID, bool) {
 		if m == nil {
 			return id.ProjectID{}, false
 		}
 		return m.Project(), true
-	})
+	}))
 }
 func (l List) Clone() List {
 	return util.Map(l, func(m *Model) *Model { return m.Clone() })
