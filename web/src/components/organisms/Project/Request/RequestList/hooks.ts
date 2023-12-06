@@ -99,6 +99,7 @@ export default () => {
           threadId: r.threadId,
           comments: r.thread?.comments.map(c => convertComment(c as GQLComment)) ?? [],
           reviewers: r.reviewers,
+          createdBy: r.createdBy ?? undefined,
           createdAt: r.createdAt,
           updatedAt: r.updatedAt,
           approvedAt: r.approvedAt ?? undefined,

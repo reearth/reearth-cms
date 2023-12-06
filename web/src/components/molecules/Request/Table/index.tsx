@@ -74,6 +74,8 @@ const RequestListTable: React.FC<Props> = ({
       render: (_, request) => (
         <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
       ),
+      width: 48,
+      align: "center",
     },
     {
       title: () => <Icon icon="message" />,
@@ -81,14 +83,16 @@ const RequestListTable: React.FC<Props> = ({
       key: "commentsCount",
       render: (_, request) => {
         return (
-          <Button type="link" onClick={() => onRequestSelect(request.id)}>
+          <CommentsButton type="link" onClick={() => onRequestSelect(request.id)}>
             <CustomTag
               value={request.comments?.length || 0}
               color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
             />
-          </Button>
+          </CommentsButton>
         );
       },
+      width: 48,
+      align: "center",
     },
     {
       title: t("Title"),
@@ -232,7 +236,6 @@ const RequestListTable: React.FC<Props> = ({
       pagination={pagination}
       toolbar={handleToolbarEvents}
       rowSelection={rowSelection}
-      tableStyle={{ overflowX: "scroll" }}
       loading={loading}
       onChange={(pagination, filters) => {
         onRequestTableChange(
@@ -248,6 +251,10 @@ const RequestListTable: React.FC<Props> = ({
 };
 
 export default RequestListTable;
+
+const CommentsButton = styled(Button)`
+  padding: 0;
+`;
 
 const DeselectButton = styled.a`
   display: flex;
