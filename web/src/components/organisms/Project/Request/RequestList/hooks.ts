@@ -23,7 +23,6 @@ export default () => {
 
   const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
   const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
   const stateParam = useMemo(() => searchParams.get("requestState"), [searchParams]);
   const createdByMeParam = useMemo(() => searchParams.get("createdByMe"), [searchParams]);
   const reviewedByMeParam = useMemo(() => searchParams.get("reviewedByMe"), [searchParams]);
@@ -39,7 +38,7 @@ export default () => {
   const [selectedRequestId, setselectedRequestId] = useState<string>();
   const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
   const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
-  const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [requestState, setRequestState] = useState<RequestState[]>(
     stateParam ? JSON.parse(stateParam) : ["WAITING"],
@@ -57,8 +56,7 @@ export default () => {
     setRequestState(stateParam ? JSON.parse(stateParam) : ["WAITING"]);
     setCreatedByMe(createdByMeParam ? JSON.parse(createdByMeParam) : false);
     setReviewedByMe(reviewedByMeParam ? JSON.parse(reviewedByMeParam) : false);
-    setSearchTerm(searchTermParam ?? "");
-  }, [pageParam, pageSizeParam, stateParam, createdByMeParam, reviewedByMeParam, searchTermParam]);
+  }, [pageParam, pageSizeParam, stateParam, createdByMeParam, reviewedByMeParam]);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
@@ -165,13 +163,10 @@ export default () => {
   //   [selectedRequests, selectRequests],
   // );
 
-  const handleSearchTerm = useCallback(
-    (term?: string) => {
-      searchParams.set("searchTerm", term ?? "");
-      setSearchParams(searchParams);
-    },
-    [setSearchParams, searchParams],
-  );
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setPage(1);
+  }, []);
 
   const handleRequestTableChange = useCallback(
     (
