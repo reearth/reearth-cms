@@ -1,6 +1,7 @@
 package gqlmodel
 
 import (
+	"github.com/samber/lo"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
@@ -28,7 +29,7 @@ func TestToModel(t *testing.T) {
 		{
 			name: "success",
 			model: model.New().ID(mId).Project(pId).Schema(sId).Key(k).
-				Name("N1").Description("D1").MustBuild(),
+				Name("N1").Description("D1").Order(1).MustBuild(),
 			want: &Model{
 				ID:          IDFrom(mId),
 				ProjectID:   IDFrom(pId),
@@ -41,6 +42,7 @@ func TestToModel(t *testing.T) {
 				Public:      false,
 				CreatedAt:   mId.Timestamp(),
 				UpdatedAt:   mId.Timestamp(),
+				Order:       lo.ToPtr(1),
 			},
 		},
 	}
