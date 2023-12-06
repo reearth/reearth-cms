@@ -21,6 +21,7 @@ export type Item = {
   fields: ItemField[] | undefined | null;
   metadata: {
     id?: string;
+    version: string;
     fields: ItemField[] | undefined | null;
   };
   threadId: string;

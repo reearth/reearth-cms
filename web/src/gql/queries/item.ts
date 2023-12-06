@@ -31,6 +31,7 @@ export const GET_ITEMS = gql`
         }
         metadata {
           id
+          version
           fields {
             schemaFieldId
             itemGroupId
@@ -85,6 +86,7 @@ export const GET_ITEM_NODE = gql`
         }
         metadata {
           id
+          version
           fields {
             schemaFieldId
             type
@@ -161,6 +163,7 @@ export const SEARCH_ITEM = gql`
         }
         metadata {
           id
+          version
           fields {
             schemaFieldId
             type
