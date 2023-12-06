@@ -150,7 +150,9 @@ export default () => {
     }
   });
 
-  const [updateItemMutation] = useUpdateItemMutation();
+  const [updateItemMutation] = useUpdateItemMutation({
+    refetchQueries: ["SearchItem", "GetViews"],
+  });
 
   const handleMetaItemUpdate = useCallback(
     async (
