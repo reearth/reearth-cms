@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 )
 
 type Model struct {
@@ -267,9 +268,13 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 				return nil, err
 			}
 			if len(models) != len(ids) {
-				return nil, // return error here
+				return nil, rerror.ErrNotFound
 			}
-			if !operator.IsMaintainingProject(models[0].Project()) {
+
+			prjs := util.Map(models, func(m *model.Model) id.ProjectID {
+				return m.Project()
+			})
+			if !operator.IsMaintainingProject(prjs...) {
 				return nil, interfaces.ErrOperationDenied
 			}
 			ordered := models.OrderByIDs(ids)
