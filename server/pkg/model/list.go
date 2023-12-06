@@ -27,7 +27,7 @@ func (l List) OrderByIDs(ids id.ModelIDList) List {
 			if model.ID() == mid {
 				model.SetOrder(i)
 				res = append(res, model)
-				continue
+				break
 			}
 		}
 	}
