@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -17,8 +18,11 @@ func (l List) SortByID() List {
 }
 
 func (l List) Projects() id.ProjectIDList {
-	return util.Map(l, func(m *Model) id.ProjectID {
-		return m.Project()
+	return lo.FilterMap(l, func(m *Model, _ int) (id.ProjectID, bool) {
+		if m == nil {
+			return id.ProjectID{}, false
+		}
+		return m.Project(), true
 	})
 }
 func (l List) Clone() List {
