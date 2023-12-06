@@ -503,6 +503,7 @@ type Item struct {
 	UpdatedByIntegrationID *ID          `json:"updatedByIntegrationId,omitempty"`
 	UserID                 *ID          `json:"userId,omitempty"`
 	MetadataID             *ID          `json:"metadataId,omitempty"`
+	IsMetadata             bool         `json:"isMetadata"`
 	OriginalID             *ID          `json:"originalId,omitempty"`
 	CreatedBy              Operator     `json:"createdBy,omitempty"`
 	Schema                 *Schema      `json:"schema"`
@@ -608,6 +609,7 @@ type Model struct {
 	Public           bool      `json:"public"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
+	Order            *int      `json:"order,omitempty"`
 }
 
 func (Model) IsNode()        {}
@@ -627,6 +629,10 @@ type ModelEdge struct {
 
 type ModelPayload struct {
 	Model *Model `json:"model"`
+}
+
+type ModelsPayload struct {
+	Models []*Model `json:"models"`
 }
 
 type MultipleFieldCondition struct {
@@ -1229,6 +1235,10 @@ type UpdateModelInput struct {
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
 	Public      bool    `json:"public"`
+}
+
+type UpdateModelsOrderInput struct {
+	ModelIds []ID `json:"modelIds"`
 }
 
 type UpdateProjectInput struct {

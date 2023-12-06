@@ -91,10 +91,10 @@ const DropdownRender: React.FC<Props> = ({
           break;
         case "Text":
         case "TextArea":
-        case "RichText":
         case "MarkdownText":
         case "Asset":
         case "URL":
+          // case "RichText":
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
@@ -136,7 +136,7 @@ const DropdownRender: React.FC<Props> = ({
           );
           break;
         case "Integer":
-        case "Float":
+          // case "Float":
           result.push(
             { operatorType: "basic", value: BasicOperator.Equals, label: t("is") },
             { operatorType: "basic", value: BasicOperator.NotEquals, label: t("is not") },
@@ -313,7 +313,7 @@ const DropdownRender: React.FC<Props> = ({
         if (typeof value !== "boolean") {
           value = value === "true";
         }
-      } else if (filter.type === "Integer" || filter.type === "Float") {
+      } else if (filter.type === "Integer" /*|| filter.type === "Float"*/) {
         value = Number(value);
       } else if (filter.type === "Date") {
         value = value ? new Date(value) : new Date();
@@ -457,7 +457,7 @@ const DropdownRender: React.FC<Props> = ({
                   </Option>
                 ))}
               </Select>
-            ) : filter.type === "Integer" || filter.type === "Float" ? (
+            ) : filter.type === "Integer" /*|| filter.type === "Float"*/ ? (
               <InputNumber
                 onChange={onNumberChange}
                 stringMode

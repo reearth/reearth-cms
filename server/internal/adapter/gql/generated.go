@@ -281,6 +281,7 @@ type ComplexityRoot struct {
 		Fields                 func(childComplexity int) int
 		ID                     func(childComplexity int) int
 		IntegrationID          func(childComplexity int) int
+		IsMetadata             func(childComplexity int) int
 		Metadata               func(childComplexity int) int
 		MetadataID             func(childComplexity int) int
 		Model                  func(childComplexity int) int
@@ -357,6 +358,7 @@ type ComplexityRoot struct {
 		MetadataSchema   func(childComplexity int) int
 		MetadataSchemaID func(childComplexity int) int
 		Name             func(childComplexity int) int
+		Order            func(childComplexity int) int
 		Project          func(childComplexity int) int
 		ProjectID        func(childComplexity int) int
 		Public           func(childComplexity int) int
@@ -379,6 +381,10 @@ type ComplexityRoot struct {
 
 	ModelPayload struct {
 		Model func(childComplexity int) int
+	}
+
+	ModelsPayload struct {
+		Models func(childComplexity int) int
 	}
 
 	MultipleFieldCondition struct {
@@ -435,6 +441,7 @@ type ComplexityRoot struct {
 		UpdateItem                     func(childComplexity int, input gqlmodel.UpdateItemInput) int
 		UpdateMe                       func(childComplexity int, input gqlmodel.UpdateMeInput) int
 		UpdateModel                    func(childComplexity int, input gqlmodel.UpdateModelInput) int
+		UpdateModelsOrder              func(childComplexity int, input gqlmodel.UpdateModelsOrderInput) int
 		UpdateProject                  func(childComplexity int, input gqlmodel.UpdateProjectInput) int
 		UpdateRequest                  func(childComplexity int, input gqlmodel.UpdateRequestInput) int
 		UpdateUserOfWorkspace          func(childComplexity int, input gqlmodel.UpdateUserOfWorkspaceInput) int
@@ -905,6 +912,7 @@ type MutationResolver interface {
 	DeleteView(ctx context.Context, input gqlmodel.DeleteViewInput) (*gqlmodel.DeleteViewPayload, error)
 	CreateModel(ctx context.Context, input gqlmodel.CreateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModel(ctx context.Context, input gqlmodel.UpdateModelInput) (*gqlmodel.ModelPayload, error)
+	UpdateModelsOrder(ctx context.Context, input gqlmodel.UpdateModelsOrderInput) (*gqlmodel.ModelsPayload, error)
 	DeleteModel(ctx context.Context, input gqlmodel.DeleteModelInput) (*gqlmodel.DeleteModelPayload, error)
 	PublishModel(ctx context.Context, input gqlmodel.PublishModelInput) (*gqlmodel.PublishModelPayload, error)
 	CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error)
@@ -1721,6 +1729,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Item.IntegrationID(childComplexity), true
 
+	case "Item.isMetadata":
+		if e.complexity.Item.IsMetadata == nil {
+			break
+		}
+
+		return e.complexity.Item.IsMetadata(childComplexity), true
+
 	case "Item.metadata":
 		if e.complexity.Item.Metadata == nil {
 			break
@@ -2085,6 +2100,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Model.Name(childComplexity), true
 
+	case "Model.order":
+		if e.complexity.Model.Order == nil {
+			break
+		}
+
+		return e.complexity.Model.Order(childComplexity), true
+
 	case "Model.project":
 		if e.complexity.Model.Project == nil {
 			break
@@ -2175,6 +2197,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ModelPayload.Model(childComplexity), true
+
+	case "ModelsPayload.models":
+		if e.complexity.ModelsPayload.Models == nil {
+			break
+		}
+
+		return e.complexity.ModelsPayload.Models(childComplexity), true
 
 	case "MultipleFieldCondition.fieldId":
 		if e.complexity.MultipleFieldCondition.FieldID == nil {
@@ -2760,6 +2789,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateModel(childComplexity, args["input"].(gqlmodel.UpdateModelInput)), true
+
+	case "Mutation.updateModelsOrder":
+		if e.complexity.Mutation.UpdateModelsOrder == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateModelsOrder_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateModelsOrder(childComplexity, args["input"].(gqlmodel.UpdateModelsOrderInput)), true
 
 	case "Mutation.updateProject":
 		if e.complexity.Mutation.UpdateProject == nil {
@@ -4495,6 +4536,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateItemInput,
 		ec.unmarshalInputUpdateMeInput,
 		ec.unmarshalInputUpdateModelInput,
+		ec.unmarshalInputUpdateModelsOrderInput,
 		ec.unmarshalInputUpdateProjectInput,
 		ec.unmarshalInputUpdateProjectPublicationInput,
 		ec.unmarshalInputUpdateRequestInput,
@@ -5337,6 +5379,7 @@ extend type Mutation {
   updatedByIntegrationId: ID
   userId: ID
   metadataId: ID
+  isMetadata: Boolean!
   originalId: ID
   createdBy: Operator
   schema: Schema!
@@ -5789,6 +5832,7 @@ extend type Mutation {
   public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
+  order: Int
 }
 
 # Inputs
@@ -5805,6 +5849,10 @@ input UpdateModelInput {
   description: String
   key: String
   public: Boolean!
+}
+
+input UpdateModelsOrderInput {
+  modelIds: [ID!]!
 }
 
 input DeleteModelInput {
@@ -5830,6 +5878,10 @@ type PublishModelPayload {
   status: Boolean!
 }
 
+type ModelsPayload {
+  models: [Model!]!
+}
+
 type ModelConnection {
   edges: [ModelEdge!]!
   nodes: [Model]!
@@ -5850,6 +5902,7 @@ extend type Query {
 extend type Mutation {
   createModel(input: CreateModelInput!): ModelPayload
   updateModel(input: UpdateModelInput!): ModelPayload
+  updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
   publishModel(input: PublishModelInput!): PublishModelPayload
 }
@@ -7056,6 +7109,21 @@ func (ec *executionContext) field_Mutation_updateModel_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNUpdateModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateModelsOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.UpdateModelsOrderInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateModelsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelsOrderInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -12742,6 +12810,50 @@ func (ec *executionContext) fieldContext_Item_metadataId(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_isMetadata(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_isMetadata(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsMetadata, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_isMetadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Item_originalId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Item) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Item_originalId(ctx, field)
 	if err != nil {
@@ -12947,6 +13059,8 @@ func (ec *executionContext) fieldContext_Item_model(ctx context.Context, field g
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Model_updatedAt(ctx, field)
+			case "order":
+				return ec.fieldContext_Model_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -13479,6 +13593,8 @@ func (ec *executionContext) fieldContext_Item_metadata(ctx context.Context, fiel
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
 				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "isMetadata":
+				return ec.fieldContext_Item_isMetadata(ctx, field)
 			case "originalId":
 				return ec.fieldContext_Item_originalId(ctx, field)
 			case "createdBy":
@@ -13574,6 +13690,8 @@ func (ec *executionContext) fieldContext_Item_original(ctx context.Context, fiel
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
 				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "isMetadata":
+				return ec.fieldContext_Item_isMetadata(ctx, field)
 			case "originalId":
 				return ec.fieldContext_Item_originalId(ctx, field)
 			case "createdBy":
@@ -13763,6 +13881,8 @@ func (ec *executionContext) fieldContext_ItemConnection_nodes(ctx context.Contex
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
 				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "isMetadata":
+				return ec.fieldContext_Item_isMetadata(ctx, field)
 			case "originalId":
 				return ec.fieldContext_Item_originalId(ctx, field)
 			case "createdBy":
@@ -14000,6 +14120,8 @@ func (ec *executionContext) fieldContext_ItemEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
 				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "isMetadata":
+				return ec.fieldContext_Item_isMetadata(ctx, field)
 			case "originalId":
 				return ec.fieldContext_Item_originalId(ctx, field)
 			case "createdBy":
@@ -14268,6 +14390,8 @@ func (ec *executionContext) fieldContext_ItemPayload_item(ctx context.Context, f
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
 				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "isMetadata":
+				return ec.fieldContext_Item_isMetadata(ctx, field)
 			case "originalId":
 				return ec.fieldContext_Item_originalId(ctx, field)
 			case "createdBy":
@@ -15584,6 +15708,47 @@ func (ec *executionContext) fieldContext_Model_updatedAt(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Model_order(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Model) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Model_order(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Order, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Model_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Model",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ModelConnection_edges(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ModelConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ModelConnection_edges(ctx, field)
 	if err != nil {
@@ -15699,6 +15864,8 @@ func (ec *executionContext) fieldContext_ModelConnection_nodes(ctx context.Conte
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Model_updatedAt(ctx, field)
+			case "order":
+				return ec.fieldContext_Model_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -15910,6 +16077,8 @@ func (ec *executionContext) fieldContext_ModelEdge_node(ctx context.Context, fie
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Model_updatedAt(ctx, field)
+			case "order":
+				return ec.fieldContext_Model_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -15982,6 +16151,82 @@ func (ec *executionContext) fieldContext_ModelPayload_model(ctx context.Context,
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Model_updatedAt(ctx, field)
+			case "order":
+				return ec.fieldContext_Model_order(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ModelsPayload_models(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ModelsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ModelsPayload_models(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Models, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gqlmodel.Model)
+	fc.Result = res
+	return ec.marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ModelsPayload_models(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ModelsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Model_id(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Model_projectId(ctx, field)
+			case "schemaId":
+				return ec.fieldContext_Model_schemaId(ctx, field)
+			case "metadataSchemaId":
+				return ec.fieldContext_Model_metadataSchemaId(ctx, field)
+			case "name":
+				return ec.fieldContext_Model_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Model_description(ctx, field)
+			case "key":
+				return ec.fieldContext_Model_key(ctx, field)
+			case "project":
+				return ec.fieldContext_Model_project(ctx, field)
+			case "schema":
+				return ec.fieldContext_Model_schema(ctx, field)
+			case "metadataSchema":
+				return ec.fieldContext_Model_metadataSchema(ctx, field)
+			case "public":
+				return ec.fieldContext_Model_public(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Model_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Model_updatedAt(ctx, field)
+			case "order":
+				return ec.fieldContext_Model_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -17693,6 +17938,62 @@ func (ec *executionContext) fieldContext_Mutation_updateModel(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateModel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateModelsOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateModelsOrder(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateModelsOrder(rctx, fc.Args["input"].(gqlmodel.UpdateModelsOrderInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.ModelsPayload)
+	fc.Result = res
+	return ec.marshalOModelsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateModelsOrder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "models":
+				return ec.fieldContext_ModelsPayload_models(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ModelsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateModelsOrder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -20678,6 +20979,8 @@ func (ec *executionContext) fieldContext_PublishItemPayload_items(ctx context.Co
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
 				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "isMetadata":
+				return ec.fieldContext_Item_isMetadata(ctx, field)
 			case "originalId":
 				return ec.fieldContext_Item_originalId(ctx, field)
 			case "createdBy":
@@ -21184,6 +21487,8 @@ func (ec *executionContext) fieldContext_Query_modelsByGroup(ctx context.Context
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Model_updatedAt(ctx, field)
+			case "order":
+				return ec.fieldContext_Model_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -24627,6 +24932,8 @@ func (ec *executionContext) fieldContext_SchemaField_model(ctx context.Context, 
 				return ec.fieldContext_Model_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Model_updatedAt(ctx, field)
+			case "order":
+				return ec.fieldContext_Model_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Model", field.Name)
 		},
@@ -27072,6 +27379,8 @@ func (ec *executionContext) fieldContext_UnpublishItemPayload_items(ctx context.
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
 				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "isMetadata":
+				return ec.fieldContext_Item_isMetadata(ctx, field)
 			case "originalId":
 				return ec.fieldContext_Item_originalId(ctx, field)
 			case "createdBy":
@@ -27735,6 +28044,8 @@ func (ec *executionContext) fieldContext_VersionedItem_value(ctx context.Context
 				return ec.fieldContext_Item_userId(ctx, field)
 			case "metadataId":
 				return ec.fieldContext_Item_metadataId(ctx, field)
+			case "isMetadata":
+				return ec.fieldContext_Item_isMetadata(ctx, field)
 			case "originalId":
 				return ec.fieldContext_Item_originalId(ctx, field)
 			case "createdBy":
@@ -36150,6 +36461,35 @@ func (ec *executionContext) unmarshalInputUpdateModelInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateModelsOrderInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateModelsOrderInput, error) {
+	var it gqlmodel.UpdateModelsOrderInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"modelIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "modelIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelIds"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModelIds = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateProjectInput(ctx context.Context, obj interface{}) (gqlmodel.UpdateProjectInput, error) {
 	var it gqlmodel.UpdateProjectInput
 	asMap := map[string]interface{}{}
@@ -39050,6 +39390,11 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Item_userId(ctx, field, obj)
 		case "metadataId":
 			out.Values[i] = ec._Item_metadataId(ctx, field, obj)
+		case "isMetadata":
+			out.Values[i] = ec._Item_isMetadata(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "originalId":
 			out.Values[i] = ec._Item_originalId(ctx, field, obj)
 		case "createdBy":
@@ -40052,6 +40397,8 @@ func (ec *executionContext) _Model(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "order":
+			out.Values[i] = ec._Model_order(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -40183,6 +40530,45 @@ func (ec *executionContext) _ModelPayload(ctx context.Context, sel ast.Selection
 			out.Values[i] = graphql.MarshalString("ModelPayload")
 		case "model":
 			out.Values[i] = ec._ModelPayload_model(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var modelsPayloadImplementors = []string{"ModelsPayload"}
+
+func (ec *executionContext) _ModelsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ModelsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, modelsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ModelsPayload")
+		case "models":
+			out.Values[i] = ec._ModelsPayload_models(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -40388,6 +40774,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateModel":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateModel(ctx, field)
+			})
+		case "updateModelsOrder":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateModelsOrder(ctx, field)
 			})
 		case "deleteModel":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -45650,6 +46040,50 @@ func (ec *executionContext) marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearth
 	return ret
 }
 
+func (ec *executionContext) marshalNModel2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Model) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNModel2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModel(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Model) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -46642,6 +47076,11 @@ func (ec *executionContext) unmarshalNUpdateMeInput2githubᚗcomᚋreearthᚋree
 
 func (ec *executionContext) unmarshalNUpdateModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelInput(ctx context.Context, v interface{}) (gqlmodel.UpdateModelInput, error) {
 	res, err := ec.unmarshalInputUpdateModelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateModelsOrderInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUpdateModelsOrderInput(ctx context.Context, v interface{}) (gqlmodel.UpdateModelsOrderInput, error) {
+	res, err := ec.unmarshalInputUpdateModelsOrderInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -47953,6 +48392,13 @@ func (ec *executionContext) marshalOModelPayload2ᚖgithubᚗcomᚋreearthᚋree
 		return graphql.Null
 	}
 	return ec._ModelPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOModelsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐModelsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ModelsPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ModelsPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOMultipleFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐMultipleFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.MultipleFieldConditionInput, error) {

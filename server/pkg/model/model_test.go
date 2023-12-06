@@ -31,6 +31,7 @@ func TestModel_Clone(t *testing.T) {
 				key:         key.New("123456"),
 				public:      false,
 				updatedAt:   now,
+				order:       2,
 			},
 		},
 		{
@@ -423,6 +424,12 @@ func TestModel_SetPublic(t *testing.T) {
 	m = &Model{public: true}
 	m.SetPublic(false)
 	assert.Equal(t, &Model{public: false}, m)
+}
+
+func TestModel_SetOrder(t *testing.T) {
+	m := &Model{order: 3}
+	m.SetOrder(1)
+	assert.Equal(t, 1, m.Order())
 }
 
 func TestModel_SetUpdatedAt(t *testing.T) {

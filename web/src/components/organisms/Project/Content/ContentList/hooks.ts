@@ -24,6 +24,7 @@ import {
   useSearchItemQuery,
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
+  useUpdateItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
@@ -149,6 +150,53 @@ export default () => {
     }
   });
 
+  const [updateItemMutation] = useUpdateItemMutation({
+    refetchQueries: ["SearchItem", "GetViews"],
+  });
+
+  const handleMetaItemUpdate = useCallback(
+    async (
+      updateItemId: string,
+      version: string,
+      key: string,
+      value?: string | string[] | boolean,
+      index?: number,
+    ) => {
+      const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
+      if (!target?.metadata?.id || !target?.metadata?.fields) {
+        Notification.error({ message: t("Failed to update item.") });
+        return;
+      }
+      const fields = target.metadata.fields.map(field => {
+        if (field.schemaFieldId === key) {
+          if (Array.isArray(field.value) && field.type !== "Tag") {
+            field.value[index ?? 0] = value ?? "";
+          } else {
+            field.value = value ?? "";
+          }
+        } else {
+          field.value = field.value ?? "";
+        }
+        return field as typeof field & { value: any };
+      });
+
+      const item = await updateItemMutation({
+        variables: {
+          itemId: target.metadata?.id,
+          fields,
+          version,
+        },
+      });
+      if (item.errors || !item.data?.updateItem) {
+        Notification.error({ message: t("Failed to update item.") });
+        return;
+      }
+
+      Notification.success({ message: t("Successfully updated Item!") });
+    },
+    [data?.searchItem.nodes, t, updateItemMutation],
+  );
+
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.searchItem.nodes
       ?.map(item =>
@@ -180,10 +228,12 @@ export default () => {
                         : field.type === "Reference"
                         ? referencedItemsMap.get(field.value)?.title ?? ""
                         : Array.isArray(field.value)
-                        ? field.value.join(", ")
-                        : field.value
-                        ? "" + field.value
-                        : field.value,
+                        ? field.value.length > 0
+                          ? field.value.map(v => "" + v)
+                          : null
+                        : field.value === null
+                        ? null
+                        : "" + field.value,
                   }),
                 {},
               ),
@@ -194,13 +244,17 @@ export default () => {
                 (obj, field) =>
                   Object.assign(obj, {
                     [field.schemaFieldId]: Array.isArray(field.value)
-                      ? field.value.join(", ")
-                      : field.value
-                      ? "" + field.value
-                      : field.value,
+                      ? field.value.length > 0
+                        ? field.value.map(v => "" + v)
+                        : null
+                      : field.value === null
+                      ? null
+                      : "" + field.value,
                   }),
                 {},
               ),
+              metadataId: item.metadata?.id,
+              version: item.metadata?.version,
             }
           : undefined,
       )
@@ -251,11 +305,15 @@ export default () => {
               ? ("ascend" as const)
               : ("descend" as const)
             : null,
-        render: (el: any) => renderField(el, field),
+        render: (el: any, record: ContentTableField) => {
+          return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
+            handleMetaItemUpdate(record.id, record.version, field.id, value, index);
+          });
+        },
       })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
-  }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id]);
+  }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id, handleMetaItemUpdate]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {
