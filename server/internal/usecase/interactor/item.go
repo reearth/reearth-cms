@@ -335,8 +335,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			return nil, err
 		}
 
-		isMetadata := m.Metadata() != nil && itv.Schema() == *m.Metadata()
-		if !isMetadata && param.Version != nil && itm.Version() != *param.Version {
+		if itm.Version() != *param.Version {
 			return nil, interfaces.ErrItemConflicted
 		}
 
