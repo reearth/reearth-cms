@@ -187,10 +187,8 @@ func (r *Model) SaveAll(ctx context.Context, models model.List) error {
 	if len(models) == 0 {
 		return nil
 	}
-	projs := util.Map(models, func(m *model.Model) id.ProjectID {
-		return m.Project()
-	})
-	if !r.f.CanWrite(projs...) {
+
+	if !r.f.CanWrite(models.Projects()...) {
 		return repo.ErrOperationDenied
 	}
 	inp := map[id.ModelID]*model.Model{}

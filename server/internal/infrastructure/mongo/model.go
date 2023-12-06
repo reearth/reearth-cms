@@ -2,8 +2,6 @@ package mongo
 
 import (
 	"context"
-	"github.com/reearth/reearthx/util"
-
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -124,10 +122,8 @@ func (r *Model) SaveAll(ctx context.Context, list model.List) error {
 	if len(list) == 0 {
 		return nil
 	}
-	projs := util.Map(list, func(m *model.Model) id.ProjectID {
-		return m.Project()
-	})
-	if !r.f.CanWrite(projs...) {
+
+	if !r.f.CanWrite(list.Projects()...) {
 		return repo.ErrOperationDenied
 	}
 	docs, ids := mongodoc.NewModels(list)

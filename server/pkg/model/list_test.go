@@ -50,4 +50,5 @@ func TestList_OrderByIDs(t *testing.T) {
 	mod3 := New().NewID().Project(pid).Schema(sid3).Key(key.New("key3")).Order(0).MustBuild()
 	mods := List{mod1, mod2, mod3}
 	assert.Equal(t, List{mod2, mod1, mod3}, mods.OrderByIDs(id.ModelIDList{mod2.ID(), mod1.ID(), mod3.ID()}))
+	assert.Equal(t, id.ProjectIDList{pid, pid, pid}, mods.Projects())
 }

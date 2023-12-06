@@ -16,6 +16,11 @@ func (l List) SortByID() List {
 	return m
 }
 
+func (l List) Projects() id.ProjectIDList {
+	return util.Map(l, func(m *Model) id.ProjectID {
+		return m.Project()
+	})
+}
 func (l List) Clone() List {
 	return util.Map(l, func(m *Model) *Model { return m.Clone() })
 }
