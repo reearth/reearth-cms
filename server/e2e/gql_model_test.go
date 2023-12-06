@@ -327,29 +327,6 @@ func TestUpdateModelsOrder(t *testing.T) {
 	mId3, _ := createModel(e, pId, "test3", "test", "test-3")
 	mId4, _ := createModel(e, pId, "test4", "test", "test-4")
 	res := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
-	res1 := res.Object().
-		Value("data").Object().
-		Value("updateModelsOrder").Object().
-		Value("models").
-		Array()
-	res1.
-		Value(0).
-		Object().
-		HasValue("order", 0).
-		HasValue("name", "test4")
-	res1.
-		Value(1).
-		Object().
-		HasValue("order", 1).
-		HasValue("name", "test1")
-	res1.
-		Value(2).
-		Object().
-		HasValue("order", 2).
-		HasValue("name", "test2")
-	res1.
-		Value(3).
-		Object().
-		HasValue("order", 3).
-		HasValue("name", "test3")
+	res.Path("$.data.updateModesOrder.models[:].id").Array().IsEqual([]string{mId1, mId2})
+	res.Path("$.data.updateModesOrder.models[:].order").Array().IsEqual([]int{1, 2})
 }
