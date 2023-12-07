@@ -333,7 +333,7 @@ export default () => {
               type: field.type as SchemaFieldType,
             })),
             metadataId: metaItemId,
-            version: currentItem?.version ?? "",
+            version: currentItem?.metadata?.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {
@@ -348,7 +348,7 @@ export default () => {
               ...field,
               type: field.type as SchemaFieldType,
             })),
-            version: currentItem?.version ?? "",
+            version: currentItem?.metadata?.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {
@@ -369,22 +369,22 @@ export default () => {
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
           case "Select":
-            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
             break;
           case "Integer":
-            initialValues[field.id] = field.typeProperty.integerDefaultValue;
+            initialValues[field.id] = field.typeProperty?.integerDefaultValue;
             break;
           case "Asset":
-            initialValues[field.id] = field.typeProperty.assetDefaultValue;
+            initialValues[field.id] = field.typeProperty?.assetDefaultValue;
             break;
           case "Date":
-            if (Array.isArray(field.typeProperty.defaultValue)) {
-              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
-                valueItem ? moment(valueItem) : "",
+            if (Array.isArray(field.typeProperty?.defaultValue)) {
+              initialValues[field.id] = field.typeProperty?.defaultValue.map(valueItem =>
+                valueItem ? moment(valueItem as string) : "",
               );
             } else {
-              initialValues[field.id] = field.typeProperty.defaultValue
-                ? moment(field.typeProperty.defaultValue)
+              initialValues[field.id] = field.typeProperty?.defaultValue
+                ? moment(field.typeProperty.defaultValue as string)
                 : "";
             }
             break;
@@ -398,7 +398,7 @@ export default () => {
             }
             break;
           default:
-            initialValues[field.id] = field.typeProperty.defaultValue;
+            initialValues[field.id] = field.typeProperty?.defaultValue;
             break;
         }
       });
@@ -406,7 +406,7 @@ export default () => {
       const groupsInCurrentModel = new Set<Group>();
       currentModel?.schema.fields?.forEach(field => {
         if (field.type === "Group") {
-          const group = groups?.find(group => group.id === field.typeProperty.groupId);
+          const group = groups?.find(group => group.id === field.typeProperty?.groupId);
           if (group) groupsInCurrentModel.add(group);
         }
       });
@@ -427,27 +427,31 @@ export default () => {
 
           switch (field.type) {
             case "Select":
+              updateInitialValues(field.typeProperty?.selectDefaultValue);
+              break;
             case "Integer":
+              updateInitialValues(field.typeProperty?.integerDefaultValue);
+              break;
             case "Asset":
-              updateInitialValues(field.typeProperty[field.type.toLowerCase() + "DefaultValue"]);
+              updateInitialValues(field.typeProperty?.assetDefaultValue);
               break;
             case "Date":
-              if (Array.isArray(field.typeProperty.defaultValue)) {
+              if (Array.isArray(field.typeProperty?.defaultValue)) {
                 updateInitialValues(
-                  field.typeProperty.defaultValue.map((valueItem: any) =>
+                  field.typeProperty?.defaultValue.map((valueItem: any) =>
                     valueItem ? moment(valueItem) : "",
                   ),
                 );
               } else {
-                if (field.typeProperty.defaultValue) {
-                  updateInitialValues(moment(field.typeProperty.defaultValue));
+                if (field.typeProperty?.defaultValue) {
+                  updateInitialValues(moment(field.typeProperty.defaultValue as string));
                 } else if (initialValues[field.id]?.[itemGroupId]) {
                   initialValues[field.id][itemGroupId] = "";
                 }
               }
               break;
             default:
-              updateInitialValues(field.typeProperty.defaultValue);
+              updateInitialValues(field.typeProperty?.defaultValue);
               break;
           }
         });
@@ -489,30 +493,30 @@ export default () => {
       currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {
           case "Select":
-            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
             break;
           case "Tag":
-            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
             break;
           case "Integer":
-            initialValues[field.id] = field.typeProperty.integerDefaultValue;
+            initialValues[field.id] = field.typeProperty?.integerDefaultValue;
             break;
           case "Asset":
-            initialValues[field.id] = field.typeProperty.assetDefaultValue;
+            initialValues[field.id] = field.typeProperty?.assetDefaultValue;
             break;
           case "Date":
-            if (Array.isArray(field.typeProperty.defaultValue)) {
-              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
-                valueItem ? moment(valueItem) : "",
+            if (Array.isArray(field.typeProperty?.defaultValue)) {
+              initialValues[field.id] = field.typeProperty?.defaultValue.map(valueItem =>
+                valueItem ? moment(valueItem as string) : "",
               );
             } else {
-              initialValues[field.id] = field.typeProperty.defaultValue
-                ? moment(field.typeProperty.defaultValue)
+              initialValues[field.id] = field.typeProperty?.defaultValue
+                ? moment(field.typeProperty.defaultValue as string)
                 : "";
             }
             break;
           default:
-            initialValues[field.id] = field.typeProperty.defaultValue;
+            initialValues[field.id] = field.typeProperty?.defaultValue;
             break;
         }
       });
