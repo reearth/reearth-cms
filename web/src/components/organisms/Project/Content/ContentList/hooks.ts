@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -33,6 +33,7 @@ import { renderField } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
+  id?: string;
   sort?: ItemSort;
   filter?: AndConditionInput;
   columns?: Column[];
@@ -63,26 +64,15 @@ export default () => {
     pageSize: requestModalPageSize,
   } = useContentHooks();
   const t = useT();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const pageParam = useMemo(() => searchParams.get("page"), [searchParams]);
-  const pageSizeParam = useMemo(() => searchParams.get("pageSize"), [searchParams]);
-  const searchTermParam = useMemo(() => searchParams.get("searchTerm"), [searchParams]);
 
   const navigate = useNavigate();
   const { modelId } = useParams();
-  const [searchTerm, setSearchTerm] = useState<string>(searchTermParam ?? "");
-  const [page, setPage] = useState<number>(pageParam ? +pageParam : 1);
-  const [pageSize, setPageSize] = useState<number>(pageSizeParam ? +pageSizeParam : 10);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [currentView, setCurrentView] = useState<CurrentViewType>({
     columns: [],
   });
-
-  useEffect(() => {
-    setPage(pageParam ? +pageParam : 1);
-    setPageSize(pageSizeParam ? +pageSizeParam : 10);
-    setSearchTerm(searchTermParam ?? "");
-  }, [searchTermParam, pageSizeParam, pageParam]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -254,7 +244,7 @@ export default () => {
                 {},
               ),
               metadataId: item.metadata?.id,
-              version: item.version,
+              version: item.metadata?.version,
             }
           : undefined,
       )
@@ -328,9 +318,16 @@ export default () => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
       );
+      setSearchTerm("");
+      setPage(1);
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
+
+  const handleViewChange = useCallback(() => {
+    setSearchTerm("");
+    setPage(1);
+  }, []);
 
   const handleNavigateToItemForm = useCallback(() => {
     navigate(
@@ -386,25 +383,28 @@ export default () => {
 
   const handleContentTableChange = useCallback(
     (page: number, pageSize: number, sorter?: ItemSort) => {
-      searchParams.set("page", page.toString());
-      searchParams.set("pageSize", pageSize.toString());
+      setPage(page);
+      setPageSize(pageSize);
       setCurrentView(prev => ({
         ...prev,
         sort: sorter,
       }));
-      setSearchParams(searchParams);
     },
-    [searchParams, setSearchParams],
+    [],
   );
 
-  const handleSearchTerm = useCallback(
-    (term?: string) => {
-      searchParams.set("searchTerm", term ?? "");
-      searchParams.set("page", "1");
-      setSearchParams(searchParams);
-    },
-    [setSearchParams, searchParams],
-  );
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setPage(1);
+  }, []);
+
+  const handleFilterChange = useCallback((filter?: AndConditionInput) => {
+    setCurrentView(prev => ({
+      ...prev,
+      filter,
+    }));
+    setPage(1);
+  }, []);
 
   const handleBulkAddItemToRequest = useCallback(
     async (request: Request, itemIds: string[]) => {
@@ -442,11 +442,13 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
+    handleFilterChange,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
     handleModelSelect,
+    handleViewChange,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
