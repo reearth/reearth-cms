@@ -16,6 +16,7 @@ export interface Props {
   onClose: () => void;
   onCreate?: (data: { name: string; description: string; key: string }) => Promise<void>;
   onModelSelect: (modelId: string) => void;
+  onUpdateModelsOrder: (modelIds: string[]) => void;
 }
 
 const Models: React.FC<Props> = ({
@@ -31,6 +32,7 @@ const Models: React.FC<Props> = ({
   onClose,
   onCreate,
   onModelSelect,
+  onUpdateModelsOrder,
 }) => {
   return (
     <>
@@ -42,6 +44,7 @@ const Models: React.FC<Props> = ({
         collapsed={collapsed}
         onModelSelect={onModelSelect}
         onModalOpen={onModalOpen}
+        onUpdateModelsOrder={onUpdateModelsOrder}
       />
       <ModelFormModal
         isKeyAvailable={isKeyAvailable}
