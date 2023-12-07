@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { Key } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
+import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 
@@ -60,6 +61,7 @@ const RequestListMolecule: React.FC<Props> = ({
     <ComplexInnerContents
       center={
         <Content>
+          <StyledPageHeader title="Request" />
           <RequestListTable
             requests={requests}
             selection={selection}
@@ -90,6 +92,10 @@ const RequestListMolecule: React.FC<Props> = ({
 const Content = styled.div`
   width: 100%;
   background-color: #fff;
+`;
+
+const StyledPageHeader = styled(PageHeader)`
+  margin: 0 8px;
 `;
 
 export default RequestListMolecule;
