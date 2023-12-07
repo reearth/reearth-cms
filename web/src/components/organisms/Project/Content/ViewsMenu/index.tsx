@@ -32,7 +32,7 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView, onViewChange 
     handleViewUpdate,
     handleViewDelete,
     handleViewDeletionModalClose,
-  } = useHooks({ modelId, currentView, setCurrentView });
+  } = useHooks({ modelId, currentView, setCurrentView, onViewChange });
 
   return (
     <>

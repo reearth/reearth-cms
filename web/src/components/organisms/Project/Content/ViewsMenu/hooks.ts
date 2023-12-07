@@ -25,11 +25,12 @@ type Params = {
   modelId?: string;
   currentView: CurrentViewType;
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  onViewChange: () => void;
 };
 
 export type modalStateType = "rename" | "create";
 
-export default ({ modelId, currentView, setCurrentView }: Params) => {
+export default ({ modelId, currentView, setCurrentView, onViewChange }: Params) => {
   const t = useT();
   const [prevModelId, setPrevModelId] = useState<string>();
   const [viewModalShown, setViewModalShown] = useState(false);
@@ -130,6 +131,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
       }
       setSelectedView(fromGraphQLView(view.data.createView.view as GQLView));
       setViewModalShown(false);
+      onViewChange();
       Notification.success({ message: t("Successfully created view!") });
     },
     [
@@ -139,6 +141,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
       currentView?.sort,
       currentView?.columns,
       currentView?.filter,
+      onViewChange,
       t,
     ],
   );
@@ -226,10 +229,11 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         Notification.error({ message: t("Failed to delete view.") });
       } else {
         Notification.success({ message: t("Successfully deleted view!") });
+        onViewChange();
         handleViewDeletionModalClose();
       }
     },
-    [deleteView, handleViewDeletionModalClose, t],
+    [deleteView, handleViewDeletionModalClose, onViewChange, t],
   );
 
   return {
