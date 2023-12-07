@@ -10,6 +10,7 @@ import {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
+import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 
 import DropdownRender from "./DropdownRender";
@@ -22,6 +23,7 @@ type Props = {
   isFilterOpen: boolean;
   currentView: CurrentViewType;
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  onFilterChange: (filter?: AndConditionInput) => void;
 };
 
 const FilterDropdown: React.FC<Props> = ({
@@ -32,6 +34,7 @@ const FilterDropdown: React.FC<Props> = ({
   isFilterOpen,
   currentView,
   setCurrentView,
+  onFilterChange,
 }) => {
   const [open, setOpen] = useState(isFilterOpen);
 
@@ -64,6 +67,7 @@ const FilterDropdown: React.FC<Props> = ({
           isFilter={true}
           currentView={currentView}
           setCurrentView={setCurrentView}
+          onFilterChange={onFilterChange}
         />
       )}
       trigger={["click"]}

@@ -12,6 +12,7 @@ type Model implements Node {
   public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
+  order: Int
 }
 
 # Inputs
@@ -28,6 +29,10 @@ input UpdateModelInput {
   description: String
   key: String
   public: Boolean!
+}
+
+input UpdateModelsOrderInput {
+  modelIds: [ID!]!
 }
 
 input DeleteModelInput {
@@ -53,6 +58,10 @@ type PublishModelPayload {
   status: Boolean!
 }
 
+type ModelsPayload {
+  models: [Model!]!
+}
+
 type ModelConnection {
   edges: [ModelEdge!]!
   nodes: [Model]!
@@ -73,6 +82,7 @@ extend type Query {
 extend type Mutation {
   createModel(input: CreateModelInput!): ModelPayload
   updateModel(input: UpdateModelInput!): ModelPayload
+  updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
   publishModel(input: PublishModelInput!): PublishModelPayload
 }

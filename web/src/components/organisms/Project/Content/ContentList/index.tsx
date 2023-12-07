@@ -36,11 +36,13 @@ const ContentList: React.FC = () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleSearchTerm,
+    handleFilterChange,
     setSelection,
     handleItemSelect,
     collapseCommentsPanel,
     collapseModelMenu,
     handleModelSelect,
+    handleViewChange,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
@@ -70,9 +72,16 @@ const ContentList: React.FC = () => {
           onModelSelect={handleModelSelect}
         />
       }
-      viewsMenu={<ViewsMenu currentView={currentView} setCurrentView={setCurrentView} />}
+      viewsMenu={
+        <ViewsMenu
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+          onViewChange={handleViewChange}
+        />
+      }
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
+      onFilterChange={handleFilterChange}
       selectedItem={selectedItem}
       onItemSelect={handleItemSelect}
       collapsed={collapsedModelMenu}
