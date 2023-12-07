@@ -27,6 +27,10 @@ type Operator interface {
 	IsOperator()
 }
 
+type Resource interface {
+	IsResource()
+}
+
 type SchemaFieldTypeProperty interface {
 	IsSchemaFieldTypeProperty()
 }
@@ -147,6 +151,22 @@ type BoolFieldConditionInput struct {
 	FieldID  *FieldSelectorInput `json:"fieldId"`
 	Operator BoolOperator        `json:"operator"`
 	Value    bool                `json:"value"`
+}
+
+type CesiumResourceProps struct {
+	Name                 string `json:"name"`
+	URL                  string `json:"url"`
+	Image                string `json:"image"`
+	CesiumIonAssetID     string `json:"cesiumIonAssetId"`
+	CesiumIonAccessToken string `json:"cesiumIonAccessToken"`
+}
+
+type CesiumResourcePropsInput struct {
+	Name                 string `json:"name"`
+	URL                  string `json:"url"`
+	Image                string `json:"image"`
+	CesiumIonAssetID     string `json:"cesiumIonAssetId"`
+	CesiumIonAccessToken string `json:"cesiumIonAccessToken"`
 }
 
 type Column struct {
@@ -839,30 +859,15 @@ type RequestPayload struct {
 	Request *Request `json:"request"`
 }
 
-type Resource struct {
-	ID                   ID      `json:"id"`
-	Type                 string  `json:"type"`
-	Name                 string  `json:"name"`
-	URL                  string  `json:"url"`
-	Image                string  `json:"image"`
-	CesiumIonAssetID     *string `json:"cesiumIonAssetId,omitempty"`
-	CesiumIonAccessToken *string `json:"cesiumIonAccessToken,omitempty"`
-}
-
 type ResourceInput struct {
-	ID                   ID      `json:"id"`
-	Type                 string  `json:"type"`
-	Name                 string  `json:"name"`
-	URL                  string  `json:"url"`
-	Image                string  `json:"image"`
-	CesiumIonAssetID     *string `json:"cesiumIonAssetId,omitempty"`
-	CesiumIonAccessToken *string `json:"cesiumIonAccessToken,omitempty"`
+	Tile    *TileResourceInput    `json:"tile,omitempty"`
+	Terrain *TerrainResourceInput `json:"terrain,omitempty"`
 }
 
 type ResourceList struct {
-	Resources        []*Resource `json:"resources"`
-	SelectedResource *ID         `json:"selectedResource,omitempty"`
-	Enabled          *bool       `json:"enabled,omitempty"`
+	Resources        []Resource `json:"resources"`
+	SelectedResource *ID        `json:"selectedResource,omitempty"`
+	Enabled          *bool      `json:"enabled,omitempty"`
 }
 
 type ResourcesListInput struct {
@@ -1120,6 +1125,20 @@ type StringFieldConditionInput struct {
 	Value    string              `json:"value"`
 }
 
+type TerrainResource struct {
+	ID    ID                   `json:"id"`
+	Type  TerrainType          `json:"type"`
+	Props *CesiumResourceProps `json:"props,omitempty"`
+}
+
+func (TerrainResource) IsResource() {}
+
+type TerrainResourceInput struct {
+	ID    ID                        `json:"id"`
+	Type  TerrainType               `json:"type"`
+	Props *CesiumResourcePropsInput `json:"props,omitempty"`
+}
+
 type Thread struct {
 	ID          ID         `json:"id"`
 	Workspace   *Workspace `json:"workspace,omitempty"`
@@ -1129,6 +1148,20 @@ type Thread struct {
 
 type ThreadPayload struct {
 	Thread *Thread `json:"thread"`
+}
+
+type TileResource struct {
+	ID    ID                `json:"id"`
+	Type  TileType          `json:"type"`
+	Props *URLResourceProps `json:"props,omitempty"`
+}
+
+func (TileResource) IsResource() {}
+
+type TileResourceInput struct {
+	ID    ID                     `json:"id"`
+	Type  TileType               `json:"type"`
+	Props *URLResourcePropsInput `json:"props,omitempty"`
 }
 
 type TimeFieldCondition struct {
@@ -1305,6 +1338,18 @@ type UpdateWorkspaceSettingsInput struct {
 
 type UpdateWorkspaceSettingsPayload struct {
 	WorkspaceSettings *WorkspaceSettings `json:"workspaceSettings"`
+}
+
+type URLResourceProps struct {
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+	Image string `json:"image"`
+}
+
+type URLResourcePropsInput struct {
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+	Image string `json:"image"`
 }
 
 type User struct {
@@ -2361,6 +2406,49 @@ func (e StringOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type TerrainType string
+
+const (
+	TerrainTypeCesiumWorldTerrain TerrainType = "CESIUM_WORLD_TERRAIN"
+	TerrainTypeArcGisTerrain      TerrainType = "ARC_GIS_TERRAIN"
+	TerrainTypeCesiumIon          TerrainType = "CESIUM_ION"
+)
+
+var AllTerrainType = []TerrainType{
+	TerrainTypeCesiumWorldTerrain,
+	TerrainTypeArcGisTerrain,
+	TerrainTypeCesiumIon,
+}
+
+func (e TerrainType) IsValid() bool {
+	switch e {
+	case TerrainTypeCesiumWorldTerrain, TerrainTypeArcGisTerrain, TerrainTypeCesiumIon:
+		return true
+	}
+	return false
+}
+
+func (e TerrainType) String() string {
+	return string(e)
+}
+
+func (e *TerrainType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TerrainType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TerrainType", str)
+	}
+	return nil
+}
+
+func (e TerrainType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type Theme string
 
 const (
@@ -2401,6 +2489,63 @@ func (e *Theme) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Theme) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TileType string
+
+const (
+	TileTypeDefault             TileType = "DEFAULT"
+	TileTypeLabelled            TileType = "LABELLED"
+	TileTypeRoadMap             TileType = "ROAD_MAP"
+	TileTypeStamenWatercolor    TileType = "STAMEN_WATERCOLOR"
+	TileTypeStamenToner         TileType = "STAMEN_TONER"
+	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
+	TileTypeEsriTopography      TileType = "ESRI_TOPOGRAPHY"
+	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
+	TileTypeJapanGsiStandardMap TileType = "JAPAN_GSI_STANDARD_MAP"
+	TileTypeURL                 TileType = "URL"
+)
+
+var AllTileType = []TileType{
+	TileTypeDefault,
+	TileTypeLabelled,
+	TileTypeRoadMap,
+	TileTypeStamenWatercolor,
+	TileTypeStamenToner,
+	TileTypeOpenStreetMap,
+	TileTypeEsriTopography,
+	TileTypeEarthAtNight,
+	TileTypeJapanGsiStandardMap,
+	TileTypeURL,
+}
+
+func (e TileType) IsValid() bool {
+	switch e {
+	case TileTypeDefault, TileTypeLabelled, TileTypeRoadMap, TileTypeStamenWatercolor, TileTypeStamenToner, TileTypeOpenStreetMap, TileTypeEsriTopography, TileTypeEarthAtNight, TileTypeJapanGsiStandardMap, TileTypeURL:
+		return true
+	}
+	return false
+}
+
+func (e TileType) String() string {
+	return string(e)
+}
+
+func (e *TileType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TileType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TileType", str)
+	}
+	return nil
+}
+
+func (e TileType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
