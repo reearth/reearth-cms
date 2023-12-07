@@ -1,8 +1,9 @@
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import ProTable, {
   ProColumns,
@@ -80,6 +81,7 @@ const LinkAssetModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [hoveredAssetId, setHoveredAssetId] = useState<string>();
+  const resetFlag = useRef(false);
 
   const options: OptionConfig = {
     search: true,
@@ -87,15 +89,19 @@ const LinkAssetModal: React.FC<Props> = ({
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
-    search: {
-      onSearch: (value: string) => {
-        if (value) {
-          onSearchTerm(value);
-        } else {
-          onSearchTerm();
-        }
-      },
-    },
+    search: (
+      <Input.Search
+        placeholder={t("Please enter")}
+        onSearch={(value: string) => {
+          if (value) {
+            onSearchTerm(value);
+          } else {
+            onSearchTerm();
+          }
+        }}
+        key={+resetFlag.current}
+      />
+    ),
   };
 
   const pagination: TablePaginationConfig = {
@@ -164,7 +170,10 @@ const LinkAssetModal: React.FC<Props> = ({
       centered
       open={visible}
       onCancel={onLinkAssetModalCancel}
-      afterClose={onSearchTerm}
+      afterClose={() => {
+        onSearchTerm();
+        resetFlag.current = !resetFlag.current;
+      }}
       footer={[
         <UploadAsset
           key={1}
