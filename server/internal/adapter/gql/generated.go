@@ -131,6 +131,14 @@ type ComplexityRoot struct {
 		Value    func(childComplexity int) int
 	}
 
+	CesiumResourceProps struct {
+		CesiumIonAccessToken func(childComplexity int) int
+		CesiumIonAssetID     func(childComplexity int) int
+		Image                func(childComplexity int) int
+		Name                 func(childComplexity int) int
+		URL                  func(childComplexity int) int
+	}
+
 	Column struct {
 		Field   func(childComplexity int) int
 		Visible func(childComplexity int) int
@@ -591,16 +599,6 @@ type ComplexityRoot struct {
 		Request func(childComplexity int) int
 	}
 
-	Resource struct {
-		CesiumIonAccessToken func(childComplexity int) int
-		CesiumIonAssetID     func(childComplexity int) int
-		ID                   func(childComplexity int) int
-		Image                func(childComplexity int) int
-		Name                 func(childComplexity int) int
-		Type                 func(childComplexity int) int
-		URL                  func(childComplexity int) int
-	}
-
 	ResourceList struct {
 		Enabled          func(childComplexity int) int
 		Resources        func(childComplexity int) int
@@ -716,6 +714,12 @@ type ComplexityRoot struct {
 		Value    func(childComplexity int) int
 	}
 
+	TerrainResource struct {
+		ID    func(childComplexity int) int
+		Props func(childComplexity int) int
+		Type  func(childComplexity int) int
+	}
+
 	Thread struct {
 		Comments    func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -725,6 +729,12 @@ type ComplexityRoot struct {
 
 	ThreadPayload struct {
 		Thread func(childComplexity int) int
+	}
+
+	TileResource struct {
+		ID    func(childComplexity int) int
+		Props func(childComplexity int) int
+		Type  func(childComplexity int) int
 	}
 
 	TimeFieldCondition struct {
@@ -755,6 +765,12 @@ type ComplexityRoot struct {
 
 	UpdateWorkspaceSettingsPayload struct {
 		WorkspaceSettings func(childComplexity int) int
+	}
+
+	UrlResourceProps struct {
+		Image func(childComplexity int) int
+		Name  func(childComplexity int) int
+		URL   func(childComplexity int) int
 	}
 
 	User struct {
@@ -1273,6 +1289,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BoolFieldCondition.Value(childComplexity), true
+
+	case "CesiumResourceProps.cesiumIonAccessToken":
+		if e.complexity.CesiumResourceProps.CesiumIonAccessToken == nil {
+			break
+		}
+
+		return e.complexity.CesiumResourceProps.CesiumIonAccessToken(childComplexity), true
+
+	case "CesiumResourceProps.cesiumIonAssetId":
+		if e.complexity.CesiumResourceProps.CesiumIonAssetID == nil {
+			break
+		}
+
+		return e.complexity.CesiumResourceProps.CesiumIonAssetID(childComplexity), true
+
+	case "CesiumResourceProps.image":
+		if e.complexity.CesiumResourceProps.Image == nil {
+			break
+		}
+
+		return e.complexity.CesiumResourceProps.Image(childComplexity), true
+
+	case "CesiumResourceProps.name":
+		if e.complexity.CesiumResourceProps.Name == nil {
+			break
+		}
+
+		return e.complexity.CesiumResourceProps.Name(childComplexity), true
+
+	case "CesiumResourceProps.url":
+		if e.complexity.CesiumResourceProps.URL == nil {
+			break
+		}
+
+		return e.complexity.CesiumResourceProps.URL(childComplexity), true
 
 	case "Column.field":
 		if e.complexity.Column.Field == nil {
@@ -3552,55 +3603,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RequestPayload.Request(childComplexity), true
 
-	case "Resource.cesiumIonAccessToken":
-		if e.complexity.Resource.CesiumIonAccessToken == nil {
-			break
-		}
-
-		return e.complexity.Resource.CesiumIonAccessToken(childComplexity), true
-
-	case "Resource.cesiumIonAssetId":
-		if e.complexity.Resource.CesiumIonAssetID == nil {
-			break
-		}
-
-		return e.complexity.Resource.CesiumIonAssetID(childComplexity), true
-
-	case "Resource.id":
-		if e.complexity.Resource.ID == nil {
-			break
-		}
-
-		return e.complexity.Resource.ID(childComplexity), true
-
-	case "Resource.image":
-		if e.complexity.Resource.Image == nil {
-			break
-		}
-
-		return e.complexity.Resource.Image(childComplexity), true
-
-	case "Resource.name":
-		if e.complexity.Resource.Name == nil {
-			break
-		}
-
-		return e.complexity.Resource.Name(childComplexity), true
-
-	case "Resource.type":
-		if e.complexity.Resource.Type == nil {
-			break
-		}
-
-		return e.complexity.Resource.Type(childComplexity), true
-
-	case "Resource.url":
-		if e.complexity.Resource.URL == nil {
-			break
-		}
-
-		return e.complexity.Resource.URL(childComplexity), true
-
 	case "ResourceList.enabled":
 		if e.complexity.ResourceList.Enabled == nil {
 			break
@@ -4007,6 +4009,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.StringFieldCondition.Value(childComplexity), true
 
+	case "TerrainResource.id":
+		if e.complexity.TerrainResource.ID == nil {
+			break
+		}
+
+		return e.complexity.TerrainResource.ID(childComplexity), true
+
+	case "TerrainResource.props":
+		if e.complexity.TerrainResource.Props == nil {
+			break
+		}
+
+		return e.complexity.TerrainResource.Props(childComplexity), true
+
+	case "TerrainResource.type":
+		if e.complexity.TerrainResource.Type == nil {
+			break
+		}
+
+		return e.complexity.TerrainResource.Type(childComplexity), true
+
 	case "Thread.comments":
 		if e.complexity.Thread.Comments == nil {
 			break
@@ -4041,6 +4064,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ThreadPayload.Thread(childComplexity), true
+
+	case "TileResource.id":
+		if e.complexity.TileResource.ID == nil {
+			break
+		}
+
+		return e.complexity.TileResource.ID(childComplexity), true
+
+	case "TileResource.props":
+		if e.complexity.TileResource.Props == nil {
+			break
+		}
+
+		return e.complexity.TileResource.Props(childComplexity), true
+
+	case "TileResource.type":
+		if e.complexity.TileResource.Type == nil {
+			break
+		}
+
+		return e.complexity.TileResource.Type(childComplexity), true
 
 	case "TimeFieldCondition.fieldId":
 		if e.complexity.TimeFieldCondition.FieldID == nil {
@@ -4104,6 +4148,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UpdateWorkspaceSettingsPayload.WorkspaceSettings(childComplexity), true
+
+	case "UrlResourceProps.image":
+		if e.complexity.UrlResourceProps.Image == nil {
+			break
+		}
+
+		return e.complexity.UrlResourceProps.Image(childComplexity), true
+
+	case "UrlResourceProps.name":
+		if e.complexity.UrlResourceProps.Name == nil {
+			break
+		}
+
+		return e.complexity.UrlResourceProps.Name(childComplexity), true
+
+	case "UrlResourceProps.url":
+		if e.complexity.UrlResourceProps.URL == nil {
+			break
+		}
+
+		return e.complexity.UrlResourceProps.URL(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -4457,6 +4522,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAssetSort,
 		ec.unmarshalInputBasicFieldConditionInput,
 		ec.unmarshalInputBoolFieldConditionInput,
+		ec.unmarshalInputCesiumResourcePropsInput,
 		ec.unmarshalInputColumnSelectionInput,
 		ec.unmarshalInputConditionInput,
 		ec.unmarshalInputCorrespondingFieldInput,
@@ -4525,6 +4591,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSearchItemInput,
 		ec.unmarshalInputSort,
 		ec.unmarshalInputStringFieldConditionInput,
+		ec.unmarshalInputTerrainResourceInput,
+		ec.unmarshalInputTileResourceInput,
 		ec.unmarshalInputTimeFieldConditionInput,
 		ec.unmarshalInputUnpublishItemInput,
 		ec.unmarshalInputUpdateAssetInput,
@@ -4545,6 +4613,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateWebhookInput,
 		ec.unmarshalInputUpdateWorkspaceInput,
 		ec.unmarshalInputUpdateWorkspaceSettingsInput,
+		ec.unmarshalInputUrlResourcePropsInput,
 		ec.unmarshalInputWebhookTriggerInput,
 	)
 	first := true
@@ -6359,17 +6428,54 @@ extend type Mutation {
 type ResourceList {
     resources: [Resource!]!
     selectedResource: ID
-    enabled: Boolean # only in terrains
+    enabled: Boolean
 }
 
-type Resource {
-	id: ID!
-    type: String!
+union Resource = TileResource | TerrainResource
+
+type TileResource {
+  id: ID!
+  type: TileType!
+  props: UrlResourceProps
+}
+
+type TerrainResource {
+  id: ID!
+  type: TerrainType!
+  props: CesiumResourceProps
+}
+
+enum TileType {
+  DEFAULT
+  LABELLED
+  ROAD_MAP
+  STAMEN_WATERCOLOR
+  STAMEN_TONER
+  OPEN_STREET_MAP
+  ESRI_TOPOGRAPHY
+  EARTH_AT_NIGHT
+  JAPAN_GSI_STANDARD_MAP
+  URL
+}
+
+enum TerrainType {
+  CESIUM_WORLD_TERRAIN
+  ARC_GIS_TERRAIN
+  CESIUM_ION
+}
+
+type UrlResourceProps {
     name: String!
     url: String!
     image: String!
-    cesiumIonAssetId: String # only in terrains
-    cesiumIonAccessToken: String # only in terrains
+}
+
+type CesiumResourceProps {
+    name: String!
+    url: String!
+    image: String!
+    cesiumIonAssetId: String! 
+    cesiumIonAccessToken: String!
 }
 
 type UpdateWorkspaceSettingsPayload {
@@ -6381,17 +6487,39 @@ type UpdateWorkspaceSettingsPayload {
 input ResourcesListInput {
     resources: [ResourceInput!]!
     selectedResource: ID
-    enabled: Boolean # only in terrains
+    enabled: Boolean
 }
 
-input ResourceInput {
+
+input ResourceInput @onlyOne{
+    tile: TileResourceInput
+    terrain: TerrainResourceInput
+}
+
+input TileResourceInput {
     id: ID!
-    type: String!
+    type: TileType!
+    props: UrlResourcePropsInput
+}
+
+input TerrainResourceInput {
+    id: ID!
+    type: TerrainType!
+    props: CesiumResourcePropsInput
+}
+
+input UrlResourcePropsInput {
     name: String!
     url: String!
     image: String!
-    cesiumIonAssetId: String # only in terrains
-    cesiumIonAccessToken: String # only in terrains
+}
+
+input CesiumResourcePropsInput {
+    name: String!
+    url: String!
+    image: String!
+    cesiumIonAssetId: String! 
+    cesiumIonAccessToken: String!
 }
 
 input UpdateWorkspaceSettingsInput {
@@ -9456,6 +9584,226 @@ func (ec *executionContext) fieldContext_BoolFieldCondition_value(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CesiumResourceProps_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CesiumResourceProps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CesiumResourceProps_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CesiumResourceProps_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CesiumResourceProps",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CesiumResourceProps_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CesiumResourceProps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CesiumResourceProps_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CesiumResourceProps_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CesiumResourceProps",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CesiumResourceProps_image(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CesiumResourceProps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CesiumResourceProps_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Image, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CesiumResourceProps_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CesiumResourceProps",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CesiumResourceProps_cesiumIonAssetId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CesiumResourceProps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CesiumResourceProps_cesiumIonAssetId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CesiumIonAssetID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CesiumResourceProps_cesiumIonAssetId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CesiumResourceProps",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CesiumResourceProps_cesiumIonAccessToken(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CesiumResourceProps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CesiumResourceProps_cesiumIonAccessToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CesiumIonAccessToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CesiumResourceProps_cesiumIonAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CesiumResourceProps",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -23948,308 +24296,6 @@ func (ec *executionContext) fieldContext_RequestPayload_request(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Resource_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resource_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(gqlmodel.ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resource_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resource_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resource_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resource_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resource_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resource_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resource_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resource_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resource_url(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.URL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resource_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resource_image(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resource_image(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resource_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resource_cesiumIonAssetId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resource_cesiumIonAssetId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CesiumIonAssetID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resource_cesiumIonAssetId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Resource_cesiumIonAccessToken(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Resource) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Resource_cesiumIonAccessToken(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CesiumIonAccessToken, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Resource_cesiumIonAccessToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Resource",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ResourceList_resources(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ResourceList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ResourceList_resources(ctx, field)
 	if err != nil {
@@ -24276,9 +24322,9 @@ func (ec *executionContext) _ResourceList_resources(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gqlmodel.Resource)
+	res := resTmp.([]gqlmodel.Resource)
 	fc.Result = res
-	return ec.marshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx, field.Selections, res)
+	return ec.marshalNResource2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ResourceList_resources(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24288,23 +24334,7 @@ func (ec *executionContext) fieldContext_ResourceList_resources(ctx context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Resource_id(ctx, field)
-			case "type":
-				return ec.fieldContext_Resource_type(ctx, field)
-			case "name":
-				return ec.fieldContext_Resource_name(ctx, field)
-			case "url":
-				return ec.fieldContext_Resource_url(ctx, field)
-			case "image":
-				return ec.fieldContext_Resource_image(ctx, field)
-			case "cesiumIonAssetId":
-				return ec.fieldContext_Resource_cesiumIonAssetId(ctx, field)
-			case "cesiumIonAccessToken":
-				return ec.fieldContext_Resource_cesiumIonAccessToken(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Resource", field.Name)
+			return nil, errors.New("field of type Resource does not have child fields")
 		},
 	}
 	return fc, nil
@@ -26927,6 +26957,147 @@ func (ec *executionContext) fieldContext_StringFieldCondition_value(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _TerrainResource_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TerrainResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TerrainResource_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TerrainResource_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TerrainResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TerrainResource_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TerrainResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TerrainResource_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.TerrainType)
+	fc.Result = res
+	return ec.marshalNTerrainType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TerrainResource_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TerrainResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TerrainType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TerrainResource_props(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TerrainResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TerrainResource_props(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Props, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.CesiumResourceProps)
+	fc.Result = res
+	return ec.marshalOCesiumResourceProps2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCesiumResourceProps(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TerrainResource_props(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TerrainResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_CesiumResourceProps_name(ctx, field)
+			case "url":
+				return ec.fieldContext_CesiumResourceProps_url(ctx, field)
+			case "image":
+				return ec.fieldContext_CesiumResourceProps_image(ctx, field)
+			case "cesiumIonAssetId":
+				return ec.fieldContext_CesiumResourceProps_cesiumIonAssetId(ctx, field)
+			case "cesiumIonAccessToken":
+				return ec.fieldContext_CesiumResourceProps_cesiumIonAccessToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CesiumResourceProps", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Thread_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Thread) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Thread_id(ctx, field)
 	if err != nil {
@@ -27177,6 +27348,143 @@ func (ec *executionContext) fieldContext_ThreadPayload_thread(ctx context.Contex
 				return ec.fieldContext_Thread_comments(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Thread", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TileResource_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TileResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TileResource_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TileResource_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TileResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TileResource_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TileResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TileResource_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.TileType)
+	fc.Result = res
+	return ec.marshalNTileType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TileResource_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TileResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TileType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TileResource_props(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TileResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TileResource_props(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Props, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.URLResourceProps)
+	fc.Result = res
+	return ec.marshalOUrlResourceProps2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐURLResourceProps(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TileResource_props(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TileResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_UrlResourceProps_name(ctx, field)
+			case "url":
+				return ec.fieldContext_UrlResourceProps_url(ctx, field)
+			case "image":
+				return ec.fieldContext_UrlResourceProps_image(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UrlResourceProps", field.Name)
 		},
 	}
 	return fc, nil
@@ -27719,6 +28027,138 @@ func (ec *executionContext) fieldContext_UpdateWorkspaceSettingsPayload_workspac
 				return ec.fieldContext_WorkspaceSettings_terrains(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WorkspaceSettings", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UrlResourceProps_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.URLResourceProps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UrlResourceProps_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UrlResourceProps_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UrlResourceProps",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UrlResourceProps_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.URLResourceProps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UrlResourceProps_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UrlResourceProps_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UrlResourceProps",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UrlResourceProps_image(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.URLResourceProps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UrlResourceProps_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Image, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UrlResourceProps_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UrlResourceProps",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -32062,6 +32502,71 @@ func (ec *executionContext) unmarshalInputBoolFieldConditionInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCesiumResourcePropsInput(ctx context.Context, obj interface{}) (gqlmodel.CesiumResourcePropsInput, error) {
+	var it gqlmodel.CesiumResourcePropsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "url", "image", "cesiumIonAssetId", "cesiumIonAccessToken"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "url":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URL = data
+		case "image":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Image = data
+		case "cesiumIonAssetId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cesiumIonAssetId"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CesiumIonAssetID = data
+		case "cesiumIonAccessToken":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cesiumIonAccessToken"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CesiumIonAccessToken = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputColumnSelectionInput(ctx context.Context, obj interface{}) (gqlmodel.ColumnSelectionInput, error) {
 	var it gqlmodel.ColumnSelectionInput
 	asMap := map[string]interface{}{}
@@ -34575,76 +35080,65 @@ func (ec *executionContext) unmarshalInputResourceInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "type", "name", "url", "image", "cesiumIonAssetId", "cesiumIonAccessToken"}
+	fieldsInOrder := [...]string{"tile", "terrain"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
+		case "tile":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
-			if err != nil {
-				return it, err
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tile"))
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileResourceInput(ctx, v)
 			}
-			it.ID = data
-		case "type":
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.OnlyOne == nil {
+					return nil, errors.New("directive onlyOne is not implemented")
+				}
+				return ec.directives.OnlyOne(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*gqlmodel.TileResourceInput); ok {
+				it.Tile = data
+			} else if tmp == nil {
+				it.Tile = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.TileResourceInput`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "terrain":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terrain"))
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOTerrainResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainResourceInput(ctx, v)
 			}
-			it.Type = data
-		case "name":
-			var err error
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.OnlyOne == nil {
+					return nil, errors.New("directive onlyOne is not implemented")
+				}
+				return ec.directives.OnlyOne(ctx, obj, directive0)
+			}
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			tmp, err := directive1(ctx)
 			if err != nil {
-				return it, err
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
-			it.Name = data
-		case "url":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			if data, ok := tmp.(*gqlmodel.TerrainResourceInput); ok {
+				it.Terrain = data
+			} else if tmp == nil {
+				it.Terrain = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.TerrainResourceInput`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
-			it.URL = data
-		case "image":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Image = data
-		case "cesiumIonAssetId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cesiumIonAssetId"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CesiumIonAssetID = data
-		case "cesiumIonAccessToken":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cesiumIonAccessToken"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CesiumIonAccessToken = data
 		}
 	}
 
@@ -34669,11 +35163,28 @@ func (ec *executionContext) unmarshalInputResourcesListInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resources"))
-			data, err := ec.unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx, v)
 			}
-			it.Resources = data
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.OnlyOne == nil {
+					return nil, errors.New("directive onlyOne is not implemented")
+				}
+				return ec.directives.OnlyOne(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.([]*gqlmodel.ResourceInput); ok {
+				it.Resources = data
+			} else if tmp == nil {
+				it.Resources = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.ResourceInput`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "selectedResource":
 			var err error
 
@@ -35777,6 +36288,100 @@ func (ec *executionContext) unmarshalInputStringFieldConditionInput(ctx context.
 				return it, err
 			}
 			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTerrainResourceInput(ctx context.Context, obj interface{}) (gqlmodel.TerrainResourceInput, error) {
+	var it gqlmodel.TerrainResourceInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "type", "props"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNTerrainType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "props":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("props"))
+			data, err := ec.unmarshalOCesiumResourcePropsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCesiumResourcePropsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Props = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTileResourceInput(ctx context.Context, obj interface{}) (gqlmodel.TileResourceInput, error) {
+	var it gqlmodel.TileResourceInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "type", "props"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNTileType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "props":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("props"))
+			data, err := ec.unmarshalOUrlResourcePropsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐURLResourcePropsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Props = data
 		}
 	}
 
@@ -36973,6 +37578,53 @@ func (ec *executionContext) unmarshalInputUpdateWorkspaceSettingsInput(ctx conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUrlResourcePropsInput(ctx context.Context, obj interface{}) (gqlmodel.URLResourcePropsInput, error) {
+	var it gqlmodel.URLResourcePropsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "url", "image"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "url":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URL = data
+		case "image":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Image = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputWebhookTriggerInput(ctx context.Context, obj interface{}) (gqlmodel.WebhookTriggerInput, error) {
 	var it gqlmodel.WebhookTriggerInput
 	asMap := map[string]interface{}{}
@@ -37252,6 +37904,29 @@ func (ec *executionContext) _Operator(ctx context.Context, sel ast.SelectionSet,
 			return graphql.Null
 		}
 		return ec._Integration(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _Resource(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Resource) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case gqlmodel.TileResource:
+		return ec._TileResource(ctx, sel, &obj)
+	case *gqlmodel.TileResource:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TileResource(ctx, sel, obj)
+	case gqlmodel.TerrainResource:
+		return ec._TerrainResource(ctx, sel, &obj)
+	case *gqlmodel.TerrainResource:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TerrainResource(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -37959,6 +38634,65 @@ func (ec *executionContext) _BoolFieldCondition(ctx context.Context, sel ast.Sel
 			}
 		case "value":
 			out.Values[i] = ec._BoolFieldCondition_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var cesiumResourcePropsImplementors = []string{"CesiumResourceProps"}
+
+func (ec *executionContext) _CesiumResourceProps(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.CesiumResourceProps) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, cesiumResourcePropsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CesiumResourceProps")
+		case "name":
+			out.Values[i] = ec._CesiumResourceProps_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "url":
+			out.Values[i] = ec._CesiumResourceProps_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "image":
+			out.Values[i] = ec._CesiumResourceProps_image(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cesiumIonAssetId":
+			out.Values[i] = ec._CesiumResourceProps_cesiumIonAssetId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cesiumIonAccessToken":
+			out.Values[i] = ec._CesiumResourceProps_cesiumIonAccessToken(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -42446,69 +43180,6 @@ func (ec *executionContext) _RequestPayload(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var resourceImplementors = []string{"Resource"}
-
-func (ec *executionContext) _Resource(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Resource) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, resourceImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Resource")
-		case "id":
-			out.Values[i] = ec._Resource_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "type":
-			out.Values[i] = ec._Resource_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "name":
-			out.Values[i] = ec._Resource_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "url":
-			out.Values[i] = ec._Resource_url(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "image":
-			out.Values[i] = ec._Resource_image(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "cesiumIonAssetId":
-			out.Values[i] = ec._Resource_cesiumIonAssetId(ctx, field, obj)
-		case "cesiumIonAccessToken":
-			out.Values[i] = ec._Resource_cesiumIonAccessToken(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var resourceListImplementors = []string{"ResourceList"}
 
 func (ec *executionContext) _ResourceList(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ResourceList) graphql.Marshaler {
@@ -43501,6 +44172,52 @@ func (ec *executionContext) _StringFieldCondition(ctx context.Context, sel ast.S
 	return out
 }
 
+var terrainResourceImplementors = []string{"TerrainResource", "Resource"}
+
+func (ec *executionContext) _TerrainResource(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.TerrainResource) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, terrainResourceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TerrainResource")
+		case "id":
+			out.Values[i] = ec._TerrainResource_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._TerrainResource_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "props":
+			out.Values[i] = ec._TerrainResource_props(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var threadImplementors = []string{"Thread"}
 
 func (ec *executionContext) _Thread(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Thread) graphql.Marshaler {
@@ -43599,6 +44316,52 @@ func (ec *executionContext) _ThreadPayload(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tileResourceImplementors = []string{"TileResource", "Resource"}
+
+func (ec *executionContext) _TileResource(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.TileResource) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tileResourceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TileResource")
+		case "id":
+			out.Values[i] = ec._TileResource_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._TileResource_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "props":
+			out.Values[i] = ec._TileResource_props(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -43879,6 +44642,55 @@ func (ec *executionContext) _UpdateWorkspaceSettingsPayload(ctx context.Context,
 			out.Values[i] = graphql.MarshalString("UpdateWorkspaceSettingsPayload")
 		case "workspaceSettings":
 			out.Values[i] = ec._UpdateWorkspaceSettingsPayload_workspaceSettings(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var urlResourcePropsImplementors = []string{"UrlResourceProps"}
+
+func (ec *executionContext) _UrlResourceProps(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.URLResourceProps) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, urlResourcePropsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UrlResourceProps")
+		case "name":
+			out.Values[i] = ec._UrlResourceProps_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "url":
+			out.Values[i] = ec._UrlResourceProps_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "image":
+			out.Values[i] = ec._UrlResourceProps_image(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -46641,7 +47453,17 @@ func (ec *executionContext) marshalNRequestState2githubᚗcomᚋreearthᚋreeart
 	return v
 }
 
-func (ec *executionContext) marshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Resource) graphql.Marshaler {
+func (ec *executionContext) marshalNResource2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Resource) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Resource(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNResource2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Resource) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46665,7 +47487,7 @@ func (ec *executionContext) marshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreea
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNResource2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx, sel, v[i])
+			ret[i] = ec.marshalNResource2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46683,16 +47505,6 @@ func (ec *executionContext) marshalNResource2ᚕᚖgithubᚗcomᚋreearthᚋreea
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNResource2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResource(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Resource) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Resource(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNResourceInput2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐResourceInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodel.ResourceInput, error) {
@@ -46958,6 +47770,16 @@ func (ec *executionContext) marshalNStringOperator2githubᚗcomᚋreearthᚋreea
 	return v
 }
 
+func (ec *executionContext) unmarshalNTerrainType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainType(ctx context.Context, v interface{}) (gqlmodel.TerrainType, error) {
+	var res gqlmodel.TerrainType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTerrainType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TerrainType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNTheme2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx context.Context, v interface{}) (gqlmodel.Theme, error) {
 	var res gqlmodel.Theme
 	err := res.UnmarshalGQL(v)
@@ -46980,6 +47802,16 @@ func (ec *executionContext) marshalNThread2ᚖgithubᚗcomᚋreearthᚋreearth�
 		return graphql.Null
 	}
 	return ec._Thread(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTileType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileType(ctx context.Context, v interface{}) (gqlmodel.TileType, error) {
+	var res gqlmodel.TileType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTileType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TileType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNTimeOperator2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeOperator(ctx context.Context, v interface{}) (gqlmodel.TimeOperator, error) {
@@ -47957,6 +48789,21 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOCesiumResourceProps2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCesiumResourceProps(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.CesiumResourceProps) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CesiumResourceProps(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCesiumResourcePropsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCesiumResourcePropsInput(ctx context.Context, v interface{}) (*gqlmodel.CesiumResourcePropsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCesiumResourcePropsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOColumn2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐColumnᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Column) graphql.Marshaler {
@@ -49019,6 +49866,14 @@ func (ec *executionContext) marshalOStringOperator2ᚖgithubᚗcomᚋreearthᚋr
 	return v
 }
 
+func (ec *executionContext) unmarshalOTerrainResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTerrainResourceInput(ctx context.Context, v interface{}) (*gqlmodel.TerrainResourceInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTerrainResourceInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOTheme2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTheme(ctx context.Context, v interface{}) (*gqlmodel.Theme, error) {
 	if v == nil {
 		return nil, nil
@@ -49047,6 +49902,14 @@ func (ec *executionContext) marshalOThreadPayload2ᚖgithubᚗcomᚋreearthᚋre
 		return graphql.Null
 	}
 	return ec._ThreadPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTileResourceInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTileResourceInput(ctx context.Context, v interface{}) (*gqlmodel.TileResourceInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTileResourceInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOTimeFieldConditionInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐTimeFieldConditionInput(ctx context.Context, v interface{}) (*gqlmodel.TimeFieldConditionInput, error) {
@@ -49153,6 +50016,21 @@ func (ec *executionContext) marshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 	}
 	res := graphql.MarshalUpload(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUrlResourceProps2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐURLResourceProps(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.URLResourceProps) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UrlResourceProps(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUrlResourcePropsInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐURLResourcePropsInput(ctx context.Context, v interface{}) (*gqlmodel.URLResourcePropsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUrlResourcePropsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
