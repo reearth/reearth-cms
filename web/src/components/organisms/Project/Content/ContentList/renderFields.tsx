@@ -231,6 +231,9 @@ const StyledInput = styled(Input)`
   :focus {
     cursor: text;
     border-color: #40a9ff;
+    ::placeholder {
+      color: transparent;
+    }
   }
   ::placeholder {
     color: inherit;
@@ -246,6 +249,9 @@ const StyledDatePicker = styled(DatePicker)`
     cursor: pointer;
     :focus {
       cursor: text;
+      ::placeholder {
+        color: transparent;
+      }
     }
     ::placeholder {
       color: inherit;

@@ -11,9 +11,10 @@ import useHooks from "./hooks";
 export type Props = {
   currentView: CurrentViewType;
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  onViewChange: () => void;
 };
 
-const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
+const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView, onViewChange }) => {
   const { modelId } = useParams();
 
   const {
@@ -31,7 +32,7 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
     handleViewUpdate,
     handleViewDelete,
     handleViewDeletionModalClose,
-  } = useHooks({ modelId, currentView, setCurrentView });
+  } = useHooks({ modelId, currentView, setCurrentView, onViewChange });
 
   return (
     <>
@@ -44,6 +45,7 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView }) => {
         onDelete={handleViewDelete}
         onUpdate={handleViewUpdate}
         onViewDeletionClose={handleViewDeletionModalClose}
+        onViewChange={onViewChange}
       />
       <ViewFormModal
         modalState={modalState}
