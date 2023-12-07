@@ -33,6 +33,13 @@ func fromPagination(page, perPage *integrationapi.PageParam) *usecasex.Paginatio
 	}.Wrap()
 }
 
+func Page(p usecasex.OffsetPagination) int {
+	if p.Limit == 0 {
+		return 0
+	}
+	return int(p.Offset/int64(p.Limit)) + 1
+}
+
 func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 	var v any = f.Value
 	if f.Value != nil {

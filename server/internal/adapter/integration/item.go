@@ -75,8 +75,8 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 	}
 	return ItemFilter200JSONResponse{
 		Items:      &resItms,
-		Page:       request.Params.Page,
-		PerPage:    request.Params.PerPage,
+		Page:       lo.ToPtr(Page(*p.Offset)),
+		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }

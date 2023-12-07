@@ -31,7 +31,7 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 	models := make([]integrationapi.Model, 0, len(ms))
 	for _, m := range ms {
 		lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
-		if err != nil {
+		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, err
 		}
 		models = append(models, integrationapi.NewModel(m, lastModified))
@@ -39,8 +39,8 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 
 	return ModelFilter200JSONResponse{
 		Models:     &models,
-		Page:       request.Params.Page,
-		PerPage:    request.Params.PerPage,
+		Page:       lo.ToPtr(Page(*p.Offset)),
+		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
