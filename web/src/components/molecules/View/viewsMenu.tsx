@@ -16,6 +16,7 @@ export interface Props {
   selectedView?: View;
   setSelectedView: (view?: View) => void;
   onViewCreateModalOpen: () => void;
+  onViewChange: () => void;
 }
 
 const ViewsMenuMolecule: React.FC<Props> = ({
@@ -27,6 +28,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   onViewDeletionClose,
   selectedView,
   setSelectedView,
+  onViewChange,
 }) => {
   const t = useT();
 
@@ -53,8 +55,9 @@ const ViewsMenuMolecule: React.FC<Props> = ({
           setSelectedView(view);
         }
       });
+      onViewChange();
     },
-    [setSelectedView, views],
+    [setSelectedView, views, onViewChange],
   );
 
   return (

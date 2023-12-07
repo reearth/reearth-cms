@@ -24,6 +24,7 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
     threadId: GQLItem.thread?.id ?? "",
     metadata: {
       id: GQLItem.metadata?.id,
+      version: GQLItem.metadata?.version ?? "",
       fields: GQLItem.metadata?.fields.map(
         field =>
           ({
