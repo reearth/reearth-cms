@@ -6,6 +6,13 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
+type PropsType string
+
+const (
+	PropsTypeURL    PropsType = "URL"
+	PropsTypeCesium PropsType = "CESIUM"
+)
+
 type WorkspaceSettings struct {
 	id       ID
 	tiles    *ResourceList
@@ -19,14 +26,29 @@ type ResourceList struct {
 }
 
 type Resource struct {
-	id                   ResourceID
-	rtype                string
+	id    ResourceID
+	rtype string
+	props ResourceProps
+}
+
+type ResourceProps struct {
+	PropsType           PropsType
+	UrlResourceProps    *UrlResourceProps
+	CesiumResourceProps *CesiumResourceProps
+}
+
+type UrlResourceProps struct {
+	name  string
+	url   string
+	image string
+}
+
+type CesiumResourceProps struct {
 	name                 string
 	url                  string
 	image                string
-	cesiumIonAssetId     *string // only in terrains
-	cesiumIonAccessToken *string // only in terrains
-
+	cesiumIonAssetId     string
+	cesiumIonAccessToken string
 }
 
 func (ws *WorkspaceSettings) ID() ID {
@@ -121,35 +143,15 @@ func (r *Resource) Type() string {
 	return r.rtype
 }
 
-func (r *Resource) Name() string {
-	return r.name
+func (r *Resource) Props() ResourceProps {
+	return r.props
 }
 
-func (r *Resource) URL() string {
-	return r.url
-}
-
-func (r *Resource) Image() string {
-	return r.image
-}
-
-func (r *Resource) CesiumIonAssetID() *string {
-	return r.cesiumIonAssetId
-}
-
-func (r *Resource) CesiumIonAccessToken() *string {
-	return r.cesiumIonAccessToken
-}
-
-func NewResource(id ResourceID, rtype string, name string, url string, image string, cesiumIonAssetId *string, cesiumIonAccessToken *string) *Resource {
+func NewResource(id ResourceID, rtype string, props ResourceProps) *Resource {
 	return &Resource{
 		id:                   id,
 		rtype:                rtype,
-		name:                 name,
-		url:                  url,
-		image:                image,
-		cesiumIonAssetId:     util.CloneRef(cesiumIonAssetId),
-		cesiumIonAccessToken: util.CloneRef(cesiumIonAccessToken),
+		props:                props,
 	}
 }
 
@@ -157,22 +159,6 @@ func (r *Resource) SetType(n string) {
 	r.rtype = n
 }
 
-func (r *Resource) SetName(n string) {
-	r.name = n
-}
-
-func (r *Resource) SetURL(u string) {
-	r.url = u
-}
-
-func (r *Resource) SetImage(i string) {
-	r.image = i
-}
-
-func (r *Resource) SetCesiumIonAssetID(i *string) {
-	r.cesiumIonAssetId = util.CloneRef(i)
-}
-
-func (r *Resource) SetCesiumIonAccessToken(i *string) {
-	r.cesiumIonAccessToken = util.CloneRef(i)
+func (r *Resource) SetProps(n ResourceProps) {
+	r.props = n
 }
