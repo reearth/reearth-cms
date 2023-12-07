@@ -21,6 +21,7 @@ export type Item = {
   fields: ItemField[] | undefined | null;
   metadata: {
     id?: string;
+    version: string;
     fields: ItemField[] | undefined | null;
   };
   threadId: string;
@@ -49,6 +50,8 @@ export type ContentTableField = {
   createdAt: Date;
   updatedAt: Date;
   metadata: { [key: string]: any };
+  metadataId: string;
+  version: string;
 };
 
 export type Comment = {
