@@ -1,16 +1,38 @@
 package workspacesettings
 
 import (
-	"slices"
-
 	"github.com/reearth/reearthx/util"
+	"golang.org/x/exp/slices"
 )
 
-type PropsType string
+type ResourceType string
 
 const (
-	PropsTypeURL    PropsType = "URL"
-	PropsTypeCesium PropsType = "CESIUM"
+	ResourceTypeTile    ResourceType = "TILE"
+	ResourceTypeTerrain ResourceType = "TERRAIN"
+)
+
+type TileType string
+
+const (
+	TileTypeDefault             TileType = "DEFAULT"
+	TileTypeLabelled            TileType = "LABELLED"
+	TileTypeRoadMap             TileType = "ROAD_MAP"
+	TileTypeStamenWaterColor    TileType = "STAMEN_WATERCOLOR"
+	TileTypeStamenToner         TileType = "STAMEN_TONER"
+	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
+	TileTypeESRITopography      TileType = "ESRI_TOPOGRAPHY"
+	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
+	TileTypeJapanGISStandardMap TileType = "JAPAN_GSI_STANDARD_MAP"
+	TileTypeURL                 TileType = "URL"
+)
+
+type TerrainType string
+
+const (
+	TerrainTypeCesiumWorldTerrain TerrainType = "CESIUM_WORLD_TERRAIN"
+	TerrainTypeArcGISTerrain      TerrainType = "ARC_GIS_TERRAIN"
+	TerrainTypeCesiumIon          TerrainType = "CESIUM_ION"
 )
 
 type WorkspaceSettings struct {
@@ -26,15 +48,21 @@ type ResourceList struct {
 }
 
 type Resource struct {
-	id    ResourceID
-	rtype string
-	props ResourceProps
+	resourceType ResourceType
+	tile         *TileResource
+	terrain      *TerrainResource
 }
 
-type ResourceProps struct {
-	PropsType           PropsType
-	UrlResourceProps    *UrlResourceProps
-	CesiumResourceProps *CesiumResourceProps
+type TileResource struct {
+	id    ResourceID
+	rtype TileType
+	props UrlResourceProps
+}
+
+type TerrainResource struct {
+	id    ResourceID
+	rtype TerrainType
+	props CesiumResourceProps
 }
 
 type UrlResourceProps struct {
@@ -135,30 +163,68 @@ func NewResourceList(resources []*Resource, selectedResource *ResourceID, enable
 	}
 }
 
-func (r *Resource) ID() ResourceID {
-	return r.id
+func (r *Resource) ResourceType() ResourceType {
+	return r.resourceType
 }
 
-func (r *Resource) Type() string {
-	return r.rtype
+func (r *Resource) Tile() *TileResource {
+	return r.tile
 }
 
-func (r *Resource) Props() ResourceProps {
-	return r.props
+func (r *Resource) Terrain() *TerrainResource {
+	return r.terrain
 }
 
-func NewResource(id ResourceID, rtype string, props ResourceProps) *Resource {
+func NewResource(resourceType ResourceType, tile *TileResource, terrain *TerrainResource) *Resource {
 	return &Resource{
-		id:                   id,
-		rtype:                rtype,
-		props:                props,
+		resourceType: resourceType,
+		tile:         tile,
+		terrain:      terrain,
 	}
 }
 
-func (r *Resource) SetType(n string) {
-	r.rtype = n
+func (r *Resource) SetResourceType(n ResourceType) {
+	r.resourceType = n
 }
 
-func (r *Resource) SetProps(n ResourceProps) {
-	r.props = n
+func (r *Resource) SetTile(n *TileResource) {
+	r.tile = n
+}
+
+func (r *Resource) SetTerrain(n *TerrainResource) {
+	r.terrain = n
+}
+
+func NewTileResource(id ResourceID, rtype TileType, props UrlResourceProps) *TileResource {
+	return &TileResource{
+		id:    id.Clone(),
+		rtype: rtype,
+		props: props,
+	}
+}
+
+func NewTerrainResource(id ResourceID, rtype TerrainType, props CesiumResourceProps) *TerrainResource {
+	return &TerrainResource{
+		id:    id.Clone(),
+		rtype: rtype,
+		props: props,
+	}
+}
+
+func NewURLResourceProps(name, url, image string) UrlResourceProps {
+	return UrlResourceProps{
+		name:  name,
+		url:   url,
+		image: image,
+	}
+}
+
+func NewCesiumResourceProps(name, url, image, cesiumIonAssetId, cesiumIonAccessToken string) CesiumResourceProps {
+	return CesiumResourceProps{
+		name:                 name,
+		url:                  url,
+		image:                image,
+		cesiumIonAssetId:     cesiumIonAssetId,
+		cesiumIonAccessToken: cesiumIonAccessToken,
+	}
 }
