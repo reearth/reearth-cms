@@ -21,13 +21,34 @@ type ResourceListDocument struct {
 }
 
 type ResourceDocument struct {
-	ID                   string
-	Type                 string
+	ResourceType string
+	Tile         *TileResourceDocument
+	Terrain      *TerrainResourceDocument
+}
+
+type TileResourceDocument struct {
+	ID  string
+	Type   string
+	Props UrlResourcePropsDocument
+}
+
+type TerrainResourceDocument struct {
+	ID  string
+	Type   string
+	Props CesiumResourcePropsDocument
+}
+type UrlResourcePropsDocument struct {
+	Name  string
+	URL   string
+	Image string
+}
+
+type CesiumResourcePropsDocument struct {
 	Name                 string
 	URL                  string
 	Image                string
-	CesiumIonAssetID     *string // only in terrains
-	CesiumIonAccessToken *string // only in terrains
+	CesiumIonAssetID     string
+	CesiumIonAccessToken string
 }
 
 type WorkspaceSettingsConsumer = mongox.SliceFuncConsumer[*WorkspaceSettingsDocument, *workspacesettings.WorkspaceSettings]
@@ -79,12 +100,56 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 	if r == nil {
 		return nil
 	}
-	rid, err := id.ResourceIDFrom(r.ID)
-	if err != nil {
+
+	if r.Tile != nil {
+		rid, err := id.ResourceIDFrom(r.Tile.ID)
+		if err != nil {
+			return nil
+		}
+
+		tile := workspacesettings.NewTileResource(rid, workspacesettings.TileType(r.Tile.Type), FromUrlResourcePropsDocument(&r.Tile.Props))
+		return workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tile, nil)
+	}
+
+	if r.Terrain != nil {
+		rid, err := id.ResourceIDFrom(r.Terrain.ID)
+		if err != nil {
+			return nil
+		}
+
+		terrain := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(r.Terrain.Type), FromCesiumResourcePropsDocument(&r.Terrain.Props))
+		return workspacesettings.NewResource(workspacesettings.ResourceTypeTile, nil, terrain)
+	}
+
+
+	return nil
+}
+
+func FromUrlResourcePropsDocument(r *UrlResourcePropsDocument) workspacesettings.UrlResourceProps {
+	// if r == nil {
+	// 	return nil
+	// }
+
+	return workspacesettings.NewURLResourceProps(r.Name, r.URL, r.Image)
+}
+
+func FromCesiumResourcePropsDocument(r *CesiumResourcePropsDocument) workspacesettings.CesiumResourceProps {
+	// if r == nil {
+	// 	return nil
+	// }
+
+	return workspacesettings.NewCesiumResourceProps(r.Name, r.URL, r.Image, r.CesiumIonAssetID, r.CesiumIonAccessToken)
+}
+func NewUrlResourcePropsDocument(r *workspacesettings.UrlResourceProps) *UrlResourcePropsDocument {
+	if r == nil {
 		return nil
 	}
 
-	return workspacesettings.NewResource(rid, r.Type, r.Name, r.URL, r.Image, r.CesiumIonAssetID, r.CesiumIonAccessToken)
+	return &UrlResourcePropsDocument{
+		Name:  r.Name(),
+		URL:   r.URL(),
+		Image: r.Image(),
+	}
 }
 
 func ToResourceListDocument(wr *workspacesettings.ResourceList) *ResourceListDocument {
@@ -117,8 +182,54 @@ func ToResourceDocument(r *workspacesettings.Resource) *ResourceDocument {
 	}
 
 	return &ResourceDocument{
-		ID:                   r.ID().String(),
-		Type:                 r.Type(),
+		ResourceType: string(r.ResourceType()),
+		Tile:         ToTileResourceDocument(r.Tile()),
+		Terrain:      ToTerrainResourceDocument(r.Terrain()),
+	}
+}
+
+func ToTileResourceDocument(r *workspacesettings.TileResource) *TileResourceDocument {
+	if r == nil {
+		return nil
+	}
+
+	return &TileResourceDocument{
+		ID:    r.ID().String(),
+		Type:  string(r.Type()),
+		Props: ToUrlResourcePropsDocument(r.Props()),
+	}
+}
+
+func ToTerrainResourceDocument(r *workspacesettings.TerrainResource) *TerrainResourceDocument {
+	if r == nil {
+		return nil
+	}
+
+	return &TerrainResourceDocument{
+		ID:    r.ID().String(),
+		Type:  string(r.Type()),
+		Props: ToCesiumResourcePropsDocument(r.Props()),
+	}
+}
+
+func ToUrlResourcePropsDocument(r workspacesettings.UrlResourceProps) UrlResourcePropsDocument {
+	// if r == nil {
+	// 	return UrlResourcePropsDocument{}
+	// }
+
+	return UrlResourcePropsDocument{
+		Name:  r.Name(),
+		URL:   r.URL(),
+		Image: r.Image(),
+	}
+}
+
+func ToCesiumResourcePropsDocument(r workspacesettings.CesiumResourceProps) CesiumResourcePropsDocument {
+	// if r == nil {
+	// 	return CesiumResourcePropsDocument{}
+	// }
+
+	return CesiumResourcePropsDocument{
 		Name:                 r.Name(),
 		URL:                  r.URL(),
 		Image:                r.Image(),

@@ -42,11 +42,15 @@ func TestUpdateWorkspaceSettings(t *testing.T) {
 	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
 
 	rid := workspacesettings.NewResourceID()
-	r := workspacesettings.NewResource(rid, "type", "foo", "bar", "baz", lo.ToPtr("xxx"), lo.ToPtr("xxx"))
+	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
+	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
+	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
 	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(false))
 
 	rid2 := workspacesettings.NewResourceID()
-	r2 := workspacesettings.NewResource(rid2, "type", "foo", "bar", "baz", lo.ToPtr("xxx"), lo.ToPtr("xxx"))
+	pp2 := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
+	tt2 := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(workspacesettings.TerrainTypeCesiumIon), pp2)
+	r2 := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, tt2)
 	terrains := workspacesettings.NewResourceList([]*workspacesettings.Resource{r2}, rid2.Ref(), lo.ToPtr(true))
 
 	res := updateWorkspaceSettings(e, wId.String(), tiles, terrains)
