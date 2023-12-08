@@ -11,10 +11,10 @@ func apply(q version.Query, f any) (res any) {
 		All: func() {
 			res = f
 		},
-		Eq: func(vr version.VersionOrRef) {
+		Eq: func(vr version.IDOrRef) {
 			res = mongox.And(f, "", version.MatchVersionOrRef(
 				vr,
-				func(v version.Version) bson.M {
+				func(v version.ID) bson.M {
 					return bson.M{versionKey: v}
 				},
 				func(r version.Ref) bson.M {
@@ -126,11 +126,11 @@ func (b *pipelineBuilder) applyVersion(pipeline []any) (res []any) {
 		All: func() {
 			res = pipeline
 		},
-		Eq: func(vr version.VersionOrRef) {
+		Eq: func(vr version.IDOrRef) {
 			b := bson.M{}
 
 			vr.Match(
-				func(v version.Version) {
+				func(v version.ID) {
 					b[versionKey] = v
 				},
 				func(r version.Ref) {

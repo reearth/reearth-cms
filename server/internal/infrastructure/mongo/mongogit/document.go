@@ -23,36 +23,37 @@ type Identifiable interface {
 type Document[T Identifiable] struct {
 	ObjectID primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	ID       string             `json:"__id,omitempty" bson:"__id,omitempty"`
-	Version  version.Version    `json:"__v,omitempty" bson:"__v,omitempty"`
-	Parents  []version.Version  `json:"__w,omitempty" bson:"__w,omitempty"`
+	Version  version.ID         `json:"__v,omitempty" bson:"__v,omitempty"`
+	Parents  []version.ID       `json:"__w,omitempty" bson:"__w,omitempty"`
 	Refs     []version.Ref      `json:"__r,omitempty" bson:"__r,omitempty"`
 	Data     T                  `json:",inline" bson:",inline"`
 }
 
-func NewDocument[T Identifiable](v *version.Value[T]) *Document[T] {
-	if v == nil {
+func NewDocument[T, M Identifiable](v *version.Version[T, M]) *Document[T] {
+	if v == nil || v.Value() == nil {
 		return nil
 	}
 	return &Document[T]{
 		ObjectID: primitive.NewObjectIDFromTimestamp(util.Now()),
-		ID:       v.Value().IDString(),
+		ID:       (*v.Value()).IDString(),
 		Version:  v.Version(),
 		Parents:  v.Parents().Values(),
 		Refs:     v.Refs().Values(),
-		Data:     v.Value(),
+		Data:     *v.Value(),
 	}
 }
 
-func (d *Document[T]) Value() *version.Value[T] {
+func (d *Document[T]) Value() *version.Version[T, any] {
 	if d == nil {
 		return nil
 	}
-	return version.NewValue(
+	return version.New[T, any](
 		d.Version,
-		version.NewVersions(d.Parents...),
+		version.NewIDs(d.Parents...),
 		version.NewRefs(d.Refs...),
 		d.ObjectID.Timestamp(),
-		d.Data,
+		&d.Data,
+		nil,
 	)
 }
 

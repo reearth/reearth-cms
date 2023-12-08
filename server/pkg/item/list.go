@@ -30,7 +30,7 @@ type VersionedList []Versioned
 
 func (l VersionedList) FilterFields(fields id.FieldIDList) VersionedList {
 	return lo.Map(l, func(a Versioned, _ int) Versioned {
-		return version.ValueFrom(a, a.Value().FilterFields(fields))
+		return version.From(a, a.Value().FilterFields(fields), a.Meta())
 	})
 }
 

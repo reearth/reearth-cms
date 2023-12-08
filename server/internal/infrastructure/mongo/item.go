@@ -627,7 +627,7 @@ func (r *Item) Save(ctx context.Context, item *item.Item) error {
 	})
 }
 
-func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
+func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.IDOrRef) error {
 	return r.client.UpdateRef(ctx, item.String(), ref, vr)
 }
 

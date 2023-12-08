@@ -58,30 +58,31 @@ func NewItemConsumer() *ItemConsumer {
 	return NewConsumer[*ItemDocument, *item.Item]()
 }
 
-type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDocument], *version.Value[*item.Item]]
+type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDocument], *version.Version[item.Item, item.Meta]]
 
 func NewVersionedItemConsumer() *VersionedItemConsumer {
-	return mongox.NewSliceFuncConsumer(func(d *mongogit.Document[*ItemDocument]) (*version.Value[*item.Item], error) {
+	return mongox.NewSliceFuncConsumer(func(d *mongogit.Document[*ItemDocument]) (*version.Version[item.Item, item.Meta], error) {
 		itm, err := d.Data.Model()
 		if err != nil {
 			return nil, err
 		}
 
-		var parents version.Versions
+		var parents version.IDs
 		var refs version.Refs
 		if len(d.Parents) > 0 {
-			parents = version.NewVersions(d.Parents...)
+			parents = version.NewIDs(d.Parents...)
 		}
 		if len(d.Refs) > 0 {
 			refs = version.NewRefs(d.Refs...)
 		}
 
-		return version.NewValue(
+		return version.New[item.Item, item.Meta](
 			d.Version,
 			parents,
 			refs,
 			d.Timestamp(),
 			itm,
+			nil,
 		), nil
 	})
 }

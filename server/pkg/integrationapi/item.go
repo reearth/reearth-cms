@@ -10,7 +10,7 @@ import (
 )
 
 func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext, f *[]VersionedItem, ms *schema.Schema, mi item.Versioned, sgl schema.List) VersionedItem {
-	ps := lo.Map(ver.Parents().Values(), func(v version.Version, _ int) types.UUID {
+	ps := lo.Map(ver.Parents().Values(), func(v version.ID, _ int) types.UUID {
 		return types.UUID(v)
 	})
 	rs := lo.Map(ver.Refs().Values(), func(r version.Ref, _ int) string {

@@ -9,18 +9,18 @@ type ItemList []*Item
 
 type Item struct {
 	item    ItemID
-	pointer version.VersionOrRef
+	pointer version.IDOrRef
 }
 
 func (i *Item) Item() ItemID {
 	return i.item
 }
 
-func (i *Item) Pointer() version.VersionOrRef {
+func (i *Item) Pointer() version.IDOrRef {
 	return i.pointer
 }
 
-func NewItemWithVersion(i ItemID, v version.VersionOrRef) (*Item, error) {
+func NewItemWithVersion(i ItemID, v version.IDOrRef) (*Item, error) {
 	if i.IsNil() {
 		return nil, ErrInvalidID
 	}

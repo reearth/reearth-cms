@@ -10,7 +10,7 @@ import (
 )
 
 func Test_Apply(t *testing.T) {
-	v := version.New()
+	v := version.NewID()
 	assert.Equal(
 		t,
 		bson.M{
@@ -76,7 +76,7 @@ func Test_pipelineBuilder_Build(t *testing.T) {
 	}, pb.Build())
 
 	// with version
-	v := version.New()
+	v := version.NewID()
 	pb.q = lo.ToPtr(version.Eq(v.OrRef()))
 	assert.Equal(t, []any{
 		bson.M{"$match": bson.M{versionKey: v}},

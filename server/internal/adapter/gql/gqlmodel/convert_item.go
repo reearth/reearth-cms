@@ -67,12 +67,12 @@ func toItemFields(fields item.Fields, s *schema.Schema, isGroupSchema bool) []*I
 	return res
 }
 
-func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema, gsList schema.List) *VersionedItem {
+func ToVersionedItem(v *version.Version[item.Item, item.Meta], s *schema.Schema, gsList schema.List) *VersionedItem {
 	if v == nil {
 		return nil
 	}
 
-	parents := lo.Map(v.Parents().Values(), func(v version.Version, _ int) string {
+	parents := lo.Map(v.Parents().Values(), func(v version.ID, _ int) string {
 		return v.String()
 	})
 	refs := lo.Map(v.Refs().Values(), func(v version.Ref, _ int) string {

@@ -189,7 +189,7 @@ func TestRequestDocument_Model(t *testing.T) {
 			want: request.New().ID(rId).Project(pId).Workspace(wId).Thread(tId).CreatedBy(uId).
 				Title("ab").Description("abc").
 				UpdatedAt(now).State(request.StateDraft).Reviewers([]idx.ID[accountdomain.User]{}).
-				Items([]*request.Item{lo.Must(request.NewItemWithVersion(itm.Item(), version.Version(uuId).OrRef()))}).
+				Items([]*request.Item{lo.Must(request.NewItemWithVersion(itm.Item(), version.ID(uuId).OrRef()))}).
 				MustBuild(),
 			wantErr: false,
 		},

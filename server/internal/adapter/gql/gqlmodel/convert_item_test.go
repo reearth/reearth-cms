@@ -38,9 +38,9 @@ func TestToItem(t *testing.T) {
 		User(uid).
 		Integration(nid).
 		MustBuild()
-	v := version.New()
+	v := version.NewID()
 
-	vi := version.MustBeValue(v, nil, version.NewRefs(version.Latest), util.Now(), i)
+	vi := version.Must[item.Item, item.Meta](v, nil, version.NewRefs(version.Latest), util.Now(), i, nil)
 	tests := []struct {
 		name  string
 		input item.Versioned
@@ -133,11 +133,11 @@ func TestToVersionedItem(t *testing.T) {
 	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).Project(pId).MustBuild()
 	fs := []*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple(), nil)}
 	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(pId).Fields(fs).Thread(id.NewThreadID()).MustBuild()
-	vx, vy := version.New(), version.New()
-	vv := *version.NewValue(vx, version.NewVersions(vy), version.NewRefs("a"), time.Time{}, i)
+	vx, vy := version.NewID(), version.NewID()
+	vv := *version.New(vx, version.NewIDs(vy), version.NewRefs("a"), time.Time{}, i, &item.Meta{})
 	tests := []struct {
 		name string
-		args *version.Value[*item.Item]
+		args *version.Version[item.Item, item.Meta]
 		want *VersionedItem
 	}{
 		{

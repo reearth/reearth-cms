@@ -19,7 +19,7 @@ import (
 
 func TestRequest_Filtered(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -81,7 +81,7 @@ func TestRequest_Filtered(t *testing.T) {
 
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -144,7 +144,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -205,7 +205,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 	reviewer := accountdomain.NewUserID()
 	creator := accountdomain.NewUserID()
 	req1 := request.New().
@@ -332,7 +332,7 @@ func TestRequest_FindByProject(t *testing.T) {
 
 func TestRequest_SaveAll(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 
 	req1 := request.New().
 		NewID().
@@ -376,8 +376,8 @@ func TestRequest_SaveAll(t *testing.T) {
 
 func TestRequest_FindByItem(t *testing.T) {
 	pid := id.NewProjectID()
-	item1, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
-	item2, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item1, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
+	item2, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 	reviewer := accountdomain.NewUserID()
 	creator := accountdomain.NewUserID()
 	req1 := request.New().

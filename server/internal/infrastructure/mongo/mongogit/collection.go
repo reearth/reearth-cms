@@ -166,7 +166,7 @@ func (c *Collection[T, MT]) CountAggregation(ctx context.Context, pipeline, meta
 	return c.dataColl.CountAggregation(ctx, pl)
 }
 
-func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent *version.VersionOrRef) error {
+func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent *version.IDOrRef) error {
 	metadata, err := c.metadata(ctx, id)
 	if err != nil {
 		return err
@@ -178,7 +178,7 @@ func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent 
 	doc := Document[T]{
 		ID:       d.IDString(),
 		ObjectID: primitive.NewObjectIDFromTimestamp(util.Now()),
-		Version:  version.New(),
+		Version:  version.NewID(),
 		Data:     d,
 	}
 
@@ -193,7 +193,7 @@ func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent 
 		return rerror.ErrNotFound
 	}
 	if parentDoc != nil {
-		doc.Parents = []version.Version{parentDoc.Version}
+		doc.Parents = []version.ID{parentDoc.Version}
 	}
 
 	if err := version.MatchVersionOrRef(parentVr, nil, func(r version.Ref) error {
@@ -245,7 +245,7 @@ func (c *Collection[T, MT]) SaveOneMeta(ctx context.Context, id string, d MT) er
 	return nil
 }
 
-func (c *Collection[T, MT]) SetRef(ctx context.Context, id string, dest *version.VersionOrRef, ref version.Ref) error {
+func (c *Collection[T, MT]) SetRef(ctx context.Context, id string, dest *version.IDOrRef, ref version.Ref) error {
 	if _, err := c.dataColl.Client().UpdateOne(ctx, apply(version.Eq(*dest), bson.M{
 		idKey: id,
 	}), bson.M{
@@ -268,7 +268,7 @@ func (c *Collection[T, MT]) ClearRef(ctx context.Context, id string, ref version
 	return nil
 }
 
-func (c *Collection[T, MT]) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.VersionOrRef) error {
+func (c *Collection[T, MT]) UpdateRef(ctx context.Context, id string, ref version.Ref, dest *version.IDOrRef) error {
 	if err := c.ClearRef(ctx, id, ref); err != nil {
 		return err
 	}
@@ -355,7 +355,7 @@ func (c *Collection[T, MT]) Indexes() []mongox.Index {
 	}
 }
 
-func (c *Collection[T, MT]) data(ctx context.Context, id string, v *version.VersionOrRef) (*Document[T], error) {
+func (c *Collection[T, MT]) data(ctx context.Context, id string, v *version.IDOrRef) (*Document[T], error) {
 	consumer := mongox.SliceConsumer[Document[T]]{}
 	q := apply(version.Eq(lo.FromPtrOr(v, version.Latest.OrVersion())), bson.M{
 		idKey: id,

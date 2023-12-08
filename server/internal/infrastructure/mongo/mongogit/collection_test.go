@@ -99,7 +99,7 @@ func TestCollection_Find(t *testing.T) {
 			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
 			ObjectID: consumer0.Result[1].ObjectID,
 			Version:  vx2,
-			Parents:  []version.Version{vx1},
+			Parents:  []version.ID{vx1},
 			Refs:     []version.Ref{"latest", "aaa"},
 		},
 		{
@@ -126,7 +126,7 @@ func TestCollection_Find(t *testing.T) {
 			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
 			ObjectID: consumer0.Result[1].ObjectID,
 			Version:  vx2,
-			Parents:  []version.Version{vx1},
+			Parents:  []version.ID{vx1},
 			Refs:     []version.Ref{"latest", "aaa"},
 		},
 	}, consumer0.Result)
@@ -146,7 +146,7 @@ func TestCollection_Find(t *testing.T) {
 			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
 			ObjectID: consumer0.Result[1].ObjectID,
 			Version:  vx2,
-			Parents:  []version.Version{vx1},
+			Parents:  []version.ID{vx1},
 			Refs:     []version.Ref{"latest", "aaa"},
 		},
 	}, consumer0.Result)
@@ -160,7 +160,7 @@ func TestCollection_Find(t *testing.T) {
 			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
 			ObjectID: consumer0.Result[0].ObjectID,
 			Version:  vx2,
-			Parents:  []version.Version{vx1},
+			Parents:  []version.ID{vx1},
 			Refs:     []version.Ref{"latest", "aaa"},
 		},
 		{
@@ -193,7 +193,7 @@ func TestCollection_Find(t *testing.T) {
 			Data:     Data{ID: "xxx", A: "xa", B: "xb"},
 			ObjectID: consumer0.Result[0].ObjectID,
 			Version:  vx2,
-			Parents:  []version.Version{vx1},
+			Parents:  []version.ID{vx1},
 			Refs:     []version.Ref{"latest", "aaa"},
 		},
 	}, consumer0.Result)
@@ -334,7 +334,7 @@ func TestCollection_Timestamp(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection[Data, MetaData](t)
 	c := col.DataClient().Client()
-	vx, vy := version.New(), version.New()
+	vx, vy := version.NewID(), version.NewID()
 	t1 := time.Date(2023, time.April, 1, 0, 0, 0, 0, time.Local).UTC()
 	t2 := time.Date(2023, time.April, 2, 0, 0, 0, 0, time.Local).UTC()
 	t3 := time.Date(2023, time.April, 3, 0, 0, 0, 0, time.Local).UTC()
@@ -354,7 +354,7 @@ func TestCollection_Timestamp(t *testing.T) {
 			},
 			ObjectID: primitive.NewObjectIDFromTimestamp(t2),
 			Version:  vy,
-			Parents:  []version.Version{vx},
+			Parents:  []version.ID{vx},
 			Refs:     []version.Ref{"latest", "aaa"},
 		},
 		&Document[Data]{
@@ -421,7 +421,7 @@ func TestCollection_SaveOne(t *testing.T) {
 		ID:       "x",
 		ObjectID: doc2.ObjectID,
 		Version:  doc2.Version,
-		Parents:  []version.Version{doc1.Version},
+		Parents:  []version.ID{doc1.Version},
 		Refs:     []version.Ref{version.Latest},
 		Data:     Data{ID: "x", A: "bbb"},
 	}, doc2)
@@ -454,7 +454,7 @@ func TestCollection_SaveOne(t *testing.T) {
 		ID:       "x",
 		ObjectID: doc4.ObjectID,
 		Version:  doc4.Version,
-		Parents:  []version.Version{doc1.Version},
+		Parents:  []version.ID{doc1.Version},
 		Refs:     []version.Ref{"test"},
 		Data:     Data{ID: "x", A: "ccc"},
 	}, doc4)
@@ -477,7 +477,7 @@ func TestCollection_SaveOne(t *testing.T) {
 	assert.Equal(t, Data{ID: "x", A: "aaa"}, data5)
 
 	// nonexistent version
-	assert.Same(t, rerror.ErrNotFound, col.SaveOne(ctx, "x", Data{}, version.New().OrRef().Ref()))
+	assert.Same(t, rerror.ErrNotFound, col.SaveOne(ctx, "x", Data{}, version.NewID().OrRef().Ref()))
 }
 
 func TestCollection_UpdateRef(t *testing.T) {
@@ -485,7 +485,7 @@ func TestCollection_UpdateRef(t *testing.T) {
 	col := initCollection[Data, MetaData](t)
 	c := col.DataClient().Client()
 
-	v1, v2, v3 := version.New(), version.New(), version.New()
+	v1, v2, v3 := version.NewID(), version.NewID(), version.NewID()
 	_, _ = c.InsertMany(ctx, []any{
 		Document[Data]{ID: "x", Version: v1},
 		Document[Data]{ID: "x", Version: v2},
@@ -652,10 +652,10 @@ func TestCollection_Meta(t *testing.T) {
 	col := initCollection[Data, MetaData](t)
 	c := col.DataClient().Client()
 
-	v1, v2, v3 := version.New(), version.New(), version.New()
+	v1, v2, v3 := version.NewID(), version.NewID(), version.NewID()
 	_, _ = c.InsertMany(ctx, []any{
 		Document[Data]{ID: "x", Version: v1},
-		Document[Data]{ID: "x", Version: v2, Parents: []version.Version{v1}, Refs: []version.Ref{version.Latest}},
+		Document[Data]{ID: "x", Version: v2, Parents: []version.ID{v1}, Refs: []version.Ref{version.Latest}},
 	})
 
 	got, err := col.data(ctx, "x", v1.OrRef().Ref())
@@ -672,7 +672,7 @@ func TestCollection_Meta(t *testing.T) {
 		ID:       "x",
 		ObjectID: got.ObjectID,
 		Version:  v2,
-		Parents:  []version.Version{v1},
+		Parents:  []version.ID{v1},
 		Refs:     []version.Ref{version.Latest},
 	}, got)
 	assert.Equal(t, got.ObjectID.Timestamp(), got.Timestamp())
@@ -698,14 +698,14 @@ func initCollection[T, MT Identifiable](t *testing.T) *Collection[T, MT] {
 	return New[T, MT](client.Collection(name), client.Collection(name+"_meta"))
 }
 
-func seed(t *testing.T, col *Collection[Data, MetaData], ctx context.Context) (version.Version, version.Version, version.Version, version.Version) {
+func seed(t *testing.T, col *Collection[Data, MetaData], ctx context.Context) (version.ID, version.ID, version.ID, version.ID) {
 	c := col.DataClient().Client()
 	mc := col.MetaDataClient().Client()
-	vx1, vx2, vy, vz := version.New(), version.New(), version.New(), version.New()
+	vx1, vx2, vy, vz := version.NewID(), version.NewID(), version.NewID(), version.NewID()
 
 	_, err := c.InsertMany(ctx, []any{
 		&Document[Data]{ID: "xxx", Data: Data{ID: "xxx", A: "xa"}, Version: vx1},
-		&Document[Data]{ID: "xxx", Data: Data{ID: "xxx", A: "xa", B: "xb"}, Version: vx2, Refs: []version.Ref{"latest", "aaa"}, Parents: []version.Version{vx1}},
+		&Document[Data]{ID: "xxx", Data: Data{ID: "xxx", A: "xa", B: "xb"}, Version: vx2, Refs: []version.Ref{"latest", "aaa"}, Parents: []version.ID{vx1}},
 		&Document[Data]{ID: "yyy", Data: Data{ID: "yyy", A: "ya", B: "yb"}, Version: vy, Refs: []version.Ref{"latest", "aaa"}},
 		&Document[Data]{ID: "zzz", Data: Data{ID: "zzz", A: "za", B: "zb"}, Version: vz, Refs: []version.Ref{"latest"}},
 	})

@@ -5,18 +5,20 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
-// util.SyncMap + version = VersionedSyncMap
-type VersionedSyncMap[K comparable, V any] struct {
-	m *util.SyncMap[K, *version.Values[V]]
+// VersionedSyncMap = util.SyncMap + version
+type VersionedSyncMap[K comparable, T, M any] struct {
+	m *util.SyncMap[K, *version.Versions[T, M]]
+	a *util.SyncMap[K, *version.Versions[T, M]]
 }
 
-func NewVersionedSyncMap[K comparable, V any]() *VersionedSyncMap[K, V] {
-	return &VersionedSyncMap[K, V]{
-		m: util.SyncMapFrom(map[K]*version.Values[V]{}),
+func NewVersionedSyncMap[K comparable, T, M any]() *VersionedSyncMap[K, T, M] {
+	return &VersionedSyncMap[K, T, M]{
+		m: util.SyncMapFrom(map[K]*version.Versions[T, M]{}),
+		a: util.SyncMapFrom(map[K]*version.Versions[T, M]{}),
 	}
 }
 
-func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res *version.Value[V], _ bool) {
+func (m *VersionedSyncMap[K, T, M]) Load(key K, vr version.IDOrRef) (res *version.Version[T, M], _ bool) {
 	v, ok := m.m.Load(key)
 	if !ok {
 		return
@@ -28,16 +30,17 @@ func (m *VersionedSyncMap[K, V]) Load(key K, vr version.VersionOrRef) (res *vers
 	return vv, true
 }
 
-func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr *version.VersionOrRef) (res []*version.Value[V]) {
-	m.Range(func(k K, v *version.Values[V]) bool {
+func (m *VersionedSyncMap[K, T, M]) LoadAll(keys []K, vr *version.IDOrRef) (res []*version.Version[T, M]) {
+	m.Range(func(k K, v *version.Versions[T, M]) bool {
 		for _, kk := range keys {
-			if k == kk {
-				if vr == nil {
-					res = append(res, v.All()...)
-				} else {
-					if found := v.Get(*vr); found != nil {
-						res = append(res, found)
-					}
+			if k != kk {
+				continue
+			}
+			if vr == nil {
+				res = append(res, v.All()...)
+			} else {
+				if found := v.Get(*vr); found != nil {
+					res = append(res, found)
 				}
 			}
 		}
@@ -46,8 +49,8 @@ func (m *VersionedSyncMap[K, V]) LoadAll(keys []K, vr *version.VersionOrRef) (re
 	return
 }
 
-func (m *VersionedSyncMap[K, V]) LoadAllVersions(key K) (res *version.Values[V]) {
-	m.Range(func(k K, v *version.Values[V]) bool {
+func (m *VersionedSyncMap[K, T, M]) LoadAllVersions(key K) (res *version.Versions[T, M]) {
+	m.m.Range(func(k K, v *version.Versions[T, M]) bool {
 		if k == key {
 			res = v.Clone()
 			return false
@@ -57,9 +60,9 @@ func (m *VersionedSyncMap[K, V]) LoadAllVersions(key K) (res *version.Values[V])
 	return
 }
 
-func (m *VersionedSyncMap[K, V]) SaveOne(key K, value V, parent *version.VersionOrRef) {
+func (m *VersionedSyncMap[K, T, M]) SaveOne(key K, value *T, parent *version.IDOrRef) {
 	found := false
-	m.Range(func(k K, v *version.Values[V]) bool {
+	m.m.Range(func(k K, v *version.Versions[T, M]) bool {
 		if k != key {
 			return true
 		}
@@ -69,45 +72,67 @@ func (m *VersionedSyncMap[K, V]) SaveOne(key K, value V, parent *version.Version
 	})
 
 	if !found {
-		values := version.NewValues[V]()
-		values.Add(value, parent)
-		m.m.Store(key, values)
+		v := version.NewValue(version.NewID(), nil, version.NewRefs(version.Latest), util.Now(), value)
+		vv := version.NewVersions[T, M](v)
+		m.m.Store(key, vv)
 	}
 }
 
-func (m *VersionedSyncMap[K, V]) UpdateRef(key K, ref version.Ref, vr *version.VersionOrRef) {
-	m.Range(func(k K, v *version.Values[V]) bool {
-		if k == key {
-			v.UpdateRef(ref, vr)
-			return false
+func (m *VersionedSyncMap[K, T, M]) SaveOneMeta(key K, value M) {
+	m.m.Range(func(k K, v *version.Versions[T, M]) bool {
+		if k != key {
+			return true
 		}
-		return true
+
+		v.SetMeta(&value)
+		return false
 	})
 }
 
-func (m *VersionedSyncMap[K, V]) IsArchived(key K) bool {
-	v, _ := m.m.Load(key)
-	return v.IsArchived()
+func (m *VersionedSyncMap[K, T, M]) UpdateRef(key K, ref version.Ref, vr *version.IDOrRef) {
+	m.Range(func(k K, v *version.Versions[T, M]) bool {
+		if k != key {
+			return true
+		}
+		v.UpdateRef(ref, vr)
+		return false
+	})
 }
 
-func (m *VersionedSyncMap[K, V]) Archive(key K, archived bool) {
-	v, _ := m.m.Load(key)
-	_ = v.SetArchived(archived)
+func (m *VersionedSyncMap[K, T, M]) IsArchived(key K) bool {
+	_, found := m.a.Load(key)
+	return !found
 }
 
-func (m *VersionedSyncMap[K, V]) Delete(key K) {
+func (m *VersionedSyncMap[K, T, M]) Archive(key K, archived bool) {
+	if archived {
+		v, ok := m.m.Load(key)
+		if ok {
+			m.a.Store(key, v)
+		}
+		m.m.Delete(key)
+	} else {
+		v, ok := m.a.Load(key)
+		if ok {
+			m.m.Store(key, v)
+		}
+		m.a.Delete(key)
+	}
+}
+
+func (m *VersionedSyncMap[K, T, M]) Delete(key K) {
 	m.m.Delete(key)
 }
 
-func (m *VersionedSyncMap[K, V]) DeleteAll(key ...K) {
+func (m *VersionedSyncMap[K, T, M]) DeleteAll(key ...K) {
 	m.m.DeleteAll(key...)
 }
 
-func (m *VersionedSyncMap[K, V]) LatestVersion(key K) (res *version.Version) {
-	m.Range(func(k K, v *version.Values[V]) bool {
+func (m *VersionedSyncMap[K, T, M]) LatestVersion(key K) (res *version.ID) {
+	m.Range(func(k K, v *version.Versions[T, M]) bool {
 		if k == key {
-			if lv := v.LatestVersion(); lv != nil {
-				res = lv
+			if lv := v.Latest(); lv != nil {
+				res = lv.Version().Ref()
 				return false
 			}
 		}
@@ -116,22 +141,22 @@ func (m *VersionedSyncMap[K, V]) LatestVersion(key K) (res *version.Version) {
 	return
 }
 
-func (m *VersionedSyncMap[K, V]) Range(f func(k K, v *version.Values[V]) bool) {
+func (m *VersionedSyncMap[K, T, M]) Range(f func(k K, v *version.Versions[T, M]) bool) {
 	m.m.Range(f)
 }
 
-func (m *VersionedSyncMap[K, V]) Find(f func(k K, v *version.Values[V]) bool) *version.Values[V] {
+func (m *VersionedSyncMap[K, T, M]) Find(f func(k K, v *version.Versions[T, M]) bool) *version.Versions[T, M] {
 	return m.m.Find(f)
 }
 
-func (m *VersionedSyncMap[K, V]) FindAll(f func(k K, v *version.Values[V]) bool) []*version.Values[V] {
+func (m *VersionedSyncMap[K, T, M]) FindAll(f func(k K, v *version.Versions[T, M]) bool) []*version.Versions[T, M] {
 	return m.m.FindAll(f)
 }
 
-func (m *VersionedSyncMap[K, V]) CountAll(f func(k K, v *version.Values[V]) bool) int {
+func (m *VersionedSyncMap[K, T, M]) CountAll(f func(k K, v *version.Versions[T, M]) bool) int {
 	return m.m.CountAll(f)
 }
 
-func (m *VersionedSyncMap[K, V]) Len() int {
+func (m *VersionedSyncMap[K, T, M]) Len() int {
 	return m.m.Len()
 }

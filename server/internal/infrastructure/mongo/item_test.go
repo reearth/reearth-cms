@@ -97,7 +97,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	got1, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1),
+		version.New[item.Item, item.Meta](got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1, nil),
 	}, got1)
 
 	defer util.MockNow(nowid2)()
@@ -106,8 +106,8 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	got2, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(got2[0].Version(), nil, nil, nowid1, i1),
-		version.NewValue(got2[1].Version(), version.NewVersions(got2[0].Version()), version.NewRefs(version.Latest), nowid2, i2),
+		version.New[item.Item, item.Meta](got2[0].Version(), nil, nil, nowid1, i1, nil),
+		version.New[item.Item, item.Meta](got2[1].Version(), version.NewIDs(got2[0].Version()), version.NewRefs(version.Latest), nowid2, i2, nil),
 	}, got2)
 
 	r = r.Filtered(repo.ProjectFilter{
@@ -143,7 +143,7 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 	got1, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1})
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1),
+		version.New[item.Item, item.Meta](got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1, nil),
 	}, got1)
 
 	defer util.MockNow(nowid2)()
@@ -152,8 +152,8 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 	got2, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1, iid2})
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(got2[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1),
-		version.NewValue(got2[1].Version(), nil, version.NewRefs(version.Latest), nowid2, i2),
+		version.New[item.Item, item.Meta](got2[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1, nil),
+		version.New[item.Item, item.Meta](got2[1].Version(), nil, version.NewRefs(version.Latest), nowid2, i2, nil),
 	}, got2)
 
 	r = r.Filtered(repo.ProjectFilter{

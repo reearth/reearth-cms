@@ -49,7 +49,7 @@ type UpdateItemParam struct {
 	MetadataID *item.ID
 	OriginalID *item.ID
 	Fields     []ItemFieldParam
-	Version    *version.Version
+	Version    *version.ID
 }
 
 type Item interface {

@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -53,13 +54,13 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input gqlmodel.Update
 		return nil, err
 	}
 
-	var v version.Version
+	var v version.ID
 	if input.Version != nil {
 		u, err := uuid.Parse(*input.Version)
 		if err != nil {
 			return nil, err
 		}
-		v = version.Version(u)
+		v = version.ID(u)
 	}
 
 	res, err := usecases(ctx).Item.Update(ctx, interfaces.UpdateItemParam{

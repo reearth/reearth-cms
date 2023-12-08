@@ -11,7 +11,7 @@ func TestAll(t *testing.T) {
 }
 
 func TestEq(t *testing.T) {
-	v := New()
+	v := NewID()
 	assert.Equal(t, Query{eq: v.OrRef().Ref()}, Eq(v.OrRef()))
 }
 
@@ -21,7 +21,7 @@ func TestQuery_Match(t *testing.T) {
 		All: func() {
 			res = "all"
 		},
-		Eq: func(ref VersionOrRef) {
+		Eq: func(ref IDOrRef) {
 			res = "eq"
 		},
 	}
@@ -29,7 +29,7 @@ func TestQuery_Match(t *testing.T) {
 	q.Match(qm)
 	assert.Equal(t, "all", res)
 
-	q = Eq(New().OrRef())
+	q = Eq(NewID().OrRef())
 	q.Match(qm)
 	assert.Equal(t, "eq", res)
 }

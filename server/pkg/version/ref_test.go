@@ -16,8 +16,8 @@ func TestRef_String(t *testing.T) {
 }
 
 func TestRef_OrVersion(t *testing.T) {
-	assert.Equal(t, VersionOrRef{ref: Ref("x")}, Ref("x").OrVersion())
-	assert.Equal(t, VersionOrRef{}, Ref("").OrVersion())
+	assert.Equal(t, IDOrRef{ref: Ref("x")}, Ref("x").OrVersion())
+	assert.Equal(t, IDOrRef{}, Ref("").OrVersion())
 }
 
 func TestRef_OrLatest(t *testing.T) {
