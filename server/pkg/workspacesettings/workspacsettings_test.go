@@ -44,7 +44,7 @@ func TestWorkspaceSettings_SetResources(t *testing.T) {
 	assert.Equal(t, rs, ws.Resources())
 }
 
-func TestWorkspaceSettings_SetDefaultResource(t *testing.T) {
+func TestWorkspaceSettings_SetSelectedResource(t *testing.T) {
 	rid := NewResourceID()
 	ws := &ResourceList{}
 	ws.SetSelectedResource(rid.Ref())
