@@ -18,6 +18,7 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 					  name
 					  description
 					  key
+					  order
 					  __typename
 					}
 					__typename
@@ -325,8 +326,15 @@ func TestUpdateModelsOrder(t *testing.T) {
 	mId1, _ := createModel(e, pId, "test1", "test", "test-1")
 	mId2, _ := createModel(e, pId, "test2", "test", "test-2")
 	mId3, _ := createModel(e, pId, "test3", "test", "test-3")
-	mId4, _ := createModel(e, pId, "test4", "test", "test-4")
-	res := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
-	res.Path("$.data.updateModelsOrder.models[:].id").Array().IsEqual([]string{mId4, mId1, mId2, mId3})
-	res.Path("$.data.updateModelsOrder.models[:].order").Array().IsEqual([]int{1, 2, 3, 4})
+	mId4, res := createModel(e, pId, "test4", "test", "test-4")
+	res.Object().
+		Value("data").Object().
+		Value("createModel").Object().
+		Value("model").Object().
+		HasValue("name", "test4").
+		HasValue("key", "test-4").
+		HasValue("order", 3)
+	res2 := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
+	res2.Path("$.data.updateModelsOrder.models[:].id").Array().IsEqual([]string{mId4, mId1, mId2, mId3})
+	res2.Path("$.data.updateModelsOrder.models[:].order").Array().IsEqual([]int{0, 1, 2, 3})
 }

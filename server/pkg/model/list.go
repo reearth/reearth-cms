@@ -34,11 +34,20 @@ func (l List) OrderByIDs(ids id.ModelIDList) List {
 	for i, mid := range ids {
 		for _, model := range l {
 			if model.ID() == mid {
-				model.SetOrder(i + 1)
+				model.SetOrder(i)
 				res = append(res, model)
 				break
 			}
 		}
 	}
 	return res
+}
+
+func (l List) Ordered() List {
+	res := slices.Clone(l)
+	slices.SortFunc(res, func(a, b *Model) int {
+		return a.Order() - b.Order()
+	})
+	return res
+
 }

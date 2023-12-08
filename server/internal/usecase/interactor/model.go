@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Model struct {
@@ -94,6 +95,14 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 				mb = mb.Key(key.New(*param.Key))
 			} else {
 				mb = mb.Key(key.Random())
+			}
+			models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+			if err != nil {
+				return nil, err
+			}
+
+			if x, err := lo.Last(models.Ordered()); err == nil {
+				mb = mb.Order(x.Order() + 1)
 			}
 
 			m, err = mb.Build()
