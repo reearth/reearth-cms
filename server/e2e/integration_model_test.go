@@ -30,7 +30,7 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 
 	e.GET(endpoint, id.NewProjectID()).
 		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
+		WithQuery("page", 0).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
@@ -41,6 +41,9 @@ func TestIntegrationModelFilterAPI(t *testing.T) {
 		models := res.Status(http.StatusOK).
 			JSON().
 			Object().
+			HasValue("page", 1).
+			HasValue("perPage", 10).
+			HasValue("totalCount", 3).
 			Value("models").
 			Array()
 		models.Length().IsEqual(3)
@@ -107,16 +110,12 @@ func TestIntegrationModelGetAPI(t *testing.T) {
 
 	e.GET("/api/models/{modelId}", id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
 
 	// key cannot be used
 	e.GET("/api/models/{modelId}", ikey1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusBadRequest)
 
