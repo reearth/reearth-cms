@@ -11,7 +11,7 @@ func TestWorkspaceSettings_SetTiles(t *testing.T) {
 	rid := NewResourceID()
 	pp := NewURLResourceProps("foo", "bar", "baz")
 	tt := NewTileResource(rid, TileTypeDefault, pp)
-	r := NewResource("TILE", tt, nil)
+	r := NewResource(ResourceTypeTile, tt, nil)
 	tiles := NewResourceList([]*Resource{r}, rid.Ref(), lo.ToPtr(true))
 	ws := &WorkspaceSettings{}
 	ws.SetTiles(tiles)
@@ -24,7 +24,7 @@ func TestWorkspaceSettings_SetTerrains(t *testing.T) {
 	rid := NewResourceID()
 	pp := NewURLResourceProps("foo", "bar", "baz")
 	tt := NewTileResource(rid, TileTypeDefault, pp)
-	r := NewResource("TILE", tt, nil)
+	r := NewResource(ResourceTypeTile, tt, nil)
 	terrains := NewResourceList([]*Resource{r}, rid.Ref(), lo.ToPtr(true))
 	ws := &WorkspaceSettings{}
 	ws.SetTerrains(terrains)
@@ -37,7 +37,7 @@ func TestWorkspaceSettings_SetResources(t *testing.T) {
 	rid := NewResourceID()
 	pp := NewURLResourceProps("foo", "bar", "baz")
 	tt := NewTileResource(rid, TileTypeDefault, pp)
-	r := NewResource("TILE", tt, nil)
+	r := NewResource(ResourceTypeTile, tt, nil)
 	rs := []*Resource{r}
 	ws := &ResourceList{}
 	ws.SetResources(rs)
@@ -62,11 +62,11 @@ func TestWorkspaceSettings_Clone(t *testing.T) {
 	rid := NewResourceID()
 	pp := NewURLResourceProps("foo", "bar", "baz")
 	tt := NewTileResource(rid, TileTypeDefault, pp)
-	r := NewResource("TILE", tt, nil)
+	r := NewResource(ResourceTypeTile, tt, nil)
 	rid2 := NewResourceID()
 	pp2 := NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
 	tt2 := NewTerrainResource(rid, TerrainTypeCesiumIon, pp2)
-	r2 := NewResource("TERRAIN", nil, tt2)
+	r2 := NewResource(ResourceTypeTerrain, nil, tt2)
 	tiles := NewResourceList([]*Resource{r}, rid.Ref(), lo.ToPtr(true))
 	terrains := NewResourceList([]*Resource{r2}, rid2.Ref(), lo.ToPtr(true))
 	ws := New().NewID().Tiles(tiles).Terrains(terrains).MustBuild()
