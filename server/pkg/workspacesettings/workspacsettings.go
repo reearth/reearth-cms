@@ -23,7 +23,7 @@ const (
 	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
 	TileTypeESRITopography      TileType = "ESRI_TOPOGRAPHY"
 	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
-	TileTypeJapanGISStandardMap TileType = "JAPAN_GSI_STANDARD_MAP"
+	TileTypeJapanGSIStandardMap TileType = "JAPAN_GSI_STANDARD_MAP"
 	TileTypeURL                 TileType = "URL"
 )
 
@@ -203,12 +203,36 @@ func NewTileResource(id ResourceID, rtype TileType, props UrlResourceProps) *Til
 	}
 }
 
+func (r *TileResource) ID() ResourceID {
+	return r.id
+}
+
+func (r *TileResource) Type() TileType {
+	return r.rtype
+}
+
+func (r *TileResource) Props() UrlResourceProps {
+	return r.props
+}
+
 func NewTerrainResource(id ResourceID, rtype TerrainType, props CesiumResourceProps) *TerrainResource {
 	return &TerrainResource{
 		id:    id.Clone(),
 		rtype: rtype,
 		props: props,
 	}
+}
+
+func (r *TerrainResource) ID() ResourceID {
+	return r.id
+}
+
+func (r *TerrainResource) Type() TerrainType {
+	return r.rtype
+}
+
+func (r *TerrainResource) Props() CesiumResourceProps {
+	return r.props
 }
 
 func NewURLResourceProps(name, url, image string) UrlResourceProps {
@@ -219,6 +243,18 @@ func NewURLResourceProps(name, url, image string) UrlResourceProps {
 	}
 }
 
+func (p UrlResourceProps) Name() string {
+	return p.name
+}
+
+func (p UrlResourceProps) URL() string {
+	return p.url
+}
+
+func (p UrlResourceProps) Image() string {
+	return p.image
+}
+
 func NewCesiumResourceProps(name, url, image, cesiumIonAssetId, cesiumIonAccessToken string) CesiumResourceProps {
 	return CesiumResourceProps{
 		name:                 name,
@@ -227,4 +263,24 @@ func NewCesiumResourceProps(name, url, image, cesiumIonAssetId, cesiumIonAccessT
 		cesiumIonAssetId:     cesiumIonAssetId,
 		cesiumIonAccessToken: cesiumIonAccessToken,
 	}
+}
+
+func (p CesiumResourceProps) Name() string {
+	return p.name
+}
+
+func (p CesiumResourceProps) URL() string {
+	return p.url
+}
+
+func (p CesiumResourceProps) Image() string {
+	return p.image
+}
+
+func (p CesiumResourceProps) CesiumIonAssetID() string {
+	return p.cesiumIonAssetId
+}
+
+func (p CesiumResourceProps) CesiumIonAccessToken() string {
+	return p.cesiumIonAccessToken
 }
