@@ -328,5 +328,5 @@ func TestUpdateModelsOrder(t *testing.T) {
 	mId4, _ := createModel(e, pId, "test4", "test", "test-4")
 	res := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
 	res.Path("$.data.updateModelsOrder.models[:].id").Array().IsEqual([]string{mId4, mId1, mId2, mId3})
-	res.Path("$.data.updateModelsOrder.models[:].order").Array().IsEqual([]int{0, 1, 2, 3})
+	res.Path("$.data.updateModelsOrder.models[:].order").Array().IsEqual([]int{1, 2, 3, 4})
 }

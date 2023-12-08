@@ -34,7 +34,7 @@ func (l List) OrderByIDs(ids id.ModelIDList) List {
 	for i, mid := range ids {
 		for _, model := range l {
 			if model.ID() == mid {
-				model.SetOrder(i)
+				model.SetOrder(i + 1)
 				res = append(res, model)
 				break
 			}
