@@ -1,19 +1,40 @@
 import styled from "@emotion/styled";
+import moment from "moment";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
+import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import Popover from "@reearth-cms/components/atoms/Popover";
+import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import type { Field, FieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
+import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { dateTimeFormat, transformMomentToString } from "@reearth-cms/utils/format";
 
-const itemFormat = (item: string, type: FieldType) => {
-  switch (type) {
+const itemFormat = (
+  item: string,
+  field: Field,
+  update?: (value: string | boolean, index?: number) => void,
+  index?: number,
+) => {
+  switch (field.type) {
+    case "Text":
+      return update ? (
+        <StyledInput
+          defaultValue={item}
+          placeholder="-"
+          onBlur={e => {
+            update(e.target.value, index);
+          }}
+        />
+      ) : (
+        item
+      );
     case "MarkdownText":
       return (
         <ReactMarkdown
@@ -28,9 +49,29 @@ const itemFormat = (item: string, type: FieldType) => {
         </ReactMarkdown>
       );
     case "Date":
-      return dateTimeFormat(item);
+      return update ? (
+        <StyledDatePicker
+          placeholder="-"
+          defaultValue={item ? moment(item) : undefined}
+          suffixIcon={undefined}
+          onChange={date => {
+            update(date ? transformMomentToString(date) : "", index);
+          }}
+        />
+      ) : (
+        dateTimeFormat(item)
+      );
     case "Bool":
-      return (
+      return update ? (
+        <Switch
+          checkedChildren={<Icon icon={"check"} />}
+          unCheckedChildren={<Icon icon={"close"} />}
+          defaultChecked={item === "true"}
+          onChange={checked => {
+            update(checked, index);
+          }}
+        />
+      ) : (
         <Switch
           checkedChildren={<Icon icon={"check"} />}
           unCheckedChildren={<Icon icon={"close"} />}
@@ -57,32 +98,62 @@ const itemFormat = (item: string, type: FieldType) => {
         </StyledTag>
       );
     case "Checkbox":
-      return <Checkbox checked={item === "true"} />;
+      return update ? (
+        <Checkbox
+          defaultChecked={item === "true"}
+          onChange={e => {
+            update(e.target.checked, index);
+          }}
+        />
+      ) : (
+        <Checkbox checked={item === "true"} />
+      );
     default:
       return item;
   }
 };
 
-export const renderField = (el: { props: { children: string | string[] } }, field: Field) => {
+export const renderField = (
+  el: { props: { children: string | string[] } },
+  field: Field,
+  update?: (value?: string | string[] | boolean, index?: number) => void,
+) => {
   const value = el.props.children;
   const items = Array.isArray(value) ? value : [value];
 
   if ((field.type === "Bool" || field.type === "Checkbox") && !field.multiple) {
-    return itemFormat(items[0], field.type);
-  } else if (value === "-") {
-    return <span>-</span>;
+    return itemFormat(items[0], field, update);
   } else if (field.type === "Tag") {
     const tags = field.typeProperty?.tags;
     const filteredTags = tags?.filter(tag => value.includes(tag.id)) || [];
     return (
-      <>
-        {filteredTags.map(({ id, name, color }) => (
-          <Tag key={id} color={color.toLowerCase()}>
-            {name}
-          </Tag>
+      <StyledSelect
+        mode={field.multiple ? "multiple" : undefined}
+        defaultValue={filteredTags.map(({ name }) => name)}
+        tagRender={props => {
+          return <>{props.label}</>;
+        }}
+        showArrow={false}
+        allowClear={field.multiple ? false : true}
+        onChange={(_, option) => {
+          const value: string | string[] | undefined = Array.isArray(option)
+            ? option.map(({ key }) => key)
+            : option?.key;
+          update?.(value);
+        }}
+        placeholder="-">
+        {tags?.map(({ id, name, color }) => (
+          <Select.Option key={id} value={name}>
+            <Tag color={color.toLowerCase()}>{name}</Tag>
+          </Select.Option>
         ))}
-      </>
+      </StyledSelect>
     );
+  } else if (value === "-") {
+    if ((field.type === "Text" || field.type === "Date") && !field.multiple && update) {
+      return itemFormat("", field, update);
+    }
+    return <span>-</span>;
   } else if (field.type === "Select") {
     return (
       <>
@@ -95,7 +166,7 @@ export const renderField = (el: { props: { children: string | string[] } }, fiel
     const content = (
       <>
         {items.map((item, index) => {
-          return <Content key={index}>{itemFormat(item, field.type)}</Content>;
+          return <Content key={index}>{itemFormat(item, field, update, index)}</Content>;
         })}
       </>
     );
@@ -108,7 +179,7 @@ export const renderField = (el: { props: { children: string | string[] } }, fiel
       </Popover>
     );
   } else {
-    return itemFormat(items[0], field.type);
+    return itemFormat(items[0], field, update);
   }
 };
 
@@ -143,5 +214,68 @@ const Content = styled.p`
   padding: 4px 8px 20px;
   :last-child {
     padding-bottom: 0;
+  }
+`;
+
+const StyledInput = styled(Input)`
+  border-color: transparent;
+  cursor: pointer;
+  padding-left: 0;
+  padding-right: 0;
+  input {
+    cursor: pointer;
+  }
+  :hover {
+    border-color: transparent;
+  }
+  :focus {
+    cursor: text;
+    border-color: #40a9ff;
+    ::placeholder {
+      color: transparent;
+    }
+  }
+  ::placeholder {
+    color: inherit;
+  }
+`;
+
+const StyledDatePicker = styled(DatePicker)`
+  border-color: transparent;
+  cursor: pointer;
+  padding-left: 0;
+  padding-right: 0;
+  input {
+    cursor: pointer;
+    :focus {
+      cursor: text;
+      ::placeholder {
+        color: transparent;
+      }
+    }
+    ::placeholder {
+      color: inherit;
+    }
+  }
+  :hover {
+    border-color: transparent;
+  }
+  &.ant-picker-focused {
+    border-color: #40a9ff;
+  }
+`;
+
+const StyledSelect = styled(Select)`
+  width: 100%;
+  && .ant-select-selector {
+    border-color: transparent;
+    cursor: pointer !important;
+  }
+  .ant-select-selection-overflow {
+    flex-wrap: nowrap;
+    overflow-x: hidden;
+  }
+  .ant-select-selection-placeholder {
+    color: inherit;
   }
 `;

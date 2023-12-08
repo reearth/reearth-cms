@@ -150,10 +150,10 @@ func (f ProjectFilter) Merge(g ProjectFilter) ProjectFilter {
 	}
 }
 
-func (f ProjectFilter) CanRead(id project.ID) bool {
-	return f.Readable == nil || f.Readable.Has(id) || f.CanWrite(id)
+func (f ProjectFilter) CanRead(ids ...project.ID) bool {
+	return f.Readable == nil || f.Readable.Has(ids...) || f.CanWrite(ids...)
 }
 
-func (f ProjectFilter) CanWrite(id project.ID) bool {
-	return f.Writable == nil || f.Writable.Has(id)
+func (f ProjectFilter) CanWrite(ids ...project.ID) bool {
+	return f.Writable == nil || f.Writable.Has(ids...)
 }
