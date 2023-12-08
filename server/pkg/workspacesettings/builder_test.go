@@ -21,7 +21,9 @@ func TestBuilder_ID(t *testing.T) {
 func TestBuilder_Tiles(t *testing.T) {
 	var tb = New().NewID()
 	rid := NewResourceID()
-	r := NewResource(rid, "type", "foo", "bar", "baz", nil, nil)
+	pp := NewURLResourceProps("foo", "bar", "baz")
+	tt := NewTileResource(rid, "DEFAULT", pp)
+	r := NewResource("TILE", tt, nil)
 	tiles := NewResourceList([]*Resource{r}, rid.Ref(), nil)
 	res := tb.Tiles(tiles).MustBuild()
 	assert.Equal(t, tiles, res.Tiles())
@@ -30,7 +32,9 @@ func TestBuilder_Tiles(t *testing.T) {
 func TestBuilder_Terrains(t *testing.T) {
 	var tb = New().NewID()
 	rid := NewResourceID()
-	r := NewResource(rid, "type", "foo", "bar", "baz", nil, nil)
+	pp := NewCesiumResourceProps("foo", "bar", "baz", "", "")
+	tt := NewTerrainResource(rid, "CESIUM_ION", pp)
+	r := NewResource("TERRAIN", nil, tt)
 	terrains := NewResourceList([]*Resource{r}, rid.Ref(), nil)
 	res := tb.Terrains(terrains).MustBuild()
 	assert.Equal(t, terrains, res.Terrains())
@@ -45,10 +49,14 @@ func TestBuilder_NewID(t *testing.T) {
 func TestBuilder_Build(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	rid := NewResourceID()
-	r := NewResource(rid, "type", "foo", "bar", "baz", nil, nil)
+	pp := NewCesiumResourceProps("foo", "bar", "baz", "", "")
+	tt := NewTerrainResource(rid, "CESIUM_ION", pp)
+	r := NewResource("TERRAIN", nil, tt)
 	tiles := NewResourceList([]*Resource{r}, rid.Ref(), nil)
 	rid2 := NewResourceID()
-	r2 := NewResource(rid, "type", "foo", "bar", "baz", nil, nil)
+	pp2 := NewURLResourceProps("foo", "bar", "baz")
+	tt2 := NewTileResource(rid, "DEFAULT", pp2)
+	r2 := NewResource("TILE", tt2, nil)
 	terrains := NewResourceList([]*Resource{r2}, rid2.Ref(), nil)
 	ws, err := New().ID(wid).Tiles(tiles).Terrains(terrains).Build()
 	expected := &WorkspaceSettings{
@@ -68,10 +76,14 @@ func TestBuilder_Build(t *testing.T) {
 func TestBuilder_MustBuild(t *testing.T) {
 	wid := accountdomain.NewWorkspaceID()
 	rid := NewResourceID()
-	r := NewResource(rid, "type", "foo", "bar", "baz", nil, nil)
+	pp := NewCesiumResourceProps("foo", "bar", "baz", "", "")
+	tt := NewTerrainResource(rid, "CESIUM_ION", pp)
+	r := NewResource("TERRAIN", nil, tt)
 	tiles := NewResourceList([]*Resource{r}, rid.Ref(), nil)
 	rid2 := NewResourceID()
-	r2 := NewResource(rid, "type", "foo", "bar", "baz", nil, nil)
+	pp2 := NewURLResourceProps("foo", "bar", "baz")
+	tt2 := NewTileResource(rid, "DEFAULT", pp2)
+	r2 := NewResource("TILE", tt2, nil)
 	terrains := NewResourceList([]*Resource{r2}, rid2.Ref(), nil)
 	build := func() *WorkspaceSettings {
 		return New().
