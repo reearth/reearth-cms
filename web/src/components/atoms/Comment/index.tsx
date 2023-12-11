@@ -1,4 +1,4 @@
-import { Comment, CommentProps } from "antd";
+import { Comment, CommentProps } from "@ant-design/compatible";
 
 export default Comment;
 export type { CommentProps };
