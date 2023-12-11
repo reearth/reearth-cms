@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -49,7 +49,7 @@ const ThreadCommentMolecule: React.FC<Props> = ({
   }, [value, comment.id, onCommentUpdate]);
 
   const fromNow = useMemo(
-    () => moment(comment.createdAt?.toString()).fromNow(),
+    () => dayjs(comment.createdAt?.toString()).fromNow(),
     [comment.createdAt],
   );
 
@@ -95,7 +95,7 @@ const ThreadCommentMolecule: React.FC<Props> = ({
       content={
         <>
           <Form.Item hidden={!showEditor}>
-            <TextArea onChange={handleChange} value={value} rows={4} maxLength={1000} showCount />
+            <TextArea onChange={handleChange} value={value} rows={4} maxLength={1000} />
           </Form.Item>
           <div hidden={showEditor}>{comment.content}</div>
         </>

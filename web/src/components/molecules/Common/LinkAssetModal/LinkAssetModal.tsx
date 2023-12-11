@@ -7,7 +7,6 @@ import ProTable, {
   ProColumns,
   ListToolBarProps,
   OptionConfig,
-  TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -97,7 +96,7 @@ const LinkAssetModal: React.FC<Props> = ({
     },
   };
 
-  const pagination: TablePaginationConfig = {
+  const pagination = {
     showSizeChanger: true,
     current: page,
     total: totalCount,

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -31,7 +31,7 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { transformMomentToString } from "@reearth-cms/utils/format";
+import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 export interface FormValues {
@@ -197,9 +197,9 @@ const FieldUpdateModal: React.FC<Props> = ({
     const getValue = () => {
       if (selectedType === "Date") {
         if (Array.isArray(defaultValue)) {
-          return defaultValue.map(valueItem => moment(valueItem as string));
+          return defaultValue.map(valueItem => dayjs(valueItem as string));
         } else {
-          return moment(defaultValue as string);
+          return dayjs(defaultValue as string);
         }
       } else if (selectedType === "Tag") {
         if (Array.isArray(selectDefaultValue)) {
@@ -281,7 +281,7 @@ const FieldUpdateModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            date: { defaultValue: transformMomentToString(values.defaultValue) },
+            date: { defaultValue: transformDayjsToString(values.defaultValue) },
           };
         } else if (selectedType === "Tag") {
           values.typeProperty = {
@@ -364,6 +364,7 @@ const FieldUpdateModal: React.FC<Props> = ({
         form={form}
         layout="vertical"
         initialValues={initialValues}
+        requiredMark="optional"
         onValuesChange={() => {
           setTimeout(() => {
             form
@@ -409,7 +410,7 @@ const FieldUpdateModal: React.FC<Props> = ({
               ]}>
               <Input />
             </Form.Item>
-            <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+            <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />
             </Form.Item>
             {selectedType === "Select" && (

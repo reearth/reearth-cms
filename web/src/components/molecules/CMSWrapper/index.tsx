@@ -59,13 +59,16 @@ const CMSSidebar = styled(Sider)`
     text-align: left;
     padding: 0 20px;
     margin: 0;
-    height: 38px;
     line-height: 38px;
+    display: flex;
+    align-items: center;
   }
-  .ant-layout-sider-children {
+  .ant-layout-sider-children > .css-0 {
+    background-color: #fff;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    height: 100%;
   }
   .ant-menu-inline {
     border-right: 1px solid white;

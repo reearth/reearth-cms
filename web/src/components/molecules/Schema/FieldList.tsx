@@ -87,7 +87,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
 
   return (
     <>
-      <h1>{t("Add Field")}</h1>
+      <StyledTitle>{t("Add Field")}</StyledTitle>
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={dataSource}
@@ -109,6 +109,10 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
     </>
   );
 };
+
+const StyledTitle = styled.h1`
+  font-size: 16px;
+`;
 
 const FieldCategoryTitle = styled.h2`
   font-weight: 400;
@@ -147,7 +151,7 @@ const FieldStyledList = styled(List)`
 
 const Meta = styled(List.Item.Meta)`
   .ant-list-item-meta-description {
-    font-size: 12px;
+    font-size: 12px !important;
   }
 `;
 

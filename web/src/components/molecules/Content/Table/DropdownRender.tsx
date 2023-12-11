@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "dayjs";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -418,7 +418,7 @@ const DropdownRender: React.FC<Props> = ({
   }, []);
 
   const onDateChange: DatePickerProps["onChange"] = useCallback(
-    (_date: Moment | null, dateString: string) => {
+    (_date: Dayjs | null, dateString: string) => {
       filterValue.current = dateString;
     },
     [],
@@ -474,7 +474,7 @@ const DropdownRender: React.FC<Props> = ({
                 placeholder="Select the date"
                 showToday={false}
                 defaultValue={
-                  defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
+                  defaultValue && defaultValue.value !== "" ? dayjs(defaultValue.value) : undefined
                 }
                 key={defaultValue?.value}
               />

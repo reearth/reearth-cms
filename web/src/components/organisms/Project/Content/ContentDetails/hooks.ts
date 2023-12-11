@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -380,11 +380,11 @@ export default () => {
           case "Date":
             if (Array.isArray(field.typeProperty?.defaultValue)) {
               initialValues[field.id] = field.typeProperty?.defaultValue.map(valueItem =>
-                valueItem ? moment(valueItem as string) : "",
+                valueItem ? dayjs(valueItem as string) : "",
               );
             } else {
               initialValues[field.id] = field.typeProperty?.defaultValue
-                ? moment(field.typeProperty.defaultValue as string)
+                ? dayjs(field.typeProperty.defaultValue as string)
                 : "";
             }
             break;
@@ -439,12 +439,12 @@ export default () => {
               if (Array.isArray(field.typeProperty?.defaultValue)) {
                 updateInitialValues(
                   field.typeProperty?.defaultValue.map((valueItem: any) =>
-                    valueItem ? moment(valueItem) : "",
+                    valueItem ? dayjs(valueItem) : "",
                   ),
                 );
               } else {
                 if (field.typeProperty?.defaultValue) {
-                  updateInitialValues(moment(field.typeProperty.defaultValue as string));
+                  updateInitialValues(dayjs(field.typeProperty.defaultValue as string));
                 } else if (initialValues[field.id]?.[itemGroupId]) {
                   initialValues[field.id][itemGroupId] = "";
                 }
@@ -461,17 +461,17 @@ export default () => {
         if (field.type === "Date") {
           if (Array.isArray(field.value)) {
             field.value = field.value.map((valueItem: string) =>
-              valueItem ? moment(valueItem) : "",
+              valueItem ? dayjs(valueItem) : "",
             );
           } else {
-            field.value = field.value ? moment(field.value) : "";
+            field.value = field.value ? dayjs(field.value) : "";
           }
         }
         if (field.itemGroupId) {
           if (
             typeof initialValues[field.schemaFieldId] === "object" &&
             !Array.isArray(initialValues[field.schemaFieldId]) &&
-            !moment.isMoment(initialValues[field.schemaFieldId])
+            !dayjs.isDayjs(initialValues[field.schemaFieldId])
           ) {
             initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
           } else {
@@ -507,11 +507,11 @@ export default () => {
           case "Date":
             if (Array.isArray(field.typeProperty?.defaultValue)) {
               initialValues[field.id] = field.typeProperty?.defaultValue.map(valueItem =>
-                valueItem ? moment(valueItem as string) : "",
+                valueItem ? dayjs(valueItem as string) : "",
               );
             } else {
               initialValues[field.id] = field.typeProperty?.defaultValue
-                ? moment(field.typeProperty.defaultValue as string)
+                ? dayjs(field.typeProperty.defaultValue as string)
                 : "";
             }
             break;
@@ -525,10 +525,10 @@ export default () => {
         if (field.type === "Date") {
           if (Array.isArray(field.value)) {
             initialValues[field.schemaFieldId] = field.value.map((valueItem: string) =>
-              field.value ? moment(valueItem) : "",
+              field.value ? dayjs(valueItem) : "",
             );
           } else {
-            initialValues[field.schemaFieldId] = field.value ? moment(field.value) : "";
+            initialValues[field.schemaFieldId] = field.value ? dayjs(field.value) : "";
           }
         } else {
           initialValues[field.schemaFieldId] = field.value;

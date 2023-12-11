@@ -7,7 +7,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import ProTable, {
   ProColumns,
-  TablePaginationConfig,
+
   ListToolBarProps,
 } from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
@@ -52,7 +52,7 @@ const LinkItemModal: React.FC<Props> = ({
   const { handleCheckItemReference } = useHooks();
   const [value, setValue] = useState("");
 
-  const pagination: TablePaginationConfig = {
+  const pagination = {
     showSizeChanger: true,
     current: linkItemModalPage,
     total: linkItemModalTotalCount,

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -14,7 +14,7 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
-import { dateTimeFormat, transformMomentToString } from "@reearth-cms/utils/format";
+import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 
 const itemFormat = (
   item: string,
@@ -52,10 +52,10 @@ const itemFormat = (
       return update ? (
         <StyledDatePicker
           placeholder="-"
-          defaultValue={item ? moment(item) : undefined}
+          defaultValue={item ? dayjs(item) : undefined}
           suffixIcon={undefined}
           onChange={date => {
-            update(date ? transformMomentToString(date) : "", index);
+            update(date ? transformDayjsToString(date) : "", index);
           }}
         />
       ) : (

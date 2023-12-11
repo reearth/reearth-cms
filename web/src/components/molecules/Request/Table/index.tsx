@@ -10,7 +10,7 @@ import ProTable, {
   ProColumns,
   OptionConfig,
   TableRowSelection,
-  TablePaginationConfig,
+
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
@@ -178,7 +178,7 @@ const RequestListTable: React.FC<Props> = ({
     reload: onRequestsReload,
   };
 
-  const pagination: TablePaginationConfig = {
+  const pagination = {
     showSizeChanger: true,
     current: page,
     total: totalCount,

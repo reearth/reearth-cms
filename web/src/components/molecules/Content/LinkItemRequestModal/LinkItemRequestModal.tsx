@@ -4,7 +4,7 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import ProTable, {
   ProColumns,
-  TablePaginationConfig,
+
 } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -40,7 +40,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
   const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const t = useT();
 
-  const pagination: TablePaginationConfig = {
+  const pagination = {
     showSizeChanger: true,
     current: requestModalPage,
     total: requestModalTotalCount,

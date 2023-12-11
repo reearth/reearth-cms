@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useMemo } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
@@ -71,7 +71,7 @@ export const RequestDescription: React.FC<Props> = ({
   setUploadModalVisibility,
 }) => {
   const fromNow = useMemo(
-    () => moment(currentRequest.createdAt?.toString()).fromNow(),
+    () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
   );
 

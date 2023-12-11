@@ -286,7 +286,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         </Form>
       )}
       {currentStep === 1 && (
-        <Form form={field1Form} layout="vertical" initialValues={initialValues}>
+        <Form
+          form={field1Form}
+          layout="vertical"
+          initialValues={initialValues}
+          requiredMark="optional">
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
               <Form.Item
@@ -321,7 +325,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 ]}>
                 <Input />
               </Form.Item>
-              <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+              <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
               </Form.Item>
               {selectedType === "Select" && (
@@ -378,7 +382,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         </Form>
       )}
       {currentStep === 2 && (
-        <Form form={field2Form} layout="vertical" initialValues={initialValues}>
+        <Form
+          form={field2Form}
+          layout="vertical"
+          initialValues={initialValues}
+          requiredMark="optional">
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
               <Form.Item
@@ -410,7 +418,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 ]}>
                 <Input />
               </Form.Item>
-              <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+              <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
               </Form.Item>
               {selectedType === "Select" && (
