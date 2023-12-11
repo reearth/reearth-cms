@@ -1,13 +1,14 @@
 import ModelsList from "@reearth-cms/components/molecules/Model/ModelsList/ModelsList";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
+import { Model } from "@reearth-cms/components/molecules/Schema/types";
 
 export interface Props {
   className?: string;
   title: string;
   collapsed?: boolean;
   selectedKey?: string;
-  models?: any;
+  models?: Model[];
   selectedSchemaType?: SelectedSchemaType;
   isKeyAvailable: boolean;
   open?: boolean;
