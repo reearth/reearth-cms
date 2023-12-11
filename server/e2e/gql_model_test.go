@@ -111,7 +111,30 @@ func updateModelsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 
 	return res
 }
+func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
+	requestBody := GraphQLRequest{
+		Query: `mutation DeleteModel($modelId: ID!) {
+				  deleteModel(input: {modelId: $modelId}) {
+					modelId
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelId": iID,
+		},
+	}
 
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res.Path("$.data.deleteModel.modelId").Raw().(string), res
+}
 func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetModel($modelId: ID!) {
@@ -123,6 +146,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 					  description
 					  key
 					  public
+					  order
 					  schema {
 						id
 						fields {
@@ -337,4 +361,12 @@ func TestUpdateModelsOrder(t *testing.T) {
 	res2 := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
 	res2.Path("$.data.updateModelsOrder.models[:].id").Array().IsEqual([]string{mId4, mId1, mId2, mId3})
 	res2.Path("$.data.updateModelsOrder.models[:].order").Array().IsEqual([]int{0, 1, 2, 3})
+	deleteModel(e, mId2)
+	_, _, res3 := getModel(e, mId3)
+
+	res3.Object().
+		Value("data").Object().
+		Value("node").Object().
+		HasValue("id", mId3).
+		HasValue("order", 2)
 }
