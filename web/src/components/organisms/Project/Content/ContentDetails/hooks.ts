@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -30,6 +30,8 @@ import {
   useSearchItemQuery,
   useGetItemsByIdsQuery,
   useGetGroupsQuery,
+  FieldType as GQLFieldType,
+  StringOperator,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
@@ -61,11 +63,13 @@ export default () => {
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
   const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
+  const titleId = useRef("");
 
   useEffect(() => {
     setLinkItemModalPage(+linkItemModalPage);
@@ -98,10 +102,35 @@ export default () => {
           first: linkItemModalPageSize,
           offset: (linkItemModalPage - 1) * linkItemModalPageSize,
         },
+        filter:
+          searchTerm && titleId.current
+            ? {
+                and: {
+                  conditions: [
+                    {
+                      string: {
+                        fieldId: { id: titleId.current, type: GQLFieldType.Field },
+                        operator: StringOperator.Contains,
+                        value: searchTerm,
+                      },
+                    },
+                  ],
+                },
+              }
+            : undefined,
       },
     },
     skip: !model?.id,
   });
+
+  const handleSearchTerm = useCallback(
+    (term?: string) => {
+      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1]?.schemaFieldId ?? titleId.current;
+      setSearchTerm(term ?? "");
+      setLinkItemModalPage(1);
+    },
+    [itemsData?.searchItem.nodes],
+  );
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -116,6 +145,7 @@ export default () => {
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
+              createdBy: item.createdBy?.name,
               createdAt: item.createdAt,
               title: item.title,
               updatedAt: item.updatedAt,
@@ -303,7 +333,7 @@ export default () => {
               type: field.type as SchemaFieldType,
             })),
             metadataId: metaItemId,
-            version: currentItem?.version ?? "",
+            version: currentItem?.metadata?.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {
@@ -318,7 +348,7 @@ export default () => {
               ...field,
               type: field.type as SchemaFieldType,
             })),
-            version: currentItem?.version ?? "",
+            version: currentItem?.metadata?.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {
@@ -339,22 +369,22 @@ export default () => {
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
           case "Select":
-            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
             break;
           case "Integer":
-            initialValues[field.id] = field.typeProperty.integerDefaultValue;
+            initialValues[field.id] = field.typeProperty?.integerDefaultValue;
             break;
           case "Asset":
-            initialValues[field.id] = field.typeProperty.assetDefaultValue;
+            initialValues[field.id] = field.typeProperty?.assetDefaultValue;
             break;
           case "Date":
-            if (Array.isArray(field.typeProperty.defaultValue)) {
-              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
-                valueItem ? moment(valueItem) : "",
+            if (Array.isArray(field.typeProperty?.defaultValue)) {
+              initialValues[field.id] = field.typeProperty?.defaultValue.map(valueItem =>
+                valueItem ? moment(valueItem as string) : "",
               );
             } else {
-              initialValues[field.id] = field.typeProperty.defaultValue
-                ? moment(field.typeProperty.defaultValue)
+              initialValues[field.id] = field.typeProperty?.defaultValue
+                ? moment(field.typeProperty.defaultValue as string)
                 : "";
             }
             break;
@@ -368,7 +398,7 @@ export default () => {
             }
             break;
           default:
-            initialValues[field.id] = field.typeProperty.defaultValue;
+            initialValues[field.id] = field.typeProperty?.defaultValue;
             break;
         }
       });
@@ -376,7 +406,7 @@ export default () => {
       const groupsInCurrentModel = new Set<Group>();
       currentModel?.schema.fields?.forEach(field => {
         if (field.type === "Group") {
-          const group = groups?.find(group => group.id === field.typeProperty.groupId);
+          const group = groups?.find(group => group.id === field.typeProperty?.groupId);
           if (group) groupsInCurrentModel.add(group);
         }
       });
@@ -397,27 +427,31 @@ export default () => {
 
           switch (field.type) {
             case "Select":
+              updateInitialValues(field.typeProperty?.selectDefaultValue);
+              break;
             case "Integer":
+              updateInitialValues(field.typeProperty?.integerDefaultValue);
+              break;
             case "Asset":
-              updateInitialValues(field.typeProperty[field.type.toLowerCase() + "DefaultValue"]);
+              updateInitialValues(field.typeProperty?.assetDefaultValue);
               break;
             case "Date":
-              if (Array.isArray(field.typeProperty.defaultValue)) {
+              if (Array.isArray(field.typeProperty?.defaultValue)) {
                 updateInitialValues(
-                  field.typeProperty.defaultValue.map((valueItem: any) =>
+                  field.typeProperty?.defaultValue.map((valueItem: any) =>
                     valueItem ? moment(valueItem) : "",
                   ),
                 );
               } else {
-                if (field.typeProperty.defaultValue) {
-                  updateInitialValues(moment(field.typeProperty.defaultValue));
+                if (field.typeProperty?.defaultValue) {
+                  updateInitialValues(moment(field.typeProperty.defaultValue as string));
                 } else if (initialValues[field.id]?.[itemGroupId]) {
                   initialValues[field.id][itemGroupId] = "";
                 }
               }
               break;
             default:
-              updateInitialValues(field.typeProperty.defaultValue);
+              updateInitialValues(field.typeProperty?.defaultValue);
               break;
           }
         });
@@ -459,30 +493,30 @@ export default () => {
       currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {
           case "Select":
-            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
             break;
           case "Tag":
-            initialValues[field.id] = field.typeProperty.selectDefaultValue;
+            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
             break;
           case "Integer":
-            initialValues[field.id] = field.typeProperty.integerDefaultValue;
+            initialValues[field.id] = field.typeProperty?.integerDefaultValue;
             break;
           case "Asset":
-            initialValues[field.id] = field.typeProperty.assetDefaultValue;
+            initialValues[field.id] = field.typeProperty?.assetDefaultValue;
             break;
           case "Date":
-            if (Array.isArray(field.typeProperty.defaultValue)) {
-              initialValues[field.id] = field.typeProperty.defaultValue.map((valueItem: string) =>
-                valueItem ? moment(valueItem) : "",
+            if (Array.isArray(field.typeProperty?.defaultValue)) {
+              initialValues[field.id] = field.typeProperty?.defaultValue.map(valueItem =>
+                valueItem ? moment(valueItem as string) : "",
               );
             } else {
-              initialValues[field.id] = field.typeProperty.defaultValue
-                ? moment(field.typeProperty.defaultValue)
+              initialValues[field.id] = field.typeProperty?.defaultValue
+                ? moment(field.typeProperty.defaultValue as string)
                 : "";
             }
             break;
           default:
-            initialValues[field.id] = field.typeProperty.defaultValue;
+            initialValues[field.id] = field.typeProperty?.defaultValue;
             break;
         }
       });
@@ -609,10 +643,12 @@ export default () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTitle: model.name,
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,
+    handleSearchTerm,
     handleLinkItemTableChange,
     handleRequestTableChange,
     requestModalLoading: loading,

@@ -39,6 +39,12 @@ const HeaderMolecule: React.FC<Props> = ({
   const t = useT();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const url = useMemo(() => {
+    if (window.REEARTH_CONFIG?.editorUrl && currentWorkspace?.id) {
+      return new URL(`dashboard/${currentWorkspace.id}`, window.REEARTH_CONFIG?.editorUrl);
+    }
+    return undefined;
+  }, [currentWorkspace?.id]);
 
   const currentIsPersonal = useMemo(
     () => currentWorkspace?.id === personalWorkspace?.id,
@@ -146,6 +152,13 @@ const HeaderMolecule: React.FC<Props> = ({
       )}
       <Spacer />
       <AccountDropdown name={username} items={AccountItems} personal={true} />
+      {url && (
+        <LinkWrapper>
+          <EditorLink rel="noreferrer" href={url.href} target="_blank">
+            {t("Go to Editor")}
+          </EditorLink>
+        </LinkWrapper>
+      )}
     </MainHeader>
   );
 };
@@ -224,6 +237,19 @@ const MenuText = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   width: 140px;
+`;
+
+const LinkWrapper = styled.div`
+  padding-right: 16px;
+`;
+
+const EditorLink = styled.a`
+  border: 1px solid;
+  color: #d9d9d9;
+  padding: 5px 16px;
+  :hover {
+    color: #d9d9d9;
+  }
 `;
 
 export default HeaderMolecule;

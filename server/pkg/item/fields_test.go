@@ -44,3 +44,19 @@ func TestFields_Field(t *testing.T) {
 
 	assert.Equal(t, f[0], f.Field(fId1))
 }
+
+func TestFields_FieldsByGroup(t *testing.T) {
+	fId1 := id.NewFieldID()
+	fId2 := id.NewFieldID()
+	fId3 := id.NewFieldID()
+	fId4 := id.NewFieldID()
+	ig := id.NewItemGroupID()
+	f := Fields{
+		NewField(fId1, value.TypeText.Value("value1").AsMultiple(), ig.Ref()),
+		NewField(fId2, value.TypeText.Value("value2").AsMultiple(), ig.Ref()),
+		NewField(fId3, value.TypeText.Value("value3").AsMultiple(), id.NewItemGroupID().Ref()),
+		NewField(fId4, value.TypeText.Value("value4").AsMultiple(), nil),
+	}
+
+	assert.Equal(t, 2, len(f.FieldsByGroup(ig)))
+}

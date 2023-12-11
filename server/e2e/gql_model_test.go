@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"github.com/samber/lo"
 	"net/http"
 	"testing"
 
@@ -40,6 +41,74 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 		JSON()
 
 	return res.Path("$.data.createModel.model.id").Raw().(string), res
+}
+
+func updateModel(e *httpexpect.Expect, mId string, name, desc, key *string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateModel($modelId: ID!, $name: String, $description: String, $key: String,  $public: Boolean!) {
+				  updateModel(input: {modelId: $modelId, name: $name, description: $description, key: $key, public: $public}) {
+					model {
+					  id
+					  name
+					  description
+					  key
+					  order
+					  __typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelId":     mId,
+			"name":        name,
+			"description": desc,
+			"key":         key,
+			"public":      false,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func updateModelsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
+	requestBody := GraphQLRequest{
+		Query: `mutation UpdateModelsOrder($modelIds:[ID!]!) {
+				  updateModelsOrder(input: {modelIds: $modelIds}) {
+					models {
+					  id
+					  name
+					  description
+					  key
+					  order
+					  __typename
+					}
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelIds": ids,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
 }
 
 func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
@@ -231,4 +300,33 @@ func TestCreateModel(t *testing.T) {
 		HasValue("description", "test").
 		HasValue("key", "test-1")
 
+}
+func TestUpdateModel(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+
+	mId, _ := createModel(e, pId, "test", "test", "test-2")
+	res := updateModel(e, mId, lo.ToPtr("updated name"), lo.ToPtr("updated desc"), lo.ToPtr("updated_key"))
+	res.Object().
+		Value("data").Object().
+		Value("updateModel").Object().
+		Value("model").Object().
+		HasValue("name", "updated name").
+		HasValue("description", "updated desc").
+		HasValue("key", "updated_key")
+}
+
+func TestUpdateModelsOrder(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-2")
+
+	mId1, _ := createModel(e, pId, "test1", "test", "test-1")
+	mId2, _ := createModel(e, pId, "test2", "test", "test-2")
+	mId3, _ := createModel(e, pId, "test3", "test", "test-3")
+	mId4, _ := createModel(e, pId, "test4", "test", "test-4")
+	res := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
+	res.Path("$.data.updateModelsOrder.models[:].id").Array().IsEqual([]string{mId4, mId1, mId2, mId3})
+	res.Path("$.data.updateModelsOrder.models[:].order").Array().IsEqual([]int{1, 2, 3, 4})
 }

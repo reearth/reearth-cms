@@ -1,11 +1,11 @@
 package mongodoc
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/mongox"
 )
 
@@ -19,6 +19,7 @@ type ModelDocument struct {
 	Schema      string
 	Metadata    *string
 	UpdatedAt   time.Time
+	Order       int
 }
 
 func NewModel(model *model.Model) (*ModelDocument, string) {
@@ -33,7 +34,22 @@ func NewModel(model *model.Model) (*ModelDocument, string) {
 		Project:     model.Project().String(),
 		Schema:      model.Schema().String(),
 		UpdatedAt:   model.UpdatedAt(),
+		Order:       model.Order(),
 	}, mId
+}
+
+func NewModels(models model.List) ([]*ModelDocument, []string) {
+	res := make([]*ModelDocument, 0, len(models))
+	ids := make([]string, 0, len(models))
+	for _, d := range models {
+		if d == nil {
+			continue
+		}
+		r, rid := NewModel(d)
+		res = append(res, r)
+		ids = append(ids, rid)
+	}
+	return res, ids
 }
 
 func (d *ModelDocument) Model() (*model.Model, error) {
@@ -60,6 +76,7 @@ func (d *ModelDocument) Model() (*model.Model, error) {
 		Project(pId).
 		Metadata(id.SchemaIDFromRef(d.Metadata)).
 		Schema(sId).
+		Order(d.Order).
 		Build()
 }
 
