@@ -196,7 +196,7 @@ const AssetItem: React.FC<Props> = ({
         </AssetButton>
       )}
       <LinkAssetModal
-        open={visible}
+        visible={visible}
         onLinkAssetModalCancel={handleLinkAssetModalCancel}
         linkedAsset={asset}
         assetList={assetList}

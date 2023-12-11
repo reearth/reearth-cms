@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useState, FocusEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -13,7 +13,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
-import { dateTimeFormat, transformMomentToString } from "@reearth-cms/utils/format";
+import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
@@ -67,10 +67,10 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
       return update ? (
         <StyledDatePicker
           placeholder="-"
-          defaultValue={item ? moment(item) : undefined}
+          defaultValue={item ? dayjs(item) : undefined}
           suffixIcon={undefined}
-          onChange={date => {
-            update(date ? transformMomentToString(date) : "", index);
+          onChange={(date: any) => {
+            update(date ? transformDayjsToString(date) : "", index);
           }}
         />
       ) : (

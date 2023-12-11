@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
 
@@ -32,7 +32,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { transformMomentToString } from "@reearth-cms/utils/format";
+import { transformDayjsToString } from "@reearth-cms/utils/format";
 
 import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldComponents";
 import { DefaultField } from "./fields/FieldComponents";
@@ -208,7 +208,7 @@ const ContentForm: React.FC<Props> = ({
         initialFormValues[key] &&
         typeof value === "object" &&
         !Array.isArray(value) &&
-        !moment.isMoment(value) &&
+        !dayjs.isDayjs(value) &&
         value !== null
       );
     },
@@ -255,7 +255,7 @@ const ContentForm: React.FC<Props> = ({
         <Space>
           <Button
             onClick={() => {
-              Notification.close(key);
+              Notification.destroy(key);
               blocker.reset?.();
             }}>
             {t("Cancel")}
@@ -263,7 +263,7 @@ const ContentForm: React.FC<Props> = ({
           <Button
             type="primary"
             onClick={() => {
-              Notification.close(key);
+              Notification.destroy(key);
               blocker.proceed?.();
             }}>
             {t("Leave")}
@@ -320,12 +320,12 @@ const ContentForm: React.FC<Props> = ({
   const inputValueGet = useCallback((value: ItemValue, multiple: boolean) => {
     if (multiple) {
       if (Array.isArray(value)) {
-        return value.map(v => (moment.isMoment(v) ? transformMomentToString(v) : v));
+        return value.map(v => (dayjs.isDayjs(v) ? transformDayjsToString(v) : v));
       } else {
         return [];
       }
     } else {
-      return moment.isMoment(value) ? transformMomentToString(value) : value ?? "";
+      return dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "";
     }
   }, []);
 
@@ -375,7 +375,7 @@ const ContentForm: React.FC<Props> = ({
         const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
         if (type) {
           metaFields.push({
-            value: moment.isMoment(value) ? transformMomentToString(value) : value ?? "",
+            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "",
             schemaFieldId: key,
             type,
           });
@@ -409,7 +409,7 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });

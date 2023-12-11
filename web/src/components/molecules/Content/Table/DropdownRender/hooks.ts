@@ -1,4 +1,4 @@
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -398,7 +398,7 @@ export default (
   }, []);
 
   const onDateChange: DatePickerProps["onChange"] = useCallback(
-    (_date: Moment | null, dateString: string) => {
+    (_date: Dayjs | null, dateString: string) => {
       filterValue.current = dateString;
     },
     [],
