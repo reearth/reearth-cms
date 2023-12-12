@@ -27,16 +27,17 @@ type ResourceDocument struct {
 }
 
 type TileResourceDocument struct {
-	ID  string
-	Type   string
+	ID    string
+	Type  string
 	Props UrlResourcePropsDocument
 }
 
 type TerrainResourceDocument struct {
-	ID  string
-	Type   string
+	ID    string
+	Type  string
 	Props CesiumResourcePropsDocument
 }
+
 type UrlResourcePropsDocument struct {
 	Name  string
 	URL   string
@@ -107,7 +108,7 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 			return nil
 		}
 
-		tile := workspacesettings.NewTileResource(rid, workspacesettings.TileType(r.Tile.Type), FromUrlResourcePropsDocument(&r.Tile.Props))
+		tile := workspacesettings.NewTileResource(rid, workspacesettings.TileType(r.Tile.Type), FromUrlResourcePropsDocument(r.Tile.Props))
 		return workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tile, nil)
 	}
 
@@ -117,35 +118,23 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 			return nil
 		}
 
-		terrain := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(r.Terrain.Type), FromCesiumResourcePropsDocument(&r.Terrain.Props))
+		terrain := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(r.Terrain.Type), FromCesiumResourcePropsDocument(r.Terrain.Props))
 		return workspacesettings.NewResource(workspacesettings.ResourceTypeTile, nil, terrain)
 	}
-
 
 	return nil
 }
 
-func FromUrlResourcePropsDocument(r *UrlResourcePropsDocument) workspacesettings.UrlResourceProps {
-	// if r == nil {
-	// 	return nil
-	// }
-
+func FromUrlResourcePropsDocument(r UrlResourcePropsDocument) workspacesettings.UrlResourceProps {
 	return workspacesettings.NewURLResourceProps(r.Name, r.URL, r.Image)
 }
 
-func FromCesiumResourcePropsDocument(r *CesiumResourcePropsDocument) workspacesettings.CesiumResourceProps {
-	// if r == nil {
-	// 	return nil
-	// }
-
+func FromCesiumResourcePropsDocument(r CesiumResourcePropsDocument) workspacesettings.CesiumResourceProps {
 	return workspacesettings.NewCesiumResourceProps(r.Name, r.URL, r.Image, r.CesiumIonAssetID, r.CesiumIonAccessToken)
 }
-func NewUrlResourcePropsDocument(r *workspacesettings.UrlResourceProps) *UrlResourcePropsDocument {
-	if r == nil {
-		return nil
-	}
 
-	return &UrlResourcePropsDocument{
+func NewUrlResourcePropsDocument(r workspacesettings.UrlResourceProps) UrlResourcePropsDocument {
+	return UrlResourcePropsDocument{
 		Name:  r.Name(),
 		URL:   r.URL(),
 		Image: r.Image(),
@@ -213,10 +202,6 @@ func ToTerrainResourceDocument(r *workspacesettings.TerrainResource) *TerrainRes
 }
 
 func ToUrlResourcePropsDocument(r workspacesettings.UrlResourceProps) UrlResourcePropsDocument {
-	// if r == nil {
-	// 	return UrlResourcePropsDocument{}
-	// }
-
 	return UrlResourcePropsDocument{
 		Name:  r.Name(),
 		URL:   r.URL(),
@@ -225,10 +210,6 @@ func ToUrlResourcePropsDocument(r workspacesettings.UrlResourceProps) UrlResourc
 }
 
 func ToCesiumResourcePropsDocument(r workspacesettings.CesiumResourceProps) CesiumResourcePropsDocument {
-	// if r == nil {
-	// 	return CesiumResourcePropsDocument{}
-	// }
-
 	return CesiumResourcePropsDocument{
 		Name:                 r.Name(),
 		URL:                  r.URL(),
