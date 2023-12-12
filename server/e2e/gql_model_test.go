@@ -18,6 +18,7 @@ func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *ht
 					  name
 					  description
 					  key
+					  order
 					  __typename
 					}
 					__typename
@@ -110,7 +111,30 @@ func updateModelsOrder(e *httpexpect.Expect, ids []string) *httpexpect.Value {
 
 	return res
 }
+func deleteModel(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
+	requestBody := GraphQLRequest{
+		Query: `mutation DeleteModel($modelId: ID!) {
+				  deleteModel(input: {modelId: $modelId}) {
+					modelId
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"modelId": iID,
+		},
+	}
 
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res.Path("$.data.deleteModel.modelId").Raw().(string), res
+}
 func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Value) {
 	requestBody := GraphQLRequest{
 		Query: `query GetModel($modelId: ID!) {
@@ -122,6 +146,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 					  description
 					  key
 					  public
+					  order
 					  schema {
 						id
 						fields {
@@ -325,8 +350,23 @@ func TestUpdateModelsOrder(t *testing.T) {
 	mId1, _ := createModel(e, pId, "test1", "test", "test-1")
 	mId2, _ := createModel(e, pId, "test2", "test", "test-2")
 	mId3, _ := createModel(e, pId, "test3", "test", "test-3")
-	mId4, _ := createModel(e, pId, "test4", "test", "test-4")
-	res := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
-	res.Path("$.data.updateModelsOrder.models[:].id").Array().IsEqual([]string{mId4, mId1, mId2, mId3})
-	res.Path("$.data.updateModelsOrder.models[:].order").Array().IsEqual([]int{1, 2, 3, 4})
+	mId4, res := createModel(e, pId, "test4", "test", "test-4")
+	res.Object().
+		Value("data").Object().
+		Value("createModel").Object().
+		Value("model").Object().
+		HasValue("name", "test4").
+		HasValue("key", "test-4").
+		HasValue("order", 3)
+	res2 := updateModelsOrder(e, []string{mId4, mId1, mId2, mId3})
+	res2.Path("$.data.updateModelsOrder.models[:].id").Array().IsEqual([]string{mId4, mId1, mId2, mId3})
+	res2.Path("$.data.updateModelsOrder.models[:].order").Array().IsEqual([]int{0, 1, 2, 3})
+	deleteModel(e, mId2)
+	_, _, res3 := getModel(e, mId3)
+
+	res3.Object().
+		Value("data").Object().
+		Value("node").Object().
+		HasValue("id", mId3).
+		HasValue("order", 2)
 }
