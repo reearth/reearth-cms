@@ -24,17 +24,21 @@ func NewWorkspaceSettings(r *repo.Container, g *gateway.Container) interfaces.Wo
 }
 
 func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.WorkspaceIDList, op *usecase.Operator) (result workspacesettings.List, err error) {
-	panic("not implemented")
+	// TODO: implement this
+	return nil, nil
 }
 
 func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	panic("not implemented")
+	// TODO: implement this
+	return nil, nil
 }
 
 func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	panic("not implemented")
+	// TODO: implement this
+	return nil, nil
 }
 
 func (ws *WorkspaceSettings) Delete(ctx context.Context, inp interfaces.DeleteWorkspaceSettingsParam, op *usecase.Operator) error {
-	panic("not implemented")
+	// TODO: implement this
+	return nil
 }
