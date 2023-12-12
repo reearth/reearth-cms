@@ -31,15 +31,6 @@ type Item struct {
 	integration          *IntegrationID
 }
 
-type Meta struct {
-	id      ID
-	schema  SchemaID
-	model   ModelID
-	project ProjectID
-	fields  []*Field
-	status  Status
-}
-
 type Versioned = *version.Version[Item, Meta]
 
 func (i *Item) ID() ID {
