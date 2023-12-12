@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"encoding/json"
 	"net/http"
 	"testing"
 
@@ -16,6 +17,38 @@ func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles *workspaces
 			updateWorkspaceSettings(input: {id: $id,tiles: $tiles,terrains: $terrains}) {
 			  workspaceSettings{
 				id
+				tiles {
+					resources {
+						... on TileResource {
+						  id
+						  type
+						  props {
+							  name
+							  url
+							  image
+						  }
+						}
+					}
+					enabled
+					selectedResource
+				},
+				terrains {
+					resources {
+						... on TerrainResource {
+						  id
+						  type
+						  props {
+							  name
+							  url
+							  image
+							  cesiumIonAssetId
+							  cesiumIonAccessToken
+						  }
+						}
+					}
+					enabled
+					selectedResource
+				},		  
 			  }
 			} 
 		  }`,
@@ -26,11 +59,13 @@ func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles *workspaces
 		},
 	}
 
+	jsonData, _ := json.Marshal(requestBody)
+
 	res := e.POST("/api/graphql").
-		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
-		WithJSON(requestBody).
+	WithHeader("authorization", "Bearer test").
+	WithHeader("Content-Type", "application/json").
+	WithHeader("X-Reearth-Debug-User", uId1.String()).
+	WithBytes(jsonData).
 		Expect().
 		Status(http.StatusUnprocessableEntity).
 		JSON()
@@ -39,7 +74,7 @@ func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles *workspaces
 }
 
 func TestUpdateWorkspaceSettings(t *testing.T) {
-	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
 
 	rid := workspacesettings.NewResourceID()
 	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
