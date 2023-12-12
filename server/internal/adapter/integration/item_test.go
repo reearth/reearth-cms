@@ -1,6 +1,8 @@
 package integration
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
@@ -10,7 +12,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func Test_convertMetaFields(t *testing.T) {
@@ -80,6 +81,6 @@ func Test_convertMetaFields(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		assert.Equal(t, tt.want, convertMetaFields(tt.args.fields, tt.args.s))
+		assert.Equal(t, tt.want, convertFields(&tt.args.fields, tt.args.s, true, false))
 	}
 }

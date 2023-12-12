@@ -2,9 +2,14 @@ package integration
 
 import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/key"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 const maxPerPage = 100
@@ -57,5 +62,80 @@ func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 		Type:  integrationapi.FromValueType(f.Type),
 		Value: v,
 		Group: f.Group,
+	}
+}
+
+func convertFields(fields *[]integrationapi.Field, s *schema.Schema, normalizeTag, appendDefault bool) (res []interfaces.ItemFieldParam) {
+	res = []interfaces.ItemFieldParam{}
+	if fields == nil {
+		fields = &[]integrationapi.Field{}
+	}
+
+	for _, field := range *fields {
+		sf := s.FieldByIDOrKey(field.Id, id.NewKeyFromPtr(field.Key))
+		if sf == nil {
+			continue
+		}
+
+		if sf.Type() == value.TypeTag && normalizeTag {
+			tagNameToId(sf, &field)
+		}
+
+		res = append(res, fromItemFieldParam(field))
+	}
+
+	if appendDefault {
+		res = appendDefaultValues(s, res)
+	}
+
+	return res
+}
+
+func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam) []interfaces.ItemFieldParam {
+	for _, sf := range s.Fields() {
+		if sf.DefaultValue() == nil {
+			continue
+		}
+
+		exists := lo.ContainsBy(res, func(f interfaces.ItemFieldParam) bool {
+			return f.Field != nil && *f.Field == sf.ID()
+		})
+		if exists {
+			continue
+		}
+
+		res = append(res, interfaces.ItemFieldParam{
+			Field: sf.ID().Ref(),
+			Key:   sf.Key().Ref(),
+			Type:  value.TypeText,
+			Value: *sf.DefaultValue(),
+			Group: nil,
+		})
+	}
+	return res
+}
+
+func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
+	var tagList schema.TagList
+	sf.TypeProperty().Match(schema.TypePropertyMatch{
+		Tag: func(f *schema.FieldTag) {
+			tagList = f.Tags()
+		},
+	})
+	if !sf.Multiple() {
+		name := lo.FromPtr(field.Value).(string)
+		tag := tagList.FindByName(name)
+		if tag != nil {
+			var v any = tag.ID()
+			field.Value = &v
+		}
+	} else {
+		names := lo.FromPtr(field.Value).([]string)
+		tagIDs := util.Map(names, func(n string) id.TagID {
+			t := lo.FromPtr(tagList.FindByName(n))
+			return t.ID()
+		})
+		var v any = tagIDs
+		field.Value = &v
 	}
 }
