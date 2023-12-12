@@ -29,6 +29,8 @@ var (
 	iId1 = accountdomain.NewIntegrationID()
 	iId2 = accountdomain.NewIntegrationID()
 	iId3 = accountdomain.NewIntegrationID()
+	rid = workspacesettings.NewResourceID()
+	rid2 = workspacesettings.NewResourceID()
 )
 
 func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {

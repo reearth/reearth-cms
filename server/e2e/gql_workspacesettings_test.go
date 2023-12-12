@@ -7,11 +7,9 @@ import (
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
-	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
-	"github.com/samber/lo"
 )
 
-func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles *workspacesettings.ResourceList, terrains *workspacesettings.ResourceList) *httpexpect.Value {
+func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles map[string]any, terrains map[string]any) *httpexpect.Value {
 	requestBody := GraphQLRequest{
 		Query: `mutation UpdateWorkspaceSettings($id: ID!, $tiles: ResourcesListInput!, $terrains: ResourcesListInput!) {
 			updateWorkspaceSettings(input: {id: $id,tiles: $tiles,terrains: $terrains}) {
@@ -67,7 +65,7 @@ func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles *workspaces
 	WithHeader("X-Reearth-Debug-User", uId1.String()).
 	WithBytes(jsonData).
 		Expect().
-		Status(http.StatusUnprocessableEntity).
+		Status(http.StatusOK).
 		JSON()
 
 	return res
@@ -76,17 +74,42 @@ func updateWorkspaceSettings(e *httpexpect.Expect, wID string, tiles *workspaces
 func TestUpdateWorkspaceSettings(t *testing.T) {
 	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederWorkspace)
 
-	rid := workspacesettings.NewResourceID()
-	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
-	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
-	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
-	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(false))
-
-	rid2 := workspacesettings.NewResourceID()
-	pp2 := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
-	tt2 := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(workspacesettings.TerrainTypeCesiumIon), pp2)
-	r2 := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, tt2)
-	terrains := workspacesettings.NewResourceList([]*workspacesettings.Resource{r2}, rid2.Ref(), lo.ToPtr(true))
+	tiles:= map[string]any{
+        "resources": []map[string]any{
+            {
+                "tile": map[string]any{
+                    "id": rid.String(),
+                    "type": "DEFAULT",
+                    "props" : map[string]any{
+                        "name": "name1",
+                        "url": "url1",
+                        "image": "image1",
+                    },
+                },
+            },
+		},
+        "selectedResource": rid.String(),
+        "enabled": false,
+    }
+	terrains:= map[string]any{
+        "resources": []map[string]any{
+            {
+                "terrain": map[string]any{
+                    "id": rid2.String(),
+                    "type": "CESIUM_ION",
+                    "props" : map[string]any{
+                        "name": "name1",
+                        "url": "url1",
+                        "image": "image1",
+						"cesiumIonAssetId": "test2",
+                        "cesiumIonAccessToken": "test2",
+                    },
+                },
+            },
+		},
+        "selectedResource": rid2.String(),
+        "enabled": false,
+    }
 
 	res := updateWorkspaceSettings(e, wId.String(), tiles, terrains)
 	res.Object().
