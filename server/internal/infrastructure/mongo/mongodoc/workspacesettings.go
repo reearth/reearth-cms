@@ -119,7 +119,7 @@ func FromResourceDocument(r *ResourceDocument) *workspacesettings.Resource {
 		}
 
 		terrain := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(r.Terrain.Type), FromCesiumResourcePropsDocument(r.Terrain.Props))
-		return workspacesettings.NewResource(workspacesettings.ResourceTypeTile, nil, terrain)
+		return workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, terrain)
 	}
 
 	return nil
@@ -131,14 +131,6 @@ func FromUrlResourcePropsDocument(r UrlResourcePropsDocument) workspacesettings.
 
 func FromCesiumResourcePropsDocument(r CesiumResourcePropsDocument) workspacesettings.CesiumResourceProps {
 	return workspacesettings.NewCesiumResourceProps(r.Name, r.URL, r.Image, r.CesiumIonAssetID, r.CesiumIonAccessToken)
-}
-
-func NewUrlResourcePropsDocument(r workspacesettings.UrlResourceProps) UrlResourcePropsDocument {
-	return UrlResourcePropsDocument{
-		Name:  r.Name(),
-		URL:   r.URL(),
-		Image: r.Image(),
-	}
 }
 
 func ToResourceListDocument(wr *workspacesettings.ResourceList) *ResourceListDocument {
