@@ -12,7 +12,7 @@ func Test_ToWorkspaceSettings(t *testing.T) {
 	rid := workspacesettings.NewResourceID()
 	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
 	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
-	r :=workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
+	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
 	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(true))
 	ws := workspacesettings.New().NewID().Tiles(tiles).MustBuild()
 
@@ -29,7 +29,7 @@ func Test_ToResourceList(t *testing.T) {
 	rid := workspacesettings.NewResourceID()
 	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
 	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
-	r :=workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
+	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
 	rl := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(true))
 	assert.Equal(t, rl.Resources(), []*workspacesettings.Resource{r})
 	assert.Equal(t, rl.SelectedResource(), rid.Ref())
@@ -63,16 +63,96 @@ func Test_ToResource(t *testing.T) {
 	rid := workspacesettings.NewResourceID()
 	pp := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
 	tt := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainTypeArcGISTerrain, pp)
-	r :=workspacesettings.NewResource(workspacesettings.ResourceTypeTile, nil, tt)
-	
+	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, nil, tt)
+
 	expected := TerrainResource{
 		ID:    IDFrom(r.Terrain().ID()),
 		Type:  ToTerrainType(r.Terrain().Type()),
 		Props: ToCesiumResourceProps(r.Terrain().Props()),
 	}
-	
+
 	assert.Equal(t, expected, ToResource(r))
 	assert.Nil(t, ToResource(nil))
+}
+
+func Test_FromResourceList(t *testing.T) {
+	rid := workspacesettings.NewResourceID()
+	pp := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
+	tt := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainTypeCesiumIon, pp)
+	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, tt)
+	rl := workspacesettings.NewResourceList([]*workspacesettings.Resource{r}, rid.Ref(), lo.ToPtr(true))
+
+	tid := IDFrom(r.Terrain().ID())
+	ri := &ResourceInput{
+		Terrain: &TerrainResourceInput{
+			ID:   tid,
+			Type: TerrainTypeCesiumIon,
+			Props: &CesiumResourcePropsInput{
+				Name:                 "foo",
+				URL:                  "bar",
+				Image:                "baz",
+				CesiumIonAssetID:     "test",
+				CesiumIonAccessToken: "test",
+			},
+		},
+	}
+
+	expected := &ResourcesListInput{
+		Resources: []*ResourceInput{
+			ri,
+		},
+		SelectedResource: IDFromRef(rl.SelectedResource()),
+		Enabled:          lo.ToPtr(true),
+	}
+
+	assert.Equal(t, rl, FromResourceList(expected))
+	assert.Nil(t, FromResourceList(nil))
+}
+
+func Test_FromResource(t *testing.T) {
+	rid := workspacesettings.NewResourceID()
+	pp := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
+	tt := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainTypeCesiumIon, pp)
+	r := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, tt)
+
+	tid := IDFrom(r.Terrain().ID())
+	expected := &ResourceInput{
+		Terrain: &TerrainResourceInput{
+			ID:   tid,
+			Type: TerrainTypeCesiumIon,
+			Props: &CesiumResourcePropsInput{
+				Name:                 "foo",
+				URL:                  "bar",
+				Image:                "baz",
+				CesiumIonAssetID:     "test",
+				CesiumIonAccessToken: "test",
+			},
+		},
+	}
+
+	assert.Equal(t, r, FromResource(expected))
+	assert.Nil(t, FromResource(nil))
+
+	rid2 := workspacesettings.NewResourceID()
+	pp2 := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
+	tt2 := workspacesettings.NewTileResource(rid2,workspacesettings.TileTypeDefault, pp2)
+	r2 := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt2, nil)
+
+	tid2 := IDFrom(r2.Tile().ID())
+	expected2 := &ResourceInput{
+		Tile: &TileResourceInput{
+			ID:   tid2,
+			Type: TileTypeDefault,
+			Props: &URLResourcePropsInput{
+				Name:                 "foo",
+				URL:                  "bar",
+				Image:                "baz",
+			},
+		},
+	}
+
+	assert.Equal(t, r2, FromResource(expected2))
+	assert.Nil(t, FromResource(nil))
 }
 
 func Test_FromTerrainType(t *testing.T) {
