@@ -74,3 +74,22 @@ func Test_ToResource(t *testing.T) {
 	assert.Equal(t, expected, ToResource(r))
 	assert.Nil(t, ToResource(nil))
 }
+
+func Test_FromTerrainType(t *testing.T) {
+	assert.Equal(t, workspacesettings.TerrainTypeCesiumWorldTerrain, FromTerrainType(TerrainTypeCesiumWorldTerrain))
+	assert.Equal(t, workspacesettings.TerrainTypeArcGISTerrain, FromTerrainType(TerrainTypeArcGisTerrain))
+	assert.Equal(t, workspacesettings.TerrainTypeCesiumIon, FromTerrainType(TerrainTypeCesiumIon))
+}
+
+func Test_FromTileType(t *testing.T) {
+	assert.Equal(t, workspacesettings.TileTypeDefault, FromTileType(TileTypeDefault))
+	assert.Equal(t, workspacesettings.TileTypeLabelled, FromTileType(TileTypeLabelled))
+	assert.Equal(t, workspacesettings.TileTypeRoadMap, FromTileType(TileTypeRoadMap))
+	assert.Equal(t, workspacesettings.TileTypeStamenWaterColor, FromTileType(TileTypeStamenWatercolor))
+	assert.Equal(t, workspacesettings.TileTypeStamenToner, FromTileType(TileTypeStamenToner))
+	assert.Equal(t, workspacesettings.TileTypeOpenStreetMap, FromTileType(TileTypeOpenStreetMap))
+	assert.Equal(t, workspacesettings.TileTypeESRITopography, FromTileType(TileTypeEsriTopography))
+	assert.Equal(t, workspacesettings.TileTypeEarthAtNight, FromTileType(TileTypeEarthAtNight))
+	assert.Equal(t, workspacesettings.TileTypeJapanGSIStandardMap, FromTileType(TileTypeJapanGsiStandardMap))
+	assert.Equal(t, workspacesettings.TileTypeURL, FromTileType(TileTypeURL))
+}
