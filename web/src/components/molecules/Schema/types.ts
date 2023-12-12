@@ -49,7 +49,7 @@ export type FieldType =
   | "URL"
   | "Group";
 
-type Tag = { id: string; name: string; color: string };
+export type Tag = { id: string; name: string; color: string };
 
 export type TypeProperty = {
   defaultValue?: string | boolean | string[] | boolean[];

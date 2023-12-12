@@ -13,7 +13,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+import type { Field, Tag as TagType } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat, transformMomentToString } from "@reearth-cms/utils/format";
 
 const itemFormat = (
@@ -125,7 +125,19 @@ export const renderField = (
     return itemFormat(items[0], field, update);
   } else if (field.type === "Tag") {
     const tags = field.typeProperty?.tags;
-    const filteredTags = tags?.filter(tag => value.includes(tag.id)) || [];
+    const selectDefaultValue = field.typeProperty?.selectDefaultValue;
+    let filteredTags: TagType[] = [];
+    if (tags) {
+      filteredTags = tags.filter(tag => value.includes(tag.id));
+      if (filteredTags.length === 0 && selectDefaultValue !== undefined) {
+        if (Array.isArray(selectDefaultValue)) {
+          filteredTags = tags.filter(tag => selectDefaultValue.includes(tag.id));
+        } else {
+          filteredTags = tags.filter(tag => tag.id === selectDefaultValue);
+        }
+      }
+    }
+
     return (
       <StyledSelect
         mode={field.multiple ? "multiple" : undefined}
