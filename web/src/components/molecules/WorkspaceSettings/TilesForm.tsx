@@ -1,92 +1,82 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
+import Card from "@reearth-cms/components/atoms/Card";
+import Divider from "@reearth-cms/components/atoms/Divider";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
-import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
-import { Tiles } from "@reearth-cms/components/molecules/Workspace/types";
+import { Tiles, Tile } from "@reearth-cms/components/molecules/Workspace/types";
+import GeospatialFormModal from "@reearth-cms/components/molecules/WorkspaceSettings/GeospatialFormModal";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
-  tiles?: Tiles;
+  tiles?: Tile[];
   onWorkspaceTilesUpdate?: (tiles: Tiles) => Promise<void>;
 };
 
-const WorkspaceTilesForm: React.FC<Props> = ({ tiles, onWorkspaceTilesUpdate }) => {
-  const [form] = Form.useForm();
-  const { Option } = Select;
+const WorkspaceTilesForm: React.FC<Props> = ({ tiles }) => {
+  const { Meta } = Card;
   const t = useT();
 
-  const handleSubmit = useCallback(async () => {
-    const values = await form.validateFields();
-    await onWorkspaceTilesUpdate?.(values);
-  }, [form, onWorkspaceTilesUpdate]);
+  const [open, setOpen] = useState(false);
+  const [enable, setEnable] = useState(false);
+  const isTileRef = useRef(true);
+
+  const onTileModalOpen = () => {
+    setOpen(true);
+    isTileRef.current = true;
+  };
+
+  const onTerrainModalOpen = () => {
+    setOpen(true);
+    isTileRef.current = false;
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const onChange = (checked: boolean) => {
+    setEnable(checked);
+  };
 
   return (
-    <Form
-      form={form}
-      initialValues={{ list: tiles?.list, default: tiles?.default, switching: tiles?.switching }}
-      layout="vertical"
-      autoComplete="off">
+    <>
       <Title>{t("Tiles")}</Title>
       <SecondaryText>{t("The first one in the list will be the default Tile.")}</SecondaryText>
-      <Form.List name="list">
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(field => {
-              return (
-                <TileWrapper key={field.key}>
-                  <Form.Item name={[field.name, "name"]} label="Name">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name={[field.name, "url"]} label="URL">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name={[field.name, "image"]} label="Image">
-                    <Input />
-                  </Form.Item>
-                  <DeleteTileButtonWrapper>
-                    <DeleteTileButton
-                      onClick={() => {
-                        remove(field.key);
-                      }}
-                      icon={<Icon icon="delete" />}
-                    />
-                  </DeleteTileButtonWrapper>
-                </TileWrapper>
-              );
-            })}
-            <AddTileButton onClick={add} icon={<Icon icon="plus" />}>
-              {t("Add new Tile")}
-            </AddTileButton>
-          </>
-        )}
-      </Form.List>
-      <Form.Item
-        style={{ maxWidth: 400, marginBottom: 48 }}
-        name="default"
-        label={t("Default Terrain")}>
-        <Select defaultValue={tiles?.default}>
-          {tiles?.list.map(tile => (
-            <Option key={tile.id} value={tile.id}>
-              {tile.name}
-            </Option>
-          ))}
-        </Select>
-      </Form.Item>
-      <Form.Item name="switching">
-        <SwitchWrapper>
-          <Switch />
-          <Text>{t("Allow user to switch tiles")}</Text>
-        </SwitchWrapper>
-      </Form.Item>
-      <Button onClick={handleSubmit} type="primary" htmlType="submit">
-        {t("Save")}
+      <GridArea>
+        {tiles?.map(tile => {
+          return (
+            <StyledCard
+              actions={[
+                <Icon icon="delete" key="delete" onClick={() => console.log("delete")} />,
+                <Icon icon="edit" key="edit" onClick={onTileModalOpen} />,
+              ]}
+              key={tile.id}>
+              <Meta title={tile.name} />
+            </StyledCard>
+          );
+        })}
+      </GridArea>
+
+      <Button type="link" onClick={onTileModalOpen} icon={<Icon icon="plus" />}>
+        {t("Add new Tiles option")}
       </Button>
-    </Form>
+      <Divider />
+      <Title>{t("Terrain")}</Title>
+      <SecondaryText>{t("The first one in the list will be the default Terrain.")}</SecondaryText>
+      <SwitchWrapper>
+        <Switch onChange={onChange} />
+        <Text>{t("Enable")}</Text>
+      </SwitchWrapper>
+      {enable && (
+        <Button type="link" onClick={onTerrainModalOpen} icon={<Icon icon="plus" />}>
+          {t("Add new Terrain option")}
+        </Button>
+      )}
+      <GeospatialFormModal open={open} onClose={onClose} isTile={isTileRef.current} />
+    </>
   );
 };
 
@@ -107,43 +97,23 @@ const SecondaryText = styled.p`
 
 const Text = styled.p`
   color: rgb(0, 0, 0, 0.85);
+  font-weight: 500;
 `;
 
 const SwitchWrapper = styled.div`
   display: flex;
   gap: 8px;
-  margin-bottom: 24px;
 `;
 
-const TileWrapper = styled.div`
-  display: flex;
-  gap: 16px;
-  border-bottom: 1px solid #d9d9d9;
-  margin-bottom: 12px;
+const GridArea = styled.div`
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  padding-bottom: 12px;
 `;
 
-const AddTileButton = styled(Button)`
-  color: #1890ff;
-  padding: 4px 4px 4px 17px;
-  border: none;
-  margin-bottom: 24px;
-  &:hover,
-  &:active,
-  &:focus {
-    color: #1890ff;
-    background: rgba(0, 0, 0, 0.018);
+const StyledCard = styled(Card)`
+  .ant-card-body {
+    padding: 16px;
   }
-`;
-
-const DeleteTileButton = styled(Button)`
-  width: 22px;
-  height: 22px;
-  color: rgba(0, 0, 0, 0.45);
-  border: none;
-`;
-
-const DeleteTileButtonWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
