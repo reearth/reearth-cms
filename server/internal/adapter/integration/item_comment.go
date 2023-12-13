@@ -11,7 +11,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (s Server) ItemCommentList(ctx context.Context, request ItemCommentListRequestObject) (ItemCommentListResponseObject, error) {
+func (s *Server) ItemCommentList(ctx context.Context, request ItemCommentListRequestObject) (ItemCommentListResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -36,7 +36,7 @@ func (s Server) ItemCommentList(ctx context.Context, request ItemCommentListRequ
 	return ItemCommentList200JSONResponse{Comments: &comments}, nil
 }
 
-func (s Server) ItemCommentCreate(ctx context.Context, request ItemCommentCreateRequestObject) (ItemCommentCreateResponseObject, error) {
+func (s *Server) ItemCommentCreate(ctx context.Context, request ItemCommentCreateRequestObject) (ItemCommentCreateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -57,7 +57,7 @@ func (s Server) ItemCommentCreate(ctx context.Context, request ItemCommentCreate
 	return ItemCommentCreate200JSONResponse(*integrationapi.NewComment(comment)), nil
 }
 
-func (s Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdateRequestObject) (ItemCommentUpdateResponseObject, error) {
+func (s *Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdateRequestObject) (ItemCommentUpdateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -77,7 +77,7 @@ func (s Server) ItemCommentUpdate(ctx context.Context, request ItemCommentUpdate
 	return ItemCommentUpdate200JSONResponse(*integrationapi.NewComment(comment)), nil
 }
 
-func (s Server) ItemCommentDelete(ctx context.Context, request ItemCommentDeleteRequestObject) (ItemCommentDeleteResponseObject, error) {
+func (s *Server) ItemCommentDelete(ctx context.Context, request ItemCommentDeleteRequestObject) (ItemCommentDeleteResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 

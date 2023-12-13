@@ -19,7 +19,7 @@ import (
 
 var ErrFileIsMissing = rerror.NewE(i18n.T("File is missing"))
 
-func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error) {
+func (s *Server) AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -63,7 +63,7 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 	}, nil
 }
 
-func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObject) (AssetCreateResponseObject, error) {
+func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObject) (AssetCreateResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
@@ -126,7 +126,7 @@ func (s Server) AssetCreate(ctx context.Context, request AssetCreateRequestObjec
 	return AssetCreate200JSONResponse(*aa), nil
 }
 
-func (s Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObject) (AssetDeleteResponseObject, error) {
+func (s *Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObject) (AssetDeleteResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 	aId, err := uc.Asset.Delete(ctx, request.AssetId, op)
@@ -142,7 +142,7 @@ func (s Server) AssetDelete(ctx context.Context, request AssetDeleteRequestObjec
 	}, nil
 }
 
-func (s Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (AssetGetResponseObject, error) {
+func (s *Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (AssetGetResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 

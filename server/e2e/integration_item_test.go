@@ -3,6 +3,8 @@ package e2e
 import (
 	"context"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/slices"
 	"net/http"
 	"net/url"
 	"testing"
@@ -38,6 +40,7 @@ var (
 	mId1   = id.NewModelID()
 	mId2   = id.NewModelID()
 	mId3   = id.NewModelID()
+	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
 	auuid  = uuid.NewString()
@@ -51,6 +54,7 @@ var (
 	fId4   = id.NewFieldID()
 	fId5   = id.NewFieldID()
 	fId6   = id.NewFieldID()
+	dvsfId = id.NewFieldID()
 	thId1  = id.NewThreadID()
 	thId2  = id.NewThreadID()
 	thId3  = id.NewThreadID()
@@ -293,6 +297,44 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	}
 	// endregion
 
+	// Default value
+	msf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewBool().TypeProperty().Type().Value(true).AsMultiple()).MustBuild()
+	sm := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{msf1}).MustBuild()
+	if err := r.Schema.Save(ctx, sm); err != nil {
+		return err
+	}
+	gsf := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default group").AsMultiple()).MustBuild()
+	gs := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{gsf}).MustBuild()
+	if err := r.Schema.Save(ctx, gs); err != nil {
+		return err
+	}
+	gp := group.New().NewID().Name("group2").Project(pid).Key(key.Random()).Schema(gs.ID()).MustBuild()
+	if err := r.Group.Save(ctx, gp); err != nil {
+		return err
+	}
+	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(key.Random()).MustBuild()
+	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
+	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+
+	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3}).MustBuild()
+	if err := r.Schema.Save(ctx, dvs1); err != nil {
+		return err
+	}
+	dvm := model.New().
+		ID(dvmId).
+		Name("dvm").
+		Description("dvm desc").
+		Public(true).
+		Key(key.Random()).
+		Project(pid).
+		Schema(dvs1.ID()).
+		Metadata(sm.ID().Ref()).
+		MustBuild()
+
+	if err := r.Model.Save(ctx, dvm); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -523,6 +565,35 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
+}
+
+func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	r := e.POST("/api/models/{modelId}/items", dvmId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"id":    dvsfId.String(),
+					"value": "test value",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	r.Keys().
+		ContainsAll("id", "modelId", "fields", "createdAt", "metadataFields", "isMetadata", "updatedAt", "version", "parents", "refs")
+	r.Path("$.fields[:]").Array().Length().IsEqual(4)
+	raw := r.Path("$.fields[:].value").Array().Raw()
+	assert.True(t, slices.Contains(raw, "default"))
+	assert.True(t, slices.Contains(raw, "default group"))
+	assert.True(t, slices.Contains(raw, "test value"))
+	r.Path("$.metadataFields[:]").Array().Length().IsEqual(1)
+	raw2 := r.Path("$.metadataFields[:].value").Array().Raw()
+	assert.True(t, slices.Contains(raw2, true))
 }
 
 // PATCH /items/{itemId}

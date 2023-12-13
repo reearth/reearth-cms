@@ -63,6 +63,9 @@ func (s *Schema) Field(fId FieldID) *Field {
 }
 
 func (s *Schema) FieldByIDOrKey(fId *FieldID, key *key.Key) *Field {
+	if s == nil || s.fields == nil {
+		return nil
+	}
 	f, _ := lo.Find(s.fields, func(f *Field) bool {
 		return fId != nil && f.id == *fId || key != nil && key.IsValid() && f.key == *key
 	})

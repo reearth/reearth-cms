@@ -64,3 +64,21 @@ func (p *Package) Field(fieldID id.FieldID) *Field {
 	}
 	return nil
 }
+
+func (p *Package) FieldByIDOrKey(fID *id.FieldID, k *id.Key) *Field {
+	f := p.schema.FieldByIDOrKey(fID, k)
+	if f != nil {
+		return f
+	}
+	f = p.metaSchema.FieldByIDOrKey(fID, k)
+	if f != nil {
+		return f
+	}
+	for _, s := range p.groupSchemas {
+		f = s.FieldByIDOrKey(fID, k)
+		if f != nil {
+			return f
+		}
+	}
+	return nil
+}
