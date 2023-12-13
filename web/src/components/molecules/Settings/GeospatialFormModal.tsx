@@ -1,5 +1,7 @@
+import styled from "@emotion/styled";
 import { useCallback, useState, useEffect, useMemo } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -77,8 +79,12 @@ const GeospatialFormModal: React.FC<Props> = ({
     <Modal
       open={open}
       onCancel={handleClose}
-      onOk={handleSubmit}
-      title={isTile ? t("New Tiles") : t("New Terrain")}>
+      title={isTile ? t("New Tiles") : t("New Terrain")}
+      footer={[
+        <Button key="submit" type="primary" onClick={handleSubmit}>
+          OK
+        </Button>,
+      ]}>
       <Form form={form} layout="vertical">
         <Form.Item name="type" label={isTile ? t("Tiles type") : t("Terrain type")}>
           <Select defaultValue={options[0].value} options={options} onSelect={handleSelect} />
@@ -88,6 +94,7 @@ const GeospatialFormModal: React.FC<Props> = ({
             <>
               <Form.Item name="name" label={t("Name")}>
                 <Input placeholder={t("example")} />
+                <Text>{t("Name of tiles")}</Text>
               </Form.Item>
               <Form.Item name="url" label={t("URL")}>
                 <Input placeholder={t("example")} />
@@ -100,6 +107,7 @@ const GeospatialFormModal: React.FC<Props> = ({
             <>
               <Form.Item name="name" label={t("Name")}>
                 <Input placeholder={t("example")} />
+                <Text>{t("Name of terrain")}</Text>
               </Form.Item>
               <Form.Item name="assetId" label={t("Terrain Cesium Ion asset ID")}>
                 <Input placeholder={t("example")} />
@@ -122,3 +130,8 @@ const GeospatialFormModal: React.FC<Props> = ({
 };
 
 export default GeospatialFormModal;
+
+const Text = styled.p`
+  color: #00000073;
+  margin: 0;
+`;
