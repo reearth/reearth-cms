@@ -872,7 +872,6 @@ const ContentForm: React.FC<Props> = ({
                     <StyledMultipleSelect
                       onBlur={handleMetaUpdate}
                       mode="multiple"
-                      showArrow
                       style={{ width: "100%" }}>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
@@ -885,7 +884,6 @@ const ContentForm: React.FC<Props> = ({
                   ) : (
                     <Select
                       onBlur={handleMetaUpdate}
-                      showArrow
                       style={{ width: "100%" }}
                       allowClear>
                       {field.typeProperty?.tags?.map(

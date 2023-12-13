@@ -133,7 +133,7 @@ export const renderField = (
         tagRender={props => {
           return <>{props.label}</>;
         }}
-        showArrow={false}
+        suffixIcon={null}
         allowClear={field.multiple ? false : true}
         onChange={(_, option) => {
           const value: string | string[] | undefined = Array.isArray(option)
