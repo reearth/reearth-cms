@@ -1,10 +1,10 @@
 import {
   Cesium3DTileFeature,
   CesiumTerrainProvider,
+  createWorldTerrainAsync,
   Viewer as CesiumViewer,
   JulianDate,
   Entity,
-  IonResource,
 } from "cesium";
 import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
@@ -79,10 +79,8 @@ const ResiumViewer: React.FC<Props> = ({
 
   useEffect(() => {
     if (!terrainProvider) {
-      CesiumTerrainProvider.fromUrl(IonResource.fromAssetId(3956), {
-        requestVertexNormals: true,
-      }).then(r => {
-        setTerrainProvider(r);
+      createWorldTerrainAsync().then(r => {
+        setTerrainProvider(prev => !prev ? r : prev);
       });
     }
   });
@@ -100,29 +98,27 @@ const ResiumViewer: React.FC<Props> = ({
 
   return (
     <div style={{ position: "relative" }}>
-      {terrainProvider && (
-        <Viewer
-          terrainProvider={terrainProvider}
-          navigationHelpButton={false}
-          homeButton={false}
-          projectionPicker={false}
-          sceneModePicker={false}
-          baseLayerPicker={false}
-          fullscreenButton={false}
-          vrButton={false}
-          selectionIndicator={false}
-          timeline={false}
-          animation={false}
-          geocoder={false}
-          shouldAnimate={true}
-          onClick={handleClick}
-          onSelectedEntityChange={handleSelect}
-          infoBox={false}
-          ref={viewer}
-          {...props}>
-          {children}
-        </Viewer>
-      )}
+      <Viewer
+        terrainProvider={terrainProvider}
+        navigationHelpButton={false}
+        homeButton={false}
+        projectionPicker={false}
+        sceneModePicker={false}
+        baseLayerPicker={false}
+        fullscreenButton={false}
+        vrButton={false}
+        selectionIndicator={false}
+        timeline={false}
+        animation={false}
+        geocoder={false}
+        shouldAnimate={true}
+        onClick={handleClick}
+        onSelectedEntityChange={handleSelect}
+        infoBox={false}
+        ref={viewer}
+        {...props}>
+        {children}
+      </Viewer>
       <InfoBox
         infoBoxProps={sortedProperties}
         infoBoxVisibility={infoBoxVisibility && !!selected}
