@@ -334,7 +334,7 @@ export default () => {
               type: field.type as SchemaFieldType,
             })),
             metadataId: metaItemId,
-            version: currentItem?.metadata?.version ?? "",
+            version: currentItem?.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {

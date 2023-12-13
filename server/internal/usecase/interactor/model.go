@@ -14,6 +14,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Model struct {
@@ -95,6 +96,14 @@ func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, op
 			} else {
 				mb = mb.Key(key.Random())
 			}
+			models, _, err := i.repos.Model.FindByProject(ctx, param.ProjectId, usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+			if err != nil {
+				return nil, err
+			}
+
+			if len(models) > 0 {
+				mb = mb.Order(len(models))
+			}
 
 			m, err = mb.Build()
 			if err != nil {
@@ -170,7 +179,15 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 				return interfaces.ErrOperationDenied
 			}
 
+			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+			if err != nil {
+				return err
+			}
+			res := models.Remove(modelID)
 			if err := i.repos.Model.Remove(ctx, modelID); err != nil {
+				return err
+			}
+			if err := i.repos.Model.SaveAll(ctx, res); err != nil {
 				return err
 			}
 			return nil

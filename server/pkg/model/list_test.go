@@ -52,3 +52,17 @@ func TestList_OrderByIDs(t *testing.T) {
 	assert.Equal(t, List{mod2, mod1, mod3}, mods.OrderByIDs(id.ModelIDList{mod2.ID(), mod1.ID(), mod3.ID()}))
 	assert.Equal(t, id.ProjectIDList{pid}, mods.Projects())
 }
+
+func TestList_Remove(t *testing.T) {
+	pid := id.NewProjectID()
+	sid1 := id.NewSchemaID()
+	sid2 := id.NewSchemaID()
+	sid3 := id.NewSchemaID()
+	mod1 := New().NewID().Project(pid).Schema(sid1).Key(key.New("key1")).Order(0).MustBuild()
+	mod2 := New().NewID().Project(pid).Schema(sid2).Key(key.New("key2")).Order(1).MustBuild()
+	mod3 := New().NewID().Project(pid).Schema(sid3).Key(key.New("key3")).Order(2).MustBuild()
+	mods := List{mod1, mod2, mod3}
+	assert.Equal(t, List{mod1, mod3}, mods.Remove(mod2.ID()))
+	assert.Equal(t, List{mod1, mod2}, mods.Remove(mod3.ID()))
+	assert.Equal(t, List{mod2, mod3}, mods.Remove(mod1.ID()))
+}
