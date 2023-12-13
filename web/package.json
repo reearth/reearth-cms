@@ -7,7 +7,7 @@
   "browser": "./dist/reearth-cms.umd.js",
   "types": "./dist/reearth-cms.d.ts",
   "engines": {
-    "node": ">=18"
+    "node": ">=16"
   },
   "scripts": {
     "start": "yarn && vite",
@@ -73,9 +73,9 @@
     "storybook": "7.6.4",
     "ts-node": "10.9.2",
     "typescript": "5.3.3",
-    "vite": "5.0.8",
+    "vite": "4.5.1",
     "vite-plugin-cesium": "1.2.22",
-    "vitest": "1.0.4"
+    "vitest": "0.34.6"
   },
   "dependencies": {
     "@ant-design/icons": "4.8.1",
