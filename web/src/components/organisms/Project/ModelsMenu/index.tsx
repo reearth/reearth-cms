@@ -48,6 +48,7 @@ const ModelsMenu: React.FC<Props> = ({
     handleGroupCreate,
     handleModelKeyCheck,
     handleGroupKeyCheck,
+    handleUpdateModelsOrder,
   } = useHooks({
     modelId,
     groupId,
@@ -71,6 +72,7 @@ const ModelsMenu: React.FC<Props> = ({
           onModelKeyCheck={handleModelKeyCheck}
           onClose={handleModelModalClose}
           onCreate={handleModelCreate}
+          onUpdateModelsOrder={handleUpdateModelsOrder}
         />
         {displayGroups && (
           <Groups
