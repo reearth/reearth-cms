@@ -167,10 +167,12 @@ const LinkItemModal: React.FC<Props> = ({
       width="70vw"
       footer={null}
       onCancel={onLinkItemModalCancel}
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px 12px 0",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          padding: "12px 12px 0",
+        }
       }}>
       <StyledProTable
         dataSource={linkedItemsModalList}

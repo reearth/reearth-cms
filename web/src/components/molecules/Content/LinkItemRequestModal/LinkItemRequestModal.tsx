@@ -126,10 +126,12 @@ const LinkItemRequestModal: React.FC<Props> = ({
       onOk={submit}
       onCancel={onLinkItemRequestModalCancel}
       width="70vw"
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        paddingBottom: "80px",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          paddingBottom: "80px",
+        }
       }}>
       <ProTable
         dataSource={requestList}
