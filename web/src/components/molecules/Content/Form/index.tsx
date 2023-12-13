@@ -866,6 +866,12 @@ const ContentForm: React.FC<Props> = ({
                 <Form.Item
                   extra={field.description}
                   name={field.id}
+                  rules={[
+                    {
+                      required: field.required,
+                      message: t("Please input field!"),
+                    },
+                  ]}
                   label={
                     <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
