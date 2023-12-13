@@ -161,8 +161,8 @@ const getMvtBaseUrl = (url: string) => {
   const base = url.match(templateRegex)
     ? url.replace(templateRegex, "")
     : url.match(compressedExtRegex)
-    ? url.replace(compressedExtRegex, "")
-    : url.replace(nameRegex, "");
+      ? url.replace(compressedExtRegex, "")
+      : url.replace(nameRegex, "");
   return base;
 };
 
