@@ -6,8 +6,8 @@ import Card from "@reearth-cms/components/atoms/Card";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Switch from "@reearth-cms/components/atoms/Switch";
+import GeospatialFormModal from "@reearth-cms/components/molecules/Settings/GeospatialFormModal";
 import { Tiles, Tile } from "@reearth-cms/components/molecules/Workspace/types";
-import GeospatialFormModal from "@reearth-cms/components/molecules/WorkspaceSettings/GeospatialFormModal";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {

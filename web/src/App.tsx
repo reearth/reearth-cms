@@ -18,6 +18,7 @@ import RequestDetails from "@reearth-cms/components/organisms/Project/Request/Re
 import RequestList from "@reearth-cms/components/organisms/Project/Request/RequestList";
 import Schema from "@reearth-cms/components/organisms/Project/Schema";
 import ProjectSettings from "@reearth-cms/components/organisms/Project/settings";
+import Settings from "@reearth-cms/components/organisms/Settings/General";
 import Integration from "@reearth-cms/components/organisms/Settings/Integration";
 import Members from "@reearth-cms/components/organisms/Settings/Members";
 import MyIntegrationDetails from "@reearth-cms/components/organisms/Settings/MyIntegrationDetails";
@@ -51,7 +52,8 @@ const router = createBrowserRouter(
                     path=":workspaceId/apiKey"
                     element={<div>API Key page - GOTTA DO THIS PAGE!!!</div>}
                   /> */}
-        <Route path=":workspaceId/settings" element={<WorkspaceSettings />} />
+        <Route path=":workspaceId/settings" element={<Settings />} />
+        <Route path=":workspaceId/workspaceSettings" element={<WorkspaceSettings />} />
         <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
         <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
         <Route path=":workspaceId/project/:projectId/schema/:modelId" element={<Schema />} />
