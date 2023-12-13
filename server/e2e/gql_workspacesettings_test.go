@@ -101,8 +101,8 @@ func TestUpdateWorkspaceSettings(t *testing.T) {
                         "name": "name1",
                         "url": "url1",
                         "image": "image1",
-						"cesiumIonAssetId": "test2",
-                        "cesiumIonAccessToken": "test2",
+						"cesiumIonAssetId": "test1",
+                        "cesiumIonAccessToken": "test1",
                     },
                 },
             },
@@ -112,9 +112,31 @@ func TestUpdateWorkspaceSettings(t *testing.T) {
     }
 
 	res := updateWorkspaceSettings(e, wId.String(), tiles, terrains)
-	res.Object().
+	o := res.Object().
 		Value("data").Object().
 		Value("updateWorkspaceSettings").Object().
-		Value("workspaceSettings").Object().
-		HasValue("id", wId.String())
+		Value("workspaceSettings").Object()
+		
+	o.HasValue("id", wId.String())
+	t1 := o.Value("tiles").Object()
+	t1.Value("enabled").Boolean().IsFalse()
+	t1.Value("selectedResource").String().IsEqual(rid.String())
+	r1 := t1.Value("resources").Array().Value(0).Object()
+	r1.Value("id").String().IsEqual(rid.String())
+	r1.Value("type").String().IsEqual("DEFAULT")
+	r1.Value("props").Object().Value("name").String().IsEqual("name1")
+	r1.Value("props").Object().Value("url").String().IsEqual("url1")
+	r1.Value("props").Object().Value("image").String().IsEqual("image1")
+
+	t2 := o.Value("terrains").Object()
+	t2.Value("enabled").Boolean().IsFalse()
+	t2.Value("selectedResource").String().IsEqual(rid2.String())
+	r2 := t2.Value("resources").Array().Value(0).Object()
+	r2.Value("id").String().IsEqual(rid2.String())
+	r2.Value("type").String().IsEqual("CESIUM_ION")
+	r2.Value("props").Object().Value("name").String().IsEqual("name1")
+	r2.Value("props").Object().Value("url").String().IsEqual("url1")
+	r2.Value("props").Object().Value("image").String().IsEqual("image1")
+	r2.Value("props").Object().Value("cesiumIonAssetId").String().IsEqual("test1")
+	r2.Value("props").Object().Value("cesiumIonAccessToken").String().IsEqual("test1")
 }
