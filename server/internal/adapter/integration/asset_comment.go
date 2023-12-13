@@ -12,7 +12,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (s Server) AssetCommentList(ctx context.Context, request AssetCommentListRequestObject) (AssetCommentListResponseObject, error) {
+func (s *Server) AssetCommentList(ctx context.Context, request AssetCommentListRequestObject) (AssetCommentListResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -39,7 +39,7 @@ func (s Server) AssetCommentList(ctx context.Context, request AssetCommentListRe
 	return AssetCommentList200JSONResponse{Comments: &comments}, nil
 }
 
-func (s Server) AssetCommentCreate(ctx context.Context, request AssetCommentCreateRequestObject) (AssetCommentCreateResponseObject, error) {
+func (s *Server) AssetCommentCreate(ctx context.Context, request AssetCommentCreateRequestObject) (AssetCommentCreateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -60,7 +60,7 @@ func (s Server) AssetCommentCreate(ctx context.Context, request AssetCommentCrea
 	return AssetCommentCreate200JSONResponse(*integrationapi.NewComment(comment)), nil
 }
 
-func (s Server) AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error) {
+func (s *Server) AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -80,7 +80,7 @@ func (s Server) AssetCommentUpdate(ctx context.Context, request AssetCommentUpda
 	return AssetCommentUpdate200JSONResponse(*integrationapi.NewComment(comment)), nil
 }
 
-func (s Server) AssetCommentDelete(ctx context.Context, request AssetCommentDeleteRequestObject) (AssetCommentDeleteResponseObject, error) {
+func (s *Server) AssetCommentDelete(ctx context.Context, request AssetCommentDeleteRequestObject) (AssetCommentDeleteResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 

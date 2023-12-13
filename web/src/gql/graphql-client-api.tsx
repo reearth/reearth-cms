@@ -2354,7 +2354,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, order?: number | null, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type GetModelQueryVariables = Exact<{
   id: Scalars['ID'];
@@ -2398,6 +2398,13 @@ export type CheckModelKeyAvailabilityQueryVariables = Exact<{
 
 
 export type CheckModelKeyAvailabilityQuery = { __typename?: 'Query', checkModelKeyAvailability: { __typename?: 'KeyAvailability', key: string, available: boolean } };
+
+export type UpdateModelsOrderMutationVariables = Exact<{
+  modelIds: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type UpdateModelsOrderMutation = { __typename?: 'Mutation', updateModelsOrder?: { __typename?: 'ModelsPayload', models: Array<{ __typename?: 'Model', id: string }> } | null };
 
 export type GetProjectQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -4696,6 +4703,7 @@ export const GetModelsDocument = gql`
       description
       key
       public
+      order
       metadataSchema {
         id
         fields {
@@ -5074,6 +5082,43 @@ export function useCheckModelKeyAvailabilityLazyQuery(baseOptions?: Apollo.LazyQ
 export type CheckModelKeyAvailabilityQueryHookResult = ReturnType<typeof useCheckModelKeyAvailabilityQuery>;
 export type CheckModelKeyAvailabilityLazyQueryHookResult = ReturnType<typeof useCheckModelKeyAvailabilityLazyQuery>;
 export type CheckModelKeyAvailabilityQueryResult = Apollo.QueryResult<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>;
+export const UpdateModelsOrderDocument = gql`
+    mutation UpdateModelsOrder($modelIds: [ID!]!) {
+  updateModelsOrder(input: {modelIds: $modelIds}) {
+    models {
+      ... on Model {
+        id
+      }
+    }
+  }
+}
+    `;
+export type UpdateModelsOrderMutationFn = Apollo.MutationFunction<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>;
+
+/**
+ * __useUpdateModelsOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateModelsOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateModelsOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateModelsOrderMutation, { data, loading, error }] = useUpdateModelsOrderMutation({
+ *   variables: {
+ *      modelIds: // value for 'modelIds'
+ *   },
+ * });
+ */
+export function useUpdateModelsOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>(UpdateModelsOrderDocument, options);
+      }
+export type UpdateModelsOrderMutationHookResult = ReturnType<typeof useUpdateModelsOrderMutation>;
+export type UpdateModelsOrderMutationResult = Apollo.MutationResult<UpdateModelsOrderMutation>;
+export type UpdateModelsOrderMutationOptions = Apollo.BaseMutationOptions<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>;
 export const GetProjectDocument = gql`
     query GetProject($projectId: ID!) {
   node(id: $projectId, type: PROJECT) {
