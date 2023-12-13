@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import {
   Cesium3DTileFeature,
   CesiumTerrainProvider,
@@ -12,7 +13,6 @@ import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 
 import { sortProperties } from "./sortProperty";
-import styled from "@emotion/styled";
 
 type Props = {
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
@@ -40,9 +40,9 @@ const ResiumViewer: React.FC<Props> = ({
 
   useEffect(() => {
     const setWorldTerrain = async () => {
-      const terrain = await createWorldTerrainAsync()
+      const terrain = await createWorldTerrainAsync();
       setTerrainProvider(terrain);
-    }
+    };
     if (!terrainProvider) {
       setWorldTerrain();
     }
@@ -100,43 +100,53 @@ const ResiumViewer: React.FC<Props> = ({
   }, []);
 
   const renderViewer = useCallback(() => {
-    return terrainProvider ? (<>
-      <Viewer
-        terrainProvider={terrainProvider}
-        navigationHelpButton={false}
-        homeButton={false}
-        projectionPicker={false}
-        sceneModePicker={false}
-        baseLayerPicker={false}
-        fullscreenButton={false}
-        vrButton={false}
-        selectionIndicator={false}
-        timeline={false}
-        animation={false}
-        geocoder={false}
-        shouldAnimate={true}
-        onClick={handleClick}
-        onSelectedEntityChange={handleSelect}
-        infoBox={false}
-        ref={viewer}
-        {...props}>
-        {children}
-      </Viewer>
-      <InfoBox
-        infoBoxProps={sortedProperties}
-        infoBoxVisibility={infoBoxVisibility && !!selected}
-        title={title}
-        description={description}
-        onClose={handleClose}
-      />
-    </>) : null;
-  }, [terrainProvider])
+    return terrainProvider ? (
+      <>
+        <Viewer
+          terrainProvider={terrainProvider}
+          navigationHelpButton={false}
+          homeButton={false}
+          projectionPicker={false}
+          sceneModePicker={false}
+          baseLayerPicker={false}
+          fullscreenButton={false}
+          vrButton={false}
+          selectionIndicator={false}
+          timeline={false}
+          animation={false}
+          geocoder={false}
+          shouldAnimate={true}
+          onClick={handleClick}
+          onSelectedEntityChange={handleSelect}
+          infoBox={false}
+          ref={viewer}
+          {...props}>
+          {children}
+        </Viewer>
+        <InfoBox
+          infoBoxProps={sortedProperties}
+          infoBoxVisibility={infoBoxVisibility && !!selected}
+          title={title}
+          description={description}
+          onClose={handleClose}
+        />
+      </>
+    ) : null;
+  }, [
+    children,
+    description,
+    handleClick,
+    handleClose,
+    handleSelect,
+    infoBoxVisibility,
+    props,
+    selected,
+    sortedProperties,
+    terrainProvider,
+    title,
+  ]);
 
-  return (
-    <Container>
-      {renderViewer()}
-    </Container>
-  );
+  return <Container>{renderViewer()}</Container>;
 };
 
 const Container = styled.div`

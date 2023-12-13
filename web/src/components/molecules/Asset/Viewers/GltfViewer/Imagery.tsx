@@ -27,7 +27,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
       url,
       modelMatrix: Transforms.headingPitchRollToFixedFrame(position, hpr, Ellipsoid.WGS84),
       show: true,
-    })
+    });
     const model = viewer.scene.primitives.add(gltf);
 
     modelRef.current = model;
