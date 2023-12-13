@@ -93,7 +93,7 @@ func convertFields(fields *[]integrationapi.Field, s *schema.Schema, normalizeTa
 
 func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam) []interfaces.ItemFieldParam {
 	for _, sf := range s.Fields() {
-		if sf.DefaultValue() == nil {
+		if sf.DefaultValue() == nil || sf.DefaultValue().Len() == 0 {
 			continue
 		}
 
@@ -103,12 +103,16 @@ func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam) []in
 		if exists {
 			continue
 		}
-
+		var v any
+		v = sf.DefaultValue().Interface()
+		if !sf.Multiple() {
+			v = sf.DefaultValue().Interface()[0]
+		}
 		res = append(res, interfaces.ItemFieldParam{
 			Field: sf.ID().Ref(),
 			Key:   sf.Key().Ref(),
-			Type:  value.TypeText,
-			Value: *sf.DefaultValue(),
+			Type:  sf.Type(),
+			Value: v,
 			Group: nil,
 		})
 	}

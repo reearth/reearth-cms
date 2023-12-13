@@ -341,10 +341,8 @@ func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, f
 	}
 
 	cp := interfaces.CreateItemParam{
-		SchemaID: sp.Schema().ID(),
-		Fields: lo.Map(*fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
-			return fromItemFieldParam(f)
-		}),
+		SchemaID:   sp.Schema().ID(),
+		Fields:     convertFields(fields, sp.Schema(), true, true),
 		MetadataID: metaItemID,
 		ModelID:    m.ID(),
 	}
