@@ -57,7 +57,7 @@
     "@types/react-resizable": "3.0.7",
     "@types/react-router-dom": "5.3.3",
     "@vitejs/plugin-react": "4.2.1",
-    "@vitest/coverage-v8": "1.0.4",
+    "@vitest/coverage-v8": "0.34.6",
     "eslint": "8.55.0",
     "eslint-config-reearth": "0.3.0",
     "eslint-plugin-storybook": "0.6.15",
