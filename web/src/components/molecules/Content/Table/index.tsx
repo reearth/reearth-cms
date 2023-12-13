@@ -19,13 +19,13 @@ import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import {
-  ProColumns,
   TableRowSelection,
   TablePaginationConfig,
   ListToolBarProps,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import {
@@ -33,32 +33,23 @@ import {
   StateType,
   DefaultFilterValueType,
   DropdownFilterType,
+  ExtendedColumns,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
-  SortDirection,
-  FieldSelector,
+  ItemSort,
   FieldType,
-  ItemSortInput,
-  ConditionInput,
-} from "@reearth-cms/gql/graphql-client-api";
+  Column,
+  AndConditionInput,
+} from "@reearth-cms/components/molecules/View/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
-
-type ExtendedColumns = ProColumns<ContentTableField> & {
-  type?: FieldType | "Person";
-  fieldType?: string;
-  sortOrder?: "descend" | "ascend" | null;
-  typeProperty?: { values?: string[] };
-  required?: boolean;
-  multiple?: boolean;
-};
 
 export type Props = {
   className?: string;
@@ -81,12 +72,8 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
-  onContentTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { field?: FieldSelector; direction?: SortDirection },
-  ) => void;
+  onFilterChange: (filter?: AndConditionInput) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
   onItemEdit: (itemId: string) => void;
@@ -98,6 +85,7 @@ export type Props = {
   onAddItemToRequest: (request: Request, itemIds: string[]) => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  modelKey?: string;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -108,7 +96,6 @@ const ContentTable: React.FC<Props> = ({
   selection,
   totalCount,
   currentView,
-  searchTerm,
   page,
   pageSize,
   requests,
@@ -124,18 +111,27 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onUnpublish,
   onSearchTerm,
-  onTableControl,
+  onFilterChange,
   onContentTableChange,
   onItemSelect,
   setSelection,
   onItemDelete,
   onItemsReload,
+  modelKey,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
 
-  const actionsColumns: ExtendedColumns[] | undefined = useMemo(
-    () => [
+  const actionsColumns: ExtendedColumns[] = useMemo(() => {
+    const sortOrderGet = (key: FieldType) => {
+      return currentView.sort?.field.type === key
+        ? currentView.sort.direction === "ASC"
+          ? "ascend"
+          : "descend"
+        : null;
+    };
+
+    return [
       {
         render: (_, contentField) => (
           <Link to={`details/${contentField.id}`}>
@@ -149,6 +145,7 @@ const ContentTable: React.FC<Props> = ({
         width: 48,
         minWidth: 48,
         ellipsis: true,
+        align: "center",
       },
       {
         title: () => <Icon icon="message" />,
@@ -158,17 +155,18 @@ const ContentTable: React.FC<Props> = ({
         key: "commentsCount",
         render: (_, item) => {
           return (
-            <Button type="link" onClick={() => onItemSelect(item.id)}>
+            <StyledButton type="link" onClick={() => onItemSelect(item.id)}>
               <CustomTag
                 value={item.comments?.length || 0}
                 color={item.id === selectedItem?.id ? "#87e8de" : undefined}
               />
-            </Button>
+            </StyledButton>
           );
         },
         width: 48,
         minWidth: 48,
         ellipsis: true,
+        align: "center",
       },
       {
         title: t("Status"),
@@ -198,43 +196,29 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "createdAt",
         fieldType: "CREATION_DATE",
         key: "CREATION_DATE",
-        sortOrder:
-          currentView.sort?.field?.type === "CREATION_DATE"
-            ? currentView.sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        sortOrder: sortOrderGet("CREATION_DATE"),
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
-        defaultSortOrder:
-          currentView.sort?.field?.type === "CREATION_DATE"
-            ? currentView.sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        defaultSortOrder: sortOrderGet("CREATION_DATE"),
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        // type: "Date",
+        type: "Date",
       },
       {
         title: t("Created By"),
         dataIndex: "createdBy",
         fieldType: "CREATION_USER",
         key: "CREATION_USER",
-        sortOrder:
-          currentView.sort?.field?.type === "CREATION_USER"
-            ? currentView.sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        sortOrder: sortOrderGet("CREATION_USER"),
+        render: (_, item) => (
+          <Space>
+            <UserAvatar username={item.createdBy} size={"small"} />
+            {item.createdBy}
+          </Space>
+        ),
         sorter: true,
-        defaultSortOrder:
-          currentView.sort?.field?.type === "CREATION_USER"
-            ? currentView.sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        defaultSortOrder: sortOrderGet("CREATION_USER"),
         width: 148,
         minWidth: 148,
         type: "Person",
@@ -245,81 +229,43 @@ const ContentTable: React.FC<Props> = ({
         dataIndex: "updatedAt",
         fieldType: "MODIFICATION_DATE",
         key: "MODIFICATION_DATE",
-        sortOrder:
-          currentView.sort?.field?.type === "MODIFICATION_DATE"
-            ? currentView.sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        sortOrder: sortOrderGet("MODIFICATION_DATE"),
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
-        defaultSortOrder:
-          currentView.sort?.field?.type === "MODIFICATION_DATE"
-            ? currentView.sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        defaultSortOrder: sortOrderGet("MODIFICATION_DATE"),
         width: 148,
         minWidth: 148,
         ellipsis: true,
-        // type: "Date",
+        type: "Date",
       },
       {
         title: t("Updated By"),
         dataIndex: "updatedBy",
         fieldType: "MODIFICATION_USER",
         key: "MODIFICATION_USER",
-        sortOrder:
-          currentView.sort?.field?.type === "MODIFICATION_USER"
-            ? currentView.sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        sortOrder: sortOrderGet("MODIFICATION_USER"),
+        render: (_, item) =>
+          item.updatedBy ? (
+            <Space>
+              <UserAvatar username={item.updatedBy} size={"small"} />
+              {item.updatedBy}
+            </Space>
+          ) : (
+            "-"
+          ),
         sorter: true,
-        defaultSortOrder:
-          currentView.sort?.field?.type === "MODIFICATION_USER"
-            ? currentView.sort.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
+        defaultSortOrder: sortOrderGet("MODIFICATION_USER"),
         width: 148,
         minWidth: 148,
         type: "Person",
         ellipsis: true,
       },
-    ],
-    [t, currentView.sort, selectedItem?.id, onItemSelect],
-  );
-
-  const contentColumns: ExtendedColumns[] | undefined = useMemo(
-    () =>
-      contentTableColumns?.map(column => ({
-        sorter: true,
-        sortOrder:
-          currentView.sort?.field?.id === column.key
-            ? currentView.sort?.direction === "ASC"
-              ? "ascend"
-              : "descend"
-            : null,
-        key: column.key,
-        fieldType: column.fieldType,
-        title: column.title,
-        dataIndex: column.dataIndex,
-        width: 128,
-        minWidth: 128,
-        ellipsis: true,
-        multiple: column.multiple,
-        required: column.required,
-        render: column.render,
-      })),
-    [contentTableColumns, currentView.sort],
-  );
+    ];
+  }, [t, currentView.sort, selectedItem?.id, onItemSelect]);
 
   const tableColumns = useMemo(() => {
-    const items = [...actionsColumns];
-    if (contentColumns) items.push(...contentColumns);
-    return items;
-  }, [actionsColumns, contentColumns]);
+    return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : [...actionsColumns];
+  }, [actionsColumns, contentTableColumns]);
 
   const rowSelection: TableRowSelection = {
     selectedRowKeys: selection.selectedRowKeys,
@@ -363,44 +309,52 @@ const ContentTable: React.FC<Props> = ({
       defaultFilterValues.current.splice(index, 1);
       const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
       currentFilters.splice(index, 1);
-      onTableControl(undefined, currentFilters);
+      onFilterChange(currentFilters.length > 0 ? { conditions: currentFilters } : undefined);
     },
-    [currentView.filter, onTableControl],
+    [currentView.filter, onFilterChange],
   );
 
   useEffect(() => {
     if (currentView.filter && contentTableColumns) {
-      const newFilters: any[] = [];
+      const newFilters: DropdownFilterType[] = [];
       const newDefaultValues = [];
       for (const c of currentView.filter.conditions) {
         const condition = Object.values(c)[0];
-        if (!condition) break;
-        const { operator, fieldId } = condition as any;
+        if (!condition || !("operator" in condition)) break;
+        const { operator, fieldId } = condition;
         const value = "value" in condition ? condition?.value : "";
         const operatorType = Object.keys(c)[0];
-        let column;
-
-        const columns: ExtendedColumns[] =
+        const columns =
           fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
             ? contentTableColumns
             : actionsColumns;
-        for (const c of columns) {
-          if (c.key === fieldId.id) {
-            column = c;
-            break;
+        const column = columns.find(c => c.key === fieldId.id);
+        if (column) {
+          const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
+          const members = currentWorkspace?.members;
+          if (
+            dataIndex &&
+            title &&
+            type &&
+            typeProperty &&
+            key &&
+            required !== undefined &&
+            multiple !== undefined &&
+            members
+          ) {
+            newFilters.push({
+              dataIndex: dataIndex as string | string[],
+              title: title as string,
+              type,
+              typeProperty,
+              members,
+              id: key as string,
+              required,
+              multiple,
+            });
+            newDefaultValues.push({ operatorType, operator, value });
           }
         }
-        newFilters.push({
-          dataIndex: column?.dataIndex,
-          title: column?.title,
-          type: column?.type,
-          typeProperty: column?.typeProperty,
-          members: currentWorkspace?.members,
-          id: column?.key,
-          required: column?.required,
-          multiple: column?.multiple,
-        });
-        newDefaultValues.push({ operatorType, operator, value });
       }
       setFilters(newFilters);
       defaultFilterValues.current = newDefaultValues;
@@ -444,7 +398,9 @@ const ContentTable: React.FC<Props> = ({
     setInputValue(e.target.value);
     const reg = new RegExp(e.target.value, "i");
     const result = getOptions(optionsOpen)?.filter(item => {
-      return reg.test((item as any)?.label);
+      if (item && "label" in item && typeof item.label === "string") {
+        return reg.test(item.label);
+      }
     });
     setItems(result);
   };
@@ -454,26 +410,39 @@ const ContentTable: React.FC<Props> = ({
   const getOptions = useCallback(
     (isFromMenu: boolean): MenuProps["items"] => {
       const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
-        const filter = {
-          dataIndex: column.dataIndex,
-          title: column.title,
-          type: column.type,
-          typeProperty: column.typeProperty,
-          members: currentWorkspace?.members,
-          id: column.key,
-          required: column.required,
-          multiple: column.multiple,
-        };
-        if (isFilter) {
-          setFilters(prevState => [...prevState, filter] as any);
-        }
-        setSelectedFilter(filter as any);
-        handleOptionsOpenChange(false);
-        if (isFromMenu) {
-          handleConditionMenuOpenChange(true);
-          isFilterOpen.current = false;
-        } else {
-          isFilterOpen.current = true;
+        const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
+        const members = currentWorkspace?.members;
+        if (
+          dataIndex &&
+          title &&
+          type &&
+          typeProperty &&
+          key &&
+          required !== undefined &&
+          multiple !== undefined &&
+          members
+        ) {
+          const filter: DropdownFilterType = {
+            dataIndex: dataIndex as string | string[],
+            title: title as string,
+            type,
+            typeProperty,
+            members,
+            id: key as string,
+            required,
+            multiple,
+          };
+          if (isFilter) {
+            setFilters(prevState => [...prevState, filter]);
+          }
+          setSelectedFilter(filter);
+          handleOptionsOpenChange(false);
+          if (isFromMenu) {
+            handleConditionMenuOpenChange(true);
+            isFilterOpen.current = false;
+          } else {
+            isFilterOpen.current = true;
+          }
         }
       };
 
@@ -490,8 +459,7 @@ const ContentTable: React.FC<Props> = ({
         //   })) as any),
         ...((contentTableColumns ?? [])
           .filter(
-            column =>
-              (column.type as string) !== "Group" && (column.type as string) !== "Reference",
+            column => column.type !== "Group" && column.type !== "Reference" && !column.multiple,
           )
           .map(column => ({
             key: column.key,
@@ -515,20 +483,23 @@ const ContentTable: React.FC<Props> = ({
     dropdownRender: (menu: React.ReactNode): React.ReactNode => (
       <Wrapper>
         <InputWrapper>
-          <Input value={inputValue} placeholder="Filter by..." onChange={handleChange} />
+          <Input
+            value={inputValue}
+            placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
+            onChange={handleChange}
+          />
         </InputWrapper>
         {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
       </Wrapper>
     ),
-    arrow: true,
+    arrow: false,
   };
 
-  const handleToolbarEvents: ListToolBarProps | undefined = {
+  const handleToolbarEvents: ListToolBarProps = {
     search: (
       <StyledSearchContainer>
         <StyledSearchInput
           placeholder={t("Please enter")}
-          defaultValue={searchTerm}
           onSearch={(value: string) => {
             if (value) {
               onSearchTerm(value);
@@ -536,6 +507,7 @@ const ContentTable: React.FC<Props> = ({
               onSearchTerm();
             }
           }}
+          key={`${modelKey}${currentView.id}`}
         />
         <StyledFilterWrapper>
           <StyledFilterSpace size={[0, 8]}>
@@ -548,7 +520,8 @@ const ContentTable: React.FC<Props> = ({
                 filterRemove={filterRemove}
                 isFilterOpen={isFilterOpen.current}
                 currentView={currentView}
-                onTableControl={onTableControl}
+                setCurrentView={setCurrentView}
+                onFilterChange={onFilterChange}
               />
             ))}
           </StyledFilterSpace>
@@ -581,7 +554,6 @@ const ContentTable: React.FC<Props> = ({
     search: true,
     fullScreen: true,
     reload: onItemsReload,
-    // edit here
     setting: true,
   };
 
@@ -592,7 +564,7 @@ const ContentTable: React.FC<Props> = ({
           onClick={() => {
             toolBarItemClick(true);
           }}>
-          Add Filter
+          {t("Add Filter")}
         </span>
       ),
       key: "filter",
@@ -604,7 +576,7 @@ const ContentTable: React.FC<Props> = ({
           onClick={() => {
             toolBarItemClick(false);
           }}>
-          Add Sort
+          {t("Add Sort")}
         </span>
       ),
       key: "sort",
@@ -631,23 +603,24 @@ const ContentTable: React.FC<Props> = ({
                 open={conditionMenuOpen}
                 isFilter={isFilter.current}
                 currentView={currentView}
-                onTableControl={onTableControl}
+                setCurrentView={setCurrentView}
+                onFilterChange={onFilterChange}
               />
             )
           }
           trigger={["contextMenu"]}
           placement="bottom"
-          arrow
+          arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
             menu={{ items: toolBarItems }}
             placement="bottom"
             trigger={["click"]}
-            arrow
+            arrow={false}
             open={controlMenuOpen}
             onOpenChange={handleControlMenuOpenChange}>
-            <Tooltip title="Control">
+            <Tooltip title={t("Control")}>
               <IconWrapper>
                 <Icon icon="control" size={18} />
               </IconWrapper>
@@ -659,77 +632,56 @@ const ContentTable: React.FC<Props> = ({
   };
 
   const settingOptions = useMemo(() => {
-    const shownCols = currentView.columns?.map(col => {
-      switch (col.type as string) {
-        case "ID":
-        case "STATUS":
-        case "CREATION_DATE":
-        case "CREATION_USER":
-        case "MODIFICATION_DATE":
-        case "MODIFICATION_USER":
-          return col.type as string;
-        default:
-          return col.id as string;
+    const cols: Record<string, ColumnsState> = {};
+    currentView.columns?.forEach((col, index) => {
+      if (
+        col.field.type === "ID" ||
+        col.field.type === "STATUS" ||
+        col.field.type === "CREATION_DATE" ||
+        col.field.type === "CREATION_USER" ||
+        col.field.type === "MODIFICATION_DATE" ||
+        col.field.type === "MODIFICATION_USER"
+      ) {
+        cols[col.field.type] = { show: col.visible, order: index };
+      } else {
+        cols[col.field.id ?? ""] = { show: col.visible, order: index };
       }
     });
-    const settingOptions: Record<string, ColumnsState> = {};
-    tableColumns.forEach(col => {
-      if (
-        shownCols?.includes(col.key as string) ||
-        (col.key as string) === "commentsCount" ||
-        (col.key as string) === "EDIT_ICON" ||
-        shownCols?.length === 0
-      )
-        settingOptions[col.key as string] = {
-          show: true,
-        };
-      else
-        settingOptions[col.key as string] = {
-          show: false,
-        };
-    });
-
-    return settingOptions;
-  }, [currentView.columns, tableColumns]);
+    return cols;
+  }, [currentView.columns]);
 
   const setSettingOptions = useCallback(
-    (settingOptions: Record<string, ColumnsState>) => {
-      const hiddenCols: string[] = [];
-      for (const key in settingOptions) {
-        if (settingOptions[key].show === false) hiddenCols.push(key);
-      }
-      const cols: FieldSelector[] = tableColumns
-        .filter(col => {
-          if ((col.key as string) === "EDIT_ICON" || (col.key as string) === "commentsCount")
-            return false;
-          if (hiddenCols.includes(col.key as string)) return false;
-          else return true;
-        })
+    (options: Record<string, ColumnsState>) => {
+      const cols: Column[] = tableColumns
+        .filter(
+          col =>
+            typeof col.key === "string" && col.key !== "EDIT_ICON" && col.key !== "commentsCount",
+        )
+        .map((col, index) => ({
+          field: {
+            type: col.fieldType as FieldType,
+            id:
+              col.fieldType === "FIELD" || col.fieldType === "META_FIELD"
+                ? (col.key as string)
+                : undefined,
+          },
+          visible:
+            (col.key as string) in options && options[col.key as string].show !== undefined
+              ? options[col.key as string].show
+              : true,
+          order:
+            (col.key as string) in options && options[col.key as string].order !== undefined
+              ? (options[col.key as string]?.order as number)
+              : index + 2,
+        }))
+        .sort((a, b) => a.order - b.order)
         .map(col => {
-          switch (col.key as string) {
-            case "ID":
-            case "STATUS":
-            case "CREATION_DATE":
-            case "CREATION_USER":
-            case "MODIFICATION_DATE":
-            case "MODIFICATION_USER":
-              return {
-                type: col.key,
-                id: "",
-              } as FieldSelector;
-            default:
-              if ((col.fieldType as string) === "FIELD")
-                return {
-                  type: FieldType["Field"],
-                  id: col.key,
-                } as FieldSelector;
-              else
-                return {
-                  type: FieldType["MetaField"],
-                  id: col.key,
-                } as FieldSelector;
-          }
+          return {
+            field: col.field,
+            visible: col.visible as boolean,
+          };
         });
+
       setCurrentView(prev => ({
         ...prev,
         columns: cols,
@@ -742,6 +694,7 @@ const ContentTable: React.FC<Props> = ({
     <>
       {contentTableColumns ? (
         <ResizableProTable
+          showSorterTooltip={false}
           options={options}
           loading={loading}
           pagination={pagination}
@@ -755,20 +708,26 @@ const ContentTable: React.FC<Props> = ({
             value: settingOptions,
             onChange: setSettingOptions,
           }}
-          onChange={(pagination, _, sorter: any) => {
+          onChange={(pagination, _, sorter) => {
             onContentTableChange(
               pagination.current ?? 1,
               pagination.pageSize ?? 10,
-              sorter?.order
+              Array.isArray(sorter)
+                ? undefined
+                : sorter.order &&
+                  sorter.column &&
+                  "fieldType" in sorter.column &&
+                  typeof sorter.columnKey === "string"
                 ? {
                     field: {
-                      id: sorter?.columnKey,
-                      type: sorter.column.fieldType as FieldSelector["type"],
+                      id:
+                        sorter.column.fieldType === "FIELD" ||
+                        sorter.column.fieldType === "META_FIELD"
+                          ? sorter.columnKey
+                          : undefined,
+                      type: sorter.column.fieldType as FieldType,
                     },
-                    direction:
-                      sorter.order === "ascend"
-                        ? ("ASC" as SortDirection)
-                        : ("DESC" as SortDirection),
+                    direction: sorter.order === "ascend" ? "ASC" : "DESC",
                   }
                 : undefined,
             );
@@ -795,6 +754,10 @@ const ContentTable: React.FC<Props> = ({
 };
 
 export default ContentTable;
+
+const StyledButton = styled(Button)`
+  padding: 0;
+`;
 
 const PrimaryButton = styled.a`
   display: flex;

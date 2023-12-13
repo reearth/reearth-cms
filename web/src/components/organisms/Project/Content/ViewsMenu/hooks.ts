@@ -1,19 +1,23 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { AndCondition, View } from "@reearth-cms/components/molecules/View/types";
 import { filterConvert } from "@reearth-cms/components/organisms/Project/Content/ContentList/utils";
 import {
-  FieldType,
-  SortDirection,
-  View,
+  View as GQLView,
   useCreateViewMutation,
   useDeleteViewMutation,
   useGetViewsQuery,
   useUpdateViewMutation,
-  AndCondition,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
+import {
+  fromGraphQLView,
+  toGraphAndConditionInput,
+  toGraphColumnSelectionInput,
+  toGraphItemSort,
+} from "@reearth-cms/utils/values";
 
 import { CurrentViewType } from "../ContentList/hooks";
 
@@ -21,11 +25,12 @@ type Params = {
   modelId?: string;
   currentView: CurrentViewType;
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  onViewChange: () => void;
 };
 
 export type modalStateType = "rename" | "create";
 
-export default ({ modelId, currentView, setCurrentView }: Params) => {
+export default ({ modelId, currentView, setCurrentView, onViewChange }: Params) => {
   const t = useT();
   const [prevModelId, setPrevModelId] = useState<string>();
   const [viewModalShown, setViewModalShown] = useState(false);
@@ -42,34 +47,43 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
   });
 
   const views = useMemo(() => {
-    if (prevModelId !== modelId && data?.view) {
-      setSelectedView(data?.view && data?.view.length > 0 ? (data?.view[0] as View) : undefined);
+    const viewList = data?.view
+      ?.map<View | undefined>(view => fromGraphQLView(view as GQLView))
+      .filter((view): view is View => !!view);
+
+    if (prevModelId !== modelId && viewList) {
+      setSelectedView(viewList && viewList.length > 0 ? viewList[0] : undefined);
       setPrevModelId(modelId);
     }
-    return data?.view ? data?.view : [];
+    return viewList ?? [];
   }, [data?.view, modelId, prevModelId]);
 
   useEffect(() => {
     if (selectedView) {
       setCurrentView(prev => ({
         ...prev,
-        sort: {
-          field: {
-            id: selectedView.sort?.field.id ? selectedView.sort?.field.id : undefined,
-            type:
-              selectedView.sort?.field.type && selectedView.sort?.field.id
-                ? selectedView.sort?.field.type
-                : FieldType["Id"],
-          },
-          direction: selectedView.sort?.direction
-            ? selectedView.sort?.direction
-            : SortDirection["Asc"],
-        },
+        id: selectedView.id,
+        sort: selectedView.sort
+          ? {
+              field: {
+                id:
+                  selectedView.sort.field.type === "FIELD" ||
+                  selectedView.sort.field.type === "META_FIELD"
+                    ? selectedView.sort.field.id
+                    : undefined,
+                type: selectedView.sort.field.type,
+              },
+              direction: selectedView.sort?.direction ? selectedView.sort?.direction : "ASC",
+            }
+          : undefined,
         columns: selectedView.columns ? selectedView.columns : [],
         filter: filterConvert(selectedView.filter as AndCondition),
       }));
     } else {
-      setCurrentView({ columns: [] });
+      //initial currentView when there is no view in the specific model
+      setCurrentView({
+        columns: [],
+      });
     }
   }, [selectedView, setCurrentView]);
 
@@ -100,11 +114,13 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
           name: data.name,
           projectId: projectId ?? "",
           modelId: modelId ?? "",
-          sort: currentView?.sort,
-          columns: currentView?.columns,
+          sort: currentView?.sort ? toGraphItemSort(currentView?.sort) : undefined,
+          columns: currentView?.columns
+            ? currentView?.columns.map(column => toGraphColumnSelectionInput(column))
+            : undefined,
           filter: currentView.filter
             ? {
-                and: currentView.filter,
+                and: toGraphAndConditionInput(currentView.filter),
               }
             : undefined,
         },
@@ -113,8 +129,9 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         Notification.error({ message: t("Failed to create view.") });
         return;
       }
-      setSelectedView(view.data.createView.view as View);
+      setSelectedView(fromGraphQLView(view.data.createView.view as GQLView));
       setViewModalShown(false);
+      onViewChange();
       Notification.success({ message: t("Successfully created view!") });
     },
     [
@@ -124,6 +141,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
       currentView?.sort,
       currentView?.columns,
       currentView?.filter,
+      onViewChange,
       t,
     ],
   );
@@ -140,11 +158,13 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         variables: {
           viewId: viewId,
           name: name,
-          sort: currentView?.sort,
-          columns: currentView?.columns,
+          sort: currentView?.sort ? toGraphItemSort(currentView?.sort) : undefined,
+          columns: currentView?.columns
+            ? currentView?.columns.map(column => toGraphColumnSelectionInput(column))
+            : undefined,
           filter: currentView.filter
             ? {
-                and: currentView.filter,
+                and: toGraphAndConditionInput(currentView.filter),
               }
             : undefined,
         },
@@ -153,7 +173,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         Notification.error({ message: t("Failed to update view.") });
         return;
       }
-      setSelectedView(view.data.updateView.view as View);
+      setSelectedView(fromGraphQLView(view.data.updateView.view as GQLView));
       Notification.success({ message: t("Successfully updated view!") });
       handleViewModalReset();
     },
@@ -164,21 +184,33 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
     async (data: { viewId?: string; name: string }) => {
       if (!data.viewId) return;
       setSubmitting(true);
+      const sort = selectedView?.sort ? toGraphItemSort(selectedView?.sort) : undefined;
+      const columns = selectedView?.columns
+        ? selectedView?.columns.map(column => toGraphColumnSelectionInput(column))
+        : undefined;
+      const currentfilter = filterConvert(selectedView?.filter as AndCondition);
       const view = await updateNewView({
         variables: {
           viewId: data.viewId,
           name: data.name,
+          sort: sort,
+          columns: columns,
+          filter: currentfilter
+            ? {
+                and: toGraphAndConditionInput(currentfilter),
+              }
+            : undefined,
         },
       });
       if (view.errors || !view.data?.updateView) {
         Notification.error({ message: t("Failed to rename view.") });
         return;
       }
-      setSelectedView(view.data.updateView.view as View);
+      setSelectedView(fromGraphQLView(view.data.updateView.view as GQLView));
       Notification.success({ message: t("Successfully renamed view!") });
       handleViewModalReset();
     },
-    [handleViewModalReset, t, updateNewView, setSubmitting],
+    [handleViewModalReset, t, updateNewView, setSubmitting, selectedView],
   );
 
   const [deleteView] = useDeleteViewMutation({
@@ -186,7 +218,7 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
   });
 
   const handleViewDeletionModalClose = useCallback(() => {
-    setSelectedView(views[0] as View);
+    setSelectedView(fromGraphQLView(views[0] as GQLView));
   }, [views]);
 
   const handleViewDelete = useCallback(
@@ -197,10 +229,11 @@ export default ({ modelId, currentView, setCurrentView }: Params) => {
         Notification.error({ message: t("Failed to delete view.") });
       } else {
         Notification.success({ message: t("Successfully deleted view!") });
+        onViewChange();
         handleViewDeletionModalClose();
       }
     },
-    [deleteView, handleViewDeletionModalClose, t],
+    [deleteView, handleViewDeletionModalClose, onViewChange, t],
   );
 
   return {

@@ -3,10 +3,9 @@ import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { View } from "@reearth-cms/gql/graphql-client-api";
+import { View } from "@reearth-cms/components/molecules/View/types";
+import ViewsMenuItem from "@reearth-cms/components/molecules/View/viewMenuItem";
 import { useT } from "@reearth-cms/i18n";
-
-import ViewsMenuItem from "./viewMenuItem";
 
 export interface Props {
   views: View[];
@@ -17,6 +16,7 @@ export interface Props {
   selectedView?: View;
   setSelectedView: (view?: View) => void;
   onViewCreateModalOpen: () => void;
+  onViewChange: () => void;
 }
 
 const ViewsMenuMolecule: React.FC<Props> = ({
@@ -28,6 +28,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   onViewDeletionClose,
   selectedView,
   setSelectedView,
+  onViewChange,
 }) => {
   const t = useT();
 
@@ -54,8 +55,9 @@ const ViewsMenuMolecule: React.FC<Props> = ({
           setSelectedView(view);
         }
       });
+      onViewChange();
     },
-    [setSelectedView, views],
+    [setSelectedView, views, onViewChange],
   );
 
   return (

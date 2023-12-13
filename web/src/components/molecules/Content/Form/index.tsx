@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -11,8 +12,10 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
+import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Select from "@reearth-cms/components/atoms/Select";
+import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -74,10 +77,12 @@ export interface Props {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
+  linkItemModalTitle: string;
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
   onReferenceModelUpdate: (modelId?: string) => void;
+  onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
@@ -158,10 +163,12 @@ const ContentForm: React.FC<Props> = ({
   requestModalPage,
   requestModalPageSize,
   requestCreationLoading,
+  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
   onReferenceModelUpdate,
+  onSearchTerm,
   onLinkItemTableChange,
   onPublish,
   onUnpublish,
@@ -191,6 +198,81 @@ const ContentForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const changedKeys = useRef(new Set<string>());
+
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      currentLocation.pathname !== nextLocation.pathname && changedKeys.current.size > 0,
+  );
+
+  const handleValuesChange = useCallback(
+    (changedValues: any) => {
+      const [key, value] = Object.entries(changedValues)[0];
+      if (
+        (!value && !initialFormValues[key]) ||
+        JSON.stringify(value) === JSON.stringify(initialFormValues[key])
+      ) {
+        changedKeys.current.delete(key);
+      } else if (Array.isArray(value) && value.length === 0) {
+        return;
+      } else {
+        changedKeys.current.add(key);
+      }
+    },
+    [initialFormValues],
+  );
+
+  useEffect(() => {
+    const openNotification = () => {
+      const key = `open${Date.now()}`;
+      const btn = (
+        <Space>
+          <Button
+            onClick={() => {
+              Notification.close(key);
+              blocker.reset?.();
+            }}>
+            {t("Cancel")}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              Notification.close(key);
+              blocker.proceed?.();
+            }}>
+            {t("Leave")}
+          </Button>
+        </Space>
+      );
+      Notification.config({
+        maxCount: 1,
+      });
+
+      Notification.info({
+        message: t("This item has unsaved data"),
+        description: t("Are you going to leave?"),
+        btn,
+        key,
+        placement: "top",
+        // TODO: Change to false when antd is updated
+        closeIcon: <span />,
+      });
+    };
+    if (blocker.state === "blocked") {
+      openNotification();
+    }
+  }, [t, blocker]);
+
+  useEffect(() => {
+    const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
+      if (changedKeys.current.size === 0) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnloadEvent, true);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnloadEvent, true);
+  }, []);
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues);
@@ -216,7 +298,7 @@ const ContentForm: React.FC<Props> = ({
       );
       const groupIdsInCurrentModel = new Set();
       model?.schema.fields?.forEach(field => {
-        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty.groupId);
+        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty?.groupId);
       });
       const groupFieldTypes = new Map();
       groups
@@ -262,11 +344,12 @@ const ContentForm: React.FC<Props> = ({
       }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
       }
+      changedKeys.current.clear();
       if (!itemId) {
         await onItemCreate?.({
           schemaId: model?.schema.id as string,
@@ -305,14 +388,14 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(values)) {
         fields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (value || "") as string,
+          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
@@ -376,7 +459,11 @@ const ContentForm: React.FC<Props> = ({
 
   return (
     <>
-      <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
+      <StyledForm
+        form={form}
+        layout="vertical"
+        initialValues={initialFormValues}
+        onValuesChange={handleValuesChange}>
         <PageHeader
           title={model?.name}
           onBack={handleBack}
@@ -427,11 +514,11 @@ const ContentForm: React.FC<Props> = ({
                   <MultiValueField
                     rows={3}
                     showCount
-                    maxLength={field.typeProperty.maxLength ?? false}
+                    maxLength={field.typeProperty?.maxLength}
                     FieldInput={TextArea}
                   />
                 ) : (
-                  <TextArea rows={3} showCount maxLength={field.typeProperty.maxLength ?? false} />
+                  <TextArea rows={3} showCount maxLength={field.typeProperty?.maxLength} />
                 )}
               </StyledFormItem>
             ) : field.type === "MarkdownText" ? (
@@ -450,11 +537,11 @@ const ContentForm: React.FC<Props> = ({
                 }>
                 {field.multiple ? (
                   <MultiValueField
-                    maxLength={field.typeProperty.maxLength ?? false}
+                    maxLength={field.typeProperty?.maxLength}
                     FieldInput={MarkdownInput}
                   />
                 ) : (
-                  <MarkdownInput maxLength={field.typeProperty.maxLength ?? false} />
+                  <MarkdownInput maxLength={field.typeProperty?.maxLength} />
                 )}
               </StyledFormItem>
             ) : field.type === "Integer" ? (
@@ -474,15 +561,15 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     type="number"
-                    min={field.typeProperty.min}
-                    max={field.typeProperty.max}
+                    min={field.typeProperty?.min}
+                    max={field.typeProperty?.max}
                     FieldInput={InputNumber}
                   />
                 ) : (
                   <InputNumber
                     type="number"
-                    min={field.typeProperty.min}
-                    max={field.typeProperty.max}
+                    min={field.typeProperty?.min}
+                    max={field.typeProperty?.max}
                   />
                 )}
               </StyledFormItem>
@@ -616,12 +703,14 @@ const ContentForm: React.FC<Props> = ({
                   key={field.id}
                   correspondingFieldId={field.id}
                   formItemsData={formItemsData}
-                  modelId={field.typeProperty.modelId}
+                  modelId={field.typeProperty?.modelId}
                   onReferenceModelUpdate={onReferenceModelUpdate}
+                  linkItemModalTitle={linkItemModalTitle}
                   linkedItemsModalList={linkedItemsModalList}
                   linkItemModalTotalCount={linkItemModalTotalCount}
                   linkItemModalPage={linkItemModalPage}
                   linkItemModalPageSize={linkItemModalPageSize}
+                  onSearchTerm={onSearchTerm}
                   onLinkItemTableChange={onLinkItemTableChange}
                 />
               </StyledFormItem>
@@ -659,11 +748,11 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     showCount={true}
-                    maxLength={field.typeProperty.maxLength ?? 500}
+                    maxLength={field.typeProperty?.maxLength ?? 500}
                     FieldInput={Input}
                   />
                 ) : (
-                  <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                  <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
                 )}
               </StyledFormItem>
             ) : field.type === "Group" ? (
@@ -757,11 +846,11 @@ const ContentForm: React.FC<Props> = ({
                 {field.multiple ? (
                   <MultiValueField
                     showCount={true}
-                    maxLength={field.typeProperty.maxLength ?? 500}
+                    maxLength={field.typeProperty?.maxLength ?? 500}
                     FieldInput={Input}
                   />
                 ) : (
-                  <Input showCount={true} maxLength={field.typeProperty.maxLength ?? 500} />
+                  <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
                 )}
               </StyledFormItem>
             ),
@@ -906,14 +995,14 @@ const ContentForm: React.FC<Props> = ({
                     <MultiValueField
                       onBlur={handleMetaUpdate}
                       showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
+                      maxLength={field.typeProperty?.maxLength ?? 500}
                       FieldInput={Input}
                     />
                   ) : (
                     <Input
                       onBlur={handleMetaUpdate}
                       showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
+                      maxLength={field.typeProperty?.maxLength ?? 500}
                     />
                   )}
                 </Form.Item>
@@ -936,14 +1025,14 @@ const ContentForm: React.FC<Props> = ({
                     <MultiValueField
                       onBlur={handleMetaUpdate}
                       showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
+                      maxLength={field.typeProperty?.maxLength ?? 500}
                       FieldInput={Input}
                     />
                   ) : (
                     <Input
                       onBlur={handleMetaUpdate}
                       showCount={true}
-                      maxLength={field.typeProperty.maxLength ?? 500}
+                      maxLength={field.typeProperty?.maxLength ?? 500}
                     />
                   )}
                 </Form.Item>

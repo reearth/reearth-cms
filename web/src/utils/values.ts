@@ -1,10 +1,21 @@
 import { Model, Field, Group } from "@reearth-cms/components/molecules/Schema/types";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import {
+  View,
+  AndConditionInput,
+  ItemSort,
+  Condition,
+  Column,
+} from "@reearth-cms/components/molecules/View/types";
 import {
   Maybe,
   Model as GQLModel,
   Group as GQLGroup,
   View as GQLView,
+  FieldType as GQLFieldType,
+  SortDirection as GQLSortDirection,
+  AndConditionInput as GQLAndConditionInput,
+  ItemSortInput as GQLItemSortInput,
+  ColumnSelectionInput as GQLColumnSelectionInput,
 } from "@reearth-cms/gql/graphql-client-api";
 
 export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
@@ -16,6 +27,7 @@ export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
     name: model.name,
     key: model.key,
     public: model.public,
+    order: model.order ?? undefined,
     schema: {
       id: model.schema?.id,
       fields: model.schema?.fields.map(
@@ -86,6 +98,7 @@ export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
   };
 };
 
+//view type conversions
 export const fromGraphQLView = (view: GQLView): View | undefined => {
   if (!view) return;
 
@@ -94,5 +107,48 @@ export const fromGraphQLView = (view: GQLView): View | undefined => {
     name: view.name,
     modelId: view.modelId,
     projectId: view.projectId,
+    sort: view.sort
+      ? {
+          field: {
+            id: view.sort.field.id ?? undefined,
+            type: view.sort.field.type,
+          },
+          direction: view.sort.direction ? view.sort.direction : "ASC",
+        }
+      : undefined,
+    columns: view.columns
+      ? view.columns?.map(column => ({
+          field: {
+            type: column.field.type,
+            id: column.field.id ?? undefined,
+          },
+          visible: column.visible,
+        }))
+      : undefined,
+    filter: view.filter ? (view.filter as Condition) : undefined,
   };
+};
+
+export const toGraphItemSort = (sort: ItemSort): GQLItemSortInput | undefined => {
+  return {
+    field: {
+      id: sort.field.id ?? undefined,
+      type: sort.field.type as GQLFieldType,
+    },
+    direction: sort.direction ? (sort.direction as GQLSortDirection) : GQLSortDirection["Asc"],
+  };
+};
+
+export const toGraphColumnSelectionInput = (column: Column): GQLColumnSelectionInput => {
+  return {
+    field: {
+      id: column.field.id,
+      type: column.field.type as GQLFieldType,
+    },
+    visible: column.visible,
+  };
+};
+
+export const toGraphAndConditionInput = (condition: AndConditionInput): GQLAndConditionInput => {
+  return condition as GQLAndConditionInput;
 };

@@ -67,7 +67,7 @@ func TestModelRepo_FindByID(t *testing.T) {
 		{
 			name: "Found 1",
 			seeds: model.List{
-				m1,
+				m1.Clone(),
 			},
 			arg:     id1,
 			want:    m1,
@@ -87,7 +87,7 @@ func TestModelRepo_FindByID(t *testing.T) {
 		{
 			name: "project filter operation success",
 			seeds: model.List{
-				m1,
+				m1.Clone(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
@@ -99,7 +99,7 @@ func TestModelRepo_FindByID(t *testing.T) {
 		{
 			name: "project filter operation denied",
 			seeds: model.List{
-				m1,
+				m1.Clone(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 				model.New().NewID().Project(id.NewProjectID()).Schema(sid1).Key(k).UpdatedAt(mocknow).MustBuild(),
 			},
@@ -113,17 +113,14 @@ func TestModelRepo_FindByID(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			//t.Parallel()
 
 			r := NewModel()
 			defer MockModelNow(r, mocknow)()
 			ctx := context.Background()
 
-			for _, a := range tc.seeds {
-				err := r.Save(ctx, a.Clone())
-				assert.NoError(t, err)
-			}
-
+			err := r.SaveAll(ctx, tc.seeds)
+			assert.NoError(t, err)
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
 			}

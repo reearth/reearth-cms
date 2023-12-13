@@ -11,13 +11,8 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { ItemSort, AndConditionInput } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import type {
-  SortDirection,
-  FieldSelector,
-  ConditionInput,
-  ItemSortInput,
-} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -35,7 +30,6 @@ export type Props = {
   };
   totalCount: number;
   currentView: CurrentViewType;
-  filter?: ConditionInput[];
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -46,12 +40,8 @@ export type Props = {
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onTableControl: (sort?: ItemSortInput, filter?: ConditionInput[]) => void;
-  onContentTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { field?: FieldSelector; direction?: SortDirection },
-  ) => void;
+  onFilterChange: (filter?: AndConditionInput) => void;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
@@ -96,7 +86,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onSearchTerm,
-  onTableControl,
+  onFilterChange,
   onContentTableChange,
   setSelection,
   onItemSelect,
@@ -146,8 +136,8 @@ const ContentListMolecule: React.FC<Props> = ({
             selectedItem={selectedItem}
             selection={selection}
             onUnpublish={onUnpublish}
-            onTableControl={onTableControl}
             onSearchTerm={onSearchTerm}
+            onFilterChange={onFilterChange}
             onContentTableChange={onContentTableChange}
             setSelection={setSelection}
             onItemSelect={onItemSelect}
@@ -167,6 +157,7 @@ const ContentListMolecule: React.FC<Props> = ({
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
             setCurrentView={setCurrentView}
+            modelKey={model?.key}
           />
         </Content>
       }

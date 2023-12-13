@@ -32,6 +32,10 @@ func NewKey(key string) Key {
 	return k
 }
 
+func NewKeyFromPtr(key *string) *Key {
+	return lo.ToPtr(NewKey(lo.FromPtr(key)))
+}
+
 func RandomKey() Key {
 	seed := util.Now().UTC().UnixNano()
 	return NewKey(namegenerator.NewNameGenerator(seed).Generate())

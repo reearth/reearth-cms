@@ -132,7 +132,7 @@ const MultiValueGroup: React.FC<Props> = ({
     // set default value
     const newValues = { ...form?.getFieldsValue() };
     group?.schema.fields.forEach((field: Field) => {
-      const defaultValue = field.typeProperty.defaultValue;
+      const defaultValue = field.typeProperty?.defaultValue;
       const setValue = (value: any) => {
         if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
           form?.setFieldValue([field.id, itemGroupId], value);
@@ -143,15 +143,19 @@ const MultiValueGroup: React.FC<Props> = ({
 
       switch (field.type) {
         case "Select":
+          setValue(field.typeProperty?.selectDefaultValue);
+          break;
         case "Integer":
+          setValue(field.typeProperty?.integerDefaultValue);
+          break;
         case "Asset":
-          setValue(field.typeProperty[field.type.toLowerCase() + "DefaultValue"]);
+          setValue(field.typeProperty?.assetDefaultValue);
           break;
         case "Date":
           if (Array.isArray(defaultValue)) {
-            setValue(defaultValue.map(valueItem => (valueItem ? moment(valueItem) : "")));
+            setValue(defaultValue.map(valueItem => (valueItem ? moment(valueItem as string) : "")));
           } else if (defaultValue) {
-            setValue(moment(defaultValue));
+            setValue(moment(defaultValue as string));
           } else {
             form?.setFieldValue([field.id, itemGroupId], "");
           }

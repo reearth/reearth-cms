@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useCallback } from "react";
+import { useState, useCallback, Dispatch, SetStateAction } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -10,8 +10,8 @@ import {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
+import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
-import { ConditionInput, ItemSortInput } from "@reearth-cms/gql/graphql-client-api";
 
 import DropdownRender from "./DropdownRender";
 
@@ -22,7 +22,8 @@ type Props = {
   filterRemove: (index: number) => void;
   isFilterOpen: boolean;
   currentView: CurrentViewType;
-  onTableControl: (sort: ItemSortInput | undefined, filter: ConditionInput[] | undefined) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  onFilterChange: (filter?: AndConditionInput) => void;
 };
 
 const FilterDropdown: React.FC<Props> = ({
@@ -32,7 +33,8 @@ const FilterDropdown: React.FC<Props> = ({
   filterRemove,
   isFilterOpen,
   currentView,
-  onTableControl,
+  setCurrentView,
+  onFilterChange,
 }) => {
   const [open, setOpen] = useState(isFilterOpen);
 
@@ -64,12 +66,13 @@ const FilterDropdown: React.FC<Props> = ({
           open={open}
           isFilter={true}
           currentView={currentView}
-          onTableControl={onTableControl}
+          setCurrentView={setCurrentView}
+          onFilterChange={onFilterChange}
         />
       )}
       trigger={["click"]}
       placement="bottomLeft"
-      arrow
+      arrow={false}
       open={open}
       onOpenChange={handleOpenChange}>
       <Badge offset={[-3, 3]} color="blue" dot>
@@ -86,6 +89,8 @@ const FilterDropdown: React.FC<Props> = ({
   );
 };
 
+export default FilterDropdown;
+
 const StyledButton = styled(Button)`
   color: rgba(0, 0, 0, 0.45);
   background-color: #f8f8f8;
@@ -98,5 +103,3 @@ const StyledIcon = styled(Icon)`
     color: rgba(0, 0, 0, 0.85);
   }
 `;
-
-export default FilterDropdown;

@@ -31,10 +31,11 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 		}
 	}
 
+	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	f := interfaces.AssetFilter{
 		Keyword:    nil,
 		Sort:       sort,
-		Pagination: fromPagination(request.Params.Page, request.Params.PerPage),
+		Pagination: p,
 	}
 
 	assets, pi, err := uc.Asset.FindByProject(ctx, request.ProjectId, f, op)
@@ -56,8 +57,8 @@ func (s Server) AssetFilter(ctx context.Context, request AssetFilterRequestObjec
 
 	return AssetFilter200JSONResponse{
 		Items:      &itemList,
-		Page:       request.Params.Page,
-		PerPage:    request.Params.PerPage,
+		Page:       lo.ToPtr(Page(*p.Offset)),
+		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }

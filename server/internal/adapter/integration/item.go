@@ -75,8 +75,8 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 	}
 	return ItemFilter200JSONResponse{
 		Items:      &resItms,
-		Page:       request.Params.Page,
-		PerPage:    request.Params.PerPage,
+		Page:       lo.ToPtr(Page(*p.Offset)),
+		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
@@ -345,27 +345,27 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 			}
 		}
 		metaItemID = metaItem.Value().ID().Ref()
-
 	}
+
 	ss, err := uc.Schema.FindByID(ctx, i.Value().Schema(), op)
 	if err != nil {
 		return ItemUpdate400Response{}, err
 	}
-
-	up := interfaces.UpdateItemParam{
-		ItemID: request.ItemId,
-		Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
-			return fromItemFieldParam(f)
-		}),
-		MetadataID: metaItemID,
-	}
-
-	i, err = uc.Item.Update(ctx, up, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
+	if request.Body.Fields != nil {
+		up := interfaces.UpdateItemParam{
+			ItemID: request.ItemId,
+			Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
+				return fromItemFieldParam(f)
+			}),
+			MetadataID: metaItemID,
+		}
+		i, err = uc.Item.Update(ctx, up, op)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return ItemUpdate400Response{}, err
+			}
 			return ItemUpdate400Response{}, err
 		}
-		return ItemUpdate400Response{}, err
 	}
 
 	assets, err := getAssetsFromItems(ctx, item.VersionedList{i}, request.Body.Asset)
@@ -556,8 +556,9 @@ func convertMetaFields(fields []integrationapi.Field, s *schema.Schema) []interf
 	res := make([]interfaces.ItemFieldParam, 0, len(fields))
 
 	for _, field := range fields {
-		if *field.Type == integrationapi.ValueTypeTag {
-			sf := s.Field(*field.Id)
+		sf := s.FieldByIDOrKey(field.Id, id.NewKeyFromPtr(field.Key))
+
+		if sf != nil && sf.Type() == value.TypeTag {
 			var tagList schema.TagList
 			sf.TypeProperty().Match(schema.TypePropertyMatch{
 				Tag: func(f *schema.FieldTag) {
@@ -580,7 +581,6 @@ func convertMetaFields(fields []integrationapi.Field, s *schema.Schema) []interf
 				var value interface{} = tagIDs
 				field.Value = &value
 			}
-
 		}
 		res = append(res, fromItemFieldParam(field))
 	}

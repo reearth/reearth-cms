@@ -9,6 +9,7 @@ export const GET_MODELS = gql`
         description
         key
         public
+        order
         metadataSchema {
           id
           fields {
@@ -173,6 +174,7 @@ export const GET_MODEL_NODE = gql`
       ... on Model {
         id
         schemaId
+        name
       }
     }
   }
@@ -229,6 +231,18 @@ export const GET_MODEL_KEY_AVAILABILITY = gql`
     checkModelKeyAvailability(projectId: $projectId, key: $key) {
       key
       available
+    }
+  }
+`;
+
+export const UPDATE_MODELS_ORDER = gql`
+  mutation UpdateModelsOrder($modelIds: [ID!]!) {
+    updateModelsOrder(input: { modelIds: $modelIds }) {
+      models {
+        ... on Model {
+          id
+        }
+      }
     }
   }
 `;
