@@ -45,7 +45,7 @@ func Page(p usecasex.OffsetPagination) int {
 	return int(p.Offset/int64(p.Limit)) + 1
 }
 
-func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
+func fromItemFieldParam(f integrationapi.Field, sf *schema.Field) interfaces.ItemFieldParam {
 	var v any = f.Value
 	if f.Value != nil {
 		v = *f.Value
@@ -59,35 +59,43 @@ func fromItemFieldParam(f integrationapi.Field) interfaces.ItemFieldParam {
 	return interfaces.ItemFieldParam{
 		Field: f.Id,
 		Key:   k,
-		Type:  integrationapi.FromValueType(f.Type),
+		Type:  sf.Type(),
 		Value: v,
 		Group: f.Group,
 	}
 }
 
-func convertFields(fields *[]integrationapi.Field, s *schema.Schema, normalizeTag, appendDefault bool) (res []interfaces.ItemFieldParam) {
+func convertFields(fields *[]integrationapi.Field, sp *schema.Package, appendDefault, isMeta bool) (res []interfaces.ItemFieldParam) {
 	res = []interfaces.ItemFieldParam{}
 	if fields == nil {
 		fields = &[]integrationapi.Field{}
 	}
 
 	for _, field := range *fields {
-		sf := s.FieldByIDOrKey(field.Id, id.NewKeyFromPtr(field.Key))
+		sf := sp.FieldByIDOrKey(field.Id, id.NewKeyFromPtr(field.Key))
 		if sf == nil {
 			continue
 		}
 
-		if sf.Type() == value.TypeTag && normalizeTag {
+		if sf.Type() == value.TypeTag {
 			tagNameToId(sf, &field)
 		}
 
-		res = append(res, fromItemFieldParam(field))
+		res = append(res, fromItemFieldParam(field, sf))
 	}
 
-	if appendDefault {
-		res = appendDefaultValues(s, res)
+	if !appendDefault {
+		return res
 	}
 
+	if isMeta {
+		res = appendDefaultValues(sp.MetaSchema(), res)
+	} else {
+		res = appendDefaultValues(sp.Schema(), res)
+		for _, s := range sp.GroupSchemas() {
+			res = appendDefaultValues(s, res)
+		}
+	}
 	return res
 }
 

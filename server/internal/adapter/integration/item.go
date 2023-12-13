@@ -203,7 +203,7 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 	var metaItem item.Versioned
 	var metaItemID *id.ItemID
 	if sp.MetaSchema() != nil && request.Body.MetadataFields != nil {
-		metaFields := convertFields(request.Body.MetadataFields, sp.MetaSchema(), true, false)
+		metaFields := convertFields(request.Body.MetadataFields, sp, false, true)
 		if i.Value().MetadataItem() == nil {
 
 			cpMeta := interfaces.CreateItemParam{
@@ -239,10 +239,8 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 
 	if request.Body.Fields != nil {
 		input := interfaces.UpdateItemParam{
-			ItemID: request.ItemId,
-			Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
-				return fromItemFieldParam(f)
-			}),
+			ItemID:     request.ItemId,
+			Fields:     convertFields(request.Body.Fields, sp, false, false),
 			MetadataID: metaItemID,
 		}
 		i, err = uc.Item.Update(ctx, input, op)
@@ -326,7 +324,7 @@ func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, f
 	var metaItem item.Versioned
 	var metaItemID *id.ItemID
 	if m.Metadata() != nil {
-		metaFields := convertFields(metaFields, sp.MetaSchema(), true, true)
+		metaFields := convertFields(metaFields, sp, true, true)
 		cpMeta := interfaces.CreateItemParam{
 			SchemaID: sp.MetaSchema().ID(),
 			Fields:   metaFields,
@@ -342,7 +340,7 @@ func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, f
 
 	cp := interfaces.CreateItemParam{
 		SchemaID:   sp.Schema().ID(),
-		Fields:     convertFields(fields, sp.Schema(), true, true),
+		Fields:     convertFields(fields, sp, true, false),
 		MetadataID: metaItemID,
 		ModelID:    m.ID(),
 	}
