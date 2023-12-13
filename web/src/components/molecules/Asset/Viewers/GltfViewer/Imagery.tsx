@@ -24,7 +24,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
     const hpr = new HeadingPitchRoll(0, 0, 0);
 
     const model = viewer.scene.primitives.add(
-      Model.fromGltf({
+      Model.fromGltfAsync({
         url,
         modelMatrix: Transforms.headingPitchRollToFixedFrame(position, hpr, Ellipsoid.WGS84),
         show: true,
