@@ -221,10 +221,12 @@ const LinkAssetModal: React.FC<Props> = ({
         />,
       ]}
       width="70vw"
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          padding: "12px",
+        },
       }}>
       <ResizableProTable
         dataSource={assetList}
