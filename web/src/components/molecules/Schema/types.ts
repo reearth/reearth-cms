@@ -6,6 +6,7 @@ export type Model = {
   schema: Schema;
   metadataSchema?: MetaDataSchema;
   public: boolean;
+  order?: number;
 };
 
 export type MetaDataSchema = {

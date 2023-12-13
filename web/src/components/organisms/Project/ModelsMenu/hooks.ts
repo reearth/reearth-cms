@@ -7,6 +7,7 @@ import {
   useGetModelsQuery,
   useGetGroupsQuery,
   useCreateModelMutation,
+  useUpdateModelsOrderMutation,
   useCreateGroupMutation,
   useCheckModelKeyAvailabilityLazyQuery,
   useCheckGroupKeyAvailabilityLazyQuery,
@@ -102,6 +103,27 @@ export default ({ modelId, groupId }: Params) => {
       );
     },
     [currentWorkspace?.id, projectId, createNewModel, navigate, t],
+  );
+
+  const [updateModelsOrder] = useUpdateModelsOrderMutation({
+    refetchQueries: ["GetModels"],
+  });
+
+  const handleUpdateModelsOrder = useCallback(
+    async (modelIds: string[]) => {
+      if (modelIds.length === 0) return;
+      const model = await updateModelsOrder({
+        variables: {
+          modelIds,
+        },
+      });
+      if (model.errors) {
+        Notification.error({ message: t("Failed to update models order.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated models order!") });
+    },
+    [updateModelsOrder, t],
   );
 
   const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
@@ -200,5 +222,6 @@ export default ({ modelId, groupId }: Params) => {
     handleGroupModalClose,
     handleGroupCreate,
     handleGroupKeyCheck,
+    handleUpdateModelsOrder,
   };
 };
