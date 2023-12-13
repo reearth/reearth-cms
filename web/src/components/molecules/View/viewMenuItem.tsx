@@ -86,6 +86,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: space-between;
 `;
 
 const StyledDropdown = styled(Dropdown)`
