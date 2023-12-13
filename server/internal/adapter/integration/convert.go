@@ -93,34 +93,38 @@ func convertFields(fields *[]integrationapi.Field, sp *schema.Package, appendDef
 	} else {
 		res = appendDefaultValues(sp.Schema(), res, nil)
 
-		gsflist := sp.Schema().FieldsByType(value.TypeGroup)
-		for _, gsf := range gsflist {
-			var gID id.GroupID
-			gsf.TypeProperty().Match(schema.TypePropertyMatch{
-				Group: func(f *schema.FieldGroup) {
-					gID = f.Group()
-				},
-			})
-			s := sp.GroupSchema(gID)
-			if s == nil {
-				continue
-			}
-			igID := id.NewItemGroupID()
-			var v any
-			v = []id.ItemGroupID{id.NewItemGroupID()}
-			if !gsf.Multiple() {
-				v = igID
-			}
-			res = append(res, interfaces.ItemFieldParam{
-				Field: gsf.ID().Ref(),
-				Key:   gsf.Key().Ref(),
-				Type:  gsf.Type(),
-				Value: v,
-				Group: nil,
-			})
-			res = appendDefaultValues(s, res, igID.Ref())
-		}
+		res = appendGroupFieldsDefaultValue(sp, res)
+	}
+	return res
+}
 
+func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFieldParam) []interfaces.ItemFieldParam {
+	gsflist := sp.Schema().FieldsByType(value.TypeGroup)
+	for _, gsf := range gsflist {
+		var gID id.GroupID
+		gsf.TypeProperty().Match(schema.TypePropertyMatch{
+			Group: func(f *schema.FieldGroup) {
+				gID = f.Group()
+			},
+		})
+		s := sp.GroupSchema(gID)
+		if s == nil {
+			continue
+		}
+		igID := id.NewItemGroupID()
+		var v any
+		v = []id.ItemGroupID{id.NewItemGroupID()}
+		if !gsf.Multiple() {
+			v = igID
+		}
+		res = append(res, interfaces.ItemFieldParam{
+			Field: gsf.ID().Ref(),
+			Key:   gsf.Key().Ref(),
+			Type:  gsf.Type(),
+			Value: v,
+			Group: nil,
+		})
+		res = appendDefaultValues(s, res, igID.Ref())
 	}
 	return res
 }
@@ -132,7 +136,7 @@ func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam, igID
 		}
 
 		exists := lo.ContainsBy(res, func(f interfaces.ItemFieldParam) bool {
-			return f.Field != nil && *f.Field == sf.ID()
+			return (f.Field != nil && *f.Field == sf.ID()) && (f.Group != nil && igID != nil && *f.Group == *igID)
 		})
 		if exists {
 			continue
