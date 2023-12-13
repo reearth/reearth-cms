@@ -23,13 +23,12 @@ export const Imagery: React.FC<Props> = ({ url }) => {
     const position = Cartesian3.ZERO;
     const hpr = new HeadingPitchRoll(0, 0, 0);
 
-    const model = viewer.scene.primitives.add(
-      Model.fromGltfAsync({
-        url,
-        modelMatrix: Transforms.headingPitchRollToFixedFrame(position, hpr, Ellipsoid.WGS84),
-        show: true,
-      }),
-    );
+    const gltf = await Model.fromGltfAsync({
+      url,
+      modelMatrix: Transforms.headingPitchRollToFixedFrame(position, hpr, Ellipsoid.WGS84),
+      show: true,
+    })
+    const model = viewer.scene.primitives.add(gltf);
 
     modelRef.current = model;
     viewer.scene.primitives.add(model);
