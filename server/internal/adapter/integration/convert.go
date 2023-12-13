@@ -89,17 +89,43 @@ func convertFields(fields *[]integrationapi.Field, sp *schema.Package, appendDef
 	}
 
 	if isMeta {
-		res = appendDefaultValues(sp.MetaSchema(), res)
+		res = appendDefaultValues(sp.MetaSchema(), res, nil)
 	} else {
-		res = appendDefaultValues(sp.Schema(), res)
-		for _, s := range sp.GroupSchemas() {
-			res = appendDefaultValues(s, res)
+		res = appendDefaultValues(sp.Schema(), res, nil)
+
+		gsflist := sp.Schema().FieldsByType(value.TypeGroup)
+		for _, gsf := range gsflist {
+			var gID id.GroupID
+			gsf.TypeProperty().Match(schema.TypePropertyMatch{
+				Group: func(f *schema.FieldGroup) {
+					gID = f.Group()
+				},
+			})
+			s := sp.GroupSchema(gID)
+			if s == nil {
+				continue
+			}
+			igID := id.NewItemGroupID()
+			var v any
+			v = []id.ItemGroupID{id.NewItemGroupID()}
+			if !gsf.Multiple() {
+				v = igID
+			}
+			res = append(res, interfaces.ItemFieldParam{
+				Field: gsf.ID().Ref(),
+				Key:   gsf.Key().Ref(),
+				Type:  gsf.Type(),
+				Value: v,
+				Group: nil,
+			})
+			res = appendDefaultValues(s, res, igID.Ref())
 		}
+
 	}
 	return res
 }
 
-func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam) []interfaces.ItemFieldParam {
+func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam, igID *id.ItemGroupID) []interfaces.ItemFieldParam {
 	for _, sf := range s.Fields() {
 		if sf.DefaultValue() == nil || sf.DefaultValue().Len() == 0 {
 			continue
@@ -121,7 +147,7 @@ func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam) []in
 			Key:   sf.Key().Ref(),
 			Type:  sf.Type(),
 			Value: v,
-			Group: nil,
+			Group: igID,
 		})
 	}
 	return res
