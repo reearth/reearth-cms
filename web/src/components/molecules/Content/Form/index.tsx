@@ -880,7 +880,8 @@ const ContentForm: React.FC<Props> = ({
                       onBlur={handleMetaUpdate}
                       mode="multiple"
                       showArrow
-                      style={{ width: "100%" }}>
+                      style={{ width: "100%" }}
+                      allowClear>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
