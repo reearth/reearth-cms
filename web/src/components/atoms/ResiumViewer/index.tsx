@@ -12,6 +12,7 @@ import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 
 import { sortProperties } from "./sortProperty";
+import styled from "@emotion/styled";
 
 type Props = {
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
@@ -36,6 +37,16 @@ const ResiumViewer: React.FC<Props> = ({
   const [description, setDescription] = useState("");
   const [selected, select] = useState(false);
   const [terrainProvider, setTerrainProvider] = useState<CesiumTerrainProvider>();
+
+  useEffect(() => {
+    const setWorldTerrain = async () => {
+      const terrain = await createWorldTerrainAsync()
+      setTerrainProvider(terrain);
+    }
+    if (!terrainProvider) {
+      setWorldTerrain();
+    }
+  }, [terrainProvider]);
 
   const handleClick = useCallback(
     (_movement: CesiumMovementEvent, target: RootEventTarget) => {
@@ -78,14 +89,6 @@ const ResiumViewer: React.FC<Props> = ({
   }, [passedProps, properties]);
 
   useEffect(() => {
-    if (!terrainProvider) {
-      createWorldTerrainAsync().then(r => {
-        setTerrainProvider(prev => !prev ? r : prev);
-      });
-    }
-  });
-
-  useEffect(() => {
     if (viewer.current) {
       onGetViewer(viewer.current?.cesiumElement);
     }
@@ -96,8 +99,8 @@ const ResiumViewer: React.FC<Props> = ({
     setInfoBoxVisibility(true);
   }, []);
 
-  return (
-    <div style={{ position: "relative" }}>
+  const renderViewer = useCallback(() => {
+    return terrainProvider ? (<>
       <Viewer
         terrainProvider={terrainProvider}
         navigationHelpButton={false}
@@ -126,8 +129,18 @@ const ResiumViewer: React.FC<Props> = ({
         description={description}
         onClose={handleClose}
       />
-    </div>
+    </>) : null;
+  }, [terrainProvider])
+
+  return (
+    <Container>
+      {renderViewer()}
+    </Container>
   );
 };
+
+const Container = styled.div`
+  position: relative;
+`;
 
 export default ResiumViewer;
