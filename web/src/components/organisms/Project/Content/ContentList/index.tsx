@@ -48,6 +48,7 @@ const ContentList: React.FC = () => {
     handleItemsReload,
     handleItemDelete,
     handleContentTableChange,
+    handleRequestSearchTerm,
   } = useHooks();
 
   return (
@@ -113,6 +114,7 @@ const ContentList: React.FC = () => {
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
       onAddItemToRequest={handleAddItemToRequest}
       addItemToRequestModalShown={addItemToRequestModalShown}
+      onRequestSearchTerm={handleRequestSearchTerm}
     />
   );
 };
