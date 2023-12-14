@@ -84,6 +84,12 @@ export default () => {
     skip: !itemId,
   });
 
+  useEffect(() => {
+    if (itemId && data?.node === null) {
+      navigate("../..", { relative: "path" });
+    }
+  }, [data?.node, itemId, navigate]);
+
   const { data: modelData } = useGetModelQuery({
     fetchPolicy: "no-cache",
     variables: { id: referenceModelId ?? "" },
