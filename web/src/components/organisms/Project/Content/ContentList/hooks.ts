@@ -118,10 +118,11 @@ export default () => {
       data?.searchItem?.nodes
         ? data.searchItem.nodes
             .filter(item => item?.fields && item?.fields.length > 0)
-            .flatMap(item =>
-              item?.fields
-                .filter(field => field.type === "Reference" && field.value)
-                .map(field => field.value),
+            .flatMap(
+              item =>
+                item?.fields
+                  .filter(field => field.type === "Reference" && field.value)
+                  .map(field => field.value),
             )
         : [],
     [data],
@@ -250,14 +251,14 @@ export default () => {
                                 ?.url,
                             )
                         : field.type === "Reference"
-                        ? referencedItemsMap.get(field.value)?.title ?? ""
-                        : Array.isArray(field.value)
-                        ? field.value.length > 0
-                          ? field.value.map(v => "" + v)
-                          : null
-                        : field.value === null
-                        ? null
-                        : "" + field.value,
+                          ? referencedItemsMap.get(field.value)?.title ?? ""
+                          : Array.isArray(field.value)
+                            ? field.value.length > 0
+                              ? field.value.map(v => "" + v)
+                              : null
+                            : field.value === null
+                              ? null
+                              : "" + field.value,
                   }),
                 {},
               ),
@@ -272,8 +273,8 @@ export default () => {
                         ? field.value.map(v => "" + v)
                         : null
                       : field.value === null
-                      ? null
-                      : "" + field.value,
+                        ? null
+                        : "" + field.value,
                   }),
                 {},
               ),

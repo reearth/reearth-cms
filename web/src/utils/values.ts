@@ -43,7 +43,7 @@ export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
             multiple: field.multiple,
             required: field.required,
             typeProperty: field.typeProperty,
-          } as Field),
+          }) as Field,
       ),
     },
     metadataSchema: {
@@ -61,7 +61,7 @@ export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
             multiple: field.multiple,
             required: field.required,
             typeProperty: field.typeProperty,
-          } as Field),
+          }) as Field,
       ),
     },
   };
@@ -92,7 +92,7 @@ export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
             multiple: field.multiple,
             required: field.required,
             typeProperty: field.typeProperty,
-          } as Field),
+          }) as Field,
       ),
     },
   };
