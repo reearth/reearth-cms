@@ -12,7 +12,6 @@ export interface Props {
   onViewRenameModalOpen?: (view: View) => void;
   onDelete: (viewId: string) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
-  onViewDeletionClose: () => void;
   selectedView?: View;
   setSelectedView: (view?: View) => void;
   onViewCreateModalOpen: () => void;
@@ -25,7 +24,6 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   onViewCreateModalOpen,
   onUpdate,
   onDelete,
-  onViewDeletionClose,
   selectedView,
   setSelectedView,
   onViewChange,
@@ -40,7 +38,6 @@ const ViewsMenuMolecule: React.FC<Props> = ({
           onViewRenameModalOpen={onViewRenameModalOpen}
           onDelete={onDelete}
           onUpdate={onUpdate}
-          onViewDeletionClose={onViewDeletionClose}
         />
       ),
       key: view.id,

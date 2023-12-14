@@ -878,11 +878,11 @@ components:
         - textArea
         - richText
         - markdown
+        - checkbox
         - asset
         - date
         - bool
         - select
-        - tag
         - integer
         - reference
         - url
