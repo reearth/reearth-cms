@@ -38,6 +38,7 @@ const Center = styled.div`
   max-height: 100%;
   display: flex;
   flex: 1;
+  width: 550px;
 `;
 
 const Right = styled.div`

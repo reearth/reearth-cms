@@ -75,6 +75,7 @@ const ResizableProTable: React.FC<Props> = ({
         onChange={onChange}
         columnsState={columnsState}
         showSorterTooltip={showSorterTooltip}
+        scroll={{ x: "", y: "" }}
       />
     </Wrapper>
   );
@@ -83,17 +84,26 @@ const ResizableProTable: React.FC<Props> = ({
 export default ResizableProTable;
 
 const Wrapper = styled.div`
-  .ant-table.ant-table-middle {
-    overflow-x: scroll;
+  .ant-pro-card-body {
+    padding-bottom: 0;
   }
-  .ant-table-content {
-    width: 1px;
-    max-width: 100%;
-    table {
-      width: 100%;
-    }
+  height: calc(100% - 102px);
+  .ant-pro-table,
+  .ant-pro-card,
+  .ant-pro-card-body,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-table-container {
+    height: 100%;
   }
-  .ant-pro-table-column-setting-list-item-option {
-    visibility: hidden;
+  .ant-table-wrapper {
+    height: calc(100% - 64px);
+  }
+  .ant-table-middle {
+    height: calc(100% - 56px);
+  }
+  .ant-table-body {
+    overflow: auto !important;
+    height: calc(100% - 47px);
   }
 `;
