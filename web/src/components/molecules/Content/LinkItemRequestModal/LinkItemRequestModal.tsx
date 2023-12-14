@@ -146,6 +146,9 @@ const LinkItemRequestModal: React.FC<Props> = ({
           position: "relative",
           padding: "12px 12px 0",
         },
+      }}
+      afterClose={() => {
+        resetFlag.current = !resetFlag.current;
       }}>
       <StyledProTable
         dataSource={requestList}

@@ -231,7 +231,7 @@ const ContentForm: React.FC<Props> = ({
         <Space>
           <Button
             onClick={() => {
-              Notification.destroy(key);
+              Notification.destroy();
               blocker.reset?.();
             }}>
             {t("Cancel")}
@@ -239,7 +239,7 @@ const ContentForm: React.FC<Props> = ({
           <Button
             type="primary"
             onClick={() => {
-              Notification.destroy(key);
+              Notification.destroy();
               blocker.proceed?.();
             }}>
             {t("Leave")}
