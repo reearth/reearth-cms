@@ -81,6 +81,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         </Link>
       ),
       align: "center",
+      width: 32,
     },
     {
       title: () => <Icon icon="message" />,
@@ -97,12 +98,15 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         );
       },
       align: "center",
+      width: 32,
     },
     {
       title: t("File"),
       dataIndex: "fileName",
       key: "NAME",
       sorter: true,
+      width: 340,
+      ellipsis: true,
     },
     {
       title: t("Size"),
@@ -110,11 +114,13 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "SIZE",
       sorter: true,
       render: (_text, record) => bytesFormat(record.size),
+      width: 100,
     },
     {
       title: t("Preview Type"),
       dataIndex: "previewType",
       key: "previewType",
+      width: 120,
     },
     {
       title: t("Status"),
@@ -128,6 +134,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           )
         );
       },
+      width: 75,
     },
     {
       title: t("Created At"),
@@ -135,16 +142,21 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "DATE",
       sorter: true,
       render: (_text, record) => dateTimeFormat(record.createdAt),
+      width: 150,
     },
     {
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
+      width: 105,
+      ellipsis: true,
     },
     {
       title: t("ID"),
       dataIndex: "id",
       key: "id",
+      width: 240,
+      ellipsis: true,
     },
     {
       title: t("Linked to"),
@@ -178,6 +190,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           );
         }
       },
+      width: 95,
     },
   ];
 
@@ -231,7 +244,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   };
 
   return (
-    <ProTable
+    <StyledProTable
       dataSource={assetList}
       columns={columns}
       tableAlertOptionRender={AlertOptions}
@@ -251,6 +264,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
             : undefined,
         );
       }}
+      scroll={{ x: "", y: "" }}
     />
   );
 };
@@ -277,4 +291,32 @@ const MoreItemsButton = styled(Button)`
   align-items: center;
   gap: 8px;
   color: #1890ff;
+`;
+
+const StyledProTable = styled(ProTable)`
+  height: calc(100% - 72px);
+  .ant-pro-card-body {
+    padding-bottom: 0;
+  }
+  .ant-pro-card,
+  .ant-pro-card-body,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-table-container {
+    height: 100%;
+  }
+  .ant-table-wrapper {
+    height: calc(100% - 64px);
+  }
+  .ant-table {
+    height: calc(100% - 64px);
+  }
+  .ant-table-small,
+  .ant-table-middle {
+    height: calc(100% - 56px);
+  }
+  .ant-table-body {
+    overflow: auto !important;
+    height: calc(100% - 47px);
+  }
 `;

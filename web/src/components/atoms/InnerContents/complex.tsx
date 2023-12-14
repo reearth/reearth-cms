@@ -24,6 +24,7 @@ export default ComplexInnerContents;
 const PaddedContent = styled.div`
   display: flex;
   margin: 16px 0 0 16px;
+  height: 100%;
   min-height: calc(100% - 66px);
   max-height: calc(100% - 16px);
 `;
