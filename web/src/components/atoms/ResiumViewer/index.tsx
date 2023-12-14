@@ -151,6 +151,7 @@ const ResiumViewer: React.FC<Props> = ({
 
 const Container = styled.div`
   position: relative;
+  min-height: 240px;
 `;
 
 export default ResiumViewer;
