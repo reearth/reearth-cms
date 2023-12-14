@@ -18,11 +18,7 @@ import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
-import {
-  TableRowSelection,
-
-  ListToolBarProps,
-} from "@reearth-cms/components/atoms/ProTable";
+import { TableRowSelection, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -86,6 +82,7 @@ export type Props = {
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
+  onRequestSearchTerm: (term: string) => void;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -118,6 +115,7 @@ const ContentTable: React.FC<Props> = ({
   onItemDelete,
   onItemsReload,
   modelKey,
+  onRequestSearchTerm,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -715,21 +713,21 @@ const ContentTable: React.FC<Props> = ({
               Array.isArray(sorter)
                 ? undefined
                 : sorter.order &&
-                  sorter.column &&
-                  "fieldType" in sorter.column &&
-                  typeof sorter.columnKey === "string"
-                ? {
-                    field: {
-                      id:
-                        sorter.column.fieldType === "FIELD" ||
-                        sorter.column.fieldType === "META_FIELD"
-                          ? sorter.columnKey
-                          : undefined,
-                      type: sorter.column.fieldType as FieldType,
-                    },
-                    direction: sorter.order === "ascend" ? "ASC" : "DESC",
-                  }
-                : undefined,
+                    sorter.column &&
+                    "fieldType" in sorter.column &&
+                    typeof sorter.columnKey === "string"
+                  ? {
+                      field: {
+                        id:
+                          sorter.column.fieldType === "FIELD" ||
+                          sorter.column.fieldType === "META_FIELD"
+                            ? sorter.columnKey
+                            : undefined,
+                        type: sorter.column.fieldType as FieldType,
+                      },
+                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
+                    }
+                  : undefined,
             );
           }}
         />
@@ -747,6 +745,7 @@ const ContentTable: React.FC<Props> = ({
           requestModalTotalCount={requestModalTotalCount}
           requestModalPage={requestModalPage}
           requestModalPageSize={requestModalPageSize}
+          onRequestSearchTerm={onRequestSearchTerm}
         />
       )}
     </>
@@ -820,7 +819,9 @@ const InputWrapper = styled.div`
 
 const Wrapper = styled.div`
   background-color: #fff;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 

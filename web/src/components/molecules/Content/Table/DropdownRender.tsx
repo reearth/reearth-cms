@@ -293,8 +293,8 @@ const DropdownRender: React.FC<Props> = ({
         typeof filter.dataIndex === "string"
           ? filter.id
           : filter.dataIndex[0] === "fields"
-          ? "FIELD"
-          : "META_FIELD";
+            ? "FIELD"
+            : "META_FIELD";
       const operatorValue = filterOption.current.value;
       const currentFilters = currentView.filter?.conditions
         ? [...currentView.filter.conditions]
@@ -508,7 +508,9 @@ export default DropdownRender;
 
 const StyledForm = styled(Form)`
   background-color: white;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 

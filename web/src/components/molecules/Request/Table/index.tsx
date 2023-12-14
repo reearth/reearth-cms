@@ -10,7 +10,6 @@ import ProTable, {
   ProColumns,
   OptionConfig,
   TableRowSelection,
-
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";

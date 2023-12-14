@@ -85,6 +85,7 @@ export interface Props {
   onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
+  onRequestSearchTerm: (term: string) => void;
   onAssetTableChange: (
     page: number,
     pageSize: number,
@@ -158,6 +159,7 @@ const ContentForm: React.FC<Props> = ({
   page,
   pageSize,
   onRequestTableChange,
+  onRequestSearchTerm,
   requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
@@ -882,10 +884,7 @@ const ContentForm: React.FC<Props> = ({
                       )}
                     </StyledMultipleSelect>
                   ) : (
-                    <Select
-                      onBlur={handleMetaUpdate}
-                      style={{ width: "100%" }}
-                      allowClear>
+                    <Select onBlur={handleMetaUpdate} style={{ width: "100%" }} allowClear>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
@@ -1061,6 +1060,7 @@ const ContentForm: React.FC<Props> = ({
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
+            onRequestSearchTerm={onRequestSearchTerm}
           />
           <PublishItemModal
             unpublishedItems={unpublishedItems}

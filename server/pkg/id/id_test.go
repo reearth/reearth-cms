@@ -52,4 +52,7 @@ func TestAsset_Type(t *testing.T) {
 
 	wo := Workspace{}
 	assert.Equal(t, "workspace", wo.Type())
+
+	r := Resource{}
+	assert.Equal(t, "resource", r.Type())
 }

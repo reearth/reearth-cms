@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 
 import Groups from "@reearth-cms/components/molecules/Model/ModelsList/Groups";
+import ModelListBody from "@reearth-cms/components/molecules/Model/ModelsList/ModelListBody";
 import ModelListHeader from "@reearth-cms/components/molecules/Model/ModelsList/ModelListHeader";
 import Models from "@reearth-cms/components/molecules/Model/ModelsList/Models";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
@@ -47,6 +48,7 @@ const ModelsMenu: React.FC<Props> = ({
     handleGroupCreate,
     handleModelKeyCheck,
     handleGroupKeyCheck,
+    handleUpdateModelsOrder,
   } = useHooks({
     modelId,
     groupId,
@@ -55,38 +57,41 @@ const ModelsMenu: React.FC<Props> = ({
   return (
     <>
       <ModelListHeader title={title} collapsed={collapsed} />
-      <Models
-        className={className}
-        title={title}
-        collapsed={collapsed}
-        selectedKey={model?.id}
-        models={models}
-        selectedSchemaType={selectedSchemaType}
-        onModelSelect={onModelSelect}
-        onModalOpen={handleModelModalOpen}
-        isKeyAvailable={isModelKeyAvailable}
-        open={modelModalShown}
-        onModelKeyCheck={handleModelKeyCheck}
-        onClose={handleModelModalClose}
-        onCreate={handleModelCreate}
-      />
-      {displayGroups && (
-        <Groups
+      <ModelListBody>
+        <Models
           className={className}
           title={title}
           collapsed={collapsed}
-          selectedKey={group?.id}
-          groups={groups}
+          selectedKey={model?.id}
+          models={models}
           selectedSchemaType={selectedSchemaType}
-          onGroupSelect={onGroupSelect}
-          onModalOpen={handleGroupModalOpen}
-          isKeyAvailable={isGroupKeyAvailable}
-          open={groupModalShown}
-          onGroupKeyCheck={handleGroupKeyCheck}
-          onClose={handleGroupModalClose}
-          onCreate={handleGroupCreate}
+          onModelSelect={onModelSelect}
+          onModalOpen={handleModelModalOpen}
+          isKeyAvailable={isModelKeyAvailable}
+          open={modelModalShown}
+          onModelKeyCheck={handleModelKeyCheck}
+          onClose={handleModelModalClose}
+          onCreate={handleModelCreate}
+          onUpdateModelsOrder={handleUpdateModelsOrder}
         />
-      )}
+        {displayGroups && (
+          <Groups
+            className={className}
+            title={title}
+            collapsed={collapsed}
+            selectedKey={group?.id}
+            groups={groups}
+            selectedSchemaType={selectedSchemaType}
+            onGroupSelect={onGroupSelect}
+            onModalOpen={handleGroupModalOpen}
+            isKeyAvailable={isGroupKeyAvailable}
+            open={groupModalShown}
+            onGroupKeyCheck={handleGroupKeyCheck}
+            onClose={handleGroupModalClose}
+            onCreate={handleGroupCreate}
+          />
+        )}
+      </ModelListBody>
     </>
   );
 };

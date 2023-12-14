@@ -183,7 +183,7 @@ const LinkAssetModal: React.FC<Props> = ({
           minHeight: "50vh",
           position: "relative",
           paddingBottom: "80px",
-        }
+        },
       }}>
       <ProTable
         dataSource={assetList}

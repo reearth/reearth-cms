@@ -50,6 +50,7 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
+    handleRequestSearchTerm,
     loading,
     totalCount,
     page,
@@ -333,7 +334,7 @@ export default () => {
               type: field.type as SchemaFieldType,
             })),
             metadataId: metaItemId,
-            version: currentItem?.metadata?.version ?? "",
+            version: currentItem?.version ?? "",
           },
         });
         if (item.errors || !item.data?.updateItem) {
@@ -651,6 +652,7 @@ export default () => {
     handleSearchTerm,
     handleLinkItemTableChange,
     handleRequestTableChange,
+    handleRequestSearchTerm,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,

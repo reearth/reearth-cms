@@ -5,11 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, {
-  ProColumns,
-
-  ListToolBarProps,
-} from "@reearth-cms/components/atoms/ProTable";
+import ProTable, { ProColumns, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -172,7 +168,7 @@ const LinkItemModal: React.FC<Props> = ({
           minHeight: "50vh",
           position: "relative",
           padding: "12px 12px 0",
-        }
+        },
       }}>
       <StyledProTable
         dataSource={linkedItemsModalList}
