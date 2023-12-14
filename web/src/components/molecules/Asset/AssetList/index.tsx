@@ -11,6 +11,7 @@ import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
 
@@ -85,6 +86,8 @@ const AssetList: React.FC<Props> = ({
   onAssetsReload,
   onAssetTableChange,
 }) => {
+  const t = useT();
+
   const displayUploadModal = useCallback(() => {
     setUploadModalVisibility(true);
   }, [setUploadModalVisibility]);
@@ -122,7 +125,7 @@ const AssetList: React.FC<Props> = ({
       center={
         <Wrapper>
           <StyledPageHeader
-            title="Asset"
+            title={t("Asset")}
             extra={
               <UploadAsset
                 fileList={fileList}

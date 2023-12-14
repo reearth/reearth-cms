@@ -55,6 +55,7 @@ export type Props = {
   onAddItemToRequest: (request: Request, itemIds: string[]) => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  onRequestSearchTerm: (term: string) => void;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -95,6 +96,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onItemsReload,
   onItemEdit,
   onItemDelete,
+  onRequestSearchTerm,
 }) => {
   const t = useT();
 
@@ -158,6 +160,7 @@ const ContentListMolecule: React.FC<Props> = ({
             requestModalPageSize={requestModalPageSize}
             setCurrentView={setCurrentView}
             modelKey={model?.key}
+            onRequestSearchTerm={onRequestSearchTerm}
           />
         </Content>
       }

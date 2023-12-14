@@ -86,6 +86,7 @@ export type Props = {
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
+  onRequestSearchTerm: (term: string) => void;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -118,6 +119,7 @@ const ContentTable: React.FC<Props> = ({
   onItemDelete,
   onItemsReload,
   modelKey,
+  onRequestSearchTerm,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -747,6 +749,7 @@ const ContentTable: React.FC<Props> = ({
           requestModalTotalCount={requestModalTotalCount}
           requestModalPage={requestModalPage}
           requestModalPageSize={requestModalPageSize}
+          onRequestSearchTerm={onRequestSearchTerm}
         />
       )}
     </>

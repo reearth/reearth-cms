@@ -11,16 +11,9 @@ export type Props = {
   onViewRenameModalOpen?: (view: View) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   onDelete: (viewId: string) => void;
-  onViewDeletionClose: () => void;
 };
 
-const ViewsMenuItem: React.FC<Props> = ({
-  view,
-  onViewRenameModalOpen,
-  onUpdate,
-  onDelete,
-  onViewDeletionClose,
-}) => {
+const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate, onDelete }) => {
   const t = useT();
 
   const children = [
@@ -61,9 +54,6 @@ const ViewsMenuItem: React.FC<Props> = ({
           okButtonProps: { danger: true },
           onOk() {
             onDelete(view.id);
-          },
-          onCancel() {
-            onViewDeletionClose();
           },
         });
       },

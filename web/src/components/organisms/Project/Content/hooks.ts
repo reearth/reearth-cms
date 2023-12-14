@@ -21,8 +21,9 @@ export default () => {
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
 
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setPage(+page);
@@ -36,6 +37,7 @@ export default () => {
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       sort: { key: "createdAt", reverted: true },
       state: ["WAITING"] as GQLRequestState[],
+      key: searchTerm,
     },
     skip: !currentProject?.id,
   });
@@ -123,12 +125,18 @@ export default () => {
   const handleAddItemToRequestModalOpen = useCallback(() => {
     setPage(1);
     setPageSize(10);
+    setSearchTerm("");
     setAddItemToRequestModalShown(true);
   }, []);
 
   const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
     setPage(page);
     setPageSize(pageSize);
+  }, []);
+
+  const handleRequestSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setPage(1);
   }, []);
 
   return {
@@ -140,6 +148,7 @@ export default () => {
     handlePublish,
     handleUnpublish,
     handleRequestTableChange,
+    handleRequestSearchTerm,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,

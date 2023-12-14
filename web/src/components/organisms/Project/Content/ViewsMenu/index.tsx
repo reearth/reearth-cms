@@ -31,7 +31,6 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView, onViewChange 
     handleViewRename,
     handleViewUpdate,
     handleViewDelete,
-    handleViewDeletionModalClose,
   } = useHooks({ modelId, currentView, setCurrentView, onViewChange });
 
   return (
@@ -44,7 +43,6 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView, onViewChange 
         setSelectedView={setSelectedView}
         onDelete={handleViewDelete}
         onUpdate={handleViewUpdate}
-        onViewDeletionClose={handleViewDeletionModalClose}
         onViewChange={onViewChange}
       />
       <ViewFormModal
