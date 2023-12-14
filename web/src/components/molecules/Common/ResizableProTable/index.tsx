@@ -99,6 +99,10 @@ const Wrapper = styled.div`
   .ant-table-wrapper {
     height: calc(100% - 64px);
   }
+  .ant-table {
+    height: calc(100% - 64px);
+  }
+  .ant-table-small,
   .ant-table-middle {
     height: calc(100% - 56px);
   }
