@@ -10,7 +10,7 @@ import {
   type Viewer,
 } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
-import md5 from "js-md5";
+import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCesium } from "resium";
 
@@ -161,8 +161,8 @@ const getMvtBaseUrl = (url: string) => {
   const base = url.match(templateRegex)
     ? url.replace(templateRegex, "")
     : url.match(compressedExtRegex)
-    ? url.replace(compressedExtRegex, "")
-    : url.replace(nameRegex, "");
+      ? url.replace(compressedExtRegex, "")
+      : url.replace(nameRegex, "");
   return base;
 };
 
