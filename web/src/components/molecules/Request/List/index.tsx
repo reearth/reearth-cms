@@ -61,7 +61,7 @@ const RequestListMolecule: React.FC<Props> = ({
     <ComplexInnerContents
       center={
         <Content>
-          <StyledPageHeader title="Request" />
+          <StyledPageHeader title={t("Request")} />
           <RequestListTable
             requests={requests}
             selection={selection}
