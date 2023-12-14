@@ -185,22 +185,27 @@ export default Schema;
 const Content = styled.div`
   width: 100%;
   height: 100%;
-  overflow-y: auto;
   background: #fafafa;
 `;
 
 const FieldListWrapper = styled.div`
   height: 100%;
   width: 272px;
-  padding: 12px;
-  overflow-y: auto;
+  padding: 12px 12px 0;
 `;
 
 const StyledTabs = styled(Tabs)`
-  padding: 24px;
+  padding: 24px 24px 0;
+  max-height: calc(100% - 72px);
+  .ant-tabs-content-holder {
+    overflow-y: auto;
+    padding-bottom: 24px;
+  }
 `;
 
 const GroupFieldsWrapper = styled.div`
+  max-height: calc(100% - 72px);
+  overflow-y: auto;
   padding: 24px;
 `;
 
