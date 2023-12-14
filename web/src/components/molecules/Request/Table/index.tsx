@@ -98,6 +98,8 @@ const RequestListTable: React.FC<Props> = ({
       title: t("Title"),
       dataIndex: "title",
       key: "title",
+      width: 100,
+      ellipsis: true,
     },
     {
       title: t("State"),
@@ -132,6 +134,7 @@ const RequestListTable: React.FC<Props> = ({
         { text: t("DRAFT"), value: "DRAFT" },
       ],
       defaultFilteredValue: requestState,
+      width: 100,
     },
     {
       title: t("Created By"),
@@ -148,6 +151,8 @@ const RequestListTable: React.FC<Props> = ({
       },
       filters: true,
       defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
+      width: 105,
+      ellipsis: true,
     },
     {
       title: t("Reviewers"),
@@ -162,18 +167,22 @@ const RequestListTable: React.FC<Props> = ({
       },
       filters: true,
       defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
+      width: 105,
+      ellipsis: true,
     },
     {
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
+      width: 150,
     },
     {
       title: t("Updated At"),
       dataIndex: "updatedAt",
       key: "updatedAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
+      width: 150,
     },
   ];
 
@@ -226,7 +235,7 @@ const RequestListTable: React.FC<Props> = ({
   };
 
   return (
-    <ProTable
+    <StyledProTable
       dataSource={requests}
       columns={columns}
       tableAlertOptionRender={AlertOptions}
@@ -246,6 +255,7 @@ const RequestListTable: React.FC<Props> = ({
           !!filters?.reviewers?.[0],
         );
       }}
+      scroll={{ x: "", y: "" }}
     />
   );
 };
@@ -264,4 +274,32 @@ const DeselectButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+`;
+
+const StyledProTable = styled(ProTable)`
+  height: calc(100% - 72px);
+  .ant-pro-card-body {
+    padding-bottom: 0;
+  }
+  .ant-pro-card,
+  .ant-pro-card-body,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-table-container {
+    height: 100%;
+  }
+  .ant-table-wrapper {
+    height: calc(100% - 64px);
+  }
+  .ant-table {
+    height: calc(100% - 64px);
+  }
+  .ant-table-small,
+  .ant-table-middle {
+    height: calc(100% - 56px);
+  }
+  .ant-table-body {
+    overflow: auto !important;
+    height: calc(100% - 47px);
+  }
 `;
