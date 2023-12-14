@@ -54,41 +54,38 @@ const ResizableProTable: React.FC<Props> = ({
   }));
 
   return (
-    <Wrapper>
-      <ProTable
-        dataSource={dataSource}
-        columns={mergeColumns}
-        components={{
-          header: {
-            cell: ResizableTitle,
-          },
-        }}
-        rowKey="id"
-        search={false}
-        loading={loading}
-        toolbar={toolbar}
-        toolBarRender={toolBarRender}
-        options={options}
-        tableAlertOptionRender={tableAlertOptionRender}
-        rowSelection={rowSelection}
-        pagination={pagination}
-        onChange={onChange}
-        columnsState={columnsState}
-        showSorterTooltip={showSorterTooltip}
-        scroll={{ x: "", y: "" }}
-      />
-    </Wrapper>
+    <StyledProTable
+      dataSource={dataSource}
+      columns={mergeColumns}
+      components={{
+        header: {
+          cell: ResizableTitle,
+        },
+      }}
+      rowKey="id"
+      search={false}
+      loading={loading}
+      toolbar={toolbar}
+      toolBarRender={toolBarRender}
+      options={options}
+      tableAlertOptionRender={tableAlertOptionRender}
+      rowSelection={rowSelection}
+      pagination={pagination}
+      onChange={onChange}
+      columnsState={columnsState}
+      showSorterTooltip={showSorterTooltip}
+      scroll={{ x: "", y: "" }}
+    />
   );
 };
 
 export default ResizableProTable;
 
-const Wrapper = styled.div`
+const StyledProTable = styled(ProTable)`
+  height: calc(100% - 102px);
   .ant-pro-card-body {
     padding-bottom: 0;
   }
-  height: calc(100% - 102px);
-  .ant-pro-table,
   .ant-pro-card,
   .ant-pro-card-body,
   .ant-spin-nested-loading,
