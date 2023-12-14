@@ -48,7 +48,7 @@ const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu-item-group-title,
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
-    color: #fff;
+    color: #fff !important;
   }
   .ant-dropdown-menu-item-group-title {
     font-weight: 400;

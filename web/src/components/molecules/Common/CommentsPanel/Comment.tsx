@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -47,7 +47,7 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
   }, [value, comment.id, onCommentUpdate]);
 
   const fromNow = useMemo(
-    () => moment(comment.createdAt?.toString()).fromNow(),
+    () => dayjs(comment.createdAt?.toString()).fromNow(),
     [comment.createdAt],
   );
 

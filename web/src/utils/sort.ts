@@ -1,8 +1,8 @@
-import moment from "moment";
+import dayjs from "dayjs";
 
 type SortCallback<T> = (a: T, b: T) => number;
 
-export const dateSortCallback: SortCallback<Date | string> = (a, b) => moment(a).diff(moment(b));
+export const dateSortCallback: SortCallback<Date | string> = (a, b) => dayjs(a).diff(dayjs(b));
 
 export const numberSortCallback: SortCallback<number> = (a, b) => a - b;
 

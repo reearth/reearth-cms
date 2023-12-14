@@ -30,7 +30,7 @@ import {
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { transformMomentToString } from "@reearth-cms/utils/format";
+import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 export type FormValues = {
@@ -226,7 +226,7 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            date: { defaultValue: transformMomentToString(values.defaultValue) },
+            date: { defaultValue: transformDayjsToString(values.defaultValue) },
           };
         } else if (selectedType === "Tag") {
           values.typeProperty = {
@@ -300,6 +300,7 @@ const FieldCreationModal: React.FC<Props> = ({
         form={form}
         layout="vertical"
         initialValues={initialValues}
+        requiredMark="optional"
         onValuesChange={() => {
           setTimeout(() => {
             form
@@ -345,7 +346,7 @@ const FieldCreationModal: React.FC<Props> = ({
               ]}>
               <Input />
             </Form.Item>
-            <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+            <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />
             </Form.Item>
             {selectedType === "Select" && (

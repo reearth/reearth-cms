@@ -16,8 +16,8 @@ const PreviewModal: React.FC<Props> = ({ url, visible, handleCancel }) => {
       onCancel={handleCancel}
       footer={null}
       width="90vw"
-      bodyStyle={{
-        height: "90vh",
+      styles={{
+        body: { height: "90vh" },
       }}>
       <PreviewImage src={url} alt="asset-preview" />
     </Modal>

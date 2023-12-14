@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
 
@@ -44,7 +44,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { transformMomentToString } from "@reearth-cms/utils/format";
+import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 export interface Props {
@@ -231,7 +231,7 @@ const ContentForm: React.FC<Props> = ({
         <Space>
           <Button
             onClick={() => {
-              Notification.close(key);
+              Notification.destroy();
               blocker.reset?.();
             }}>
             {t("Cancel")}
@@ -239,7 +239,7 @@ const ContentForm: React.FC<Props> = ({
           <Button
             type="primary"
             onClick={() => {
-              Notification.close(key);
+              Notification.destroy();
               blocker.proceed?.();
             }}>
             {t("Leave")}
@@ -319,15 +319,14 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
-        const isGroup =
-          typeof value === "object" && !Array.isArray(value) && !moment.isMoment(value);
+        const isGroup = typeof value === "object" && !Array.isArray(value) && !dayjs.isDayjs(value);
         // group fields
         if (value && isGroup) {
           for (const [key1, value1] of Object.entries(value)) {
             const type1 = groupFieldTypes.get(key) || "";
             fields.push({
-              value: (moment.isMoment(value1)
-                ? transformMomentToString(value1)
+              value: (dayjs.isDayjs(value1)
+                ? transformDayjsToString(value1)
                 : value1 ?? "") as string,
               schemaFieldId: key,
               itemGroupId: key1,
@@ -339,14 +338,14 @@ const ContentForm: React.FC<Props> = ({
         // model fields
         const type = modelFieldTypes.get(key) || "";
         fields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: type as FieldType,
         });
       }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
@@ -390,14 +389,14 @@ const ContentForm: React.FC<Props> = ({
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(values)) {
         fields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
         });
       }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
@@ -875,7 +874,6 @@ const ContentForm: React.FC<Props> = ({
                     <StyledMultipleSelect
                       onBlur={handleMetaUpdate}
                       mode="multiple"
-                      showArrow
                       style={{ width: "100%" }}>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
@@ -886,11 +884,7 @@ const ContentForm: React.FC<Props> = ({
                       )}
                     </StyledMultipleSelect>
                   ) : (
-                    <Select
-                      onBlur={handleMetaUpdate}
-                      showArrow
-                      style={{ width: "100%" }}
-                      allowClear>
+                    <Select onBlur={handleMetaUpdate} style={{ width: "100%" }} allowClear>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>

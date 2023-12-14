@@ -22,9 +22,12 @@ const StyledSidebar = styled(Sider)`
     height: 38px;
     line-height: 38px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
   }
   .ant-layout-sider-children {
-    height: calc(100% + 12px);
+    height: calc(100% + 50px);
+    background-color: #fff;
   }
   .ant-menu-inline {
     border-right: 1px solid white;

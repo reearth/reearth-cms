@@ -4,10 +4,7 @@ import { useState, useRef } from "react";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, {
-  ProColumns,
-  TablePaginationConfig,
-} from "@reearth-cms/components/atoms/ProTable";
+import ProTable, { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
@@ -44,7 +41,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
   const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const t = useT();
 
-  const pagination: TablePaginationConfig = {
+  const pagination = {
     showSizeChanger: true,
     current: requestModalPage,
     total: requestModalTotalCount,
@@ -143,10 +140,12 @@ const LinkItemRequestModal: React.FC<Props> = ({
       onOk={submit}
       onCancel={onLinkItemRequestModalCancel}
       width="70vw"
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px 12px 0",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          padding: "12px 12px 0",
+        },
       }}
       afterClose={() => {
         resetFlag.current = !resetFlag.current;

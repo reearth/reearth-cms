@@ -12,7 +12,6 @@ import ProTable, {
   ProColumns,
   OptionConfig,
   TableRowSelection,
-  TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -192,7 +191,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     reload: onAssetsReload,
   };
 
-  const pagination: TablePaginationConfig = {
+  const pagination = {
     showSizeChanger: true,
     current: page,
     total: totalCount,

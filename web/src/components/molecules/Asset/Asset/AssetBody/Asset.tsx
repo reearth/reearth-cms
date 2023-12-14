@@ -149,7 +149,7 @@ const AssetMolecule: React.FC<Props> = ({
             />
           </Card>
         )}
-        <DownloadButton type="ghost" selected={asset ? [asset] : undefined} displayDefaultIcon />
+        <DownloadButton ghost selected={asset ? [asset] : undefined} displayDefaultIcon />
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
