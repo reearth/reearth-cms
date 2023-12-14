@@ -5,6 +5,7 @@ import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/co
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
+import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   commentsPanel?: JSX.Element;
@@ -57,6 +58,8 @@ const RequestListMolecule: React.FC<Props> = ({
   page,
   pageSize,
 }) => {
+  const t = useT();
+
   return (
     <ComplexInnerContents
       center={
