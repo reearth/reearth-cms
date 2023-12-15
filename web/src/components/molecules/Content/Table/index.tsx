@@ -674,7 +674,7 @@ const ContentTable: React.FC<Props> = ({
           order:
             (col.key as string) in options && options[col.key as string].order !== undefined
               ? (options[col.key as string]?.order as number)
-              : index + 2,
+              : index + 1,
         }))
         .sort((a, b) => a.order - b.order)
         .map(col => {
