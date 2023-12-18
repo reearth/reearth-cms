@@ -13,6 +13,11 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
+var (
+	workspaceSettingsIndexes       = []string{"id"}
+	workspaceSettingsUniqueIndexes = []string{"id"}
+)
+
 type WorkspaceSettingsRepo struct {
 	client *mongox.Collection
 	f      repo.WorkspaceFilter
@@ -23,7 +28,14 @@ func NewWorkspaceSettings(client *mongox.Client) repo.WorkspaceSettings {
 }
 
 func (r *WorkspaceSettingsRepo) Init() error {
-	return createIndexes(context.Background(), r.client, projectIndexes, projectUniqueIndexes)
+	return createIndexes(context.Background(), r.client, workspaceSettingsIndexes, workspaceSettingsUniqueIndexes)
+}
+
+func (r *WorkspaceSettingsRepo) Filtered(f repo.WorkspaceFilter) repo.WorkspaceSettings {
+	return &WorkspaceSettingsRepo{
+		client: r.client,
+		f:      r.f.Merge(f),
+	}
 }
 
 func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id accountdomain.WorkspaceID) (*workspacesettings.WorkspaceSettings, error) {
@@ -60,15 +72,15 @@ func (r *WorkspaceSettingsRepo) Save(ctx context.Context, ws *workspacesettings.
 	if !r.f.CanWrite(ws.ID()) {
 		return repo.ErrOperationDenied
 	}
-	doc, id := mongodoc.NewWorkspaceSettings(ws)
-	return r.client.SaveOne(ctx, id, doc)
+	doc, wid := mongodoc.NewWorkspaceSettings(ws)
+	return r.client.SaveOne(ctx, wid, doc)
 }
 
-func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, id accountdomain.WorkspaceID) error {
-	if !r.f.CanWrite(id) {
+func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, wid accountdomain.WorkspaceID) error {
+	if !r.f.CanWrite(wid) {
 		return repo.ErrOperationDenied
 	}
-	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
+	return r.client.RemoveOne(ctx, bson.M{"id": wid.String()})
 }
 
 func (r *WorkspaceSettingsRepo) find(ctx context.Context, filter any) ([]*workspacesettings.WorkspaceSettings, error) {
@@ -81,7 +93,7 @@ func (r *WorkspaceSettingsRepo) find(ctx context.Context, filter any) ([]*worksp
 
 func (r *WorkspaceSettingsRepo) findOne(ctx context.Context, filter any) (*workspacesettings.WorkspaceSettings, error) {
 	c := mongodoc.NewWorkspaceSettingsConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
 		return nil, err
 	}
 	return c.Result[0], nil
@@ -104,6 +116,6 @@ func (r *WorkspaceSettingsRepo) readFilter(filter any) any {
 	return applyWorkspaceFilter(filter, r.f.Readable)
 }
 
-func (r *WorkspaceSettingsRepo) writeFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Writable)
-}
+// func (r *WorkspaceSettingsRepo) writeFilter(filter any) any {
+// 	return applyWorkspaceFilter(filter, r.f.Writable)
+// }
