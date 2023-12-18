@@ -78,17 +78,11 @@ export default () => {
   }, [setLinkItemModalPage, setLinkItemModalPageSize, linkItemModalPage, linkItemModalPageSize]);
   const t = useT();
 
-  const { data } = useGetItemQuery({
+  const { data, loading: itemLoading } = useGetItemQuery({
     fetchPolicy: "no-cache",
     variables: { id: itemId ?? "" },
     skip: !itemId,
   });
-
-  useEffect(() => {
-    if (itemId && data?.node === null) {
-      navigate("../..", { relative: "path" });
-    }
-  }, [data?.node, itemId, navigate]);
 
   const { data: modelData } = useGetModelQuery({
     fetchPolicy: "no-cache",
@@ -636,6 +630,7 @@ export default () => {
     showPublishAction,
     requests,
     itemId,
+    itemLoading,
     requestCreationLoading,
     currentModel,
     currentItem,
