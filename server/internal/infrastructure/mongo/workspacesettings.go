@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	workspaceSettingsIndexes       = []string{"id"}
-	workspaceSettingsUniqueIndexes = []string{"id"}
+	workspaceSettingsIndexes = []string{"id"}
 )
 
 type WorkspaceSettingsRepo struct {
@@ -28,7 +27,7 @@ func NewWorkspaceSettings(client *mongox.Client) repo.WorkspaceSettings {
 }
 
 func (r *WorkspaceSettingsRepo) Init() error {
-	return createIndexes(context.Background(), r.client, workspaceSettingsIndexes, workspaceSettingsUniqueIndexes)
+	return createIndexes(context.Background(), r.client, workspaceSettingsIndexes, nil)
 }
 
 func (r *WorkspaceSettingsRepo) Filtered(f repo.WorkspaceFilter) repo.WorkspaceSettings {
