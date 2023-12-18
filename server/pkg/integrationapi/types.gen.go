@@ -58,6 +58,7 @@ const (
 const (
 	ValueTypeAsset     ValueType = "asset"
 	ValueTypeBool      ValueType = "bool"
+	ValueTypeCheckbox  ValueType = "checkbox"
 	ValueTypeDate      ValueType = "date"
 	ValueTypeGroup     ValueType = "group"
 	ValueTypeInteger   ValueType = "integer"

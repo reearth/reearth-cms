@@ -36,7 +36,7 @@ export const ResizableTitle = (
   );
 };
 
-const StyledResizable = styled(Resizable)`
+const StyledResizable = styled(Resizable as any)`
   .react-resizable-handle {
     position: absolute;
     right: -5px;
