@@ -1,6 +1,9 @@
 web:
-  - web/**/*
+  - changed-files:
+      - any-glob-to-any-file: web/**
 server:
-  - server/**/*
+  - changed-files:
+      - any-glob-to-any-file: server/**
 worker:
-  - worker/**/*
+  - changed-files:
+      - any-glob-to-any-file: worker/**
