@@ -27,6 +27,7 @@ import {
   StringOperator,
   SortDirection,
   FieldType,
+  AndConditionInput,
 } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
@@ -42,6 +43,7 @@ type Props = {
   index: number;
   currentView: CurrentViewType;
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  onFilterChange: (filter?: AndConditionInput) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -53,6 +55,7 @@ const DropdownRender: React.FC<Props> = ({
   index,
   currentView,
   setCurrentView,
+  onFilterChange,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -290,8 +293,8 @@ const DropdownRender: React.FC<Props> = ({
         typeof filter.dataIndex === "string"
           ? filter.id
           : filter.dataIndex[0] === "fields"
-          ? "FIELD"
-          : "META_FIELD";
+            ? "FIELD"
+            : "META_FIELD";
       const operatorValue = filterOption.current.value;
       const currentFilters = currentView.filter?.conditions
         ? [...currentView.filter.conditions]
@@ -334,10 +337,7 @@ const DropdownRender: React.FC<Props> = ({
 
       currentFilters[index] = newFilter;
 
-      setCurrentView(prev => ({
-        ...prev,
-        filter: { conditions: currentFilters.filter(Boolean) },
-      }));
+      onFilterChange({ conditions: currentFilters.filter(Boolean) });
     } else {
       const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
       let fieldId = "";
@@ -381,6 +381,7 @@ const DropdownRender: React.FC<Props> = ({
     index,
     setCurrentView,
     form,
+    onFilterChange,
   ]);
 
   const [isShowInputField, setIsShowInputField] = useState(true);
@@ -507,7 +508,9 @@ export default DropdownRender;
 
 const StyledForm = styled(Form)`
   background-color: white;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 

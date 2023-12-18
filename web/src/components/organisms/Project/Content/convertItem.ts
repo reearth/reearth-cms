@@ -13,7 +13,7 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
           itemGroupId: field.itemGroupId,
           type: field.type,
           value: field.value,
-        } as ItemField),
+        }) as ItemField,
     ),
     status: GQLItem.status,
     createdBy: GQLItem.createdBy?.name,
@@ -24,13 +24,14 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
     threadId: GQLItem.thread?.id ?? "",
     metadata: {
       id: GQLItem.metadata?.id,
+      version: GQLItem.metadata?.version ?? "",
       fields: GQLItem.metadata?.fields.map(
         field =>
           ({
             schemaFieldId: field.schemaFieldId,
             type: field.type,
             value: field.value,
-          } as ItemField),
+          }) as ItemField,
       ),
     },
     comments: GQLItem.thread?.comments?.map(comment => convertComment(comment)) ?? [],

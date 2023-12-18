@@ -17,5 +17,6 @@ type Model interface {
 	FindByIDOrKey(context.Context, id.ProjectID, model.IDOrKey) (*model.Model, error)
 	CountByProject(context.Context, id.ProjectID) (int, error)
 	Save(context.Context, *model.Model) error
+	SaveAll(context.Context, model.List) error
 	Remove(context.Context, id.ModelID) error
 }

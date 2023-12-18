@@ -26,6 +26,7 @@ type Model struct {
 	key         key.Key
 	public      bool
 	updatedAt   time.Time
+	order       int
 }
 
 func (p *Model) ID() ID {
@@ -102,6 +103,14 @@ func (p *Model) CreatedAt() time.Time {
 	return p.id.Timestamp()
 }
 
+func (p *Model) Order() int {
+	return p.order
+}
+
+func (p *Model) SetOrder(order int) {
+	p.order = order
+}
+
 func (p *Model) Clone() *Model {
 	if p == nil {
 		return nil
@@ -116,6 +125,7 @@ func (p *Model) Clone() *Model {
 		key:         p.Key(),
 		public:      p.public,
 		updatedAt:   p.updatedAt,
+		order:       p.order,
 	}
 }
 

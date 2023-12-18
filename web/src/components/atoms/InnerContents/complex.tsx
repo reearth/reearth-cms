@@ -25,6 +25,7 @@ const PaddedContent = styled.div`
   display: flex;
   margin: 16px 0 0 16px;
   min-height: calc(100% - 66px);
+  max-height: calc(100% - 16px);
 `;
 
 const Main = styled.div`

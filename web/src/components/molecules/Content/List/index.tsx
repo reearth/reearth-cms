@@ -11,7 +11,7 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
-import { ItemSort } from "@reearth-cms/components/molecules/View/types";
+import { ItemSort, AndConditionInput } from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
@@ -40,6 +40,7 @@ export type Props = {
   setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
+  onFilterChange: (filter?: AndConditionInput) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;
@@ -54,6 +55,7 @@ export type Props = {
   onAddItemToRequest: (request: Request, itemIds: string[]) => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  onRequestSearchTerm: (term: string) => void;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -85,6 +87,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onSearchTerm,
+  onFilterChange,
   onContentTableChange,
   setSelection,
   onItemSelect,
@@ -93,6 +96,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onItemsReload,
   onItemEdit,
   onItemDelete,
+  onRequestSearchTerm,
 }) => {
   const t = useT();
 
@@ -135,6 +139,7 @@ const ContentListMolecule: React.FC<Props> = ({
             selection={selection}
             onUnpublish={onUnpublish}
             onSearchTerm={onSearchTerm}
+            onFilterChange={onFilterChange}
             onContentTableChange={onContentTableChange}
             setSelection={setSelection}
             onItemSelect={onItemSelect}
@@ -154,6 +159,8 @@ const ContentListMolecule: React.FC<Props> = ({
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
             setCurrentView={setCurrentView}
+            modelKey={model?.key}
+            onRequestSearchTerm={onRequestSearchTerm}
           />
         </Content>
       }

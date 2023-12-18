@@ -37,7 +37,12 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { ItemSort, FieldType, Column } from "@reearth-cms/components/molecules/View/types";
+import {
+  ItemSort,
+  FieldType,
+  Column,
+  AndConditionInput,
+} from "@reearth-cms/components/molecules/View/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -67,6 +72,7 @@ export type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
+  onFilterChange: (filter?: AndConditionInput) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
@@ -79,6 +85,8 @@ export type Props = {
   onAddItemToRequest: (request: Request, itemIds: string[]) => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  modelKey?: string;
+  onRequestSearchTerm: (term: string) => void;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -89,7 +97,6 @@ const ContentTable: React.FC<Props> = ({
   selection,
   totalCount,
   currentView,
-  searchTerm,
   page,
   pageSize,
   requests,
@@ -105,11 +112,14 @@ const ContentTable: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onUnpublish,
   onSearchTerm,
+  onFilterChange,
   onContentTableChange,
   onItemSelect,
   setSelection,
   onItemDelete,
   onItemsReload,
+  modelKey,
+  onRequestSearchTerm,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -301,12 +311,9 @@ const ContentTable: React.FC<Props> = ({
       defaultFilterValues.current.splice(index, 1);
       const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
       currentFilters.splice(index, 1);
-      setCurrentView(prev => ({
-        ...prev,
-        filter: currentFilters.length > 0 ? { conditions: currentFilters } : undefined,
-      }));
+      onFilterChange(currentFilters.length > 0 ? { conditions: currentFilters } : undefined);
     },
-    [currentView.filter, setCurrentView],
+    [currentView.filter, onFilterChange],
   );
 
   useEffect(() => {
@@ -495,7 +502,6 @@ const ContentTable: React.FC<Props> = ({
       <StyledSearchContainer>
         <StyledSearchInput
           placeholder={t("Please enter")}
-          defaultValue={searchTerm}
           onSearch={(value: string) => {
             if (value) {
               onSearchTerm(value);
@@ -503,6 +509,7 @@ const ContentTable: React.FC<Props> = ({
               onSearchTerm();
             }
           }}
+          key={`${modelKey}${currentView.id}`}
         />
         <StyledFilterWrapper>
           <StyledFilterSpace size={[0, 8]}>
@@ -516,6 +523,7 @@ const ContentTable: React.FC<Props> = ({
                 isFilterOpen={isFilterOpen.current}
                 currentView={currentView}
                 setCurrentView={setCurrentView}
+                onFilterChange={onFilterChange}
               />
             ))}
           </StyledFilterSpace>
@@ -598,6 +606,7 @@ const ContentTable: React.FC<Props> = ({
                 isFilter={isFilter.current}
                 currentView={currentView}
                 setCurrentView={setCurrentView}
+                onFilterChange={onFilterChange}
               />
             )
           }
@@ -708,21 +717,21 @@ const ContentTable: React.FC<Props> = ({
               Array.isArray(sorter)
                 ? undefined
                 : sorter.order &&
-                  sorter.column &&
-                  "fieldType" in sorter.column &&
-                  typeof sorter.columnKey === "string"
-                ? {
-                    field: {
-                      id:
-                        sorter.column.fieldType === "FIELD" ||
-                        sorter.column.fieldType === "META_FIELD"
-                          ? sorter.columnKey
-                          : undefined,
-                      type: sorter.column.fieldType as FieldType,
-                    },
-                    direction: sorter.order === "ascend" ? "ASC" : "DESC",
-                  }
-                : undefined,
+                    sorter.column &&
+                    "fieldType" in sorter.column &&
+                    typeof sorter.columnKey === "string"
+                  ? {
+                      field: {
+                        id:
+                          sorter.column.fieldType === "FIELD" ||
+                          sorter.column.fieldType === "META_FIELD"
+                            ? sorter.columnKey
+                            : undefined,
+                        type: sorter.column.fieldType as FieldType,
+                      },
+                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
+                    }
+                  : undefined,
             );
           }}
         />
@@ -740,6 +749,7 @@ const ContentTable: React.FC<Props> = ({
           requestModalTotalCount={requestModalTotalCount}
           requestModalPage={requestModalPage}
           requestModalPageSize={requestModalPageSize}
+          onRequestSearchTerm={onRequestSearchTerm}
         />
       )}
     </>
@@ -813,7 +823,9 @@ const InputWrapper = styled.div`
 
 const Wrapper = styled.div`
   background-color: #fff;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 
