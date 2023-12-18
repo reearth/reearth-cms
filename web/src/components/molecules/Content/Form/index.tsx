@@ -868,6 +868,12 @@ const ContentForm: React.FC<Props> = ({
                 <Form.Item
                   extra={field.description}
                   name={field.id}
+                  rules={[
+                    {
+                      required: field.required,
+                      message: t("Please input field!"),
+                    },
+                  ]}
                   label={
                     <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
@@ -876,7 +882,8 @@ const ContentForm: React.FC<Props> = ({
                       onBlur={handleMetaUpdate}
                       mode="multiple"
                       showArrow
-                      style={{ width: "100%" }}>
+                      style={{ width: "100%" }}
+                      allowClear>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
