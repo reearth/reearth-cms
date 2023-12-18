@@ -22,6 +22,13 @@ func NewWorkspaceSettings() repo.WorkspaceSettings {
 	}
 }
 
+func (r *WorkspaceSettingsRepo) Filtered(f repo.WorkspaceFilter) repo.WorkspaceSettings {
+	return &WorkspaceSettingsRepo{
+		data: r.data,
+		f:    r.f.Merge(f),
+	}
+}
+
 func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, wid accountdomain.WorkspaceID) (*workspacesettings.WorkspaceSettings, error) {
 	if r.err != nil {
 		return nil, r.err
