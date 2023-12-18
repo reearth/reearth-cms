@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
+import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -16,6 +17,7 @@ export type Props = {
   collapsed?: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
+  onUpdateModelsOrder: (modelIds: string[]) => void;
 };
 
 const ModelsList: React.FC<Props> = ({
@@ -26,6 +28,7 @@ const ModelsList: React.FC<Props> = ({
   collapsed,
   onModalOpen,
   onModelSelect,
+  onUpdateModelsOrder,
 }) => {
   const t = useT();
 
@@ -33,13 +36,38 @@ const ModelsList: React.FC<Props> = ({
     onModelSelect(e.key);
   };
 
+  const onDragEnd = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0 || !models) return;
+      const [removed] = models.splice(fromIndex, 1);
+      models.splice(toIndex, 0, removed);
+      const modelIds = models.map(model => model.id);
+      onUpdateModelsOrder(modelIds);
+    },
+    [models, onUpdateModelsOrder],
+  );
+
   const selectedKeys = useMemo(() => {
     return !selectedSchemaType
       ? [selectedKey ?? ""]
       : selectedSchemaType === "model" && selectedKey
-      ? [selectedKey]
-      : [];
+        ? [selectedKey]
+        : [];
   }, [selectedKey, selectedSchemaType]);
+
+  const items = useMemo(() => {
+    return models
+      ?.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        return 0;
+      })
+      .map(model => ({
+        label: collapsed ? <Icon icon="dot" /> : model.name,
+        key: model.id,
+      }));
+  }, [collapsed, models]);
 
   return (
     <SchemaStyledMenu className={className}>
@@ -56,18 +84,20 @@ const ModelsList: React.FC<Props> = ({
         </Header>
       )}
       <MenuWrapper>
-        <StyledMenu
-          selectedKeys={selectedKeys}
-          mode={collapsed ? "vertical" : "inline"}
-          style={{
-            color: collapsed ? "#C4C4C4" : undefined,
-          }}
-          items={models?.map(model => ({
-            label: collapsed ? <Icon icon="dot" /> : model.name,
-            key: model.id,
-          }))}
-          onClick={handleClick}
-        />
+        <ReactDragListView
+          nodeSelector=".ant-menu-item"
+          lineClassName="dragLine"
+          onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
+          <StyledMenu
+            selectedKeys={selectedKeys}
+            mode={collapsed ? "vertical" : "inline"}
+            style={{
+              color: collapsed ? "#C4C4C4" : undefined,
+            }}
+            items={items}
+            onClick={handleClick}
+          />
+        </ReactDragListView>
       </MenuWrapper>
     </SchemaStyledMenu>
   );
