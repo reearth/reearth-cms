@@ -13,6 +13,7 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -140,9 +141,12 @@ const RequestListTable: React.FC<Props> = ({
       title: t("Created By"),
       dataIndex: "createdBy.name",
       key: "createdBy",
-      render: (_, request) => {
-        return request.createdBy?.name;
-      },
+      render: (_, request) => (
+        <Space>
+          <UserAvatar username={request.createdBy?.name} size={"small"} />
+          {request.createdBy?.name}
+        </Space>
+      ),
       valueEnum: {
         all: { text: "All", status: "Default" },
         createdByMe: {
@@ -158,7 +162,16 @@ const RequestListTable: React.FC<Props> = ({
       title: t("Reviewers"),
       dataIndex: "reviewers.name",
       key: "reviewers",
-      render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
+      render: (_, request) => (
+        <Space>
+          <div>
+            {request.reviewers.map(reviewer => (
+              <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
+            ))}
+          </div>
+          {request.reviewers.map(reviewer => reviewer.name).join(", ")}
+        </Space>
+      ),
       valueEnum: {
         all: { text: "All", status: "Default" },
         reviewedByMe: {
@@ -264,6 +277,15 @@ export default RequestListTable;
 
 const CommentsButton = styled(Button)`
   padding: 0;
+`;
+
+const StyledUserAvatar = styled(UserAvatar)`
+  :nth-child(1) {
+    z-index: 1;
+  }
+  :nth-child(n + 2) {
+    margin-left: -18px;
+  }
 `;
 
 const DeselectButton = styled.a`
