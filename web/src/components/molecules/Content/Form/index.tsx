@@ -1087,10 +1087,8 @@ const StyledFormItem = styled(Form.Item)`
 `;
 
 const StyledForm = styled(Form)`
-  padding: 16px;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
   background: #fff;
   label {
     width: 100%;
@@ -1099,16 +1097,17 @@ const StyledForm = styled(Form)`
 `;
 
 const FormItemsWrapper = styled.div`
-  width: 50%;
-  @media (max-width: 1200px) {
-    width: 100%;
-  }
+  max-height: calc(100% - 72px);
+  overflow-y: auto;
+  padding: 36px;
 `;
 
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
   padding: 8px;
   width: 400px;
+  max-height: 100%;
+  overflow-y: auto;
 `;
 
 const MetaFormItemWrapper = styled.div`
