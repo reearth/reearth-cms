@@ -14,16 +14,17 @@ var (
 )
 
 type Container struct {
-	Asset       Asset
-	Workspace   accountinterfaces.Workspace
-	User        accountinterfaces.User
-	Item        Item
-	View        View
-	Project     Project
-	Request     Request
-	Model       Model
-	Schema      Schema
-	Integration Integration
-	Thread      Thread
-	Group       Group
+	Asset             Asset
+	Workspace         accountinterfaces.Workspace
+	WorkspaceSettings WorkspaceSettings
+	User              accountinterfaces.User
+	Item              Item
+	View              View
+	Project           Project
+	Request           Request
+	Model             Model
+	Schema            Schema
+	Integration       Integration
+	Thread            Thread
+	Group             Group
 }
