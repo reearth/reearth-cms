@@ -14,6 +14,7 @@ const ContentDetails: React.FC = () => {
     showPublishAction,
     requests,
     itemId,
+    itemLoading,
     currentModel,
     currentItem,
     formItemsData,
@@ -114,6 +115,7 @@ const ContentDetails: React.FC = () => {
       }
       item={currentItem}
       itemId={itemId}
+      itemLoading={itemLoading}
       model={currentModel}
       groups={groups}
       initialFormValues={initialFormValues}

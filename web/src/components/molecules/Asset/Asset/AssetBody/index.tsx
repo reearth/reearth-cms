@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
+import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import AssetMolecule from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
@@ -77,7 +78,7 @@ const AssetWrapper: React.FC<Props> = ({
       right={commentsPanel}
     />
   ) : (
-    <Wrapper>not found</Wrapper>
+    <NotFound />
   );
 };
 
