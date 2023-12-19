@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 var (
@@ -37,9 +38,12 @@ func (r *WorkspaceSettingsRepo) Filtered(f repo.WorkspaceFilter) repo.WorkspaceS
 	}
 }
 
-func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id accountdomain.WorkspaceID) (*workspacesettings.WorkspaceSettings, error) {
+func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, wid accountdomain.WorkspaceID) (*workspacesettings.WorkspaceSettings, error) {
+	if !r.f.CanRead(wid) {
+		return nil, repo.ErrOperationDenied
+	}
 	filter := bson.M{
-		"id": id.String(),
+		"id": wid.String(),
 	}
 	res, err := r.findOne(ctx, filter)
 	if err != nil {
@@ -49,6 +53,11 @@ func (r *WorkspaceSettingsRepo) FindByID(ctx context.Context, id accountdomain.W
 }
 
 func (r *WorkspaceSettingsRepo) FindByIDs(ctx context.Context, ids accountdomain.WorkspaceIDList) (workspacesettings.List, error) {
+	if ok := lo.EveryBy(ids, func(wid accountdomain.WorkspaceID) bool {
+		return r.f.CanRead(wid)
+	}); !ok {
+		return nil, repo.ErrOperationDenied
+	}
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -84,7 +93,7 @@ func (r *WorkspaceSettingsRepo) Remove(ctx context.Context, wid accountdomain.Wo
 
 func (r *WorkspaceSettingsRepo) find(ctx context.Context, filter any) ([]*workspacesettings.WorkspaceSettings, error) {
 	c := mongodoc.NewWorkspaceSettingsConsumer()
-	if err := r.client.Find(ctx, r.readFilter(filter), c); err != nil {
+	if err := r.client.Find(ctx, filter, c); err != nil {
 		return nil, err
 	}
 	return c.Result, nil
@@ -92,7 +101,7 @@ func (r *WorkspaceSettingsRepo) find(ctx context.Context, filter any) ([]*worksp
 
 func (r *WorkspaceSettingsRepo) findOne(ctx context.Context, filter any) (*workspacesettings.WorkspaceSettings, error) {
 	c := mongodoc.NewWorkspaceSettingsConsumer()
-	if err := r.client.FindOne(ctx, r.readFilter(filter), c); err != nil {
+	if err := r.client.FindOne(ctx, filter, c); err != nil {
 		return nil, err
 	}
 	return c.Result[0], nil
@@ -110,11 +119,3 @@ func filterWorkspaceSettings(ids []accountdomain.WorkspaceID, rows []*workspaces
 	}
 	return res
 }
-
-func (r *WorkspaceSettingsRepo) readFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Readable)
-}
-
-// func (r *WorkspaceSettingsRepo) writeFilter(filter any) any {
-// 	return applyWorkspaceFilter(filter, r.f.Writable)
-// }
