@@ -96,4 +96,9 @@ const Wrapper = styled.div`
   .ant-pro-table-column-setting-list-item-option {
     visibility: hidden;
   }
+  .ant-pro-table-column-setting-overlay {
+    .ant-tree-treenode:nth-of-type(-n + 2) {
+      display: none;
+    }
+  }
 `;

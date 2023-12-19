@@ -140,7 +140,6 @@ const ContentTable: React.FC<Props> = ({
             <Icon icon="edit" />
           </Link>
         ),
-        hideInSetting: true,
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
         key: "EDIT_ICON",
@@ -151,7 +150,6 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
-        hideInSetting: true,
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
         key: "commentsCount",
