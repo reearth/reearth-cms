@@ -31,7 +31,6 @@ type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
-  sort?: { type?: AssetSortType; direction?: SortDirection };
   searchTerm: string;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
@@ -67,7 +66,6 @@ const AssetList: React.FC<Props> = ({
   selectedAsset,
   totalCount,
   searchTerm,
-  sort,
   page,
   pageSize,
   onAssetItemSelect,
@@ -149,7 +147,6 @@ const AssetList: React.FC<Props> = ({
             selectedAsset={selectedAsset}
             totalCount={totalCount}
             searchTerm={searchTerm}
-            sort={sort}
             page={page}
             pageSize={pageSize}
             onAssetItemSelect={onAssetItemSelect}

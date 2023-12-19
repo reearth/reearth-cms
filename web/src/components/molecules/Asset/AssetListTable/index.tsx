@@ -32,7 +32,6 @@ export type AssetListTableProps = {
   loading: boolean;
   selectedAsset: Asset | undefined;
   totalCount: number;
-  sort?: { type?: AssetSortType; direction?: SortDirection };
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -60,7 +59,6 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   selectedAsset,
   totalCount,
   searchTerm,
-  sort,
   page,
   pageSize,
   onAssetItemSelect,
@@ -82,6 +80,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           <Icon icon="edit" />
         </Link>
       ),
+      align: "center",
     },
     {
       title: () => <Icon icon="message" />,
@@ -89,22 +88,21 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "commentsCount",
       render: (_, asset) => {
         return (
-          <Button type="link" onClick={() => onAssetSelect(asset.id)}>
+          <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
             <CustomTag
               value={asset.comments?.length || 0}
               color={asset.id === selectedAsset?.id ? "#87e8de" : undefined}
             />
-          </Button>
+          </CommentsButton>
         );
       },
+      align: "center",
     },
     {
       title: t("File"),
       dataIndex: "fileName",
       key: "NAME",
       sorter: true,
-      defaultSortOrder:
-        sort?.type === "NAME" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
     },
     {
       title: t("Size"),
@@ -112,8 +110,6 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "SIZE",
       sorter: true,
       render: (_text, record) => bytesFormat(record.size),
-      defaultSortOrder:
-        sort?.type === "SIZE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
     },
     {
       title: t("Preview Type"),
@@ -139,8 +135,6 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "DATE",
       sorter: true,
       render: (_text, record) => dateTimeFormat(record.createdAt),
-      defaultSortOrder:
-        sort?.type === "DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
     },
     {
       title: t("Created By"),
@@ -247,7 +241,6 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       pagination={pagination}
       toolbar={handleToolbarEvents}
       rowSelection={rowSelection}
-      tableStyle={{ overflowX: "scroll" }}
       loading={loading}
       onChange={(pagination, _, sorter: any) => {
         onAssetTableChange(
@@ -263,6 +256,10 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
 };
 
 export default AssetListTable;
+
+const CommentsButton = styled(Button)`
+  padding: 0;
+`;
 
 const DeselectButton = styled.a`
   display: flex;

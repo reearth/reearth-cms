@@ -21,7 +21,6 @@ const AssetList: React.FC = () => {
     searchTerm,
     page,
     pageSize,
-    sort,
     handleToggleCommentMenu,
     handleAssetItemSelect,
     handleAssetSelect,
@@ -59,7 +58,6 @@ const AssetList: React.FC = () => {
       onAssetTableChange={handleAssetTableChange}
       totalCount={totalCount}
       searchTerm={searchTerm}
-      sort={sort}
       page={page}
       pageSize={pageSize}
       fileList={fileList}
