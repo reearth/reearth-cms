@@ -1,5 +1,6 @@
 import RequestMolecule from "@reearth-cms//components/molecules/Request/Details/Request";
 import Loading from "@reearth-cms/components/atoms/Loading";
+import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -125,6 +126,8 @@ const RequestDetailsMolecule: React.FC<Props> = ({
         setUploadModalVisibility={setUploadModalVisibility}
       />
     )
-  ) : null;
+  ) : (
+    <NotFound />
+  );
 };
 export default RequestDetailsMolecule;
