@@ -140,7 +140,6 @@ const ContentTable: React.FC<Props> = ({
             <Icon icon="edit" />
           </Link>
         ),
-        hideInSetting: true,
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
         key: "EDIT_ICON",
@@ -151,7 +150,6 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
-        hideInSetting: true,
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
         key: "commentsCount",
@@ -674,7 +672,7 @@ const ContentTable: React.FC<Props> = ({
           order:
             (col.key as string) in options && options[col.key as string].order !== undefined
               ? (options[col.key as string]?.order as number)
-              : index + 1,
+              : index + 2,
         }))
         .sort((a, b) => a.order - b.order)
         .map(col => {
