@@ -206,16 +206,10 @@ func (c *Collection[T, MT]) SaveOne(ctx context.Context, id string, d T, parent 
 		return rerror.ErrInternalBy(err)
 	}
 
-	if metadata != nil {
-		if _, err := c.metaColl.Client().UpdateOne(ctx, bson.M{idKey: id}, bson.M{"$set": bson.M{updatedUtKey: doc.Timestamp()}}); err != nil {
-			return rerror.ErrInternalBy(err)
-		}
-	} else {
+	if metadata == nil {
 		if _, err := c.metaColl.Client().InsertOne(ctx, &MetadataDocument[MT]{
-			ID:        id,
-			Archived:  false,
-			CreatedAt: doc.Timestamp(),
-			UpdatedAt: nil,
+			ID:       id,
+			Archived: false,
 		}); err != nil {
 			return rerror.ErrInternalBy(err)
 		}
