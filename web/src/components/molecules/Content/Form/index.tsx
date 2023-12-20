@@ -868,6 +868,12 @@ const ContentForm: React.FC<Props> = ({
                 <Form.Item
                   extra={field.description}
                   name={field.id}
+                  rules={[
+                    {
+                      required: field.required,
+                      message: t("Please input field!"),
+                    },
+                  ]}
                   label={
                     <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
                   }>
@@ -876,7 +882,7 @@ const ContentForm: React.FC<Props> = ({
                       onBlur={handleMetaUpdate}
                       mode="multiple"
                       showArrow
-                      style={{ width: "100%" }}>
+                      allowClear>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
@@ -886,11 +892,7 @@ const ContentForm: React.FC<Props> = ({
                       )}
                     </StyledMultipleSelect>
                   ) : (
-                    <Select
-                      onBlur={handleMetaUpdate}
-                      showArrow
-                      style={{ width: "100%" }}
-                      allowClear>
+                    <Select onBlur={handleMetaUpdate} showArrow allowClear>
                       {field.typeProperty?.tags?.map(
                         (tag: { id: string; name: string; color: string }) => (
                           <Select.Option key={tag.name} value={tag.id}>
@@ -1087,10 +1089,8 @@ const StyledFormItem = styled(Form.Item)`
 `;
 
 const StyledForm = styled(Form)`
-  padding: 16px;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
   background: #fff;
   label {
     width: 100%;
@@ -1099,16 +1099,17 @@ const StyledForm = styled(Form)`
 `;
 
 const FormItemsWrapper = styled.div`
-  width: 50%;
-  @media (max-width: 1200px) {
-    width: 100%;
-  }
+  max-height: calc(100% - 72px);
+  overflow-y: auto;
+  padding: 36px;
 `;
 
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
   padding: 8px;
   width: 400px;
+  max-height: 100%;
+  overflow-y: auto;
 `;
 
 const MetaFormItemWrapper = styled.div`

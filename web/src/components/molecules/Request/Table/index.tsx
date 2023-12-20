@@ -13,6 +13,7 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -98,6 +99,8 @@ const RequestListTable: React.FC<Props> = ({
       title: t("Title"),
       dataIndex: "title",
       key: "title",
+      width: 100,
+      ellipsis: true,
     },
     {
       title: t("State"),
@@ -132,14 +135,18 @@ const RequestListTable: React.FC<Props> = ({
         { text: t("DRAFT"), value: "DRAFT" },
       ],
       defaultFilteredValue: requestState,
+      width: 100,
     },
     {
       title: t("Created By"),
       dataIndex: "createdBy.name",
       key: "createdBy",
-      render: (_, request) => {
-        return request.createdBy?.name;
-      },
+      render: (_, request) => (
+        <Space>
+          <UserAvatar username={request.createdBy?.name} size={"small"} />
+          {request.createdBy?.name}
+        </Space>
+      ),
       valueEnum: {
         all: { text: "All", status: "Default" },
         createdByMe: {
@@ -148,12 +155,23 @@ const RequestListTable: React.FC<Props> = ({
       },
       filters: true,
       defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
+      width: 105,
+      ellipsis: true,
     },
     {
       title: t("Reviewers"),
       dataIndex: "reviewers.name",
       key: "reviewers",
-      render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
+      render: (_, request) => (
+        <Space>
+          <div>
+            {request.reviewers.map(reviewer => (
+              <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
+            ))}
+          </div>
+          {request.reviewers.map(reviewer => reviewer.name).join(", ")}
+        </Space>
+      ),
       valueEnum: {
         all: { text: "All", status: "Default" },
         reviewedByMe: {
@@ -162,18 +180,22 @@ const RequestListTable: React.FC<Props> = ({
       },
       filters: true,
       defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
+      width: 105,
+      ellipsis: true,
     },
     {
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
+      width: 150,
     },
     {
       title: t("Updated At"),
       dataIndex: "updatedAt",
       key: "updatedAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
+      width: 150,
     },
   ];
 
@@ -226,7 +248,7 @@ const RequestListTable: React.FC<Props> = ({
   };
 
   return (
-    <ProTable
+    <StyledProTable
       dataSource={requests}
       columns={columns}
       tableAlertOptionRender={AlertOptions}
@@ -246,6 +268,7 @@ const RequestListTable: React.FC<Props> = ({
           !!filters?.reviewers?.[0],
         );
       }}
+      scroll={{ x: "", y: "" }}
     />
   );
 };
@@ -256,6 +279,15 @@ const CommentsButton = styled(Button)`
   padding: 0;
 `;
 
+const StyledUserAvatar = styled(UserAvatar)`
+  :nth-child(1) {
+    z-index: 1;
+  }
+  :nth-child(n + 2) {
+    margin-left: -18px;
+  }
+`;
+
 const DeselectButton = styled.a`
   display: flex;
   align-items: center;
@@ -264,4 +296,32 @@ const DeselectButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+`;
+
+const StyledProTable = styled(ProTable)`
+  height: calc(100% - 72px);
+  .ant-pro-card-body {
+    padding-bottom: 0;
+  }
+  .ant-pro-card,
+  .ant-pro-card-body,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-table-container {
+    height: 100%;
+  }
+  .ant-table-wrapper {
+    height: calc(100% - 64px);
+  }
+  .ant-table {
+    height: calc(100% - 64px);
+  }
+  .ant-table-small,
+  .ant-table-middle {
+    height: calc(100% - 56px);
+  }
+  .ant-table-body {
+    overflow: auto !important;
+    height: calc(100% - 47px);
+  }
 `;
