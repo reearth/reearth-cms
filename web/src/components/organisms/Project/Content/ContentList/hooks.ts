@@ -25,6 +25,8 @@ import {
   Asset as GQLAsset,
   useGetItemsByIdsQuery,
   useUpdateItemMutation,
+  useCreateItemMutation,
+  SchemaFieldType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
@@ -58,6 +60,7 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
+    handleRequestSearchTerm,
     loading: requestModalLoading,
     totalCount: requestModalTotalCount,
     page: requestModalPage,
@@ -115,10 +118,11 @@ export default () => {
       data?.searchItem?.nodes
         ? data.searchItem.nodes
             .filter(item => item?.fields && item?.fields.length > 0)
-            .flatMap(item =>
-              item?.fields
-                .filter(field => field.type === "Reference" && field.value)
-                .map(field => field.value),
+            .flatMap(
+              item =>
+                item?.fields
+                  .filter(field => field.type === "Reference" && field.value)
+                  .map(field => field.value),
             )
         : [],
     [data],
@@ -144,6 +148,8 @@ export default () => {
     refetchQueries: ["SearchItem", "GetViews"],
   });
 
+  const [createNewItem] = useCreateItemMutation();
+
   const handleMetaItemUpdate = useCallback(
     async (
       updateItemId: string,
@@ -153,38 +159,67 @@ export default () => {
       index?: number,
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
-      if (!target?.metadata?.id || !target?.metadata?.fields) {
+      if (!target || !currentModel?.metadataSchema?.id || !currentModel.metadataSchema.fields) {
         Notification.error({ message: t("Failed to update item.") });
         return;
-      }
-      const fields = target.metadata.fields.map(field => {
-        if (field.schemaFieldId === key) {
-          if (Array.isArray(field.value) && field.type !== "Tag") {
-            field.value[index ?? 0] = value ?? "";
+      } else if (target.metadata) {
+        const fields = target.metadata.fields.map(field => {
+          if (field.schemaFieldId === key) {
+            if (Array.isArray(field.value) && field.type !== "Tag") {
+              field.value[index ?? 0] = value ?? "";
+            } else {
+              field.value = value ?? "";
+            }
           } else {
-            field.value = value ?? "";
+            field.value = field.value ?? "";
           }
-        } else {
-          field.value = field.value ?? "";
+          return field as typeof field & { value: any };
+        });
+        const item = await updateItemMutation({
+          variables: {
+            itemId: target.metadata?.id,
+            fields,
+            version,
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
         }
-        return field as typeof field & { value: any };
-      });
-
-      const item = await updateItemMutation({
-        variables: {
-          itemId: target.metadata?.id,
-          fields,
-          version,
-        },
-      });
-      if (item.errors || !item.data?.updateItem) {
-        Notification.error({ message: t("Failed to update item.") });
-        return;
+      } else {
+        const fields = currentModel.metadataSchema.fields.map(field => ({
+          value: field.id === key ? value : "",
+          schemaFieldId: key,
+          type: field.type as SchemaFieldType,
+        }));
+        const metaItem = await createNewItem({
+          variables: {
+            modelId: currentModel.id,
+            schemaId: currentModel.metadataSchema.id,
+            fields,
+          },
+        });
+        if (metaItem.errors || !metaItem.data?.createItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+        const item = await updateItemMutation({
+          variables: {
+            itemId: target.id,
+            fields: target.fields.map(field => ({ ...field, value: field.value ?? "" })),
+            metadataId: metaItem?.data.createItem.item.id,
+            version: target?.version ?? "",
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
       }
 
       Notification.success({ message: t("Successfully updated Item!") });
     },
-    [data?.searchItem.nodes, t, updateItemMutation],
+    [createNewItem, currentModel, data?.searchItem.nodes, t, updateItemMutation],
   );
 
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
@@ -216,14 +251,14 @@ export default () => {
                                 ?.url,
                             )
                         : field.type === "Reference"
-                        ? referencedItemsMap.get(field.value)?.title ?? ""
-                        : Array.isArray(field.value)
-                        ? field.value.length > 0
-                          ? field.value.map(v => "" + v)
-                          : null
-                        : field.value === null
-                        ? null
-                        : "" + field.value,
+                          ? referencedItemsMap.get(field.value)?.title ?? ""
+                          : Array.isArray(field.value)
+                            ? field.value.length > 0
+                              ? field.value.map(v => "" + v)
+                              : null
+                            : field.value === null
+                              ? null
+                              : "" + field.value,
                   }),
                 {},
               ),
@@ -238,8 +273,8 @@ export default () => {
                         ? field.value.map(v => "" + v)
                         : null
                       : field.value === null
-                      ? null
-                      : "" + field.value,
+                        ? null
+                        : "" + field.value,
                   }),
                 {},
               ),
@@ -454,5 +489,6 @@ export default () => {
     handleItemsReload,
     handleItemDelete,
     handleContentTableChange,
+    handleRequestSearchTerm,
   };
 };

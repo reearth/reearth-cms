@@ -3,6 +3,7 @@ Loading: ローディング中
 Oops!: ''
 PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
+ITEM NOT FOUND ON SERVER: データが見つかりません。
 Model: モデル
 Switch: 切り替え
 End point: エンドポイント
@@ -86,6 +87,7 @@ Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
 Go to Editor: エディタへ移動
+Please enter: 入力してください
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
@@ -107,6 +109,7 @@ Integrations: インテグレーション
 My Integrations: マイインテグレーション
 Role: ロール
 API key: APIキー
+Workspace: ''
 Account: アカウント
 unique: ユニーク
 Title: タイトル
@@ -158,7 +161,6 @@ is not empty: 空でない
 Ascending: 昇順
 Descending: 降順
 Confirm: 確認
-Please enter: 入力してください
 Add Filter: 絞り込む
 Add Sort: 並び替える
 Control: 操作
@@ -327,6 +329,26 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
+New Tiles: ''
+New Terrain: ''
+Tiles type: ''
+Terrain type: ''
+example: ''
+Name of tiles: ''
+Image URL: ''
+Name of terrain: ''
+Terrain Cesium Ion asset ID: ''
+Terrain Cesium Ion access token: ''
+Terrain URL: ''
+Geospatial asset preview setting: ''
+For asset viewer (formats like 3D Tiles, MVT, GeoJSON, CZML ... ): ''
+Tiles: ''
+The first one in the list will be the default Tile.: ''
+Add new Tiles option: ''
+Terrain: ''
+The first one in the list will be the default Terrain.: ''
+Enable: ''
+Add new Terrain option: ''
 New View: 新しいビュー
 Update View: ビューを更新します
 Submitting: 送信
@@ -349,11 +371,6 @@ Permanently removes the current workspace and all of its contents from Re:Earth 
 Workspace Name: ワークスペース名
 This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ワークスペース名はワークスペースを判別するために表示されます。あなたの会社名、部署名、その他プロジェクトのテーマなどを利用することをお勧めします。
 Workspace Settings: ワークスペース設定
-Tiles: ''
-The first one in the list will be the default Tile.: ''
-Add new Tile: ''
-Default Terrain: ''
-Allow user to switch tiles: ''
 Failed to update user.: ユーザーの更新に失敗しました。
 Successfully updated user!: ユーザーの更新に成功しました。
 Failed to update language.: 言語設定の更新に失敗しました。
@@ -406,6 +423,8 @@ Failed to delete view.: ビューの削除に失敗しました。
 Successfully deleted view!: ビューの削除に成功しました!
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
+Failed to update models order.: モデルの順序更新に失敗しました。
+Successfully updated models order!: モデルの順序変更に成功しました!
 Failed to create group.: グループの作成に失敗しました。
 Successfully created group!: グループの作成に成功しました！
 Failed to delete model.: モデルの削除に失敗しました。

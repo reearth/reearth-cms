@@ -11,16 +11,9 @@ export type Props = {
   onViewRenameModalOpen?: (view: View) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   onDelete: (viewId: string) => void;
-  onViewDeletionClose: () => void;
 };
 
-const ViewsMenuItem: React.FC<Props> = ({
-  view,
-  onViewRenameModalOpen,
-  onUpdate,
-  onDelete,
-  onViewDeletionClose,
-}) => {
+const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate, onDelete }) => {
   const t = useT();
 
   const children = [
@@ -62,9 +55,6 @@ const ViewsMenuItem: React.FC<Props> = ({
           onOk() {
             onDelete(view.id);
           },
-          onCancel() {
-            onViewDeletionClose();
-          },
         });
       },
     },
@@ -86,6 +76,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: space-between;
 `;
 
 const StyledDropdown = styled(Dropdown)`
