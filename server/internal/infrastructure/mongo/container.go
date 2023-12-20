@@ -30,23 +30,24 @@ func New(ctx context.Context, mc *mongo.Client, databaseName string, useTransact
 	}
 
 	c := &repo.Container{
-		Asset:       NewAsset(client),
-		AssetFile:   NewAssetFile(client),
-		AssetUpload: NewAssetUpload(client),
-		User:        acRepo.User,
-		Project:     NewProject(client),
-		Workspace:   acRepo.Workspace,
-		Transaction: client.Transaction(),
-		Lock:        lock,
-		Request:     NewRequest(client),
-		Item:        NewItem(client),
-		View:        NewView(client),
-		Model:       NewModel(client),
-		Schema:      NewSchema(client),
-		Thread:      NewThread(client),
-		Integration: NewIntegration(client),
-		Group:       NewGroup(client),
-		Event:       NewEvent(client),
+		Asset:             NewAsset(client),
+		AssetFile:         NewAssetFile(client),
+		AssetUpload:       NewAssetUpload(client),
+		User:              acRepo.User,
+		Project:           NewProject(client),
+		Workspace:         acRepo.Workspace,
+		Transaction:       client.Transaction(),
+		Lock:              lock,
+		Request:           NewRequest(client),
+		Item:              NewItem(client),
+		View:              NewView(client),
+		Model:             NewModel(client),
+		Schema:            NewSchema(client),
+		Thread:            NewThread(client),
+		Integration:       NewIntegration(client),
+		Group:             NewGroup(client),
+		Event:             NewEvent(client),
+		WorkspaceSettings: NewWorkspaceSettings(client),
 	}
 
 	// init
@@ -78,6 +79,7 @@ func Init(r *repo.Container) error {
 		r.Group.(*Group).Init,
 		r.Integration.(*Integration).Init,
 		r.Event.(*Event).Init,
+		r.WorkspaceSettings.(*WorkspaceSettingsRepo).Init,
 	)
 }
 
