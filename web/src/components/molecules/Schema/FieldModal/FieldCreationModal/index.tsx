@@ -169,9 +169,11 @@ const FieldCreationModal: React.FC<Props> = ({
 
   useEffect(() => {
     if (selectedType === "Select") {
-      if (
-        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
-      ) {
+      const defaultValue = form.getFieldValue("defaultValue");
+      if (Array.isArray(defaultValue)) {
+        const filteredVelue = defaultValue.filter(value => selectedValues?.includes(value));
+        form.setFieldValue("defaultValue", filteredVelue);
+      } else if (!selectedValues?.includes(defaultValue)) {
         form.setFieldValue("defaultValue", null);
       }
     }
@@ -209,8 +211,11 @@ const FieldCreationModal: React.FC<Props> = ({
             asset: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Select") {
+          const defaultValue = Array.isArray(values.defaultValue)
+            ? values.defaultValue.filter((value: string) => value)
+            : values.defaultValue;
           values.typeProperty = {
-            select: { defaultValue: values.defaultValue, values: values.values },
+            select: { defaultValue, values: values.values },
           };
         } else if (selectedType === "Integer") {
           values.typeProperty = {
