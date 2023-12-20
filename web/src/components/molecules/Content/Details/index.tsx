@@ -1,5 +1,6 @@
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
+import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -26,6 +27,7 @@ export type Props = {
   initialMetaFormValues: { [key: string]: any };
   item?: Item;
   itemId?: string;
+  itemLoading: boolean;
   loading: boolean;
   requestCreationLoading: boolean;
   assetList: Asset[];
@@ -116,6 +118,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   initialMetaFormValues,
   item,
   itemId,
+  itemLoading,
   loading,
   requestCreationLoading,
   assetList,
@@ -183,68 +186,72 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         </Sidebar>
       }
       center={
-        <ContentForm
-          item={item}
-          groups={groups}
-          linkItemModalTitle={linkItemModalTitle}
-          linkItemModalTotalCount={linkItemModalTotalCount}
-          linkItemModalPage={linkItemModalPage}
-          linkItemModalPageSize={linkItemModalPageSize}
-          onReferenceModelUpdate={onReferenceModelUpdate}
-          onSearchTerm={onSearchTerm}
-          onLinkItemTableChange={onLinkItemTableChange}
-          linkedItemsModalList={linkedItemsModalList}
-          showPublishAction={showPublishAction}
-          requests={requests}
-          requestCreationLoading={requestCreationLoading}
-          onRequestTableChange={onRequestTableChange}
-          onRequestSearchTerm={onRequestSearchTerm}
-          requestModalLoading={requestModalLoading}
-          requestModalTotalCount={requestModalTotalCount}
-          requestModalPage={requestModalPage}
-          requestModalPageSize={requestModalPageSize}
-          loading={loading}
-          itemId={itemId}
-          model={model}
-          formItemsData={formItemsData}
-          initialFormValues={initialFormValues}
-          initialMetaFormValues={initialMetaFormValues}
-          assetList={assetList}
-          onAssetTableChange={onAssetTableChange}
-          totalCount={totalCount}
-          page={page}
-          pageSize={pageSize}
-          fileList={fileList}
-          loadingAssets={loadingAssets}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          onPublish={onPublish}
-          onUnpublish={onUnpublish}
-          onChange={onChange}
-          onUploadModalCancel={onUploadModalCancel}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onBack={onBack}
-          onItemCreate={onItemCreate}
-          onItemUpdate={onItemUpdate}
-          onMetaItemUpdate={onMetaItemUpdate}
-          onAssetsCreate={onAssetsCreate}
-          onAssetCreateFromUrl={onAssetCreateFromUrl}
-          onAssetsReload={onAssetsReload}
-          onAssetSearchTerm={onAssetSearchTerm}
-          setFileList={setFileList}
-          setUploadModalVisibility={setUploadModalVisibility}
-          requestModalShown={requestModalShown}
-          addItemToRequestModalShown={addItemToRequestModalShown}
-          onRequestCreate={onRequestCreate}
-          onModalClose={onModalClose}
-          onModalOpen={onModalOpen}
-          onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
-          onAddItemToRequestModalClose={onAddItemToRequestModalClose}
-          workspaceUserMembers={workspaceUserMembers}
-        />
+        itemId && !itemLoading && !item ? (
+          <NotFound />
+        ) : (
+          <ContentForm
+            item={item}
+            groups={groups}
+            linkItemModalTitle={linkItemModalTitle}
+            linkItemModalTotalCount={linkItemModalTotalCount}
+            linkItemModalPage={linkItemModalPage}
+            linkItemModalPageSize={linkItemModalPageSize}
+            onReferenceModelUpdate={onReferenceModelUpdate}
+            onSearchTerm={onSearchTerm}
+            onLinkItemTableChange={onLinkItemTableChange}
+            linkedItemsModalList={linkedItemsModalList}
+            showPublishAction={showPublishAction}
+            requests={requests}
+            requestCreationLoading={requestCreationLoading}
+            onRequestTableChange={onRequestTableChange}
+            onRequestSearchTerm={onRequestSearchTerm}
+            requestModalLoading={requestModalLoading}
+            requestModalTotalCount={requestModalTotalCount}
+            requestModalPage={requestModalPage}
+            requestModalPageSize={requestModalPageSize}
+            loading={loading}
+            itemId={itemId}
+            model={model}
+            formItemsData={formItemsData}
+            initialFormValues={initialFormValues}
+            initialMetaFormValues={initialMetaFormValues}
+            assetList={assetList}
+            onAssetTableChange={onAssetTableChange}
+            totalCount={totalCount}
+            page={page}
+            pageSize={pageSize}
+            fileList={fileList}
+            loadingAssets={loadingAssets}
+            uploading={uploading}
+            uploadModalVisibility={uploadModalVisibility}
+            uploadUrl={uploadUrl}
+            uploadType={uploadType}
+            onPublish={onPublish}
+            onUnpublish={onUnpublish}
+            onChange={onChange}
+            onUploadModalCancel={onUploadModalCancel}
+            setUploadUrl={setUploadUrl}
+            setUploadType={setUploadType}
+            onBack={onBack}
+            onItemCreate={onItemCreate}
+            onItemUpdate={onItemUpdate}
+            onMetaItemUpdate={onMetaItemUpdate}
+            onAssetsCreate={onAssetsCreate}
+            onAssetCreateFromUrl={onAssetCreateFromUrl}
+            onAssetsReload={onAssetsReload}
+            onAssetSearchTerm={onAssetSearchTerm}
+            setFileList={setFileList}
+            setUploadModalVisibility={setUploadModalVisibility}
+            requestModalShown={requestModalShown}
+            addItemToRequestModalShown={addItemToRequestModalShown}
+            onRequestCreate={onRequestCreate}
+            onModalClose={onModalClose}
+            onModalOpen={onModalOpen}
+            onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
+            onAddItemToRequestModalClose={onAddItemToRequestModalClose}
+            workspaceUserMembers={workspaceUserMembers}
+          />
+        )
       }
       right={commentsPanel}
     />
