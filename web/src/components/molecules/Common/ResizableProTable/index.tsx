@@ -107,4 +107,9 @@ const StyledProTable = styled(ProTable)`
     overflow: auto !important;
     height: calc(100% - 47px);
   }
+  .ant-pro-table-column-setting-overlay {
+    .ant-tree-treenode:nth-of-type(-n + 2) {
+      display: none;
+    }
+  }
 `;
