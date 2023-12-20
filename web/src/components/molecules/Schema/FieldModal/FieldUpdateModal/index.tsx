@@ -144,11 +144,12 @@ const FieldUpdateModal: React.FC<Props> = ({
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
-      if (selectedType === "Date") {
+      if (selectedType === "Date" || selectedType === "Select") {
+        const defaultValue = form.getFieldValue("defaultValue");
         if (e.target.checked) {
-          form.setFieldValue("defaultValue", []);
+          form.setFieldValue("defaultValue", defaultValue && [defaultValue]);
         } else {
-          form.setFieldValue("defaultValue", null);
+          form.setFieldValue("defaultValue", form.getFieldValue("defaultValue")?.[0]);
         }
       }
 
@@ -201,7 +202,7 @@ const FieldUpdateModal: React.FC<Props> = ({
         if (Array.isArray(defaultValue)) {
           return defaultValue.map(valueItem => moment(valueItem as string));
         } else {
-          return moment(defaultValue as string);
+          return defaultValue && moment(defaultValue as string);
         }
       } else if (selectedType === "Tag") {
         if (Array.isArray(selectDefaultValue)) {

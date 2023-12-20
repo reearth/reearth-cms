@@ -137,9 +137,12 @@ const FieldCreationModal: React.FC<Props> = ({
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
-      if (selectedType === "Date") {
-        if (!e.target.checked) {
-          form.setFieldValue("defaultValue", null);
+      if (selectedType === "Date" || selectedType === "Select") {
+        const defaultValue = form.getFieldValue("defaultValue");
+        if (e.target.checked) {
+          form.setFieldValue("defaultValue", defaultValue && [defaultValue]);
+        } else {
+          form.setFieldValue("defaultValue", form.getFieldValue("defaultValue")?.[0]);
         }
       }
 
@@ -156,7 +159,7 @@ const FieldCreationModal: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (selectedType === "Asset" || selectedType === "Select") {
+    if (selectedType === "Asset") {
       form.setFieldValue("defaultValue", null);
     }
   }, [form, selectedType, multipleValue]);
