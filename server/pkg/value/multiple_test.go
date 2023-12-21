@@ -199,6 +199,16 @@ func TestMultiple_Equal(t *testing.T) {
 		v: []*Value{New(TypeBool, true), New(TypeBool, false)},
 	}
 	assert.Equal(t, m.Equal(w), true)
+
+	w = &Multiple{
+		t: TypeBool,
+		v: []*Value{New(TypeBool, nil)},
+	}
+	m = &Multiple{
+		t: TypeBool,
+		v: []*Value{},
+	}
+	assert.Equal(t, m.Equal(w), true)
 }
 
 func TestMultiple_Cast(t *testing.T) {
