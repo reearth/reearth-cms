@@ -140,7 +140,6 @@ const ContentTable: React.FC<Props> = ({
             <Icon icon="edit" />
           </Link>
         ),
-        hideInSetting: true,
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
         key: "EDIT_ICON",
@@ -151,7 +150,6 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
-        hideInSetting: true,
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
         key: "commentsCount",
@@ -717,21 +715,21 @@ const ContentTable: React.FC<Props> = ({
               Array.isArray(sorter)
                 ? undefined
                 : sorter.order &&
-                  sorter.column &&
-                  "fieldType" in sorter.column &&
-                  typeof sorter.columnKey === "string"
-                ? {
-                    field: {
-                      id:
-                        sorter.column.fieldType === "FIELD" ||
-                        sorter.column.fieldType === "META_FIELD"
-                          ? sorter.columnKey
-                          : undefined,
-                      type: sorter.column.fieldType as FieldType,
-                    },
-                    direction: sorter.order === "ascend" ? "ASC" : "DESC",
-                  }
-                : undefined,
+                    sorter.column &&
+                    "fieldType" in sorter.column &&
+                    typeof sorter.columnKey === "string"
+                  ? {
+                      field: {
+                        id:
+                          sorter.column.fieldType === "FIELD" ||
+                          sorter.column.fieldType === "META_FIELD"
+                            ? sorter.columnKey
+                            : undefined,
+                        type: sorter.column.fieldType as FieldType,
+                      },
+                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
+                    }
+                  : undefined,
             );
           }}
         />
@@ -823,7 +821,9 @@ const InputWrapper = styled.div`
 
 const Wrapper = styled.div`
   background-color: #fff;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 

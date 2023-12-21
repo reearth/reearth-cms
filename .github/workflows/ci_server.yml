@@ -33,7 +33,7 @@ jobs:
         ports:
           - 27017:27017
     steps:
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: 1.21
       - name: checkout

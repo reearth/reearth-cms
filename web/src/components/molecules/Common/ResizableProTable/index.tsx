@@ -54,46 +54,62 @@ const ResizableProTable: React.FC<Props> = ({
   }));
 
   return (
-    <Wrapper>
-      <ProTable
-        dataSource={dataSource}
-        columns={mergeColumns}
-        components={{
-          header: {
-            cell: ResizableTitle,
-          },
-        }}
-        rowKey="id"
-        search={false}
-        loading={loading}
-        toolbar={toolbar}
-        toolBarRender={toolBarRender}
-        options={options}
-        tableAlertOptionRender={tableAlertOptionRender}
-        rowSelection={rowSelection}
-        pagination={pagination}
-        onChange={onChange}
-        columnsState={columnsState}
-        showSorterTooltip={showSorterTooltip}
-      />
-    </Wrapper>
+    <StyledProTable
+      dataSource={dataSource}
+      columns={mergeColumns}
+      components={{
+        header: {
+          cell: ResizableTitle,
+        },
+      }}
+      rowKey="id"
+      search={false}
+      loading={loading}
+      toolbar={toolbar}
+      toolBarRender={toolBarRender}
+      options={options}
+      tableAlertOptionRender={tableAlertOptionRender}
+      rowSelection={rowSelection}
+      pagination={pagination}
+      onChange={onChange}
+      columnsState={columnsState}
+      showSorterTooltip={showSorterTooltip}
+      scroll={{ x: "", y: "" }}
+    />
   );
 };
 
 export default ResizableProTable;
 
-const Wrapper = styled.div`
-  .ant-table.ant-table-middle {
-    overflow-x: scroll;
+const StyledProTable = styled(ProTable)`
+  height: calc(100% - 102px);
+  .ant-pro-card-body {
+    padding-bottom: 0;
   }
-  .ant-table-content {
-    width: 1px;
-    max-width: 100%;
-    table {
-      width: 100%;
+  .ant-pro-card,
+  .ant-pro-card-body,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-table-container {
+    height: 100%;
+  }
+  .ant-table-wrapper {
+    height: calc(100% - 64px);
+  }
+  .ant-table {
+    height: calc(100% - 64px);
+  }
+  .ant-table-small,
+  .ant-table-middle {
+    height: calc(100% - 56px);
+  }
+  .ant-table-body {
+    overflow: auto !important;
+    height: calc(100% - 47px);
+  }
+  .ant-pro-table-column-setting-overlay {
+    .ant-tree-treenode:nth-of-type(-n + 2) {
+      display: none;
     }
-  }
-  .ant-pro-table-column-setting-list-item-option {
-    visibility: hidden;
   }
 `;
