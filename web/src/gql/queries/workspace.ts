@@ -123,6 +123,49 @@ export const CREATE_WORKSPACE = gql`
   }
 `;
 
+export const GET_WORKSPACE_SETTINGS = gql`
+  query GetWorkspaceSettings($workspaceId: ID!) {
+    node(id: $workspaceId, type: WorkspaceSettings) {
+      id
+      ... on WorkspaceSettings {
+        id
+        tiles {
+          resources {
+            ... on TileResource {
+              id
+              type
+              props {
+                name
+                url
+                image
+              }
+            }
+          }
+          enabled
+          selectedResource
+        }
+        terrains {
+          resources {
+            ... on TerrainResource {
+              id
+              type
+              props {
+                name
+                url
+                image
+                cesiumIonAssetId
+                cesiumIonAccessToken
+              }
+            }
+          }
+          enabled
+          selectedResource
+        }
+      }
+    }
+  }
+`;
+
 export const UPDATE_WORKSPACE_SETTINGS = gql`
   mutation UpdateWorkspaceSettings(
     $id: ID!

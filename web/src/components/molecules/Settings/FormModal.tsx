@@ -2,13 +2,20 @@ import styled from "@emotion/styled";
 import { useCallback, useState, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
+import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { Model } from "@reearth-cms/components/molecules/ProjectOverview";
-import { TileType, TerrainType } from "@reearth-cms/components/molecules/Workspace/types";
+import {
+  TileType,
+  TerrainType,
+  WorkspaceSettings,
+  TileInput,
+  TerrainInput,
+} from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { newID } from "@reearth-cms/utils/id";
 
 export interface FormValues {
   id?: string;
@@ -21,43 +28,21 @@ export interface Props {
   model?: Model;
   open?: boolean;
   onClose: () => void;
-  onCreate?: (values: FormValues) => Promise<void> | void;
-  onUpdate?: (values: FormValues) => Promise<void> | void;
+  workspaceSettings?: WorkspaceSettings;
+  onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
   isTile: boolean;
 }
 
-const GeospatialFormModal: React.FC<Props> = ({
-  model,
+const FormModal: React.FC<Props> = ({
   open,
   onClose,
-  onCreate,
-  onUpdate,
+  workspaceSettings,
+  onWorkspaceSettingsUpdate,
   isTile,
 }) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<{ type: keyof typeof TileType | keyof typeof TerrainType }>();
   const [extraOpen, setExtraOpen] = useState(false);
-
-  useEffect(() => {
-    if (open) {
-      if (!model) {
-        form.resetFields();
-      } else {
-        form.setFieldsValue(model);
-      }
-      setExtraOpen(false);
-    }
-  }, [form, model, open]);
-
-  const handleSubmit = useCallback(async () => {
-    const values = await form.validateFields();
-    console.log(values);
-    onClose();
-  }, [form, onClose]);
-
-  const handleClose = useCallback(() => {
-    onClose();
-  }, [onClose]);
 
   const typeEnum = useMemo(() => (isTile ? TileType : TerrainType), [isTile]);
   const options = useMemo(
@@ -69,11 +54,53 @@ const GeospatialFormModal: React.FC<Props> = ({
     [typeEnum],
   );
 
+  useEffect(() => {
+    if (open) {
+      form.resetFields();
+      form.setFieldValue("type", options[0].value);
+      setExtraOpen(false);
+    }
+  }, [form, open, options]);
+
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
   const handleSelect = useCallback((value: string) => {
     if (value === "URL" || value === "CESIUM_ION") {
       setExtraOpen(true);
+    } else {
+      setExtraOpen(false);
     }
   }, []);
+
+  const handleSubmit = useCallback(async () => {
+    const values = form.getFieldsValue();
+    const { type } = values;
+    const tiles: TileInput[] = [];
+    workspaceSettings?.tiles?.resources?.map(resource => tiles.push({ tile: resource }));
+    const terrains: TerrainInput[] = [];
+    workspaceSettings?.terrains?.resources?.map(resource => terrains.push({ terrain: resource }));
+    if (isTile) {
+      tiles.push({
+        tile: {
+          id: newID(),
+          type: type as keyof typeof TileType,
+          props: { name: "", url: "", image: "" },
+        },
+      });
+    } else {
+      terrains.push({
+        terrain: {
+          id: newID(),
+          type: type as keyof typeof TerrainType,
+          props: { name: "", url: "", image: "", cesiumIonAssetId: "", cesiumIonAccessToken: "" },
+        },
+      });
+    }
+    onWorkspaceSettingsUpdate(tiles, terrains);
+    onClose();
+  }, [form, onClose, onWorkspaceSettingsUpdate]);
 
   return (
     <Modal
@@ -129,7 +156,7 @@ const GeospatialFormModal: React.FC<Props> = ({
   );
 };
 
-export default GeospatialFormModal;
+export default FormModal;
 
 const Text = styled.p`
   color: #00000073;

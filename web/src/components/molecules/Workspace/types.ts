@@ -26,24 +26,44 @@ export type MemberInput = {
 
 export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
 
-export type Tile = {
-  id: string;
-  name: string;
-  url: string;
-  image: string;
-};
-
-export type Tiles = {
-  list: Tile[];
-  default: string;
-  switching: boolean;
-};
-
 export type Workspace = {
   id?: string;
   name?: string;
   members?: Member[];
-  tiles?: Tiles;
+};
+
+export type WorkspaceSettings = {
+  id: string;
+  tiles?: ResourceList<TileResource>;
+  terrains?: ResourceList<TerrainResource>;
+};
+
+type ResourceList<T> = {
+  resources: T[];
+  selectedResource?: string;
+  enabled?: boolean;
+};
+
+export type Resource = TileResource | TerrainResource;
+
+type TileResource = {
+  id: string;
+  type: keyof typeof TileType;
+  props?: UrlResourceProps;
+};
+
+type TerrainResource = {
+  id: string;
+  type: keyof typeof TerrainType;
+  props?: CesiumResourceProps;
+};
+
+export type TileInput = {
+  tile: TileResource;
+};
+
+export type TerrainInput = {
+  terrain: TerrainResource;
 };
 
 export enum TileType {
@@ -64,3 +84,17 @@ export enum TerrainType {
   ARC_GIS_TERRAIN = "ArcGIS Terrain",
   CESIUM_ION = "Cesium Ion",
 }
+
+type UrlResourceProps = {
+  name: string;
+  url: string;
+  image: string;
+};
+
+type CesiumResourceProps = {
+  name: string;
+  url: string;
+  image: string;
+  cesiumIonAssetId: string;
+  cesiumIonAccessToken: string;
+};
