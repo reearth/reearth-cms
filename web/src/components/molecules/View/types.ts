@@ -11,6 +11,7 @@ export type View = {
 export type Column = {
   field: FieldSelector;
   visible: boolean;
+  fixed?: "left" | "right";
 };
 
 export type ColumnSelectionInput = {

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import ProTable, {
   ProColumns,
@@ -53,8 +53,17 @@ const ResizableProTable: React.FC<Props> = ({
     }),
   }));
 
+  const nthOfType = useMemo(() => {
+    return columnsState?.value
+      ? Object.values(columnsState?.value).some(option => option.fixed === "left")
+        ? 2
+        : 1
+      : 0;
+  }, [columnsState?.value]);
+
   return (
     <StyledProTable
+      nthOfType={nthOfType}
       dataSource={dataSource}
       columns={mergeColumns}
       components={{
@@ -81,7 +90,7 @@ const ResizableProTable: React.FC<Props> = ({
 
 export default ResizableProTable;
 
-const StyledProTable = styled(ProTable)`
+const StyledProTable = styled(ProTable)<{ nthOfType: number }>`
   height: calc(100% - 102px);
   .ant-pro-card-body {
     padding-bottom: 0;
@@ -108,8 +117,17 @@ const StyledProTable = styled(ProTable)`
     height: calc(100% - 47px);
   }
   .ant-pro-table-column-setting-overlay {
-    .ant-tree-treenode:nth-of-type(-n + 2) {
-      display: none;
+    .ant-tree-block-node:only-of-type {
+      .ant-tree-treenode:nth-of-type(-n + 2) {
+        display: none;
+      }
+    }
+  }
+  .ant-pro-table-column-setting-overlay {
+    .ant-tree-block-node:nth-of-type(${({ nthOfType }) => nthOfType}) {
+      .ant-tree-treenode:nth-of-type(-n + 2) {
+        display: none;
+      }
     }
   }
 `;

@@ -642,9 +642,9 @@ const ContentTable: React.FC<Props> = ({
         col.field.type === "MODIFICATION_DATE" ||
         col.field.type === "MODIFICATION_USER"
       ) {
-        cols[col.field.type] = { show: col.visible, order: index };
+        cols[col.field.type] = { show: col.visible, order: index, fixed: col.fixed };
       } else {
-        cols[col.field.id ?? ""] = { show: col.visible, order: index };
+        cols[col.field.id ?? ""] = { show: col.visible, order: index, fixed: col.fixed };
       }
     });
     return cols;
@@ -673,12 +673,17 @@ const ContentTable: React.FC<Props> = ({
             (col.key as string) in options && options[col.key as string].order !== undefined
               ? (options[col.key as string]?.order as number)
               : index + 2,
+          fixed:
+            (col.key as string) in options && options[col.key as string].fixed !== undefined
+              ? options[col.key as string]?.fixed
+              : options[col.fieldType as string]?.fixed,
         }))
         .sort((a, b) => a.order - b.order)
         .map(col => {
           return {
             field: col.field,
             visible: col.visible as boolean,
+            fixed: col.fixed,
           };
         });
 
