@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -18,24 +18,41 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   workspaceSettings?: WorkspaceSettings;
+  tiles: TileInput[];
+  terrains: TerrainInput[];
   onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
+  onTerrainToggle: (isEnable: boolean) => void;
 };
 
-const Settings: React.FC<Props> = ({ workspaceSettings, onWorkspaceSettingsUpdate }) => {
+const Settings: React.FC<Props> = ({
+  workspaceSettings,
+  tiles,
+  terrains,
+  onWorkspaceSettingsUpdate,
+  onTerrainToggle,
+}) => {
   const t = useT();
 
   const [open, setOpen] = useState(false);
   const [enable, setEnable] = useState(workspaceSettings?.terrains?.enabled);
-  const isTileRef = useRef(true);
 
-  const onTileModalOpen = () => {
+  const isTileRef = useRef(true);
+  const indexRef = useRef<undefined | number>(undefined);
+
+  useEffect(() => {
+    if (workspaceSettings?.terrains?.enabled) setEnable(workspaceSettings.terrains.enabled);
+  }, [workspaceSettings?.terrains?.enabled]);
+
+  const onTileModalOpen = (index?: number) => {
     setOpen(true);
     isTileRef.current = true;
+    indexRef.current = index;
   };
 
-  const onTerrainModalOpen = () => {
+  const onTerrainModalOpen = (index?: number) => {
     setOpen(true);
     isTileRef.current = false;
+    indexRef.current = index;
   };
 
   const onClose = () => {
@@ -44,6 +61,16 @@ const Settings: React.FC<Props> = ({ workspaceSettings, onWorkspaceSettingsUpdat
 
   const onChange = (checked: boolean) => {
     setEnable(checked);
+    onTerrainToggle(checked);
+  };
+
+  const handleDelete = (isTile: boolean, index: number) => {
+    if (isTile) {
+      tiles.splice(index, 1);
+    } else {
+      terrains.splice(index, 1);
+    }
+    onWorkspaceSettingsUpdate(tiles, terrains);
   };
 
   return (
@@ -54,16 +81,21 @@ const Settings: React.FC<Props> = ({ workspaceSettings, onWorkspaceSettingsUpdat
         <Title>{t("Tiles")}</Title>
         <SecondaryText>{t("The first one in the list will be the default Tile.")}</SecondaryText>
         {workspaceSettings?.tiles?.resources?.length ? (
-          <Cards resources={workspaceSettings?.tiles?.resources} onModalOpen={onTileModalOpen} />
+          <Cards
+            resources={workspaceSettings?.tiles?.resources}
+            onModalOpen={onTileModalOpen}
+            isTile={true}
+            onDelete={handleDelete}
+          />
         ) : null}
-        <Button type="link" onClick={onTileModalOpen} icon={<Icon icon="plus" />}>
+        <Button type="link" onClick={() => onTileModalOpen()} icon={<Icon icon="plus" />}>
           {t("Add new Tiles option")}
         </Button>
         <Divider />
         <Title>{t("Terrain")}</Title>
         <SecondaryText>{t("The first one in the list will be the default Terrain.")}</SecondaryText>
         <SwitchWrapper>
-          <Switch defaultChecked={enable} onChange={onChange} />
+          <Switch checked={enable} onChange={onChange} />
           <Text>{t("Enable")}</Text>
         </SwitchWrapper>
         {enable && (
@@ -72,9 +104,11 @@ const Settings: React.FC<Props> = ({ workspaceSettings, onWorkspaceSettingsUpdat
               <Cards
                 resources={workspaceSettings?.terrains?.resources}
                 onModalOpen={onTerrainModalOpen}
+                isTile={false}
+                onDelete={handleDelete}
               />
             ) : null}
-            <Button type="link" onClick={onTerrainModalOpen} icon={<Icon icon="plus" />}>
+            <Button type="link" onClick={() => onTerrainModalOpen()} icon={<Icon icon="plus" />}>
               {t("Add new Terrain option")}
             </Button>
           </>
@@ -83,8 +117,10 @@ const Settings: React.FC<Props> = ({ workspaceSettings, onWorkspaceSettingsUpdat
           open={open}
           onClose={onClose}
           isTile={isTileRef.current}
-          workspaceSettings={workspaceSettings}
+          tiles={tiles}
+          terrains={terrains}
           onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+          index={indexRef.current}
         />
       </ContentSection>
     </InnerContent>

@@ -6,20 +6,22 @@ import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
 
 export type Props = {
   resources: Resource[];
-  onModalOpen: () => void;
+  onModalOpen: (index: number) => void;
+  isTile: boolean;
+  onDelete: (isTile: boolean, index: number) => void;
 };
 
-const Cards: React.FC<Props> = ({ resources, onModalOpen }) => {
+const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete }) => {
   const { Meta } = Card;
 
   return (
     <GridArea>
-      {resources?.map(resource => {
+      {resources?.map((resource, index) => {
         return (
           <StyledCard
             actions={[
-              <Icon icon="delete" key="delete" onClick={() => console.log("delete")} />,
-              <Icon icon="edit" key="edit" onClick={onModalOpen} />,
+              <Icon icon="delete" key="delete" onClick={() => onDelete(isTile, index)} />,
+              <Icon icon="edit" key="edit" onClick={() => onModalOpen(index)} />,
             ]}
             key={resource.id}>
             <Meta title={resource.props?.name ? resource.props.name : resource.type} />

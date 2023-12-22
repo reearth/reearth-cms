@@ -27,6 +27,18 @@ export default () => {
     return data ? (data.node as WorkspaceSettings) : undefined;
   }, [data]);
 
+  const tiles: TileInput[] = useMemo(() => {
+    const tiles: TileInput[] = [];
+    workspaceSettings?.tiles?.resources?.map(resource => tiles.push({ tile: resource }));
+    return tiles;
+  }, [workspaceSettings?.tiles?.resources]);
+
+  const terrains: TerrainInput[] = useMemo(() => {
+    const terrains: TerrainInput[] = [];
+    workspaceSettings?.terrains?.resources?.map(resource => terrains.push({ terrain: resource }));
+    return terrains;
+  }, [workspaceSettings?.terrains?.resources]);
+
   const [updateWorkspaceMutation] = useUpdateWorkspaceSettingsMutation();
 
   const handleWorkspaceSettingsUpdate = useCallback(
@@ -42,7 +54,6 @@ export default () => {
           terrains: {
             resources: terrains as ResourceInput[],
             selectedResource: terrains[0]?.terrain?.id,
-            enabled: true,
           },
         },
       });
@@ -56,8 +67,38 @@ export default () => {
     [t, updateWorkspaceMutation, workspaceId],
   );
 
+  const handleTerrainToggle = useCallback(
+    async (isEnable: boolean) => {
+      if (!workspaceId) return;
+      const res = await updateWorkspaceMutation({
+        variables: {
+          id: workspaceId,
+          tiles: {
+            resources: tiles as ResourceInput[],
+            selectedResource: tiles[0]?.tile?.id,
+          },
+          terrains: {
+            resources: terrains as ResourceInput[],
+            selectedResource: terrains[0]?.terrain?.id,
+            enabled: isEnable,
+          },
+        },
+      });
+
+      if (res.errors) {
+        Notification.error({ message: t("Failed to update workspace.") });
+      } else {
+        Notification.success({ message: t("Successfully updated workspace!") });
+      }
+    },
+    [t, terrains, tiles, updateWorkspaceMutation, workspaceId],
+  );
+
   return {
     workspaceSettings,
+    tiles,
+    terrains,
     handleWorkspaceSettingsUpdate,
+    handleTerrainToggle,
   };
 };
