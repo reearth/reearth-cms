@@ -799,12 +799,12 @@ func itemFieldsFromParams(fields []interfaces.ItemFieldParam, s *schema.Schema) 
 
 		as, ok := f.Value.([]any)
 		if !ok {
-			return nil, interfaces.ErrInvalidValue
+			return nil, fmt.Errorf("%w: id=%s key=%s", interfaces.ErrInvalidValue, f.Field, f.Key)
 		}
 
 		m := value.NewMultiple(sf.Type(), as)
 		if err := sf.Validate(m); err != nil {
-			return nil, fmt.Errorf("field %s: %w", sf.Name(), err)
+			return nil, fmt.Errorf("%w: id=%s key=%s", err, sf.ID(), sf.Name())
 		}
 
 		return item.NewField(sf.ID(), m, f.Group), nil
