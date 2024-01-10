@@ -54,6 +54,7 @@ export default () => {
           terrains: {
             resources: terrains as ResourceInput[],
             selectedResource: terrains[0]?.terrain?.id,
+            enabled: workspaceSettings?.terrains?.enabled,
           },
         },
       });
@@ -64,7 +65,7 @@ export default () => {
         Notification.success({ message: t("Successfully updated workspace!") });
       }
     },
-    [t, updateWorkspaceMutation, workspaceId],
+    [t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
   );
 
   const handleTerrainToggle = useCallback(
