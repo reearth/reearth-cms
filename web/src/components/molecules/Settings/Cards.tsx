@@ -16,7 +16,7 @@ const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete }) =>
 
   return (
     <GridArea>
-      {resources?.map((resource, index) => {
+      {resources.map((resource, index) => {
         return (
           <StyledCard
             actions={[

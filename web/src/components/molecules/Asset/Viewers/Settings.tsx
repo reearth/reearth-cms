@@ -20,11 +20,9 @@ type Props = {
 const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
 
 const Settings: React.FC<Props> = ({ workspaceSettings }) => {
-  console.log(workspaceSettings);
-
   const imageryProviderGet = useCallback(() => {
     if (workspaceSettings) {
-      switch (workspaceSettings.tiles?.resources[0].type) {
+      switch (workspaceSettings.tiles?.resources[0]?.type) {
         case "LABELLED":
           return new IonImageryProvider({
             assetId: IonWorldImageryStyle.AERIAL_WITH_LABELS,
@@ -77,30 +75,33 @@ const Settings: React.FC<Props> = ({ workspaceSettings }) => {
 
   const terrainProviderGet = useCallback(() => {
     if (workspaceSettings) {
-      switch (workspaceSettings.terrains?.resources[0].type) {
-        case "CESIUM_WORLD_TERRAIN":
-          return new CesiumTerrainProvider({
-            url: IonResource.fromAssetId(1, {
-              accessToken,
-            }),
-            requestWaterMask: false,
-          });
-        case "ARC_GIS_TERRAIN":
-          return new ArcGISTiledElevationTerrainProvider({
-            url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
-          });
-        case "CESIUM_ION":
-          if (workspaceSettings.terrains?.resources[0].props) {
-            const { url, cesiumIonAssetId, cesiumIonAccessToken } =
-              workspaceSettings.terrains.resources[0].props;
-            return new CesiumTerrainProvider({
-              url:
-                url ||
-                IonResource.fromAssetId(parseInt(cesiumIonAssetId, 10), {
-                  accessToken: cesiumIonAccessToken || accessToken,
-                }),
+      if (workspaceSettings.terrains?.enabled) {
+        switch (workspaceSettings.terrains?.resources[0]?.type) {
+          case "ARC_GIS_TERRAIN":
+            return new ArcGISTiledElevationTerrainProvider({
+              url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
             });
-          }
+          case "CESIUM_ION":
+            if (workspaceSettings.terrains?.resources[0].props) {
+              const { url, cesiumIonAssetId, cesiumIonAccessToken } =
+                workspaceSettings.terrains.resources[0].props;
+              return new CesiumTerrainProvider({
+                url:
+                  url ||
+                  IonResource.fromAssetId(parseInt(cesiumIonAssetId, 10), {
+                    accessToken: cesiumIonAccessToken || accessToken,
+                  }),
+              });
+            }
+            break;
+          default:
+            return new CesiumTerrainProvider({
+              url: IonResource.fromAssetId(1, {
+                accessToken,
+              }),
+              requestWaterMask: false,
+            });
+        }
       }
     }
     return new EllipsoidTerrainProvider();
