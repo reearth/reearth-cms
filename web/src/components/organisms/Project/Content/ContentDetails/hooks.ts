@@ -384,8 +384,9 @@ export default () => {
             } else {
               return "";
             }
+          default:
+            return field.typeProperty?.defaultValue;
         }
-        return field.typeProperty?.defaultValue;
       };
 
       const updateInitialValues = (value: any, id: string, itemGroupId: string) => {
@@ -424,7 +425,7 @@ export default () => {
                 : "";
             }
             break;
-          case "Group": {
+          case "Group":
             if (field.multiple) {
               initialValues[field.id] = [];
             } else {
@@ -434,7 +435,6 @@ export default () => {
               if (group) groupInitialValuesUpdate(group, id);
             }
             break;
-          }
           default:
             initialValues[field.id] = field.typeProperty?.defaultValue;
             break;
