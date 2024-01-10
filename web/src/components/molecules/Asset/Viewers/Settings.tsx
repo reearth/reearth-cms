@@ -7,6 +7,7 @@ import {
   OpenStreetMapImageryProvider,
   IonResource,
   CesiumTerrainProvider,
+  UrlTemplateImageryProvider,
 } from "cesium";
 import { useCallback } from "react";
 import { ImageryLayer, Globe } from "resium";
@@ -65,6 +66,11 @@ const Settings: React.FC<Props> = ({ workspaceSettings }) => {
           return new OpenStreetMapImageryProvider({
             url: "https://cyberjapandata.gsi.go.jp/xyz/std/",
           });
+        case "URL": {
+          const url = workspaceSettings.tiles?.resources[0]?.props?.url;
+          if (url) return new UrlTemplateImageryProvider({ url });
+          break;
+        }
       }
     }
     return new IonImageryProvider({
