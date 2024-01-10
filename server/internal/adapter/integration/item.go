@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/reearth/reearth-cms/server/pkg/group"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -20,24 +21,17 @@ import (
 	"github.com/samber/lo"
 )
 
-func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error) {
+func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
-	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ItemFilter404Response{}, err
-		}
-		return ItemFilter400Response{}, err
-	}
 
-	ss, err := uc.Schema.FindByID(ctx, m.Schema(), op)
+	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
 	if err != nil {
 		return ItemFilter400Response{}, err
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, ss.ID(), nil, p, op)
+	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemFilter404Response{}, err
@@ -54,11 +48,7 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 		return ItemFilter400Response{}, err
 	}
 
-	resItms, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
-		sgl, err := getGroupSchemas(ctx, i.Value(), ss)
-		if err != nil {
-			return integrationapi.VersionedItem{}, err
-		}
+	res, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
 		metaItem, _ := lo.Find(metaItems, func(itm item.Versioned) bool {
 			return itm.Value().ID() == lo.FromPtr(i.Value().MetadataItem())
 		})
@@ -68,20 +58,20 @@ func (s Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject)
 				return metaItem.Value().Schema() == s.ID()
 			})
 		}
-		return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), metaSchema, metaItem, sgl), nil
+		return integrationapi.NewVersionedItem(i, sp.Schema(), assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), metaSchema, metaItem, sp.GroupSchemas()), nil
 	})
 	if err != nil {
 		return ItemFilter400Response{}, err
 	}
 	return ItemFilter200JSONResponse{
-		Items:      &resItms,
+		Items:      &res,
 		Page:       lo.ToPtr(Page(*p.Offset)),
 		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
 
-func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error) {
+func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -101,14 +91,14 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 		return ItemFilterWithProject400Response{}, err
 	}
 
-	ss, err := uc.Schema.FindByID(ctx, m.Schema(), op)
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
 		return ItemFilterWithProject400Response{}, err
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	// TODO: support sort
-	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, ss.ID(), nil, p, op)
+	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemFilterWithProject404Response{}, err
@@ -126,12 +116,7 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 		return ItemFilterWithProject400Response{}, err
 	}
 
-	resItms, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
-		sgl, err := getGroupSchemas(ctx, i.Value(), ss)
-		if err != nil {
-			return integrationapi.VersionedItem{}, err
-		}
-
+	res, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
 		metaItem, _ := lo.Find(metaItems, func(itm item.Versioned) bool {
 			return itm.Value().ID() == lo.FromPtr(i.Value().MetadataItem())
 		})
@@ -142,20 +127,20 @@ func (s Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWit
 			})
 		}
 
-		return integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), metaSchema, metaItem, sgl), nil
+		return integrationapi.NewVersionedItem(i, sp.Schema(), assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), metaSchema, metaItem, sp.GroupSchemas()), nil
 	})
 	if err != nil {
 		return ItemFilterWithProject400Response{}, err
 	}
 	return ItemFilterWithProject200JSONResponse{
-		Items:      &resItms,
+		Items:      &res,
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
 	}, nil
 }
 
-func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error) {
+func (s *Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -167,58 +152,14 @@ func (s Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject)
 		return nil, err
 	}
 
-	var metaSchema *schema.Schema
-	var metaItem item.Versioned
-	var metaItemID *id.ItemID
-	if request.Body.MetadataFields != nil && m.Metadata() != nil {
-		metaSchema, err = uc.Schema.FindByID(ctx, *m.Metadata(), op)
-		if err != nil {
-			return ItemCreate400Response{}, err
-		}
-		metaFields := convertMetaFields(*request.Body.MetadataFields, metaSchema)
-		cpMeta := interfaces.CreateItemParam{
-			SchemaID: metaSchema.ID(),
-			Fields:   metaFields,
-			ModelID:  m.ID(),
-		}
-
-		metaItem, err = uc.Item.Create(ctx, cpMeta, op)
-		if err != nil {
-			return ItemCreate400Response{}, err
-		}
-		metaItemID = metaItem.Value().ID().Ref()
-	}
-	ss, err := uc.Schema.FindByID(ctx, m.Schema(), op)
+	res, err := createItem(ctx, uc, m, request.Body.Fields, request.Body.MetadataFields, op)
 	if err != nil {
 		return ItemCreate400Response{}, err
 	}
-
-	fields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.Fields))
-	for _, f := range *request.Body.Fields {
-		fields = append(fields, fromItemFieldParam(f))
-	}
-
-	cp := interfaces.CreateItemParam{
-		SchemaID:   ss.ID(),
-		Fields:     fields,
-		MetadataID: metaItemID,
-		ModelID:    m.ID(),
-	}
-
-	i, err := uc.Item.Create(ctx, cp, op)
-	if err != nil {
-		return ItemCreate400Response{}, err
-	}
-
-	sgl, err := getGroupSchemas(ctx, i.Value(), ss)
-	if err != nil {
-		return nil, err
-	}
-
-	return ItemCreate200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i), metaSchema, metaItem, sgl)), nil
+	return ItemCreate200JSONResponse(*res), nil
 }
 
-func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error) {
+func (s *Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -238,59 +179,14 @@ func (s Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWit
 		return nil, err
 	}
 
-	var metaSchema *schema.Schema
-	var metaItem item.Versioned
-	var metaItemID *id.ItemID
-	if request.Body.MetadataFields != nil && m.Metadata() != nil {
-		metaSchema, err = uc.Schema.FindByID(ctx, *m.Metadata(), op)
-		if err != nil {
-			return ItemCreateWithProject400Response{}, err
-		}
-		metaFields := convertMetaFields(*request.Body.MetadataFields, metaSchema)
-
-		cpMeta := interfaces.CreateItemParam{
-			SchemaID: metaSchema.ID(),
-			Fields:   metaFields,
-			ModelID:  m.ID(),
-		}
-
-		metaItem, err = uc.Item.Create(ctx, cpMeta, op)
-		if err != nil {
-			return ItemCreateWithProject400Response{}, err
-		}
-		metaItemID = metaItem.Value().ID().Ref()
-	}
-	ss, err := uc.Schema.FindByID(ctx, m.Schema(), op)
+	res, err := createItem(ctx, uc, m, request.Body.Fields, request.Body.MetadataFields, op)
 	if err != nil {
 		return ItemCreateWithProject400Response{}, err
 	}
-
-	fields := make([]interfaces.ItemFieldParam, 0, len(*request.Body.Fields))
-	for _, f := range *request.Body.Fields {
-		fields = append(fields, fromItemFieldParam(f))
-	}
-
-	cp := interfaces.CreateItemParam{
-		SchemaID:   ss.ID(),
-		Fields:     fields,
-		MetadataID: metaItemID,
-		ModelID:    m.ID(),
-	}
-
-	i, err := uc.Item.Create(ctx, cp, op)
-	if err != nil {
-		return ItemCreateWithProject400Response{}, err
-	}
-
-	sgl, err := getGroupSchemas(ctx, i.Value(), ss)
-	if err != nil {
-		return nil, err
-	}
-
-	return ItemCreateWithProject200JSONResponse(integrationapi.NewVersionedItem(i, ss, nil, getReferencedItems(ctx, i), metaSchema, metaItem, sgl)), nil
+	return ItemCreateWithProject200JSONResponse(*res), nil
 }
 
-func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
+func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -298,28 +194,22 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 	if err != nil {
 		return ItemUpdate400Response{}, err
 	}
-	var metaSchema *schema.Schema
+
+	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
+	if err != nil {
+		return ItemUpdate400Response{}, err
+	}
+
 	var metaItem item.Versioned
 	var metaItemID *id.ItemID
-	if request.Body.MetadataFields != nil {
-		m, err := uc.Model.FindByID(ctx, i.Value().Model(), op)
-		if err != nil {
-			if errors.Is(err, rerror.ErrNotFound) {
-				return ItemUpdate400Response{}, err
-			}
-			return nil, err
-		}
-		metaSchema, err = uc.Schema.FindByID(ctx, *m.Metadata(), op)
-		if err != nil {
-			return ItemUpdate400Response{}, err
-		}
-		metaFields := convertMetaFields(*request.Body.MetadataFields, metaSchema)
+	if sp.MetaSchema() != nil && request.Body.MetadataFields != nil {
+		metaFields := convertFields(request.Body.MetadataFields, sp, false, true)
 		if i.Value().MetadataItem() == nil {
 
 			cpMeta := interfaces.CreateItemParam{
-				SchemaID: metaSchema.ID(),
+				SchemaID: sp.MetaSchema().ID(),
 				Fields:   metaFields,
-				ModelID:  m.ID(),
+				ModelID:  i.Value().Model(),
 			}
 
 			metaItem, err = uc.Item.Create(ctx, cpMeta, op)
@@ -347,19 +237,13 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		metaItemID = metaItem.Value().ID().Ref()
 	}
 
-	ss, err := uc.Schema.FindByID(ctx, i.Value().Schema(), op)
-	if err != nil {
-		return ItemUpdate400Response{}, err
-	}
 	if request.Body.Fields != nil {
-		up := interfaces.UpdateItemParam{
-			ItemID: request.ItemId,
-			Fields: lo.Map(*request.Body.Fields, func(f integrationapi.Field, _ int) interfaces.ItemFieldParam {
-				return fromItemFieldParam(f)
-			}),
+		input := interfaces.UpdateItemParam{
+			ItemID:     request.ItemId,
+			Fields:     convertFields(request.Body.Fields, sp, false, false),
 			MetadataID: metaItemID,
 		}
-		i, err = uc.Item.Update(ctx, up, op)
+		i, err = uc.Item.Update(ctx, input, op)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
 				return ItemUpdate400Response{}, err
@@ -373,15 +257,10 @@ func (s Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject)
 		return ItemUpdate500Response{}, err
 	}
 
-	sgl, err := getGroupSchemas(ctx, i.Value(), ss)
-	if err != nil {
-		return ItemUpdate400Response{}, err
-	}
-
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Body.Asset), getReferencedItems(ctx, i), metaSchema, metaItem, sgl)), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, sp.Schema(), assetContext(ctx, assets, request.Body.Asset), getReferencedItems(ctx, i), sp.MetaSchema(), metaItem, sp.GroupSchemas())), nil
 }
 
-func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
+func (s *Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -397,7 +276,7 @@ func (s Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject)
 	}, nil
 }
 
-func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (ItemGetResponseObject, error) {
+func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (ItemGetResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -409,17 +288,12 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		return nil, err
 	}
 
-	ss, err := uc.Schema.FindByID(ctx, i.Value().Schema(), op)
+	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
 	if err != nil {
 		return ItemGet400Response{}, err
 	}
 
 	assets, err := getAssetsFromItems(ctx, item.VersionedList{i}, request.Params.Asset)
-	if err != nil {
-		return ItemGet500Response{}, err
-	}
-
-	sgl, err := getGroupSchemas(ctx, i.Value(), ss)
 	if err != nil {
 		return ItemGet500Response{}, err
 	}
@@ -438,7 +312,45 @@ func (s Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Item
 		ms = msList[0]
 	}
 
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, ss, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), ms, mi, sgl)), nil
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, sp.Schema(), assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), ms, mi, sp.GroupSchemas())), nil
+}
+
+func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, fields, metaFields *[]integrationapi.Field, op *usecase.Operator) (*integrationapi.VersionedItem, error) {
+	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	if err != nil {
+		return nil, err
+	}
+
+	var metaItem item.Versioned
+	var metaItemID *id.ItemID
+	if m.Metadata() != nil {
+		metaFields := convertFields(metaFields, sp, true, true)
+		cpMeta := interfaces.CreateItemParam{
+			SchemaID: sp.MetaSchema().ID(),
+			Fields:   metaFields,
+			ModelID:  m.ID(),
+		}
+
+		metaItem, err = uc.Item.Create(ctx, cpMeta, op)
+		if err != nil {
+			return nil, err
+		}
+		metaItemID = metaItem.Value().ID().Ref()
+	}
+
+	cp := interfaces.CreateItemParam{
+		SchemaID:   sp.Schema().ID(),
+		Fields:     convertFields(fields, sp, true, false),
+		MetadataID: metaItemID,
+		ModelID:    m.ID(),
+	}
+
+	i, err := uc.Item.Create(ctx, cp, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.ToPtr(integrationapi.NewVersionedItem(i, sp.Schema(), nil, getReferencedItems(ctx, i), sp.MetaSchema(), metaItem, sp.GroupSchemas())), nil
 }
 
 func assetContext(ctx context.Context, m asset.Map, asset *integrationapi.AssetEmbedding) *integrationapi.AssetContext {
@@ -495,37 +407,6 @@ func getReferencedItems(ctx context.Context, i *version.Version[item.Item, item.
 
 	return &vi
 }
-func getGroupSchemas(ctx context.Context, i *item.Item, ss *schema.Schema) (schema.List, error) {
-	op := adapter.Operator(ctx)
-	uc := adapter.Usecases(ctx)
-	gf := i.Fields().FieldsByType(value.TypeGroup)
-
-	var gIds id.GroupIDList
-	for _, field := range gf {
-		gsf := ss.Field(field.FieldID())
-
-		if gsf != nil {
-			var gid id.GroupID
-			gsf.TypeProperty().Match(schema.TypePropertyMatch{
-				Group: func(f *schema.FieldGroup) {
-					gid = f.Group()
-				},
-			})
-			gIds = gIds.Add(gid)
-
-		}
-	}
-	gl, err := uc.Group.FindByIDs(ctx, gIds, op)
-	if err != nil {
-		return nil, err
-	}
-
-	sgIds := util.Map(gl, func(g *group.Group) id.SchemaID {
-		return g.Schema()
-	})
-
-	return uc.Schema.FindByIDs(ctx, sgIds, op)
-}
 
 func getMetaSchemasAndItems(ctx context.Context, itemList item.VersionedList) (schema.List, item.VersionedList) {
 	op := adapter.Operator(ctx)
@@ -550,39 +431,4 @@ func getMetaSchemasAndItems(ctx context.Context, itemList item.VersionedList) (s
 	}
 
 	return ms, mi
-}
-
-func convertMetaFields(fields []integrationapi.Field, s *schema.Schema) []interfaces.ItemFieldParam {
-	res := make([]interfaces.ItemFieldParam, 0, len(fields))
-
-	for _, field := range fields {
-		sf := s.FieldByIDOrKey(field.Id, id.NewKeyFromPtr(field.Key))
-
-		if sf != nil && sf.Type() == value.TypeTag {
-			var tagList schema.TagList
-			sf.TypeProperty().Match(schema.TypePropertyMatch{
-				Tag: func(f *schema.FieldTag) {
-					tagList = f.Tags()
-				},
-			})
-			if !sf.Multiple() {
-				name := lo.FromPtr(field.Value).(string)
-				tag := tagList.FindByName(name)
-				if tag != nil {
-					var value interface{} = tag.ID()
-					field.Value = &value
-				}
-			} else {
-				names := lo.FromPtr(field.Value).([]string)
-				tagIDs := util.Map(names, func(n string) id.TagID {
-					t := lo.FromPtr(tagList.FindByName(n))
-					return t.ID()
-				})
-				var value interface{} = tagIDs
-				field.Value = &value
-			}
-		}
-		res = append(res, fromItemFieldParam(field))
-	}
-	return res
 }

@@ -120,6 +120,9 @@ const FieldCategoryTitle = styled.h2`
 `;
 
 const FieldStyledList = styled(List)`
+  max-height: calc(100% - 34px);
+  overflow-y: auto;
+  padding-bottom: 24px;
   .ant-list-item {
     background-color: #fff;
     cursor: pointer;

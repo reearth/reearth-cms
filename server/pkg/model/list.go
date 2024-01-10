@@ -42,3 +42,29 @@ func (l List) OrderByIDs(ids id.ModelIDList) List {
 	}
 	return res
 }
+
+func (l List) Ordered() List {
+	res := slices.Clone(l)
+	slices.SortFunc(res, func(a, b *Model) int {
+		return a.Order() - b.Order()
+	})
+	return res
+}
+
+func (l List) Remove(mid id.ModelID) List {
+	ordered := slices.Clone(l).Ordered()
+	var index int
+	for i, model := range ordered {
+		if mid == model.ID() {
+			index = i
+			break
+		}
+	}
+	if index > len(l) {
+		return l
+	}
+	for _, m2 := range ordered[index:] {
+		m2.order -= 1
+	}
+	return append(ordered[:index], ordered[index+1:]...)
+}

@@ -3,6 +3,7 @@ Loading: ローディング中
 Oops!: ''
 PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
+ITEM NOT FOUND ON SERVER: データが見つかりません。
 Model: モデル
 Switch: 切り替え
 End point: エンドポイント
@@ -401,6 +402,8 @@ Failed to delete view.: ビューの削除に失敗しました。
 Successfully deleted view!: ビューの削除に成功しました!
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
+Failed to update models order.: モデルの順序更新に失敗しました。
+Successfully updated models order!: モデルの順序変更に成功しました!
 Failed to create group.: グループの作成に失敗しました。
 Successfully created group!: グループの作成に成功しました！
 Failed to delete model.: モデルの削除に失敗しました。

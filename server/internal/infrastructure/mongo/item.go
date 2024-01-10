@@ -256,6 +256,9 @@ func lookupStages() []any {
 							"__r": bson.M{"$in": bson.A{"latest"}},
 						},
 					},
+					{
+						"$limit": 1,
+					},
 				},
 			},
 		},
@@ -271,10 +274,15 @@ func aliasStages(query *item.Query, sp schema.Package) []any {
 		aliases["__temp."+field.ID.String()] = bson.M{
 			"$map": bson.M{
 				"input": bson.M{
-					"$filter": bson.M{
-						"input": "$fields",
-						"as":    "field",
-						"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+					"$slice": bson.A{
+						bson.M{
+							"$filter": bson.M{
+								"input": "$fields",
+								"as":    "field",
+								"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+							},
+						},
+						1,
 					},
 				},
 				"as": "field",
@@ -286,10 +294,15 @@ func aliasStages(query *item.Query, sp schema.Package) []any {
 		aliases["__temp."+field.ID.String()] = bson.M{
 			"$map": bson.M{
 				"input": bson.M{
-					"$filter": bson.M{
-						"input": "$__temp.meta.fields",
-						"as":    "field",
-						"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+					"$slice": bson.A{
+						bson.M{
+							"$filter": bson.M{
+								"input": "$__temp.meta.fields",
+								"as":    "field",
+								"cond":  bson.M{"$eq": bson.A{"$$field.f", field.ID.String()}},
+							},
+						},
+						1,
 					},
 				},
 				"as": "field",
