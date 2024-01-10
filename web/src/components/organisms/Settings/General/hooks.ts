@@ -10,21 +10,23 @@ import {
   useGetWorkspaceSettingsQuery,
   useUpdateWorkspaceSettingsMutation,
   ResourceInput,
+  WorkspaceSettings as GQLWorkspaceSettings,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
+import { convertWorkspaceSettings } from "./convertWorkspaceSettings";
+
 export default () => {
-  const [currentWorkspace] = useWorkspace();
   const t = useT();
 
+  const [currentWorkspace] = useWorkspace();
   const workspaceId = currentWorkspace?.id;
   const { data } = useGetWorkspaceSettingsQuery({
     variables: { workspaceId: workspaceId ?? "" },
   });
-
   const workspaceSettings: WorkspaceSettings | undefined = useMemo(() => {
-    return data ? (data.node as WorkspaceSettings) : undefined;
+    return data?.node ? convertWorkspaceSettings(data.node as GQLWorkspaceSettings) : undefined;
   }, [data]);
 
   const tiles: TileInput[] = useMemo(() => {
@@ -42,7 +44,7 @@ export default () => {
   const [updateWorkspaceMutation] = useUpdateWorkspaceSettingsMutation();
 
   const handleWorkspaceSettingsUpdate = useCallback(
-    async (tiles: TileInput[], terrains: TerrainInput[]) => {
+    async (tiles: TileInput[], terrains: TerrainInput[], isEnable?: boolean) => {
       if (!workspaceId) return;
       const res = await updateWorkspaceMutation({
         variables: {
@@ -54,7 +56,7 @@ export default () => {
           terrains: {
             resources: terrains as ResourceInput[],
             selectedResource: terrains[0]?.terrain?.id,
-            enabled: workspaceSettings?.terrains?.enabled,
+            enabled: isEnable ?? workspaceSettings?.terrains?.enabled,
           },
         },
       });
@@ -69,30 +71,10 @@ export default () => {
   );
 
   const handleTerrainToggle = useCallback(
-    async (isEnable: boolean) => {
-      if (!workspaceId) return;
-      const res = await updateWorkspaceMutation({
-        variables: {
-          id: workspaceId,
-          tiles: {
-            resources: tiles as ResourceInput[],
-            selectedResource: tiles[0]?.tile?.id,
-          },
-          terrains: {
-            resources: terrains as ResourceInput[],
-            selectedResource: terrains[0]?.terrain?.id,
-            enabled: isEnable,
-          },
-        },
-      });
-
-      if (res.errors) {
-        Notification.error({ message: t("Failed to update workspace.") });
-      } else {
-        Notification.success({ message: t("Successfully updated workspace!") });
-      }
+    (isEnable: boolean) => {
+      handleWorkspaceSettingsUpdate(tiles, terrains, isEnable);
     },
-    [t, terrains, tiles, updateWorkspaceMutation, workspaceId],
+    [handleWorkspaceSettingsUpdate, tiles, terrains],
   );
 
   return {
