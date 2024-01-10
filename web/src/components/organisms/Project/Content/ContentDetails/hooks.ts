@@ -9,7 +9,7 @@ import {
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/convertItem";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
@@ -366,7 +366,43 @@ export default () => {
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
     if (!currentItem) {
-      const itemGroupIdsMap = new Map();
+      const valueGet = (field: Field) => {
+        switch (field.type) {
+          case "Select":
+            return field.typeProperty?.selectDefaultValue;
+          case "Integer":
+            return field.typeProperty?.integerDefaultValue;
+          case "Asset":
+            return field.typeProperty?.assetDefaultValue;
+          case "Date":
+            if (Array.isArray(field.typeProperty?.defaultValue)) {
+              return field.typeProperty?.defaultValue.map((valueItem: any) =>
+                valueItem ? moment(valueItem) : "",
+              );
+            } else if (field.typeProperty?.defaultValue) {
+              return moment(field.typeProperty.defaultValue as string);
+            } else {
+              return "";
+            }
+          default:
+            return field.typeProperty?.defaultValue;
+        }
+      };
+
+      const updateInitialValues = (value: any, id: string, itemGroupId: string) => {
+        if (typeof initialValues[id] === "object" && !Array.isArray(initialValues[id])) {
+          initialValues[id][itemGroupId] = value;
+        } else {
+          initialValues[id] = { [itemGroupId]: value };
+        }
+      };
+
+      const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
+        group?.schema?.fields?.forEach(field => {
+          updateInitialValues(valueGet(field), field.id, itemGroupId);
+        });
+      };
+
       currentModel?.schema.fields.forEach(field => {
         switch (field.type) {
           case "Select":
@@ -395,67 +431,14 @@ export default () => {
             } else {
               const id = newID();
               initialValues[field.id] = id;
-              itemGroupIdsMap.set(field.typeProperty?.groupId, id);
+              const group = groups?.find(group => group.id === field.typeProperty?.groupId);
+              if (group) groupInitialValuesUpdate(group, id);
             }
             break;
           default:
             initialValues[field.id] = field.typeProperty?.defaultValue;
             break;
         }
-      });
-
-      const groupsInCurrentModel = new Set<Group>();
-      currentModel?.schema.fields?.forEach(field => {
-        if (field.type === "Group") {
-          const group = groups?.find(group => group.id === field.typeProperty?.groupId);
-          if (group) groupsInCurrentModel.add(group);
-        }
-      });
-
-      groupsInCurrentModel.forEach(group => {
-        const itemGroupId = itemGroupIdsMap.get(group.id);
-        group?.schema?.fields?.forEach(field => {
-          function updateInitialValues(value: any) {
-            if (
-              typeof initialValues[field.id] === "object" &&
-              !Array.isArray(initialValues[field.id])
-            ) {
-              initialValues[field.id][itemGroupId] = value;
-            } else {
-              initialValues[field.id] = { [itemGroupId]: value };
-            }
-          }
-
-          switch (field.type) {
-            case "Select":
-              updateInitialValues(field.typeProperty?.selectDefaultValue);
-              break;
-            case "Integer":
-              updateInitialValues(field.typeProperty?.integerDefaultValue);
-              break;
-            case "Asset":
-              updateInitialValues(field.typeProperty?.assetDefaultValue);
-              break;
-            case "Date":
-              if (Array.isArray(field.typeProperty?.defaultValue)) {
-                updateInitialValues(
-                  field.typeProperty?.defaultValue.map((valueItem: any) =>
-                    valueItem ? moment(valueItem) : "",
-                  ),
-                );
-              } else {
-                if (field.typeProperty?.defaultValue) {
-                  updateInitialValues(moment(field.typeProperty.defaultValue as string));
-                } else if (initialValues[field.id]?.[itemGroupId]) {
-                  initialValues[field.id][itemGroupId] = "";
-                }
-              }
-              break;
-            default:
-              updateInitialValues(field.typeProperty?.defaultValue);
-              break;
-          }
-        });
       });
     } else {
       currentItem?.fields?.forEach(field => {
