@@ -48,13 +48,13 @@ export type Resource = TileResource | TerrainResource;
 
 type TileResource = {
   id: string;
-  type: keyof typeof TileType;
+  type: TileType;
   props?: UrlResourceProps;
 };
 
 type TerrainResource = {
   id: string;
-  type: keyof typeof TerrainType;
+  type: TerrainType;
   props?: CesiumResourceProps;
 };
 
@@ -66,24 +66,19 @@ export type TerrainInput = {
   terrain: TerrainResource;
 };
 
-export enum TileType {
-  DEFAULT = "Default",
-  LABELLED = "Labelled",
-  ROAD_MAP = "Road Map",
-  STAMEN_WATERCOLOR = "Stamen Watercolor",
-  STAMEN_TONER = "Stamen Toner",
-  OPEN_STREET_MAP = "OpenStreetMap",
-  ESRI_TOPOGRAPHY = "ESRI Topography",
-  EARTH_AT_NIGHT = "Earth at night",
-  JAPAN_GSI_STANDARD_MAP = "Japan GSI Standard Map",
-  URL = "URL",
-}
+export type TileType =
+  | "DEFAULT"
+  | "LABELLED"
+  | "ROAD_MAP"
+  | "STAMEN_WATERCOLOR"
+  | "STAMEN_TONER"
+  | "OPEN_STREET_MAP"
+  | "ESRI_TOPOGRAPHY"
+  | "EARTH_AT_NIGHT"
+  | "JAPAN_GSI_STANDARD_MAP"
+  | "URL";
 
-export enum TerrainType {
-  CESIUM_WORLD_TERRAIN = "Cesium World Terrain",
-  ARC_GIS_TERRAIN = "ArcGIS Terrain",
-  CESIUM_ION = "Cesium Ion",
-}
+export type TerrainType = "CESIUM_WORLD_TERRAIN" | "ARC_GIS_TERRAIN" | "CESIUM_ION";
 
 type UrlResourceProps = {
   name: string;

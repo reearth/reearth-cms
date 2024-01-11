@@ -16,7 +16,7 @@ import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
 type FormValues = {
-  type: keyof typeof TileType | keyof typeof TerrainType;
+  type: TileType | TerrainType;
   name?: string;
   url?: string;
   image?: string;
@@ -96,7 +96,7 @@ const FormModal: React.FC<Props> = ({
       const newTile = {
         tile: {
           id: newID(),
-          type: type as keyof typeof TileType,
+          type: type as TileType,
           props: { name: name ?? "", url: url ?? "", image: image ?? "" },
         },
       };
@@ -109,7 +109,7 @@ const FormModal: React.FC<Props> = ({
       const newTerrain = {
         terrain: {
           id: newID(),
-          type: type as keyof typeof TerrainType,
+          type: type as TerrainType,
           props: {
             name: name ?? "",
             url: url ?? "",

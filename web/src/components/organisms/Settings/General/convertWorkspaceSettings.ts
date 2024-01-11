@@ -17,7 +17,11 @@ export const convertWorkspaceSettings = (
         GQLWorkspaceSettings.tiles?.resources.map(resource => ({
           id: resource.id,
           type: resource.type as TileType,
-          props: (resource.props ?? undefined) as UrlResourceProps | undefined,
+          props: {
+            image: (resource.props as UrlResourceProps).image,
+            name: (resource.props as UrlResourceProps).name,
+            url: (resource.props as UrlResourceProps).url,
+          },
         })) ?? [],
       selectedResource: GQLWorkspaceSettings.tiles?.selectedResource ?? undefined,
       enabled: GQLWorkspaceSettings.tiles?.enabled ?? undefined,
@@ -27,7 +31,13 @@ export const convertWorkspaceSettings = (
         GQLWorkspaceSettings.terrains?.resources.map(resource => ({
           id: resource.id,
           type: resource.type as TerrainType,
-          props: (resource.props ?? undefined) as CesiumResourceProps | undefined,
+          props: {
+            url: (resource.props as CesiumResourceProps).url,
+            name: (resource.props as CesiumResourceProps).name,
+            image: (resource.props as CesiumResourceProps).image,
+            cesiumIonAccessToken: (resource.props as CesiumResourceProps).cesiumIonAccessToken,
+            cesiumIonAssetId: (resource.props as CesiumResourceProps).cesiumIonAssetId,
+          },
         })) ?? [],
       selectedResource: GQLWorkspaceSettings.terrains?.selectedResource ?? undefined,
       enabled: GQLWorkspaceSettings.terrains?.enabled ?? undefined,
