@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key } from "react";
+import { Key, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -250,6 +250,15 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     );
   };
 
+  const [isRowSelected, setIsRowSelected] = useState(false);
+  useEffect(() => {
+    if (selection.selectedRowKeys.length) {
+      setIsRowSelected(true);
+    } else {
+      setIsRowSelected(false);
+    }
+  }, [selection.selectedRowKeys.length]);
+
   return (
     <StyledProTable
       dataSource={assetList}
@@ -261,6 +270,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       pagination={pagination}
       toolbar={handleToolbarEvents}
       rowSelection={rowSelection}
+      isRowSelected={isRowSelected}
       loading={loading}
       onChange={(pagination, _, sorter: any) => {
         onAssetTableChange(
@@ -300,7 +310,7 @@ const MoreItemsButton = styled(Button)`
   color: #1890ff;
 `;
 
-const StyledProTable = styled(ProTable)`
+const StyledProTable = styled(ProTable)<{ isRowSelected: boolean }>`
   height: calc(100% - 72px);
   .ant-pro-card-body {
     padding-bottom: 0;
@@ -313,7 +323,7 @@ const StyledProTable = styled(ProTable)`
     height: 100%;
   }
   .ant-table-wrapper {
-    height: calc(100% - 64px);
+    height: ${({ isRowSelected }) => `calc(100% - ${isRowSelected ? 128 : 64}px)`};
   }
   .ant-table {
     height: calc(100% - 64px);
