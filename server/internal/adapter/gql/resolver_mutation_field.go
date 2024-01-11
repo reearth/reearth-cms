@@ -74,7 +74,12 @@ func (r *mutationResolver) UpdateField(ctx context.Context, input gqlmodel.Updat
 
 	dbField := s.Field(fid)
 
-	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, gqlmodel.ToValueType(dbField.Type()), dbField.Multiple())
+	multi := dbField.Multiple()
+	if input.Multiple != nil {
+		multi = *input.Multiple
+	}
+
+	tp, dv, err := gqlmodel.FromSchemaTypeProperty(input.TypeProperty, gqlmodel.ToValueType(dbField.Type()), multi)
 	if err != nil {
 		return nil, err
 	}
