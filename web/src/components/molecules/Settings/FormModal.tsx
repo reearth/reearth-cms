@@ -24,6 +24,25 @@ type FormValues = {
   cesiumIonAccessToken?: string;
 };
 
+const TileTypeFormat: { [key in TileType]: string } = {
+  DEFAULT: "Default",
+  LABELLED: "Labelled",
+  ROAD_MAP: "Road Map",
+  STAMEN_WATERCOLOR: "Stamen Watercolor",
+  STAMEN_TONER: "Stamen Toner",
+  OPEN_STREET_MAP: "OpenStreetMap",
+  ESRI_TOPOGRAPHY: "ESRI Topography",
+  EARTH_AT_NIGHT: "Earth at night",
+  JAPAN_GSI_STANDARD_MAP: "Japan GSI Standard Map",
+  URL: "URL",
+};
+
+const TerrainTypeFormat: { [key in TerrainType]: string } = {
+  CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
+  ARC_GIS_TERRAIN: "ArcGIS Terrain",
+  CESIUM_ION: "Cesium Ion",
+};
+
 export interface Props {
   model?: Model;
   open?: boolean;
@@ -49,10 +68,10 @@ const FormModal: React.FC<Props> = ({
   const [extraOpen, setExtraOpen] = useState(false);
 
   const options = useMemo(() => {
-    const typeEnum = isTile ? TileType : TerrainType;
-    return Object.keys(typeEnum).map(key => ({
+    const typeFormat = isTile ? TileTypeFormat : TerrainTypeFormat;
+    return Object.keys(typeFormat).map(key => ({
       value: key,
-      label: typeEnum[key as keyof typeof typeEnum],
+      label: typeFormat[key as keyof typeof typeFormat],
     }));
   }, [isTile]);
 
@@ -64,8 +83,8 @@ const FormModal: React.FC<Props> = ({
           return options[0].value;
         } else {
           const resource = isTile ? tiles[index].tile : terrains[index].terrain;
-          resource?.props && form.setFieldsValue(resource.props);
-          return resource?.type;
+          form.setFieldsValue(resource.props);
+          return resource.type;
         }
       })();
       form.setFieldValue("type", value);

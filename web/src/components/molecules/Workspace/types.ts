@@ -49,13 +49,13 @@ export type Resource = TileResource | TerrainResource;
 type TileResource = {
   id: string;
   type: TileType;
-  props?: UrlResourceProps;
+  props: UrlResourceProps;
 };
 
 type TerrainResource = {
   id: string;
   type: TerrainType;
-  props?: CesiumResourceProps;
+  props: CesiumResourceProps;
 };
 
 export type TileInput = {
