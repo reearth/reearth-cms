@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
+import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -69,16 +69,22 @@ const WorkspaceMenu: React.FC<Props> = ({
     //   show: "both" as MenuShowType,
     // },
     {
+      label: t("Settings"),
+      key: "settings",
+      icon: <Icon icon="settings" />,
+      show: "both" as MenuShowType,
+    },
+    {
+      label: t("Workspace"),
+      key: "workspaceSettings",
+      icon: <Icon icon="workspaceSettings" />,
+      show: "notPersonal" as MenuShowType,
+    },
+    {
       label: t("Account"),
       key: "account",
       icon: <Icon icon="user" />,
       show: "personal" as MenuShowType,
-    },
-    {
-      label: t("Settings"),
-      key: "settings",
-      icon: <Icon icon="settings" />,
-      show: "notPersonal" as MenuShowType,
     },
   ].filter(
     item =>
@@ -88,24 +94,12 @@ const WorkspaceMenu: React.FC<Props> = ({
   );
 
   const onClick = useCallback(
-    (e: any) => {
-      changeSelected([e.key]);
-      if (e.key === "members") {
-        navigate(`/workspace/${workspaceId}/members`);
-      } else if (e.key === "myIntegrations") {
-        navigate(`/workspace/${workspaceId}/myIntegrations`);
-      } else if (e.key === "integrations") {
-        navigate(`/workspace/${workspaceId}/integrations`);
-      } else if (e.key === "role") {
-        navigate(`/workspace/${workspaceId}/role`);
-      } else if (e.key === "apiKey") {
-        navigate(`/workspace/${workspaceId}/apiKey`);
-      } else if (e.key === "settings") {
-        navigate(`/workspace/${workspaceId}/settings`);
-      } else if (e.key === "account") {
-        navigate(`/workspace/${workspaceId}/account`);
-      } else {
+    (info: MenuInfo) => {
+      changeSelected([info.key]);
+      if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
+      } else {
+        navigate(`/workspace/${workspaceId}/${info.key}`);
       }
     },
     [navigate, workspaceId],

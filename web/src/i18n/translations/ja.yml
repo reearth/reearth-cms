@@ -87,6 +87,7 @@ Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
 Go to Editor: エディタへ移動
+Please enter: 入力してください
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
@@ -108,6 +109,7 @@ Integrations: インテグレーション
 My Integrations: マイインテグレーション
 Role: ロール
 API key: APIキー
+Workspace: ワークスペース
 Account: アカウント
 unique: ユニーク
 Title: タイトル
@@ -159,7 +161,6 @@ is not empty: 空でない
 Ascending: 昇順
 Descending: 降順
 Confirm: 確認
-Please enter: 入力してください
 Add Filter: 絞り込む
 Add Sort: 並び替える
 Control: 操作
@@ -328,6 +329,26 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
+New Tiles: 新しいタイル
+New Terrain: 新しい地形
+Tiles type: タイルの種類
+Terrain type: 地形の種類
+example: ''
+Name of tiles: タイルの名前
+Image URL: イメージURL
+Name of terrain: 地形の名前
+Terrain Cesium Ion asset ID: Terrain Cesium Ion アセットID
+Terrain Cesium Ion access token: Terrain Cesium Ion アクセストークン
+Terrain URL: テラインURL
+Geospatial asset preview setting: 地理空間アセットのプレビュー設定
+For asset viewer (formats like 3D Tiles, MVT, GeoJSON, CZML ... ): アセット・ビューア用 (3D Tiles、MVT、GeoJSON、CZML等のフォーマット)
+Tiles: タイル
+The first one in the list will be the default Tile.: リストの最初のタイルがデフォルトのタイルとなります。
+Add new Tiles option: 新しいタイルを追加
+Terrain: 地形
+The first one in the list will be the default Terrain.: リストの最初の地形がデフォルトの地形となります。
+Enable: 有効
+Add new Terrain option: 新しい地形を追加
 New View: 新しいビュー
 Update View: ビューを更新します
 Submitting: 送信
