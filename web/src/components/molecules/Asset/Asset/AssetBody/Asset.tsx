@@ -26,6 +26,7 @@ import {
   GltfViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -47,6 +48,7 @@ type Props = {
     option: DefaultOptionType | DefaultOptionType[],
   ) => void | undefined;
   onChangeToFullScreen: () => void;
+  workspaceSettings?: WorkspaceSettings;
 };
 
 export let viewerRef: CesiumViewer | undefined;
@@ -64,6 +66,7 @@ const AssetMolecule: React.FC<Props> = ({
   onTypeChange,
   onModalCancel,
   onChangeToFullScreen,
+  workspaceSettings,
 }) => {
   const t = useT();
   const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
@@ -78,22 +81,44 @@ const AssetMolecule: React.FC<Props> = ({
   const renderPreview = useCallback(() => {
     switch (true) {
       case viewerType === "geo":
-        return <GeoViewer url={assetUrl} assetFileExt={assetFileExt} onGetViewer={getViewer} />;
+        return (
+          <GeoViewer
+            url={assetUrl}
+            assetFileExt={assetFileExt}
+            onGetViewer={getViewer}
+            workspaceSettings={workspaceSettings}
+          />
+        );
       case viewerType === "geo_3d_tiles":
-        return <Geo3dViewer url={assetUrl} setAssetUrl={setAssetUrl} onGetViewer={getViewer} />;
+        return (
+          <Geo3dViewer
+            url={assetUrl}
+            setAssetUrl={setAssetUrl}
+            onGetViewer={getViewer}
+            workspaceSettings={workspaceSettings}
+          />
+        );
       case viewerType === "geo_mvt":
-        return <MvtViewer url={assetUrl} onGetViewer={getViewer} />;
+        return (
+          <MvtViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+        );
       case viewerType === "image":
         return <ImageViewer url={assetUrl} />;
       case viewerType === "image_svg":
         return <SvgViewer url={assetUrl} svgRender={svgRender} />;
       case viewerType === "model_3d":
-        return <GltfViewer url={assetUrl} onGetViewer={getViewer} />;
+        return (
+          <GltfViewer
+            url={assetUrl}
+            onGetViewer={getViewer}
+            workspaceSettings={workspaceSettings}
+          />
+        );
       case viewerType === "unknown":
       default:
         return <ViewerNotSupported />;
     }
-  }, [assetFileExt, assetUrl, svgRender, viewerType]);
+  }, [assetFileExt, assetUrl, svgRender, viewerType, workspaceSettings]);
 
   return (
     <BodyContainer>
