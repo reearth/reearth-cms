@@ -61,6 +61,17 @@ const ResizableProTable: React.FC<Props> = ({
       : 0;
   }, [columnsState?.value]);
 
+  const [isRowSelected, setIsRowSelected] = useState(false);
+  useEffect(() => {
+    if (typeof rowSelection !== "boolean") {
+      if (rowSelection?.selectedRowKeys?.length) {
+        setIsRowSelected(true);
+      } else {
+        setIsRowSelected(false);
+      }
+    }
+  }, [rowSelection]);
+
   return (
     <StyledProTable
       nthOfType={nthOfType}
@@ -79,6 +90,7 @@ const ResizableProTable: React.FC<Props> = ({
       options={options}
       tableAlertOptionRender={tableAlertOptionRender}
       rowSelection={rowSelection}
+      isRowSelected={isRowSelected}
       pagination={pagination}
       onChange={onChange}
       columnsState={columnsState}
@@ -90,7 +102,7 @@ const ResizableProTable: React.FC<Props> = ({
 
 export default ResizableProTable;
 
-const StyledProTable = styled(ProTable)<{ nthOfType: number }>`
+const StyledProTable = styled(ProTable)<{ nthOfType: number; isRowSelected: boolean }>`
   height: calc(100% - 102px);
   .ant-pro-card-body {
     padding-bottom: 0;
@@ -103,7 +115,7 @@ const StyledProTable = styled(ProTable)<{ nthOfType: number }>`
     height: 100%;
   }
   .ant-table-wrapper {
-    height: calc(100% - 64px);
+    height: ${({ isRowSelected }) => `calc(100% - ${isRowSelected ? 128 : 64}px)`};
   }
   .ant-table {
     height: calc(100% - 64px);
