@@ -11,6 +11,7 @@ func TestNew(t *testing.T) {
 	assert.NotNil(t, got)
 	assert.NotNil(t, got.User)
 	assert.NotNil(t, got.Workspace)
+	assert.NotNil(t, got.WorkspaceSettings)
 	assert.NotNil(t, got.Lock)
 	assert.NotNil(t, got.Transaction)
 }

@@ -196,7 +196,7 @@ const LinkAssetModal: React.FC<Props> = ({
       bodyStyle={{
         minHeight: "50vh",
         position: "relative",
-        padding: "12px 12px 0",
+        padding: "12px",
       }}>
       <StyledProTable
         dataSource={assetList}
