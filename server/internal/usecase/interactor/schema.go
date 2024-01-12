@@ -430,6 +430,10 @@ func (i Schema) UpdateFields(ctx context.Context, sid id.SchemaID, params []inte
 }
 
 func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
+	if param.Multiple != nil {
+		f.SetMultiple(*param.Multiple)
+	}
+
 	if param.TypeProperty != nil {
 		if param.DefaultValue != nil {
 			_ = f.SetDefaultValue(nil)
@@ -437,10 +441,6 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 		if err := f.SetTypeProperty(param.TypeProperty); err != nil {
 			return err
 		}
-	}
-
-	if param.Multiple != nil {
-		f.SetMultiple(*param.Multiple)
 	}
 
 	if param.DefaultValue != nil {
