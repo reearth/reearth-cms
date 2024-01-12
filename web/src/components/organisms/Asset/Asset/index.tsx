@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
 
 import useHooks from "./hooks";
 
@@ -27,6 +28,8 @@ const Asset: React.FC = () => {
     handleModalCancel,
     handleFullScreen,
   } = useHooks(assetId);
+
+  const { workspaceSettings } = useSettingsHooks();
 
   const handleSave = async () => {
     if (assetId) {
@@ -64,6 +67,7 @@ const Asset: React.FC = () => {
       onChangeToFullScreen={handleFullScreen}
       onBack={handleBack}
       onSave={handleSave}
+      workspaceSettings={workspaceSettings}
     />
   );
 };

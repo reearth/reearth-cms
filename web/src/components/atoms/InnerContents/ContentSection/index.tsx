@@ -7,15 +7,25 @@ export type Props = {
   danger?: boolean;
   headerActions?: ReactNode;
   children?: ReactNode;
+  description?: string;
 };
 
-const ContentSection: React.FC<Props> = ({ title, headerActions, children, danger }) => {
+const ContentSection: React.FC<Props> = ({
+  title,
+  headerActions,
+  children,
+  danger,
+  description,
+}) => {
   return (
     <Wrapper danger={danger}>
       {title && (
         <Header>
-          <Title>{title}</Title>
-          {headerActions}
+          <InnerHeader>
+            <Title>{title}</Title>
+            {headerActions}
+          </InnerHeader>
+          {description && <Description>{description}</Description>}
         </Header>
       )}
       <GridArea>{children}</GridArea>
@@ -35,18 +45,27 @@ const Wrapper = styled.div<{ danger?: boolean }>`
 `;
 
 const Header = styled.div`
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  padding: 10px 24px;
+`;
+
+const InnerHeader = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
   align-items: center;
-  padding: 10px 24px;
 `;
 
 const Title = styled.p`
   font-size: 16px;
   font-weight: 500;
   margin: 0 8px 0 0;
+`;
+
+const Description = styled.p`
+  font-size: 14px;
+  color: #00000073;
+  margin: 4px 0 0;
 `;
 
 const GridArea = styled.div`

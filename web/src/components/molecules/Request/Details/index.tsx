@@ -87,45 +87,43 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
 }) => {
-  return currentRequest ? (
-    loading ? (
-      <Loading spinnerSize="large" minHeight="100vh" />
-    ) : (
-      <RequestMolecule
-        me={me}
-        isCloseActionEnabled={isCloseActionEnabled}
-        isApproveActionEnabled={isApproveActionEnabled}
-        currentRequest={currentRequest}
-        workspaceUserMembers={workspaceUserMembers}
-        onRequestApprove={onRequestApprove}
-        onRequestUpdate={onRequestUpdate}
-        onRequestDelete={onRequestDelete}
-        onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
-        onCommentDelete={onCommentDelete}
-        onBack={onBack}
-        assetList={assetList}
-        fileList={fileList}
-        loadingAssets={loadingAssets}
-        uploading={uploading}
-        uploadModalVisibility={uploadModalVisibility}
-        uploadUrl={uploadUrl}
-        uploadType={uploadType}
-        totalCount={totalCount}
-        page={page}
-        pageSize={pageSize}
-        onAssetTableChange={onAssetTableChange}
-        onUploadModalCancel={onUploadModalCancel}
-        setUploadUrl={setUploadUrl}
-        setUploadType={setUploadType}
-        onAssetsCreate={onAssetsCreate}
-        onAssetCreateFromUrl={onAssetCreateFromUrl}
-        onAssetsReload={onAssetsReload}
-        onAssetSearchTerm={onAssetSearchTerm}
-        setFileList={setFileList}
-        setUploadModalVisibility={setUploadModalVisibility}
-      />
-    )
+  return loading ? (
+    <Loading spinnerSize="large" minHeight="100vh" />
+  ) : currentRequest ? (
+    <RequestMolecule
+      me={me}
+      isCloseActionEnabled={isCloseActionEnabled}
+      isApproveActionEnabled={isApproveActionEnabled}
+      currentRequest={currentRequest}
+      workspaceUserMembers={workspaceUserMembers}
+      onRequestApprove={onRequestApprove}
+      onRequestUpdate={onRequestUpdate}
+      onRequestDelete={onRequestDelete}
+      onCommentCreate={onCommentCreate}
+      onCommentUpdate={onCommentUpdate}
+      onCommentDelete={onCommentDelete}
+      onBack={onBack}
+      assetList={assetList}
+      fileList={fileList}
+      loadingAssets={loadingAssets}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      uploadUrl={uploadUrl}
+      uploadType={uploadType}
+      totalCount={totalCount}
+      page={page}
+      pageSize={pageSize}
+      onAssetTableChange={onAssetTableChange}
+      onUploadModalCancel={onUploadModalCancel}
+      setUploadUrl={setUploadUrl}
+      setUploadType={setUploadType}
+      onAssetsCreate={onAssetsCreate}
+      onAssetCreateFromUrl={onAssetCreateFromUrl}
+      onAssetsReload={onAssetsReload}
+      onAssetSearchTerm={onAssetSearchTerm}
+      setFileList={setFileList}
+      setUploadModalVisibility={setUploadModalVisibility}
+    />
   ) : (
     <NotFound />
   );
