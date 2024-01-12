@@ -87,6 +87,9 @@ func (s *Schema) RemoveField(fid FieldID) {
 	for i, field := range s.fields {
 		if field.id == fid {
 			s.fields = slices.Delete(s.fields, i, i+1)
+			if lo.FromPtr(s.titleField) == fid {
+				s.titleField = nil
+			}
 			return
 		}
 	}
