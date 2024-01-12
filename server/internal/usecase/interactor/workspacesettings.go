@@ -59,6 +59,9 @@ func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWo
 					ID(inp.ID)
 
 				wss, err = wsb.Build()
+				if err != nil {
+					return nil, err
+				}
 			}
 			if inp.Tiles != nil {
 				wss.SetTiles(inp.Tiles)
