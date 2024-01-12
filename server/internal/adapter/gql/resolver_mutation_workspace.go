@@ -15,7 +15,7 @@ func (r *mutationResolver) CreateWorkspace(ctx context.Context, input gqlmodel.C
 		return nil, err
 	}
 
-	_, err = usecases(ctx).WorkspaceSettings.Create(ctx, interfaces.CreateWorkspaceSettingsParam{
+	_, err = usecases(ctx).WorkspaceSettings.UpdateOrCreate(ctx, interfaces.UpdateOrCreateWorkspaceSettingsParam{
 		ID: res.ID(),
 	}, getOperator(ctx))
 	if err != nil {
