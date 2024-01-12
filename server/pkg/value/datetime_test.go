@@ -20,6 +20,12 @@ func Test_propertyDateTime_ToValue(t *testing.T) {
 		want2 bool
 	}{
 		{
+			name:  "empty string",
+			args:  []any{""},
+			want1: nil,
+			want2: true,
+		},
+		{
 			name: "time",
 			args: []any{
 				now, now.Format(time.RFC3339), now.Format(time.RFC3339Nano),
