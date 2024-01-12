@@ -439,6 +439,10 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 		}
 	}
 
+	if param.Multiple != nil {
+		f.SetMultiple(*param.Multiple)
+	}
+
 	if param.DefaultValue != nil {
 		if err := f.SetDefaultValue(param.DefaultValue); err != nil {
 			return err
@@ -471,9 +475,6 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 		f.SetUnique(*param.Unique)
 	}
 
-	if param.Multiple != nil {
-		f.SetMultiple(*param.Multiple)
-	}
 	return nil
 }
 
