@@ -194,7 +194,9 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 	dateFId, _ := createField(e, mId, "date", "date", "date",
 		false, false, false, false, "Date",
 		map[string]any{
-			"date": map[string]any{},
+			"date": map[string]any{
+				"defaultValue": "2024-01-01T18:06:09+09:00",
+			},
 		})
 
 	_, _, res := getModel(e, mId)
@@ -378,4 +380,75 @@ func TestCreateField(t *testing.T) {
 		Value("node").Object().
 		HasValue("id", mId)
 
+}
+
+func TestClearFieldDefaultValue(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+
+	dateFId, _ := createField(e, mId, "date", "date", "m_date",
+		false, false, false, false, "Date",
+		map[string]any{
+			"date": map[string]any{
+				"defaultValue": "2024-01-01T18:06:09+09:00",
+			},
+		})
+	intFid, _ := createField(e, mId, "integer", "integer", "integer",
+		false, false, false, false, "Integer",
+		map[string]any{
+			"integer": map[string]any{
+				"defaultValue": 9,
+				"min":          nil,
+				"max":          nil,
+			},
+		})
+	selectFId, _ := createField(e, mId, "select", "select", "select",
+		false, false, false, false, "Select",
+		map[string]any{
+			"select": map[string]any{
+				"defaultValue": "s1",
+				"values":       []any{"s1", "s2", "s3"},
+			},
+		})
+	_, _, res := getModel(e, mId)
+
+	dv := res.Path("$.data.node.schema.fields[:].typeProperty.defaultValue").Raw().([]any)
+
+	assert.Equal(t, []any{"2024-01-01T18:06:09+09:00", float64(9), "s1"}, dv)
+
+	_, _ = updateField(e, mId, dateFId, "date", "date", "m_date",
+		false, false, false, false, nil, "Date",
+		map[string]any{
+			"date": map[string]any{
+				"defaultValue": "",
+			},
+		})
+	_, _ = updateField(e, mId, intFid, "integer", "integer", "integer",
+		false, false, false, false, nil, "Integer",
+		map[string]any{
+			"integer": map[string]any{
+				"defaultValue": "",
+			},
+		})
+
+	_, _ = updateField(e, mId, selectFId, "select", "select", "select",
+		false, false, false, false, nil, "Select",
+		map[string]any{
+			"select": map[string]any{
+				"defaultValue": "",
+				"values":       []any{"s1", "s2", "s3"},
+			},
+		})
+	_, _, res = getModel(e, mId)
+
+	res.Object().
+		Value("data").Object().
+		Value("node").Object().
+		HasValue("id", mId)
+	dv = res.Path("$.data.node.schema.fields[:].typeProperty.defaultValue").Raw().([]any)
+
+	assert.Equal(t, []any{nil, nil, nil}, dv)
 }
