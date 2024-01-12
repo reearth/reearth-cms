@@ -23,6 +23,9 @@ func (p *propertyDateTime) ToValue(i any) (any, bool) {
 	case time.Time:
 		return v, true
 	case string:
+		if v == "" {
+			return nil, true
+		}
 		for _, l := range timeLayouts {
 			if tt, err := time.Parse(l, v); err == nil {
 				return tt, true

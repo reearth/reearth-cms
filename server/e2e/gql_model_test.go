@@ -181,7 +181,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 							  __typename
 							}
 							... on SchemaFieldSelect {
-							  selectDefaultValue: defaultValue
+							  defaultValue: defaultValue
 							  values
 							  __typename
 							}
@@ -195,12 +195,16 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 							  __typename
 							}
 							... on SchemaFieldInteger {
-							  integerDefaultValue: defaultValue
+							  defaultValue: defaultValue
 							  min
 							  max
 							  __typename
 							}
 							... on SchemaFieldBool {
+							  defaultValue
+							  __typename
+							}
+							... on SchemaFieldDate {
 							  defaultValue
 							  __typename
 							}
@@ -248,7 +252,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 							  __typename
 							}
 							... on SchemaFieldSelect {
-							  selectDefaultValue: defaultValue
+							  defaultValue: defaultValue
 							  values
 							  __typename
 							}
@@ -262,7 +266,7 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 							  __typename
 							}
 							... on SchemaFieldInteger {
-							  integerDefaultValue: defaultValue
+							  defaultValue: defaultValue
 							  min
 							  max
 							  __typename
