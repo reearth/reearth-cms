@@ -142,6 +142,10 @@ const FieldUpdateModal: React.FC<Props> = ({
 
   const [multipleValue, setMultipleValue] = useState(selectedField?.multiple);
 
+  useEffect(() => {
+    setMultipleValue(selectedField?.multiple);
+  }, [selectedField?.multiple]);
+
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
       const defaultValue = form.getFieldValue("defaultValue");
