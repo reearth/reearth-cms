@@ -208,14 +208,17 @@ const FieldCreationModal: React.FC<Props> = ({
         } else if (selectedType === "Select") {
           const defaultValue = Array.isArray(values.defaultValue)
             ? values.defaultValue.filter((value: string) => value)
-            : values.defaultValue;
+            : values.defaultValue ?? "";
           values.typeProperty = {
             select: { defaultValue, values: values.values },
           };
         } else if (selectedType === "Integer") {
+          const defaultValue = Array.isArray(values.defaultValue)
+            ? values.defaultValue.filter((value: number | string) => typeof value === "number")
+            : values.defaultValue ?? "";
           values.typeProperty = {
             integer: {
-              defaultValue: values.defaultValue ?? null,
+              defaultValue,
               min: values.min ?? null,
               max: values.max ?? null,
             },
@@ -226,7 +229,7 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            date: { defaultValue: transformMomentToString(values.defaultValue) },
+            date: { defaultValue: transformMomentToString(values.defaultValue) ?? "" },
           };
         } else if (selectedType === "Tag") {
           values.typeProperty = {
