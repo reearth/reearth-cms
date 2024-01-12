@@ -135,27 +135,24 @@ const FieldUpdateModal: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
-  const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
-  const [multipleValue, setMultipleValue] = useState(selectedField?.multiple);
+  const selectedTags: { id: string; name: string; color: string }[] | undefined = Form.useWatch(
+    "tags",
+    form,
+  );
 
-  useEffect(() => {
-    setMultipleValue(selectedField?.multiple);
-  }, [selectedField?.multiple]);
+  const [multipleValue, setMultipleValue] = useState(selectedField?.multiple);
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
-      if (selectedType === "Date" || selectedType === "Select") {
-        const defaultValue = form.getFieldValue("defaultValue");
-        if (e.target.checked) {
-          form.setFieldValue("defaultValue", defaultValue && [defaultValue]);
-        } else {
-          form.setFieldValue("defaultValue", form.getFieldValue("defaultValue")?.[0]);
-        }
+      const defaultValue = form.getFieldValue("defaultValue");
+      if (e.target.checked) {
+        form.setFieldValue("defaultValue", defaultValue && [defaultValue]);
+      } else {
+        form.setFieldValue("defaultValue", defaultValue?.[0]);
       }
-
       setMultipleValue(e.target.checked);
     },
-    [form, selectedType],
+    [form],
   );
 
   const handleTabChange = useCallback(
@@ -172,25 +169,22 @@ const FieldUpdateModal: React.FC<Props> = ({
         const filteredVelue = defaultValue.filter(value => selectedValues?.includes(value));
         form.setFieldValue("defaultValue", filteredVelue);
       } else if (!selectedValues?.includes(defaultValue)) {
-        form.setFieldValue("defaultValue", null);
+        form.setFieldValue("defaultValue", undefined);
       }
     }
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
-    if (selectedType === "Tag" && form.getFieldValue("defaultValue") && selectedTags) {
-      const defaultValues = form.getFieldValue("defaultValue");
-      const isDefaultValueArray = Array.isArray(defaultValues);
-
-      const result = selectedTags
-        .filter(selectedTag =>
-          isDefaultValueArray
-            ? defaultValues.includes(selectedTag.name) || defaultValues.includes(selectedTag.id)
-            : selectedTag.name === defaultValues || selectedTag.id === defaultValues,
-        )
-        .map(item => item.name);
-
-      form.setFieldValue("defaultValue", result);
+    if (selectedType === "Tag") {
+      const defaultValue = form.getFieldValue("defaultValue");
+      if (Array.isArray(defaultValue)) {
+        const filteredVelue = defaultValue.filter(
+          value => selectedTags?.some(tag => tag.name === value),
+        );
+        form.setFieldValue("defaultValue", filteredVelue);
+      } else if (!selectedTags?.some(tag => tag.name === defaultValue)) {
+        form.setFieldValue("defaultValue", undefined);
+      }
     }
   }, [form, selectedTags, selectedType]);
 

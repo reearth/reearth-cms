@@ -132,23 +132,23 @@ const FieldCreationModal: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
-  const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
+  const selectedTags: { id: string; name: string; color: string }[] | undefined = Form.useWatch(
+    "tags",
+    form,
+  );
   const [multipleValue, setMultipleValue] = useState(false);
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
-      if (selectedType === "Date" || selectedType === "Select") {
-        const defaultValue = form.getFieldValue("defaultValue");
-        if (e.target.checked) {
-          form.setFieldValue("defaultValue", defaultValue && [defaultValue]);
-        } else {
-          form.setFieldValue("defaultValue", form.getFieldValue("defaultValue")?.[0]);
-        }
+      const defaultValue = form.getFieldValue("defaultValue");
+      if (e.target.checked) {
+        form.setFieldValue("defaultValue", defaultValue && [defaultValue]);
+      } else {
+        form.setFieldValue("defaultValue", defaultValue?.[0]);
       }
-
       setMultipleValue(e.target.checked);
     },
-    [form, selectedType],
+    [form],
   );
 
   const handleTabChange = useCallback(
@@ -159,31 +159,27 @@ const FieldCreationModal: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (selectedType === "Asset") {
-      form.setFieldValue("defaultValue", null);
-    } else if (selectedType === "Bool" || selectedType === "Checkbox") {
-      form.setFieldValue("defaultValue", multipleValue ? [] : false);
-    }
-  }, [form, multipleValue, selectedType]);
-
-  useEffect(() => {
     if (selectedType === "Select") {
       const defaultValue = form.getFieldValue("defaultValue");
       if (Array.isArray(defaultValue)) {
         const filteredVelue = defaultValue.filter(value => selectedValues?.includes(value));
         form.setFieldValue("defaultValue", filteredVelue);
       } else if (!selectedValues?.includes(defaultValue)) {
-        form.setFieldValue("defaultValue", null);
+        form.setFieldValue("defaultValue", undefined);
       }
     }
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
     if (selectedType === "Tag") {
-      if (
-        !selectedTags?.some(selectedTag => selectedTag.name === form.getFieldValue("defaultValue"))
-      ) {
-        form.setFieldValue("defaultValue", []);
+      const defaultValue = form.getFieldValue("defaultValue");
+      if (Array.isArray(defaultValue)) {
+        const filteredVelue = defaultValue.filter(
+          value => selectedTags?.some(tag => tag.name === value),
+        );
+        form.setFieldValue("defaultValue", filteredVelue);
+      } else if (!selectedTags?.some(tag => tag.name === defaultValue)) {
+        form.setFieldValue("defaultValue", undefined);
       }
     }
   }, [form, selectedTags, selectedType]);

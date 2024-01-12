@@ -7,7 +7,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 
 export interface Props {
-  selectedTags: { id: string; name: string; color: string }[];
+  selectedTags?: { id: string; name: string; color: string }[];
   multiple?: boolean;
 }
 
