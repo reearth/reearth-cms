@@ -34,6 +34,7 @@ func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
+
 	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),
 		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
 			if wss == nil {
