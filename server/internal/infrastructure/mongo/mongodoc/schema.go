@@ -90,19 +90,22 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 	sId := s.ID().String()
 	fieldsDoc := util.Map(s.Fields(), func(f *schema.Field) FieldDocument {
 		fd := FieldDocument{
-			ID:           f.ID().String(),
-			Name:         f.Name(),
-			Description:  f.Description(),
-			Order:        f.Order(),
-			Key:          f.Key().String(),
-			Unique:       f.Unique(),
-			Multiple:     f.Multiple(),
-			Required:     f.Required(),
-			UpdatedAt:    f.UpdatedAt(),
-			DefaultValue: NewMultipleValue(f.DefaultValue()),
+			ID:          f.ID().String(),
+			Name:        f.Name(),
+			Description: f.Description(),
+			Order:       f.Order(),
+			Key:         f.Key().String(),
+			Unique:      f.Unique(),
+			Multiple:    f.Multiple(),
+			Required:    f.Required(),
+			UpdatedAt:   f.UpdatedAt(),
 			TypeProperty: TypePropertyDocument{
 				Type: string(f.Type()),
 			},
+		}
+
+		if len(f.DefaultValue().Values()) > 0 && !f.DefaultValue().First().IsEmpty() {
+			fd.DefaultValue = NewMultipleValue(f.DefaultValue())
 		}
 
 		f.TypeProperty().Match(schema.TypePropertyMatch{
