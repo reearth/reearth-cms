@@ -29,25 +29,7 @@ func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.Worksp
 	return ws.repos.WorkspaceSettings.FindByIDs(ctx, wid)
 }
 
-func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),
-		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
-			wsb := workspacesettings.New().
-				ID(inp.ID)
-
-			work, err := wsb.Build()
-			if err != nil {
-				return nil, err
-			}
-			err = ws.repos.WorkspaceSettings.Save(ctx, work)
-			if err != nil {
-				return nil, err
-			}
-			return work, nil
-		})
-}
-
-func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
+func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.UpdateOrCreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
 	wss, err := ws.repos.WorkspaceSettings.FindByID(ctx, inp.ID)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
