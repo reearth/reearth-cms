@@ -11,6 +11,7 @@ import {
   useUpdateWorkspaceSettingsMutation,
   ResourceInput,
   WorkspaceSettings as GQLWorkspaceSettings,
+  useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -77,11 +78,18 @@ export default () => {
     [handleWorkspaceSettingsUpdate, tiles, terrains],
   );
 
+  const { data: userData } = useGetMeQuery();
+  const hasPrivilege: boolean = useMemo(() => {
+    const myRole = currentWorkspace?.members?.find(m => m.userId === userData?.me?.id)?.role;
+    return myRole === "OWNER" || myRole === "MAINTAINER";
+  }, [currentWorkspace?.members, userData?.me?.id]);
+
   return {
     workspaceSettings,
     tiles,
     terrains,
     handleWorkspaceSettingsUpdate,
     handleTerrainToggle,
+    hasPrivilege,
   };
 };

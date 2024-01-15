@@ -22,6 +22,7 @@ export type Props = {
   terrains: TerrainInput[];
   onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
   onTerrainToggle: (isEnable: boolean) => void;
+  hasPrivilege: boolean;
 };
 
 const Settings: React.FC<Props> = ({
@@ -30,6 +31,7 @@ const Settings: React.FC<Props> = ({
   terrains,
   onWorkspaceSettingsUpdate,
   onTerrainToggle,
+  hasPrivilege,
 }) => {
   const t = useT();
 
@@ -95,7 +97,7 @@ const Settings: React.FC<Props> = ({
         <Title>{t("Terrain")}</Title>
         <SecondaryText>{t("The first one in the list will be the default Terrain.")}</SecondaryText>
         <SwitchWrapper>
-          <Switch checked={enable} onChange={onChange} />
+          <Switch checked={enable} onChange={onChange} disabled={!hasPrivilege} />
           <Text>{t("Enable")}</Text>
         </SwitchWrapper>
         {enable && (
