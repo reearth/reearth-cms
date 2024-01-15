@@ -34,6 +34,12 @@ func Test_propertyAsset_ToValue(t *testing.T) {
 			want1: nil,
 			want2: false,
 		},
+		{
+			name:  "empty string",
+			args:  []any{""},
+			want1: nil,
+			want2: true,
+		},
 	}
 
 	for _, tt := range tests {
