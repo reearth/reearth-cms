@@ -219,15 +219,13 @@ export default () => {
       if (!modelId && !groupId) return;
       const response = await updateFieldsOrder({
         variables: {
-          updateFieldInput: fields.map((field, index) => {
-            return {
-              fieldId: field.id,
-              metadata: field.metadata,
-              order: index,
-              modelId: selectedSchemaType === "model" ? modelId : undefined,
-              groupId: selectedSchemaType !== "model" ? groupId : undefined,
-            };
-          }),
+          updateFieldInput: fields.map((field, index) => ({
+            fieldId: field.id,
+            metadata: field.metadata,
+            order: index,
+            modelId: selectedSchemaType === "model" ? modelId : undefined,
+            groupId: selectedSchemaType !== "model" ? groupId : undefined,
+          })),
         },
       });
       if (response.errors || !response?.data?.updateFields) {
