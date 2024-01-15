@@ -17,7 +17,7 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>
       {multiple ? (
-        <StyledMultipleSelect mode="multiple" showArrow style={{ width: "100%" }}>
+        <StyledMultipleSelect key={selectedTags?.length} mode="multiple" showArrow>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
@@ -25,7 +25,7 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select showArrow style={{ width: "100%" }} allowClear>
+        <Select key={selectedTags?.length} showArrow allowClear>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
