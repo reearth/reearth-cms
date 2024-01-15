@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import ReactDragListView from "react-drag-listview";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -9,26 +10,34 @@ export type Props = {
   onModalOpen: (index: number) => void;
   isTile: boolean;
   onDelete: (isTile: boolean, index: number) => void;
+  onDragEnd: (fromIndex: number, toIndex: number, isTile: boolean) => void;
 };
 
-const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete }) => {
+const { DragColumn } = ReactDragListView;
+
+const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete, onDragEnd }) => {
   const { Meta } = Card;
 
   return (
-    <GridArea>
-      {resources.map((resource, index) => {
-        return (
-          <StyledCard
-            actions={[
-              <Icon icon="delete" key="delete" onClick={() => onDelete(isTile, index)} />,
-              <Icon icon="edit" key="edit" onClick={() => onModalOpen(index)} />,
-            ]}
-            key={resource.id}>
-            <Meta title={resource.props?.name ? resource.props.name : resource.type} />
-          </StyledCard>
-        );
-      })}
-    </GridArea>
+    <DragColumn
+      nodeSelector=".ant-card"
+      lineClassName="dragLineColumn"
+      onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex, isTile)}>
+      <GridArea>
+        {resources.map((resource, index) => {
+          return (
+            <StyledCard
+              actions={[
+                <Icon icon="delete" key="delete" onClick={() => onDelete(isTile, index)} />,
+                <Icon icon="edit" key="edit" onClick={() => onModalOpen(index)} />,
+              ]}
+              key={resource.id}>
+              <Meta title={resource.props?.name ? resource.props.name : resource.type} />
+            </StyledCard>
+          );
+        })}
+      </GridArea>
+    </DragColumn>
   );
 };
 

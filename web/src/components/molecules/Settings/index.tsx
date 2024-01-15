@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -75,6 +75,21 @@ const Settings: React.FC<Props> = ({
     onWorkspaceSettingsUpdate(tiles, terrains);
   };
 
+  const handleDragEnd = useCallback(
+    (fromIndex: number, toIndex: number, isTile: boolean) => {
+      if (toIndex < 0) return;
+      if (isTile) {
+        const [removed] = tiles.splice(fromIndex, 1);
+        tiles.splice(toIndex, 0, removed);
+      } else {
+        const [removed] = terrains.splice(fromIndex, 1);
+        terrains.splice(toIndex, 0, removed);
+      }
+      onWorkspaceSettingsUpdate(tiles, terrains);
+    },
+    [onWorkspaceSettingsUpdate, terrains, tiles],
+  );
+
   return (
     <InnerContent title={t("Settings")}>
       <ContentSection
@@ -88,6 +103,7 @@ const Settings: React.FC<Props> = ({
             onModalOpen={onTileModalOpen}
             isTile={true}
             onDelete={handleDelete}
+            onDragEnd={handleDragEnd}
           />
         ) : null}
         <Button type="link" onClick={() => onTileModalOpen()} icon={<Icon icon="plus" />}>
@@ -108,6 +124,7 @@ const Settings: React.FC<Props> = ({
                 onModalOpen={onTerrainModalOpen}
                 isTile={false}
                 onDelete={handleDelete}
+                onDragEnd={handleDragEnd}
               />
             ) : null}
             <Button type="link" onClick={() => onTerrainModalOpen()} icon={<Icon icon="plus" />}>
