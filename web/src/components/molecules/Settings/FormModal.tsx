@@ -28,7 +28,6 @@ const TileTypeFormat: { [key in TileType]: string } = {
   DEFAULT: "Default",
   LABELLED: "Labelled",
   ROAD_MAP: "Road Map",
-  STAMEN_WATERCOLOR: "Stamen Watercolor",
   STAMEN_TONER: "Stamen Toner",
   OPEN_STREET_MAP: "OpenStreetMap",
   ESRI_TOPOGRAPHY: "ESRI Topography",
