@@ -23,7 +23,7 @@ export default () => {
 
   const [currentWorkspace] = useWorkspace();
   const workspaceId = currentWorkspace?.id;
-  const { data } = useGetWorkspaceSettingsQuery({
+  const { data, refetch } = useGetWorkspaceSettingsQuery({
     variables: { workspaceId: workspaceId ?? "" },
   });
   const workspaceSettings: WorkspaceSettings | undefined = useMemo(() => {
@@ -67,8 +67,9 @@ export default () => {
       } else {
         Notification.success({ message: t("Successfully updated workspace!") });
       }
+      refetch();
     },
-    [t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
+    [refetch, t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
   );
 
   const handleTerrainToggle = useCallback(
