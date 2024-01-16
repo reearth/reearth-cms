@@ -14,13 +14,13 @@ export type Props = {
 };
 
 const { DragColumn } = ReactDragListView;
+const { Meta } = Card;
 
 const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete, onDragEnd }) => {
-  const { Meta } = Card;
-
   return (
     <DragColumn
       nodeSelector=".ant-card"
+      handleSelector=".grabbable"
       lineClassName="dragLineColumn"
       onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex, isTile)}>
       <GridArea>
@@ -32,7 +32,10 @@ const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete, onDr
                 <Icon icon="edit" key="edit" onClick={() => onModalOpen(index)} />,
               ]}
               key={resource.id}>
-              <Meta title={resource.props?.name ? resource.props.name : resource.type} />
+              <TitleWrapper>
+                <StyledMeta title={resource.props?.name ? resource.props.name : resource.type} />
+                <DragIcon icon="menu" className="grabbable" />
+              </TitleWrapper>
             </StyledCard>
           );
         })}
@@ -54,4 +57,18 @@ const StyledCard = styled(Card)`
   .ant-card-body {
     padding: 16px;
   }
+`;
+
+const TitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const StyledMeta = styled(Meta)`
+  overflow: hidden;
+`;
+
+const DragIcon = styled(Icon)`
+  cursor: grab;
 `;
