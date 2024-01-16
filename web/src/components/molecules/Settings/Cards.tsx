@@ -33,7 +33,10 @@ const Cards: React.FC<Props> = ({ resources, onModalOpen, isTile, onDelete, onDr
               ]}
               key={resource.id}>
               <TitleWrapper>
-                <StyledMeta title={resource.props?.name ? resource.props.name : resource.type} />
+                <StyledMeta
+                  avatar={resource.props?.image ? <img src={resource.props?.image} /> : null}
+                  title={resource.props?.name ? resource.props.name : resource.type}
+                />
                 <DragIcon icon="menu" className="grabbable" />
               </TitleWrapper>
             </StyledCard>
@@ -67,6 +70,14 @@ const TitleWrapper = styled.div`
 
 const StyledMeta = styled(Meta)`
   overflow: hidden;
+  .ant-card-meta-avatar {
+    padding-right: 8px;
+    img {
+      width: 20px;
+      height: 20px;
+      object-fit: cover;
+    }
+  }
 `;
 
 const DragIcon = styled(Icon)`
