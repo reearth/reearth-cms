@@ -53,11 +53,11 @@ export type FieldType =
 export type Tag = { id: string; name: string; color: string };
 
 export type TypeProperty = {
-  defaultValue?: string | boolean | string[] | boolean[];
+  defaultValue?: string | boolean | string[] | boolean[] | null;
   maxLength?: number;
   assetDefaultValue?: string;
-  selectDefaultValue?: string | string[];
-  integerDefaultValue?: number;
+  selectDefaultValue?: string | string[] | null;
+  integerDefaultValue?: number | number[] | null;
   min?: number;
   max?: number;
   correspondingField?: any;

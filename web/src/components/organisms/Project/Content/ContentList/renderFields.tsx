@@ -113,12 +113,38 @@ const itemFormat = (
   }
 };
 
+const defaultValueGet = (field: Field) => {
+  let result;
+  switch (field.type) {
+    case "Select" || "Tag":
+      result = field.typeProperty?.selectDefaultValue;
+      break;
+    case "Integer":
+      result = field.typeProperty?.integerDefaultValue;
+      break;
+    case "Asset":
+      result = field.typeProperty?.assetDefaultValue;
+      break;
+    default:
+      result = field.typeProperty?.defaultValue;
+  }
+  if (result) {
+    if (Array.isArray(result)) {
+      return result.map(r => r.toString());
+    } else {
+      return result.toString();
+    }
+  } else {
+    return "-";
+  }
+};
+
 export const renderField = (
   el: { props: { children: string | string[] } },
   field: Field,
   update?: (value?: string | string[] | boolean, index?: number) => void,
 ) => {
-  const value = el.props.children;
+  const value = el.props.children === "-" ? defaultValueGet(field) : el.props.children;
   const items = Array.isArray(value) ? value : [value];
 
   if ((field.type === "Bool" || field.type === "Checkbox") && !field.multiple) {
