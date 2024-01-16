@@ -25,7 +25,7 @@ export interface Props {
   selectedType: FieldType;
   multiple?: boolean;
   selectedValues: string[];
-  selectedTags: { id: string; name: string; color: string }[];
+  selectedTags?: { id: string; name: string; color: string }[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;

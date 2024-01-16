@@ -132,20 +132,23 @@ const FieldCreationModal: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
-  const selectedTags: { id: string; name: string; color: string }[] = Form.useWatch("tags", form);
+  const selectedTags: { id: string; name: string; color: string }[] | undefined = Form.useWatch(
+    "tags",
+    form,
+  );
   const [multipleValue, setMultipleValue] = useState(false);
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
-      if (selectedType === "Date") {
-        if (!e.target.checked) {
-          form.setFieldValue("defaultValue", null);
-        }
+      const defaultValue = form.getFieldValue("defaultValue");
+      if (e.target.checked) {
+        form.setFieldValue("defaultValue", defaultValue && [defaultValue]);
+      } else {
+        form.setFieldValue("defaultValue", defaultValue?.[0]);
       }
-
       setMultipleValue(e.target.checked);
     },
-    [form, selectedType],
+    [form],
   );
 
   const handleTabChange = useCallback(
@@ -156,33 +159,27 @@ const FieldCreationModal: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (selectedType === "Asset" || selectedType === "Select") {
-      form.setFieldValue("defaultValue", null);
-    }
-  }, [form, selectedType, multipleValue]);
-
-  useEffect(() => {
-    if (selectedType === "Bool" || selectedType === "Checkbox") {
-      form.setFieldValue("defaultValue", multipleValue ? [] : false);
-    }
-  }, [form, multipleValue, selectedType]);
-
-  useEffect(() => {
     if (selectedType === "Select") {
-      if (
-        !selectedValues?.some(selectedValue => selectedValue === form.getFieldValue("defaultValue"))
-      ) {
-        form.setFieldValue("defaultValue", null);
+      const defaultValue = form.getFieldValue("defaultValue");
+      if (Array.isArray(defaultValue)) {
+        const filteredVelue = defaultValue.filter(value => selectedValues?.includes(value));
+        form.setFieldValue("defaultValue", filteredVelue);
+      } else if (!selectedValues?.includes(defaultValue)) {
+        form.setFieldValue("defaultValue", undefined);
       }
     }
   }, [form, selectedValues, selectedType]);
 
   useEffect(() => {
     if (selectedType === "Tag") {
-      if (
-        !selectedTags?.some(selectedTag => selectedTag.name === form.getFieldValue("defaultValue"))
-      ) {
-        form.setFieldValue("defaultValue", []);
+      const defaultValue = form.getFieldValue("defaultValue");
+      if (Array.isArray(defaultValue)) {
+        const filteredVelue = defaultValue.filter(
+          value => selectedTags?.some(tag => tag.name === value),
+        );
+        form.setFieldValue("defaultValue", filteredVelue);
+      } else if (!selectedTags?.some(tag => tag.name === defaultValue)) {
+        form.setFieldValue("defaultValue", undefined);
       }
     }
   }, [form, selectedTags, selectedType]);
@@ -209,13 +206,19 @@ const FieldCreationModal: React.FC<Props> = ({
             asset: { defaultValue: values.defaultValue },
           };
         } else if (selectedType === "Select") {
+          const defaultValue = Array.isArray(values.defaultValue)
+            ? values.defaultValue.filter((value: string) => value)
+            : values.defaultValue ?? "";
           values.typeProperty = {
-            select: { defaultValue: values.defaultValue, values: values.values },
+            select: { defaultValue, values: values.values },
           };
         } else if (selectedType === "Integer") {
+          const defaultValue = Array.isArray(values.defaultValue)
+            ? values.defaultValue.filter((value: number | string) => typeof value === "number")
+            : values.defaultValue ?? "";
           values.typeProperty = {
             integer: {
-              defaultValue: values.defaultValue ?? null,
+              defaultValue,
               min: values.min ?? null,
               max: values.max ?? null,
             },
@@ -226,7 +229,7 @@ const FieldCreationModal: React.FC<Props> = ({
           };
         } else if (selectedType === "Date") {
           values.typeProperty = {
-            date: { defaultValue: transformMomentToString(values.defaultValue) },
+            date: { defaultValue: transformMomentToString(values.defaultValue) ?? "" },
           };
         } else if (selectedType === "Tag") {
           values.typeProperty = {
