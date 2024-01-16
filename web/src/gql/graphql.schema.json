@@ -13882,12 +13882,6 @@
             "deprecationReason": null
           },
           {
-            "name": "STAMEN_TONER",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "URL",
             "description": null,
             "isDeprecated": false,

@@ -34,12 +34,6 @@ const Settings: React.FC<Props> = ({ workspaceSettings }) => {
             assetId: IonWorldImageryStyle.ROAD,
             accessToken,
           });
-        case "STAMEN_TONER":
-          return new OpenStreetMapImageryProvider({
-            url: "https://stamen-tiles.a.ssl.fastly.net/toner/",
-            credit:
-              "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
-          });
         case "OPEN_STREET_MAP":
           return new OpenStreetMapImageryProvider({
             url: "https://a.tile.openstreetmap.org/",
