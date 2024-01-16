@@ -14,6 +14,7 @@ const ContentDetails: React.FC = () => {
     showPublishAction,
     requests,
     itemId,
+    itemLoading,
     currentModel,
     currentItem,
     formItemsData,
@@ -36,6 +37,7 @@ const ContentDetails: React.FC = () => {
     handleSearchTerm,
     handleLinkItemTableChange,
     handleRequestTableChange,
+    handleRequestSearchTerm,
     requestModalLoading,
     requestModalTotalCount,
     requestModalPage,
@@ -94,6 +96,7 @@ const ContentDetails: React.FC = () => {
       requests={requests}
       requestCreationLoading={requestCreationLoading}
       onRequestTableChange={handleRequestTableChange}
+      onRequestSearchTerm={handleRequestSearchTerm}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
@@ -112,6 +115,7 @@ const ContentDetails: React.FC = () => {
       }
       item={currentItem}
       itemId={itemId}
+      itemLoading={itemLoading}
       model={currentModel}
       groups={groups}
       initialFormValues={initialFormValues}

@@ -1,5 +1,6 @@
 import RequestMolecule from "@reearth-cms//components/molecules/Request/Details/Request";
 import Loading from "@reearth-cms/components/atoms/Loading";
+import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
@@ -86,45 +87,45 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
 }) => {
-  return currentRequest ? (
-    loading ? (
-      <Loading spinnerSize="large" minHeight="100vh" />
-    ) : (
-      <RequestMolecule
-        me={me}
-        isCloseActionEnabled={isCloseActionEnabled}
-        isApproveActionEnabled={isApproveActionEnabled}
-        currentRequest={currentRequest}
-        workspaceUserMembers={workspaceUserMembers}
-        onRequestApprove={onRequestApprove}
-        onRequestUpdate={onRequestUpdate}
-        onRequestDelete={onRequestDelete}
-        onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
-        onCommentDelete={onCommentDelete}
-        onBack={onBack}
-        assetList={assetList}
-        fileList={fileList}
-        loadingAssets={loadingAssets}
-        uploading={uploading}
-        uploadModalVisibility={uploadModalVisibility}
-        uploadUrl={uploadUrl}
-        uploadType={uploadType}
-        totalCount={totalCount}
-        page={page}
-        pageSize={pageSize}
-        onAssetTableChange={onAssetTableChange}
-        onUploadModalCancel={onUploadModalCancel}
-        setUploadUrl={setUploadUrl}
-        setUploadType={setUploadType}
-        onAssetsCreate={onAssetsCreate}
-        onAssetCreateFromUrl={onAssetCreateFromUrl}
-        onAssetsReload={onAssetsReload}
-        onAssetSearchTerm={onAssetSearchTerm}
-        setFileList={setFileList}
-        setUploadModalVisibility={setUploadModalVisibility}
-      />
-    )
-  ) : null;
+  return loading ? (
+    <Loading spinnerSize="large" minHeight="100vh" />
+  ) : currentRequest ? (
+    <RequestMolecule
+      me={me}
+      isCloseActionEnabled={isCloseActionEnabled}
+      isApproveActionEnabled={isApproveActionEnabled}
+      currentRequest={currentRequest}
+      workspaceUserMembers={workspaceUserMembers}
+      onRequestApprove={onRequestApprove}
+      onRequestUpdate={onRequestUpdate}
+      onRequestDelete={onRequestDelete}
+      onCommentCreate={onCommentCreate}
+      onCommentUpdate={onCommentUpdate}
+      onCommentDelete={onCommentDelete}
+      onBack={onBack}
+      assetList={assetList}
+      fileList={fileList}
+      loadingAssets={loadingAssets}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      uploadUrl={uploadUrl}
+      uploadType={uploadType}
+      totalCount={totalCount}
+      page={page}
+      pageSize={pageSize}
+      onAssetTableChange={onAssetTableChange}
+      onUploadModalCancel={onUploadModalCancel}
+      setUploadUrl={setUploadUrl}
+      setUploadType={setUploadType}
+      onAssetsCreate={onAssetsCreate}
+      onAssetCreateFromUrl={onAssetCreateFromUrl}
+      onAssetsReload={onAssetsReload}
+      onAssetSearchTerm={onAssetSearchTerm}
+      setFileList={setFileList}
+      setUploadModalVisibility={setUploadModalVisibility}
+    />
+  ) : (
+    <NotFound />
+  );
 };
 export default RequestDetailsMolecule;

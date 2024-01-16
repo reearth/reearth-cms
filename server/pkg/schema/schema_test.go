@@ -131,7 +131,7 @@ func TestSchema_RemoveField(t *testing.T) {
 		},
 		{
 			name: "add duplicated field",
-			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}},
+			s:    &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}, {id: fid3, name: "f3"}}, titleField: fid3.Ref()},
 			fid:  fid3,
 			want: &Schema{fields: []*Field{{id: fid1, name: "f1"}, {id: fid2, name: "f2"}}},
 		},

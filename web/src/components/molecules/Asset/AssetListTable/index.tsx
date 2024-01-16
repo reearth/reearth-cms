@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key } from "react";
+import { Key, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -15,6 +15,7 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import {
@@ -32,7 +33,6 @@ export type AssetListTableProps = {
   loading: boolean;
   selectedAsset: Asset | undefined;
   totalCount: number;
-  sort?: { type?: AssetSortType; direction?: SortDirection };
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -60,7 +60,6 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   selectedAsset,
   totalCount,
   searchTerm,
-  sort,
   page,
   pageSize,
   onAssetItemSelect,
@@ -82,6 +81,8 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           <Icon icon="edit" />
         </Link>
       ),
+      align: "center",
+      width: 32,
     },
     {
       title: () => <Icon icon="message" />,
@@ -89,22 +90,24 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "commentsCount",
       render: (_, asset) => {
         return (
-          <Button type="link" onClick={() => onAssetSelect(asset.id)}>
+          <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
             <CustomTag
               value={asset.comments?.length || 0}
               color={asset.id === selectedAsset?.id ? "#87e8de" : undefined}
             />
-          </Button>
+          </CommentsButton>
         );
       },
+      align: "center",
+      width: 32,
     },
     {
       title: t("File"),
       dataIndex: "fileName",
       key: "NAME",
       sorter: true,
-      defaultSortOrder:
-        sort?.type === "NAME" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+      width: 340,
+      ellipsis: true,
     },
     {
       title: t("Size"),
@@ -112,13 +115,13 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "SIZE",
       sorter: true,
       render: (_text, record) => bytesFormat(record.size),
-      defaultSortOrder:
-        sort?.type === "SIZE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+      width: 100,
     },
     {
       title: t("Preview Type"),
       dataIndex: "previewType",
       key: "previewType",
+      width: 120,
     },
     {
       title: t("Status"),
@@ -132,6 +135,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           )
         );
       },
+      width: 75,
     },
     {
       title: t("Created At"),
@@ -139,18 +143,27 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       key: "DATE",
       sorter: true,
       render: (_text, record) => dateTimeFormat(record.createdAt),
-      defaultSortOrder:
-        sort?.type === "DATE" ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+      width: 150,
     },
     {
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
+      render: (_, item) => (
+        <Space>
+          <UserAvatar username={item.createdBy} size={"small"} />
+          {item.createdBy}
+        </Space>
+      ),
+      width: 105,
+      ellipsis: true,
     },
     {
       title: t("ID"),
       dataIndex: "id",
       key: "id",
+      width: 240,
+      ellipsis: true,
     },
     {
       title: t("Linked to"),
@@ -184,6 +197,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           );
         }
       },
+      width: 95,
     },
   ];
 
@@ -236,8 +250,17 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
     );
   };
 
+  const [isRowSelected, setIsRowSelected] = useState(false);
+  useEffect(() => {
+    if (selection.selectedRowKeys.length) {
+      setIsRowSelected(true);
+    } else {
+      setIsRowSelected(false);
+    }
+  }, [selection.selectedRowKeys.length]);
+
   return (
-    <ProTable
+    <StyledProTable
       dataSource={assetList}
       columns={columns}
       tableAlertOptionRender={AlertOptions}
@@ -247,7 +270,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       pagination={pagination}
       toolbar={handleToolbarEvents}
       rowSelection={rowSelection}
-      tableStyle={{ overflowX: "scroll" }}
+      isRowSelected={isRowSelected}
       loading={loading}
       onChange={(pagination, _, sorter: any) => {
         onAssetTableChange(
@@ -258,11 +281,16 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
             : undefined,
         );
       }}
+      scroll={{ x: "", y: "" }}
     />
   );
 };
 
 export default AssetListTable;
+
+const CommentsButton = styled(Button)`
+  padding: 0;
+`;
 
 const DeselectButton = styled.a`
   display: flex;
@@ -280,4 +308,32 @@ const MoreItemsButton = styled(Button)`
   align-items: center;
   gap: 8px;
   color: #1890ff;
+`;
+
+const StyledProTable = styled(ProTable)<{ isRowSelected: boolean }>`
+  height: calc(100% - 72px);
+  .ant-pro-card-body {
+    padding-bottom: 0;
+  }
+  .ant-pro-card,
+  .ant-pro-card-body,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-table-container {
+    height: 100%;
+  }
+  .ant-table-wrapper {
+    height: ${({ isRowSelected }) => `calc(100% - ${isRowSelected ? 128 : 64}px)`};
+  }
+  .ant-table {
+    height: calc(100% - 64px);
+  }
+  .ant-table-small,
+  .ant-table-middle {
+    height: calc(100% - 56px);
+  }
+  .ant-table-body {
+    overflow: auto !important;
+    height: calc(100% - 47px);
+  }
 `;

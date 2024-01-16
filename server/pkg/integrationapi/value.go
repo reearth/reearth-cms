@@ -72,6 +72,8 @@ func ToValueType(t value.Type) ValueType {
 		return ValueTypeGroup
 	case value.TypeTag:
 		return ValueTypeTag
+	case value.TypeCheckbox:
+		return ValueTypeCheckbox
 	default:
 		return ""
 	}

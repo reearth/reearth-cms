@@ -91,10 +91,10 @@ const RequestSidebarWrapper: React.FC<Props> = ({
             currentRequest?.state === "APPROVED"
               ? "#52C41A"
               : currentRequest?.state === "CLOSED"
-              ? "#F5222D"
-              : currentRequest?.state === "WAITING"
-              ? "#FA8C16"
-              : ""
+                ? "#F5222D"
+                : currentRequest?.state === "WAITING"
+                  ? "#FA8C16"
+                  : ""
           }
           text={currentRequest?.state}
         />

@@ -63,6 +63,9 @@ func (s *Schema) Field(fId FieldID) *Field {
 }
 
 func (s *Schema) FieldByIDOrKey(fId *FieldID, key *key.Key) *Field {
+	if s == nil || s.fields == nil {
+		return nil
+	}
 	f, _ := lo.Find(s.fields, func(f *Field) bool {
 		return fId != nil && f.id == *fId || key != nil && key.IsValid() && f.key == *key
 	})
@@ -84,6 +87,9 @@ func (s *Schema) RemoveField(fid FieldID) {
 	for i, field := range s.fields {
 		if field.id == fid {
 			s.fields = slices.Delete(s.fields, i, i+1)
+			if lo.FromPtr(s.titleField) == fid {
+				s.titleField = nil
+			}
 			return
 		}
 	}
