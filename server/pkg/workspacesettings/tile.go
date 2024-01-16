@@ -6,7 +6,6 @@ const (
 	TileTypeDefault             TileType = "DEFAULT"
 	TileTypeLabelled            TileType = "LABELLED"
 	TileTypeRoadMap             TileType = "ROAD_MAP"
-	TileTypeStamenToner         TileType = "STAMEN_TONER"
 	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
 	TileTypeESRITopography      TileType = "ESRI_TOPOGRAPHY"
 	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
