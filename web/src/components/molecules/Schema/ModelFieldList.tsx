@@ -70,9 +70,9 @@ const ModelFieldList: React.FC<Props> = ({
 
   return (
     <>
-      {isMeta && data && data.length > 0 && (
+      {isMeta && (
         <FieldStyledList className={className} itemLayout="horizontal">
-          <List.Item key="entryInformation" actions={[<></>]}>
+          <List.Item key="entryInformation" actions={[null]}>
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
@@ -82,7 +82,7 @@ const ModelFieldList: React.FC<Props> = ({
               title={<ItemTitle>{t("Item Information")}</ItemTitle>}
             />
           </List.Item>
-          <List.Item key="publishStatus" actions={[<></>]}>
+          <List.Item key="publishStatus" actions={[null]}>
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
@@ -171,6 +171,9 @@ const FieldThumbnail = styled.div`
 
 const FieldStyledList = styled(List)`
   padding-top: 24px;
+  .ant-list-empty-text {
+    display: none;
+  }
   .ant-list-item {
     background-color: #fff;
     cursor: pointer;

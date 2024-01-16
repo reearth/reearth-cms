@@ -12,6 +12,9 @@ type propertyAsset struct{}
 type Asset = id.AssetID
 
 func (p *propertyAsset) ToValue(i any) (any, bool) {
+	if i == "" {
+		return nil, true
+	}
 	if v, ok := i.(string); ok {
 		if u, err := id.AssetIDFrom(v); err == nil {
 			return u, true
