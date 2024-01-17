@@ -473,7 +473,7 @@ export default () => {
 
   const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
-    if (!currentItem) {
+    if (!currentItem && !itemLoading) {
       currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {
           case "Select":
@@ -521,7 +521,7 @@ export default () => {
     }
 
     return initialValues;
-  }, [currentItem, currentModel?.metadataSchema?.fields]);
+  }, [currentItem, currentModel?.metadataSchema?.fields, itemLoading]);
 
   const workspaceUserMembers = useMemo((): Member[] => {
     return (
