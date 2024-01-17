@@ -109,6 +109,9 @@ func Test_propertyDateTime_Equal(t *testing.T) {
 	p := &propertyDateTime{}
 	assert.True(t, (&propertyDateTime{}).Equal(now, lo.Must(p.ToValue(&now))))
 	assert.True(t, (&propertyDateTime{}).Equal(now, lo.Must(p.ToValue(now))))
+	assert.True(t, (&propertyDateTime{}).Equal(nil, nil))
+	assert.False(t, (&propertyDateTime{}).Equal(nil, now))
+	assert.False(t, (&propertyDateTime{}).Equal(now, nil))
 	assert.False(t, (&propertyDateTime{}).Equal(now, now.Add(2*time.Millisecond)))
 	assert.False(t, (&propertyDateTime{}).Equal(now, now.Add(2*time.Millisecond)))
 }
