@@ -14,6 +14,7 @@ import {
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
+import { validateURL } from "@reearth-cms/utils/regex";
 
 type FormValues = {
   type: TileType | TerrainType;
@@ -28,8 +29,6 @@ const TileTypeFormat: { [key in TileType]: string } = {
   DEFAULT: "Default",
   LABELLED: "Labelled",
   ROAD_MAP: "Road Map",
-  STAMEN_WATERCOLOR: "Stamen Watercolor",
-  STAMEN_TONER: "Stamen Toner",
   OPEN_STREET_MAP: "OpenStreetMap",
   ESRI_TOPOGRAPHY: "ESRI Topography",
   EARTH_AT_NIGHT: "Earth at night",
@@ -109,7 +108,7 @@ const FormModal: React.FC<Props> = ({
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    const values = form.getFieldsValue();
+    const values = await form.validateFields();
     const { type, name, url, image, cesiumIonAssetId, cesiumIonAccessToken } = values;
     if (isTile) {
       const newTile = {
@@ -148,6 +147,18 @@ const FormModal: React.FC<Props> = ({
     onClose();
   }, [form, index, isTile, onClose, onWorkspaceSettingsUpdate, terrains, tiles]);
 
+  const urlRules = useMemo(
+    () => [
+      {
+        message: t("URL is not valid"),
+        validator: async (_: any, value: string) => {
+          return value && !validateURL(value) ? Promise.reject() : Promise.resolve();
+        },
+      },
+    ],
+    [t],
+  );
+
   return (
     <Modal
       open={open}
@@ -168,10 +179,10 @@ const FormModal: React.FC<Props> = ({
               <Form.Item name="name" label={t("Name")} extra={t("Name of tiles")}>
                 <Input placeholder={t("example")} />
               </Form.Item>
-              <Form.Item name="url" label={t("URL")}>
+              <Form.Item name="url" label={t("URL")} rules={urlRules}>
                 <Input placeholder={t("example")} />
               </Form.Item>
-              <Form.Item name="image" label={t("Image URL")}>
+              <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
                 <Input placeholder={t("example")} />
               </Form.Item>
             </>
@@ -186,10 +197,10 @@ const FormModal: React.FC<Props> = ({
               <Form.Item name="cesiumIonAccessToken" label={t("Terrain Cesium Ion access token")}>
                 <Input placeholder={t("example")} />
               </Form.Item>
-              <Form.Item name="url" label={t("Terrain URL")}>
+              <Form.Item name="url" label={t("Terrain URL")} rules={urlRules}>
                 <Input placeholder={t("example")} />
               </Form.Item>
-              <Form.Item name="image" label={t("Image URL")}>
+              <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
                 <Input placeholder={t("example")} />
               </Form.Item>
             </>

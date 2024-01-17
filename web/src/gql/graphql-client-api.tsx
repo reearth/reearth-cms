@@ -1818,8 +1818,6 @@ export enum TileType {
   Labelled = 'LABELLED',
   OpenStreetMap = 'OPEN_STREET_MAP',
   RoadMap = 'ROAD_MAP',
-  StamenToner = 'STAMEN_TONER',
-  StamenWatercolor = 'STAMEN_WATERCOLOR',
   Url = 'URL'
 }
 
