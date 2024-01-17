@@ -70,8 +70,6 @@ export type TileType =
   | "DEFAULT"
   | "LABELLED"
   | "ROAD_MAP"
-  | "STAMEN_WATERCOLOR"
-  | "STAMEN_TONER"
   | "OPEN_STREET_MAP"
   | "ESRI_TOPOGRAPHY"
   | "EARTH_AT_NIGHT"
