@@ -42,10 +42,6 @@ func ToTileType(tt workspacesettings.TileType) TileType {
 		return TileTypeLabelled
 	case workspacesettings.TileTypeRoadMap:
 		return TileTypeRoadMap
-	case workspacesettings.TileTypeStamenWaterColor:
-		return TileTypeStamenWatercolor
-	case workspacesettings.TileTypeStamenToner:
-		return TileTypeStamenToner
 	case workspacesettings.TileTypeOpenStreetMap:
 		return TileTypeOpenStreetMap
 	case workspacesettings.TileTypeESRITopography:
@@ -174,10 +170,6 @@ func FromTileType(tt TileType) workspacesettings.TileType {
 		return workspacesettings.TileTypeLabelled
 	case TileTypeRoadMap:
 		return workspacesettings.TileTypeRoadMap
-	case TileTypeStamenWatercolor:
-		return workspacesettings.TileTypeStamenWaterColor
-	case TileTypeStamenToner:
-		return workspacesettings.TileTypeStamenToner
 	case TileTypeOpenStreetMap:
 		return workspacesettings.TileTypeOpenStreetMap
 	case TileTypeEsriTopography:
