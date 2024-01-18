@@ -101,13 +101,7 @@ export interface Props {
     metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onMetaItemUpdate: (data: {
-    itemId: string;
-    metaItemId: string;
-    metaSchemaId: string;
-    fields: ItemField[];
-    metaFields: ItemField[];
-  }) => Promise<void>;
+  onMetaItemUpdate: (data: { metaItemId: string; metaFields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
@@ -384,17 +378,8 @@ const ContentForm: React.FC<Props> = ({
   const handleMetaUpdate = useCallback(async () => {
     if (!itemId || !item?.metadata?.id) return;
     try {
-      const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
-      const fields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
-      for (const [key, value] of Object.entries(values)) {
-        fields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
-          schemaFieldId: key,
-          type: model?.schema.fields.find(field => field.id === key)?.type as FieldType,
-        });
-      }
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
           value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
@@ -403,25 +388,13 @@ const ContentForm: React.FC<Props> = ({
         });
       }
       await onMetaItemUpdate?.({
-        itemId: itemId,
-        metaSchemaId: model?.metadataSchema?.id as string,
         metaItemId: item.metadata.id,
-        fields,
         metaFields,
       });
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [
-    itemId,
-    item,
-    form,
-    metaForm,
-    onMetaItemUpdate,
-    model?.metadataSchema?.id,
-    model?.metadataSchema?.fields,
-    model?.schema.fields,
-  ]);
+  }, [itemId, item, metaForm, onMetaItemUpdate, model?.metadataSchema?.fields]);
 
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
@@ -920,12 +893,12 @@ const ContentForm: React.FC<Props> = ({
                   }>
                   {field.multiple ? (
                     <MultiValueField
-                      onBlur={handleMetaUpdate}
+                      onChange={handleMetaUpdate}
                       type="date"
                       FieldInput={StyledDatePicker}
                     />
                   ) : (
-                    <StyledDatePicker onBlur={handleMetaUpdate} />
+                    <StyledDatePicker onChange={handleMetaUpdate} />
                   )}
                 </Form.Item>
               </MetaFormItemWrapper>
