@@ -1,6 +1,8 @@
 package e2e
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 	"time"
@@ -362,6 +364,77 @@ func TestCreateItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.1s.com", "type": "URL"},
 	})
+
+}
+
+func TestClearItemValues(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+
+	fids := createFieldOfEachType(t, e, mId)
+
+	sId, _, res := getModel(e, mId)
+	tagIds := res.Path("$.data.node.schema.fields[:].typeProperty.tags[:].id").Raw().([]any)
+
+	aid := id.NewAssetID()
+
+	iid, r1 := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "Text", "type": "Text"},
+		{"schemaFieldId": fids.textAreaFId, "value": "TextArea", "type": "TextArea"},
+		{"schemaFieldId": fids.markdownFId, "value": "MarkdownText", "type": "MarkdownText"},
+		{"schemaFieldId": fids.assetFId, "value": aid.String(), "type": "Asset"},
+		{"schemaFieldId": fids.boolFId, "value": true, "type": "Bool"},
+		{"schemaFieldId": fids.selectFId, "value": "s1", "type": "Select"},
+		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
+		{"schemaFieldId": fids.urlFId, "value": "https://www.1s.com", "type": "URL"},
+		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00Z", "type": "Date"},
+		{"schemaFieldId": fids.tagFID, "value": tagIds[0], "type": "Tag"},
+		{"schemaFieldId": fids.checkFid, "value": true, "type": "Checkbox"},
+	})
+	fields := r1.Path("$.data.createItem.item.fields[:].value").Raw().([]any)
+	assert.Equal(t, []any{
+		"Text", "TextArea", "MarkdownText", aid.String(), true, "s1", float64(1), "https://www.1s.com", "2023-01-01T00:00:00Z", tagIds[0], true,
+	}, fields)
+	i1ver, _ := getItem(e, iid)
+	_, r2 := updateItem(e, iid, i1ver, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "", "type": "Text"},
+		{"schemaFieldId": fids.textAreaFId, "value": "", "type": "TextArea"},
+		{"schemaFieldId": fids.markdownFId, "value": "", "type": "MarkdownText"},
+		{"schemaFieldId": fids.assetFId, "value": "", "type": "Asset"},
+		{"schemaFieldId": fids.boolFId, "value": "", "type": "Bool"},
+		{"schemaFieldId": fids.selectFId, "value": "", "type": "Select"},
+		{"schemaFieldId": fids.integerFId, "value": "", "type": "Integer"},
+		{"schemaFieldId": fids.urlFId, "value": "", "type": "URL"},
+		{"schemaFieldId": fids.dateFId, "value": "", "type": "Date"},
+		{"schemaFieldId": fids.tagFID, "value": "", "type": "Tag"},
+		{"schemaFieldId": fids.checkFid, "value": "", "type": "Checkbox"},
+	})
+	fields = r2.Path("$.data.updateItem.item.fields[:].value").Raw().([]any)
+	assert.Equal(t, []any{
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+	}, fields)
+
+	iid2, _ := createItem(e, mId, sId, nil, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "", "type": "Text"},
+		{"schemaFieldId": fids.textAreaFId, "value": "", "type": "TextArea"},
+		{"schemaFieldId": fids.markdownFId, "value": "", "type": "MarkdownText"},
+		{"schemaFieldId": fids.assetFId, "value": "", "type": "Asset"},
+		{"schemaFieldId": fids.boolFId, "value": "", "type": "Bool"},
+		{"schemaFieldId": fids.selectFId, "value": "", "type": "Select"},
+		{"schemaFieldId": fids.integerFId, "value": "", "type": "Integer"},
+		{"schemaFieldId": fids.urlFId, "value": "", "type": "URL"},
+		{"schemaFieldId": fids.dateFId, "value": "", "type": "Date"},
+		{"schemaFieldId": fids.tagFID, "value": "", "type": "Tag"},
+		{"schemaFieldId": fids.checkFid, "value": "", "type": "Checkbox"},
+	})
+	_, r3 := getItem(e, iid2)
+	fields2 := r3.Path("$.data.node.fields[:].value").Raw().([]any)
+	assert.Equal(t, []any{
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+	}, fields2)
 
 }
 
