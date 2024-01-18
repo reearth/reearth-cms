@@ -58,9 +58,8 @@ func Test_propertyBool_ToValue(t *testing.T) {
 }
 
 func Test_propertyBool_ToInterface(t *testing.T) {
-	v := true
-	tt, ok := (&propertyBool{}).ToInterface(v)
-	assert.Equal(t, v, tt)
+	tt, ok := (&propertyBool{}).ToInterface(true)
+	assert.Equal(t, true, tt)
 	assert.Equal(t, true, ok)
 }
 
@@ -132,4 +131,13 @@ func TestValue_ValuesBool(t *testing.T) {
 	res, ok = v.ValuesBool()
 	assert.Nil(t, res)
 	assert.False(t, ok)
+}
+
+func Test_propertyBool_Equal(t *testing.T) {
+	assert.True(t, (&propertyBool{}).Equal(true, true))
+	assert.True(t, (&propertyBool{}).Equal(false, false))
+	assert.True(t, (&propertyBool{}).Equal(nil, nil))
+	assert.True(t, (&propertyBool{}).Equal(false, nil))
+	assert.False(t, (&propertyBool{}).Equal(nil, true))
+	assert.False(t, (&propertyBool{}).Equal(false, true))
 }
