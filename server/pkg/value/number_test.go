@@ -167,3 +167,12 @@ func TestMultiple_ValuesNumber(t *testing.T) {
 	got, _ = m.ValuesNumber()
 	assert.Equal(t, expected, got)
 }
+
+func Test_propertyNumber_Equal(t *testing.T) {
+	var f1, f2 float64 = 10, 0
+	assert.True(t, (&propertyNumber{}).Equal(f1, f1))
+	assert.True(t, (&propertyNumber{}).Equal(nil, nil))
+	assert.True(t, (&propertyNumber{}).Equal(f2, nil))
+	assert.False(t, (&propertyNumber{}).Equal(nil, f1))
+	assert.False(t, (&propertyNumber{}).Equal(f1, f2))
+}

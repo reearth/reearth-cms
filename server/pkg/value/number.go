@@ -140,8 +140,13 @@ func (*propertyNumber) Validate(i any) bool {
 }
 
 func (*propertyNumber) Equal(v, w any) bool {
-	vv := v.(Number)
-	ww := w.(Number)
+	var vv, ww Number
+	if v != nil {
+		vv = v.(Number)
+	}
+	if w != nil {
+		ww = w.(Number)
+	}
 	return vv == ww
 }
 

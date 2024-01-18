@@ -38,9 +38,13 @@ func (*propertyURL) Validate(i any) bool {
 }
 
 func (*propertyURL) Equal(v, w any) bool {
-	vv := v.(URL)
-	ww := w.(URL)
-	return vv.String() == ww.String()
+	var vv, ww URL
+	if v != nil && w != nil {
+		vv = v.(URL)
+		ww = w.(URL)
+		return vv.String() == ww.String()
+	}
+	return v == w
 }
 
 func (*propertyURL) IsEmpty(v any) bool {
