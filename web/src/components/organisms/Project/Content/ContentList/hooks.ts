@@ -16,7 +16,6 @@ import useContentHooks from "@reearth-cms/components/organisms/Project/Content/h
 import {
   convertItem,
   convertComment,
-  boolConvert,
 } from "@reearth-cms/components/organisms/Project/Content/utils";
 import {
   Item as GQLItem,
@@ -179,11 +178,7 @@ export default () => {
         const item = await updateItemMutation({
           variables: {
             itemId: target.metadata?.id,
-            fields: fields.map(field => ({
-              value: boolConvert(field),
-              schemaFieldId: field.schemaFieldId,
-              type: field.type,
-            })),
+            fields,
             version,
           },
         });
@@ -193,7 +188,7 @@ export default () => {
         }
       } else {
         const fields = currentModel.metadataSchema.fields.map(field => ({
-          value: field.id === key ? boolConvert(field) : "",
+          value: field.id === key ? value : "",
           schemaFieldId: key,
           type: field.type as SchemaFieldType,
         }));
@@ -212,9 +207,8 @@ export default () => {
           variables: {
             itemId: target.id,
             fields: target.fields.map(field => ({
-              value: boolConvert(field),
-              schemaFieldId: field.schemaFieldId,
-              type: field.type,
+              ...field,
+              value: field.value ?? "",
             })),
             metadataId: metaItem?.data.createItem.item.id,
             version: target?.version ?? "",

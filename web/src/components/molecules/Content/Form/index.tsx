@@ -103,7 +103,7 @@ export interface Props {
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onMetaItemUpdate: (data: {
     itemId: string;
-    metaItemId?: string;
+    metaItemId: string;
     metaSchemaId: string;
     fields: ItemField[];
     metaFields: ItemField[];
@@ -382,7 +382,7 @@ const ContentForm: React.FC<Props> = ({
   ]);
 
   const handleMetaUpdate = useCallback(async () => {
-    if (!itemId) return;
+    if (!itemId || !item?.metadata?.id) return;
     try {
       const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
@@ -405,7 +405,7 @@ const ContentForm: React.FC<Props> = ({
       await onMetaItemUpdate?.({
         itemId: itemId,
         metaSchemaId: model?.metadataSchema?.id as string,
-        metaItemId: item?.metadata.id,
+        metaItemId: item.metadata.id,
         fields,
         metaFields,
       });
@@ -413,14 +413,14 @@ const ContentForm: React.FC<Props> = ({
       console.log("Validate Failed:", info);
     }
   }, [
-    form,
-    model?.schema.fields,
-    item?.metadata?.id,
-    model?.metadataSchema?.id,
     itemId,
+    item,
+    form,
     metaForm,
-    model?.metadataSchema?.fields,
     onMetaItemUpdate,
+    model?.metadataSchema?.id,
+    model?.metadataSchema?.fields,
+    model?.schema.fields,
   ]);
 
   const items: MenuProps["items"] = useMemo(() => {

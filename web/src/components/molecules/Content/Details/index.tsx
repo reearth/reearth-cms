@@ -78,7 +78,7 @@ export type Props = {
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onMetaItemUpdate: (data: {
     itemId: string;
-    metaItemId?: string;
+    metaItemId: string;
     metaSchemaId: string;
     fields: ItemField[];
     metaFields: ItemField[];

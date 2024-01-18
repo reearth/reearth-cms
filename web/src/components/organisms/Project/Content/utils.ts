@@ -1,15 +1,5 @@
-import {
-  Item,
-  Comment,
-  ItemField,
-  ItemValue,
-} from "@reearth-cms/components/molecules/Content/types";
-import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  Item as GQLItem,
-  Comment as GQLComment,
-  SchemaFieldType,
-} from "@reearth-cms/gql/graphql-client-api";
+import { Item, Comment, ItemField } from "@reearth-cms/components/molecules/Content/types";
+import { Item as GQLItem, Comment as GQLComment } from "@reearth-cms/gql/graphql-client-api";
 
 export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
   if (!GQLItem) return;
@@ -63,11 +53,4 @@ export const convertComment = (GQLComment: GQLComment): Comment => {
     content: GQLComment.content,
     createdAt: GQLComment.createdAt.toString(),
   };
-};
-
-export const boolConvert = (field: { value?: ItemValue; type: FieldType | SchemaFieldType }) => {
-  if ((field.type === "Bool" || field.type === "Checkbox") && field.value === "") {
-    return false;
-  }
-  return field.value ?? "";
 };
