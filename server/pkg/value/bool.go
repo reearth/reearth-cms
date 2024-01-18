@@ -48,8 +48,13 @@ func (*propertyBool) Validate(i any) bool {
 }
 
 func (*propertyBool) Equal(v, w any) bool {
-	vv := v.(Bool)
-	ww := w.(Bool)
+	var vv, ww Bool
+	if v != nil {
+		vv = v.(Bool)
+	}
+	if w != nil {
+		ww = w.(Bool)
+	}
 	return vv == ww
 }
 
