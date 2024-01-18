@@ -14,9 +14,6 @@ type propertyBool struct{}
 type Bool = bool
 
 func (p *propertyBool) ToValue(i any) (any, bool) {
-	if i == "" {
-		return nil, true
-	}
 	switch v := i.(type) {
 	case bool:
 		return v, true
