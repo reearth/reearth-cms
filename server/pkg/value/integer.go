@@ -154,8 +154,13 @@ func (*propertyInteger) Validate(i any) bool {
 }
 
 func (*propertyInteger) Equal(v, w any) bool {
-	vv := v.(Integer)
-	ww := w.(Integer)
+	var vv, ww Integer
+	if v != nil {
+		vv = v.(Integer)
+	}
+	if w != nil {
+		ww = w.(Integer)
+	}
 	return vv == ww
 }
 
