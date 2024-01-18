@@ -12,11 +12,12 @@ import {
   ItemSort,
   SortDirection,
 } from "@reearth-cms/components/molecules/View/types";
+import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   convertItem,
   convertComment,
-} from "@reearth-cms/components/organisms/Project/Content/convertItem";
-import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
+  boolConvert,
+} from "@reearth-cms/components/organisms/Project/Content/utils";
 import {
   Item as GQLItem,
   useDeleteItemMutation,
@@ -155,7 +156,7 @@ export default () => {
       updateItemId: string,
       version: string,
       key: string,
-      value?: string | string[] | boolean,
+      value?: string | string[] | boolean | boolean[],
       index?: number,
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
@@ -178,7 +179,11 @@ export default () => {
         const item = await updateItemMutation({
           variables: {
             itemId: target.metadata?.id,
-            fields,
+            fields: fields.map(field => ({
+              value: boolConvert(field),
+              schemaFieldId: field.schemaFieldId,
+              type: field.type,
+            })),
             version,
           },
         });
@@ -188,7 +193,7 @@ export default () => {
         }
       } else {
         const fields = currentModel.metadataSchema.fields.map(field => ({
-          value: field.id === key ? value : "",
+          value: field.id === key ? boolConvert(field) : "",
           schemaFieldId: key,
           type: field.type as SchemaFieldType,
         }));
@@ -206,7 +211,11 @@ export default () => {
         const item = await updateItemMutation({
           variables: {
             itemId: target.id,
-            fields: target.fields.map(field => ({ ...field, value: field.value ?? "" })),
+            fields: target.fields.map(field => ({
+              value: boolConvert(field),
+              schemaFieldId: field.schemaFieldId,
+              type: field.type,
+            })),
             metadataId: metaItem?.data.createItem.item.id,
             version: target?.version ?? "",
           },
