@@ -72,6 +72,11 @@ func Test_propertyReference_Equal(t *testing.T) {
 	iid1 := id.NewItemID()
 	iid2, _ := id.ItemIDFrom(iid1.String())
 	assert.True(t, pr.Equal(iid1, iid2))
+	assert.True(t, pr.Equal(nil, nil))
+	assert.False(t, pr.Equal(nil, iid1))
+	assert.False(t, pr.Equal(iid2, nil))
+	assert.False(t, pr.Equal(iid2, id.NewItemID()))
+	assert.False(t, pr.Equal(iid2, id.ItemID{}))
 }
 
 func TestValue_ValueReference(t *testing.T) {
