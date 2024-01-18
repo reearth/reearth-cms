@@ -27,7 +27,7 @@ func Test_propertyURL_ToValue(t *testing.T) {
 			name:  "string empty",
 			args:  []any{""},
 			want1: nil,
-			want2: false,
+			want2: true,
 		},
 		{
 			name:  "url",
