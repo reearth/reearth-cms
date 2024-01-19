@@ -23,6 +23,7 @@ var (
 		"project,createdat,id",
 		"project,!size,!id",
 		"project,size,id",
+		"!createdat,!id",
 	}
 	assetUniqueIndexes = []string{"id"}
 )
