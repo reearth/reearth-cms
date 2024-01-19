@@ -33,9 +33,12 @@ var (
 		"schema",
 		"fields.schemafield",
 		"project,schema,!timestamp,!id,__r",
+		"project,__r,modelid,schema,__",
 		"modelid,id,__r",
+		"modelid,!_id,__r",
 		// "__r,assets,project,__", // cannot index parallel arrays
 		"__r,project,__",
+		"__r,asset,project,__",
 		"schema,id,__r,project",
 	}
 )
