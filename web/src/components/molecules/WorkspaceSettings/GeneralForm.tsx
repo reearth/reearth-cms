@@ -35,7 +35,7 @@ const WorkspaceGeneralForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdat
         <Input />
       </Form.Item>
       <Button onClick={handleSubmit} type="primary" htmlType="submit">
-        {t("Save")}
+        {t("Save Changes")}
       </Button>
     </Form>
   );
