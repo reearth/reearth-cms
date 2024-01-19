@@ -38,7 +38,7 @@ export type WorkspaceSettings = {
   terrains?: ResourceList<TerrainResource>;
 };
 
-type ResourceList<T> = {
+export type ResourceList<T> = {
   resources: T[];
   selectedResource?: string;
   enabled?: boolean;
@@ -46,7 +46,7 @@ type ResourceList<T> = {
 
 export type Resource = TileResource | TerrainResource;
 
-type TileResource = {
+export type TileResource = {
   id: string;
   type: TileType;
   props: UrlResourceProps;
@@ -78,7 +78,7 @@ export type TileType =
 
 export type TerrainType = "CESIUM_WORLD_TERRAIN" | "ARC_GIS_TERRAIN" | "CESIUM_ION";
 
-type UrlResourceProps = {
+export type UrlResourceProps = {
   name: string;
   url: string;
   image: string;

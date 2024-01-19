@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -18,32 +18,43 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   workspaceSettings?: WorkspaceSettings;
-  tiles: TileInput[];
-  terrains: TerrainInput[];
   onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
-  onTerrainToggle: (isEnable: boolean) => void;
   hasPrivilege: boolean;
 };
 
 const Settings: React.FC<Props> = ({
   workspaceSettings,
-  tiles,
-  terrains,
   onWorkspaceSettingsUpdate,
-  onTerrainToggle,
   hasPrivilege,
 }) => {
   const t = useT();
 
   const [open, setOpen] = useState(false);
   const [enable, setEnable] = useState(workspaceSettings?.terrains?.enabled);
+  const [settings, setSettings] = useState(workspaceSettings);
+
+  useEffect(() => {
+    if (!settings) setSettings(workspaceSettings);
+  }, [settings, workspaceSettings]);
+
+  const tiles: TileInput[] = useMemo(() => {
+    const tiles: TileInput[] = [];
+    settings?.tiles?.resources?.map(resource => tiles.push({ tile: resource }));
+    return tiles;
+  }, [settings?.tiles?.resources]);
+
+  const terrains: TerrainInput[] = useMemo(() => {
+    const terrains: TerrainInput[] = [];
+    settings?.terrains?.resources?.map(resource => terrains.push({ terrain: resource }));
+    return terrains;
+  }, [settings?.terrains?.resources]);
 
   const isTileRef = useRef(true);
   const indexRef = useRef<undefined | number>(undefined);
 
   useEffect(() => {
-    if (workspaceSettings?.terrains?.enabled) setEnable(workspaceSettings.terrains.enabled);
-  }, [workspaceSettings?.terrains?.enabled]);
+    if (settings?.terrains?.enabled) setEnable(settings.terrains.enabled);
+  }, [settings?.terrains?.enabled]);
 
   const onTileModalOpen = (index?: number) => {
     setOpen(true);
@@ -63,32 +74,58 @@ const Settings: React.FC<Props> = ({
 
   const onChange = (checked: boolean) => {
     setEnable(checked);
-    onTerrainToggle(checked);
+    setSettings(prevState => {
+      const s = { id: prevState?.id ?? "", ...prevState };
+      if (s.terrains) s.terrains.enabled = checked;
+      return s;
+    });
   };
 
   const handleDelete = (isTile: boolean, index: number) => {
+    const s: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
     if (isTile) {
       tiles.splice(index, 1);
+      s.tiles?.resources?.splice(index, 1);
     } else {
       terrains.splice(index, 1);
+      s.terrains?.resources?.splice(index, 1);
     }
-    onWorkspaceSettingsUpdate(tiles, terrains);
+    setSettings(s);
   };
 
   const handleDragEnd = useCallback(
     (fromIndex: number, toIndex: number, isTile: boolean) => {
       if (toIndex < 0) return;
+      const s: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
       if (isTile) {
         const [removed] = tiles.splice(fromIndex, 1);
         tiles.splice(toIndex, 0, removed);
+        if (s.tiles) {
+          s.tiles.resources = tiles.map(tile => ({
+            id: tile.tile.id,
+            type: tile.tile.type,
+            props: tile.tile.props,
+          }));
+        }
       } else {
         const [removed] = terrains.splice(fromIndex, 1);
         terrains.splice(toIndex, 0, removed);
+        if (s.terrains) {
+          s.terrains.resources = terrains.map(terrain => ({
+            id: terrain.terrain.id,
+            type: terrain.terrain.type,
+            props: terrain.terrain.props,
+          }));
+        }
       }
-      onWorkspaceSettingsUpdate(tiles, terrains);
+      setSettings(s);
     },
-    [onWorkspaceSettingsUpdate, terrains, tiles],
+    [settings, terrains, tiles],
   );
+
+  const handleClick = () => {
+    onWorkspaceSettingsUpdate(tiles, terrains);
+  };
 
   return (
     <InnerContent title={t("Settings")}>
@@ -97,9 +134,9 @@ const Settings: React.FC<Props> = ({
         description={t("For asset viewer (formats like 3D Tiles, MVT, GeoJSON, CZML ... )")}>
         <Title>{t("Tiles")}</Title>
         <SecondaryText>{t("The first one in the list will be the default Tile.")}</SecondaryText>
-        {workspaceSettings?.tiles?.resources?.length ? (
+        {settings?.tiles?.resources?.length ? (
           <Cards
-            resources={workspaceSettings?.tiles?.resources}
+            resources={settings?.tiles?.resources}
             onModalOpen={onTileModalOpen}
             isTile={true}
             onDelete={handleDelete}
@@ -118,9 +155,9 @@ const Settings: React.FC<Props> = ({
         </SwitchWrapper>
         {enable && (
           <>
-            {workspaceSettings?.terrains?.resources?.length ? (
+            {settings?.terrains?.resources?.length ? (
               <Cards
-                resources={workspaceSettings?.terrains?.resources}
+                resources={settings?.terrains?.resources}
                 onModalOpen={onTerrainModalOpen}
                 isTile={false}
                 onDelete={handleDelete}
@@ -132,13 +169,18 @@ const Settings: React.FC<Props> = ({
             </Button>
           </>
         )}
+        <ButtonWrapper>
+          <Button type="primary" onClick={handleClick}>
+            Save
+          </Button>
+        </ButtonWrapper>
         <FormModal
           open={open}
           onClose={onClose}
           isTile={isTileRef.current}
           tiles={tiles}
           terrains={terrains}
-          onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+          setSettings={setSettings}
           index={indexRef.current}
         />
       </ContentSection>
@@ -169,4 +211,8 @@ const Text = styled.p`
 const SwitchWrapper = styled.div`
   display: flex;
   gap: 8px;
+`;
+
+const ButtonWrapper = styled.div`
+  padding: 12px 0;
 `;

@@ -11,6 +11,7 @@ import {
   TerrainType,
   TileInput,
   TerrainInput,
+  WorkspaceSettings,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
@@ -48,7 +49,7 @@ export interface Props {
   onClose: () => void;
   tiles: TileInput[];
   terrains: TerrainInput[];
-  onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
+  setSettings: React.Dispatch<React.SetStateAction<WorkspaceSettings | undefined>>;
   isTile: boolean;
   index?: number;
 }
@@ -58,7 +59,7 @@ const FormModal: React.FC<Props> = ({
   onClose,
   tiles,
   terrains,
-  onWorkspaceSettingsUpdate,
+  setSettings,
   isTile,
   index,
 }) => {
@@ -143,9 +144,31 @@ const FormModal: React.FC<Props> = ({
         terrains[index] = newTerrain;
       }
     }
-    onWorkspaceSettingsUpdate(tiles, terrains);
+
+    setSettings(settings => {
+      const copySettings = { ...settings, id: settings?.id ?? "" };
+
+      if (copySettings.tiles) {
+        copySettings.tiles.resources = tiles.map(({ tile }) => ({
+          id: tile.id,
+          type: tile.type,
+          props: tile.props,
+        }));
+      }
+
+      if (copySettings.terrains) {
+        copySettings.terrains.resources = terrains.map(({ terrain }) => ({
+          id: terrain.id,
+          type: terrain.type,
+          props: terrain.props,
+        }));
+      }
+
+      return copySettings;
+    });
+
     onClose();
-  }, [form, index, isTile, onClose, onWorkspaceSettingsUpdate, terrains, tiles]);
+  }, [form, index, isTile, onClose, setSettings, terrains, tiles]);
 
   const urlRules = useMemo(
     () => [
