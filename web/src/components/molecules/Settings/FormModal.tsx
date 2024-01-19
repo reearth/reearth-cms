@@ -144,10 +144,8 @@ const FormModal: React.FC<Props> = ({
         terrains[index] = newTerrain;
       }
     }
-
     setSettings(settings => {
       const copySettings = { ...settings, id: settings?.id ?? "" };
-
       if (copySettings.tiles) {
         copySettings.tiles.resources = tiles.map(({ tile }) => ({
           id: tile.id,
@@ -155,7 +153,6 @@ const FormModal: React.FC<Props> = ({
           props: tile.props,
         }));
       }
-
       if (copySettings.terrains) {
         copySettings.terrains.resources = terrains.map(({ terrain }) => ({
           id: terrain.id,
@@ -163,10 +160,8 @@ const FormModal: React.FC<Props> = ({
           props: terrain.props,
         }));
       }
-
       return copySettings;
     });
-
     onClose();
   }, [form, index, isTile, onClose, setSettings, terrains, tiles]);
 
