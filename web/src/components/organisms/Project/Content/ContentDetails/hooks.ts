@@ -15,7 +15,7 @@ import {
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import { Group, Field, FieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/utils";
@@ -327,9 +327,9 @@ export default () => {
   const dateConvert = useCallback((value?: ItemValue) => {
     if (Array.isArray(value)) {
       return (value as string[]).map(valueItem => (valueItem ? moment(valueItem) : ""));
-      } else {
-        return value ? moment(value as string) : "";
-      }
+    } else {
+      return value ? moment(value as string) : "";
+    }
   }, []);
 
   const valueGet = useCallback(
@@ -388,8 +388,11 @@ export default () => {
               if (group) groupInitialValuesUpdate(group, id);
             }
             break;
+          case "Date":
+            initialValues[field.id] = dateConvert(field.typeProperty?.defaultValue);
+            break;
           default:
-            initialValues[field.id] = dateConvert(field.type, field.typeProperty?.defaultValue);
+            initialValues[field.id] = field.typeProperty?.defaultValue;
             break;
         }
       });
@@ -427,8 +430,11 @@ export default () => {
             initialValues[field.id] = field.multiple ? (Array.isArray(value) ? value : []) : value;
             break;
           }
+          case "Date":
+            initialValues[field.id] = dateConvert(field.typeProperty?.defaultValue);
+            break;
           default:
-            initialValues[field.id] = dateConvert(field.type, field.typeProperty?.defaultValue);
+            initialValues[field.id] = field.typeProperty?.defaultValue;
             break;
         }
       });
