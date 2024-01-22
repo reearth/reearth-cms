@@ -324,16 +324,12 @@ export default () => {
     [updateItem, currentItem?.metadata?.version, t],
   );
 
-  const dateConvert = useCallback((type: FieldType, value?: ItemValue) => {
-    if (type === "Date") {
-      if (Array.isArray(value)) {
-        return (value as string[]).map(valueItem => (valueItem ? moment(valueItem) : ""));
+  const dateConvert = useCallback((value?: ItemValue) => {
+    if (Array.isArray(value)) {
+      return (value as string[]).map(valueItem => (valueItem ? moment(valueItem) : ""));
       } else {
         return value ? moment(value as string) : "";
       }
-    } else {
-      return value;
-    }
   }, []);
 
   const valueGet = useCallback(
@@ -345,8 +341,10 @@ export default () => {
           return field.typeProperty?.integerDefaultValue;
         case "Asset":
           return field.typeProperty?.assetDefaultValue;
+        case "Date":
+          return dateConvert(field.typeProperty?.defaultValue);
         default:
-          return dateConvert(field.type, field.typeProperty?.defaultValue);
+          return field.typeProperty?.defaultValue;
       }
     },
     [dateConvert],
@@ -403,17 +401,16 @@ export default () => {
             !Array.isArray(initialValues[field.schemaFieldId]) &&
             !moment.isMoment(initialValues[field.schemaFieldId])
           ) {
-            initialValues[field.schemaFieldId][field.itemGroupId] = dateConvert(
-              field.type,
-              field.value,
-            );
+            initialValues[field.schemaFieldId][field.itemGroupId] =
+              field.type === "Date" ? dateConvert(field.value) : field.value;
           } else {
             initialValues[field.schemaFieldId] = {
-              [field.itemGroupId]: dateConvert(field.type, field.value),
+              [field.itemGroupId]: field.type === "Date" ? dateConvert(field.value) : field.value,
             };
           }
         } else {
-          initialValues[field.schemaFieldId] = dateConvert(field.type, field.value);
+          initialValues[field.schemaFieldId] =
+            field.type === "Date" ? dateConvert(field.value) : field.value;
         }
       });
     }
@@ -437,7 +434,8 @@ export default () => {
       });
     } else {
       currentItem?.metadata.fields?.forEach(field => {
-        initialValues[field.schemaFieldId] = dateConvert(field.type, field.value);
+        initialValues[field.schemaFieldId] =
+          field.type === "Date" ? dateConvert(field.value) : field.value;
       });
     }
     return initialValues;
