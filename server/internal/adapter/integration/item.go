@@ -312,7 +312,12 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 		ms = msList[0]
 	}
 
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, sp.Schema(), assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), ms, mi, sp.GroupSchemas())), nil
+	schm := sp.Schema()
+	if i.Value().Schema() != schm.ID() {
+		schm = sp.MetaSchema()
+	}
+
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, schm, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), ms, mi, sp.GroupSchemas())), nil
 }
 
 func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, fields, metaFields *[]integrationapi.Field, op *usecase.Operator) (*integrationapi.VersionedItem, error) {

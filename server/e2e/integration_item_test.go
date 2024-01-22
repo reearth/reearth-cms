@@ -909,14 +909,25 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 	raw["modelId"] = mId1.String()
 
 	//	get Metadata Item
-	e.GET("/api/items/{itemId}", itmId3).
+	rm := e.GET("/api/items/{itemId}", itmId3).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
+		Object()
+	rm.
 		Value("isMetadata").
 		IsEqual(true)
+
+	rm.Value("fields").
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId4.String(),
+				"type":  "bool",
+				"value": true,
+				"key":   sfKey4.String(),
+			},
+		})
 
 	r := e.GET("/api/items/{itemId}", itmId4).
 		WithHeader("authorization", "Bearer "+secret).
