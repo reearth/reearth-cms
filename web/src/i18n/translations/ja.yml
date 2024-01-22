@@ -333,8 +333,8 @@ New Tiles: 新しいタイル
 New Terrain: 新しい地形
 Tiles type: タイルの種類
 Terrain type: 地形の種類
-example: ''
 Name of tiles: タイルの名前
+example: ''
 Image URL: イメージURL
 Name of terrain: 地形の名前
 Terrain Cesium Ion asset ID: Terrain Cesium Ion アセットID
@@ -456,6 +456,8 @@ Failed to update request roles.: リクエストロールの更新に失敗し�
 Successfully updated request roles!: リクエストロールの更新に成功しました。
 Failed to delete project.: プロジェクトの削除に失敗しました。
 Successfully deleted project!: プロジェクトの削除に成功しました。
+Failed to update workspace.: ワークスペースの更新に失敗しました。
+Successfully updated workspace!: ワークスペースの更新に成功しました。
 Failed to connect integration.: インテグレーションの接続に失敗しました。
 Successfully connected integration to the workspace!: インテグレーションの接続に成功しました。
 Failed to update workspace integration.: ワークスペースのインテグレーションの更新に失敗しました。
@@ -484,7 +486,5 @@ Failed to create integration.: インテグレーションの作成に失敗し�
 Successfully created integration!: インテグレーションの作成に成功しました。
 Failed to create project.: プロジェクトの作成に失敗しました。
 Successfully created project!: プロジェクトの作成に成功しました。
-Failed to update workspace.: ワークスペースの更新に失敗しました。
-Successfully updated workspace!: ワークスペースの更新に成功しました。
 Failed to delete workspace.: ワークスペースの削除に失敗しました。
 Successfully deleted workspace!: ワークスペースの削除に成功しました。
