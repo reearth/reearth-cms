@@ -26,9 +26,26 @@ export default () => {
   const { data, refetch } = useGetWorkspaceSettingsQuery({
     variables: { workspaceId: workspaceId ?? "" },
   });
-  const workspaceSettings: WorkspaceSettings | undefined = useMemo(() => {
-    return data?.node ? convertWorkspaceSettings(data.node as GQLWorkspaceSettings) : undefined;
-  }, [data]);
+
+  const defaultSettings: WorkspaceSettings = useMemo(
+    () => ({
+      id: workspaceId ?? "",
+      tiles: {
+        resources: [],
+      },
+      terrains: {
+        enabled: false,
+        resources: [],
+      },
+    }),
+    [workspaceId],
+  );
+
+  const workspaceSettings: WorkspaceSettings = useMemo(() => {
+    return data?.node
+      ? convertWorkspaceSettings(data.node as GQLWorkspaceSettings)
+      : defaultSettings;
+  }, [data?.node, defaultSettings]);
 
   const tiles: TileInput[] = useMemo(() => {
     const tiles: TileInput[] = [];
