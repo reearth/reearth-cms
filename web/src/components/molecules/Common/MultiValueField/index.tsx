@@ -114,10 +114,8 @@ const MultiValueField: React.FC<Props> = ({
             const defaultValue = props.type === "date" ? moment() : "";
             if (Array.isArray(currentValues)) {
               onChange?.([...currentValues, defaultValue]);
-              onBlur?.();
             } else {
               onChange?.([currentValues, defaultValue]);
-              onBlur?.();
             }
           }}>
           {t("New")}

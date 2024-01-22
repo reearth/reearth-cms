@@ -12,11 +12,11 @@ import {
   ItemSort,
   SortDirection,
 } from "@reearth-cms/components/molecules/View/types";
+import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   convertItem,
   convertComment,
-} from "@reearth-cms/components/organisms/Project/Content/convertItem";
-import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
+} from "@reearth-cms/components/organisms/Project/Content/utils";
 import {
   Item as GQLItem,
   useDeleteItemMutation,
@@ -155,7 +155,7 @@ export default () => {
       updateItemId: string,
       version: string,
       key: string,
-      value?: string | string[] | boolean,
+      value?: string | string[] | boolean | boolean[],
       index?: number,
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
@@ -206,7 +206,10 @@ export default () => {
         const item = await updateItemMutation({
           variables: {
             itemId: target.id,
-            fields: target.fields.map(field => ({ ...field, value: field.value ?? "" })),
+            fields: target.fields.map(field => ({
+              ...field,
+              value: field.value ?? "",
+            })),
             metadataId: metaItem?.data.createItem.item.id,
             version: target?.version ?? "",
           },

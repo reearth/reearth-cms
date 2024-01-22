@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { convertComment } from "@reearth-cms/components/organisms/Project/Content/utils";
 import {
   useGetRequestsQuery,
   useDeleteRequestMutation,
@@ -12,8 +13,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
-
-import { convertComment } from "../../Content/convertItem";
 
 export type RequestState = "DRAFT" | "WAITING" | "CLOSED" | "APPROVED";
 
