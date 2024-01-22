@@ -163,7 +163,7 @@ const Settings: React.FC<Props> = ({
         )}
         <ButtonWrapper>
           <Button type="primary" onClick={handleWorkspaceSettingsSave}>
-            Save
+            {t("Save")}
           </Button>
         </ButtonWrapper>
         <FormModal
