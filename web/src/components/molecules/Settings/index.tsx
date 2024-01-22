@@ -43,12 +43,12 @@ const Settings: React.FC<Props> = ({
   const tiles: TileInput[] = useMemo(() => {
     if (!settings?.tiles?.resources) return [];
     return settings?.tiles?.resources?.map(resource => ({ tile: resource }));
-  }, [settings?.tiles?.resources]);
+  }, [settings]);
 
   const terrains: TerrainInput[] = useMemo(() => {
     if (!settings?.terrains?.resources) return [];
     return settings?.terrains?.resources?.map(resource => ({ terrain: resource }));
-  }, [settings?.terrains?.resources]);
+  }, [settings]);
 
   const isTileRef = useRef(true);
   const indexRef = useRef<undefined | number>(undefined);
@@ -81,15 +81,13 @@ const Settings: React.FC<Props> = ({
     (isTile: boolean, index: number) => {
       const copySettings: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
       if (isTile) {
-        tiles.splice(index, 1);
         copySettings.tiles?.resources?.splice(index, 1);
       } else {
-        terrains.splice(index, 1);
         copySettings.terrains?.resources?.splice(index, 1);
       }
       setSettings(copySettings);
     },
-    [settings, terrains, tiles],
+    [settings],
   );
 
   const handleDragEnd = useCallback(
@@ -97,29 +95,17 @@ const Settings: React.FC<Props> = ({
       if (toIndex < 0) return;
       const copySettings: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
       if (isTile) {
-        const [removed] = tiles.splice(fromIndex, 1);
-        tiles.splice(toIndex, 0, removed);
-        if (copySettings.tiles) {
-          copySettings.tiles.resources = tiles.map(tile => ({
-            id: tile.tile.id,
-            type: tile.tile.type,
-            props: tile.tile.props,
-          }));
-        }
+        if (!copySettings.tiles?.resources) return;
+        const [removed] = copySettings.tiles.resources.splice(fromIndex, 1);
+        copySettings.tiles.resources.splice(toIndex, 0, removed);
       } else {
-        const [removed] = terrains.splice(fromIndex, 1);
-        terrains.splice(toIndex, 0, removed);
-        if (copySettings.terrains) {
-          copySettings.terrains.resources = terrains.map(terrain => ({
-            id: terrain.terrain.id,
-            type: terrain.terrain.type,
-            props: terrain.terrain.props,
-          }));
-        }
+        if (!copySettings.terrains?.resources) return;
+        const [removed] = copySettings.terrains.resources.splice(fromIndex, 1);
+        copySettings.terrains.resources.splice(toIndex, 0, removed);
       }
       setSettings(copySettings);
     },
-    [settings, terrains, tiles],
+    [settings],
   );
 
   const handleWorkspaceSettingsSave = useCallback(() => {
