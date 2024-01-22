@@ -71,7 +71,8 @@ const Settings: React.FC<Props> = ({
 
   const onChange = useCallback((checked: boolean) => {
     setSettings(prevState => {
-      const copySettings = { id: prevState?.id ?? "", ...prevState };
+      if (!prevState) return;
+      const copySettings = structuredClone(prevState);
       if (copySettings.terrains) copySettings.terrains.enabled = checked;
       return copySettings;
     });
@@ -79,7 +80,8 @@ const Settings: React.FC<Props> = ({
 
   const handleDelete = useCallback(
     (isTile: boolean, index: number) => {
-      const copySettings: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
+      if (!settings) return;
+      const copySettings = structuredClone(settings);
       if (isTile) {
         copySettings.tiles?.resources?.splice(index, 1);
       } else {
@@ -93,7 +95,8 @@ const Settings: React.FC<Props> = ({
   const handleDragEnd = useCallback(
     (fromIndex: number, toIndex: number, isTile: boolean) => {
       if (toIndex < 0) return;
-      const copySettings: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
+      if (!settings) return;
+      const copySettings = structuredClone(settings);
       if (isTile) {
         if (!copySettings.tiles?.resources) return;
         const [removed] = copySettings.tiles.resources.splice(fromIndex, 1);

@@ -144,8 +144,9 @@ const FormModal: React.FC<Props> = ({
         terrains[index] = newTerrain;
       }
     }
-    setSettings(settings => {
-      const copySettings = { ...settings, id: settings?.id ?? "" };
+    setSettings(prevState => {
+      if (!prevState) return;
+      const copySettings = structuredClone(prevState);
       if (copySettings.tiles) {
         copySettings.tiles.resources = tiles.map(({ tile }) => ({
           id: tile.id,
