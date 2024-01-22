@@ -19,7 +19,11 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   workspaceSettings?: WorkspaceSettings;
   hasPrivilege: boolean;
-  onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
+  onWorkspaceSettingsUpdate: (
+    tiles: TileInput[],
+    terrains: TerrainInput[],
+    isEnable?: boolean,
+  ) => Promise<void>;
 };
 
 const Settings: React.FC<Props> = ({
@@ -73,23 +77,23 @@ const Settings: React.FC<Props> = ({
   const onChange = useCallback((checked: boolean) => {
     setEnable(checked);
     setSettings(prevState => {
-      const s = { id: prevState?.id ?? "", ...prevState };
-      if (s.terrains) s.terrains.enabled = checked;
-      return s;
+      const copySettings = { id: prevState?.id ?? "", ...prevState };
+      if (copySettings.terrains) copySettings.terrains.enabled = checked;
+      return copySettings;
     });
   }, []);
 
   const handleDelete = useCallback(
     (isTile: boolean, index: number) => {
-      const s: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
+      const copySettings: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
       if (isTile) {
         tiles.splice(index, 1);
-        s.tiles?.resources?.splice(index, 1);
+        copySettings.tiles?.resources?.splice(index, 1);
       } else {
         terrains.splice(index, 1);
-        s.terrains?.resources?.splice(index, 1);
+        copySettings.terrains?.resources?.splice(index, 1);
       }
-      setSettings(s);
+      setSettings(copySettings);
     },
     [settings, terrains, tiles],
   );
@@ -97,12 +101,12 @@ const Settings: React.FC<Props> = ({
   const handleDragEnd = useCallback(
     (fromIndex: number, toIndex: number, isTile: boolean) => {
       if (toIndex < 0) return;
-      const s: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
+      const copySettings: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
       if (isTile) {
         const [removed] = tiles.splice(fromIndex, 1);
         tiles.splice(toIndex, 0, removed);
-        if (s.tiles) {
-          s.tiles.resources = tiles.map(tile => ({
+        if (copySettings.tiles) {
+          copySettings.tiles.resources = tiles.map(tile => ({
             id: tile.tile.id,
             type: tile.tile.type,
             props: tile.tile.props,
@@ -111,22 +115,22 @@ const Settings: React.FC<Props> = ({
       } else {
         const [removed] = terrains.splice(fromIndex, 1);
         terrains.splice(toIndex, 0, removed);
-        if (s.terrains) {
-          s.terrains.resources = terrains.map(terrain => ({
+        if (copySettings.terrains) {
+          copySettings.terrains.resources = terrains.map(terrain => ({
             id: terrain.terrain.id,
             type: terrain.terrain.type,
             props: terrain.terrain.props,
           }));
         }
       }
-      setSettings(s);
+      setSettings(copySettings);
     },
     [settings, terrains, tiles],
   );
 
   const handleWorkspaceSettingsSave = useCallback(() => {
-    onWorkspaceSettingsUpdate(tiles, terrains);
-  }, [onWorkspaceSettingsUpdate, terrains, tiles]);
+    onWorkspaceSettingsUpdate(tiles, terrains, enable);
+  }, [enable, onWorkspaceSettingsUpdate, terrains, tiles]);
 
   return (
     <InnerContent title={t("Settings")}>
