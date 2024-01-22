@@ -18,14 +18,14 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   workspaceSettings?: WorkspaceSettings;
-  onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
   hasPrivilege: boolean;
+  onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
 };
 
 const Settings: React.FC<Props> = ({
   workspaceSettings,
-  onWorkspaceSettingsUpdate,
   hasPrivilege,
+  onWorkspaceSettingsUpdate,
 }) => {
   const t = useT();
 
@@ -38,15 +38,13 @@ const Settings: React.FC<Props> = ({
   }, [settings, workspaceSettings]);
 
   const tiles: TileInput[] = useMemo(() => {
-    const tiles: TileInput[] = [];
-    settings?.tiles?.resources?.map(resource => tiles.push({ tile: resource }));
-    return tiles;
+    if (!settings?.tiles?.resources) return [];
+    return settings?.tiles?.resources?.map(resource => ({ tile: resource }));
   }, [settings?.tiles?.resources]);
 
   const terrains: TerrainInput[] = useMemo(() => {
-    const terrains: TerrainInput[] = [];
-    settings?.terrains?.resources?.map(resource => terrains.push({ terrain: resource }));
-    return terrains;
+    if (!settings?.terrains?.resources) return [];
+    return settings?.terrains?.resources?.map(resource => ({ terrain: resource }));
   }, [settings?.terrains?.resources]);
 
   const isTileRef = useRef(true);
@@ -72,26 +70,29 @@ const Settings: React.FC<Props> = ({
     setOpen(false);
   };
 
-  const onChange = (checked: boolean) => {
+  const onChange = useCallback((checked: boolean) => {
     setEnable(checked);
     setSettings(prevState => {
       const s = { id: prevState?.id ?? "", ...prevState };
       if (s.terrains) s.terrains.enabled = checked;
       return s;
     });
-  };
+  }, []);
 
-  const handleDelete = (isTile: boolean, index: number) => {
-    const s: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
-    if (isTile) {
-      tiles.splice(index, 1);
-      s.tiles?.resources?.splice(index, 1);
-    } else {
-      terrains.splice(index, 1);
-      s.terrains?.resources?.splice(index, 1);
-    }
-    setSettings(s);
-  };
+  const handleDelete = useCallback(
+    (isTile: boolean, index: number) => {
+      const s: WorkspaceSettings = { id: settings?.id ?? "", ...settings };
+      if (isTile) {
+        tiles.splice(index, 1);
+        s.tiles?.resources?.splice(index, 1);
+      } else {
+        terrains.splice(index, 1);
+        s.terrains?.resources?.splice(index, 1);
+      }
+      setSettings(s);
+    },
+    [settings, terrains, tiles],
+  );
 
   const handleDragEnd = useCallback(
     (fromIndex: number, toIndex: number, isTile: boolean) => {
@@ -123,9 +124,9 @@ const Settings: React.FC<Props> = ({
     [settings, terrains, tiles],
   );
 
-  const handleClick = () => {
+  const handleWorkspaceSettingsSave = useCallback(() => {
     onWorkspaceSettingsUpdate(tiles, terrains);
-  };
+  }, [onWorkspaceSettingsUpdate, terrains, tiles]);
 
   return (
     <InnerContent title={t("Settings")}>
@@ -170,7 +171,7 @@ const Settings: React.FC<Props> = ({
           </>
         )}
         <ButtonWrapper>
-          <Button type="primary" onClick={handleClick}>
+          <Button type="primary" onClick={handleWorkspaceSettingsSave}>
             Save
           </Button>
         </ButtonWrapper>
