@@ -379,7 +379,7 @@ func getAssetsFromItems(ctx context.Context, items item.VersionedList, ap *integ
 	return res.Map(), err
 }
 
-func getReferencedItems(ctx context.Context, i *version.Value[*item.Item]) *[]integrationapi.VersionedItem {
+func getReferencedItems(ctx context.Context, i *version.Version[item.Item, item.Meta]) *[]integrationapi.VersionedItem {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 

@@ -131,7 +131,7 @@ func TestVersionedList_FilterFields(t *testing.T) {
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
 	vl := VersionedList{
-		version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i),
+		version.Must(version.NewID(), nil, version.NewRefs(version.Latest), now, i, &Meta{}),
 	}
 
 	assert.Equal(t, vl.FilterFields(id.FieldIDList{fId}), vl.FilterFields(id.FieldIDList{fId}))
@@ -148,12 +148,12 @@ func TestVersionedList_Item(t *testing.T) {
 		Thread(id.NewThreadID()).
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
-	v := version.New()
+	v := version.NewID()
 	vl := VersionedList{
-		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
+		version.Must(v, nil, version.NewRefs(version.Latest), now, i, &Meta{}),
 	}
 
-	assert.Equal(t, version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i), vl.Item(iId))
+	assert.Equal(t, version.Must(v, nil, version.NewRefs(version.Latest), now, i, &Meta{}), vl.Item(iId))
 }
 
 func TestVersionedList_Unwrap(t *testing.T) {
@@ -167,9 +167,9 @@ func TestVersionedList_Unwrap(t *testing.T) {
 		Thread(id.NewThreadID()).
 		Fields([]*Field{NewField(fId, value.TypeBool.Value(true).AsMultiple(), nil)}).
 		MustBuild()
-	v := version.New()
+	v := version.NewID()
 	vl := VersionedList{
-		version.MustBeValue(v, nil, version.NewRefs(version.Latest), now, i),
+		version.Must(v, nil, version.NewRefs(version.Latest), now, i, &Meta{}),
 	}
 
 	assert.Equal(t, List{i}, vl.Unwrap())

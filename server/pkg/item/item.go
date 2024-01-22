@@ -31,7 +31,7 @@ type Item struct {
 	integration          *IntegrationID
 }
 
-type Versioned = *version.Value[*Item]
+type Versioned = *version.Version[Item, Meta]
 
 func (i *Item) ID() ID {
 	return i.id
@@ -68,6 +68,7 @@ func (i *Item) Timestamp() time.Time {
 func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
 }
+
 func (i *Item) IsMetadata() bool {
 	return i.isMetadata
 }

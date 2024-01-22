@@ -24,7 +24,7 @@ require (
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/oapi-codegen/runtime v1.0.0
 	github.com/ravilushqa/otelgqlgen v0.13.1
-	github.com/reearth/reearthx v0.0.0-20231018053753-30170f2e187d
+	github.com/reearth/reearthx v0.0.0-20231120063001-5beb5d648a57
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.38.1
 	github.com/sendgrid/sendgrid-go v3.13.0+incompatible

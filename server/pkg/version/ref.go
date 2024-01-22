@@ -18,8 +18,8 @@ func (r Ref) String() string {
 	return string(r)
 }
 
-func (r Ref) OrVersion() VersionOrRef {
-	return VersionOrRef{ref: r}
+func (r Ref) OrVersion() IDOrRef {
+	return IDOrRef{ref: r}
 }
 
 func (r *Ref) OrLatest() *Ref {

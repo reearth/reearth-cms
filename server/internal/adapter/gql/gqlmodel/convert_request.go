@@ -15,7 +15,7 @@ func ToRequest(req *request.Request) *Request {
 		iid := IDFrom(itm.Item())
 		return version.MatchVersionOrRef(
 			itm.Pointer(),
-			func(v version.Version) *RequestItem {
+			func(v version.ID) *RequestItem {
 				return &RequestItem{
 					ItemID:  iid,
 					Version: lo.ToPtr(v.String()),

@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -14,7 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
-	rlog "github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -23,7 +22,7 @@ import (
 
 func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	if cfg.Config == nil {
-		log.Fatalln("ServerConfig.Config is nil")
+		log.Fatal("ServerConfig.Config is nil")
 	}
 
 	e := echo.New()
@@ -33,7 +32,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	e.HTTPErrorHandler = errorHandler(e.DefaultHTTPErrorHandler)
 
 	// basic middleware
-	logger := rlog.NewEcho()
+	logger := log.NewEcho()
 	e.Logger = logger
 	e.Use(
 		logger.AccessLogger(),
@@ -54,7 +53,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		e.GET("/graphql", echo.WrapHandler(
 			playground.Handler("reearth-cms", "/api/graphql"),
 		))
-		log.Printf("gql: GraphQL Playground is available")
+		log.Infof("gql: GraphQL Playground is available")
 	}
 
 	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(

@@ -112,7 +112,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	v, err := r.FindAllVersionsByID(ctx, i.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), now, i),
+		version.Must[item.Item, item.Meta](v[0].Version(), nil, version.NewRefs(version.Latest), now, i, nil),
 	}, v)
 
 	r = r.Filtered(repo.ProjectFilter{
@@ -137,15 +137,15 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 	v, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{i1.ID()})
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
+		version.Must[item.Item, item.Meta](v[0].Version(), nil, version.NewRefs(version.Latest), now, i1, nil),
 	}, v)
 
 	_ = r.Save(ctx, i2)
 	v, err = r.FindAllVersionsByIDs(ctx, id.ItemIDList{i1.ID(), i2.ID()})
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.MustBeValue(v[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
-		version.MustBeValue(v[1].Version(), nil, version.NewRefs(version.Latest), now, i2),
+		version.Must[item.Item, item.Meta](v[0].Version(), nil, version.NewRefs(version.Latest), now, i1, nil),
+		version.Must[item.Item, item.Meta](v[1].Version(), nil, version.NewRefs(version.Latest), now, i2, nil),
 	}, v)
 	r = r.Filtered(repo.ProjectFilter{
 		Readable: []id.ProjectID{},
@@ -260,7 +260,7 @@ func TestItem_UpdateRef(t *testing.T) {
 	v, _ := r.FindByID(ctx, i.ID(), nil)
 	_ = r.UpdateRef(ctx, i.ID(), vx, v.Version().OrRef().Ref())
 	v2, _ := r.FindByID(ctx, i.ID(), nil)
-	assert.Equal(t, version.MustBeValue(v.Version(), nil, version.NewRefs(vx, version.Latest), now, i), v2)
+	assert.Equal(t, version.Must[item.Item, item.Meta](v.Version(), nil, version.NewRefs(vx, version.Latest), now, i, nil), v2)
 
 	wantErr := errors.New("test")
 	SetItemError(r, wantErr)

@@ -6,20 +6,20 @@ import (
 
 type Query struct {
 	all bool
-	eq  *VersionOrRef
+	eq  *IDOrRef
 }
 
 func All() Query {
 	return Query{all: true}
 }
 
-func Eq(vr VersionOrRef) Query {
+func Eq(vr IDOrRef) Query {
 	return Query{eq: lo.ToPtr(vr)}
 }
 
 type QueryMatch struct {
 	All func()
-	Eq  func(VersionOrRef)
+	Eq  func(IDOrRef)
 }
 
 func (q Query) Match(m QueryMatch) {

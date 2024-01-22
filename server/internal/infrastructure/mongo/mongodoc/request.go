@@ -46,7 +46,7 @@ func NewRequest(r *request.Request) (*RequestDocument, string) {
 	items := lo.Map(r.Items(), func(i *request.Item, _ int) RequestItem {
 		return version.MatchVersionOrRef(
 			i.Pointer(),
-			func(v version.Version) RequestItem {
+			func(v version.ID) RequestItem {
 				return RequestItem{
 					Item:    i.Item().String(),
 					Version: lo.ToPtr(v.String()),
@@ -122,13 +122,13 @@ func (d *RequestDocument) Model() (*request.Request, error) {
 		if err != nil {
 			return nil, err
 		}
-		var vor version.VersionOrRef
+		var vor version.IDOrRef
 		if ri.Version != nil {
 			v, err := uuid.Parse(*ri.Version)
 			if err != nil {
 				return nil, err
 			}
-			vor = version.Version(v).OrRef()
+			vor = version.ID(v).OrRef()
 		} else if ri.Ref != nil {
 			vor = version.Ref(*ri.Ref).OrVersion()
 		}

@@ -2,6 +2,7 @@ package memory
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"time"
 
@@ -15,23 +16,22 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 )
 
 type Item struct {
-	data *memorygit.VersionedSyncMap[item.ID, *item.Item]
+	data *memorygit.VersionedSyncMap[item.ID, item.Item, item.Meta]
 	f    repo.ProjectFilter
 	err  error
 }
 
-func (r *Item) FindByAssets(ctx context.Context, assetID id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
+func (r *Item) FindByAssets(_ context.Context, _ id.AssetIDList, _ *version.Ref) (item.VersionedList, error) {
 	// TODO implement me
 	panic("implement me")
 }
 
 func NewItem() repo.Item {
 	return &Item{
-		data: memorygit.NewVersionedSyncMap[item.ID, *item.Item](),
+		data: memorygit.NewVersionedSyncMap[item.ID, item.Item, item.Meta](),
 	}
 }
 
@@ -47,20 +47,20 @@ func (r *Item) FindByID(_ context.Context, itemID id.ItemID, ref *version.Ref) (
 		return nil, r.err
 	}
 
-	item, ok := r.data.Load(itemID, ref.OrLatest().OrVersion())
+	itm, ok := r.data.Load(itemID, ref.OrLatest().OrVersion())
 	if !ok {
 		return nil, rerror.ErrNotFound
 	}
-	return item, nil
+	return itm, nil
 }
 
-func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *version.Ref, _ *usecasex.Sort, _ *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+	r.data.Range(func(k item.ID, v *version.Versions[item.Item, item.Meta]) bool {
 		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Schema() == schemaID && r.f.CanRead(it.Project()) {
@@ -71,13 +71,13 @@ func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *versio
 	return res, nil, nil
 }
 
-func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, _ *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+	r.data.Range(func(k item.ID, v *version.Versions[item.Item, item.Meta]) bool {
 		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Project() == projectID {
@@ -89,13 +89,13 @@ func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *ver
 	return res, nil, nil
 }
 
-func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, _ *usecasex.Sort, _ *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
 
 	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+	r.data.Range(func(k item.ID, v *version.Versions[item.Item, item.Meta]) bool {
 		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Model() == modelID {
@@ -122,29 +122,29 @@ func (r *Item) FindAllVersionsByID(_ context.Context, id id.ItemID) (item.Versio
 
 	res := r.data.LoadAllVersions(id).All()
 	sortItems(res)
-	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
+	return lo.Filter(res, func(i *version.Version[item.Item, item.Meta], _ int) bool {
 		return r.f.CanRead(i.Value().Project())
 	}), nil
 }
 
-func (r *Item) FindAllVersionsByIDs(ctx context.Context, ids id.ItemIDList) (item.VersionedList, error) {
+func (r *Item) FindAllVersionsByIDs(_ context.Context, ids id.ItemIDList) (item.VersionedList, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 
 	res := r.data.LoadAll(ids, nil)
 	sortItems(res)
-	return lo.Filter(res, func(i *version.Value[*item.Item], _ int) bool {
+	return lo.Filter(res, func(i *version.Version[item.Item, item.Meta], _ int) bool {
 		return r.f.CanRead(i.Value().Project())
 	}), nil
 }
 
-func (r *Item) LastModifiedByModel(ctx context.Context, modelID id.ModelID) (time.Time, error) {
+func (r *Item) LastModifiedByModel(_ context.Context, modelID id.ModelID) (time.Time, error) {
 	if r.err != nil {
 		return time.Time{}, r.err
 	}
 
-	res := r.data.Find(func(k item.ID, v *version.Values[*item.Item]) bool {
+	res := r.data.Find(func(k item.ID, v *version.Versions[item.Item, item.Meta]) bool {
 		itv := v.Get(version.Latest.OrVersion())
 		it := itv.Value()
 		return it.Model() == modelID
@@ -169,7 +169,7 @@ func (r *Item) Save(_ context.Context, t *item.Item) error {
 	return nil
 }
 
-func (r *Item) UpdateRef(ctx context.Context, item id.ItemID, ref version.Ref, vr *version.VersionOrRef) error {
+func (r *Item) UpdateRef(_ context.Context, item id.ItemID, ref version.Ref, vr *version.IDOrRef) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -183,11 +183,11 @@ func (r *Item) Remove(_ context.Context, itemID id.ItemID) error {
 		return r.err
 	}
 
-	item, _ := r.data.Load(itemID, version.Latest.OrVersion())
-	if item == nil {
+	itm, _ := r.data.Load(itemID, version.Latest.OrVersion())
+	if itm == nil {
 		return rerror.ErrNotFound
 	}
-	if !r.f.CanWrite(item.Value().Project()) {
+	if !r.f.CanWrite(itm.Value().Project()) {
 		return repo.ErrOperationDenied
 	}
 
@@ -208,7 +208,7 @@ func (r *Item) IsArchived(_ context.Context, itemID id.ItemID) (bool, error) {
 	return r.data.IsArchived(itemID), nil
 }
 
-func (r *Item) Archive(_ context.Context, itemID id.ItemID, projectID id.ProjectID, archived bool) error {
+func (r *Item) Archive(_ context.Context, itemID id.ItemID, _ id.ProjectID, archived bool) error {
 	if r.err != nil {
 		return r.err
 	}
@@ -235,13 +235,13 @@ func (r *Item) Len() int {
 	return r.data.Len()
 }
 
-func sortItems(items []*version.Value[*item.Item]) {
-	slices.SortStableFunc(items, func(a, b *version.Value[*item.Item]) int {
+func sortItems(items []*version.Version[item.Item, item.Meta]) {
+	slices.SortStableFunc(items, func(a, b *version.Version[item.Item, item.Meta]) int {
 		return a.Value().Timestamp().Compare(b.Value().Timestamp())
 	})
 }
 
-func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) Search(_ context.Context, _ schema.Package, q *item.Query, _ *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	// TODO: support filters, sort, and pagination
 	if r.err != nil {
 		return nil, nil, r.err
@@ -250,7 +250,7 @@ func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagin
 	var res item.VersionedList
 	qq := q.Q()
 
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+	r.data.Range(func(k item.ID, v *version.Versions[item.Item, item.Meta]) bool {
 		it := v.Get(version.Latest.OrVersion())
 		itv := it.Value()
 		_, searchMatched := lo.Find(itv.Fields(), func(f *item.Field) bool {
@@ -279,7 +279,7 @@ func (r *Item) FindByModelAndValue(_ context.Context, modelID id.ModelID, fields
 	}
 
 	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
+	r.data.Range(func(k item.ID, v *version.Versions[item.Item, item.Meta]) bool {
 		itv := v.Get(ref.OrLatest().OrVersion())
 		it := itv.Value()
 		if it.Model() == modelID {

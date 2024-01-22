@@ -18,7 +18,7 @@ func TestBuilder_Build(t *testing.T) {
 		project:   NewProjectID(),
 		items: ItemList{{
 			item:    NewItemID(),
-			pointer: version.New().OrRef(),
+			pointer: version.NewID().OrRef(),
 		}},
 		title:       "title",
 		description: "desc",
@@ -143,7 +143,7 @@ func TestBuilder_Build(t *testing.T) {
 					createdBy: NewUserID(),
 					items: ItemList{{
 						item:    NewItemID(),
-						pointer: version.New().OrRef(),
+						pointer: version.NewID().OrRef(),
 					}},
 				},
 			},
@@ -152,7 +152,7 @@ func TestBuilder_Build(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(tt *testing.T) {
-			//tt.Parallel()
+			// tt.Parallel()
 			b := &Builder{
 				r: tc.fields.r,
 			}
@@ -210,7 +210,7 @@ func TestBuilder_Items(t *testing.T) {
 	b := &Builder{r: &Request{}}
 	items := ItemList{{
 		item:    NewItemID(),
-		pointer: version.New().OrRef(),
+		pointer: version.NewID().OrRef(),
 	}}
 	b.Items(items)
 	assert.Equal(t, items, b.r.Items())

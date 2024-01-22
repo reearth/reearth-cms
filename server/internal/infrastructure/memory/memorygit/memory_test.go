@@ -6,32 +6,32 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 )
 
 func TestVersionedSyncMap_Load(t *testing.T) {
-	vx := version.New()
-	vsm := &VersionedSyncMap[string, string]{
-		m: util.SyncMapFrom(map[string]*version.Values[string]{
-			"a": version.MustBeValues(
-				version.NewValue(vx, nil, nil, time.Time{}, "A"),
+	vx := version.NewID()
+	vsm := &VersionedSyncMap[string, string, string]{
+		m: util.SyncMapFrom(map[string]*version.Versions[string, string]{
+			"a": version.NewVersions[string, string](
+				version.NewValue(vx, nil, nil, time.Time{}, lo.ToPtr("A")),
 			),
-			"b": version.MustBeValues(
-				version.NewValue(vx, nil, version.NewRefs("a"), time.Time{}, "B"),
+			"b": version.NewVersions[string, string](
+				version.NewValue(vx, nil, version.NewRefs("a"), time.Time{}, lo.ToPtr("B")),
 			),
 		}),
 	}
 
 	tests := []struct {
 		name  string
-		m     *VersionedSyncMap[string, string]
+		m     *VersionedSyncMap[string, string, string]
 		input struct {
 			key string
-			vor version.VersionOrRef
+			vor version.IDOrRef
 		}
 		want struct {
-			output string
+			output *string
 			ok     bool
 		}
 	}{
@@ -40,16 +40,16 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			m:    vsm,
 			input: struct {
 				key string
-				vor version.VersionOrRef
+				vor version.IDOrRef
 			}{
 				key: "a",
 				vor: vx.OrRef(),
 			},
 			want: struct {
-				output string
+				output *string
 				ok     bool
 			}{
-				output: "A",
+				output: lo.ToPtr("A"),
 				ok:     true,
 			},
 		},
@@ -58,16 +58,16 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			m:    vsm,
 			input: struct {
 				key string
-				vor version.VersionOrRef
+				vor version.IDOrRef
 			}{
 				key: "b",
 				vor: version.Ref("a").OrVersion(),
 			},
 			want: struct {
-				output string
+				output *string
 				ok     bool
 			}{
-				output: "B",
+				output: lo.ToPtr("B"),
 				ok:     true,
 			},
 		},
@@ -76,16 +76,16 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			m:    vsm,
 			input: struct {
 				key string
-				vor version.VersionOrRef
+				vor version.IDOrRef
 			}{
 				key: "b",
 				vor: version.Ref("xxxx").OrVersion(),
 			},
 			want: struct {
-				output string
+				output *string
 				ok     bool
 			}{
-				output: "",
+				output: nil,
 				ok:     false,
 			},
 		},
@@ -94,16 +94,16 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 			m:    vsm,
 			input: struct {
 				key string
-				vor version.VersionOrRef
+				vor version.IDOrRef
 			}{
 				key: "a",
-				vor: version.New().OrRef(),
+				vor: version.NewID().OrRef(),
 			},
 			want: struct {
-				output string
+				output *string
 				ok     bool
 			}{
-				output: "",
+				output: nil,
 				ok:     false,
 			},
 		},
@@ -114,7 +114,7 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			got, ok := tc.m.Load(tc.input.key, tc.input.vor)
-			if tc.want.output == "" {
+			if tc.want.output == nil {
 				assert.Nil(t, got)
 			} else {
 				assert.Equal(t, tc.want.output, got.Value())
@@ -125,62 +125,62 @@ func TestVersionedSyncMap_Load(t *testing.T) {
 }
 
 func TestVersionedSyncMap_LoadAll(t *testing.T) {
-	vx, vy := version.New(), version.New()
-	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
-		map[string]*version.Values[string]{
-			"a": version.MustBeValues(
-				version.NewValue(vx, nil, nil, time.Time{}, "A"),
+	vx, vy := version.NewID(), version.NewID()
+	vsm := &VersionedSyncMap[string, string, string]{m: util.SyncMapFrom(
+		map[string]*version.Versions[string, string]{
+			"a": version.NewVersions[string, string](
+				version.NewValue(vx, nil, nil, time.Time{}, lo.ToPtr("A")),
 			),
-			"b": version.MustBeValues(
-				version.NewValue(vx, nil, version.NewRefs("a"), time.Time{}, "B"),
+			"b": version.NewVersions[string, string](
+				version.NewValue(vx, nil, version.NewRefs("a"), time.Time{}, lo.ToPtr("B")),
 			),
-			"c": version.MustBeValues(
-				version.NewValue(vx, nil, nil, time.Time{}, "C"),
+			"c": version.NewVersions[string, string](
+				version.NewValue(vx, nil, nil, time.Time{}, lo.ToPtr("C")),
 			),
-			"d": version.MustBeValues(
-				version.NewValue(vy, nil, version.NewRefs("a"), time.Time{}, "D"),
+			"d": version.NewVersions[string, string](
+				version.NewValue(vy, nil, version.NewRefs("a"), time.Time{}, lo.ToPtr("D")),
 			),
 		},
 	)}
 	tests := []struct {
 		name  string
-		m     *VersionedSyncMap[string, string]
+		m     *VersionedSyncMap[string, string, string]
 		input struct {
 			keys []string
-			vor  version.VersionOrRef
+			vor  version.IDOrRef
 		}
-		want []string
+		want []*string
 	}{
 		{
 			name: "should load by version",
 			m:    vsm,
 			input: struct {
 				keys []string
-				vor  version.VersionOrRef
+				vor  version.IDOrRef
 			}{
 				keys: []string{"a", "b"},
 				vor:  vx.OrRef(),
 			},
-			want: []string{"A", "B"},
+			want: []*string{lo.ToPtr("A"), lo.ToPtr("B")},
 		},
 		{
 			name: "should load by ref",
 			m:    vsm,
 			input: struct {
 				keys []string
-				vor  version.VersionOrRef
+				vor  version.IDOrRef
 			}{
 				keys: []string{"b", "d"},
 				vor:  version.Ref("a").OrVersion(),
 			},
-			want: []string{"B", "D"},
+			want: []*string{lo.ToPtr("B"), lo.ToPtr("D")},
 		},
 		{
 			name: "should not load",
 			m:    vsm,
 			input: struct {
 				keys []string
-				vor  version.VersionOrRef
+				vor  version.IDOrRef
 			}{
 				keys: []string{"d"},
 				vor:  vx.OrRef(),
@@ -194,30 +194,30 @@ func TestVersionedSyncMap_LoadAll(t *testing.T) {
 			t.Parallel()
 			got := tc.m.LoadAll(tc.input.keys, &tc.input.vor)
 			got2 := version.UnwrapValues(got)
-			slices.Sort(got2)
+			// slices.Sort(got2)
 			assert.Equal(t, tc.want, got2)
 		})
 	}
 }
 
 func TestVersionedSyncMap_LoadAllVersions(t *testing.T) {
-	vx, vy, vz := version.New(), version.New(), version.New()
-	vsm := &VersionedSyncMap[string, string]{m: util.SyncMapFrom(
-		map[string]*version.Values[string]{
-			"a": version.MustBeValues(
-				version.NewValue(vx, nil, nil, time.Time{}, "A"),
-				version.NewValue(vy, nil, nil, time.Time{}, "B"),
-				version.NewValue(vz, nil, nil, time.Time{}, "C"),
+	vx, vy, vz := version.NewID(), version.NewID(), version.NewID()
+	vsm := &VersionedSyncMap[string, string, string]{m: util.SyncMapFrom(
+		map[string]*version.Versions[string, string]{
+			"a": version.NewVersions[string, string](
+				version.NewValue(vx, version.IDs{}, version.Refs{}, time.Time{}, lo.ToPtr("A")),
+				version.NewValue(vy, version.IDs{}, version.Refs{}, time.Time{}, lo.ToPtr("B")),
+				version.NewValue(vz, version.IDs{}, version.Refs{}, time.Time{}, lo.ToPtr("C")),
 			),
 		},
 	)}
 	tests := []struct {
 		name  string
-		m     *VersionedSyncMap[string, string]
+		m     *VersionedSyncMap[string, string, string]
 		input struct {
 			key string
 		}
-		want *version.Values[string]
+		want *version.Versions[string, string]
 	}{
 		{
 			name: "should load by version",
@@ -227,10 +227,10 @@ func TestVersionedSyncMap_LoadAllVersions(t *testing.T) {
 			}{
 				key: "a",
 			},
-			want: version.MustBeValues(
-				version.NewValue(vx, nil, nil, time.Time{}, "A"),
-				version.NewValue(vy, nil, nil, time.Time{}, "B"),
-				version.NewValue(vz, nil, nil, time.Time{}, "C"),
+			want: version.NewVersions[string, string](
+				version.NewValue(vx, version.IDs{}, version.Refs{}, time.Time{}, lo.ToPtr("A")),
+				version.NewValue(vy, version.IDs{}, version.Refs{}, time.Time{}, lo.ToPtr("B")),
+				version.NewValue(vz, version.IDs{}, version.Refs{}, time.Time{}, lo.ToPtr("C")),
 			),
 		},
 		{
@@ -255,50 +255,53 @@ func TestVersionedSyncMap_LoadAllVersions(t *testing.T) {
 }
 
 func TestVersionedSyncMap_Store(t *testing.T) {
-	vm := &VersionedSyncMap[string, string]{
-		m: util.SyncMapFrom(map[string]*version.Values[string]{}),
+	vm := &VersionedSyncMap[string, string, string]{
+		m: util.SyncMapFrom(map[string]*version.Versions[string, string]{}),
+		a: util.SyncMapFrom(map[string]*version.Versions[string, string]{}),
 	}
+
+	vm.SaveOne("z", lo.ToPtr("x"), nil)
 
 	_, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.False(t, ok)
 
-	vm.SaveOne("a", "b", nil)
+	vm.SaveOne("a", lo.ToPtr("b"), nil)
 	got, ok := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok)
-	assert.Equal(t, "b", got.Value())
+	assert.Equal(t, lo.ToPtr("b"), got.Value())
 
-	vm.SaveOne("a", "c", nil)
+	vm.SaveOne("a", lo.ToPtr("c"), nil)
 	got2, ok2 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok2)
-	assert.Equal(t, "c", got2.Value())
+	assert.Equal(t, lo.ToPtr("c"), got2.Value())
 
-	vm.SaveOne("a", "d", version.Latest.OrVersion().Ref())
+	vm.SaveOne("a", lo.ToPtr("d"), version.Latest.OrVersion().Ref())
 	got3, ok3 := vm.Load("a", version.Latest.OrVersion())
 	assert.True(t, ok3)
-	assert.Equal(t, "d", got3.Value())
+	assert.Equal(t, lo.ToPtr("d"), got3.Value())
 }
 
 func TestVersionedSyncMap_UpdateRef(t *testing.T) {
-	vx := version.New()
+	vx := version.NewID()
 
 	type args struct {
 		key string
 		ref version.Ref
-		vr  *version.VersionOrRef
+		vr  *version.IDOrRef
 	}
 	tests := []struct {
 		name   string
-		target *VersionedSyncMap[string, string]
+		target *VersionedSyncMap[string, string, string]
 		args   args
-		want   *version.Values[string]
+		want   *version.Versions[string, string]
 	}{
 		{
 			name: "set ref",
-			target: &VersionedSyncMap[string, string]{
+			target: &VersionedSyncMap[string, string, string]{
 				m: util.SyncMapFrom(
-					map[string]*version.Values[string]{
-						"1": version.MustBeValues(version.NewValue(vx, nil, nil, time.Time{}, "a")),
-						"2": version.MustBeValues(version.NewValue(vx, nil, nil, time.Time{}, "a")),
+					map[string]*version.Versions[string, string]{
+						"1": version.NewVersions[string, string](version.NewValue(vx, nil, nil, time.Time{}, lo.ToPtr("a"))),
+						"2": version.NewVersions[string, string](version.NewValue(vx, nil, nil, time.Time{}, lo.ToPtr("a"))),
 					},
 				),
 			},
@@ -307,8 +310,8 @@ func TestVersionedSyncMap_UpdateRef(t *testing.T) {
 				ref: "A",
 				vr:  vx.OrRef().Ref(),
 			},
-			want: version.MustBeValues(
-				version.NewValue(vx, nil, version.NewRefs("A"), time.Time{}, "a"),
+			want: version.NewVersions[string, string](
+				version.NewValue(vx, nil, version.NewRefs("A"), time.Time{}, lo.ToPtr("a")),
 			),
 		},
 	}

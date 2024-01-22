@@ -319,7 +319,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	res, err := itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(res[0].Version(), nil, version.NewRefs(version.Latest), now, i1),
+		version.New[item.Item, item.Meta](res[0].Version(), nil, version.NewRefs(version.Latest), now, i1, nil),
 	}, res)
 
 	// second version
@@ -329,8 +329,8 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	res, err = itemUC.FindAllVersionsByID(ctx, id1, op)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(res[0].Version(), nil, nil, now, i1),
-		version.NewValue(res[1].Version(), version.NewVersions(res[0].Version()), version.NewRefs(version.Latest), now, i1),
+		version.New[item.Item, item.Meta](res[0].Version(), nil, nil, now, i1, nil),
+		version.New[item.Item, item.Meta](res[1].Version(), version.NewIDs(res[0].Version()), version.NewRefs(version.Latest), now, i1, nil),
 	}, res)
 
 	// not found

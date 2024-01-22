@@ -40,23 +40,50 @@ type ItemFieldDocument struct {
 	ItemGroup *string
 }
 
+type MetaItemDocument struct {
+	ID        string
+	Project   string
+	Model     string
+	CreatedAt time.Time
+	UpdatedAt *time.Time
+	Status    string
+
+	// TODO: add meta item fields later
+	// Fields    []ItemFieldDocument
+}
+
 type ItemConsumer = mongox.SliceFuncConsumer[*ItemDocument, *item.Item]
 
 func NewItemConsumer() *ItemConsumer {
 	return NewConsumer[*ItemDocument, *item.Item]()
 }
 
-type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDocument], *version.Value[*item.Item]]
+type VersionedItemConsumer = mongox.SliceFuncConsumer[*mongogit.Document[*ItemDocument], *version.Version[item.Item, item.Meta]]
 
 func NewVersionedItemConsumer() *VersionedItemConsumer {
-	return mongox.NewSliceFuncConsumer(func(d *mongogit.Document[*ItemDocument]) (*version.Value[*item.Item], error) {
+	return mongox.NewSliceFuncConsumer(func(d *mongogit.Document[*ItemDocument]) (*version.Version[item.Item, item.Meta], error) {
 		itm, err := d.Data.Model()
 		if err != nil {
 			return nil, err
 		}
 
-		v := mongogit.ToValue(d.Meta, itm)
-		return v, nil
+		var parents version.IDs
+		var refs version.Refs
+		if len(d.Parents) > 0 {
+			parents = version.NewIDs(d.Parents...)
+		}
+		if len(d.Refs) > 0 {
+			refs = version.NewRefs(d.Refs...)
+		}
+
+		return version.New[item.Item, item.Meta](
+			d.Version,
+			parents,
+			refs,
+			d.Timestamp(),
+			itm,
+			nil,
+		), nil
 	})
 }
 
@@ -166,6 +193,14 @@ func (d *ItemDocument) Model() (*item.Item, error) {
 	}
 
 	return ib.Build()
+}
+
+func (d ItemDocument) IDString() string {
+	return d.ID
+}
+
+func (d MetaItemDocument) IDString() string {
+	return d.ID
 }
 
 func NewItems(items item.List) ([]*ItemDocument, []string) {

@@ -26,7 +26,7 @@ import (
 
 func TestRequest_FindByID(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 	wid := accountdomain.NewWorkspaceID()
 
 	req1 := request.New().
@@ -122,7 +122,7 @@ func TestRequest_FindByID(t *testing.T) {
 
 func TestRequest_FindByIDs(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 	wid := accountdomain.NewWorkspaceID()
 
 	req1 := request.New().
@@ -229,7 +229,7 @@ func TestRequest_FindByIDs(t *testing.T) {
 
 func TestRequest_FindByProject(t *testing.T) {
 	pid := id.NewProjectID()
-	item, _ := request.NewItemWithVersion(id.NewItemID(), version.New().OrRef())
+	item, _ := request.NewItemWithVersion(id.NewItemID(), version.NewID().OrRef())
 	wid := accountdomain.NewWorkspaceID()
 
 	req1 := request.New().
@@ -357,7 +357,7 @@ func TestRequest_Approve(t *testing.T) {
 	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).MustBuild()
 	m := model.New().NewID().Schema(s.ID()).RandomKey().MustBuild()
 	i := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(prj.ID()).Thread(id.NewThreadID()).MustBuild()
-	item, _ := request.NewItem(i.ID())
+	rItem, _ := request.NewItem(i.ID())
 	wid := accountdomain.NewWorkspaceID()
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
 	req1 := request.New().
@@ -367,7 +367,7 @@ func TestRequest_Approve(t *testing.T) {
 		Reviewers(accountdomain.UserIDList{u.ID()}).
 		CreatedBy(accountdomain.NewUserID()).
 		Thread(id.NewThreadID()).
-		Items(request.ItemList{item}).
+		Items(request.ItemList{rItem}).
 		Title("foo").
 		MustBuild()
 	op := &usecase.Operator{
@@ -400,6 +400,6 @@ func TestRequest_Approve(t *testing.T) {
 	itemUC := NewItem(db, nil)
 	itm, err := itemUC.FindByID(ctx, i.ID(), op)
 	assert.NoError(t, err)
-	expected := version.MustBeValue(itm.Version(), nil, version.NewRefs(version.Public, version.Latest), now, i)
+	expected := version.Must[item.Item, item.Meta](itm.Version(), nil, version.NewRefs(version.Public, version.Latest), now, i, nil)
 	assert.Equal(t, expected, itm)
 }

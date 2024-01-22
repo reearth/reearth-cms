@@ -97,7 +97,7 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	got1, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1),
+		version.New[item.Item, item.Meta](got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1, nil),
 	}, got1)
 
 	defer util.MockNow(nowid2)()
@@ -106,8 +106,8 @@ func TestItem_FindAllVersionsByID(t *testing.T) {
 	got2, err := r.FindAllVersionsByID(ctx, iid)
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(got2[0].Version(), nil, nil, nowid1, i1),
-		version.NewValue(got2[1].Version(), version.NewVersions(got2[0].Version()), version.NewRefs(version.Latest), nowid2, i2),
+		version.New[item.Item, item.Meta](got2[0].Version(), nil, nil, nowid1, i1, nil),
+		version.New[item.Item, item.Meta](got2[1].Version(), version.NewIDs(got2[0].Version()), version.NewRefs(version.Latest), nowid2, i2, nil),
 	}, got2)
 
 	r = r.Filtered(repo.ProjectFilter{
@@ -143,7 +143,7 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 	got1, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1})
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1),
+		version.New[item.Item, item.Meta](got1[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1, nil),
 	}, got1)
 
 	defer util.MockNow(nowid2)()
@@ -152,8 +152,8 @@ func TestItem_FindAllVersionsByIDs(t *testing.T) {
 	got2, err := r.FindAllVersionsByIDs(ctx, id.ItemIDList{iid1, iid2})
 	assert.NoError(t, err)
 	assert.Equal(t, item.VersionedList{
-		version.NewValue(got2[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1),
-		version.NewValue(got2[1].Version(), nil, version.NewRefs(version.Latest), nowid2, i2),
+		version.New[item.Item, item.Meta](got2[0].Version(), nil, version.NewRefs(version.Latest), nowid1, i1, nil),
+		version.New[item.Item, item.Meta](got2[1].Version(), nil, version.NewRefs(version.Latest), nowid2, i2, nil),
 	}, got2)
 
 	r = r.Filtered(repo.ProjectFilter{
@@ -351,6 +351,13 @@ func TestItem_Archive(t *testing.T) {
 	iid := id.NewItemID()
 	pid := id.NewProjectID()
 	pid2 := id.NewProjectID()
+
+	mid := id.NewModelID()
+	sid := id.NewSchemaID()
+	sf1 := id.NewFieldID()
+	f1 := item.NewField(sf1, value.TypeText.Value("foo").AsMultiple(), nil)
+	i1 := item.New().ID(iid).Schema(sid).Model(mid).Fields([]*item.Field{f1}).Project(pid).Thread(id.NewThreadID()).MustBuild()
+
 	init := mongotest.Connect(t)
 	client := mongox.NewClientWithDatabase(init(t))
 	ctx := context.Background()
@@ -359,6 +366,8 @@ func TestItem_Archive(t *testing.T) {
 		Readable: []id.ProjectID{pid},
 		Writable: []id.ProjectID{pid},
 	})
+
+	assert.NoError(t, r.Save(ctx, i1))
 
 	res, err := r.IsArchived(ctx, iid)
 	assert.NoError(t, err)
@@ -377,17 +386,21 @@ func TestItem_Archive(t *testing.T) {
 	assert.NoError(t, err)
 
 	var d bson.M
-	err = client.Database().Collection("item").FindOne(ctx, bson.M{
-		"__": true,
+	err = client.Database().Collection("item_meta").FindOne(ctx, bson.M{
 		"id": iid.String(),
 	}).Decode(&d)
 	assert.NoError(t, err)
 	assert.Equal(t, bson.M{
-		"_id":      d["_id"],
-		"__":       true,
-		"id":       iid.String(),
-		"project":  pid.String(),
-		"archived": true,
+		"__id":      iid.String(),
+		"_id":       d["_id"],
+		"__c":       d["__c"],
+		"__a":       true,
+		"id":        iid.String(),
+		"project":   pid.String(),
+		"model":     mid.String(),
+		"createdat": primitive.DateTime(iid.Timestamp().UnixMilli()),
+		"updatedat": nil,
+		"status":    "",
 	}, d)
 
 	res, err = r.IsArchived(ctx, iid)

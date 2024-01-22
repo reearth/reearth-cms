@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewItem(t *testing.T) {
-	vor := version.New().OrRef()
+	vor := version.NewID().OrRef()
 	iid := id.NewItemID()
 	itm, err := NewItemWithVersion(iid, vor)
 	assert.NoError(t, err)
