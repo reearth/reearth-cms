@@ -1,23 +1,12 @@
 import styled from "@emotion/styled";
-import {
-  Cesium3DTileFeature,
-  Viewer as CesiumViewer,
-  JulianDate,
-  Entity,
-  ProviderViewModel,
-  OpenStreetMapImageryProvider,
-  createDefaultImageryProviderViewModels,
-  createDefaultTerrainProviderViewModels,
-  ArcGISTiledElevationTerrainProvider,
-  ArcGisMapServerImageryProvider,
-  EllipsoidTerrainProvider,
-} from "cesium";
+import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
 import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
+import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
-import ArcgisThumbnail from "./arcgisThumbnail.png";
+import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
 type Props = {
@@ -26,6 +15,7 @@ type Props = {
   properties?: any;
   showDescription?: boolean;
   onSelect?: (id: string | undefined) => void;
+  workspaceSettings?: WorkspaceSettings;
 } & ComponentProps<typeof Viewer>;
 
 const ResiumViewer: React.FC<Props> = ({
@@ -34,6 +24,7 @@ const ResiumViewer: React.FC<Props> = ({
   properties: passedProps,
   showDescription,
   onSelect,
+  workspaceSettings,
   ...props
 }) => {
   const viewer = useRef<CesiumComponentRef<CesiumViewer>>(null);
@@ -83,8 +74,6 @@ const ResiumViewer: React.FC<Props> = ({
     return sortProperties(passedProps ?? properties);
   }, [passedProps, properties]);
 
-  const terrainProvider = useMemo(() => new EllipsoidTerrainProvider(), []);
-
   useEffect(() => {
     if (viewer.current) {
       onGetViewer(viewer.current?.cesiumElement);
@@ -97,129 +86,18 @@ const ResiumViewer: React.FC<Props> = ({
   }, []);
 
   const imagery = useMemo(() => {
-    const result = [];
-    const defaultImagery = createDefaultImageryProviderViewModels();
-    const defaultTile = defaultImagery[0];
-    result.push(
-      new ProviderViewModel({
-        name: "Default",
-        iconUrl: defaultTile.iconUrl,
-        tooltip: "",
-        creationFunction: defaultTile.creationCommand,
-      }),
-    );
-
-    const labelledTile = defaultImagery[1];
-    result.push(
-      new ProviderViewModel({
-        name: "Labelled",
-        iconUrl: labelledTile.iconUrl,
-        tooltip: "",
-        creationFunction: labelledTile.creationCommand,
-      }),
-    );
-
-    const roadMapTile = defaultImagery[2];
-    result.push(
-      new ProviderViewModel({
-        name: "RoadMap",
-        iconUrl: roadMapTile.iconUrl,
-        tooltip: "",
-        creationFunction: roadMapTile.creationCommand,
-      }),
-    );
-
-    const openStreetMapTile = defaultImagery[6];
-    result.push(
-      new ProviderViewModel({
-        name: "OpenStreetMap",
-        iconUrl: openStreetMapTile.iconUrl,
-        tooltip: "",
-        creationFunction: openStreetMapTile.creationCommand,
-      }),
-    );
-
-    const earthAtNightTile = defaultImagery[11];
-    result.push(
-      new ProviderViewModel({
-        name: "Earth at night",
-        iconUrl: earthAtNightTile.iconUrl,
-        tooltip: "",
-        creationFunction: earthAtNightTile.creationCommand,
-      }),
-    );
-
-    result.push(
-      new ProviderViewModel({
-        name: "ESRI Topography",
-        iconUrl:
-          "https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/0/0/0",
-        tooltip: "",
-        creationFunction: () => {
-          return new ArcGisMapServerImageryProvider({
-            url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",
-            credit:
-              "Copyright: Tiles © Esri — Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Communit",
-            enablePickFeatures: false,
-          });
-        },
-      }),
-    );
-    result.push(
-      new ProviderViewModel({
-        name: "Japan GSI Standard Map",
-        iconUrl: "https://maps.gsi.go.jp/xyz/std/0/0/0.png",
-        tooltip: "",
-        creationFunction: () => {
-          return new OpenStreetMapImageryProvider({
-            url: "https://cyberjapandata.gsi.go.jp/xyz/std/",
-          });
-        },
-      }),
-    );
-    return result;
-  }, []);
+    return workspaceSettings?.tiles ? imageryGet(workspaceSettings.tiles.resources) : [];
+  }, [workspaceSettings?.tiles]);
 
   const terrain = useMemo(() => {
-    const result = [];
-    const defaultTerrain = createDefaultTerrainProviderViewModels();
-    const ellipsoid = defaultTerrain[0];
-    result.push(
-      new ProviderViewModel({
-        name: ellipsoid.name,
-        iconUrl: ellipsoid.iconUrl,
-        tooltip: "",
-        creationFunction: ellipsoid.creationCommand,
-      }),
-    );
-    const cesiumWorld = defaultTerrain[1];
-    result.push(
-      new ProviderViewModel({
-        name: cesiumWorld.name,
-        iconUrl: cesiumWorld.iconUrl,
-        tooltip: "",
-        creationFunction: cesiumWorld.creationCommand,
-      }),
-    );
-    result.push(
-      new ProviderViewModel({
-        name: "ArcGIS Terrain",
-        iconUrl: ArcgisThumbnail,
-        tooltip: "",
-        creationFunction: () => {
-          return new ArcGISTiledElevationTerrainProvider({
-            url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
-          });
-        },
-      }),
-    );
-    return result;
-  }, []);
+    return workspaceSettings?.terrains?.enabled
+      ? terrainGet(workspaceSettings.terrains.resources)
+      : [];
+  }, [workspaceSettings?.terrains]);
 
   return (
     <Container>
       <StyledViewer
-        terrainProvider={terrainProvider}
         navigationHelpButton={false}
         homeButton={false}
         projectionPicker={false}
