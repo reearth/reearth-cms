@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import {
   Cesium3DTileFeature,
   Viewer as CesiumViewer,
@@ -16,6 +17,7 @@ import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 
+import ArcgisThumbnail from "./arcgisThumbnail.png";
 import { sortProperties } from "./sortProperty";
 
 type Props = {
@@ -181,10 +183,19 @@ const ResiumViewer: React.FC<Props> = ({
   const terrain = useMemo(() => {
     const result = [];
     const defaultTerrain = createDefaultTerrainProviderViewModels();
+    const ellipsoid = defaultTerrain[0];
+    result.push(
+      new ProviderViewModel({
+        name: ellipsoid.name,
+        iconUrl: ellipsoid.iconUrl,
+        tooltip: "",
+        creationFunction: ellipsoid.creationCommand,
+      }),
+    );
     const cesiumWorld = defaultTerrain[1];
     result.push(
       new ProviderViewModel({
-        name: "",
+        name: cesiumWorld.name,
         iconUrl: cesiumWorld.iconUrl,
         tooltip: "",
         creationFunction: cesiumWorld.creationCommand,
@@ -193,7 +204,7 @@ const ResiumViewer: React.FC<Props> = ({
     result.push(
       new ProviderViewModel({
         name: "ArcGIS Terrain",
-        iconUrl: "",
+        iconUrl: ArcgisThumbnail,
         tooltip: "",
         creationFunction: () => {
           return new ArcGISTiledElevationTerrainProvider({
@@ -206,8 +217,8 @@ const ResiumViewer: React.FC<Props> = ({
   }, []);
 
   return (
-    <div style={{ position: "relative" }}>
-      <Viewer
+    <Container>
+      <StyledViewer
         terrainProvider={terrainProvider}
         navigationHelpButton={false}
         homeButton={false}
@@ -229,7 +240,7 @@ const ResiumViewer: React.FC<Props> = ({
         ref={viewer}
         {...props}>
         {children}
-      </Viewer>
+      </StyledViewer>
       <InfoBox
         infoBoxProps={sortedProperties}
         infoBoxVisibility={infoBoxVisibility && !!selected}
@@ -237,8 +248,18 @@ const ResiumViewer: React.FC<Props> = ({
         description={description}
         onClose={handleClose}
       />
-    </div>
+    </Container>
   );
 };
 
 export default ResiumViewer;
+
+const Container = styled.div`
+  position: "relative";
+`;
+
+const StyledViewer = styled(Viewer)`
+  .cesium-baseLayerPicker-choices {
+    text-align: left;
+  }
+`;
