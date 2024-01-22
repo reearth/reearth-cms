@@ -137,6 +137,9 @@ const Container = styled.div`
 `;
 
 const StyledViewer = styled(Viewer)`
+  .cesium-baseLayerPicker-dropDown {
+    box-sizing: content-box;
+  }
   .cesium-baseLayerPicker-choices {
     text-align: left;
   }
