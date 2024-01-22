@@ -34,7 +34,6 @@ const Settings: React.FC<Props> = ({
   const t = useT();
 
   const [open, setOpen] = useState(false);
-  const [enable, setEnable] = useState(workspaceSettings?.terrains?.enabled);
   const [settings, setSettings] = useState(workspaceSettings);
 
   useEffect(() => {
@@ -54,10 +53,6 @@ const Settings: React.FC<Props> = ({
   const isTileRef = useRef(true);
   const indexRef = useRef<undefined | number>(undefined);
 
-  useEffect(() => {
-    if (settings?.terrains?.enabled) setEnable(settings.terrains.enabled);
-  }, [settings?.terrains?.enabled]);
-
   const onTileModalOpen = (index?: number) => {
     setOpen(true);
     isTileRef.current = true;
@@ -75,7 +70,6 @@ const Settings: React.FC<Props> = ({
   };
 
   const onChange = useCallback((checked: boolean) => {
-    setEnable(checked);
     setSettings(prevState => {
       const copySettings = { id: prevState?.id ?? "", ...prevState };
       if (copySettings.terrains) copySettings.terrains.enabled = checked;
@@ -129,8 +123,8 @@ const Settings: React.FC<Props> = ({
   );
 
   const handleWorkspaceSettingsSave = useCallback(() => {
-    onWorkspaceSettingsUpdate(tiles, terrains, enable);
-  }, [enable, onWorkspaceSettingsUpdate, terrains, tiles]);
+    onWorkspaceSettingsUpdate(tiles, terrains, settings?.terrains?.enabled);
+  }, [onWorkspaceSettingsUpdate, settings?.terrains?.enabled, terrains, tiles]);
 
   return (
     <InnerContent title={t("Settings")}>
@@ -155,10 +149,14 @@ const Settings: React.FC<Props> = ({
         <Title>{t("Terrain")}</Title>
         <SecondaryText>{t("The first one in the list will be the default Terrain.")}</SecondaryText>
         <SwitchWrapper>
-          <Switch checked={enable} onChange={onChange} disabled={!hasPrivilege} />
+          <Switch
+            checked={settings?.terrains?.enabled}
+            onChange={onChange}
+            disabled={!hasPrivilege}
+          />
           <Text>{t("Enable")}</Text>
         </SwitchWrapper>
-        {enable && (
+        {settings?.terrains?.enabled && (
           <>
             {settings?.terrains?.resources?.length ? (
               <Cards
