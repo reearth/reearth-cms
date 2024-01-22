@@ -111,22 +111,32 @@ const FormModal: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
     const { type, name, url, image, cesiumIonAssetId, cesiumIonAccessToken } = values;
-    if (isTile) {
-      const newTile = {
-        tile: {
+    setSettings(prevState => {
+      if (!prevState) return;
+      const copySettings = structuredClone(prevState);
+      if (isTile) {
+        if (!copySettings.tiles) {
+          copySettings.tiles = {
+            resources: [],
+          };
+        }
+        const newTile = {
           id: newID(),
           type: type as TileType,
           props: { name: name ?? "", url: url ?? "", image: image ?? "" },
-        },
-      };
-      if (index === undefined) {
-        tiles.push(newTile);
+        };
+        if (index === undefined) {
+          copySettings.tiles.resources.push(newTile);
+        } else {
+          copySettings.tiles.resources[index] = newTile;
+        }
       } else {
-        tiles[index] = newTile;
-      }
-    } else {
-      const newTerrain = {
-        terrain: {
+        if (!copySettings.terrains) {
+          copySettings.terrains = {
+            resources: [],
+          };
+        }
+        const newTerrain = {
           id: newID(),
           type: type as TerrainType,
           props: {
@@ -136,35 +146,17 @@ const FormModal: React.FC<Props> = ({
             cesiumIonAssetId: cesiumIonAssetId ?? "",
             cesiumIonAccessToken: cesiumIonAccessToken ?? "",
           },
-        },
-      };
-      if (index === undefined) {
-        terrains.push(newTerrain);
-      } else {
-        terrains[index] = newTerrain;
-      }
-    }
-    setSettings(prevState => {
-      if (!prevState) return;
-      const copySettings = structuredClone(prevState);
-      if (copySettings.tiles) {
-        copySettings.tiles.resources = tiles.map(({ tile }) => ({
-          id: tile.id,
-          type: tile.type,
-          props: tile.props,
-        }));
-      }
-      if (copySettings.terrains) {
-        copySettings.terrains.resources = terrains.map(({ terrain }) => ({
-          id: terrain.id,
-          type: terrain.type,
-          props: terrain.props,
-        }));
+        };
+        if (index === undefined) {
+          copySettings.terrains.resources.push(newTerrain);
+        } else {
+          copySettings.terrains.resources[index] = newTerrain;
+        }
       }
       return copySettings;
     });
     onClose();
-  }, [form, index, isTile, onClose, setSettings, terrains, tiles]);
+  }, [form, index, isTile, onClose, setSettings]);
 
   const urlRules = useMemo(
     () => [
