@@ -22,6 +22,7 @@ import {
 } from "@reearth-cms/components/molecules/Workspace/types";
 
 import ArcgisThumbnail from "./arcgisThumbnail.png";
+import NoImage from "./noImage.jpg";
 
 const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
 
@@ -107,7 +108,7 @@ const japanGsi = new ProviderViewModel({
 const urlGet = ({ name, url, image }: UrlResourceProps) => {
   return new ProviderViewModel({
     name,
-    iconUrl: image,
+    iconUrl: image || NoImage,
     tooltip: "",
     creationFunction: () => {
       return new UrlTemplateImageryProvider({
@@ -194,7 +195,7 @@ const cesiumIonGet = ({
 }: CesiumResourceProps) => {
   return new ProviderViewModel({
     name,
-    iconUrl: image,
+    iconUrl: image || NoImage,
     tooltip: "",
     creationFunction: () => {
       return new CesiumTerrainProvider({
