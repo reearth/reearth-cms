@@ -151,7 +151,7 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p
 func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error) {
 	_, span := trace.StartSpan(ctx, "loader/item/search")
 	t := time.Now()
-	defer func() { span.End(); log.Infof("trace: loader/item/search %s", time.Now().Sub(t)) }()
+	defer func() { span.End(); log.Infof("trace: loader/item/search %s", time.Since(t)) }()
 
 	op := getOperator(ctx)
 	q := gqlmodel.ToItemQuery(query)

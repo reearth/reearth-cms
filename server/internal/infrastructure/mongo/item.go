@@ -199,7 +199,7 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 func (r *Item) Search(ctx context.Context, sp schema.Package, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	_, span := trace.StartSpan(ctx, "mongo/item/search")
 	t := time.Now()
-	defer func() { span.End(); log.Infof("trace: mongo/item/search %s", time.Now().Sub(t)) }()
+	defer func() { span.End(); log.Infof("trace: mongo/item/search %s", time.Since(t)) }()
 	// apply basic filter like project, model, schema, keyword search
 	pipeline := []any{basicFilterStage(query)}
 
