@@ -28,6 +28,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
+import { newID } from "@reearth-cms/utils/id";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
@@ -118,7 +119,7 @@ const GroupItem: React.FC<Props> = ({
   const t = useT();
 
   const fields = useMemo(() => group?.schema.fields, [group?.schema.fields]);
-  const itemGroupId = useMemo(() => value, [value]);
+  const itemGroupId = useMemo(() => value ?? newID(), [value]);
 
   return (
     <Collapse collapsible="header" defaultActiveKey={["1"]} style={{ width: 500 }}>
@@ -154,7 +155,7 @@ const GroupItem: React.FC<Props> = ({
                     message: t("Please input field!"),
                   },
                 ]}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
@@ -179,7 +180,7 @@ const GroupItem: React.FC<Props> = ({
                     message: t("Please input field!"),
                   },
                 ]}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
@@ -202,7 +203,7 @@ const GroupItem: React.FC<Props> = ({
                     message: t("Please input field!"),
                   },
                 ]}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
@@ -231,7 +232,7 @@ const GroupItem: React.FC<Props> = ({
                     message: t("Please input field!"),
                   },
                 ]}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
@@ -288,7 +289,7 @@ const GroupItem: React.FC<Props> = ({
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }
@@ -314,7 +315,7 @@ const GroupItem: React.FC<Props> = ({
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }
@@ -334,7 +335,7 @@ const GroupItem: React.FC<Props> = ({
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 valuePropName="checked"
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
@@ -345,7 +346,7 @@ const GroupItem: React.FC<Props> = ({
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
                 <ReferenceFormItem
                   key={field.id}
@@ -364,7 +365,7 @@ const GroupItem: React.FC<Props> = ({
               <StyledFormItem
                 key={field.id}
                 extra={field.description}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }
@@ -411,7 +412,7 @@ const GroupItem: React.FC<Props> = ({
                     message: t("Please input field!"),
                   },
                 ]}
-                name={[field.id, itemGroupId ?? ""]}
+                name={[field.id, itemGroupId]}
                 label={
                   <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
                 }>
