@@ -1,6 +1,4 @@
 import {
-  createDefaultImageryProviderViewModels,
-  createDefaultTerrainProviderViewModels,
   ProviderViewModel,
   ArcGisMapServerImageryProvider,
   OpenStreetMapImageryProvider,
@@ -8,6 +6,12 @@ import {
   UrlTemplateImageryProvider,
   CesiumTerrainProvider,
   IonResource,
+  EllipsoidTerrainProvider,
+  createWorldTerrainAsync,
+  buildModuleUrl,
+  createWorldImageryAsync,
+  IonWorldImageryStyle,
+  IonImageryProvider,
 } from "cesium";
 
 import {
@@ -21,34 +25,48 @@ import ArcgisThumbnail from "./arcgisThumbnail.png";
 
 const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
 
-const defaultImagery = createDefaultImageryProviderViewModels();
-
-export const defaultTile = new ProviderViewModel({
+const defaultTile = new ProviderViewModel({
   name: "Default",
-  iconUrl: defaultImagery[0].iconUrl,
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
   tooltip: "",
-  creationFunction: defaultImagery[0].creationCommand,
+  creationFunction: () => {
+    return createWorldImageryAsync({
+      style: IonWorldImageryStyle.AERIAL,
+    }) as any;
+  },
 });
 
 const labelled = new ProviderViewModel({
   name: "Labelled",
-  iconUrl: defaultImagery[1].iconUrl,
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerialLabels.png"),
   tooltip: "",
-  creationFunction: defaultImagery[1].creationCommand,
+  creationFunction: () => {
+    return createWorldImageryAsync({
+      style: IonWorldImageryStyle.AERIAL_WITH_LABELS,
+    }) as any;
+  },
 });
 
 const roadMap = new ProviderViewModel({
   name: "RoadMap",
-  iconUrl: defaultImagery[2].iconUrl,
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
   tooltip: "",
-  creationFunction: defaultImagery[2].creationCommand,
+  creationFunction: () => {
+    return createWorldImageryAsync({
+      style: IonWorldImageryStyle.ROAD,
+    }) as any;
+  },
 });
 
 const openStreetMap = new ProviderViewModel({
   name: "OpenStreetMap",
-  iconUrl: defaultImagery[6].iconUrl,
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/openStreetMap.png"),
   tooltip: "",
-  creationFunction: defaultImagery[6].creationCommand,
+  creationFunction: () => {
+    return new OpenStreetMapImageryProvider({
+      url: "https://a.tile.openstreetmap.org/",
+    });
+  },
 });
 
 const esriTopography = new ProviderViewModel({
@@ -68,9 +86,11 @@ const esriTopography = new ProviderViewModel({
 
 const earthAtNight = new ProviderViewModel({
   name: "Earth at night",
-  iconUrl: defaultImagery[11].iconUrl,
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
-  creationFunction: defaultImagery[11].creationCommand,
+  creationFunction: () => {
+    return IonImageryProvider.fromAssetId(3812, {}) as any;
+  },
 });
 
 const japanGsi = new ProviderViewModel({
@@ -133,20 +153,25 @@ export const imageryGet = (tiles: TileResource[]) => {
   return result;
 };
 
-const defaultTerrain = createDefaultTerrainProviderViewModels();
-
 const ellipsoid = new ProviderViewModel({
-  name: defaultTerrain[0].name,
-  iconUrl: defaultTerrain[0].iconUrl,
+  name: "WGS84 Ellipsoid",
+  iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/Ellipsoid.png"),
   tooltip: "",
-  creationFunction: defaultTerrain[0].creationCommand,
+  creationFunction: () => {
+    return new EllipsoidTerrainProvider();
+  },
 });
 
 const cesiumWorld = new ProviderViewModel({
-  name: defaultTerrain[1].name,
-  iconUrl: defaultTerrain[1].iconUrl,
+  name: "Cesium World Terrain",
+  iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
   tooltip: "",
-  creationFunction: defaultTerrain[1].creationCommand,
+  creationFunction: () => {
+    return createWorldTerrainAsync({
+      requestWaterMask: true,
+      requestVertexNormals: true,
+    });
+  },
 });
 
 const arcGis = new ProviderViewModel({
