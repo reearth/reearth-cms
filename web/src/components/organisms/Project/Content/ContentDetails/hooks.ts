@@ -399,18 +399,9 @@ export default () => {
     } else {
       currentItem?.fields?.forEach(field => {
         if (field.itemGroupId) {
-          if (
-            typeof initialValues[field.schemaFieldId] === "object" &&
-            !Array.isArray(initialValues[field.schemaFieldId]) &&
-            !moment.isMoment(initialValues[field.schemaFieldId])
-          ) {
-            initialValues[field.schemaFieldId][field.itemGroupId] =
-              field.type === "Date" ? dateConvert(field.value) : field.value;
-          } else {
-            initialValues[field.schemaFieldId] = {
-              [field.itemGroupId]: field.type === "Date" ? dateConvert(field.value) : field.value,
-            };
-          }
+          initialValues[field.schemaFieldId] = {
+            [field.itemGroupId]: field.type === "Date" ? dateConvert(field.value) : field.value,
+          };
         } else {
           initialValues[field.schemaFieldId] =
             field.type === "Date" ? dateConvert(field.value) : field.value;

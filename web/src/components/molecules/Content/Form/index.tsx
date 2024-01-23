@@ -201,10 +201,32 @@ const ContentForm: React.FC<Props> = ({
       currentLocation.pathname !== nextLocation.pathname && changedKeys.current.size > 0,
   );
 
+  const checkIfSingleGroupField = useCallback(
+    (key: string, value: any) => {
+      return (
+        initialFormValues[key] &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        value !== null
+      );
+    },
+    [initialFormValues],
+  );
+
   const handleValuesChange = useCallback(
     (changedValues: any) => {
       const [key, value] = Object.entries(changedValues)[0];
-      if (
+      if (checkIfSingleGroupField(key, value)) {
+        const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
+        const changedFieldValue = (value as any)[groupFieldKey];
+        if (changedFieldValue && groupFieldValue !== null) {
+          if (JSON.stringify(changedFieldValue) === JSON.stringify(groupFieldValue)) {
+            changedKeys.current.delete(key);
+          } else {
+            changedKeys.current.add(key);
+          }
+        }
+      } else if (
         (!value && !initialFormValues[key]) ||
         JSON.stringify(value) === JSON.stringify(initialFormValues[key])
       ) {
@@ -215,7 +237,7 @@ const ContentForm: React.FC<Props> = ({
         changedKeys.current.add(key);
       }
     },
-    [initialFormValues],
+    [checkIfSingleGroupField, initialFormValues],
   );
 
   useEffect(() => {
@@ -287,6 +309,10 @@ const ContentForm: React.FC<Props> = ({
     [formItemsData],
   );
 
+  const inputValueGet = (value: any) => {
+    return moment.isMoment(value) ? transformMomentToString(value) : value ?? "";
+  };
+
   const handleSubmit = useCallback(async () => {
     try {
       const modelFieldTypes = new Map(
@@ -304,46 +330,42 @@ const ContentForm: React.FC<Props> = ({
         });
       const values = await form.validateFields();
       const metaValues = await metaForm.validateFields();
-      const fields: {
-        schemaFieldId: string;
-        itemGroupId?: string;
-        type: FieldType;
-        value: string;
-      }[] = [];
-      const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
+      const fields: ItemField[] = [];
+      const metaFields: ItemField[] = [];
+
       // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
-        const isGroup =
-          typeof value === "object" && !Array.isArray(value) && !moment.isMoment(value);
-        // group fields
-        if (value && isGroup) {
-          for (const [key1, value1] of Object.entries(value)) {
-            const type1 = groupFieldTypes.get(key) || "";
-            fields.push({
-              value: (moment.isMoment(value1)
-                ? transformMomentToString(value1)
-                : value1 ?? "") as string,
-              schemaFieldId: key,
-              itemGroupId: key1,
-              type: type1 as FieldType,
-            });
+        const modelFieldType = modelFieldTypes.get(key);
+        if (modelFieldType) {
+          fields.push({
+            value: inputValueGet(value),
+            schemaFieldId: key,
+            type: modelFieldType,
+          });
+        } else if (typeof value === "object" && value !== null) {
+          for (const [groupFieldKey, groupFieldValue] of Object.entries(value)) {
+            const groupFieldType = groupFieldTypes.get(key);
+            if (groupFieldType) {
+              fields.push({
+                value: inputValueGet(groupFieldValue),
+                schemaFieldId: key,
+                itemGroupId: groupFieldKey,
+                type: groupFieldType,
+              });
+            }
           }
-          continue;
         }
-        // model fields
-        const type = modelFieldTypes.get(key) || "";
-        fields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
-          schemaFieldId: key,
-          type: type as FieldType,
-        });
       }
+
       for (const [key, value] of Object.entries(metaValues)) {
-        metaFields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
-          schemaFieldId: key,
-          type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
-        });
+        const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
+        if (type) {
+          metaFields.push({
+            value: moment.isMoment(value) ? transformMomentToString(value) : value ?? "",
+            schemaFieldId: key,
+            type,
+          });
+        }
       }
       changedKeys.current.clear();
       if (!itemId) {
