@@ -11,6 +11,7 @@ import {
   TerrainType,
   TileInput,
   TerrainInput,
+  WorkspaceSettings,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
@@ -48,7 +49,7 @@ export interface Props {
   onClose: () => void;
   tiles: TileInput[];
   terrains: TerrainInput[];
-  onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
+  setSettings: React.Dispatch<React.SetStateAction<WorkspaceSettings | undefined>>;
   isTile: boolean;
   index?: number;
 }
@@ -58,7 +59,7 @@ const FormModal: React.FC<Props> = ({
   onClose,
   tiles,
   terrains,
-  onWorkspaceSettingsUpdate,
+  setSettings,
   isTile,
   index,
 }) => {
@@ -110,22 +111,32 @@ const FormModal: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
     const { type, name, url, image, cesiumIonAssetId, cesiumIonAccessToken } = values;
-    if (isTile) {
-      const newTile = {
-        tile: {
+    setSettings(prevState => {
+      if (!prevState) return;
+      const copySettings = structuredClone(prevState);
+      if (isTile) {
+        if (!copySettings.tiles) {
+          copySettings.tiles = {
+            resources: [],
+          };
+        }
+        const newTile = {
           id: newID(),
           type: type as TileType,
           props: { name: name ?? "", url: url ?? "", image: image ?? "" },
-        },
-      };
-      if (index === undefined) {
-        tiles.push(newTile);
+        };
+        if (index === undefined) {
+          copySettings.tiles.resources.push(newTile);
+        } else {
+          copySettings.tiles.resources[index] = newTile;
+        }
       } else {
-        tiles[index] = newTile;
-      }
-    } else {
-      const newTerrain = {
-        terrain: {
+        if (!copySettings.terrains) {
+          copySettings.terrains = {
+            resources: [],
+          };
+        }
+        const newTerrain = {
           id: newID(),
           type: type as TerrainType,
           props: {
@@ -135,17 +146,17 @@ const FormModal: React.FC<Props> = ({
             cesiumIonAssetId: cesiumIonAssetId ?? "",
             cesiumIonAccessToken: cesiumIonAccessToken ?? "",
           },
-        },
-      };
-      if (index === undefined) {
-        terrains.push(newTerrain);
-      } else {
-        terrains[index] = newTerrain;
+        };
+        if (index === undefined) {
+          copySettings.terrains.resources.push(newTerrain);
+        } else {
+          copySettings.terrains.resources[index] = newTerrain;
+        }
       }
-    }
-    onWorkspaceSettingsUpdate(tiles, terrains);
+      return copySettings;
+    });
     onClose();
-  }, [form, index, isTile, onClose, onWorkspaceSettingsUpdate, terrains, tiles]);
+  }, [form, index, isTile, onClose, setSettings]);
 
   const urlRules = useMemo(
     () => [

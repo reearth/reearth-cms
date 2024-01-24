@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -17,33 +17,41 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
-  workspaceSettings?: WorkspaceSettings;
-  tiles: TileInput[];
-  terrains: TerrainInput[];
-  onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
-  onTerrainToggle: (isEnable: boolean) => void;
+  workspaceSettings: WorkspaceSettings;
   hasPrivilege: boolean;
+  onWorkspaceSettingsUpdate: (
+    tiles: TileInput[],
+    terrains: TerrainInput[],
+    isEnable?: boolean,
+  ) => Promise<void>;
 };
 
 const Settings: React.FC<Props> = ({
   workspaceSettings,
-  tiles,
-  terrains,
-  onWorkspaceSettingsUpdate,
-  onTerrainToggle,
   hasPrivilege,
+  onWorkspaceSettingsUpdate,
 }) => {
   const t = useT();
 
   const [open, setOpen] = useState(false);
-  const [enable, setEnable] = useState(workspaceSettings?.terrains?.enabled);
+  const [settings, setSettings] = useState<WorkspaceSettings>();
+
+  useEffect(() => {
+    setSettings(workspaceSettings);
+  }, [workspaceSettings]);
+
+  const tiles: TileInput[] = useMemo(() => {
+    if (!settings?.tiles?.resources) return [];
+    return settings?.tiles?.resources?.map(resource => ({ tile: resource }));
+  }, [settings]);
+
+  const terrains: TerrainInput[] = useMemo(() => {
+    if (!settings?.terrains?.resources) return [];
+    return settings?.terrains?.resources?.map(resource => ({ terrain: resource }));
+  }, [settings]);
 
   const isTileRef = useRef(true);
   const indexRef = useRef<undefined | number>(undefined);
-
-  useEffect(() => {
-    if (workspaceSettings?.terrains?.enabled) setEnable(workspaceSettings.terrains.enabled);
-  }, [workspaceSettings?.terrains?.enabled]);
 
   const onTileModalOpen = (index?: number) => {
     setOpen(true);
@@ -61,34 +69,51 @@ const Settings: React.FC<Props> = ({
     setOpen(false);
   };
 
-  const onChange = (checked: boolean) => {
-    setEnable(checked);
-    onTerrainToggle(checked);
-  };
+  const onChange = useCallback((checked: boolean) => {
+    setSettings(prevState => {
+      if (!prevState) return;
+      const copySettings = structuredClone(prevState);
+      if (copySettings.terrains) copySettings.terrains.enabled = checked;
+      return copySettings;
+    });
+  }, []);
 
-  const handleDelete = (isTile: boolean, index: number) => {
-    if (isTile) {
-      tiles.splice(index, 1);
-    } else {
-      terrains.splice(index, 1);
-    }
-    onWorkspaceSettingsUpdate(tiles, terrains);
-  };
+  const handleDelete = useCallback(
+    (isTile: boolean, index: number) => {
+      if (!settings) return;
+      const copySettings = structuredClone(settings);
+      if (isTile) {
+        copySettings.tiles?.resources?.splice(index, 1);
+      } else {
+        copySettings.terrains?.resources?.splice(index, 1);
+      }
+      setSettings(copySettings);
+    },
+    [settings],
+  );
 
   const handleDragEnd = useCallback(
     (fromIndex: number, toIndex: number, isTile: boolean) => {
       if (toIndex < 0) return;
+      if (!settings) return;
+      const copySettings = structuredClone(settings);
       if (isTile) {
-        const [removed] = tiles.splice(fromIndex, 1);
-        tiles.splice(toIndex, 0, removed);
+        if (!copySettings.tiles?.resources) return;
+        const [removed] = copySettings.tiles.resources.splice(fromIndex, 1);
+        copySettings.tiles.resources.splice(toIndex, 0, removed);
       } else {
-        const [removed] = terrains.splice(fromIndex, 1);
-        terrains.splice(toIndex, 0, removed);
+        if (!copySettings.terrains?.resources) return;
+        const [removed] = copySettings.terrains.resources.splice(fromIndex, 1);
+        copySettings.terrains.resources.splice(toIndex, 0, removed);
       }
-      onWorkspaceSettingsUpdate(tiles, terrains);
+      setSettings(copySettings);
     },
-    [onWorkspaceSettingsUpdate, terrains, tiles],
+    [settings],
   );
+
+  const handleWorkspaceSettingsSave = useCallback(() => {
+    onWorkspaceSettingsUpdate(tiles, terrains, settings?.terrains?.enabled);
+  }, [onWorkspaceSettingsUpdate, settings?.terrains?.enabled, terrains, tiles]);
 
   return (
     <InnerContent title={t("Settings")}>
@@ -97,9 +122,9 @@ const Settings: React.FC<Props> = ({
         description={t("For asset viewer (formats like 3D Tiles, MVT, GeoJSON, CZML ... )")}>
         <Title>{t("Tiles")}</Title>
         <SecondaryText>{t("The first one in the list will be the default Tile.")}</SecondaryText>
-        {workspaceSettings?.tiles?.resources?.length ? (
+        {settings?.tiles?.resources?.length ? (
           <Cards
-            resources={workspaceSettings?.tiles?.resources}
+            resources={settings?.tiles?.resources}
             onModalOpen={onTileModalOpen}
             isTile={true}
             onDelete={handleDelete}
@@ -113,14 +138,18 @@ const Settings: React.FC<Props> = ({
         <Title>{t("Terrain")}</Title>
         <SecondaryText>{t("The first one in the list will be the default Terrain.")}</SecondaryText>
         <SwitchWrapper>
-          <Switch checked={enable} onChange={onChange} disabled={!hasPrivilege} />
+          <Switch
+            checked={settings?.terrains?.enabled}
+            onChange={onChange}
+            disabled={!hasPrivilege}
+          />
           <Text>{t("Enable")}</Text>
         </SwitchWrapper>
-        {enable && (
+        {settings?.terrains?.enabled && (
           <>
-            {workspaceSettings?.terrains?.resources?.length ? (
+            {settings?.terrains?.resources?.length ? (
               <Cards
-                resources={workspaceSettings?.terrains?.resources}
+                resources={settings?.terrains?.resources}
                 onModalOpen={onTerrainModalOpen}
                 isTile={false}
                 onDelete={handleDelete}
@@ -132,13 +161,18 @@ const Settings: React.FC<Props> = ({
             </Button>
           </>
         )}
+        <ButtonWrapper>
+          <Button type="primary" onClick={handleWorkspaceSettingsSave}>
+            {t("Save")}
+          </Button>
+        </ButtonWrapper>
         <FormModal
           open={open}
           onClose={onClose}
           isTile={isTileRef.current}
           tiles={tiles}
           terrains={terrains}
-          onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+          setSettings={setSettings}
           index={indexRef.current}
         />
       </ContentSection>
@@ -169,4 +203,8 @@ const Text = styled.p`
 const SwitchWrapper = styled.div`
   display: flex;
   gap: 8px;
+`;
+
+const ButtonWrapper = styled.div`
+  padding: 12px 0;
 `;
