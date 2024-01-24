@@ -2,7 +2,6 @@ import { Viewer as CesiumViewer } from "cesium";
 import { ComponentProps, useEffect } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
-import Settings from "@reearth-cms/components/molecules/Asset/Viewers/Settings";
 import { compressedFileFormats } from "@reearth-cms/components/molecules/Common/Asset";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { getExtension } from "@reearth-cms/utils/file";
@@ -34,9 +33,8 @@ const Geo3dViewer: React.FC<Props> = ({
   }, [setAssetUrl, url]);
 
   return (
-    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer}>
+    <ResiumViewer {...viewerProps} onGetViewer={onGetViewer} workspaceSettings={workspaceSettings}>
       <Cesium3dTileSetComponent url={url} />
-      <Settings workspaceSettings={workspaceSettings} />
     </ResiumViewer>
   );
 };

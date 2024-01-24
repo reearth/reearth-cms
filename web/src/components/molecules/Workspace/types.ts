@@ -46,13 +46,13 @@ type ResourceList<T> = {
 
 export type Resource = TileResource | TerrainResource;
 
-type TileResource = {
+export type TileResource = {
   id: string;
   type: TileType;
   props: UrlResourceProps;
 };
 
-type TerrainResource = {
+export type TerrainResource = {
   id: string;
   type: TerrainType;
   props: CesiumResourceProps;
@@ -78,13 +78,13 @@ export type TileType =
 
 export type TerrainType = "CESIUM_WORLD_TERRAIN" | "ARC_GIS_TERRAIN" | "CESIUM_ION";
 
-type UrlResourceProps = {
+export type UrlResourceProps = {
   name: string;
   url: string;
   image: string;
 };
 
-type CesiumResourceProps = {
+export type CesiumResourceProps = {
   name: string;
   url: string;
   image: string;
