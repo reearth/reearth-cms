@@ -350,66 +350,68 @@ export default () => {
     [dateConvert],
   );
 
+  const updateValueConvert = useCallback(
+    ({ type, value }: ItemField) => {
+      if (type === "Group") {
+        if (value) {
+          return value;
+        } else {
+          return newID();
+        }
+      } else if (type === "Date") {
+        return dateConvert(value);
+      } else {
+        return value;
+      }
+    },
+    [dateConvert],
+  );
+
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
+
+    const updateInitialValues = (value: any, id: string, itemGroupId: string) => {
+      initialValues[id] = {
+        ...initialValues[id],
+        ...{ [itemGroupId]: value },
+      };
+    };
+
+    const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
+      group?.schema?.fields?.forEach(field => {
+        updateInitialValues(valueGet(field), field.id, itemGroupId);
+      });
+    };
+
     if (!currentItem) {
-      const updateInitialValues = (value: any, id: string, itemGroupId: string) => {
-        if (typeof initialValues[id] === "object" && !Array.isArray(initialValues[id])) {
-          initialValues[id][itemGroupId] = value;
-        } else {
-          initialValues[id] = { [itemGroupId]: value };
-        }
-      };
-
-      const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
-        group?.schema?.fields?.forEach(field => {
-          updateInitialValues(valueGet(field), field.id, itemGroupId);
-        });
-      };
-
       currentModel?.schema.fields.forEach(field => {
-        switch (field.type) {
-          case "Select":
-            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
-            break;
-          case "Integer":
-            initialValues[field.id] = field.typeProperty?.integerDefaultValue;
-            break;
-          case "Asset":
-            initialValues[field.id] = field.typeProperty?.assetDefaultValue;
-            break;
-          case "Group":
-            if (field.multiple) {
-              initialValues[field.id] = [];
-            } else {
-              const id = newID();
-              initialValues[field.id] = id;
-              const group = groups?.find(group => group.id === field.typeProperty?.groupId);
-              if (group) groupInitialValuesUpdate(group, id);
-            }
-            break;
-          case "Date":
-            initialValues[field.id] = dateConvert(field.typeProperty?.defaultValue);
-            break;
-          default:
-            initialValues[field.id] = field.typeProperty?.defaultValue;
-            break;
+        if (field.type === "Group") {
+          if (field.multiple) {
+            initialValues[field.id] = [];
+          } else {
+            const id = newID();
+            initialValues[field.id] = id;
+            const group = groups?.find(group => group.id === field.typeProperty?.groupId);
+            if (group) groupInitialValuesUpdate(group, id);
+          }
+        } else {
+          initialValues[field.id] = valueGet(field);
         }
       });
     } else {
       currentItem?.fields?.forEach(field => {
         if (field.itemGroupId) {
           initialValues[field.schemaFieldId] = {
-            [field.itemGroupId]: field.type === "Date" ? dateConvert(field.value) : field.value,
+            ...initialValues[field.schemaFieldId],
+            ...{ [field.itemGroupId]: updateValueConvert(field) },
           };
         } else {
-          initialValues[field.schemaFieldId] =
-            field.type === "Date" ? dateConvert(field.value) : field.value;
+          initialValues[field.schemaFieldId] = updateValueConvert(field);
         }
       });
     }
     return initialValues;
-  }, [currentItem, currentModel?.schema.fields, dateConvert, groups, valueGet]);
+  }, [currentItem, currentModel?.schema.fields, groups, updateValueConvert, valueGet]);
 
   const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};

@@ -28,7 +28,6 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { newID } from "@reearth-cms/utils/id";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
@@ -119,7 +118,7 @@ const GroupItem: React.FC<Props> = ({
   const t = useT();
 
   const fields = useMemo(() => group?.schema.fields, [group?.schema.fields]);
-  const itemGroupId = useMemo(() => value ?? newID(), [value]);
+  const itemGroupId = useMemo(() => value ?? "", [value]);
 
   return (
     <Collapse collapsible="header" defaultActiveKey={["1"]} style={{ width: 500 }}>
