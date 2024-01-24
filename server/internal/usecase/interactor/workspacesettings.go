@@ -2,6 +2,8 @@ package interactor
 
 import (
 	"context"
+	"errors"
+	"github.com/reearth/reearthx/rerror"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -27,41 +29,33 @@ func (ws *WorkspaceSettings) Fetch(ctx context.Context, wid accountdomain.Worksp
 	return ws.repos.WorkspaceSettings.FindByIDs(ctx, wid)
 }
 
-func (ws *WorkspaceSettings) Create(ctx context.Context, inp interfaces.CreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),
-		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
-			wsb := workspacesettings.New().
-				ID(inp.ID)
-
-			work, err := wsb.Build()
-			if err != nil {
-				return nil, err
-			}
-			err = ws.repos.WorkspaceSettings.Save(ctx, work)
-			if err != nil {
-				return nil, err
-			}
-			return work, nil
-		})
-}
-
-func (ws *WorkspaceSettings) Update(ctx context.Context, inp interfaces.UpdateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
-	work, err := ws.repos.WorkspaceSettings.FindByID(ctx, inp.ID)
-	if err != nil {
+func (ws *WorkspaceSettings) UpdateOrCreate(ctx context.Context, inp interfaces.UpdateOrCreateWorkspaceSettingsParam, op *usecase.Operator) (result *workspacesettings.WorkspaceSettings, err error) {
+	wss, err := ws.repos.WorkspaceSettings.FindByID(ctx, inp.ID)
+	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
+
 	return Run1(ctx, op, ws.repos, Usecase().WithMaintainableWorkspaces(inp.ID).Transaction(),
 		func(ctx context.Context) (_ *workspacesettings.WorkspaceSettings, err error) {
+			if wss == nil {
+				wsb := workspacesettings.New().
+					ID(inp.ID)
+
+				wss, err = wsb.Build()
+				if err != nil {
+					return nil, err
+				}
+			}
 			if inp.Tiles != nil {
-				work.SetTiles(inp.Tiles)
+				wss.SetTiles(inp.Tiles)
 			}
 			if inp.Terrains != nil {
-				work.SetTerrains(inp.Terrains)
+				wss.SetTerrains(inp.Terrains)
 			}
-			if err := ws.repos.WorkspaceSettings.Save(ctx, work); err != nil {
+			if err := ws.repos.WorkspaceSettings.Save(ctx, wss); err != nil {
 				return nil, err
 			}
-			return work, nil
+			return wss, nil
 		})
 }
 

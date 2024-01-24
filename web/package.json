@@ -79,7 +79,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "4.8.1",
-    "@ant-design/pro-table": "2.80.8",
+    "@ant-design/pro-table": "3.13.11",
     "@apollo/client": "3.7.12",
     "@auth0/auth0-react": "1.12.1",
     "@emotion/react": "11.11.1",

@@ -12,6 +12,9 @@ type propertyAsset struct{}
 type Asset = id.AssetID
 
 func (p *propertyAsset) ToValue(i any) (any, bool) {
+	if i == "" {
+		return nil, true
+	}
 	if v, ok := i.(string); ok {
 		if u, err := id.AssetIDFrom(v); err == nil {
 			return u, true
@@ -36,8 +39,13 @@ func (*propertyAsset) Validate(i any) bool {
 }
 
 func (*propertyAsset) Equal(v, w any) bool {
-	vv := v.(Asset)
-	ww := w.(Asset)
+	var vv, ww Asset
+	if v != nil {
+		vv = v.(Asset)
+	}
+	if w != nil {
+		ww = w.(Asset)
+	}
 	return vv == ww
 }
 

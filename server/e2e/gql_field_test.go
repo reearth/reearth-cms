@@ -133,6 +133,8 @@ type fIds struct {
 	integerFId  string
 	urlFId      string
 	dateFId     string
+	tagFID      string
+	checkFid    string
 }
 
 func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds {
@@ -194,7 +196,28 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 	dateFId, _ := createField(e, mId, "date", "date", "date",
 		false, false, false, false, "Date",
 		map[string]any{
-			"date": map[string]any{},
+			"date": map[string]any{
+				"defaultValue": "2024-01-01T18:06:09+09:00",
+			},
+		})
+	tagFId, _ := createField(e, mId, "tag", "tag", "m_tag",
+		false, false, false, false, "Tag",
+		map[string]any{
+			"tag": map[string]any{
+				"tags": []any{
+					map[string]any{"name": "Tag1", "color": "RED"},
+					map[string]any{"name": "Tag2", "color": "MAGENTA"},
+					map[string]any{"name": "Tag3", "color": "GREEN"},
+					map[string]any{"name": "Tag4", "color": "BLUE"},
+					map[string]any{"name": "Tag5", "color": "GOLD"},
+				},
+			},
+		})
+
+	checkboxFId, _ := createField(e, mId, "checkbox", "checkbox", "m_checkbox",
+		false, false, false, false, "Checkbox",
+		map[string]any{
+			"checkbox": map[string]any{},
 		})
 
 	_, _, res := getModel(e, mId)
@@ -216,6 +239,8 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		integerFId,
 		urlFId,
 		dateFId,
+		tagFId,
+		checkboxFId,
 	}, ids)
 
 	return fIds{
@@ -228,6 +253,8 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		integerFId:  integerFId,
 		urlFId:      urlFId,
 		dateFId:     dateFId,
+		tagFID:      tagFId,
+		checkFid:    checkboxFId,
 	}
 }
 
@@ -378,4 +405,75 @@ func TestCreateField(t *testing.T) {
 		Value("node").Object().
 		HasValue("id", mId)
 
+}
+
+func TestClearFieldDefaultValue(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+
+	mId, _ := createModel(e, pId, "test", "test", "test-1")
+
+	dateFId, _ := createField(e, mId, "date", "date", "m_date",
+		false, false, false, false, "Date",
+		map[string]any{
+			"date": map[string]any{
+				"defaultValue": "2024-01-01T18:06:09+09:00",
+			},
+		})
+	intFid, _ := createField(e, mId, "integer", "integer", "integer",
+		false, false, false, false, "Integer",
+		map[string]any{
+			"integer": map[string]any{
+				"defaultValue": 9,
+				"min":          nil,
+				"max":          nil,
+			},
+		})
+	selectFId, _ := createField(e, mId, "select", "select", "select",
+		false, false, false, false, "Select",
+		map[string]any{
+			"select": map[string]any{
+				"defaultValue": "s1",
+				"values":       []any{"s1", "s2", "s3"},
+			},
+		})
+	_, _, res := getModel(e, mId)
+
+	dv := res.Path("$.data.node.schema.fields[:].typeProperty.defaultValue").Raw().([]any)
+
+	assert.Equal(t, []any{"2024-01-01T18:06:09+09:00", float64(9), "s1"}, dv)
+
+	_, _ = updateField(e, mId, dateFId, "date", "date", "m_date",
+		false, false, false, false, nil, "Date",
+		map[string]any{
+			"date": map[string]any{
+				"defaultValue": "",
+			},
+		})
+	_, _ = updateField(e, mId, intFid, "integer", "integer", "integer",
+		false, false, false, false, nil, "Integer",
+		map[string]any{
+			"integer": map[string]any{
+				"defaultValue": "",
+			},
+		})
+
+	_, _ = updateField(e, mId, selectFId, "select", "select", "select",
+		false, false, false, false, nil, "Select",
+		map[string]any{
+			"select": map[string]any{
+				"defaultValue": "",
+				"values":       []any{"s1", "s2", "s3"},
+			},
+		})
+	_, _, res = getModel(e, mId)
+
+	res.Object().
+		Value("data").Object().
+		Value("node").Object().
+		HasValue("id", mId)
+	dv = res.Path("$.data.node.schema.fields[:].typeProperty.defaultValue").Raw().([]any)
+
+	assert.Equal(t, []any{nil, nil, nil}, dv)
 }

@@ -10,7 +10,7 @@ export type Props = {
   onWorkspaceUpdate: (name?: string | undefined) => Promise<void>;
 };
 
-const WorkspaceForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) => {
+const WorkspaceGeneralForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) => {
   const [form] = Form.useForm();
   const t = useT();
 
@@ -35,10 +35,10 @@ const WorkspaceForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) =>
         <Input />
       </Form.Item>
       <Button onClick={handleSubmit} type="primary" htmlType="submit">
-        {t("Save")}
+        {t("Save changes")}
       </Button>
     </Form>
   );
 };
 
-export default WorkspaceForm;
+export default WorkspaceGeneralForm;

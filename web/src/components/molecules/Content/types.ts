@@ -2,11 +2,13 @@ import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
 
+export type ItemValue = string | string[] | number | number[] | boolean | boolean[];
+
 export type ItemField = {
   schemaFieldId: string;
   itemGroupId?: string;
   type: FieldType;
-  value: any;
+  value: ItemValue;
 };
 
 export type Item = {

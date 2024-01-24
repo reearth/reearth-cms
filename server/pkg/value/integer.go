@@ -16,6 +16,9 @@ type propertyInteger struct{}
 type Integer = int64
 
 func (p *propertyInteger) ToValue(i any) (any, bool) {
+	if i == "" {
+		return nil, true
+	}
 	switch v := i.(type) {
 	case float64:
 		if !math.IsNaN(v) {
@@ -151,8 +154,13 @@ func (*propertyInteger) Validate(i any) bool {
 }
 
 func (*propertyInteger) Equal(v, w any) bool {
-	vv := v.(Integer)
-	ww := w.(Integer)
+	var vv, ww Integer
+	if v != nil {
+		vv = v.(Integer)
+	}
+	if w != nil {
+		ww = w.(Integer)
+	}
 	return vv == ww
 }
 

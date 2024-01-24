@@ -2498,8 +2498,6 @@ const (
 	TileTypeDefault             TileType = "DEFAULT"
 	TileTypeLabelled            TileType = "LABELLED"
 	TileTypeRoadMap             TileType = "ROAD_MAP"
-	TileTypeStamenWatercolor    TileType = "STAMEN_WATERCOLOR"
-	TileTypeStamenToner         TileType = "STAMEN_TONER"
 	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
 	TileTypeEsriTopography      TileType = "ESRI_TOPOGRAPHY"
 	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
@@ -2511,8 +2509,6 @@ var AllTileType = []TileType{
 	TileTypeDefault,
 	TileTypeLabelled,
 	TileTypeRoadMap,
-	TileTypeStamenWatercolor,
-	TileTypeStamenToner,
 	TileTypeOpenStreetMap,
 	TileTypeEsriTopography,
 	TileTypeEarthAtNight,
@@ -2522,7 +2518,7 @@ var AllTileType = []TileType{
 
 func (e TileType) IsValid() bool {
 	switch e {
-	case TileTypeDefault, TileTypeLabelled, TileTypeRoadMap, TileTypeStamenWatercolor, TileTypeStamenToner, TileTypeOpenStreetMap, TileTypeEsriTopography, TileTypeEarthAtNight, TileTypeJapanGsiStandardMap, TileTypeURL:
+	case TileTypeDefault, TileTypeLabelled, TileTypeRoadMap, TileTypeOpenStreetMap, TileTypeEsriTopography, TileTypeEarthAtNight, TileTypeJapanGsiStandardMap, TileTypeURL:
 		return true
 	}
 	return false
