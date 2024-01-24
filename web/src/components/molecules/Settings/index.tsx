@@ -17,7 +17,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
-  workspaceSettings?: WorkspaceSettings;
+  workspaceSettings: WorkspaceSettings;
   hasPrivilege: boolean;
   onWorkspaceSettingsUpdate: (
     tiles: TileInput[],
@@ -34,11 +34,11 @@ const Settings: React.FC<Props> = ({
   const t = useT();
 
   const [open, setOpen] = useState(false);
-  const [settings, setSettings] = useState(workspaceSettings);
+  const [settings, setSettings] = useState<WorkspaceSettings>();
 
   useEffect(() => {
-    if (!settings) setSettings(workspaceSettings);
-  }, [settings, workspaceSettings]);
+    setSettings(workspaceSettings);
+  }, [workspaceSettings]);
 
   const tiles: TileInput[] = useMemo(() => {
     if (!settings?.tiles?.resources) return [];
@@ -163,7 +163,7 @@ const Settings: React.FC<Props> = ({
         )}
         <ButtonWrapper>
           <Button type="primary" onClick={handleWorkspaceSettingsSave}>
-            Save
+            {t("Save")}
           </Button>
         </ButtonWrapper>
         <FormModal
