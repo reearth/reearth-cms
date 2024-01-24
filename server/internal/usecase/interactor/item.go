@@ -723,7 +723,7 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 	var groupSchemas schema.List
 	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
 		sf := s.Field(field.FieldID())
-		if sf != nil {
+		if sf == nil {
 			continue
 		}
 		var fieldGroup *schema.FieldGroup
