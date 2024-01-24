@@ -255,3 +255,22 @@ func (i *Item) SetMetadataItem(iid id.ItemID) {
 func (i *Item) SetOriginalItem(iid id.ItemID) {
 	i.originalItem = &iid
 }
+
+func (i *Item) Prune(sp *schema.Package) {
+	var filtered, res Fields = lo.Filter(slices.Clone(i.Fields()), func(f *Field, index int) bool {
+		return sp.Field(f.FieldID()) != nil
+	}), Fields{}
+	for _, fd := range filtered {
+		if fd.Type() == value.TypeGroup {
+			gvl, _ := fd.Value().ValuesGroup()
+			for _, gv := range gvl {
+				res = append(res, filtered.FieldsByGroup(gv)...)
+			}
+		}
+		if fd.ItemGroup() == nil {
+			res = append(res, fd)
+		}
+	}
+
+	i.fields = res
+}

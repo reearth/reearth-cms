@@ -296,7 +296,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				Item:            vi.Value(),
 				Model:           m,
 				Schema:          s,
-				GroupSchemas:    groupSchemas,
+				GroupSchemas:    lo.Values(groupSchemas),
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 			},
 			Operator: operator.Operator(),
@@ -393,6 +393,9 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 			}
 		}
 
+		sp := schema.NewPackage(s, nil, groupSchemas)
+		itv.Prune(sp)
+
 		if err := i.repos.Item.Save(ctx, itv); err != nil {
 			return nil, err
 		}
@@ -410,7 +413,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Item:            itv,
 				Model:           m,
 				Schema:          s,
-				GroupSchemas:    groupSchemas,
+				GroupSchemas:    lo.Values(groupSchemas),
 				ReferencedItems: i.getReferencedItems(ctx, fields),
 				Changes:         item.CompareFields(itv.Fields(), oldFields),
 			},
@@ -718,11 +721,14 @@ func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, it *it
 	return nil
 }
 
-func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFieldParam, s *schema.Schema, mId id.ModelID, itemFields item.Fields) (item.Fields, schema.List, error) {
+func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFieldParam, s *schema.Schema, mId id.ModelID, itemFields item.Fields) (item.Fields, map[id.GroupID]*schema.Schema, error) {
 	var res item.Fields
-	var groupSchemas schema.List
+	groupSchemas := map[id.GroupID]*schema.Schema{}
 	for _, field := range itemFields.FieldsByType(value.TypeGroup) {
 		sf := s.Field(field.FieldID())
+		if sf == nil {
+			continue
+		}
 		var fieldGroup *schema.FieldGroup
 		sf.TypeProperty().Match(schema.TypePropertyMatch{
 			Group: func(f *schema.FieldGroup) {
@@ -741,7 +747,7 @@ func (i Item) handleGroupFields(ctx context.Context, params []interfaces.ItemFie
 		}
 
 		if groupSchema != nil {
-			groupSchemas = append(groupSchemas, groupSchema)
+			groupSchemas[group.ID()] = groupSchema
 		}
 
 		mvg, ok := field.Value().ValuesGroup()
