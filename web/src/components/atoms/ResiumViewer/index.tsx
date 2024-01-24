@@ -1,8 +1,6 @@
-import styled from "@emotion/styled";
 import {
   Cesium3DTileFeature,
-  CesiumTerrainProvider,
-  createWorldTerrainAsync,
+  createWorldTerrain,
   Viewer as CesiumViewer,
   JulianDate,
   Entity,
@@ -36,17 +34,6 @@ const ResiumViewer: React.FC<Props> = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selected, select] = useState(false);
-  const [terrainProvider, setTerrainProvider] = useState<CesiumTerrainProvider>();
-
-  useEffect(() => {
-    const setWorldTerrain = async () => {
-      const terrain = await createWorldTerrainAsync();
-      setTerrainProvider(terrain);
-    };
-    if (!terrainProvider) {
-      setWorldTerrain();
-    }
-  }, [terrainProvider]);
 
   const handleClick = useCallback(
     (_movement: CesiumMovementEvent, target: RootEventTarget) => {
@@ -88,6 +75,8 @@ const ResiumViewer: React.FC<Props> = ({
     return sortProperties(passedProps ?? properties);
   }, [passedProps, properties]);
 
+  const terrainProvider = useMemo(() => createWorldTerrain(), []);
+
   useEffect(() => {
     if (viewer.current) {
       onGetViewer(viewer.current?.cesiumElement);
@@ -99,59 +88,38 @@ const ResiumViewer: React.FC<Props> = ({
     setInfoBoxVisibility(true);
   }, []);
 
-  const renderViewer = useCallback(() => {
-    return terrainProvider ? (
-      <>
-        <Viewer
-          terrainProvider={terrainProvider}
-          navigationHelpButton={false}
-          homeButton={false}
-          projectionPicker={false}
-          sceneModePicker={false}
-          baseLayerPicker={false}
-          fullscreenButton={false}
-          vrButton={false}
-          selectionIndicator={false}
-          timeline={false}
-          animation={false}
-          geocoder={false}
-          shouldAnimate={true}
-          onClick={handleClick}
-          onSelectedEntityChange={handleSelect}
-          infoBox={false}
-          ref={viewer}
-          {...props}>
-          {children}
-        </Viewer>
-        <InfoBox
-          infoBoxProps={sortedProperties}
-          infoBoxVisibility={infoBoxVisibility && !!selected}
-          title={title}
-          description={description}
-          onClose={handleClose}
-        />
-      </>
-    ) : null;
-  }, [
-    children,
-    description,
-    handleClick,
-    handleClose,
-    handleSelect,
-    infoBoxVisibility,
-    props,
-    selected,
-    sortedProperties,
-    terrainProvider,
-    title,
-  ]);
-
-  return <Container>{renderViewer()}</Container>;
+  return (
+    <div style={{ position: "relative" }}>
+      <Viewer
+        terrainProvider={terrainProvider}
+        navigationHelpButton={false}
+        homeButton={false}
+        projectionPicker={false}
+        sceneModePicker={false}
+        baseLayerPicker={false}
+        fullscreenButton={false}
+        vrButton={false}
+        selectionIndicator={false}
+        timeline={false}
+        animation={false}
+        geocoder={false}
+        shouldAnimate={true}
+        onClick={handleClick}
+        onSelectedEntityChange={handleSelect}
+        infoBox={false}
+        ref={viewer}
+        {...props}>
+        {children}
+      </Viewer>
+      <InfoBox
+        infoBoxProps={sortedProperties}
+        infoBoxVisibility={infoBoxVisibility && !!selected}
+        title={title}
+        description={description}
+        onClose={handleClose}
+      />
+    </div>
+  );
 };
-
-const Container = styled.div`
-  position: relative;
-  min-height: 240px;
-`;
 
 export default ResiumViewer;
