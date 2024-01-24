@@ -111,7 +111,7 @@
     "react-router-dom": "6.21.0",
     "react-svg": "16.1.31",
     "remark-gfm": "4.0.0",
-    "resium": "1.16.1",
+    "resium": "1.17.2",
     "ulid": "2.3.0"
   }
 }
