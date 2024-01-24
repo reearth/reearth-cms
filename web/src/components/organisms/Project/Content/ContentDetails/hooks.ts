@@ -244,7 +244,7 @@ export default () => {
       metaFields,
     }: {
       schemaId: string;
-      metaSchemaId: string;
+      metaSchemaId?: string;
       fields: ItemField[];
       metaFields: ItemField[];
     }) => {
@@ -383,7 +383,18 @@ export default () => {
       });
     };
 
-    if (!currentItem) {
+    if (currentItem) {
+      currentItem?.fields?.forEach(field => {
+        if (field.itemGroupId) {
+          initialValues[field.schemaFieldId] = {
+            ...initialValues[field.schemaFieldId],
+            ...{ [field.itemGroupId]: updateValueConvert(field) },
+          };
+        } else {
+          initialValues[field.schemaFieldId] = updateValueConvert(field);
+        }
+      });
+    } else {
       currentModel?.schema.fields.forEach(field => {
         if (field.type === "Group") {
           if (field.multiple) {
@@ -398,18 +409,8 @@ export default () => {
           initialValues[field.id] = valueGet(field);
         }
       });
-    } else {
-      currentItem?.fields?.forEach(field => {
-        if (field.itemGroupId) {
-          initialValues[field.schemaFieldId] = {
-            ...initialValues[field.schemaFieldId],
-            ...{ [field.itemGroupId]: updateValueConvert(field) },
-          };
-        } else {
-          initialValues[field.schemaFieldId] = updateValueConvert(field);
-        }
-      });
     }
+
     return initialValues;
   }, [currentItem, currentModel?.schema.fields, groups, updateValueConvert, valueGet]);
 

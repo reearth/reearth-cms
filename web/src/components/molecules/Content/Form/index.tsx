@@ -35,9 +35,14 @@ import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/For
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
-import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
+import {
+  Item,
+  FormItem,
+  ItemField,
+  ItemValue,
+} from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType, Group, Model } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldType, Group, Model, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
@@ -96,7 +101,7 @@ export interface Props {
   setUploadType: (type: UploadType) => void;
   onItemCreate: (data: {
     schemaId: string;
-    metaSchemaId: string;
+    metaSchemaId?: string;
     fields: ItemField[];
     metaFields: ItemField[];
   }) => Promise<void>;
@@ -309,54 +314,58 @@ const ContentForm: React.FC<Props> = ({
     [formItemsData],
   );
 
-  const inputValueGet = (value: any) => {
-    return moment.isMoment(value) ? transformMomentToString(value) : value ?? "";
+  const inputValueGet = (value: ItemValue, multiple: boolean) => {
+    if (multiple) {
+      if (Array.isArray(value)) {
+        return value.map(v => (moment.isMoment(v) ? transformMomentToString(v) : v));
+      } else {
+        return [];
+      }
+    } else {
+      return moment.isMoment(value) ? transformMomentToString(value) : value ?? "";
+    }
   };
 
   const handleSubmit = useCallback(async () => {
     try {
-      const modelFieldTypes = new Map(
-        (model?.schema.fields || []).map(field => [field.id, field.type]),
-      );
+      const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
       const groupIdsInCurrentModel = new Set();
       model?.schema.fields?.forEach(field => {
         if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty?.groupId);
       });
-      const groupFieldTypes = new Map();
+      const groupFields = new Map<string, Field>();
       groups
         ?.filter(group => groupIdsInCurrentModel.has(group.id))
         .forEach(group => {
-          group?.schema.fields?.forEach(field => groupFieldTypes.set(field.id, field.type));
+          group?.schema.fields?.forEach(field => groupFields.set(field.id, field));
         });
       const values = await form.validateFields();
-      const metaValues = await metaForm.validateFields();
       const fields: ItemField[] = [];
-      const metaFields: ItemField[] = [];
-
-      // TODO: improve performance
       for (const [key, value] of Object.entries(values)) {
-        const modelFieldType = modelFieldTypes.get(key);
-        if (modelFieldType) {
+        const modelField = modelFields.get(key);
+        if (modelField) {
           fields.push({
-            value: inputValueGet(value),
+            value: inputValueGet(value as ItemValue, modelField.multiple),
             schemaFieldId: key,
-            type: modelFieldType,
+            type: modelField.type,
           });
         } else if (typeof value === "object" && value !== null) {
           for (const [groupFieldKey, groupFieldValue] of Object.entries(value)) {
-            const groupFieldType = groupFieldTypes.get(key);
-            if (groupFieldType) {
+            const groupField = groupFields.get(key);
+            if (groupField) {
               fields.push({
-                value: inputValueGet(groupFieldValue),
+                value: inputValueGet(groupFieldValue, groupField.multiple),
                 schemaFieldId: key,
                 itemGroupId: groupFieldKey,
-                type: groupFieldType,
+                type: groupField.type,
               });
             }
           }
         }
       }
 
+      const metaValues = await metaForm.validateFields();
+      const metaFields: ItemField[] = [];
       for (const [key, value] of Object.entries(metaValues)) {
         const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
         if (type) {
@@ -367,17 +376,19 @@ const ContentForm: React.FC<Props> = ({
           });
         }
       }
+
       changedKeys.current.clear();
-      if (!itemId) {
-        await onItemCreate?.({
-          schemaId: model?.schema.id as string,
-          metaSchemaId: model?.metadataSchema?.id as string,
-          metaFields,
+
+      if (itemId) {
+        await onItemUpdate?.({
+          itemId: itemId,
           fields,
         });
-      } else {
-        await onItemUpdate?.({
-          itemId: itemId as string,
+      } else if (model?.schema.id) {
+        await onItemCreate?.({
+          schemaId: model?.schema.id,
+          metaSchemaId: model?.metadataSchema?.id,
+          metaFields,
           fields,
         });
       }
