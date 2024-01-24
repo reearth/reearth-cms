@@ -133,7 +133,7 @@ const ResiumViewer: React.FC<Props> = ({
 export default ResiumViewer;
 
 const Container = styled.div`
-  position: "relative";
+  position: relative;
 `;
 
 const StyledViewer = styled(Viewer)`
