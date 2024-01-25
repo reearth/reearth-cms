@@ -71,7 +71,7 @@ export type Props = {
   setUploadType: (type: UploadType) => void;
   onItemCreate: (data: {
     schemaId: string;
-    metaSchemaId: string;
+    metaSchemaId?: string;
     fields: ItemField[];
     metaFields: ItemField[];
   }) => Promise<void>;
