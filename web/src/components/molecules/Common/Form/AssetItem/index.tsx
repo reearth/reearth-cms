@@ -121,7 +121,7 @@ const AssetItem: React.FC<Props> = ({
       {value ? (
         <>
           <AssetDetailsWrapper>
-            <AssetButton enabled={asset && 1} disabled={disabled} onClick={handleClick}>
+            <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
                 <div style={{ marginTop: 8, overflow: "hidden" }}>{asset?.fileName ?? value}</div>
@@ -131,7 +131,7 @@ const AssetItem: React.FC<Props> = ({
               <Link
                 to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
                 target="_blank">
-                <AssetLinkedName enabled={asset && 1} type="link">
+                <AssetLinkedName enabled={!!asset} type="link">
                   {asset?.fileName ?? value + " (removed)"}
                 </AssetLinkedName>
               </Link>
@@ -190,7 +190,7 @@ const AssetItem: React.FC<Props> = ({
   );
 };
 
-const AssetButton = styled(Button)<{ enabled?: number }>`
+const AssetButton = styled(Button)<{ enabled?: boolean }>`
   width: 100px;
   height: 100px;
   border: 1px dashed;
@@ -218,7 +218,7 @@ const AssetLink = styled(Button)`
   }
 `;
 
-const AssetLinkedName = styled(Button)<{ enabled?: number }>`
+const AssetLinkedName = styled(Button)<{ enabled?: boolean }>`
   color: #1890ff;
   color: ${({ enabled }) => (enabled ? "#1890ff" : "#00000040")};
   margin-left: 12px;
