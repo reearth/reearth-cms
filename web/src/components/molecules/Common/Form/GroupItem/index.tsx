@@ -121,24 +121,36 @@ const GroupItem: React.FC<Props> = ({
   const itemGroupId = useMemo(() => value, [value]);
 
   return (
-    <Collapse collapsible="header" defaultActiveKey={["1"]} style={{ width: 500 }}>
+    <StyledCollapse defaultActiveKey={["1"]}>
       <Panel
         header={parentField?.title + (order !== undefined ? ` (${order + 1})` : "")}
         key="1"
         extra={
           order !== undefined && (
             <>
-              <Icon
-                icon="arrowUp"
-                style={{ marginRight: 10, display: disableMoveUp ? "none" : "inline-block" }}
-                onClick={onMoveUp}
-              />
-              <Icon
-                icon="arrowDown"
-                style={{ marginRight: 10, display: disableMoveDown ? "none" : "inline-block" }}
-                onClick={onMoveDown}
-              />
-              <Icon icon="delete" style={{ marginRight: 10 }} onClick={onDelete} />
+              <IconWrapper
+                disabled={disableMoveUp}
+                onClick={e => {
+                  onMoveUp?.();
+                  e.stopPropagation();
+                }}>
+                <Icon icon="arrowUp" />
+              </IconWrapper>
+              <IconWrapper
+                disabled={disableMoveDown}
+                onClick={e => {
+                  onMoveDown?.();
+                  e.stopPropagation();
+                }}>
+                <Icon icon="arrowDown" />
+              </IconWrapper>
+              <IconWrapper
+                onClick={e => {
+                  onDelete?.();
+                  e.stopPropagation();
+                }}>
+                <Icon icon="delete" />
+              </IconWrapper>
             </>
           )
         }>
@@ -429,9 +441,18 @@ const GroupItem: React.FC<Props> = ({
           )}
         </FormItemsWrapper>
       </Panel>
-    </Collapse>
+    </StyledCollapse>
   );
 };
+
+const StyledCollapse = styled(Collapse)`
+  width: 500px;
+`;
+
+const IconWrapper = styled.span<{ disabled?: boolean }>`
+  margin-right: 10px;
+  display: ${({ disabled }) => (disabled ? "none" : "inline-block")};
+`;
 
 const StyledFormItem = styled(Form.Item)`
   width: 468px;
