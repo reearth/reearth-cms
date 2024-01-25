@@ -52,9 +52,11 @@ func (p *Package) Field(fieldID id.FieldID) *Field {
 	if f != nil {
 		return f
 	}
-	f = p.metaSchema.Field(fieldID)
-	if f != nil {
-		return f
+	if p.metaSchema != nil {
+		f = p.metaSchema.Field(fieldID)
+		if f != nil {
+			return f
+		}
 	}
 	for _, s := range p.groupSchemas {
 		f = s.Field(fieldID)
