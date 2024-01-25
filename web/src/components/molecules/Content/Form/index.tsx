@@ -314,7 +314,7 @@ const ContentForm: React.FC<Props> = ({
     [formItemsData],
   );
 
-  const inputValueGet = (value: ItemValue, multiple: boolean) => {
+  const inputValueGet = useCallback((value: ItemValue, multiple: boolean) => {
     if (multiple) {
       if (Array.isArray(value)) {
         return value.map(v => (moment.isMoment(v) ? transformMomentToString(v) : v));
@@ -324,7 +324,7 @@ const ContentForm: React.FC<Props> = ({
     } else {
       return moment.isMoment(value) ? transformMomentToString(value) : value ?? "";
     }
-  };
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -404,8 +404,9 @@ const ContentForm: React.FC<Props> = ({
     form,
     metaForm,
     itemId,
-    onItemCreate,
+    inputValueGet,
     onItemUpdate,
+    onItemCreate,
   ]);
 
   const handleMetaUpdate = useCallback(async () => {
