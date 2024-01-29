@@ -1,13 +1,5 @@
-import {
-  Cartesian3,
-  Model,
-  Viewer,
-  HeadingPitchRoll,
-  Transforms,
-  Ellipsoid,
-  BoundingSphere,
-} from "cesium";
-import { useCallback, useEffect, useRef } from "react";
+import { Cartesian3 } from "cesium";
+import { useCallback, useEffect } from "react";
 import { useCesium } from "resium";
 
 type Props = {
@@ -15,29 +7,24 @@ type Props = {
 };
 
 export const Imagery: React.FC<Props> = ({ url }) => {
-  const { viewer } = useCesium() as { viewer: Viewer | undefined };
-  const modelRef = useRef<Model | undefined>();
+  const { viewer } = useCesium();
 
   const loadModel = useCallback(async () => {
     if (!viewer) return;
-    const position = Cartesian3.ZERO;
-    const hpr = new HeadingPitchRoll(0, 0, 0);
-
-    const model = viewer.scene.primitives.add(
-      Model.fromGltf({
-        url,
-        modelMatrix: Transforms.headingPitchRollToFixedFrame(position, hpr, Ellipsoid.WGS84),
-        show: true,
-      }),
-    );
-
-    modelRef.current = model;
-    viewer.scene.primitives.add(model);
-    model.readyPromise.then(function (model: { boundingSphere: BoundingSphere }) {
-      viewer.camera.flyToBoundingSphere(model.boundingSphere, {
-        duration: 0.5,
-      });
+    viewer.entities.removeAll();
+    const entity = viewer.entities.add({
+      position: Cartesian3.fromDegrees(
+        Math.floor(Math.random() * 360 - 180),
+        Math.floor(Math.random() * 180 - 90),
+        0,
+      ),
+      model: {
+        uri: url,
+        minimumPixelSize: 128,
+        maximumScale: 20000,
+      },
     });
+    viewer.trackedEntity = entity;
   }, [url, viewer]);
 
   useEffect(() => {
