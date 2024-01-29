@@ -3,6 +3,8 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"github.com/reearth/reearthx/log"
+	"go.opencensus.io/trace"
 	"regexp"
 	"time"
 
@@ -31,11 +33,16 @@ var (
 		"modelid",
 		"project",
 		"schema",
-		"fields.schemafield",
+		"fields.f",
+		"fields.v.t",
+		"fields.v.v",
 		"project,schema,!timestamp,!id,__r",
+		"project,__r,modelid,schema,__",
 		"modelid,id,__r",
+		"modelid,!_id,__r",
 		// "__r,assets,project,__", // cannot index parallel arrays
 		"__r,project,__",
+		"__r,asset,project,__",
 		"schema,id,__r,project",
 	}
 )
@@ -190,6 +197,9 @@ func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version
 }
 
 func (r *Item) Search(ctx context.Context, sp schema.Package, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+	_, span := trace.StartSpan(ctx, "mongo/item/search")
+	t := time.Now()
+	defer func() { span.End(); log.Infof("trace: mongo/item/search %s", time.Since(t)) }()
 	// apply basic filter like project, model, schema, keyword search
 	pipeline := []any{basicFilterStage(query)}
 

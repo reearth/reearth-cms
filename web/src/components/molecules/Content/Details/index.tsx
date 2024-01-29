@@ -71,18 +71,12 @@ export type Props = {
   setUploadType: (type: UploadType) => void;
   onItemCreate: (data: {
     schemaId: string;
-    metaSchemaId: string;
+    metaSchemaId?: string;
     fields: ItemField[];
     metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onMetaItemUpdate: (data: {
-    itemId: string;
-    metaItemId?: string;
-    metaSchemaId: string;
-    fields: ItemField[];
-    metaFields: ItemField[];
-  }) => Promise<void>;
+  onMetaItemUpdate: (data: { metaItemId: string; metaFields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;

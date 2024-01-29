@@ -67,6 +67,7 @@ declare global {
       authProvider?: string;
       logoUrl?: string;
       coverImageUrl?: string;
+      cesiumIonAccessToken?: string;
       editorUrl: string;
     };
     REEARTH_E2E_ACCESS_TOKEN?: string;

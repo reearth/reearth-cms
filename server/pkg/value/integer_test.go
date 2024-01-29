@@ -80,6 +80,12 @@ func Test_propertyInteger_ToValue(t *testing.T) {
 			want2: true,
 		},
 		{
+			name:  "empty string",
+			args:  []any{""},
+			want1: nil,
+			want2: true,
+		},
+		{
 			name:  "nil",
 			args:  []any{"foo", (*float64)(nil), (*string)(nil), (*int)(nil), (*json.Number)(nil), nil, math.NaN()},
 			want1: nil,
@@ -138,4 +144,14 @@ func Test_propertyInteger_IsEmpty(t *testing.T) {
 func Test_propertyInteger_Validate(t *testing.T) {
 	assert.True(t, (&propertyInteger{}).Validate(int64(1)))
 	assert.False(t, (&propertyInteger{}).Validate("a"))
+}
+
+func Test_propertyInteger_Equal(t *testing.T) {
+
+	var f1, f2 int64 = 10, 0
+	assert.True(t, (&propertyInteger{}).Equal(f1, f1))
+	assert.True(t, (&propertyInteger{}).Equal(nil, nil))
+	assert.True(t, (&propertyInteger{}).Equal(f2, nil))
+	assert.False(t, (&propertyInteger{}).Equal(nil, f1))
+	assert.False(t, (&propertyInteger{}).Equal(f1, f2))
 }

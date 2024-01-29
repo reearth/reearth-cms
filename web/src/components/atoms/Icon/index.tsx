@@ -65,6 +65,7 @@ const StyledSvg = styled(SVG)<{ color?: string; size?: string }>`
   font-size: 0;
   color: ${({ color }) => color};
   display: inline-block;
+  line-height: 0;
 
   svg {
     width: ${({ size }) => size};

@@ -87,6 +87,7 @@ Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
 Go to Editor: エディタへ移動
+Please enter: 入力してください
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
@@ -108,6 +109,7 @@ Integrations: インテグレーション
 My Integrations: マイインテグレーション
 Role: ロール
 API key: APIキー
+Workspace: ワークスペース
 Account: アカウント
 unique: ユニーク
 Title: タイトル
@@ -159,7 +161,6 @@ is not empty: 空でない
 Ascending: 昇順
 Descending: 降順
 Confirm: 確認
-Please enter: 入力してください
 Add Filter: 絞り込む
 Add Sort: 並び替える
 Control: 操作
@@ -328,6 +329,26 @@ Please input the name of the model!: このモデル名を入力してくださ�
 Model description: モデル概要
 Model key: モデルキー
 Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
+New Tiles: 新しいタイル
+New Terrain: 新しい地形
+Tiles type: タイルの種類
+Terrain type: 地形の種類
+Name of tiles: タイルの名前
+example: ''
+Image URL: イメージURL
+Name of terrain: 地形の名前
+Terrain Cesium Ion asset ID: Terrain Cesium Ion アセットID
+Terrain Cesium Ion access token: Terrain Cesium Ion アクセストークン
+Terrain URL: テラインURL
+Geospatial asset preview setting: 地理空間アセットのプレビュー設定
+For asset viewer (formats like 3D Tiles, MVT, GeoJSON, CZML ... ): アセット・ビューア用 (3D Tiles、MVT、GeoJSON、CZML等のフォーマット)
+Tiles: タイル
+The first one in the list will be the default Tile.: リストの最初のタイルがデフォルトのタイルとなります。
+Add new Tiles option: 新しいタイルを追加
+Terrain: 地形
+The first one in the list will be the default Terrain.: リストの最初の地形がデフォルトの地形となります。
+Enable: 有効
+Add new Terrain option: 新しい地形を追加
 New View: 新しいビュー
 Update View: ビューを更新します
 Submitting: 送信
@@ -435,6 +456,8 @@ Failed to update request roles.: リクエストロールの更新に失敗し�
 Successfully updated request roles!: リクエストロールの更新に成功しました。
 Failed to delete project.: プロジェクトの削除に失敗しました。
 Successfully deleted project!: プロジェクトの削除に成功しました。
+Failed to update workspace.: ワークスペースの更新に失敗しました。
+Successfully updated workspace!: ワークスペースの更新に成功しました。
 Failed to connect integration.: インテグレーションの接続に失敗しました。
 Successfully connected integration to the workspace!: インテグレーションの接続に成功しました。
 Failed to update workspace integration.: ワークスペースのインテグレーションの更新に失敗しました。
@@ -463,7 +486,5 @@ Failed to create integration.: インテグレーションの作成に失敗し�
 Successfully created integration!: インテグレーションの作成に成功しました。
 Failed to create project.: プロジェクトの作成に失敗しました。
 Successfully created project!: プロジェクトの作成に成功しました。
-Failed to update workspace.: ワークスペースの更新に失敗しました。
-Successfully updated workspace!: ワークスペースの更新に成功しました。
 Failed to delete workspace.: ワークスペースの削除に失敗しました。
 Successfully deleted workspace!: ワークスペースの削除に成功しました。
