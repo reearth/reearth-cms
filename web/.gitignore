@@ -26,6 +26,10 @@ dist-ssr
 /storybook-static
 /coverage
 
+# Playwright
+/playwright-report
+/test-results
+
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
 amplify/.config/local-*
