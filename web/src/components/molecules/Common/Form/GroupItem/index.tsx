@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { useCallback, useMemo, MouseEvent } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
@@ -120,25 +120,47 @@ const GroupItem: React.FC<Props> = ({
   const fields = useMemo(() => group?.schema.fields, [group?.schema.fields]);
   const itemGroupId = useMemo(() => value ?? "", [value]);
 
+  const handleMoveUp = useCallback(
+    (e: MouseEvent<HTMLSpanElement>) => {
+      onMoveUp?.();
+      e.stopPropagation();
+    },
+    [onMoveUp],
+  );
+
+  const handleMoveDown = useCallback(
+    (e: MouseEvent<HTMLSpanElement>) => {
+      onMoveDown?.();
+      e.stopPropagation();
+    },
+    [onMoveDown],
+  );
+
+  const handleDelete = useCallback(
+    (e: MouseEvent<HTMLSpanElement>) => {
+      onDelete?.();
+      e.stopPropagation();
+    },
+    [onDelete],
+  );
+
   return (
-    <Collapse collapsible="header" defaultActiveKey={["1"]} style={{ width: 500 }}>
+    <StyledCollapse defaultActiveKey={["1"]}>
       <Panel
         header={parentField?.title + (order !== undefined ? ` (${order + 1})` : "")}
         key="1"
         extra={
           order !== undefined && (
             <>
-              <Icon
-                icon="arrowUp"
-                style={{ marginRight: 10, display: disableMoveUp ? "none" : "inline-block" }}
-                onClick={onMoveUp}
-              />
-              <Icon
-                icon="arrowDown"
-                style={{ marginRight: 10, display: disableMoveDown ? "none" : "inline-block" }}
-                onClick={onMoveDown}
-              />
-              <Icon icon="delete" style={{ marginRight: 10 }} onClick={onDelete} />
+              <IconWrapper disabled={disableMoveUp} onClick={handleMoveUp}>
+                <Icon icon="arrowUp" />
+              </IconWrapper>
+              <IconWrapper disabled={disableMoveDown} onClick={handleMoveDown}>
+                <Icon icon="arrowDown" />
+              </IconWrapper>
+              <IconWrapper onClick={handleDelete}>
+                <Icon icon="delete" />
+              </IconWrapper>
             </>
           )
         }>
@@ -429,9 +451,18 @@ const GroupItem: React.FC<Props> = ({
           )}
         </FormItemsWrapper>
       </Panel>
-    </Collapse>
+    </StyledCollapse>
   );
 };
+
+const StyledCollapse = styled(Collapse)`
+  width: 500px;
+`;
+
+const IconWrapper = styled.span<{ disabled?: boolean }>`
+  margin-right: 10px;
+  display: ${({ disabled }) => (disabled ? "none" : "inline-block")};
+`;
 
 const StyledFormItem = styled(Form.Item)`
   width: 468px;
