@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	projectIndexes       = []string{"alias", "workspace"}
+	projectIndexes       = []string{"workspace"}
 	projectUniqueIndexes = []string{"id"}
 )
 

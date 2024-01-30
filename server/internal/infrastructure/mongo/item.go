@@ -3,10 +3,11 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"github.com/reearth/reearthx/log"
-	"go.opencensus.io/trace"
 	"regexp"
 	"time"
+
+	"github.com/reearth/reearthx/log"
+	"go.opencensus.io/trace"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongogit"
@@ -40,7 +41,7 @@ var (
 		"project,__r,modelid,schema,__",
 		"modelid,id,__r",
 		"modelid,!_id,__r",
-		// "__r,assets,project,__", // cannot index parallel arrays
+		"__r,assets,project,__",
 		"__r,project,__",
 		"__r,asset,project,__",
 		"schema,id,__r,project",
