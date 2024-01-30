@@ -212,11 +212,20 @@ const ContentForm: React.FC<Props> = ({
         initialFormValues[key] &&
         typeof value === "object" &&
         !Array.isArray(value) &&
+        !moment.isMoment(value) &&
         value !== null
       );
     },
     [initialFormValues],
   );
+
+  const emptyConvert = useCallback((value: any) => {
+    if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
+      return undefined;
+    } else {
+      return value;
+    }
+  }, []);
 
   const handleValuesChange = useCallback(
     (changedValues: any) => {
@@ -224,25 +233,23 @@ const ContentForm: React.FC<Props> = ({
       if (checkIfSingleGroupField(key, value)) {
         const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
         const changedFieldValue = (value as any)[groupFieldKey];
-        if (changedFieldValue && groupFieldValue !== null) {
-          if (JSON.stringify(changedFieldValue) === JSON.stringify(groupFieldValue)) {
-            changedKeys.current.delete(key);
-          } else {
-            changedKeys.current.add(key);
-          }
+        if (
+          JSON.stringify(emptyConvert(changedFieldValue)) ===
+          JSON.stringify(emptyConvert(groupFieldValue))
+        ) {
+          changedKeys.current.delete(key);
+        } else if (changedFieldValue !== undefined) {
+          changedKeys.current.add(key);
         }
       } else if (
-        (!value && !initialFormValues[key]) ||
-        JSON.stringify(value) === JSON.stringify(initialFormValues[key])
+        JSON.stringify(emptyConvert(value)) === JSON.stringify(emptyConvert(initialFormValues[key]))
       ) {
         changedKeys.current.delete(key);
-      } else if (Array.isArray(value) && value.length === 0) {
-        return;
       } else {
         changedKeys.current.add(key);
       }
     },
-    [checkIfSingleGroupField, initialFormValues],
+    [checkIfSingleGroupField, emptyConvert, initialFormValues],
   );
 
   useEffect(() => {
