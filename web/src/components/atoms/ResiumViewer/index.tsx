@@ -32,13 +32,17 @@ const ResiumViewer: React.FC<Props> = ({
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selected, select] = useState(false);
+
+  const setSortedProperties = useCallback((properties: any) => {
+    setProperties(sortProperties(properties));
+  }, []);
 
   const handleClick = useCallback(
     (_movement: CesiumMovementEvent, target: RootEventTarget) => {
       if (!target) {
-        setProperties(undefined);
+        setSortedProperties(undefined);
         onSelect?.(undefined);
+        setInfoBoxVisibility(false);
         return;
       }
 
@@ -61,18 +65,14 @@ const ResiumViewer: React.FC<Props> = ({
       }
 
       setInfoBoxVisibility(true);
-      setProperties(props);
+      setSortedProperties(props);
     },
-    [onSelect, showDescription],
+    [onSelect, setSortedProperties, showDescription],
   );
 
   const handleClose = useCallback(() => {
     setInfoBoxVisibility(false);
   }, []);
-
-  const sortedProperties: any = useMemo(() => {
-    return sortProperties(passedProps ?? properties);
-  }, [passedProps, properties]);
 
   useEffect(() => {
     if (viewer.current) {
@@ -80,9 +80,12 @@ const ResiumViewer: React.FC<Props> = ({
     }
   }, [onGetViewer]);
 
-  const handleSelect = useCallback(() => {
-    select(!!viewer.current?.cesiumElement?.selectedEntity);
-  }, []);
+  useEffect(() => {
+    if (passedProps) {
+      setSortedProperties(passedProps);
+      setInfoBoxVisibility(true);
+    }
+  }, [passedProps, setSortedProperties]);
 
   const imagery = useMemo(() => {
     return workspaceSettings?.tiles ? imageryGet(workspaceSettings.tiles.resources) : [];
@@ -113,15 +116,14 @@ const ResiumViewer: React.FC<Props> = ({
         geocoder={false}
         shouldAnimate={true}
         onClick={handleClick}
-        onSelectedEntityChange={handleSelect}
         infoBox={false}
         ref={viewer}
         {...props}>
         {children}
       </StyledViewer>
       <InfoBox
-        infoBoxProps={sortedProperties}
-        infoBoxVisibility={infoBoxVisibility && !!selected}
+        infoBoxProps={properties}
+        infoBoxVisibility={infoBoxVisibility}
         title={title}
         description={description}
         onClose={handleClose}
