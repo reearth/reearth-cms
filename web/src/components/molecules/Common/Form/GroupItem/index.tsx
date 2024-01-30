@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { useCallback, useMemo, MouseEvent } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
@@ -120,6 +120,30 @@ const GroupItem: React.FC<Props> = ({
   const fields = useMemo(() => group?.schema.fields, [group?.schema.fields]);
   const itemGroupId = useMemo(() => value ?? "", [value]);
 
+  const handleMoveUp = useCallback(
+    (e: MouseEvent<HTMLSpanElement>) => {
+      onMoveUp?.();
+      e.stopPropagation();
+    },
+    [onMoveUp],
+  );
+
+  const handleMoveDown = useCallback(
+    (e: MouseEvent<HTMLSpanElement>) => {
+      onMoveDown?.();
+      e.stopPropagation();
+    },
+    [onMoveDown],
+  );
+
+  const handleDelete = useCallback(
+    (e: MouseEvent<HTMLSpanElement>) => {
+      onDelete?.();
+      e.stopPropagation();
+    },
+    [onDelete],
+  );
+
   return (
     <StyledCollapse defaultActiveKey={["1"]}>
       <Panel
@@ -128,27 +152,13 @@ const GroupItem: React.FC<Props> = ({
         extra={
           order !== undefined && (
             <>
-              <IconWrapper
-                disabled={disableMoveUp}
-                onClick={e => {
-                  onMoveUp?.();
-                  e.stopPropagation();
-                }}>
+              <IconWrapper disabled={disableMoveUp} onClick={handleMoveUp}>
                 <Icon icon="arrowUp" />
               </IconWrapper>
-              <IconWrapper
-                disabled={disableMoveDown}
-                onClick={e => {
-                  onMoveDown?.();
-                  e.stopPropagation();
-                }}>
+              <IconWrapper disabled={disableMoveDown} onClick={handleMoveDown}>
                 <Icon icon="arrowDown" />
               </IconWrapper>
-              <IconWrapper
-                onClick={e => {
-                  onDelete?.();
-                  e.stopPropagation();
-                }}>
+              <IconWrapper onClick={handleDelete}>
                 <Icon icon="delete" />
               </IconWrapper>
             </>
