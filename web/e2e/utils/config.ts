@@ -3,7 +3,7 @@ export const config = {
   userId: process.env["REEARTH_CMS_E2E_USER_ID"],
   userName: process.env["REEARTH_CMS_E2E_USERNAME"],
   password: process.env["REEARTH_CMS_E2E_PASSWORD"],
-  teamId: process.env["REEARTH_CMS_E2E_TEAM_ID"],
+  workspaceId: process.env["REEARTH_CMS_E2E_WORKSPACE_ID"],
   authAudience: process.env["REEARTH_CMS_AUTH0_AUDIENCE"],
   authClientId: process.env["REEARTH_CMS_AUTH0_CLIENT_ID"],
   authUrl: process.env["REEARTH_CMS_AUTH0_DOMAIN"],

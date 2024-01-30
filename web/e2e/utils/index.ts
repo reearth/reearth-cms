@@ -10,7 +10,7 @@ export type Reearth = {
   initUser: () => Promise<{
     token: string;
     userId: string;
-    teamId: string;
+    workspaceId: string;
     userName: string;
   }>;
   goto: Page["goto"];
@@ -69,21 +69,21 @@ export async function initUser(
 ): Promise<{
   token: string;
   userId: string;
-  teamId: string;
+  workspaceId: string;
   userName: string;
 }> {
   if (!token) {
     throw new Error("access token is not initialized");
   }
 
-  const { userName, userId, teamId, api, signUpSecret } = config;
+  const { userName, userId, workspaceId, api, signUpSecret } = config;
 
-  if (!userName || !userId || !teamId || !api) {
+  if (!userName || !userId || !workspaceId || !api) {
     throw new Error(
-      `either userName, userId, teamId and api are missing: ${JSON.stringify({
+      `either userName, userId, workspaceId and api are missing: ${JSON.stringify({
         userName,
         userId,
-        teamId,
+        workspaceId,
         api,
         signUpSecret: signUpSecret ? "***" : "",
       })}`,
@@ -94,13 +94,13 @@ export async function initUser(
 
   const resp = await ctx.post(api + "/graphql", {
     data: {
-      query: `mutation($userId: ID!, $teamId: ID!, $lang: Lang, $secret: String) {
+      query: `mutation($userId: ID!, $workspaceId: ID!, $lang: Lang, $secret: String) {
         deleteMe(input: { userId: $userId }) { userId }
-        signup(input: { lang: $lang, userId: $userId, teamId: $teamId, secret: $secret }) { user { id } }
+        signup(input: { lang: $lang, userId: $userId, workspaceId: $workspaceId, secret: $secret }) { user { id } }
       }`,
       variables: {
         userId,
-        teamId,
+        workspaceId,
         secret: signUpSecret,
         lang: "en",
       },
@@ -116,7 +116,7 @@ export async function initUser(
       `failed to init an user: ${JSON.stringify(body)} with ${JSON.stringify({
         userName,
         userId,
-        teamId,
+        workspaceId,
         api,
         signUpSecret: signUpSecret ? "***" : "",
       })}`,
@@ -127,6 +127,6 @@ export async function initUser(
     token,
     userName,
     userId: body.data.signup.user.id,
-    teamId,
+    workspaceId,
   };
 }
