@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { type APIRequestContext, request, test as base, type Page } from "@playwright/test";
+import { test as base, type Page } from "@playwright/test";
 
 import { config, getAccessToken, type Config } from "./config";
 
@@ -7,12 +7,6 @@ import { config, getAccessToken, type Config } from "./config";
 export { expect } from "@playwright/test";
 
 export type Reearth = {
-  initUser: () => Promise<{
-    token: string;
-    userId: string;
-    workspaceId: string;
-    userName: string;
-  }>;
   goto: Page["goto"];
   token: string | undefined;
   gql: <T = any>(
@@ -29,9 +23,6 @@ export const test = base.extend<{
     use({
       ...config,
       token: getAccessToken(),
-      initUser() {
-        return initUser(this.token || "", request);
-      },
       async goto(url, options) {
         const res = await page.goto(url, options);
         if (this.token) {
@@ -62,71 +53,3 @@ export const test = base.extend<{
     });
   },
 });
-
-export async function initUser(
-  token: string,
-  ctx?: APIRequestContext,
-): Promise<{
-  token: string;
-  userId: string;
-  workspaceId: string;
-  userName: string;
-}> {
-  if (!token) {
-    throw new Error("access token is not initialized");
-  }
-
-  const { userName, userId, workspaceId, api, signUpSecret } = config;
-
-  if (!userName || !userId || !workspaceId || !api) {
-    throw new Error(
-      `either userName, userId, workspaceId and api are missing: ${JSON.stringify({
-        userName,
-        userId,
-        workspaceId,
-        api,
-        signUpSecret: signUpSecret ? "***" : "",
-      })}`,
-    );
-  }
-
-  ctx = ctx || (await request.newContext());
-
-  const resp = await ctx.post(api + "/graphql", {
-    data: {
-      query: `mutation($userId: ID!, $workspaceId: ID!, $lang: Lang, $secret: String) {
-        deleteMe(input: { userId: $userId }) { userId }
-        signup(input: { lang: $lang, userId: $userId, workspaceId: $workspaceId, secret: $secret }) { user { id } }
-      }`,
-      variables: {
-        userId,
-        workspaceId,
-        secret: signUpSecret,
-        lang: "en",
-      },
-    },
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const body = await resp.json();
-  if (!resp.ok() || body.errors) {
-    throw new Error(
-      `failed to init an user: ${JSON.stringify(body)} with ${JSON.stringify({
-        userName,
-        userId,
-        workspaceId,
-        api,
-        signUpSecret: signUpSecret ? "***" : "",
-      })}`,
-    );
-  }
-
-  return {
-    token,
-    userName,
-    userId: body.data.signup.user.id,
-    workspaceId,
-  };
-}
