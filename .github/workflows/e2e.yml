@@ -34,11 +34,11 @@ jobs:
       - name: E2E test
         run: yarn run e2e
         env:
-          REEARTH_CMS_API: https://api.test.reearth.dev/api
+          REEARTH_CMS_API: https://api.cms.test.reearth.dev/api
           REEARTH_CMS_AUTH0_AUDIENCE: ${{ secrets.REEARTH_CMS_AUTH0_AUDIENCE }}
           REEARTH_CMS_AUTH0_CLIENT_ID: ${{ secrets.REEARTH_CMS_AUTH0_CLIENT_ID }}
           REEARTH_CMS_AUTH0_DOMAIN: ${{ secrets.REEARTH_CMS_AUTH0_DOMAIN }}
-          REEARTH_CMS_E2E_BASEURL: https://test.reearth.dev
+          REEARTH_CMS_E2E_BASEURL: https://cms.test.reearth.dev/
           REEARTH_CMS_E2E_USER_ID: ${{ secrets.REEARTH_CMS_E2E_USER_ID }}
           REEARTH_CMS_E2E_WORKSPACE_ID: ${{ secrets.REEARTH_CMS_E2E_WORKSPACE_ID }}
           REEARTH_CMS_E2E_USERNAME: ${{ secrets.REEARTH_CMS_E2E_USERNAME }}
