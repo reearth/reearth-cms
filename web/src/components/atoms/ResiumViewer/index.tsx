@@ -82,7 +82,6 @@ const ResiumViewer: React.FC<Props> = ({
 
   const handleSelect = useCallback(() => {
     select(!!viewer.current?.cesiumElement?.selectedEntity);
-    setInfoBoxVisibility(true);
   }, []);
 
   const imagery = useMemo(() => {
