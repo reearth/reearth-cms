@@ -135,7 +135,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           )
         );
       },
-      width: 75,
+      width: 100,
     },
     {
       title: t("Created At"),
@@ -171,9 +171,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
       render: (_, asset) => {
         if (asset.items.length === 1) {
           return (
-            <Button type="link" onClick={() => onAssetItemSelect(asset?.items[0])}>
+            <StyledButton type="link" onClick={() => onAssetItemSelect(asset?.items[0])}>
               {asset?.items[0].itemId}
-            </Button>
+            </StyledButton>
           );
         }
         if (asset.items.length > 1) {
@@ -197,7 +197,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
           );
         }
       },
-      width: 95,
+      width: 230,
     },
   ];
 
@@ -336,4 +336,8 @@ const StyledProTable = styled(ProTable)<{ isRowSelected: boolean }>`
     overflow: auto !important;
     height: calc(100% - 47px);
   }
+`;
+
+const StyledButton = styled(Button)`
+  padding: 0;
 `;
