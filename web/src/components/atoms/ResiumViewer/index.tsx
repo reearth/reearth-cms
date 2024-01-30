@@ -104,6 +104,7 @@ const ResiumViewer: React.FC<Props> = ({
         sceneModePicker={false}
         baseLayerPicker={true}
         imageryProviderViewModels={imagery}
+        selectedTerrainProviderViewModel={terrain[1]}
         terrainProviderViewModels={terrain}
         fullscreenButton={false}
         vrButton={false}
