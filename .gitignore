@@ -18,3 +18,7 @@ node_modules
 /server/web
 
 /worker/.env
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
