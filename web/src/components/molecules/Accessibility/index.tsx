@@ -9,18 +9,10 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import type { PublicScope, Model } from "@reearth-cms/components/molecules/Accessibility/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type PublicScope = "private" | "public"; // Add "limited" when functionality becomes available
-
-export type Model = {
-  id: string;
-  name?: string;
-  public: boolean;
-  key?: string;
-};
-
-export type ModelDataType = {
+type ModelDataType = {
   id: string;
   name: string;
   public: JSX.Element;
@@ -36,7 +28,6 @@ export type Props = {
   onPublicUpdate?: (
     alias?: string,
     scope?: PublicScope,
-    modelsToUpdate?: Model[],
     assetPublic?: boolean,
   ) => void;
 };
