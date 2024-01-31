@@ -32,6 +32,7 @@ const ResiumViewer: React.FC<Props> = ({
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const mvtClickedFlag = useRef(false);
 
   const setSortedProperties = useCallback((properties: any) => {
     setProperties(sortProperties(properties));
@@ -39,7 +40,10 @@ const ResiumViewer: React.FC<Props> = ({
 
   const handleClick = useCallback(
     (_movement: CesiumMovementEvent, target: RootEventTarget) => {
-      if (!target) {
+      if (mvtClickedFlag.current) {
+        mvtClickedFlag.current = false;
+        return;
+      } else if (!target) {
         setSortedProperties(undefined);
         onSelect?.(undefined);
         setInfoBoxVisibility(false);
@@ -84,6 +88,7 @@ const ResiumViewer: React.FC<Props> = ({
     if (passedProps) {
       setSortedProperties(passedProps);
       setInfoBoxVisibility(true);
+      mvtClickedFlag.current = true;
     }
   }, [passedProps, setSortedProperties]);
 
