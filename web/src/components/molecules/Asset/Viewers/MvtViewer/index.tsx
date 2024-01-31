@@ -1,5 +1,5 @@
 import { Viewer as CesiumViewer } from "cesium";
-import { ComponentProps, useState } from "react";
+import { ComponentProps, useCallback, useState } from "react";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
@@ -15,7 +15,7 @@ type Props = {
 
 const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer, workspaceSettings }) => {
   const [properties, setProperties] = useState<Property>();
-  const handleProperties = (prop: Property) => {
+  const handleProperties = useCallback((prop: Property) => {
     if (typeof prop !== "object" || !prop || typeof prop.attributes !== "string") {
       setProperties(prop);
     } else {
@@ -25,7 +25,7 @@ const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer, workspaceSe
         setProperties(prop);
       }
     }
-  };
+  }, []);
 
   return (
     <ResiumViewer
