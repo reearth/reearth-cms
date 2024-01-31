@@ -93,11 +93,11 @@ const StyledTabs = styled(Tabs)`
   }
 
   .ant-tabs-tab {
-    padding-left: 10px;
+    padding-left: 8px;
   }
 
   .ant-tabs-tab + .ant-tabs-tab {
-    margin-left: 22px;
+    margin-left: 0;
   }
 `;
 
