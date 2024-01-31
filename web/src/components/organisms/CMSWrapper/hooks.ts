@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
+import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
 import { Role } from "@reearth-cms/components/molecules/Workspace/types";
@@ -117,34 +118,56 @@ export default () => {
     }
   }, [projectId, projectData?.node, setCurrentProject]);
 
-  const [selectedKeys, changeSelected] = useState([selectedKey ?? "home"]);
+  const [selectedProjectMenuKeys, changeProjectMenuSelected] = useState([selectedKey ?? "home"]);
 
   useEffect(() => {
-    if (selectedKey && selectedKey !== selectedKeys[0]) {
-      changeSelected([selectedKey]);
+    if (selectedKey && selectedKey !== selectedProjectMenuKeys[0]) {
+      changeProjectMenuSelected([selectedKey]);
     }
-  }, [selectedKeys, selectedKey]);
+  }, [selectedProjectMenuKeys, selectedKey]);
 
-  const handleNavigate = useCallback(
-    (e: any) => {
-      changeSelected([e.key]);
-      if (e.key === "schema") {
+  const handleProjectMenuNavigate = useCallback(
+    (info: MenuInfo) => {
+      changeProjectMenuSelected([info.key]);
+      if (info.key === "schema") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
-      } else if (e.key === "content") {
+      } else if (info.key === "content") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/content`);
-      } else if (e.key === "asset") {
+      } else if (info.key === "asset") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
-      } else if (e.key === "request") {
+      } else if (info.key === "request") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
-      } else if (e.key === "accessibility") {
+      } else if (info.key === "accessibility") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`);
-      } else if (e.key === "settings") {
+      } else if (info.key === "settings") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
       } else {
         navigate(`/workspace/${workspaceId}/project/${projectId}`);
       }
     },
     [navigate, workspaceId, projectId],
+  );
+
+  const [selectedWorkspaceMenuKeys, changeSelectedWorkspaceMenuKeys] = useState([
+    selectedKey ?? "home",
+  ]);
+
+  useEffect(() => {
+    if (selectedKey) {
+      changeSelectedWorkspaceMenuKeys([selectedKey]);
+    }
+  }, [selectedKey]);
+
+  const handleWorkspaceMenuNavigate = useCallback(
+    (info: MenuInfo) => {
+      changeSelectedWorkspaceMenuKeys([info.key]);
+      if (info.key === "home") {
+        navigate(`/workspace/${workspaceId}`);
+      } else {
+        navigate(`/workspace/${workspaceId}/${info.key}`);
+      }
+    },
+    [navigate, workspaceId],
   );
 
   return {
@@ -154,12 +177,13 @@ export default () => {
     currentWorkspace,
     workspaceModalShown,
     currentProject,
-    selectedKey,
-    selectedKeys,
+    selectedProjectMenuKeys,
+    selectedWorkspaceMenuKeys,
     secondaryRoute,
     collapsed,
     handleCollapse,
-    handleNavigate,
+    handleProjectMenuNavigate,
+    handleWorkspaceMenuNavigate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
