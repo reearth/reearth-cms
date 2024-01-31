@@ -91,6 +91,14 @@ const StyledTabs = styled(Tabs)`
   .ant-tabs-nav {
     height: 46px;
   }
+
+  .ant-tabs-tab {
+    padding-left: 10px;
+  }
+
+  .ant-tabs-tab + .ant-tabs-tab {
+    margin-left: 22px;
+  }
 `;
 
 const NewViewButton = styled(Button)`
