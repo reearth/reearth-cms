@@ -4,6 +4,7 @@ import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
   const { projectScope, models, handlePublicUpdate, alias, assetPublic } = useHooks();
+
   return (
     <AccessibilityMolecule
       assetPublic={assetPublic}

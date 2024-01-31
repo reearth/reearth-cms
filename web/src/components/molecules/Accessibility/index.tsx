@@ -20,12 +20,13 @@ type ModelDataType = {
   key?: string;
 };
 
-export type Props = {
+type Props = {
   projectScope?: PublicScope;
   alias?: string;
   models?: Model[];
   assetPublic?: boolean;
   onPublicUpdate?: (
+    modelsToUpdate: Model[],
     alias?: string,
     scope?: PublicScope,
     assetPublic?: boolean,
@@ -77,8 +78,7 @@ const Accessibility: React.FC<Props> = ({
   }, []);
 
   const handlePublicUpdate = useCallback(() => {
-    if (!scope && updatedModels.length === 0) return;
-    onPublicUpdate?.(aliasState, scope, updatedModels, assetState);
+    onPublicUpdate?.(updatedModels, aliasState, scope, assetState);
     setUpdatedModels([]);
   }, [scope, aliasState, updatedModels, onPublicUpdate, assetState]);
 

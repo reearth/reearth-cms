@@ -35,13 +35,8 @@ export default () => {
   const [updateModelMutation] = useUpdateModelMutation();
 
   const handlePublicUpdate = useCallback(
-    async (
-      alias?: string,
-      scope?: PublicScope,
-      modelsToUpdate?: Model[],
-      assetPublic?: boolean,
-    ) => {
-      if (!currentProject?.id) return;
+    async (modelsToUpdate: Model[], alias?: string, scope?: PublicScope, assetPublic?: boolean) => {
+      if (!currentProject?.id || (!scope && modelsToUpdate.length === 0)) return;
       let errors = false;
 
       if ((scope && scope !== currentProject.scope) || alias) {
