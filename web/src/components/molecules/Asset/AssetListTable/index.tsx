@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { Key, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -38,7 +37,7 @@ export type AssetListTableProps = {
   pageSize: number;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
-  onEdit: (asset: Asset) => void;
+  onEdit: (assetId: string) => void;
   onSearchTerm: (term?: string) => void;
   selection: {
     selectedRowKeys: Key[];
@@ -64,7 +63,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   pageSize,
   onAssetItemSelect,
   onAssetSelect,
-  // onEdit,
+  onEdit,
   onSearchTerm,
   setSelection,
   onAssetsReload,
@@ -76,13 +75,9 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
   const columns: ProColumns<Asset>[] = [
     {
       title: "",
-      render: (_, asset) => (
-        <Link to={asset.id}>
-          <Icon icon="edit" />
-        </Link>
-      ),
+      render: (_, asset) => <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />,
       align: "center",
-      width: 32,
+      width: 48,
     },
     {
       title: () => <Icon icon="message" />,
@@ -99,7 +94,7 @@ const AssetListTable: React.FC<AssetListTableProps> = ({
         );
       },
       align: "center",
-      width: 32,
+      width: 48,
     },
     {
       title: t("File"),

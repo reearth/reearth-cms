@@ -225,8 +225,8 @@ export default () => {
     refetchAssetsItems();
   }, [refetch, refetchAssetsItems]);
 
-  const handleNavigateToAsset = (asset: Asset) => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
+  const handleNavigateToAsset = (assetId: string) => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${assetId}`);
   };
 
   useEffect(() => {
