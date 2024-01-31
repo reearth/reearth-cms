@@ -17,7 +17,7 @@ import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitl
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 import ReferenceFormItem from "../../Content/Form/ReferenceFormItem";
 

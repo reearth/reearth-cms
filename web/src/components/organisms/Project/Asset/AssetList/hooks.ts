@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
+import { convertAsset } from "@reearth-cms/components/organisms/Project/Asset/convertAsset";
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,

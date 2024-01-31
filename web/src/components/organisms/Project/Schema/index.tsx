@@ -6,7 +6,7 @@ import GroupDeletionModal from "@reearth-cms/components/molecules/Schema/GroupDe
 import GroupFormModal from "@reearth-cms/components/molecules/Schema/GroupFormModal";
 import ModelDeletionModal from "@reearth-cms/components/molecules/Schema/ModelDeletionModal";
 import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 

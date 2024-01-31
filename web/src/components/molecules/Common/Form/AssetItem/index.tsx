@@ -12,7 +12,7 @@ import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetMo
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
