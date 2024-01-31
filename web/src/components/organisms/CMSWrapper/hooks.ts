@@ -117,6 +117,36 @@ export default () => {
     }
   }, [projectId, projectData?.node, setCurrentProject]);
 
+  const [selectedKeys, changeSelected] = useState([selectedKey ?? "home"]);
+
+  useEffect(() => {
+    if (selectedKey && selectedKey !== selectedKeys[0]) {
+      changeSelected([selectedKey]);
+    }
+  }, [selectedKeys, selectedKey]);
+
+  const handleNavigate = useCallback(
+    (e: any) => {
+      changeSelected([e.key]);
+      if (e.key === "schema") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
+      } else if (e.key === "content") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/content`);
+      } else if (e.key === "asset") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
+      } else if (e.key === "request") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
+      } else if (e.key === "accessibility") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`);
+      } else if (e.key === "settings") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
+      } else {
+        navigate(`/workspace/${workspaceId}/project/${projectId}`);
+      }
+    },
+    [navigate, workspaceId, projectId],
+  );
+
   return {
     username,
     personalWorkspace,
@@ -125,9 +155,11 @@ export default () => {
     workspaceModalShown,
     currentProject,
     selectedKey,
+    selectedKeys,
     secondaryRoute,
     collapsed,
     handleCollapse,
+    handleNavigate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
