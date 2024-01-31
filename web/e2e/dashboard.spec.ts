@@ -1,7 +1,6 @@
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("workspace can be logged in", async ({ page, reearth }) => {
-  await reearth.goto(`/workspace/${reearth.workspaceId}`);
-
+test("Home page is displayed", async ({ reearth, page }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("textbox")).toBeVisible();
 });
