@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -24,81 +24,30 @@ type Props = {
   projectScope?: PublicScope;
   alias?: string;
   models?: Model[];
-  assetPublic?: boolean;
-  onPublicUpdate?: (
-    modelsToUpdate: Model[],
-    alias?: string,
-    scope?: PublicScope,
-    assetPublic?: boolean,
-  ) => void;
+  handlePublicUpdate: () => void;
+  isSaveDisabled: boolean;
+  handleAliasChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleUpdatedAssetState: (state: boolean) => void;
+  handleUpdatedModels: (model: Model) => void;
+  aliasState?: string;
+  assetState?: boolean;
 };
 
 const Accessibility: React.FC<Props> = ({
   projectScope,
-  models: rawModels,
+  models,
   alias,
-  assetPublic,
-  onPublicUpdate,
+  handlePublicUpdate,
+  isSaveDisabled,
+  handleAliasChange,
+  handleUpdatedAssetState,
+  handleUpdatedModels,
+  aliasState,
+  assetState,
 }) => {
   const t = useT();
   const [scope, changeScope] = useState(projectScope);
-  const [aliasState, setAlias] = useState(alias);
-  const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
-  const [assetState, setAssetState] = useState<boolean | undefined>(assetPublic);
-  const [models, setModels] = useState<Model[] | undefined>(rawModels);
   const [form] = Form.useForm();
-
-  const [isSaveDisabled, setIsSaveDisabled] = useState(false);
-
-  useEffect(() => {
-    setIsSaveDisabled(
-      updatedModels.length === 0 &&
-        projectScope === scope &&
-        alias === aliasState &&
-        assetPublic === assetState,
-    );
-  }, [alias, aliasState, assetPublic, assetState, projectScope, scope, updatedModels.length]);
-
-  useEffect(() => {
-    changeScope(projectScope);
-  }, [projectScope]);
-
-  useEffect(() => {
-    setModels(rawModels);
-  }, [rawModels]);
-
-  useEffect(() => {
-    setAlias(alias);
-  }, [alias]);
-
-  useEffect(() => {
-    setAssetState(assetPublic);
-  }, [assetPublic]);
-
-  const handlerAliasChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setAlias(e.currentTarget.value);
-  }, []);
-
-  const handlePublicUpdate = useCallback(() => {
-    onPublicUpdate?.(updatedModels, aliasState, scope, assetState);
-    setUpdatedModels([]);
-  }, [scope, aliasState, updatedModels, onPublicUpdate, assetState]);
-
-  const handleUpdatedModels = useCallback(
-    (model: Model) => {
-      if (updatedModels.find(um => um.id === model.id)) {
-        setUpdatedModels(ums => ums.filter(um => um.id !== model.id));
-      } else {
-        setUpdatedModels(ums => [...ums, model]);
-      }
-      setModels(ms => ms?.map(m => (m.id === model.id ? { ...m, public: model.public } : m)));
-    },
-    [updatedModels],
-  );
-
-  const handleUpdatedAssetState = useCallback((state: boolean) => {
-    setAssetState(state);
-  }, []);
 
   const columns: TableColumnsType<ModelDataType> = [
     {
@@ -200,7 +149,7 @@ const Accessibility: React.FC<Props> = ({
             </Form.Item>
 
             <Form.Item label={t("Project Alias")}>
-              <Input value={aliasState} onChange={handlerAliasChange} />
+              <Input value={aliasState} onChange={handleAliasChange} />
             </Form.Item>
           </ItemsWrapper>
           <TableWrapper>
