@@ -48,6 +48,17 @@ const Accessibility: React.FC<Props> = ({
   const [models, setModels] = useState<Model[] | undefined>(rawModels);
   const [form] = Form.useForm();
 
+  const [isSaveDisabled, setIsSaveDisabled] = useState(false);
+
+  useEffect(() => {
+    setIsSaveDisabled(
+      updatedModels.length === 0 &&
+        projectScope === scope &&
+        alias === aliasState &&
+        assetPublic === assetState,
+    );
+  }, [alias, aliasState, assetPublic, assetState, projectScope, scope, updatedModels.length]);
+
   useEffect(() => {
     changeScope(projectScope);
   }, [projectScope]);
@@ -63,15 +74,6 @@ const Accessibility: React.FC<Props> = ({
   useEffect(() => {
     setAssetState(assetPublic);
   }, [assetPublic]);
-
-  const saveDisabled = useMemo(
-    () =>
-      updatedModels.length === 0 &&
-      projectScope === scope &&
-      alias === aliasState &&
-      assetPublic === assetState,
-    [updatedModels.length, projectScope, scope, alias, aliasState, assetPublic, assetState],
-  );
 
   const handlerAliasChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setAlias(e.currentTarget.value);
@@ -204,7 +206,7 @@ const Accessibility: React.FC<Props> = ({
           <TableWrapper>
             <Table dataSource={dataSource} columns={columns} pagination={false} />
           </TableWrapper>
-          <Button type="primary" disabled={saveDisabled} onClick={handlePublicUpdate}>
+          <Button type="primary" disabled={isSaveDisabled} onClick={handlePublicUpdate}>
             {t("Save changes")}
           </Button>
         </Form>
