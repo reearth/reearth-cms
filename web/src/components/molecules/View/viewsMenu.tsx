@@ -92,12 +92,12 @@ const StyledTabs = styled(Tabs)`
     height: 46px;
   }
 
-  .ant-tabs-tab {
+  .ant-tabs-tab:not(:first-child) {
     padding-left: 8px;
   }
 
   .ant-tabs-tab + .ant-tabs-tab {
-    margin-left: 0;
+    margin-left: 8px;
   }
 `;
 
