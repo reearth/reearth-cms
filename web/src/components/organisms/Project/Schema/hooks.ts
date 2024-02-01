@@ -39,7 +39,7 @@ export default () => {
 
   const [groupId, setGroupId] = useState<string | undefined>(undefined);
   const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
-  const [isMeta, setIsMeta] = useState<boolean | undefined>(false);
+  const [isMeta, setIsMeta] = useState(false);
   const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);

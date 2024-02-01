@@ -23,6 +23,7 @@ import type {
   FieldType,
   Group,
   FormValues,
+  FormTypes,
 } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
@@ -35,7 +36,7 @@ import { validateKey } from "@reearth-cms/utils/regex";
 export type Props = {
   groups?: Group[];
   open?: boolean;
-  isMeta?: boolean;
+  isMeta: boolean;
   fieldCreationLoading: boolean;
   selectedType: FieldType;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
@@ -111,15 +112,12 @@ const FieldCreationModal: React.FC<Props> = ({
   setUploadModalVisibility,
 }) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormTypes>();
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const { TabPane } = Tabs;
   const selectedValues: string[] = Form.useWatch("values", form);
-  const selectedTags: { id: string; name: string; color: string }[] | undefined = Form.useWatch(
-    "tags",
-    form,
-  );
+  const selectedTags = Form.useWatch("tags", form);
   const [multipleValue, setMultipleValue] = useState(false);
 
   const handleMultipleChange = useCallback(
@@ -168,70 +166,77 @@ const FieldCreationModal: React.FC<Props> = ({
     }
   }, [form, selectedTags, selectedType]);
 
+  const typePropertyGet = useCallback((values: FormTypes) => {
+    switch (values.type) {
+      case "TextArea":
+        return {
+          textArea: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+        };
+      case "MarkdownText":
+        return {
+          markdownText: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+        };
+      case "Asset":
+        return {
+          asset: { defaultValue: values.defaultValue },
+        };
+      case "Select": {
+        const defaultValue = Array.isArray(values.defaultValue)
+          ? values.defaultValue.filter((value: string) => value)
+          : values.defaultValue ?? "";
+        return {
+          select: { defaultValue, values: values.values },
+        };
+      }
+      case "Integer": {
+        const defaultValue = Array.isArray(values.defaultValue)
+          ? values.defaultValue.filter((value: number | string) => typeof value === "number")
+          : values.defaultValue ?? "";
+        return {
+          integer: {
+            defaultValue,
+            min: values.min ?? null,
+            max: values.max ?? null,
+          },
+        };
+      }
+      case "Bool":
+        return {
+          bool: { defaultValue: values.defaultValue },
+        };
+      case "Date":
+        return {
+          date: { defaultValue: transformMomentToString(values.defaultValue) ?? "" },
+        };
+      case "Tag":
+        return {
+          tag: { defaultValue: values.defaultValue, tags: values.tags },
+        };
+      case "Checkbox":
+        return {
+          checkbox: { defaultValue: values.defaultValue },
+        };
+      case "URL":
+        return {
+          url: { defaultValue: values.defaultValue },
+        };
+      case "Group":
+        return {
+          group: { groupId: values.group },
+        };
+      default:
+        return {
+          text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+        };
+    }
+  }, []);
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
       .then(async values => {
         values.type = selectedType;
-        if (selectedType === "Text") {
-          values.typeProperty = {
-            text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-          };
-        } else if (selectedType === "TextArea") {
-          values.typeProperty = {
-            textArea: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-          };
-        } else if (selectedType === "MarkdownText") {
-          values.typeProperty = {
-            markdownText: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-          };
-        } else if (selectedType === "Asset") {
-          values.typeProperty = {
-            asset: { defaultValue: values.defaultValue },
-          };
-        } else if (selectedType === "Select") {
-          const defaultValue = Array.isArray(values.defaultValue)
-            ? values.defaultValue.filter((value: string) => value)
-            : values.defaultValue ?? "";
-          values.typeProperty = {
-            select: { defaultValue, values: values.values },
-          };
-        } else if (selectedType === "Integer") {
-          const defaultValue = Array.isArray(values.defaultValue)
-            ? values.defaultValue.filter((value: number | string) => typeof value === "number")
-            : values.defaultValue ?? "";
-          values.typeProperty = {
-            integer: {
-              defaultValue,
-              min: values.min ?? null,
-              max: values.max ?? null,
-            },
-          };
-        } else if (selectedType === "Bool") {
-          values.typeProperty = {
-            bool: { defaultValue: values.defaultValue },
-          };
-        } else if (selectedType === "Date") {
-          values.typeProperty = {
-            date: { defaultValue: transformMomentToString(values.defaultValue) ?? "" },
-          };
-        } else if (selectedType === "Tag") {
-          values.typeProperty = {
-            tag: { defaultValue: values.defaultValue, tags: values.tags },
-          };
-        } else if (selectedType === "Checkbox") {
-          values.typeProperty = {
-            checkbox: { defaultValue: values.defaultValue },
-          };
-        } else if (selectedType === "URL") {
-          values.typeProperty = {
-            url: { defaultValue: values.defaultValue },
-          };
-        } else if (selectedType === "Group") {
-          values.typeProperty = {
-            group: { groupId: values.group },
-          };
-        }
+        values.typeProperty = typePropertyGet(values);
         values.metadata = isMeta;
         await onSubmit?.(values);
         setMultipleValue(false);
@@ -240,7 +245,7 @@ const FieldCreationModal: React.FC<Props> = ({
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit, selectedType, isMeta]);
+  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, onClose]);
 
   const handleModalReset = useCallback(() => {
     form.resetFields();

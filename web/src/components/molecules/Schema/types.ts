@@ -122,3 +122,13 @@ export type FormValues = {
   type?: FieldType;
   typeProperty: FieldTypePropertyInput;
 };
+
+export type FormTypes = FormValues & {
+  defaultValue?: any;
+  maxLength?: number;
+  values: string[];
+  min?: number;
+  max?: number;
+  tags: { color: string; id: string; name: string }[];
+  group: string;
+};
