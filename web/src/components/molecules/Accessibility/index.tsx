@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -21,32 +21,33 @@ type ModelDataType = {
 };
 
 type Props = {
-  projectScope?: PublicScope;
   alias?: string;
   models?: Model[];
   handlePublicUpdate: () => void;
+  scope?: PublicScope;
   isSaveDisabled: boolean;
   handleAliasChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
   aliasState?: string;
   assetState?: boolean;
+  handleSetScope?: (projectScope: PublicScope) => void;
 };
 
 const Accessibility: React.FC<Props> = ({
-  projectScope,
   models,
   alias,
   handlePublicUpdate,
+  scope,
   isSaveDisabled,
   handleAliasChange,
   handleUpdatedAssetState,
   handleUpdatedModels,
   aliasState,
   assetState,
+  handleSetScope,
 }) => {
   const t = useT();
-  const [scope, changeScope] = useState(projectScope);
   const [form] = Form.useForm();
 
   const columns: TableColumnsType<ModelDataType> = [
@@ -84,7 +85,7 @@ const Accessibility: React.FC<Props> = ({
     },
   ];
 
-  const dataSource: ModelDataType[] | undefined = useMemo(() => {
+  const dataSource: ModelDataType[] = useMemo(() => {
     let columns: ModelDataType[] = [
       {
         id: "assets",
@@ -139,7 +140,7 @@ const Accessibility: React.FC<Props> = ({
               extra={t(
                 "Choose the scope of your project. This affects all the models shown below that are switched on.",
               )}>
-              <Select value={scope} onChange={changeScope}>
+              <Select value={scope} onChange={handleSetScope}>
                 {publicScopeList.map(type => (
                   <Select.Option key={type.id} value={type.value}>
                     {type.name}
@@ -147,7 +148,6 @@ const Accessibility: React.FC<Props> = ({
                 ))}
               </Select>
             </Form.Item>
-
             <Form.Item label={t("Project Alias")}>
               <Input value={aliasState} onChange={handleAliasChange} />
             </Form.Item>

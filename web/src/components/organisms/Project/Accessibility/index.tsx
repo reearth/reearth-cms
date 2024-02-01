@@ -4,9 +4,9 @@ import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
   const {
-    projectScope,
     models,
     handlePublicUpdate,
+    scope,
     alias,
     isSaveDisabled,
     handleAliasChange,
@@ -14,20 +14,22 @@ const Accessibility: React.FC = () => {
     handleUpdatedModels,
     aliasState,
     assetState,
+    handleSetScope,
   } = useHooks();
 
   return (
     <AccessibilityMolecule
-      projectScope={projectScope}
       models={models}
       alias={alias}
       handlePublicUpdate={handlePublicUpdate}
+      scope={scope}
       isSaveDisabled={isSaveDisabled}
       handleAliasChange={handleAliasChange}
       handleUpdatedAssetState={handleUpdatedAssetState}
       handleUpdatedModels={handleUpdatedModels}
       aliasState={aliasState}
       assetState={assetState}
+      handleSetScope={handleSetScope}
     />
   );
 };

@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import type { Model } from "@reearth-cms/components/molecules/Accessibility/types";
+import type { PublicScope, Model } from "@reearth-cms/components/molecules/Accessibility/types";
 import {
   useUpdateModelMutation,
   useGetModelsQuery,
@@ -18,7 +18,7 @@ export default () => {
   const [currentProject] = useProject();
 
   const [models, setModels] = useState<Model[]>();
-  const [scope, changeScope] = useState(currentProject?.scope);
+  const [scope, setScope] = useState(currentProject?.scope);
   const [aliasState, setAlias] = useState(currentProject?.alias);
   const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
   const [assetState, setAssetState] = useState<boolean | undefined>(currentProject?.assetPublic);
@@ -40,12 +40,8 @@ export default () => {
   }, [modelsData]);
 
   useEffect(() => {
-    changeScope(currentProject?.scope);
+    setScope(currentProject?.scope);
   }, [currentProject?.scope]);
-
-  useEffect(() => {
-    setModels(models);
-  }, [models]);
 
   useEffect(() => {
     setAlias(currentProject?.alias);
@@ -144,8 +140,11 @@ export default () => {
     [updatedModels],
   );
 
+  const handleSetScope = (projectScope: PublicScope) => {
+    setScope(projectScope);
+  };
+
   return {
-    projectScope: currentProject?.scope,
     models,
     alias: currentProject?.alias,
     handlePublicUpdate,
@@ -157,5 +156,6 @@ export default () => {
     handleAliasChange,
     handleUpdatedAssetState,
     handleUpdatedModels,
+    handleSetScope,
   };
 };
