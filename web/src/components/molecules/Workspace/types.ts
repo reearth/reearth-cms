@@ -29,8 +29,7 @@ export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
 export type Workspace = {
   id?: string;
   name?: string;
-  personal?: boolean;
-  members?: Member[];
+  members?: any[];
 };
 
 export type WorkspaceSettings = {
