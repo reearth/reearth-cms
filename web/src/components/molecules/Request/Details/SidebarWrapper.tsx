@@ -103,11 +103,11 @@ const RequestSidebarWrapper: React.FC<Props> = ({
         <UserAvatar username={currentRequest?.createdBy?.name} />
       </SidebarCard>
       <SidebarCard title={t("Reviewer")}>
-        <div style={{ display: "flex", margin: "4px 0" }}>
+        <ReviewerContainer>
           {currentRequest?.reviewers.map((reviewer, index) => (
-            <UserAvatar username={reviewer.name} key={index} style={{ marginRight: "8px" }} />
+            <StyledUserAvatar username={reviewer.name} key={index} />
           ))}
-        </div>
+        </ReviewerContainer>
         <Select
           placeholder={t("Reviewer")}
           mode="multiple"
@@ -120,11 +120,11 @@ const RequestSidebarWrapper: React.FC<Props> = ({
           onBlur={handleSubmit}
           allowClear
         />
-        <div style={{ display: viewReviewers ? "none" : "flex", justifyContent: "end" }}>
-          <Button type="link" onClick={displayViewReviewers} style={{ paddingRight: "0" }}>
-            Assign to
-          </Button>
-        </div>
+        <ViewReviewers viewReviewers={viewReviewers}>
+          <StyledButton type="link" onClick={displayViewReviewers}>
+            {t("Assign to")}
+          </StyledButton>
+        </ViewReviewers>
       </SidebarCard>
       <SidebarCard title={t("Created Time")}>{formattedCreatedAt}</SidebarCard>
     </SideBarWrapper>
@@ -135,6 +135,23 @@ const SideBarWrapper = styled.div`
   background-color: #fafafa;
   padding: 8px;
   width: 272px;
+`;
+
+const StyledUserAvatar = styled(UserAvatar)`
+  margin-right: 8px;
+`;
+
+const ReviewerContainer = styled.div`
+  display: flex;
+  margin: 4px 0;
+`;
+const ViewReviewers = styled.div<{ viewReviewers: boolean }>`
+  display: ${({ viewReviewers }) => (viewReviewers ? "none" : "flex")};
+  justify-content: end;
+`;
+
+const StyledButton = styled(Button)`
+  padding-right: 0;
 `;
 
 export default RequestSidebarWrapper;

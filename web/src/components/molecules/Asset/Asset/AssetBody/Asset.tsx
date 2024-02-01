@@ -178,11 +178,7 @@ const AssetMolecule: React.FC<Props> = ({
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
-          <PreviewTypeSelect
-            style={{ width: "75%" }}
-            value={selectedPreviewType}
-            onTypeChange={onTypeChange}
-          />
+          <StyledPreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
@@ -191,9 +187,9 @@ const AssetMolecule: React.FC<Props> = ({
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (
             <div key={item.itemId}>
-              <Button style={{ padding: 0 }} type="link" onClick={() => onAssetItemSelect(item)}>
+              <StyledButton type="link" onClick={() => onAssetItemSelect(item)}>
                 {item.itemId}
-              </Button>
+              </StyledButton>
             </div>
           ))}
         </SideBarCard>
@@ -234,6 +230,14 @@ const BodyWrapper = styled.div`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
+`;
+
+const StyledPreviewTypeSelect = styled(PreviewTypeSelect)`
+  width: 75%;
+`;
+
+const StyledButton = styled(Button)`
+  padding: 0;
 `;
 
 export default AssetMolecule;

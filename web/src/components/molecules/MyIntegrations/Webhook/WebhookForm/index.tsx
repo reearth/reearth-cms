@@ -137,7 +137,7 @@ const WebhookForm: React.FC<Props> = ({
             </Form.Item>
           </Col>
           <Col>
-            <Divider type="vertical" style={{ height: "100%" }} />
+            <StyledDivider type="vertical" />
           </Col>
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
@@ -187,6 +187,10 @@ const CheckboxTitle = styled.h5`
   line-height: 24px;
   color: #000000d9;
   margin-bottom: 24px;
+`;
+
+const StyledDivider = styled(Divider)`
+  height: 100%;
 `;
 
 export default WebhookForm;

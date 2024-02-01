@@ -155,25 +155,19 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
                 />
               </>
             )}
-            <div
-              hidden={focusedTagIndex !== key}
-              style={{ width: "100%" }}
-              ref={el => (divRefs.current[key] = el)}>
-              <Input
-                style={{ flex: 1 }}
+            <StyledDiv hidden={focusedTagIndex !== key} ref={el => (divRefs.current[key] = el)}>
+              <StyledInput
                 {...props}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
                 value={valueItem.name}
                 onBlur={() => handleInputBlur()}
               />
-            </div>
-            <StyledTag
+            </StyledDiv>
+            <StyledTagContainer
               hidden={focusedTagIndex === key} // Hide tag when it is focused
               onClick={() => handleTagClick(key)}>
-              <Tag color={valueItem.color.toLowerCase()} style={{ flex: 1, marginRight: 8 }}>
-                {valueItem.name}
-              </Tag>
-            </StyledTag>
+              <StyledTag color={valueItem.color.toLowerCase()}>{valueItem.name}</StyledTag>
+            </StyledTagContainer>
             <Dropdown menu={{ items: generateMenuItems(key) }} trigger={["click"]}>
               <FieldButton type="link" icon={<Icon icon="colorPalette" />} />
             </Dropdown>
@@ -207,7 +201,15 @@ const FieldButton = styled(Button)`
   margin-top: 4px;
 `;
 
-const StyledTag = styled.div`
+const StyledDiv = styled.div`
+  width: 100%;
+`;
+
+const StyledInput = styled(Input)`
+  flex: 1;
+`;
+
+const StyledTagContainer = styled.div`
   cursor: pointer;
   border: 1px solid #d9d9d9;
   padding: 4px 11px;
@@ -216,4 +218,9 @@ const StyledTag = styled.div`
   width: 100% !important;
   line-height: 1;
   word-break: break-all;
+`;
+
+const StyledTag = styled(Tag)`
+  flex: 1;
+  margin-right: 8px;
 `;

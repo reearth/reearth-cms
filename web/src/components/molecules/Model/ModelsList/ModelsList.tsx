@@ -91,9 +91,7 @@ const ModelsList: React.FC<Props> = ({
           <StyledMenu
             selectedKeys={selectedKeys}
             mode={collapsed ? "vertical" : "inline"}
-            style={{
-              color: collapsed ? "#C4C4C4" : undefined,
-            }}
+            collapsed={collapsed}
             items={items}
             onClick={handleClick}
           />
@@ -146,7 +144,9 @@ const StyledIcon = styled(Icon)`
   padding: 12px 20px;
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
+  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+
   .ant-menu-item {
     display: flex;
     justify-content: center;
