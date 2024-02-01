@@ -7,8 +7,8 @@ import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
+import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { Project, Workspace } from "@reearth-cms/state";
 
 import HeaderDropdown from "./Dropdown";
 
