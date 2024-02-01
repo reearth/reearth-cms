@@ -148,13 +148,12 @@ export default () => {
 
   return {
     models,
-    alias: currentProject?.alias,
-    handlePublicUpdate,
     scope,
+    alias: currentProject?.alias,
     aliasState,
-    updatedModels,
     assetState,
     isSaveDisabled,
+    handlePublicUpdate,
     handleAliasChange,
     handleUpdatedAssetState,
     handleUpdatedModels,

@@ -21,30 +21,30 @@ type ModelDataType = {
 };
 
 type Props = {
-  alias?: string;
   models?: Model[];
-  handlePublicUpdate: () => void;
   scope?: PublicScope;
+  alias?: string;
+  aliasState?: string;
+  assetState?: boolean;
   isSaveDisabled: boolean;
+  handlePublicUpdate: () => void;
   handleAliasChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
-  aliasState?: string;
-  assetState?: boolean;
   handleSetScope?: (projectScope: PublicScope) => void;
 };
 
 const Accessibility: React.FC<Props> = ({
   models,
-  alias,
-  handlePublicUpdate,
   scope,
+  alias,
+  aliasState,
+  assetState,
   isSaveDisabled,
+  handlePublicUpdate,
   handleAliasChange,
   handleUpdatedAssetState,
   handleUpdatedModels,
-  aliasState,
-  assetState,
   handleSetScope,
 }) => {
   const t = useT();
