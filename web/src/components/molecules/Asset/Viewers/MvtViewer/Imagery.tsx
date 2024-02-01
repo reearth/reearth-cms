@@ -1,14 +1,6 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import {
-  Cartesian3,
-  ImageryLayer,
-  ImageryLayerCollection,
-  Math,
-  BoundingSphere,
-  HeadingPitchRange,
-  type Viewer,
-} from "cesium";
+import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -37,7 +29,7 @@ type TileCoordinates = {
 };
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
-  const { viewer } = useCesium() as { viewer: Viewer | undefined };
+  const { viewer } = useCesium();
   const [selectedFeature, setSelectFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
@@ -108,8 +100,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     });
 
     if (viewer) {
-      const layers: ImageryLayerCollection = viewer.scene.imageryLayers;
-      const currentLayer: ImageryLayer = layers.addImageryProvider(imageryProvider);
+      const layers = viewer.scene.imageryLayers;
+      const currentLayer = layers.addImageryProvider(imageryProvider);
       currentLayer.alpha = 0.5;
 
       return () => {
