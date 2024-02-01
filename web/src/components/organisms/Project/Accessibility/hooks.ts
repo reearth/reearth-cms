@@ -69,7 +69,9 @@ export default () => {
   ]);
 
   const [updateProjectMutation] = useUpdateProjectMutation();
-  const [updateModelMutation] = useUpdateModelMutation();
+  const [updateModelMutation] = useUpdateModelMutation({
+    refetchQueries: ["GetModels"],
+  });
 
   const handlePublicUpdate = useCallback(async () => {
     if (!currentProject?.id || (!scope && updatedModels.length === 0)) return;
