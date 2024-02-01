@@ -14,14 +14,14 @@ import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { FormValues } from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import {
+import type {
   Field,
   FieldModalTabs,
   FieldType,
   Model,
+  FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
@@ -88,7 +88,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       unique: false,
       required: false,
       isTitle: false,
-      meta: false,
+      metadata: false,
       type: "Text",
       typeProperty: {
         reference: {

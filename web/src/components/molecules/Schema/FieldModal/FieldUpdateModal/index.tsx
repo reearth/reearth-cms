@@ -19,12 +19,12 @@ import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/Multi
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
 import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import {
+import type {
   Field,
   FieldModalTabs,
   FieldType,
   Group,
-  FieldTypePropertyInput,
+  FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
@@ -33,21 +33,6 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
-
-export interface FormValues {
-  fieldId?: string;
-  groupId?: string;
-  title: string;
-  description: string;
-  key: string;
-  meta: boolean;
-  multiple: boolean;
-  unique: boolean;
-  isTitle: boolean;
-  required: boolean;
-  type?: FieldType;
-  typeProperty: FieldTypePropertyInput;
-}
 
 export interface Props {
   groups?: Group[];
@@ -91,7 +76,7 @@ const initialValues: FormValues = {
   description: "",
   key: "",
   multiple: false,
-  meta: false,
+  metadata: false,
   unique: false,
   isTitle: false,
   required: false,

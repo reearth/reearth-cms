@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { FormValues } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -28,34 +29,6 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
 import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
-
-type UpdateDataType = {
-  groupId?: string;
-  fieldId?: string;
-  title: string;
-  metadata?: boolean;
-  description?: string;
-  key: string;
-  multiple: boolean;
-  unique: boolean;
-  isTitle: boolean;
-  required: boolean;
-  typeProperty: SchemaFieldTypePropertyInput;
-};
-
-type CreateDataType = {
-  groupId?: string;
-  title: string;
-  metadata?: boolean;
-  description?: string;
-  key: string;
-  multiple: boolean;
-  unique: boolean;
-  isTitle: boolean;
-  required: boolean;
-  type?: FieldType;
-  typeProperty: SchemaFieldTypePropertyInput;
-};
 
 export default () => {
   const t = useT();
@@ -181,7 +154,7 @@ export default () => {
   );
 
   const handleFieldUpdate = useCallback(
-    async (data: UpdateDataType) => {
+    async (data: FormValues) => {
       if ((!modelId && !groupId) || !data.fieldId) return;
       const options = {
         variables: {
@@ -194,7 +167,7 @@ export default () => {
           unique: data.unique,
           isTitle: data.isTitle,
           required: data.required,
-          typeProperty: data.typeProperty,
+          typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
           modelId: selectedSchemaType === "model" ? modelId : undefined,
           groupId: selectedSchemaType !== "model" ? groupId : undefined,
         },
@@ -239,7 +212,7 @@ export default () => {
   );
 
   const handleFieldCreate = useCallback(
-    async (data: CreateDataType) => {
+    async (data: FormValues) => {
       if (!modelId && !groupId) return;
       const options = {
         variables: {
@@ -252,7 +225,7 @@ export default () => {
           isTitle: data.isTitle,
           required: data.required,
           type: data.type as SchemaFieldType,
-          typeProperty: data.typeProperty,
+          typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
           modelId: selectedSchemaType === "model" ? modelId : undefined,
           groupId: selectedSchemaType !== "model" ? groupId : undefined,
         },

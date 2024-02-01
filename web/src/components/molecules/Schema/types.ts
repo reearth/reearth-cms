@@ -89,6 +89,11 @@ export type FieldTypePropertyInput = {
   group?: {
     groupId: string;
   };
+  tag?: {
+    defaultValue?: string;
+    tags: { color: string; id?: string; name: string }[];
+  };
+  checkbox?: { defaultValue?: boolean };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
@@ -101,4 +106,19 @@ export type Group = {
   description: string;
   key: string;
   schema: Schema;
+};
+
+export type FormValues = {
+  fieldId?: string;
+  groupId?: string;
+  title: string;
+  description: string;
+  key: string;
+  metadata: boolean;
+  multiple: boolean;
+  unique: boolean;
+  isTitle: boolean;
+  required: boolean;
+  type?: FieldType;
+  typeProperty: FieldTypePropertyInput;
 };
