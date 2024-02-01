@@ -26,6 +26,8 @@ const CMSWrapper: React.FC = () => {
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleNavigateToSettings,
+    handleWorkspaceNavigation,
+    handleHomeNavigation,
     logoUrl,
   } = useHooks();
 
@@ -38,6 +40,8 @@ const CMSWrapper: React.FC = () => {
           <MoleculeHeader
             onWorkspaceModalOpen={handleWorkspaceModalOpen}
             onNavigateToSettings={handleNavigateToSettings}
+            onWorkspaceNavigation={handleWorkspaceNavigation}
+            onHomeNavigation={handleHomeNavigation}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}

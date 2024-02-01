@@ -150,6 +150,17 @@ export default () => {
     [navigate, workspaceId],
   );
 
+  const handleWorkspaceNavigation = useCallback(
+    (id: number) => {
+      navigate(`/workspace/${id}`);
+    },
+    [navigate],
+  );
+
+  const handleHomeNavigation = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}`);
+  }, [currentWorkspace?.id, navigate]);
+
   return {
     username,
     personalWorkspace,
@@ -167,6 +178,8 @@ export default () => {
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleNavigateToSettings,
+    handleWorkspaceNavigation,
+    handleHomeNavigation,
     logoUrl,
   };
 };
