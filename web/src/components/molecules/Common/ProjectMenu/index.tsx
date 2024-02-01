@@ -1,4 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
@@ -6,11 +7,11 @@ import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   inlineCollapsed: boolean;
-  selectedKeys?: string[];
+  defaultSelectedKey?: string;
   onNavigate?: (info: MenuInfo) => void;
 };
 
-const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, selectedKeys, onNavigate }) => {
+const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onNavigate }) => {
   const t = useT();
 
   const topItems: ItemType[] = [
@@ -20,6 +21,13 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, selectedKeys, onNavigat
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
     { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
   ];
+  const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
+
+  useEffect(() => {
+    if (defaultSelectedKey && defaultSelectedKey !== selected[0]) {
+      changeSelected([defaultSelectedKey]);
+    }
+  }, [selected, defaultSelectedKey]);
 
   const items: ItemType[] = [
     {
@@ -34,18 +42,26 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, selectedKeys, onNavigat
     },
   ];
 
+  const onClick = useCallback(
+    (info: MenuInfo) => {
+      changeSelected([info.key]);
+      onNavigate?.(info);
+    },
+    [onNavigate],
+  );
+
   return (
     <>
       <Menu
-        onClick={onNavigate}
-        selectedKeys={selectedKeys}
+        onClick={onClick}
+        selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
       />
       <Menu
-        onClick={onNavigate}
-        selectedKeys={selectedKeys}
+        onClick={onClick}
+        selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={items}

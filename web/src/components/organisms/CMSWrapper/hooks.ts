@@ -118,17 +118,8 @@ export default () => {
     }
   }, [projectId, projectData?.node, setCurrentProject]);
 
-  const [selectedProjectMenuKeys, changeProjectMenuSelected] = useState([selectedKey ?? "home"]);
-
-  useEffect(() => {
-    if (selectedKey && selectedKey !== selectedProjectMenuKeys[0]) {
-      changeProjectMenuSelected([selectedKey]);
-    }
-  }, [selectedProjectMenuKeys, selectedKey]);
-
   const handleProjectMenuNavigate = useCallback(
     (info: MenuInfo) => {
-      changeProjectMenuSelected([info.key]);
       if (info.key === "schema") {
         navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
       } else if (info.key === "content") {
@@ -148,19 +139,8 @@ export default () => {
     [navigate, workspaceId, projectId],
   );
 
-  const [selectedWorkspaceMenuKeys, changeSelectedWorkspaceMenuKeys] = useState([
-    selectedKey ?? "home",
-  ]);
-
-  useEffect(() => {
-    if (selectedKey) {
-      changeSelectedWorkspaceMenuKeys([selectedKey]);
-    }
-  }, [selectedKey]);
-
   const handleWorkspaceMenuNavigate = useCallback(
     (info: MenuInfo) => {
-      changeSelectedWorkspaceMenuKeys([info.key]);
       if (info.key === "home") {
         navigate(`/workspace/${workspaceId}`);
       } else {
@@ -177,8 +157,7 @@ export default () => {
     currentWorkspace,
     workspaceModalShown,
     currentProject,
-    selectedProjectMenuKeys,
-    selectedWorkspaceMenuKeys,
+    selectedKey,
     secondaryRoute,
     collapsed,
     handleCollapse,

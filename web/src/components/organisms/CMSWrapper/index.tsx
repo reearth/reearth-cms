@@ -16,8 +16,7 @@ const CMSWrapper: React.FC = () => {
     currentWorkspace,
     workspaceModalShown,
     currentProject,
-    selectedProjectMenuKeys,
-    selectedWorkspaceMenuKeys,
+    selectedKey,
     secondaryRoute,
     collapsed,
     handleCollapse,
@@ -50,15 +49,15 @@ const CMSWrapper: React.FC = () => {
         sidebarComponent={
           secondaryRoute === "project" ? (
             <ProjectMenu
+              defaultSelectedKey={selectedKey}
               inlineCollapsed={collapsed}
-              selectedKeys={selectedProjectMenuKeys}
               onNavigate={handleProjectMenuNavigate}
             />
           ) : (
             <WorkspaceMenu
+              defaultSelectedKey={selectedKey}
               inlineCollapsed={collapsed}
               isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
-              selectedKeys={selectedWorkspaceMenuKeys}
               onNavigate={handleWorkspaceMenuNavigate}
             />
           )

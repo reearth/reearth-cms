@@ -1,4 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
@@ -7,7 +8,7 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   inlineCollapsed: boolean;
   isPersonalWorkspace?: boolean;
-  selectedKeys?: string[];
+  defaultSelectedKey?: string;
   onNavigate?: (info: MenuInfo) => void;
 };
 
@@ -18,10 +19,17 @@ export type WorkspaceItemType = ItemType & { show: MenuShowType };
 const WorkspaceMenu: React.FC<Props> = ({
   inlineCollapsed,
   isPersonalWorkspace,
-  selectedKeys,
+  defaultSelectedKey,
   onNavigate,
 }) => {
   const t = useT();
+  const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
+
+  useEffect(() => {
+    if (defaultSelectedKey) {
+      changeSelected([defaultSelectedKey]);
+    }
+  }, [defaultSelectedKey]);
 
   const topItems: WorkspaceItemType[] = [
     { label: t("Home"), key: "home", icon: <Icon icon="home" />, show: "both" },
@@ -71,18 +79,26 @@ const WorkspaceMenu: React.FC<Props> = ({
       item.show === "both",
   );
 
+  const onClick = useCallback(
+    (info: MenuInfo) => {
+      changeSelected([info.key]);
+      onNavigate?.(info);
+    },
+    [onNavigate],
+  );
+
   return (
     <>
       <Menu
-        onClick={onNavigate}
-        selectedKeys={selectedKeys}
+        onClick={onClick}
+        selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
       />
       <Menu
-        onClick={onNavigate}
-        selectedKeys={selectedKeys}
+        onClick={onClick}
+        selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={items}
