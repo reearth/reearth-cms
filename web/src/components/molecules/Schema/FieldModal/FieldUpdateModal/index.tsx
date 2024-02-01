@@ -24,12 +24,12 @@ import {
   FieldModalTabs,
   FieldType,
   Group,
+  FieldTypePropertyInput,
 } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
-import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
@@ -46,7 +46,7 @@ export interface FormValues {
   isTitle: boolean;
   required: boolean;
   type?: FieldType;
-  typeProperty: SchemaFieldTypePropertyInput;
+  typeProperty: FieldTypePropertyInput;
 }
 
 export interface Props {

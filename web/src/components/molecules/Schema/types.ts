@@ -67,17 +67,24 @@ export type TypeProperty = {
   values?: string[];
 };
 
-export type CreationFieldTypePropertyInput = {
-  asset?: { defaultValue: string };
-  integer?: { defaultValue: number; min: number; max: number };
-  markdownText?: { defaultValue: string; maxLength: number };
+export type FieldTypePropertyInput = {
+  text?: { defaultValue?: string; maxLength?: number };
+  textArea?: { defaultValue?: string; maxLength?: number };
+  markdownText?: { defaultValue?: string; maxLength?: number };
+  asset?: { defaultValue?: string };
+  date?: { defaultValue: string };
+  bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
-  text?: { defaultValue: string; maxLength: number };
-  textArea?: { defaultValue: string; maxLength: number };
+  integer?: { defaultValue: number | ""; min: number | null; max: number | null };
   url?: { defaultValue: string };
   reference?: {
     modelId: string;
-    correspondingField: any;
+    correspondingField: {
+      key: string;
+      title: string;
+      description: string;
+      required: boolean;
+    } | null;
   };
   group?: {
     groupId: string;

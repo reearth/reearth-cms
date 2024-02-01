@@ -19,7 +19,7 @@ import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldMo
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
-  CreationFieldTypePropertyInput,
+  FieldTypePropertyInput,
   FieldModalTabs,
   FieldType,
   Group,
@@ -28,7 +28,6 @@ import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
-import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
@@ -45,7 +44,7 @@ export type FormValues = {
   isTitle: boolean;
   required: boolean;
   type?: FieldType;
-  typeProperty: CreationFieldTypePropertyInput | SchemaFieldTypePropertyInput;
+  typeProperty: FieldTypePropertyInput;
 };
 
 export type Props = {
