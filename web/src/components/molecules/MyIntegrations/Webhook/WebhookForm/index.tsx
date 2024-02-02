@@ -64,19 +64,18 @@ const WebhookForm: React.FC<Props> = ({
         (ac, a) => ({ ...ac, [a]: true }),
         {},
       ) as WebhookTrigger;
-      // TODO: refactor
-      values.active = false;
+      const payload = {
+        ...values,
+        active: false,
+        trigger,
+      };
       if (webhookInitialValues?.id) {
-        const val = {
-          ...values,
-          active: webhookInitialValues.active,
-          webhookId: webhookInitialValues.id,
-          trigger,
-        };
-        await onWebhookUpdate(val);
+        payload.active = webhookInitialValues.active;
+        payload.webhookId = webhookInitialValues.id;
+        await onWebhookUpdate(payload);
         onBack?.();
       } else {
-        await onWebhookCreate?.({ ...values, trigger });
+        await onWebhookCreate?.(payload);
         form.resetFields();
       }
     } catch (info) {

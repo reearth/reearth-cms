@@ -69,8 +69,6 @@ const UploadModal: React.FC<Props> = ({
         <TabPane tab={t("URL")} key="url">
           <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
         </TabPane>
-        {/* TODO: uncomment this once upload asset from google drive is implemented */}
-        {/* <TabPane tab={t("Google Drive")} key="3" /> */}
       </Tabs>
       <Footer>
         <CancelButton type="default" disabled={uploading} onClick={onCancel}>

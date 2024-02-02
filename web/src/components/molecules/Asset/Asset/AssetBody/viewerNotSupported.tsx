@@ -8,7 +8,6 @@ const ViewerNotSupported: React.FC = () => {
   return (
     <ViewerNotSupportedContainer>
       <ViewerNotSupportedWrapper>
-        {/* TODO: should be replaced with ExclamationCircleTwoTone */}
         <StyledIcon icon="exclamationCircle" />
         <ViewerNotSupportedText>{t("Not supported")}</ViewerNotSupportedText>
       </ViewerNotSupportedWrapper>

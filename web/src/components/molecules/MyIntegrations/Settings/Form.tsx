@@ -23,9 +23,8 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      // TODO: when assets upload is ready to use
-      values.logoUrl = "_";
-      await onIntegrationUpdate?.(values);
+      values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
+      onIntegrationUpdate?.(values);
     } catch (info) {
       console.log("Validate Failed:", info);
     }

@@ -27,20 +27,22 @@ const RequestSidebarWrapper: React.FC<Props> = ({
   const [selectedReviewers, setSelectedReviewers] = useState<string[]>([]);
   const [viewReviewers, toggleViewReviewers] = useState<boolean>(false);
   const currentReviewers = currentRequest?.reviewers;
-  const reviewers: SelectProps["options"] = [];
-  // TODO: this needs performance improvement
-  workspaceUserMembers
+  const reviewers: SelectProps["options"] = workspaceUserMembers
     ?.filter(
       member =>
         currentReviewers?.findIndex(currentReviewer => currentReviewer.id === member.userId) === -1,
     )
-    .forEach(member => {
-      reviewers.push({
-        label: member.user.name,
-        value: member.userId,
-        name: member.user.name,
-      });
-    });
+    .reduce(
+      (acc, member) => {
+        acc?.push({
+          label: member.user.name,
+          value: member.userId,
+          name: member.user.name,
+        });
+        return acc;
+      },
+      [] as SelectProps["options"],
+    );
 
   const displayViewReviewers = () => {
     toggleViewReviewers(true);
