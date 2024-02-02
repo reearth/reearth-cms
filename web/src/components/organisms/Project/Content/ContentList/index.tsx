@@ -3,11 +3,13 @@ import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPane
 import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
+import { useWorkspace } from "@reearth-cms/state";
 
 import useHooks from "./hooks";
 
 const ContentList: React.FC = () => {
   const t = useT();
+  const [currentWorkspace] = useWorkspace();
 
   const {
     currentModel,
@@ -80,6 +82,7 @@ const ContentList: React.FC = () => {
           onViewChange={handleViewChange}
         />
       }
+      currentWorkspace={currentWorkspace}
       onContentTableChange={handleContentTableChange}
       onSearchTerm={handleSearchTerm}
       onFilterChange={handleFilterChange}

@@ -12,6 +12,7 @@ import { ContentTableField, Item } from "@reearth-cms/components/molecules/Conte
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { ItemSort, AndConditionInput } from "@reearth-cms/components/molecules/View/types";
+import { Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
@@ -23,6 +24,7 @@ export type Props = {
   contentTableFields?: ContentTableField[];
   itemsDataLoading: boolean;
   contentTableColumns?: ProColumns<ContentTableField>[];
+  currentWorkspace?: Workspace;
   modelsMenu: React.ReactNode;
   selectedItem: Item | undefined;
   selection: {
@@ -65,6 +67,7 @@ const ContentListMolecule: React.FC<Props> = ({
   model,
   contentTableFields,
   contentTableColumns,
+  currentWorkspace,
   modelsMenu,
   itemsDataLoading,
   selectedItem,
@@ -147,6 +150,7 @@ const ContentListMolecule: React.FC<Props> = ({
             onItemEdit={onItemEdit}
             contentTableFields={contentTableFields}
             contentTableColumns={contentTableColumns}
+            currentWorkspace={currentWorkspace}
             onItemDelete={onItemDelete}
             requests={requests}
             addItemToRequestModalShown={addItemToRequestModalShown}
