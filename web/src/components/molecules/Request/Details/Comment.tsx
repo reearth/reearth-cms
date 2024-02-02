@@ -30,9 +30,9 @@ const ThreadCommentMolecule: React.FC<Props> = ({
   const [showEditor, setShowEditor] = useState(false);
   const [value, setValue] = useState(comment.content);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
-  };
+  }, []);
 
   useEffect(() => {
     setValue(comment.content);

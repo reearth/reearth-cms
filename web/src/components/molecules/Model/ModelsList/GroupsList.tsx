@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -33,9 +33,12 @@ const GroupsList: React.FC<Props> = ({
     return selectedSchemaType && selectedSchemaType === "group" && selectedKey ? [selectedKey] : [];
   }, [selectedKey, selectedSchemaType]);
 
-  const handleClick = (e: MenuInfo) => {
-    onGroupSelect?.(e.key);
-  };
+  const handleClick = useCallback(
+    (e: MenuInfo) => {
+      onGroupSelect?.(e.key);
+    },
+    [onGroupSelect],
+  );
 
   return (
     <SchemaStyledMenu className={className}>

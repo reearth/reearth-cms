@@ -32,9 +32,12 @@ const ModelsList: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const handleClick = (e: MenuInfo) => {
-    onModelSelect(e.key);
-  };
+  const handleClick = useCallback(
+    (e: MenuInfo) => {
+      onModelSelect(e.key);
+    },
+    [onModelSelect],
+  );
 
   const onDragEnd = useCallback(
     (fromIndex: number, toIndex: number) => {

@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -42,9 +43,13 @@ const UploadModal: React.FC<Props> = ({
   onCancel,
 }) => {
   const t = useT();
-  const handleTabChange = (key: string) => {
-    setUploadType(key as UploadType);
-  };
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setUploadType(key as UploadType);
+    },
+    [setUploadType],
+  );
 
   return (
     <Modal

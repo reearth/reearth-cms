@@ -44,13 +44,13 @@ const RequestSidebarWrapper: React.FC<Props> = ({
       [] as SelectProps["options"],
     );
 
-  const displayViewReviewers = () => {
+  const displayViewReviewers = useCallback(() => {
     toggleViewReviewers(true);
-  };
+  }, []);
 
-  const hideViewReviewers = () => {
+  const hideViewReviewers = useCallback(() => {
     toggleViewReviewers(false);
-  };
+  }, []);
 
   const handleSubmit: FocusEventHandler<HTMLElement> | undefined = useCallback(async () => {
     const requestId = currentRequest?.id;
@@ -81,6 +81,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     currentRequest?.state,
     currentRequest?.title,
     currentReviewers,
+    hideViewReviewers,
     onRequestUpdate,
     selectedReviewers,
   ]);
