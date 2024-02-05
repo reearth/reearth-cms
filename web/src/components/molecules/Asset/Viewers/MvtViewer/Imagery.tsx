@@ -71,7 +71,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       return {
         strokeStyle: "white",
         fillStyle: selectedFeature === fid ? "orange" : "red",
-        lineWidth: 1,
+        lineWidth: VectorTileFeature.types[f.type] === "Point" ? 5 : 1,
       };
     },
     [selectedFeature],
