@@ -27,7 +27,7 @@ const DefaultField: React.FC<DefaultFieldProps> = ({ field, handleBlurUpdate }) 
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
         <MultiValueField
-          onBlur={handleBlurUpdate}
+          // onBlur={handleBlurUpdate}
           showCount={true}
           maxLength={field?.typeProperty?.maxLength ?? 500}
           FieldInput={Input}
