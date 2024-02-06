@@ -1,7 +1,6 @@
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
-import FieldCreationModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
+import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
-import FieldUpdateModal from "@reearth-cms/components/molecules/Schema/FieldModal/FieldUpdateModal";
 import GroupDeletionModal from "@reearth-cms/components/molecules/Schema/GroupDeletionModal";
 import GroupFormModal from "@reearth-cms/components/molecules/Schema/GroupFormModal";
 import ModelDeletionModal from "@reearth-cms/components/molecules/Schema/ModelDeletionModal";
@@ -177,48 +176,16 @@ const ProjectSchema: React.FC = () => {
         />
       )}
       {selectedType && selectedType !== "Reference" && (
-        <FieldCreationModal
+        <FieldModal
           groups={groups}
           selectedType={selectedType}
           isMeta={isMeta}
-          open={fieldCreationModalShown}
-          fieldCreationLoading={fieldCreationLoading}
-          handleFieldKeyUnique={handleFieldKeyUnique}
-          onClose={handleFieldCreationModalClose}
-          onSubmit={handleFieldCreate}
-          assetList={assetList}
-          onAssetTableChange={handleAssetTableChange}
-          totalCount={totalCount}
-          page={page}
-          pageSize={pageSize}
-          fileList={fileList}
-          loadingAssets={loading}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          onUploadModalCancel={handleUploadModalCancel}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onAssetsCreate={handleAssetsCreate}
-          onAssetCreateFromUrl={handleAssetCreateFromUrl}
-          onAssetSearchTerm={handleSearchTerm}
-          onAssetsReload={handleAssetsReload}
-          setFileList={setFileList}
-          setUploadModalVisibility={setUploadModalVisibility}
-        />
-      )}
-      {selectedType && selectedType !== "Reference" && (
-        <FieldUpdateModal
-          groups={groups}
-          fieldUpdateLoading={fieldUpdateLoading}
-          selectedType={selectedType}
-          isMeta={isMeta}
-          open={fieldUpdateModalShown}
+          open={selectedField ? fieldUpdateModalShown : fieldCreationModalShown}
+          fieldLoading={selectedField ? fieldUpdateLoading : fieldCreationLoading}
           selectedField={selectedField}
           handleFieldKeyUnique={handleFieldKeyUnique}
-          onClose={handleFieldUpdateModalClose}
-          onSubmit={handleFieldUpdate}
+          onClose={selectedField ? handleFieldUpdateModalClose : handleFieldCreationModalClose}
+          onSubmit={selectedField ? handleFieldUpdate : handleFieldCreate}
           onAssetTableChange={handleAssetTableChange}
           totalCount={totalCount}
           page={page}

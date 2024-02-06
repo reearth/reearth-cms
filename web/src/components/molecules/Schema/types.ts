@@ -24,7 +24,7 @@ export type Field = {
   type: FieldType;
   title: string;
   key: string;
-  description: string | null | undefined;
+  description: string;
   required: boolean;
   unique: boolean;
   multiple: boolean;
