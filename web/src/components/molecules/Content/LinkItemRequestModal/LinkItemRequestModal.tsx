@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -51,11 +51,11 @@ const LinkItemRequestModal: React.FC<Props> = ({
     pageSize: requestModalPageSize,
   };
 
-  const submit = () => {
+  const submit = useCallback(() => {
     onChange?.(requestList.find(request => request.id === selectedRequestId) as Request, itemIds);
     setSelectedRequestId(undefined);
     onLinkItemRequestModalCancel();
-  };
+  }, [onChange, requestList, selectedRequestId, itemIds, onLinkItemRequestModalCancel]);
 
   const columns: ProColumns<Request>[] = [
     {

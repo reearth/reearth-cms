@@ -468,9 +468,8 @@ const DropdownRender: React.FC<Props> = ({
                 key={defaultValue?.value}
               />
             ) : filter.type === "Date" ? (
-              <DatePicker
+              <StyledDatePicker
                 onChange={onDateChange}
-                style={{ width: "100%" }}
                 placeholder="Select the date"
                 showToday={false}
                 defaultValue={
@@ -534,4 +533,8 @@ const StyledDivider = styled(Divider)`
 const ButtonsFormItem = styled(Form.Item)`
   text-align: right;
   padding: 8px 4px;
+`;
+
+const StyledDatePicker = styled(DatePicker)`
+  width: 100%;
 `;

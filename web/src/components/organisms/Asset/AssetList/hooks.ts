@@ -225,9 +225,12 @@ export default () => {
     refetchAssetsItems();
   }, [refetch, refetchAssetsItems]);
 
-  const handleNavigateToAsset = (asset: Asset) => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
-  };
+  const handleNavigateToAsset = useCallback(
+    (asset: Asset) => {
+      navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${asset.id}`);
+    },
+    [navigate, projectId, workspaceId],
+  );
 
   useEffect(() => {
     const assets =

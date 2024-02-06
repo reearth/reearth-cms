@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -137,9 +137,9 @@ const LinkItemModal: React.FC<Props> = ({
     }
   }, [visible]);
 
-  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
-  };
+  }, []);
 
   const toolbar: ListToolBarProps = {
     search: (
