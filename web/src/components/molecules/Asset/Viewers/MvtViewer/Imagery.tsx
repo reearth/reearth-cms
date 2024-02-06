@@ -34,7 +34,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
-  const [minimumLevel, setMinimumLevel] = useState<number | undefined>();
+  // const [minimumLevel, setMinimumLevel] = useState<number | undefined>();
   const [maximumLevel, setMaximumLevel] = useState<number | undefined>();
 
   const zoomTo = useCallback(
@@ -58,8 +58,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
-          setMinimumLevel(data.minimumLevel ?? 8);
-          setMaximumLevel(data.maximumLevel ?? 15);
+          // setMinimumLevel(data.minimumLevel);
+          setMaximumLevel(data.maximumLevel);
         }
         zoomTo(data?.center || defaultCameraPosition, !data?.center);
       } catch (error) {
@@ -101,7 +101,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       layerName: currentLayer,
       style,
       onSelectFeature,
-      minimumLevel,
+      // minimumLevel,
       maximumLevel,
     });
 
@@ -125,7 +125,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     selectFeature,
     onSelectFeature,
     style,
-    minimumLevel,
+    // minimumLevel,
     maximumLevel,
   ]);
 
@@ -193,7 +193,7 @@ export function parseMetadata(json: any):
   | {
       layers: string[];
       center: [lng: number, lat: number, height: number] | undefined;
-      minimumLevel?: number;
+      // minimumLevel?: number;
       maximumLevel?: number;
     }
   | undefined {
@@ -218,23 +218,8 @@ export function parseMetadata(json: any):
     // ignore
   }
 
-  let minimumLevel = undefined;
-  try {
-    if (json.minzoom && typeof json.minzoom === "number") {
-      minimumLevel = json.minzoom;
-    }
-  } catch {
-    // ignore
-  }
+  // const minimumLevel = json.minzoom;
+  const maximumLevel = json.maxzoom;
 
-  let maximumLevel = undefined;
-  try {
-    if (json.maxzoom && typeof json.maxzoom === "number") {
-      maximumLevel = json.maxzoom;
-    }
-  } catch {
-    // ignore
-  }
-
-  return { layers, center, minimumLevel, maximumLevel };
+  return { layers, center, /*minimumLevel,*/ maximumLevel };
 }
