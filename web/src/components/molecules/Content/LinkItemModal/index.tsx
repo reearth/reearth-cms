@@ -45,7 +45,6 @@ const LinkItemModal: React.FC<Props> = ({
   const [hoveredAssetId, setHoveredItemId] = useState<string>();
   const t = useT();
   const { confirm } = Modal;
-
   const { value, pagination, handleInput, handleCheckItemReference } = useHooks(
     linkItemModalTotalCount,
     linkItemModalPage,
@@ -153,6 +152,7 @@ const LinkItemModal: React.FC<Props> = ({
     }),
     [t, value, handleInput, onSearchTerm],
   );
+
   return (
     <Modal
       open={visible}
