@@ -21,9 +21,9 @@ type Props = {
   defaultValue: DefaultFilterValueType;
   filterRemove: (index: number) => void;
   isFilterOpen: boolean;
-  currentView: CurrentViewType;
-  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
-  onFilterChange: (filter?: AndConditionInput) => void;
+  currentView?: CurrentViewType;
+  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>;
+  onFilterChange?: (filter?: AndConditionInput) => void;
 };
 
 const FilterDropdown: React.FC<Props> = ({
