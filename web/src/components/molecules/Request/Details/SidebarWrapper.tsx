@@ -7,13 +7,13 @@ import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 export type Props = {
   currentRequest?: Request;
-  workspaceUserMembers: Member[];
+  workspaceUserMembers: UserMember[];
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
 };
 
