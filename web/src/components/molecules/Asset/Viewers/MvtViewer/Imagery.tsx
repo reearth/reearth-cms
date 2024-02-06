@@ -34,7 +34,6 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
-  // const [minimumLevel, setMinimumLevel] = useState<number | undefined>();
   const [maximumLevel, setMaximumLevel] = useState<number | undefined>();
 
   const zoomTo = useCallback(
@@ -58,7 +57,6 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
-          // setMinimumLevel(data.minimumLevel);
           setMaximumLevel(data.maximumLevel);
         }
         zoomTo(data?.center || defaultCameraPosition, !data?.center);
@@ -101,7 +99,6 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       layerName: currentLayer,
       style,
       onSelectFeature,
-      // minimumLevel,
       maximumLevel,
     });
 
@@ -125,7 +122,6 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     selectFeature,
     onSelectFeature,
     style,
-    // minimumLevel,
     maximumLevel,
   ]);
 
@@ -193,7 +189,6 @@ export function parseMetadata(json: any):
   | {
       layers: string[];
       center: [lng: number, lat: number, height: number] | undefined;
-      // minimumLevel?: number;
       maximumLevel?: number;
     }
   | undefined {
@@ -218,8 +213,7 @@ export function parseMetadata(json: any):
     // ignore
   }
 
-  // const minimumLevel = json.minzoom;
   const maximumLevel = json.maxzoom;
 
-  return { layers, center, /*minimumLevel,*/ maximumLevel };
+  return { layers, center, maximumLevel };
 }
