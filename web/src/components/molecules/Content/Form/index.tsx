@@ -1,56 +1,36 @@
 import styled from "@emotion/styled";
-import moment from "moment";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import DatePicker from "@reearth-cms/components/atoms/DatePicker";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
-import InputNumber from "@reearth-cms/components/atoms/InputNumber";
-import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
-import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import Select from "@reearth-cms/components/atoms/Select";
-import Space from "@reearth-cms/components/atoms/Space";
-import Switch from "@reearth-cms/components/atoms/Switch";
-import Tag from "@reearth-cms/components/atoms/Tag";
-import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import GroupItem from "@reearth-cms/components/molecules//Common/Form/GroupItem";
 import MultiValueGroup from "@reearth-cms/components/molecules//Common/MultiValueField/MultiValueGroup";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
-import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
-import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
-import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
-import {
-  Item,
-  FormItem,
-  ItemField,
-  ItemValue,
-} from "@reearth-cms/components/molecules/Content/types";
+import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType, Group, Model, Field } from "@reearth-cms/components/molecules/Schema/types";
+import { Group, Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { transformMomentToString } from "@reearth-cms/utils/format";
-import { validateURL } from "@reearth-cms/utils/regex";
+
+import { DefaultField } from "./fields/FieldComponents";
+import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
+import useHooks from "./hooks";
 
 export interface Props {
   item?: Item;
@@ -164,25 +144,23 @@ const ContentForm: React.FC<Props> = ({
   requestModalPage,
   requestModalPageSize,
   requestCreationLoading,
-  linkItemModalTitle,
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
   onReferenceModelUpdate,
-  onSearchTerm,
   onLinkItemTableChange,
   onPublish,
-  onUnpublish,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
   setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
   onItemCreate,
   onItemUpdate,
   onMetaItemUpdate,
   onBack,
+  onUnpublish,
+  onAssetsCreate,
+  onAssetCreateFromUrl,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -191,287 +169,40 @@ const ContentForm: React.FC<Props> = ({
   onChange,
   onModalClose,
   onModalOpen,
-  onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onAddItemToRequestModalClose,
 }) => {
   const t = useT();
-  const { Option } = Select;
-  const [form] = Form.useForm();
-  const [metaForm] = Form.useForm();
-  const [publishModalOpen, setPublishModalOpen] = useState(false);
-  const changedKeys = useRef(new Set<string>());
-
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      currentLocation.pathname !== nextLocation.pathname && changedKeys.current.size > 0,
-  );
-
-  const checkIfSingleGroupField = useCallback(
-    (key: string, value: any) => {
-      return (
-        initialFormValues[key] &&
-        typeof value === "object" &&
-        !Array.isArray(value) &&
-        !moment.isMoment(value) &&
-        value !== null
-      );
-    },
-    [initialFormValues],
-  );
-
-  const emptyConvert = useCallback((value: any) => {
-    if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
-      return undefined;
-    } else {
-      return value;
-    }
-  }, []);
-
-  const handleValuesChange = useCallback(
-    (changedValues: any) => {
-      const [key, value] = Object.entries(changedValues)[0];
-      if (checkIfSingleGroupField(key, value)) {
-        const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
-        const changedFieldValue = (value as any)[groupFieldKey];
-        if (
-          JSON.stringify(emptyConvert(changedFieldValue)) ===
-          JSON.stringify(emptyConvert(groupFieldValue))
-        ) {
-          changedKeys.current.delete(key);
-        } else if (changedFieldValue !== undefined) {
-          changedKeys.current.add(key);
-        }
-      } else if (
-        JSON.stringify(emptyConvert(value)) === JSON.stringify(emptyConvert(initialFormValues[key]))
-      ) {
-        changedKeys.current.delete(key);
-      } else {
-        changedKeys.current.add(key);
-      }
-    },
-    [checkIfSingleGroupField, emptyConvert, initialFormValues],
-  );
-
-  useEffect(() => {
-    const openNotification = () => {
-      const key = `open${Date.now()}`;
-      const btn = (
-        <Space>
-          <Button
-            onClick={() => {
-              Notification.close(key);
-              blocker.reset?.();
-            }}>
-            {t("Cancel")}
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              Notification.close(key);
-              blocker.proceed?.();
-            }}>
-            {t("Leave")}
-          </Button>
-        </Space>
-      );
-      Notification.config({
-        maxCount: 1,
-      });
-
-      Notification.info({
-        message: t("This item has unsaved data"),
-        description: t("Are you going to leave?"),
-        btn,
-        key,
-        placement: "top",
-        // TODO: Change to false when antd is updated
-        closeIcon: <span />,
-      });
-    };
-    if (blocker.state === "blocked") {
-      openNotification();
-    }
-  }, [t, blocker]);
-
-  useEffect(() => {
-    const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
-      if (changedKeys.current.size === 0) return;
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnloadEvent, true);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnloadEvent, true);
-  }, []);
-
-  useEffect(() => {
-    form.setFieldsValue(initialFormValues);
-  }, [form, initialFormValues]);
-
-  useEffect(() => {
-    metaForm.setFieldsValue(initialMetaFormValues);
-  }, [metaForm, initialMetaFormValues]);
-
-  const handleBack = useCallback(() => {
-    onBack(model?.id);
-  }, [onBack, model]);
-
-  const unpublishedItems = useMemo(
-    () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
-    [formItemsData],
-  );
-
-  const inputValueGet = useCallback((value: ItemValue, multiple: boolean) => {
-    if (multiple) {
-      if (Array.isArray(value)) {
-        return value.map(v => (moment.isMoment(v) ? transformMomentToString(v) : v));
-      } else {
-        return [];
-      }
-    } else {
-      return moment.isMoment(value) ? transformMomentToString(value) : value ?? "";
-    }
-  }, []);
-
-  const handleSubmit = useCallback(async () => {
-    try {
-      const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
-      const groupIdsInCurrentModel = new Set();
-      model?.schema.fields?.forEach(field => {
-        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty?.groupId);
-      });
-      const groupFields = new Map<string, Field>();
-      groups
-        ?.filter(group => groupIdsInCurrentModel.has(group.id))
-        .forEach(group => {
-          group?.schema.fields?.forEach(field => groupFields.set(field.id, field));
-        });
-      const values = await form.validateFields();
-      const fields: ItemField[] = [];
-      for (const [key, value] of Object.entries(values)) {
-        const modelField = modelFields.get(key);
-        if (modelField) {
-          fields.push({
-            value: inputValueGet(value as ItemValue, modelField.multiple),
-            schemaFieldId: key,
-            type: modelField.type,
-          });
-        } else if (typeof value === "object" && value !== null) {
-          for (const [groupFieldKey, groupFieldValue] of Object.entries(value)) {
-            const groupField = groupFields.get(key);
-            if (groupField) {
-              fields.push({
-                value: inputValueGet(groupFieldValue, groupField.multiple),
-                schemaFieldId: key,
-                itemGroupId: groupFieldKey,
-                type: groupField.type,
-              });
-            }
-          }
-        }
-      }
-
-      const metaValues = await metaForm.validateFields();
-      const metaFields: ItemField[] = [];
-      for (const [key, value] of Object.entries(metaValues)) {
-        const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
-        if (type) {
-          metaFields.push({
-            value: moment.isMoment(value) ? transformMomentToString(value) : value ?? "",
-            schemaFieldId: key,
-            type,
-          });
-        }
-      }
-
-      changedKeys.current.clear();
-
-      if (itemId) {
-        await onItemUpdate?.({
-          itemId: itemId,
-          fields,
-        });
-      } else if (model?.schema.id) {
-        await onItemCreate?.({
-          schemaId: model?.schema.id,
-          metaSchemaId: model?.metadataSchema?.id,
-          metaFields,
-          fields,
-        });
-      }
-    } catch (info) {
-      console.log("Validate Failed:", info);
-    }
-  }, [
-    model?.schema.fields,
-    model?.schema.id,
-    model?.metadataSchema?.fields,
-    model?.metadataSchema?.id,
-    groups,
+  const {
+    items,
     form,
     metaForm,
-    itemId,
-    inputValueGet,
-    onItemUpdate,
+    unpublishedItems,
+    publishModalOpen,
+    handleValuesChange,
+    handleBack,
+    handleSubmit,
+    handleMetaUpdate,
+    handlePublishSubmit,
+    handlePublishItemClose,
+  } = useHooks(
+    formItemsData,
+    initialFormValues,
+    initialMetaFormValues,
     onItemCreate,
-  ]);
-
-  const handleMetaUpdate = useCallback(async () => {
-    if (!itemId || !item?.metadata?.id) return;
-    try {
-      const metaValues = await metaForm.validateFields();
-      const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
-      for (const [key, value] of Object.entries(metaValues)) {
-        metaFields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
-          schemaFieldId: key,
-          type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
-        });
-      }
-      await onMetaItemUpdate?.({
-        metaItemId: item.metadata.id,
-        metaFields,
-      });
-    } catch (info) {
-      console.log("Validate Failed:", info);
-    }
-  }, [itemId, item, metaForm, onMetaItemUpdate, model?.metadataSchema?.fields]);
-
-  const items: MenuProps["items"] = useMemo(() => {
-    const menuItems = [
-      {
-        key: "addToRequest",
-        label: t("Add to Request"),
-        onClick: onAddItemToRequestModalOpen,
-      },
-      {
-        key: "unpublish",
-        label: t("Unpublish"),
-        onClick: () => itemId && (onUnpublish([itemId]) as any),
-      },
-    ];
-    if (showPublishAction) {
-      menuItems.unshift({
-        key: "NewRequest",
-        label: t("New Request"),
-        onClick: onModalOpen,
-      });
-    }
-    return menuItems;
-  }, [itemId, showPublishAction, onAddItemToRequestModalOpen, onUnpublish, onModalOpen, t]);
-
-  const handlePublishSubmit = useCallback(async () => {
-    if (!itemId || !unpublishedItems) return;
-    if (unpublishedItems.length === 0) {
-      onPublish([itemId]);
-    } else {
-      setPublishModalOpen(true);
-    }
-  }, [itemId, unpublishedItems, onPublish, setPublishModalOpen]);
-
-  const handlePublishItemClose = useCallback(() => {
-    setPublishModalOpen(false);
-  }, [setPublishModalOpen]);
+    onItemUpdate,
+    onMetaItemUpdate,
+    onBack,
+    onUnpublish,
+    onPublish,
+    onModalOpen,
+    onAddItemToRequestModalOpen,
+    item,
+    groups,
+    showPublishAction,
+    itemId,
+    model,
+  );
 
   return (
     <>
@@ -511,552 +242,220 @@ const ContentForm: React.FC<Props> = ({
           }
         />
         <FormItemsWrapper>
-          {model?.schema.fields.map(field =>
-            field.type === "TextArea" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please input field!"),
-                  },
-                ]}
-                name={field.id}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? (
-                  <MultiValueField
-                    rows={3}
-                    showCount
-                    maxLength={field.typeProperty?.maxLength}
-                    FieldInput={TextArea}
-                  />
-                ) : (
-                  <TextArea rows={3} showCount maxLength={field.typeProperty?.maxLength} />
-                )}
-              </StyledFormItem>
-            ) : field.type === "MarkdownText" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please input field!"),
-                  },
-                ]}
-                name={field.id}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? (
-                  <MultiValueField
-                    maxLength={field.typeProperty?.maxLength}
-                    FieldInput={MarkdownInput}
-                  />
-                ) : (
-                  <MarkdownInput maxLength={field.typeProperty?.maxLength} />
-                )}
-              </StyledFormItem>
-            ) : field.type === "Integer" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please input field!"),
-                  },
-                ]}
-                name={field.id}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? (
-                  <MultiValueField
-                    type="number"
-                    min={field.typeProperty?.min}
-                    max={field.typeProperty?.max}
-                    FieldInput={InputNumber}
-                  />
-                ) : (
-                  <InputNumber
-                    type="number"
-                    min={field.typeProperty?.min}
-                    max={field.typeProperty?.max}
-                  />
-                )}
-              </StyledFormItem>
-            ) : field.type === "Asset" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please input field!"),
-                  },
-                ]}
-                name={field.id}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? (
-                  <MultiValueAsset
-                    assetList={assetList}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
-                  />
-                ) : (
-                  <AssetItem
-                    key={field.id}
-                    assetList={assetList}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
-                  />
-                )}
-              </StyledFormItem>
-            ) : field.type === "Select" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                name={field.id}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please select an option!"),
-                  },
-                ]}>
-                {field.multiple ? (
-                  <MultiValueSelect selectedValues={field.typeProperty?.values} />
-                ) : (
-                  <Select allowClear>
-                    {field.typeProperty?.values?.map((value: string) => (
-                      <Option key={value} value={value}>
-                        {value}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              </StyledFormItem>
-            ) : field.type === "Date" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                name={field.id}
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please input field!"),
-                  },
-                ]}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? (
-                  <MultiValueField type="date" FieldInput={StyledDatePicker} />
-                ) : (
-                  <StyledDatePicker />
-                )}
-              </StyledFormItem>
-            ) : field.type === "Bool" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                name={field.id}
-                valuePropName="checked"
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
-              </StyledFormItem>
-            ) : field.type === "Reference" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                name={field.id}
-                label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
-                <ReferenceFormItem
+          {model?.schema.fields.map(field => {
+            const FieldComponent =
+              FIELD_TYPE_COMPONENT_MAP[
+                field.type as
+                  | "Select"
+                  | "Date"
+                  | "Tag"
+                  | "Bool"
+                  | "Checkbox"
+                  | "URL"
+                  | "TextArea"
+                  | "MarkdownText"
+                  | "Integer"
+              ] || DefaultField;
+            if (field.type === "Asset") {
+              return (
+                <StyledFormItem
                   key={field.id}
-                  correspondingFieldId={field.id}
-                  formItemsData={formItemsData}
-                  modelId={field.typeProperty?.modelId}
-                  onReferenceModelUpdate={onReferenceModelUpdate}
-                  linkItemModalTitle={linkItemModalTitle}
-                  linkedItemsModalList={linkedItemsModalList}
-                  linkItemModalTotalCount={linkItemModalTotalCount}
-                  linkItemModalPage={linkItemModalPage}
-                  linkItemModalPageSize={linkItemModalPageSize}
-                  onSearchTerm={onSearchTerm}
-                  onLinkItemTableChange={onLinkItemTableChange}
-                />
-              </StyledFormItem>
-            ) : field.type === "URL" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                name={field.id}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please input field!"),
-                  },
-                  {
-                    message: "URL is not valid",
-                    validator: async (_, value) => {
-                      if (value) {
-                        if (
-                          Array.isArray(value) &&
-                          value.some(
-                            (valueItem: string) => !validateURL(valueItem) && valueItem.length > 0,
-                          )
-                        )
-                          return Promise.reject();
-                        else if (!Array.isArray(value) && !validateURL(value) && value?.length > 0)
-                          return Promise.reject();
-                      }
-                      return Promise.resolve();
+                  extra={field.description}
+                  rules={[
+                    {
+                      required: field.required,
+                      message: t("Please input field!"),
                     },
-                  },
-                ]}>
-                {field.multiple ? (
-                  <MultiValueField
-                    showCount={true}
-                    maxLength={field.typeProperty?.maxLength ?? 500}
-                    FieldInput={Input}
-                  />
-                ) : (
-                  <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
-                )}
-              </StyledFormItem>
-            ) : field.type === "Group" ? (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                name={field.id}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? (
-                  <MultiValueGroup
-                    parentField={field}
-                    form={form}
-                    groups={groups}
-                    linkedItemsModalList={linkedItemsModalList}
+                  ]}
+                  name={field.id}
+                  label={
+                    <FieldTitle
+                      title={field.title}
+                      isUnique={field.unique}
+                      isTitle={field.isTitle}
+                    />
+                  }>
+                  {field.multiple ? (
+                    <MultiValueAsset
+                      assetList={assetList}
+                      fileList={fileList}
+                      loadingAssets={loadingAssets}
+                      uploading={uploading}
+                      uploadModalVisibility={uploadModalVisibility}
+                      uploadUrl={uploadUrl}
+                      uploadType={uploadType}
+                      totalCount={totalCount}
+                      page={page}
+                      pageSize={pageSize}
+                      onAssetTableChange={onAssetTableChange}
+                      onUploadModalCancel={onUploadModalCancel}
+                      setUploadUrl={setUploadUrl}
+                      setUploadType={setUploadType}
+                      onAssetsCreate={onAssetsCreate}
+                      onAssetCreateFromUrl={onAssetCreateFromUrl}
+                      onAssetsReload={onAssetsReload}
+                      onAssetSearchTerm={onAssetSearchTerm}
+                      setFileList={setFileList}
+                      setUploadModalVisibility={setUploadModalVisibility}
+                    />
+                  ) : (
+                    <AssetItem
+                      key={field.id}
+                      assetList={assetList}
+                      fileList={fileList}
+                      loadingAssets={loadingAssets}
+                      uploading={uploading}
+                      uploadModalVisibility={uploadModalVisibility}
+                      uploadUrl={uploadUrl}
+                      uploadType={uploadType}
+                      totalCount={totalCount}
+                      page={page}
+                      pageSize={pageSize}
+                      onAssetTableChange={onAssetTableChange}
+                      onUploadModalCancel={onUploadModalCancel}
+                      setUploadUrl={setUploadUrl}
+                      setUploadType={setUploadType}
+                      onAssetsCreate={onAssetsCreate}
+                      onAssetCreateFromUrl={onAssetCreateFromUrl}
+                      onAssetsReload={onAssetsReload}
+                      onAssetSearchTerm={onAssetSearchTerm}
+                      setFileList={setFileList}
+                      setUploadModalVisibility={setUploadModalVisibility}
+                    />
+                  )}
+                </StyledFormItem>
+              );
+            }
+
+            if (field.type === "Reference") {
+              return (
+                <StyledFormItem
+                  key={field.id}
+                  extra={field.description}
+                  name={field.id}
+                  label={
+                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
+                  }>
+                  <ReferenceFormItem
+                    key={field.id}
+                    correspondingFieldId={field.id}
                     formItemsData={formItemsData}
-                    assetList={assetList}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
+                    modelId={field.typeProperty?.modelId}
+                    onReferenceModelUpdate={onReferenceModelUpdate}
+                    linkedItemsModalList={linkedItemsModalList}
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
-                    onReferenceModelUpdate={onReferenceModelUpdate}
                     onLinkItemTableChange={onLinkItemTableChange}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
                   />
-                ) : (
-                  <GroupItem
-                    parentField={field}
-                    linkedItemsModalList={linkedItemsModalList}
-                    formItemsData={formItemsData}
-                    assetList={assetList}
-                    fileList={fileList}
-                    loadingAssets={loadingAssets}
-                    uploading={uploading}
-                    uploadModalVisibility={uploadModalVisibility}
-                    uploadUrl={uploadUrl}
-                    uploadType={uploadType}
-                    totalCount={totalCount}
-                    page={page}
-                    pageSize={pageSize}
-                    linkItemModalTotalCount={linkItemModalTotalCount}
-                    linkItemModalPage={linkItemModalPage}
-                    linkItemModalPageSize={linkItemModalPageSize}
-                    onReferenceModelUpdate={onReferenceModelUpdate}
-                    onLinkItemTableChange={onLinkItemTableChange}
-                    onAssetTableChange={onAssetTableChange}
-                    onUploadModalCancel={onUploadModalCancel}
-                    setUploadUrl={setUploadUrl}
-                    setUploadType={setUploadType}
-                    onAssetsCreate={onAssetsCreate}
-                    onAssetCreateFromUrl={onAssetCreateFromUrl}
-                    onAssetsReload={onAssetsReload}
-                    onAssetSearchTerm={onAssetSearchTerm}
-                    setFileList={setFileList}
-                    setUploadModalVisibility={setUploadModalVisibility}
-                  />
-                )}
-              </StyledFormItem>
-            ) : (
-              <StyledFormItem
-                key={field.id}
-                extra={field.description}
-                rules={[
-                  {
-                    required: field.required,
-                    message: t("Please input field!"),
-                  },
-                ]}
-                name={field.id}
-                label={
-                  <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-                }>
-                {field.multiple ? (
-                  <MultiValueField
-                    showCount={true}
-                    maxLength={field.typeProperty?.maxLength ?? 500}
-                    FieldInput={Input}
-                  />
-                ) : (
-                  <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
-                )}
-              </StyledFormItem>
-            ),
-          )}
+                </StyledFormItem>
+              );
+            }
+
+            if (field.type === "Group") {
+              return (
+                <StyledFormItem
+                  key={field.id}
+                  extra={field.description}
+                  name={field.id}
+                  label={
+                    <FieldTitle
+                      title={field.title}
+                      isUnique={field.unique}
+                      isTitle={field.isTitle}
+                    />
+                  }>
+                  {field.multiple ? (
+                    <MultiValueGroup
+                      parentField={field}
+                      form={form}
+                      groups={groups}
+                      linkedItemsModalList={linkedItemsModalList}
+                      formItemsData={formItemsData}
+                      assetList={assetList}
+                      fileList={fileList}
+                      loadingAssets={loadingAssets}
+                      uploading={uploading}
+                      uploadModalVisibility={uploadModalVisibility}
+                      uploadUrl={uploadUrl}
+                      uploadType={uploadType}
+                      totalCount={totalCount}
+                      page={page}
+                      pageSize={pageSize}
+                      linkItemModalTotalCount={linkItemModalTotalCount}
+                      linkItemModalPage={linkItemModalPage}
+                      linkItemModalPageSize={linkItemModalPageSize}
+                      onReferenceModelUpdate={onReferenceModelUpdate}
+                      onLinkItemTableChange={onLinkItemTableChange}
+                      onAssetTableChange={onAssetTableChange}
+                      onUploadModalCancel={onUploadModalCancel}
+                      setUploadUrl={setUploadUrl}
+                      setUploadType={setUploadType}
+                      onAssetsCreate={onAssetsCreate}
+                      onAssetCreateFromUrl={onAssetCreateFromUrl}
+                      onAssetsReload={onAssetsReload}
+                      onAssetSearchTerm={onAssetSearchTerm}
+                      setFileList={setFileList}
+                      setUploadModalVisibility={setUploadModalVisibility}
+                    />
+                  ) : (
+                    <GroupItem
+                      parentField={field}
+                      linkedItemsModalList={linkedItemsModalList}
+                      formItemsData={formItemsData}
+                      assetList={assetList}
+                      fileList={fileList}
+                      loadingAssets={loadingAssets}
+                      uploading={uploading}
+                      uploadModalVisibility={uploadModalVisibility}
+                      uploadUrl={uploadUrl}
+                      uploadType={uploadType}
+                      totalCount={totalCount}
+                      page={page}
+                      pageSize={pageSize}
+                      linkItemModalTotalCount={linkItemModalTotalCount}
+                      linkItemModalPage={linkItemModalPage}
+                      linkItemModalPageSize={linkItemModalPageSize}
+                      onReferenceModelUpdate={onReferenceModelUpdate}
+                      onLinkItemTableChange={onLinkItemTableChange}
+                      onAssetTableChange={onAssetTableChange}
+                      onUploadModalCancel={onUploadModalCancel}
+                      setUploadUrl={setUploadUrl}
+                      setUploadType={setUploadType}
+                      onAssetsCreate={onAssetsCreate}
+                      onAssetCreateFromUrl={onAssetCreateFromUrl}
+                      onAssetsReload={onAssetsReload}
+                      onAssetSearchTerm={onAssetSearchTerm}
+                      setFileList={setFileList}
+                      setUploadModalVisibility={setUploadModalVisibility}
+                    />
+                  )}
+                </StyledFormItem>
+              );
+            }
+
+            return (
+              <StyledFormItemWrapper key={field.id}>
+                <FieldComponent field={field} />
+              </StyledFormItemWrapper>
+            );
+          })}
         </FormItemsWrapper>
       </StyledForm>
       <SideBarWrapper>
         <Form form={metaForm} layout="vertical" initialValues={initialMetaFormValues}>
           <ContentSidebarWrapper item={item} />
-          {model?.metadataSchema?.fields?.map(field =>
-            field.type === "Tag" ? (
+          {model?.metadataSchema?.fields?.map(field => {
+            const FieldComponent =
+              FIELD_TYPE_COMPONENT_MAP[
+                field.type as "Tag" | "Date" | "Bool" | "Checkbox" | "URL"
+              ] || DefaultField;
+            return (
               <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  name={field.id}
-                  rules={[
-                    {
-                      required: field.required,
-                      message: t("Please input field!"),
-                    },
-                  ]}
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <StyledMultipleSelect
-                      onBlur={handleMetaUpdate}
-                      mode="multiple"
-                      showArrow
-                      allowClear>
-                      {field.typeProperty?.tags?.map(
-                        (tag: { id: string; name: string; color: string }) => (
-                          <Select.Option key={tag.name} value={tag.id}>
-                            <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-                          </Select.Option>
-                        ),
-                      )}
-                    </StyledMultipleSelect>
-                  ) : (
-                    <Select onBlur={handleMetaUpdate} showArrow allowClear>
-                      {field.typeProperty?.tags?.map(
-                        (tag: { id: string; name: string; color: string }) => (
-                          <Select.Option key={tag.name} value={tag.id}>
-                            <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-                          </Select.Option>
-                        ),
-                      )}
-                    </Select>
-                  )}
-                </Form.Item>
+                <FieldComponent field={field} handleBlurUpdate={handleMetaUpdate} />
               </MetaFormItemWrapper>
-            ) : field.type === "Date" ? (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  rules={[
-                    {
-                      required: field.required,
-                      message: t("Please input field!"),
-                    },
-                  ]}
-                  name={field.id}
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueField
-                      onChange={handleMetaUpdate}
-                      type="date"
-                      FieldInput={StyledDatePicker}
-                    />
-                  ) : (
-                    <StyledDatePicker onChange={handleMetaUpdate} />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ) : field.type === "Bool" ? (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  name={field.id}
-                  valuePropName="checked"
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Switch} />
-                  ) : (
-                    <Switch onChange={handleMetaUpdate} />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ) : field.type === "Checkbox" ? (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  name={field.id}
-                  valuePropName="checked"
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Checkbox} />
-                  ) : (
-                    <Checkbox onChange={handleMetaUpdate} />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ) : field.type === "URL" ? (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  name={field.id}
-                  label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}
-                  rules={[
-                    {
-                      required: field.required,
-                      message: t("Please input field!"),
-                    },
-                    {
-                      message: "URL is not valid",
-                      validator: async (_, value) => {
-                        if (value) {
-                          if (
-                            Array.isArray(value) &&
-                            value.some(
-                              (valueItem: string) =>
-                                !validateURL(valueItem) && valueItem.length > 0,
-                            )
-                          )
-                            return Promise.reject();
-                          else if (
-                            !Array.isArray(value) &&
-                            !validateURL(value) &&
-                            value?.length > 0
-                          )
-                            return Promise.reject();
-                        }
-                        return Promise.resolve();
-                      },
-                    },
-                  ]}>
-                  {field.multiple ? (
-                    <MultiValueField
-                      onBlur={handleMetaUpdate}
-                      showCount={true}
-                      maxLength={field.typeProperty?.maxLength ?? 500}
-                      FieldInput={Input}
-                    />
-                  ) : (
-                    <Input
-                      onBlur={handleMetaUpdate}
-                      showCount={true}
-                      maxLength={field.typeProperty?.maxLength ?? 500}
-                    />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ) : (
-              <MetaFormItemWrapper key={field.id}>
-                <Form.Item
-                  extra={field.description}
-                  rules={[
-                    {
-                      required: field.required,
-                      message: t("Please input field!"),
-                    },
-                  ]}
-                  name={field.id}
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueField
-                      onBlur={handleMetaUpdate}
-                      showCount={true}
-                      maxLength={field.typeProperty?.maxLength ?? 500}
-                      FieldInput={Input}
-                    />
-                  ) : (
-                    <Input
-                      onBlur={handleMetaUpdate}
-                      showCount={true}
-                      maxLength={field.typeProperty?.maxLength ?? 500}
-                    />
-                  )}
-                </Form.Item>
-              </MetaFormItemWrapper>
-            ),
-          )}
+            );
+          })}
         </Form>
       </SideBarWrapper>
       {itemId && (
@@ -1102,6 +501,11 @@ const StyledFormItem = styled(Form.Item)`
   word-wrap: break-word;
 `;
 
+const StyledFormItemWrapper = styled.div`
+  width: 500px;
+  word-wrap: break-word;
+`;
+
 const StyledForm = styled(Form)`
   width: 100%;
   height: 100%;
@@ -1135,30 +539,6 @@ const MetaFormItemWrapper = styled.div`
   background: #ffffff;
   border: 1px solid #f0f0f0;
   border-radius: 2px;
-`;
-
-const StyledDatePicker = styled(DatePicker)`
-  width: 100%;
-`;
-
-const StyledMultipleSelect = styled(Select)`
-  .ant-select-selection-overflow-item {
-    margin-right: 4px;
-  }
-  .ant-select-selection-item {
-    padding: 0;
-    margin-right: 0;
-    border: 0;
-  }
-  .ant-select-selection-item-content {
-    margin-right: 0;
-  }
-  .ant-select-selection-item-remove {
-    display: none;
-  }
-  .ant-tag {
-    margin-right: 0;
-  }
 `;
 
 export default ContentForm;
