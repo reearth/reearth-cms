@@ -6,6 +6,7 @@ test("parseMetadata", () => {
   expect(parseMetadata(metadata)).toEqual({
     center: [138.1515732, 35.9939779, 0],
     layers: ["HighLevelUseDistrict"],
+    maximumLevel: 15,
   });
 });
 

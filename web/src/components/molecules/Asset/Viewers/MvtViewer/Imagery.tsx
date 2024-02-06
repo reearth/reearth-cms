@@ -34,6 +34,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
+  const [maximumLevel, setMaximumLevel] = useState<number | undefined>();
 
   const zoomTo = useCallback(
     ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
@@ -56,6 +57,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
+          setMaximumLevel(data.maximumLevel);
         }
         zoomTo(data?.center || defaultCameraPosition, !data?.center);
       } catch (error) {
@@ -97,6 +99,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       layerName: currentLayer,
       style,
       onSelectFeature,
+      maximumLevel,
     });
 
     if (viewer) {
@@ -119,6 +122,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     selectFeature,
     onSelectFeature,
     style,
+    maximumLevel,
   ]);
 
   const handleChange = useCallback((value: unknown) => {
@@ -181,10 +185,12 @@ const idFromGeometry = (
   return hash.hex();
 };
 
-export function parseMetadata(
-  json: any,
-):
-  | { layers: string[]; center: [lng: number, lat: number, height: number] | undefined }
+export function parseMetadata(json: any):
+  | {
+      layers: string[];
+      center: [lng: number, lat: number, height: number] | undefined;
+      maximumLevel?: number;
+    }
   | undefined {
   if (!json) return;
 
@@ -207,5 +213,7 @@ export function parseMetadata(
     // ignore
   }
 
-  return { layers, center };
+  const maximumLevel = json.maxzoom;
+
+  return { layers, center, maximumLevel };
 }
