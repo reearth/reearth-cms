@@ -1,9 +1,8 @@
 import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
+import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModal";
 import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
-import GroupDeletionModal from "@reearth-cms/components/molecules/Schema/GroupDeletionModal";
 import GroupFormModal from "@reearth-cms/components/molecules/Schema/GroupFormModal";
-import ModelDeletionModal from "@reearth-cms/components/molecules/Schema/ModelDeletionModal";
 import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
@@ -130,8 +129,8 @@ const ProjectSchema: React.FC = () => {
         onClose={handleModelUpdateModalClose}
         onUpdate={handleModelUpdate}
       />
-      <ModelDeletionModal
-        model={model}
+      <DeletionModal
+        data={model && { id: model.id, name: model.name }}
         open={modelDeletionModalShown}
         onDelete={handleModelDelete}
         onClose={handleModelDeletionModalClose}
@@ -154,11 +153,12 @@ const ProjectSchema: React.FC = () => {
         onClose={handleGroupUpdateModalClose}
         onUpdate={handleGroupUpdate}
       />
-      <GroupDeletionModal
-        group={group}
+      <DeletionModal
+        data={group && { id: group.id, name: group.name }}
         open={groupDeletionModalShown}
         onDelete={handleGroupDelete}
         onClose={handleGroupDeletionModalClose}
+        isGroup
       />
       {selectedType && selectedType === "Reference" && (
         <FieldCreationModalWithSteps
