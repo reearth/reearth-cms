@@ -34,8 +34,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
+  const [minimumLevel, setMinimumLevel] = useState<number | undefined>();
   const [maximumLevel, setMaximumLevel] = useState<number | undefined>();
-  // const [minimumLevel, setMinimumLevel] = useState<number>();
 
   const zoomTo = useCallback(
     ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
@@ -58,8 +58,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
-          setMaximumLevel(data.maximumLevel ?? 16);
-          // setMinimumLevel(data.minimumLevel);
+          setMinimumLevel(data.minimumLevel ?? 1);
+          setMaximumLevel(data.maximumLevel ?? 10);
         }
         zoomTo(data?.center || defaultCameraPosition, !data?.center);
       } catch (error) {
@@ -96,15 +96,13 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   }, [loadData, url]);
 
   useEffect(() => {
-    // console.log("minimumLevel", minimumLevel);
-    console.log("maximumLevel", maximumLevel);
     const imageryProvider = new MVTImageryProvider({
       urlTemplate,
       layerName: currentLayer,
       style,
       onSelectFeature,
+      minimumLevel,
       maximumLevel,
-      // minimumLevel,
     });
 
     if (viewer) {
@@ -127,8 +125,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     selectFeature,
     onSelectFeature,
     style,
+    minimumLevel,
     maximumLevel,
-    // minimumLevel,
   ]);
 
   const handleChange = useCallback((value: unknown) => {
@@ -195,8 +193,8 @@ export function parseMetadata(json: any):
   | {
       layers: string[];
       center: [lng: number, lat: number, height: number] | undefined;
+      minimumLevel?: number;
       maximumLevel?: number;
-      // minimumLevel?: number;
     }
   | undefined {
   if (!json) return;
@@ -220,8 +218,8 @@ export function parseMetadata(json: any):
     // ignore
   }
 
+  const minimumLevel = json.minzoom;
   const maximumLevel = json.maxzoom;
-  // const minimumLevel = json.minzoom;
 
-  return { layers, center, maximumLevel };
+  return { layers, center, minimumLevel, maximumLevel };
 }
