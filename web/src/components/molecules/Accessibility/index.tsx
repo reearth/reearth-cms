@@ -129,13 +129,12 @@ const Accessibility: React.FC<Props> = ({
         return (
           modelData.publicState &&
           modelData.key && (
-            <a
+            <StyledAnchor
               target="_blank"
-              style={{ textDecoration: "underline", color: "#000000D9" }}
               href={window.REEARTH_CONFIG?.api + "/p/" + alias + "/" + modelData.key}
               rel="noreferrer">
               {window.REEARTH_CONFIG?.api}/p/{alias}/{modelData.key}
-            </a>
+            </StyledAnchor>
           )
         );
       },
@@ -230,4 +229,9 @@ const ItemsWrapper = styled.div`
 
 const TableWrapper = styled.div`
   margin: 24px 0;
+`;
+
+const StyledAnchor = styled.a`
+  text-decoration: underline;
+  color: #000000d9;
 `;

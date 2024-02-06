@@ -107,8 +107,6 @@ Home: ホーム
 Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
-Role: ロール
-API key: APIキー
 Workspace: ワークスペース
 Account: アカウント
 unique: ユニーク
@@ -174,6 +172,7 @@ Writer: 編集者
 Maintainer: メインテイナー
 Owner: オーナー
 Name: 名前
+Role: ロール
 Creator: 作成者
 Remove: 削除
 No Integration yet: まだインテグレーションはありません
@@ -235,6 +234,7 @@ Reopen: 再開
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
+Assign to: ''
 DRAFT: ドラフト
 APPROVED: 承認済
 CLOSED: クローズ済

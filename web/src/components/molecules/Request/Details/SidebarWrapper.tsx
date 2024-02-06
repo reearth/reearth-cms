@@ -7,13 +7,13 @@ import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 export type Props = {
   currentRequest?: Request;
-  workspaceUserMembers: Member[];
+  workspaceUserMembers: UserMember[];
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
 };
 
@@ -27,28 +27,30 @@ const RequestSidebarWrapper: React.FC<Props> = ({
   const [selectedReviewers, setSelectedReviewers] = useState<string[]>([]);
   const [viewReviewers, toggleViewReviewers] = useState<boolean>(false);
   const currentReviewers = currentRequest?.reviewers;
-  const reviewers: SelectProps["options"] = [];
-  // TODO: this needs performance improvement
-  workspaceUserMembers
+  const reviewers: SelectProps["options"] = workspaceUserMembers
     ?.filter(
       member =>
         currentReviewers?.findIndex(currentReviewer => currentReviewer.id === member.userId) === -1,
     )
-    .forEach(member => {
-      reviewers.push({
-        label: member.user.name,
-        value: member.userId,
-        name: member.user.name,
-      });
-    });
+    .reduce(
+      (acc, member) => {
+        acc?.push({
+          label: member.user.name,
+          value: member.userId,
+          name: member.user.name,
+        });
+        return acc;
+      },
+      [] as SelectProps["options"],
+    );
 
-  const displayViewReviewers = () => {
+  const displayViewReviewers = useCallback(() => {
     toggleViewReviewers(true);
-  };
+  }, []);
 
-  const hideViewReviewers = () => {
+  const hideViewReviewers = useCallback(() => {
     toggleViewReviewers(false);
-  };
+  }, []);
 
   const handleSubmit: FocusEventHandler<HTMLElement> | undefined = useCallback(async () => {
     const requestId = currentRequest?.id;
@@ -79,6 +81,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     currentRequest?.state,
     currentRequest?.title,
     currentReviewers,
+    hideViewReviewers,
     onRequestUpdate,
     selectedReviewers,
   ]);
@@ -103,11 +106,11 @@ const RequestSidebarWrapper: React.FC<Props> = ({
         <UserAvatar username={currentRequest?.createdBy?.name} />
       </SidebarCard>
       <SidebarCard title={t("Reviewer")}>
-        <div style={{ display: "flex", margin: "4px 0" }}>
+        <ReviewerContainer>
           {currentRequest?.reviewers.map((reviewer, index) => (
-            <UserAvatar username={reviewer.name} key={index} style={{ marginRight: "8px" }} />
+            <StyledUserAvatar username={reviewer.name} key={index} />
           ))}
-        </div>
+        </ReviewerContainer>
         <Select
           placeholder={t("Reviewer")}
           mode="multiple"
@@ -120,11 +123,11 @@ const RequestSidebarWrapper: React.FC<Props> = ({
           onBlur={handleSubmit}
           allowClear
         />
-        <div style={{ display: viewReviewers ? "none" : "flex", justifyContent: "end" }}>
-          <Button type="link" onClick={displayViewReviewers} style={{ paddingRight: "0" }}>
-            Assign to
-          </Button>
-        </div>
+        <ViewReviewers viewReviewers={viewReviewers}>
+          <StyledButton type="link" onClick={displayViewReviewers}>
+            {t("Assign to")}
+          </StyledButton>
+        </ViewReviewers>
       </SidebarCard>
       <SidebarCard title={t("Created Time")}>{formattedCreatedAt}</SidebarCard>
     </SideBarWrapper>
@@ -135,6 +138,23 @@ const SideBarWrapper = styled.div`
   background-color: #fafafa;
   padding: 8px;
   width: 272px;
+`;
+
+const StyledUserAvatar = styled(UserAvatar)`
+  margin-right: 8px;
+`;
+
+const ReviewerContainer = styled.div`
+  display: flex;
+  margin: 4px 0;
+`;
+const ViewReviewers = styled.div<{ viewReviewers: boolean }>`
+  display: ${({ viewReviewers }) => (viewReviewers ? "none" : "flex")};
+  justify-content: end;
+`;
+
+const StyledButton = styled(Button)`
+  padding-right: 0;
 `;
 
 export default RequestSidebarWrapper;

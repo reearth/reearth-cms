@@ -38,13 +38,13 @@ const FilterDropdown: React.FC<Props> = ({
 }) => {
   const [open, setOpen] = useState(isFilterOpen);
 
-  const close = () => {
+  const close = useCallback(() => {
     setOpen(false);
-  };
+  }, []);
 
-  const handleOpenChange = (newOpen: boolean) => {
+  const handleOpenChange = useCallback((newOpen: boolean) => {
     setOpen(newOpen);
-  };
+  }, []);
 
   const remove = useCallback(
     (event: React.MouseEvent) => {

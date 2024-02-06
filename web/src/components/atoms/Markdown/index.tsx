@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useRef, useState, FocusEvent } from "react";
+import { useRef, useState, FocusEvent, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
@@ -14,10 +14,19 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
 
-  const handleBlur = (event: FocusEvent<HTMLTextAreaElement>) => {
+  const handleBlur = useCallback((event: FocusEvent<HTMLTextAreaElement>) => {
     event.stopPropagation();
     setShowMD(true);
-  };
+  }, []);
+
+  const handleClick = useCallback(() => {
+    setShowMD(false);
+    if (textareaRef.current) {
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      });
+    }
+  }, []);
 
   return (
     <MarkdownWrapper className={className}>
@@ -31,17 +40,7 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
         ref={textareaRef}
         showCount
       />
-      <StyledMD
-        disabled={props.disabled}
-        hidden={!showMD}
-        onClick={() => {
-          setShowMD(false);
-          if (textareaRef.current) {
-            setTimeout(() => {
-              textareaRef.current?.focus();
-            });
-          }
-        }}>
+      <StyledMD disabled={props.disabled} hidden={!showMD} onClick={handleClick}>
         <ReactMarkdown>{value}</ReactMarkdown>
       </StyledMD>
     </MarkdownWrapper>
