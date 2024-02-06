@@ -34,7 +34,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
-  const [data, setData] = useState<any>();
+  const [maximumLevel, setMaximumLevel] = useState<any>();
 
   const zoomTo = useCallback(
     ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
@@ -54,7 +54,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       try {
         const data = await fetchLayers(url);
         if (data) {
-          setData(data);
+          setMaximumLevel(data.maximumLevel);
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
@@ -94,14 +94,12 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   }, [loadData, url]);
 
   useEffect(() => {
-    console.log(data);
     const imageryProvider = new MVTImageryProvider({
       urlTemplate,
       layerName: currentLayer,
       style,
       onSelectFeature,
-      minimumLevel: 0,
-      maximumLevel: 20,
+      maximumLevel,
     });
 
     if (viewer) {
@@ -124,7 +122,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     selectFeature,
     onSelectFeature,
     style,
-    data,
+    maximumLevel,
   ]);
 
   const handleChange = useCallback((value: unknown) => {
@@ -187,13 +185,15 @@ const idFromGeometry = (
   return hash.hex();
 };
 
-export function parseMetadata(
-  json: any,
-):
-  | { layers: string[]; center: [lng: number, lat: number, height: number] | undefined }
+export function parseMetadata(json: any):
+  | {
+      layers: string[];
+      center: [lng: number, lat: number, height: number] | undefined;
+      maximumLevel?: number;
+    }
   | undefined {
   if (!json) return;
-
+  console.log(json);
   let layers: string[] = [];
   if (typeof json.json === "string") {
     try {
