@@ -34,6 +34,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
+  const [data, setData] = useState<any>();
 
   const zoomTo = useCallback(
     ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
@@ -53,6 +54,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       try {
         const data = await fetchLayers(url);
         if (data) {
+          setData(data);
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
@@ -92,11 +94,13 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   }, [loadData, url]);
 
   useEffect(() => {
+    console.log(data);
     const imageryProvider = new MVTImageryProvider({
       urlTemplate,
       layerName: currentLayer,
       style,
       onSelectFeature,
+      maximumLevel: data.maximumLevel,
     });
 
     if (viewer) {
@@ -119,6 +123,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     selectFeature,
     onSelectFeature,
     style,
+    data,
   ]);
 
   const handleChange = useCallback((value: unknown) => {
