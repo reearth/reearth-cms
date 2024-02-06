@@ -58,8 +58,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
-          setMinimumLevel(data.minimumLevel ?? 1);
-          setMaximumLevel(data.maximumLevel ?? 10);
+          setMinimumLevel(data.minimumLevel);
+          setMaximumLevel(data.maximumLevel);
         }
         zoomTo(data?.center || defaultCameraPosition, !data?.center);
       } catch (error) {
