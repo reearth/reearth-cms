@@ -11,7 +11,7 @@ import Table from "@reearth-cms/components/atoms/Table";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -73,7 +73,7 @@ const Members: React.FC = () => {
   } = useHooks();
 
   const handleMemberDelete = useCallback(
-    (member: Member) => {
+    (member: UserMember) => {
       confirm({
         title: t("Are you sure to remove this member?"),
         icon: <Icon icon="exclamationCircle" />,

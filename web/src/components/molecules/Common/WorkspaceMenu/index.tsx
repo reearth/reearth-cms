@@ -1,6 +1,5 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
@@ -9,8 +8,8 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   inlineCollapsed: boolean;
   isPersonalWorkspace?: boolean;
-  workspaceId?: string;
   defaultSelectedKey?: string;
+  onNavigate?: (info: MenuInfo) => void;
 };
 
 export type MenuShowType = "personal" | "notPersonal" | "both";
@@ -20,11 +19,10 @@ export type WorkspaceItemType = ItemType & { show: MenuShowType };
 const WorkspaceMenu: React.FC<Props> = ({
   inlineCollapsed,
   isPersonalWorkspace,
-  workspaceId,
   defaultSelectedKey,
+  onNavigate,
 }) => {
   const t = useT();
-  const navigate = useNavigate();
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
 
   useEffect(() => {
@@ -56,18 +54,6 @@ const WorkspaceMenu: React.FC<Props> = ({
       icon: <Icon icon="myIntegrations" />,
       show: "personal" as MenuShowType,
     },
-    // {
-    //   label: t("Role"),
-    //   key: "role",
-    //   icon: <Icon icon="userSwitch" />,
-    //   show: "notPersonal" as MenuShowType,
-    // },
-    // {
-    //   label: t("API key"),
-    //   key: "apiKey",
-    //   icon: <Icon icon="key" />,
-    //   show: "both" as MenuShowType,
-    // },
     {
       label: t("Settings"),
       key: "settings",
@@ -96,13 +82,9 @@ const WorkspaceMenu: React.FC<Props> = ({
   const onClick = useCallback(
     (info: MenuInfo) => {
       changeSelected([info.key]);
-      if (info.key === "home") {
-        navigate(`/workspace/${workspaceId}`);
-      } else {
-        navigate(`/workspace/${workspaceId}/${info.key}`);
-      }
+      onNavigate?.(info);
     },
-    [navigate, workspaceId],
+    [onNavigate],
   );
 
   return (
