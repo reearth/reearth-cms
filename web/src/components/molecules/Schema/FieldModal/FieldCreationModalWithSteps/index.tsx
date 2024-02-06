@@ -31,7 +31,6 @@ const { Step } = Steps;
 export type Props = {
   selectedField?: Field | null;
   open?: boolean;
-  isUpdate?: boolean;
   selectedType: FieldType;
   models?: Model[];
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
@@ -43,7 +42,6 @@ export type Props = {
 const FieldCreationModalWithSteps: React.FC<Props> = ({
   selectedField,
   open,
-  isUpdate,
   models,
   selectedType,
   handleFieldKeyUnique,
@@ -200,7 +198,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               color={fieldTypes[selectedType].color}
             />
             <h3>
-              <span>{isUpdate ? t("Update") : t("Create")} </span>
+              <span>{selectedField ? t("Update") : t("Create")} </span>
               <span>
                 {t(fieldTypes[selectedType].title)} {t("Field")}
               </span>
@@ -268,13 +266,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           <StyledFormItem name="direction" label={t("Reference direction")}>
             <Radio.Group onChange={e => setNumSteps(e.target.value)} value={numSteps}>
               <Space direction="vertical" size={0}>
-                <Radio value={1} disabled={isUpdate}>
+                <Radio value={1} disabled={!!selectedField}>
                   {t("One-way reference")}
                 </Radio>
                 <div className="ant-form-item-extra">
                   {t("A unidirectional relationship where an item refers to another item")}
                 </div>
-                <Radio value={2} disabled={isUpdate}>
+                <Radio value={2} disabled={!!selectedField}>
                   {t("Two-way reference")}
                 </Radio>
                 <div className="ant-form-item-extra">
@@ -309,7 +307,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                       if (!validateKey(value)) return Promise.reject();
                       const isKeyAvailable = handleFieldKeyUnique(
                         value,
-                        isUpdate ? selectedField?.id : undefined,
+                        selectedField ? selectedField?.id : undefined,
                       );
                       if (isKeyAvailable) {
                         return Promise.resolve();

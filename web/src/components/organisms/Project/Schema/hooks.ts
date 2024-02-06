@@ -37,10 +37,9 @@ export default () => {
   const { projectId, workspaceId, modelId } = useParams();
   const [currentModel] = useModel();
 
+  const [fieldModalShown, setFieldModalShown] = useState(false);
   const [groupId, setGroupId] = useState<string | undefined>(undefined);
-  const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
   const [isMeta, setIsMeta] = useState(false);
-  const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [collapsed, collapse] = useState(false);
@@ -178,7 +177,7 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated field!") });
-      setFieldUpdateModalShown(false);
+      setFieldModalShown(false);
     },
     [modelId, groupId, selectedSchemaType, updateField, t],
   );
@@ -206,7 +205,7 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated field!") });
-      setFieldUpdateModalShown(false);
+      setFieldModalShown(false);
     },
     [modelId, groupId, updateFieldsOrder, t, selectedSchemaType],
   );
@@ -233,30 +232,25 @@ export default () => {
       const field = await createNewField(options);
       if (field.errors || !field.data?.createField) {
         Notification.error({ message: t("Failed to create field.") });
-        setFieldCreationModalShown(false);
+        setFieldModalShown(false);
         return;
       }
       Notification.success({ message: t("Successfully created field!") });
-      setFieldCreationModalShown(false);
+      setFieldModalShown(false);
     },
     [modelId, groupId, selectedSchemaType, createNewField, t],
   );
 
-  const handleFieldUpdateModalClose = useCallback(() => {
+  const handleFieldModalClose = useCallback(() => {
     setSelectedField(null);
-    setFieldUpdateModalShown(false);
+    setFieldModalShown(false);
   }, [setSelectedField]);
-
-  const handleFieldCreationModalClose = useCallback(() => {
-    setFieldCreationModalShown(false);
-    handleFieldUpdateModalClose();
-  }, [handleFieldUpdateModalClose]);
 
   const handleFieldUpdateModalOpen = useCallback(
     (field: Field) => {
       setSelectedType(field.type);
       setSelectedField(field);
-      setFieldUpdateModalShown(true);
+      setFieldModalShown(true);
     },
     [setSelectedField],
   );
@@ -407,7 +401,7 @@ export default () => {
         });
       } else {
         setSelectedType(fieldType);
-        if (modelId) setFieldCreationModalShown(true);
+        if (modelId) setFieldModalShown(true);
       }
     },
     [confirm, groups?.length, handleGroupCreateModalClose, handleGroupCreateModalOpen, modelId, t],
@@ -500,8 +494,7 @@ export default () => {
     group,
     isMeta,
     setIsMeta,
-    fieldCreationModalShown,
-    fieldUpdateModalShown,
+    fieldModalShown,
     selectedField,
     currentModel,
     selectedType,
@@ -512,10 +505,9 @@ export default () => {
     selectedSchemaType,
     handleModelSelect,
     handleGroupSelect,
-    handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
-    handleFieldUpdateModalClose,
+    handleFieldModalClose,
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,

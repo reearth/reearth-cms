@@ -49,8 +49,7 @@ const ProjectSchema: React.FC = () => {
     model,
     isMeta,
     setIsMeta,
-    fieldCreationModalShown,
-    fieldUpdateModalShown,
+    fieldModalShown,
     selectedField,
     currentModel,
     selectedType,
@@ -61,10 +60,9 @@ const ProjectSchema: React.FC = () => {
     selectedSchemaType,
     handleModelSelect,
     handleGroupSelect,
-    handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
-    handleFieldUpdateModalClose,
+    handleFieldModalClose,
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
@@ -167,10 +165,9 @@ const ProjectSchema: React.FC = () => {
           models={models}
           selectedType={selectedType}
           selectedField={selectedField}
-          isUpdate={fieldUpdateModalShown}
-          open={fieldCreationModalShown || fieldUpdateModalShown}
+          open={fieldModalShown}
           handleFieldKeyUnique={handleFieldKeyUnique}
-          onClose={handleFieldCreationModalClose}
+          onClose={handleFieldModalClose}
           onSubmit={handleFieldCreate}
           onUpdate={handleFieldUpdate}
         />
@@ -180,11 +177,11 @@ const ProjectSchema: React.FC = () => {
           groups={groups}
           selectedType={selectedType}
           isMeta={isMeta}
-          open={selectedField ? fieldUpdateModalShown : fieldCreationModalShown}
+          open={fieldModalShown}
           fieldLoading={selectedField ? fieldUpdateLoading : fieldCreationLoading}
           selectedField={selectedField}
           handleFieldKeyUnique={handleFieldKeyUnique}
-          onClose={selectedField ? handleFieldUpdateModalClose : handleFieldCreationModalClose}
+          onClose={handleFieldModalClose}
           onSubmit={selectedField ? handleFieldUpdate : handleFieldCreate}
           onAssetTableChange={handleAssetTableChange}
           totalCount={totalCount}
