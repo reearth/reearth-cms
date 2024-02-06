@@ -495,7 +495,7 @@ const StyledIcon = styled(Icon)`
   align-items: center;
   span {
     display: inherit;
-  }s
+  }
 `;
 
 const StyledGroupKey = styled.span`
