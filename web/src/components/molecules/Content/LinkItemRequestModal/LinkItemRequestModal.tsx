@@ -1,9 +1,14 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
+import Badge from "@reearth-cms/components/atoms/Badge";
+import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable from "@reearth-cms/components/atoms/ProTable";
+import ProTable, { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import Radio from "@reearth-cms/components/atoms/Radio";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
@@ -36,16 +41,94 @@ const LinkItemRequestModal: React.FC<Props> = ({
   onRequestSearchTerm,
 }) => {
   const t = useT();
-  const { pagination, submit, columns, toolbar, resetFlag } = useHooks(
+  const { pagination, submit, resetFlag, selectedRequestId, setSelectedRequestId } = useHooks(
     itemIds,
     onLinkItemRequestModalCancel,
     requestList,
-    onRequestSearchTerm,
     requestModalTotalCount,
     requestModalPage,
     requestModalPageSize,
     onChange,
   );
+
+  const columns: ProColumns<Request>[] = useMemo(
+    () => [
+      {
+        title: "",
+        render: (_, request) => {
+          return (
+            <Radio.Group
+              onChange={() => {
+                setSelectedRequestId(request.id);
+              }}
+              value={selectedRequestId}>
+              <Radio value={request.id} />
+            </Radio.Group>
+          );
+        },
+        width: 32,
+      },
+      {
+        title: t("Title"),
+        dataIndex: "title",
+        key: "title",
+      },
+      {
+        title: t("State"),
+        dataIndex: "requestState",
+        key: "requestState",
+        render: (_, request) => {
+          let color = "";
+          switch (request.state) {
+            case "APPROVED":
+              color = "#52C41A";
+              break;
+            case "CLOSED":
+              color = "#F5222D";
+              break;
+            case "WAITING":
+              color = "#FA8C16";
+              break;
+            case "DRAFT":
+            default:
+              break;
+          }
+          return <Badge color={color} text={request.state} />;
+        },
+      },
+      {
+        title: t("Created By"),
+        dataIndex: "createdBy.name",
+        key: "createdBy",
+        render: (_, request) => {
+          return request.createdBy?.name;
+        },
+      },
+      {
+        title: t("Reviewers"),
+        dataIndex: "reviewers.name",
+        key: "reviewers",
+        render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
+      },
+      {
+        title: t("Created At"),
+        dataIndex: "createdAt",
+        key: "createdAt",
+        render: (_text, record) => dateTimeFormat(record.createdAt),
+      },
+    ],
+    [selectedRequestId, setSelectedRequestId, t],
+  );
+
+  const toolbar = {
+    search: (
+      <Input.Search
+        placeholder={t("Please enter")}
+        onSearch={onRequestSearchTerm}
+        key={+resetFlag.current}
+      />
+    ),
+  };
 
   return (
     <Modal

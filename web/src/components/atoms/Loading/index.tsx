@@ -1,3 +1,5 @@
+import styled from "@emotion/styled";
+
 import Row from "@reearth-cms/components/atoms/Row";
 import Spin from "@reearth-cms/components/atoms/Spin";
 import { useT } from "@reearth-cms/i18n";
@@ -11,10 +13,14 @@ const Loading: React.FC<Props> = ({ spinnerSize, minHeight }) => {
   const t = useT();
 
   return (
-    <Row justify="center" align="middle" style={{ minHeight }}>
+    <StyledRow justify="center" align="middle" minHeight={minHeight}>
       <Spin tip={t("Loading")} size={spinnerSize} />
-    </Row>
+    </StyledRow>
   );
 };
+
+const StyledRow = styled(Row)<{ minHeight?: string }>`
+  min-height: ${({ minHeight }) => minHeight};
+`;
 
 export default Loading;

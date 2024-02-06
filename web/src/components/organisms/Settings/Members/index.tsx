@@ -11,7 +11,7 @@ import Table from "@reearth-cms/components/atoms/Table";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -73,7 +73,7 @@ const Members: React.FC = () => {
   } = useHooks();
 
   const handleMemberDelete = useCallback(
-    (member: Member) => {
+    (member: UserMember) => {
       confirm({
         title: t("Are you sure to remove this member?"),
         icon: <Icon icon="exclamationCircle" />,
@@ -102,13 +102,9 @@ const Members: React.FC = () => {
           </Button>
         )}
         {member.role !== "OWNER" && (
-          <Button
-            type="link"
-            style={{ marginLeft: "8px" }}
-            onClick={() => handleMemberDelete(member)}
-            disabled={!owner}>
+          <StyledButton type="link" onClick={() => handleMemberDelete(member)} disabled={!owner}>
             {t("Remove")}
-          </Button>
+          </StyledButton>
         )}
       </>
     ),
@@ -129,18 +125,13 @@ const Members: React.FC = () => {
           }
         />
         <ActionHeader>
-          <Search
+          <StyledSearch
             onSearch={handleSearchTerm}
             placeholder={t("search for a member")}
             allowClear
-            style={{ width: 264 }}
           />
         </ActionHeader>
-        <Table
-          dataSource={dataSource}
-          columns={columns}
-          style={{ padding: "24px", overflowX: "auto" }}
-        />
+        <StyledTable dataSource={dataSource} columns={columns} />
       </PaddedContent>
       <MemberRoleModal
         member={selectedMember}
@@ -174,6 +165,19 @@ const ActionHeader = styled(Content)`
   padding: 16px;
   display: flex;
   justify-content: space-between;
+`;
+
+const StyledButton = styled(Button)`
+  margin-left: 8px;
+`;
+
+const StyledSearch = styled(Search)`
+  width: 264px;
+`;
+
+const StyledTable = styled(Table)`
+  padding: 24px;
+  overflow-x: auto;
 `;
 
 export default Members;

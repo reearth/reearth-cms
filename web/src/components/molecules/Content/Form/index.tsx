@@ -21,7 +21,7 @@ import RequestCreationModal from "@reearth-cms/components/molecules/Content/Requ
 import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Model } from "@reearth-cms/components/molecules/Schema/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
   SortDirection,
@@ -54,7 +54,7 @@ export interface Props {
   requestModalShown: boolean;
   requestCreationLoading: boolean;
   addItemToRequestModalShown: boolean;
-  workspaceUserMembers: Member[];
+  workspaceUserMembers: UserMember[];
   totalCount: number;
   page: number;
   pageSize: number;
