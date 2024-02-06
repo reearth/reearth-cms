@@ -21,7 +21,6 @@ import {
   FieldType,
   AndConditionInput,
 } from "@reearth-cms/components/molecules/View/types";
-import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
@@ -221,10 +220,7 @@ export default (
     } else if (filter.type === "Person") {
       if (filter?.members?.length) {
         for (const member of Object.values(filter.members)) {
-          options.push({
-            value: (member as UserMember).user?.name,
-            label: (member as UserMember).user?.name,
-          });
+          options.push({ value: member.user?.name, label: member.user?.name });
         }
       }
     } else if (filter.type === "Bool" || filter.type === "Checkbox") {
