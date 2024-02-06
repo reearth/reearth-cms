@@ -100,7 +100,8 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       layerName: currentLayer,
       style,
       onSelectFeature,
-      maximumLevel: data?.maximumLevel ?? 10,
+      minimumLevel: 0,
+      maximumLevel: 20,
     });
 
     if (viewer) {
