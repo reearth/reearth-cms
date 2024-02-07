@@ -85,7 +85,7 @@ export default () => {
     if (!modelId && currentModel) {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
     }
-  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [modelId, currentModel, navigate, workspaceId, projectId]);
 
   const handleModelSelect = useCallback(
     (modelId: string) => {
@@ -250,8 +250,8 @@ export default () => {
   const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
   const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
 
-  const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
+  const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupDeletionModalOpen = useCallback(
     () => setGroupDeletionModalShown(true),
     [setGroupDeletionModalShown],
@@ -395,7 +395,7 @@ export default () => {
   );
 
   // model hooks
-  const [modelUpdateModalShown, setModelUpdateModalShown] = useState(false);
+  const [modelModalShown, setModelModalShown] = useState(false);
   const [isModelKeyAvailable, setIsModelKeyAvailable] = useState(false);
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
 
@@ -449,8 +449,8 @@ export default () => {
     refetchQueries: ["GetModels"],
   });
 
-  const handleModelUpdateModalClose = useCallback(() => setModelUpdateModalShown(false), []);
-  const handleModelUpdateModalOpen = useCallback(() => setModelUpdateModalShown(true), []);
+  const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
+  const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
   const handleModelUpdate = useCallback(
     async (data: { modelId?: string; name: string; description: string; key: string }) => {
@@ -469,9 +469,9 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated model!") });
-      handleModelUpdateModalClose();
+      handleModelModalClose();
     },
-    [updateNewModel, handleModelUpdateModalClose, t],
+    [updateNewModel, handleModelModalClose, t],
   );
 
   const isModel = useMemo(() => selectedSchemaType === "model", [selectedSchemaType]);
@@ -515,12 +515,12 @@ export default () => {
     handleGroupUpdate,
     handleGroupKeyCheck,
     // modal
-    modelUpdateModalShown,
+    modelModalShown,
     isModelKeyAvailable,
     modelDeletionModalShown,
-    handleModelUpdateModalOpen,
+    handleModelModalOpen,
+    handleModelModalClose,
     handleModelDeletionModalOpen,
-    handleModelUpdateModalClose,
     handleModelDeletionModalClose,
     handleModelDelete,
     handleModelUpdate,

@@ -10,11 +10,6 @@ import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
-export type FormValues = {
-  name: string;
-  description: string;
-};
-
 const ProjectSchema: React.FC = () => {
   const t = useT();
 
@@ -78,12 +73,12 @@ const ProjectSchema: React.FC = () => {
     handleGroupCreate,
     handleGroupUpdate,
     handleGroupKeyCheck,
-    modelUpdateModalShown,
+    modelModalShown,
     isModelKeyAvailable,
     modelDeletionModalShown,
-    handleModelUpdateModalOpen,
+    handleModelModalOpen,
     handleModelDeletionModalOpen,
-    handleModelUpdateModalClose,
+    handleModelModalClose,
     handleModelDeletionModalClose,
     handleModelDelete,
     handleModelUpdate,
@@ -97,9 +92,9 @@ const ProjectSchema: React.FC = () => {
         selectedSchemaType={selectedSchemaType}
         model={currentModel}
         group={group}
-        onModelUpdateModalOpen={handleModelUpdateModalOpen}
+        onModelModalOpen={handleModelModalOpen}
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
-        onGroupUpdateModalOpen={handleGroupModalOpen}
+        onGroupModalOpen={handleGroupModalOpen}
         onGroupDeletionModalOpen={handleGroupDeletionModalOpen}
         modelsMenu={
           <ModelsMenu
@@ -122,9 +117,9 @@ const ProjectSchema: React.FC = () => {
       <ModelFormModal
         isKeyAvailable={isModelKeyAvailable}
         model={currentModel}
-        open={modelUpdateModalShown}
+        open={modelModalShown}
         onModelKeyCheck={handleModelKeyCheck}
-        onClose={handleModelUpdateModalClose}
+        onClose={handleModelModalClose}
         onUpdate={handleModelUpdate}
       />
       <DeletionModal
