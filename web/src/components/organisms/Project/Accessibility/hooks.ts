@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import type { PublicScope, Model } from "@reearth-cms/components/molecules/Accessibility/types";
+import { PublicScope, Model } from "@reearth-cms/components/molecules/Accessibility/types";
 import {
   useUpdateModelMutation,
   useGetModelsQuery,
