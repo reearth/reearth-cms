@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -9,18 +9,10 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
+import { PublicScope, Model } from "@reearth-cms/components/molecules/Accessibility/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type PublicScope = "private" | "public"; // Add "limited" when functionality becomes available
-
-export type Model = {
-  id: string;
-  name?: string;
-  public: boolean;
-  key?: string;
-};
-
-export type ModelDataType = {
+type ModelDataType = {
   id: string;
   name: string;
   public: JSX.Element;
@@ -28,84 +20,35 @@ export type ModelDataType = {
   key?: string;
 };
 
-export type Props = {
-  projectScope?: PublicScope;
-  alias?: string;
+type Props = {
   models?: Model[];
-  assetPublic?: boolean;
-  onPublicUpdate?: (
-    alias?: string,
-    scope?: PublicScope,
-    modelsToUpdate?: Model[],
-    assetPublic?: boolean,
-  ) => void;
+  scope?: PublicScope;
+  alias?: string;
+  aliasState?: string;
+  assetState?: boolean;
+  isSaveDisabled: boolean;
+  handlePublicUpdate: () => void;
+  handleAliasChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleUpdatedAssetState: (state: boolean) => void;
+  handleUpdatedModels: (model: Model) => void;
+  handleSetScope?: (projectScope: PublicScope) => void;
 };
 
 const Accessibility: React.FC<Props> = ({
-  projectScope,
-  models: rawModels,
+  models,
+  scope,
   alias,
-  assetPublic,
-  onPublicUpdate,
+  aliasState,
+  assetState,
+  isSaveDisabled,
+  handlePublicUpdate,
+  handleAliasChange,
+  handleUpdatedAssetState,
+  handleUpdatedModels,
+  handleSetScope,
 }) => {
   const t = useT();
-  const [scope, changeScope] = useState(projectScope);
-  const [aliasState, setAlias] = useState(alias);
-  const [updatedModels, setUpdatedModels] = useState<Model[]>([]);
-  const [assetState, setAssetState] = useState<boolean | undefined>(assetPublic);
-  const [models, setModels] = useState<Model[] | undefined>(rawModels);
   const [form] = Form.useForm();
-
-  useEffect(() => {
-    changeScope(projectScope);
-  }, [projectScope]);
-
-  useEffect(() => {
-    setModels(rawModels);
-  }, [rawModels]);
-
-  useEffect(() => {
-    setAlias(alias);
-  }, [alias]);
-
-  useEffect(() => {
-    setAssetState(assetPublic);
-  }, [assetPublic]);
-
-  const saveDisabled = useMemo(
-    () =>
-      updatedModels.length === 0 &&
-      projectScope === scope &&
-      alias === aliasState &&
-      assetPublic === assetState,
-    [updatedModels.length, projectScope, scope, alias, aliasState, assetPublic, assetState],
-  );
-
-  const handlerAliasChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setAlias(e.currentTarget.value);
-  }, []);
-
-  const handlePublicUpdate = useCallback(() => {
-    if (!scope && updatedModels.length === 0) return;
-    onPublicUpdate?.(aliasState, scope, updatedModels, assetState);
-    setUpdatedModels([]);
-  }, [scope, aliasState, updatedModels, onPublicUpdate, assetState]);
-
-  const handleUpdatedModels = useCallback(
-    (model: Model) => {
-      if (updatedModels.find(um => um.id === model.id)) {
-        setUpdatedModels(ums => ums.filter(um => um.id !== model.id));
-      } else {
-        setUpdatedModels(ums => [...ums, model]);
-      }
-      setModels(ms => ms?.map(m => (m.id === model.id ? { ...m, public: model.public } : m)));
-    },
-    [updatedModels],
-  );
-
-  const handleUpdatedAssetState = useCallback((state: boolean) => {
-    setAssetState(state);
-  }, []);
 
   const columns: TableColumnsType<ModelDataType> = [
     {
@@ -141,7 +84,7 @@ const Accessibility: React.FC<Props> = ({
     },
   ];
 
-  const dataSource: ModelDataType[] | undefined = useMemo(() => {
+  const dataSource: ModelDataType[] = useMemo(() => {
     let columns: ModelDataType[] = [
       {
         id: "assets",
@@ -196,7 +139,7 @@ const Accessibility: React.FC<Props> = ({
               extra={t(
                 "Choose the scope of your project. This affects all the models shown below that are switched on.",
               )}>
-              <Select value={scope} onChange={changeScope}>
+              <Select value={scope} onChange={handleSetScope}>
                 {publicScopeList.map(type => (
                   <Select.Option key={type.id} value={type.value}>
                     {type.name}
@@ -204,15 +147,14 @@ const Accessibility: React.FC<Props> = ({
                 ))}
               </Select>
             </Form.Item>
-
             <Form.Item label={t("Project Alias")}>
-              <Input value={aliasState} onChange={handlerAliasChange} />
+              <Input value={aliasState} onChange={handleAliasChange} />
             </Form.Item>
           </ItemsWrapper>
           <TableWrapper>
             <Table dataSource={dataSource} columns={columns} pagination={false} />
           </TableWrapper>
-          <Button type="primary" disabled={saveDisabled} onClick={handlePublicUpdate}>
+          <Button type="primary" disabled={isSaveDisabled} onClick={handlePublicUpdate}>
             {t("Save changes")}
           </Button>
         </Form>
