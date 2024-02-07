@@ -1,5 +1,5 @@
 import ProjectOverviewMolecule from "@reearth-cms/components/molecules/ProjectOverview";
-import ModelDeletionModal from "@reearth-cms/components/molecules/Schema/ModelDeletionModal";
+import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModal";
 import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
 
 import useHooks from "./hooks";
@@ -46,9 +46,9 @@ const ProjectOverview: React.FC = () => {
         onCreate={handleModelCreate}
         onUpdate={handleModelUpdate}
       />
-      <ModelDeletionModal
-        model={selectedModel}
+      <DeletionModal
         open={modelDeletionModalShown}
+        data={selectedModel && { id: selectedModel.id, name: selectedModel.name }}
         onDelete={handleModelDelete}
         onClose={handleModelDeletionModalClose}
       />
