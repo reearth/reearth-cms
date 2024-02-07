@@ -71,7 +71,7 @@ export default () => {
   const { modelId } = useParams();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(100);
   const [currentView, setCurrentView] = useState<CurrentViewType>({
     columns: [],
   });
