@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Model, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
 import {
   useDeleteModelMutation,
@@ -86,7 +86,7 @@ export default () => {
   });
 
   const handleModelUpdate = useCallback(
-    async (data: { modelId?: string; name: string; description: string; key: string }) => {
+    async (data: ModelFormValues) => {
       if (!data.modelId) return;
       const model = await updateNewModel({
         variables: {

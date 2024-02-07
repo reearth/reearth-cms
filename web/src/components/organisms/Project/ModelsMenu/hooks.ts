@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { Model, Group, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useGetModelsQuery,
   useGetGroupsQuery,
@@ -82,7 +82,7 @@ export default ({ modelId, groupId }: Params) => {
   });
 
   const handleModelCreate = useCallback(
-    async (data: { name: string; description: string; key: string }) => {
+    async (data: ModelFormValues) => {
       if (!projectId) return;
       const model = await createNewModel({
         variables: {

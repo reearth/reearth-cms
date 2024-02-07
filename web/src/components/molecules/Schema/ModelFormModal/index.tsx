@@ -4,26 +4,18 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Model, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-export interface FormValues {
-  modelId?: string;
-  name: string;
-  description: string;
-  key: string;
-}
-
-export interface Props {
+type Props = {
   model?: Model;
   open?: boolean;
-  isKeyAvailable: boolean;
   onClose: () => void;
-  onCreate?: (values: FormValues) => Promise<void> | void;
-  onUpdate?: (values: FormValues) => Promise<void> | void;
+  onCreate?: (values: ModelFormValues) => Promise<void> | void;
+  onUpdate?: (values: ModelFormValues) => Promise<void> | void;
   onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
-}
+};
 
 const ModelFormModal: React.FC<Props> = ({
   model,

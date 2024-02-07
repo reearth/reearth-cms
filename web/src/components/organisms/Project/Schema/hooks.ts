@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
-import type { FormValues, GroupFormValues } from "@reearth-cms/components/molecules/Schema/types";
+  ModelFormValues,
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -453,7 +453,7 @@ export default () => {
   const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
   const handleModelUpdate = useCallback(
-    async (data: { modelId?: string; name: string; description: string; key: string }) => {
+    async (data: ModelFormValues) => {
       if (!data.modelId) return;
       const model = await updateNewModel({
         variables: {
