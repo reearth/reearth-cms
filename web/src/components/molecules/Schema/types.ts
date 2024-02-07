@@ -109,6 +109,13 @@ export type Group = {
   schema: Schema;
 };
 
+export type GroupFormValues = {
+  groupId?: string;
+  name: string;
+  description: string;
+  key: string;
+};
+
 export type FormValues = {
   fieldId?: string;
   groupId?: string;

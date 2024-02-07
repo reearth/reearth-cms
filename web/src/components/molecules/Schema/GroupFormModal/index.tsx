@@ -4,26 +4,19 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import { Group, GroupFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-export interface FormValues {
-  groupId?: string;
-  name: string;
-  description: string;
-  key: string;
-}
-
-export interface Props {
-  group?: Group;
-  open?: boolean;
+type Props = {
   isKeyAvailable: boolean;
-  onClose: () => void;
-  onCreate?: (values: FormValues) => Promise<void> | void;
-  onUpdate?: (values: FormValues) => Promise<void> | void;
+  group?: Group;
+  open: boolean;
   onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
-}
+  onClose: () => void;
+  onCreate: (values: GroupFormValues) => Promise<void>;
+  onUpdate: (values: GroupFormValues) => Promise<void>;
+};
 
 const GroupFormModal: React.FC<Props> = ({
   group,

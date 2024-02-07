@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
-import type { FormValues } from "@reearth-cms/components/molecules/Schema/types";
+import type { FormValues, GroupFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -42,7 +42,7 @@ export default () => {
   const [isMeta, setIsMeta] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const [collapsed, collapse] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [selectedSchemaType, setSelectedSchemaType] = useState<SelectedSchemaType>("model");
   const { data: modelsData } = useGetModelsQuery({
     variables: {
@@ -325,7 +325,7 @@ export default () => {
   });
 
   const handleGroupCreate = useCallback(
-    async (data: { name: string; description: string; key: string }) => {
+    async (data: GroupFormValues) => {
       if (!projectId) return;
       const group = await createNewGroup({
         variables: {
@@ -350,7 +350,7 @@ export default () => {
   });
 
   const handleGroupUpdate = useCallback(
-    async (data: { groupId?: string; name: string; description: string; key: string }) => {
+    async (data: GroupFormValues) => {
       if (!data.groupId) return;
       const group = await updateNewGroup({
         variables: {
@@ -490,7 +490,7 @@ export default () => {
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
-    collapse,
+    setCollapsed,
     selectedSchemaType,
     handleModelSelect,
     handleGroupSelect,

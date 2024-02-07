@@ -50,7 +50,7 @@ const ProjectSchema: React.FC = () => {
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
-    collapse,
+    setCollapsed,
     selectedSchemaType,
     handleModelSelect,
     handleGroupSelect,
@@ -108,7 +108,7 @@ const ProjectSchema: React.FC = () => {
           />
         }
         setIsMeta={setIsMeta}
-        onCollapse={collapse}
+        onCollapse={setCollapsed}
         onFieldUpdateModalOpen={handleFieldUpdateModalOpen}
         onFieldCreationModalOpen={handleFieldCreationModalOpen}
         onFieldReorder={handleFieldOrder}
