@@ -124,7 +124,7 @@ const AssetItem: React.FC<Props> = ({
             <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
-                <div style={{ marginTop: 8, overflow: "hidden" }}>{asset?.fileName ?? value}</div>
+                <AssetName>{asset?.fileName ?? value}</AssetName>
               </div>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
@@ -157,7 +157,7 @@ const AssetItem: React.FC<Props> = ({
         <AssetButton disabled={disabled} onClick={handleClick}>
           <div>
             {loading ? <Icon icon="loading" size={24} /> : <Icon icon="linkSolid" size={14} />}
-            <div style={{ marginTop: 4 }}>{t("Asset")}</div>
+            <AssetButtonTitle>{t("Asset")}</AssetButtonTitle>
           </div>
         </AssetButton>
       )}
@@ -236,6 +236,15 @@ const AssetLinkedName = styled(Button)<{ enabled?: boolean }>`
 const AssetDetailsWrapper = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const AssetName = styled.div`
+  margin-top: 8px;
+  overflow: hidden;
+`;
+
+const AssetButtonTitle = styled.div`
+  margin-top: 4px;
 `;
 
 export default AssetItem;

@@ -10,11 +10,12 @@ import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
   Role as GQLRole,
-  Integration as GQLIntegration,
   useUpdateIntegrationOfWorkspaceMutation,
   useRemoveIntegrationFromWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+
+import { fromIntegration } from "./convertIntegration";
 
 export default (workspaceId?: string) => {
   const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
@@ -29,20 +30,6 @@ export default (workspaceId?: string) => {
 
   const workspaces = useMemo(() => data?.me?.workspaces, [data?.me?.workspaces]);
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
-
-  const fromIntegration = (integration: GQLIntegration) => ({
-    id: integration.id,
-    name: integration.name,
-    description: integration.description,
-    logoUrl: integration.logoUrl,
-    developerId: integration.developerId,
-    developer: integration.developer,
-    iType: integration.iType,
-    config: {
-      token: integration.config?.token,
-      webhooks: integration.config?.webhooks,
-    },
-  });
 
   const integrations = useMemo(() => {
     return data?.me?.integrations

@@ -57,8 +57,7 @@ const IntegrationTable: React.FC<Props> = ({
     {
       key: "action",
       render: (_, integrationMember) => (
-        <Icon
-          style={{ color: "#1890FF", fontSize: "18px" }}
+        <StyledIcon
           onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
           icon="settings"
         />
@@ -187,4 +186,9 @@ const DeselectButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+`;
+
+const StyledIcon = styled(Icon)`
+  color: #1890ff;
+  font-size: 18px;
 `;
