@@ -67,14 +67,12 @@ const ProjectSchema: React.FC = () => {
     handleFieldUpdate,
     handleFieldOrder,
     handleFieldDelete,
-    groupCreateModalShown,
-    groupUpdateModalShown,
+    groupModalShown,
     isGroupKeyAvailable,
     groupDeletionModalShown,
-    handleGroupUpdateModalOpen,
+    handleGroupModalOpen,
+    handleGroupModalClose,
     handleGroupDeletionModalOpen,
-    handleGroupCreateModalClose,
-    handleGroupUpdateModalClose,
     handleGroupDeletionModalClose,
     handleGroupDelete,
     handleGroupCreate,
@@ -101,7 +99,7 @@ const ProjectSchema: React.FC = () => {
         group={group}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
-        onGroupUpdateModalOpen={handleGroupUpdateModalOpen}
+        onGroupUpdateModalOpen={handleGroupModalOpen}
         onGroupDeletionModalOpen={handleGroupDeletionModalOpen}
         modelsMenu={
           <ModelsMenu
@@ -136,22 +134,13 @@ const ProjectSchema: React.FC = () => {
         onClose={isModel ? handleModelDeletionModalClose : handleGroupDeletionModalClose}
         isModel={isModel}
       />
-      {/* create */}
       <GroupFormModal
         isKeyAvailable={isGroupKeyAvailable}
         group={group}
-        open={groupCreateModalShown}
+        open={groupModalShown}
         onGroupKeyCheck={handleGroupKeyCheck}
-        onClose={handleGroupCreateModalClose}
+        onClose={handleGroupModalClose}
         onCreate={handleGroupCreate}
-      />
-      {/* update */}
-      <GroupFormModal
-        isKeyAvailable={isGroupKeyAvailable}
-        group={group}
-        open={groupUpdateModalShown}
-        onGroupKeyCheck={handleGroupKeyCheck}
-        onClose={handleGroupUpdateModalClose}
         onUpdate={handleGroupUpdate}
       />
       {selectedType && selectedType === "Reference" && (

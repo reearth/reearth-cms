@@ -38,20 +38,20 @@ const GroupFormModal: React.FC<Props> = ({
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
   useEffect(() => {
-    if (!group) {
-      form.resetFields();
-    } else {
+    if (group) {
       form.setFieldsValue(group);
+    } else {
+      form.resetFields();
     }
   }, [form, group]);
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
     await onGroupKeyCheck(values.key, group?.key);
-    if (!group?.id) {
-      await onCreate?.(values);
-    } else {
+    if (group?.id) {
       await onUpdate?.({ groupId: group.id, ...values });
+    } else {
+      await onCreate?.(values);
     }
     onClose();
     form.resetFields();

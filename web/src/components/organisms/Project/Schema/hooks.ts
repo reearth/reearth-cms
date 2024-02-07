@@ -246,15 +246,12 @@ export default () => {
   );
 
   // group hooks
-  const [groupCreateModalShown, setGroupCreateModalShown] = useState(false);
-  const [groupUpdateModalShown, setGroupUpdateModalShown] = useState(false);
+  const [groupModalShown, setGroupModalShown] = useState(false);
   const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
   const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
 
-  const handleGroupCreateModalClose = useCallback(() => setGroupCreateModalShown(false), []);
-  const handleGroupUpdateModalClose = useCallback(() => setGroupUpdateModalShown(false), []);
-  const handleGroupCreateModalOpen = useCallback(() => setGroupCreateModalShown(true), []);
-  const handleGroupUpdateModalOpen = useCallback(() => setGroupUpdateModalShown(true), []);
+  const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
+  const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
   const handleGroupDeletionModalOpen = useCallback(
     () => setGroupDeletionModalShown(true),
     [setGroupDeletionModalShown],
@@ -343,9 +340,9 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully created group!") });
-      handleGroupCreateModalClose();
+      handleGroupModalClose();
     },
-    [projectId, createNewGroup, t, handleGroupCreateModalClose],
+    [projectId, createNewGroup, t, handleGroupModalClose],
   );
 
   const [updateNewGroup] = useUpdateGroupMutation({
@@ -368,9 +365,9 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated group!") });
-      handleGroupUpdateModalClose();
+      handleGroupModalClose();
     },
-    [updateNewGroup, handleGroupUpdateModalClose, t],
+    [updateNewGroup, handleGroupModalClose, t],
   );
 
   const handleFieldCreationModalOpen = useCallback(
@@ -383,10 +380,10 @@ export default () => {
           okType: "primary",
           cancelText: t("Cancel"),
           onOk() {
-            handleGroupCreateModalOpen();
+            handleGroupModalOpen();
           },
           onCancel() {
-            handleGroupCreateModalClose();
+            handleGroupModalClose();
           },
         });
       } else {
@@ -394,7 +391,7 @@ export default () => {
         if (modelId) setFieldModalShown(true);
       }
     },
-    [confirm, groups?.length, handleGroupCreateModalClose, handleGroupCreateModalOpen, modelId, t],
+    [confirm, groups?.length, handleGroupModalClose, handleGroupModalOpen, modelId, t],
   );
 
   // model hooks
@@ -506,14 +503,12 @@ export default () => {
     handleFieldOrder,
     handleFieldDelete,
     // group
-    groupCreateModalShown,
-    groupUpdateModalShown,
+    groupModalShown,
     isGroupKeyAvailable,
     groupDeletionModalShown,
-    handleGroupUpdateModalOpen,
+    handleGroupModalOpen,
     handleGroupDeletionModalOpen,
-    handleGroupCreateModalClose,
-    handleGroupUpdateModalClose,
+    handleGroupModalClose,
     handleGroupDeletionModalClose,
     handleGroupDelete,
     handleGroupCreate,
