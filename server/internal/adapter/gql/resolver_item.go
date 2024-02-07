@@ -88,3 +88,27 @@ func (i itemResolver) Original(ctx context.Context, obj *gqlmodel.Item) (*gqlmod
 	}
 	return dataloaders(ctx).Item.Load(*obj.OriginalID)
 }
+
+func (i itemResolver) ReferencedItems(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Item, error) {
+	refIds := lo.FlatMap(obj.Fields, func(f *gqlmodel.ItemField, _ int) []gqlmodel.ID {
+		if f.Type != gqlmodel.SchemaFieldTypeReference || f.Value == nil {
+			return nil
+		}
+		if s, ok := f.Value.(string); ok {
+			return []gqlmodel.ID{gqlmodel.ID(s)}
+		}
+		if ss, ok := f.Value.([]any); ok {
+			return lo.FilterMap(ss, func(i any, _ int) (gqlmodel.ID, bool) {
+				str, ok := i.(string)
+				return gqlmodel.ID(str), ok
+			})
+		}
+		return nil
+	})
+
+	refItems, err := dataloaders(ctx).Item.LoadAll(refIds)
+	if len(err) > 0 && err[0] != nil {
+		return nil, err[0]
+	}
+	return refItems, nil
+}

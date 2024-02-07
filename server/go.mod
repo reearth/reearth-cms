@@ -125,7 +125,6 @@ require (
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
-	github.com/stretchr/objx v0.5.1 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/urfave/cli/v2 v2.27.1 // indirect
@@ -168,7 +167,7 @@ require (
 	google.golang.org/grpc v1.61.0 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
-	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
+	gopkg.in/go-jose/go-jose.v2 v2.6.2 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
