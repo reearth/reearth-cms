@@ -3,22 +3,23 @@ import styled from "@emotion/styled";
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import { Model, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
   open: boolean;
-  data?: { id: string; name: string };
+  data?: Model | Group;
   onClose: (refetch?: boolean) => void;
   onDelete: (modelId?: string) => Promise<void> | void;
-  isGroup?: boolean;
+  isModel: boolean;
 };
 
-const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isGroup = false }) => {
+const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel }) => {
   const t = useT();
 
   return (
     <Modal
-      title={t(`Delete ${isGroup ? "Group" : "Model"}`)}
+      title={t(`Delete ${isModel ? "Model" : "Group"}`)}
       open={open}
       onCancel={() => onClose()}
       footer={[
@@ -26,18 +27,18 @@ const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isGroup
           {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={() => onDelete(data?.id)} danger>
-          {t(`Delete ${isGroup ? "Group" : "Model"}`)}
+          {t(`Delete ${isModel ? "Model" : "Group"}`)}
         </Button>,
       ]}>
       <p>
-        {t(`Are you sure you want to delete the ${isGroup ? "group" : "model"}`)}
+        {t(`Are you sure you want to delete the ${isModel ? "model" : "group"}`)}
         <Name> {data?.name} </Name>?
       </p>
       <Alert
         message={t("Warning")}
         description={t(
           `This action will permanently delete the selected ${
-            isGroup ? "group" : "model"
+            isModel ? "model" : "group"
           } and cannot be reversed.`,
         )}
         type="warning"

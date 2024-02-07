@@ -48,9 +48,10 @@ const ProjectOverview: React.FC = () => {
       />
       <DeletionModal
         open={modelDeletionModalShown}
-        data={selectedModel && { id: selectedModel.id, name: selectedModel.name }}
+        data={selectedModel}
         onDelete={handleModelDelete}
         onClose={handleModelDeletionModalClose}
+        isModel
       />
     </>
   );

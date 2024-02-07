@@ -42,6 +42,7 @@ const ProjectSchema: React.FC = () => {
   } = useAssetHooks();
 
   const {
+    isModel,
     models,
     groups,
     group,
@@ -129,17 +130,11 @@ const ProjectSchema: React.FC = () => {
         onUpdate={handleModelUpdate}
       />
       <DeletionModal
-        open={modelDeletionModalShown}
-        data={currentModel && { id: currentModel.id, name: currentModel.name }}
-        onDelete={handleModelDelete}
-        onClose={handleModelDeletionModalClose}
-      />
-      <DeletionModal
-        open={groupDeletionModalShown}
-        data={group && { id: group.id, name: group.name }}
-        onDelete={handleGroupDelete}
-        onClose={handleGroupDeletionModalClose}
-        isGroup
+        open={isModel ? modelDeletionModalShown : groupDeletionModalShown}
+        data={isModel ? currentModel : group}
+        onDelete={isModel ? handleModelDelete : handleGroupDelete}
+        onClose={isModel ? handleModelDeletionModalClose : handleGroupDeletionModalClose}
+        isModel={isModel}
       />
       {/* create */}
       <GroupFormModal

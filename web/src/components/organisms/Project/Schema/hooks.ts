@@ -477,7 +477,10 @@ export default () => {
     [updateNewModel, handleModelUpdateModalClose, t],
   );
 
+  const isModel = useMemo(() => selectedSchemaType === "model", [selectedSchemaType]);
+
   return {
+    isModel,
     models,
     groups,
     group,
