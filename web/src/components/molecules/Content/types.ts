@@ -20,6 +20,7 @@ export type Item = {
   createdAt: Date;
   updatedAt: Date;
   status: ItemStatus;
+  referencedItems?: FormItem[];
   fields: ItemField[] | undefined | null;
   metadata: {
     id?: string;
