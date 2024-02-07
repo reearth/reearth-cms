@@ -23,7 +23,6 @@ import {
   Comment as GQLComment,
   useSearchItemQuery,
   Asset as GQLAsset,
-  useGetItemsByIdsQuery,
   useUpdateItemMutation,
   useCreateItemMutation,
   SchemaFieldType,
@@ -113,34 +112,15 @@ export default () => {
     selectedRowKeys: [],
   });
 
-  const referencedItemsIds = useMemo(
-    () =>
-      data?.searchItem?.nodes
-        ? data.searchItem.nodes
-            .filter(item => item?.fields && item?.fields.length > 0)
-            .flatMap(
-              item =>
-                item?.fields
-                  .filter(field => field.type === "Reference" && field.value)
-                  .map(field => field.value),
-            )
-        : [],
-    [data],
-  );
-
-  const { data: referencedItems } = useGetItemsByIdsQuery({
-    fetchPolicy: "no-cache",
-    variables: {
-      id: referencedItemsIds,
-    },
-    skip: !referencedItemsIds.length,
-  });
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const referencedItemsMap = new Map<string, any>();
-  (referencedItems?.nodes ?? []).forEach(item => {
-    if (item && item.__typename === "Item") {
-      referencedItemsMap.set(item.id, item);
+  data?.searchItem.nodes?.forEach(item => {
+    if (item?.referencedItems && item.referencedItems.length > 0) {
+      item.referencedItems.forEach(reference => {
+        if (!referencedItemsMap.has(reference.id)) {
+          referencedItemsMap.set(reference.id, reference);
+        }
+      });
     }
   });
 
