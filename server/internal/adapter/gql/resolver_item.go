@@ -61,8 +61,10 @@ func (i itemResolver) Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmod
 		}
 		if ss, ok := f.Value.([]any); ok {
 			return lo.FilterMap(ss, func(i any, _ int) (gqlmodel.ID, bool) {
-				str, ok := i.(string)
-				return gqlmodel.ID(str), ok
+				if str, ok := i.(string); ok {
+					return gqlmodel.ID(str), ok
+				}
+				return "", false
 			})
 		}
 		return nil
@@ -99,8 +101,10 @@ func (i itemResolver) ReferencedItems(ctx context.Context, obj *gqlmodel.Item) (
 		}
 		if ss, ok := f.Value.([]any); ok {
 			return lo.FilterMap(ss, func(i any, _ int) (gqlmodel.ID, bool) {
-				str, ok := i.(string)
-				return gqlmodel.ID(str), ok
+				if str, ok := i.(string); ok {
+					return gqlmodel.ID(str), ok
+				}
+				return "", false
 			})
 		}
 		return nil
