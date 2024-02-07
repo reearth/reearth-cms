@@ -19,6 +19,7 @@ type Item implements Node {
   thread: Thread!
   fields: [ItemField!]!
   assets: [Asset]!
+  referencedItems:[Item!]
   createdAt: DateTime!
   updatedAt: DateTime!
   updatedBy: Operator

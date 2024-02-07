@@ -287,6 +287,11 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		refItems, err := i.getReferencedItems(ctx, fields)
+		if err != nil {
+			return nil, err
+		}
+
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
@@ -297,7 +302,7 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 				Model:           m,
 				Schema:          s,
 				GroupSchemas:    groupSchemas,
-				ReferencedItems: i.getReferencedItems(ctx, fields),
+				ReferencedItems: refItems,
 			},
 			Operator: operator.Operator(),
 		}); err != nil {
@@ -400,6 +405,10 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 		if err = i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
 			return nil, err
 		}
+		refItems, err := i.getReferencedItems(ctx, fields)
+		if err != nil {
+			return nil, err
+		}
 
 		if err := i.event(ctx, Event{
 			Project:   prj,
@@ -411,7 +420,7 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 				Model:           m,
 				Schema:          s,
 				GroupSchemas:    groupSchemas,
-				ReferencedItems: i.getReferencedItems(ctx, fields),
+				ReferencedItems: refItems,
 				Changes:         item.CompareFields(itv.Fields(), oldFields),
 			},
 			Operator: operator.Operator(),
@@ -506,6 +515,10 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 		}
 
 		for _, itm := range items {
+			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
+			if err != nil {
+				return nil, err
+			}
 			if err := i.event(ctx, Event{
 				Project:   prj,
 				Workspace: prj.Workspace(),
@@ -515,7 +528,7 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 					Item:            itm.Value(),
 					Model:           m,
 					Schema:          sch,
-					ReferencedItems: i.getReferencedItems(ctx, itm.Value().Fields()),
+					ReferencedItems: refItems,
 				},
 				Operator: operator.Operator(),
 			}); err != nil {
@@ -569,6 +582,11 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 		}
 
 		for _, itm := range items {
+			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
+			if err != nil {
+				return nil, err
+			}
+
 			if err := i.event(ctx, Event{
 				Project:   prj,
 				Workspace: prj.Workspace(),
@@ -578,7 +596,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 					Item:            itm.Value(),
 					Model:           m,
 					Schema:          sch,
-					ReferencedItems: i.getReferencedItems(ctx, itm.Value().Fields()),
+					ReferencedItems: refItems,
 				},
 				Operator: operator.Operator(),
 			}); err != nil {
@@ -823,8 +841,8 @@ func (i Item) event(ctx context.Context, e Event) error {
 	return err
 }
 
-func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) []item.Versioned {
-	var vil []item.Versioned
+func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]item.Versioned, error) {
+	var ids id.ItemIDList
 	for _, f := range fields {
 		if f.Type() != value.TypeReference {
 			continue
@@ -834,12 +852,8 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) []it
 			if !ok {
 				continue
 			}
-			ii, err := i.repos.Item.FindByID(ctx, iid, nil)
-			if err != nil {
-				continue
-			}
-			vil = append(vil, ii)
+			ids = ids.Add(iid)
 		}
 	}
-	return vil
+	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }

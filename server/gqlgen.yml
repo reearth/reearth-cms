@@ -52,6 +52,8 @@ models:
         resolver: true
       assets:
         resolver: true
+      referencedItems:
+        resolver: true
       updatedBy:
         resolver: true
 

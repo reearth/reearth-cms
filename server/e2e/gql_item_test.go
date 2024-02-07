@@ -107,6 +107,16 @@ func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 						}
 						__typename
 					  }
+					  referencedItems {
+						id
+						fields {
+						  schemaFieldId
+						  type
+						  value
+						  __typename
+						}
+						__typename
+					  }
 					  thread {
 						...threadFragment
 						__typename
@@ -480,6 +490,8 @@ func TestTwoWayReferenceFields(t *testing.T) {
 
 	_, res := getItem(e, m1i1id)
 	res.Path("$.data.node.fields[-1:].value").Array().IsEqual([]string{m2i1id})
+	refs := res.Path("$.data.node.referencedItems[:].id").Raw().([]any)
+	assert.Equal(t, []any{m2i1id}, refs)
 	m2i1ver, res := getItem(e, m2i1id)
 	res.Path("$.data.node.fields[-1:].value").Array().IsEqual([]string{m1i1id})
 

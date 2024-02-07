@@ -533,6 +533,7 @@ type Item struct {
 	Thread                 *Thread      `json:"thread"`
 	Fields                 []*ItemField `json:"fields"`
 	Assets                 []*Asset     `json:"assets"`
+	ReferencedItems        []*Item      `json:"referencedItems,omitempty"`
 	CreatedAt              time.Time    `json:"createdAt"`
 	UpdatedAt              time.Time    `json:"updatedAt"`
 	UpdatedBy              Operator     `json:"updatedBy,omitempty"`
@@ -669,6 +670,9 @@ type MultipleFieldConditionInput struct {
 	Value    []interface{}       `json:"value"`
 }
 
+type Mutation struct {
+}
+
 type NullableFieldCondition struct {
 	FieldID  *FieldSelector   `json:"fieldId"`
 	Operator NullableOperator `json:"operator"`
@@ -787,6 +791,9 @@ type PublishModelInput struct {
 type PublishModelPayload struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
+}
+
+type Query struct {
 }
 
 type RemoveIntegrationFromWorkspaceInput struct {
