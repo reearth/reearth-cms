@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import ProTable, {
   ProColumns,
@@ -33,25 +33,31 @@ const ResizableProTable: React.FC<Props> = ({
     }
   }, [columns, setResizableColumns]);
 
-  const handleResize =
+  const handleResize = useCallback(
     (index: number) =>
-    (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
-      const newColumns = [...resizableColumns];
-      newColumns[index] = {
-        ...newColumns[index],
-        width: size.width,
-      };
-      setResizableColumns(newColumns);
-    };
+      (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
+        const newColumns = [...resizableColumns];
+        newColumns[index] = {
+          ...newColumns[index],
+          width: size.width,
+        };
+        setResizableColumns(newColumns);
+      },
+    [resizableColumns],
+  );
 
-  const mergeColumns: ProColumns<any, "text">[] = resizableColumns?.map((col, index): any => ({
-    ...col,
-    onHeaderCell: (column: ProColumns<any, "text">) => ({
-      minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
-      width: (column as ProColumns<any, "text">).width,
-      onResize: handleResize(index),
-    }),
-  }));
+  const mergeColumns: ProColumns<any, "text">[] = useMemo(
+    () =>
+      resizableColumns?.map((col, index): any => ({
+        ...col,
+        onHeaderCell: (column: ProColumns<any, "text">) => ({
+          minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
+          width: (column as ProColumns<any, "text">).width,
+          onResize: handleResize(index),
+        }),
+      })),
+    [handleResize, resizableColumns],
+  );
 
   const nthOfType = useMemo(() => {
     return columnsState?.value
@@ -62,6 +68,7 @@ const ResizableProTable: React.FC<Props> = ({
   }, [columnsState?.value]);
 
   const [isRowSelected, setIsRowSelected] = useState(false);
+
   useEffect(() => {
     if (typeof rowSelection !== "boolean") {
       if (rowSelection?.selectedRowKeys?.length) {

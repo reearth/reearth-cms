@@ -16,7 +16,7 @@ import {
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/utils";
 import {
@@ -440,10 +440,10 @@ export default () => {
     return initialValues;
   }, [currentItem, currentModel, dateConvert, itemLoading]);
 
-  const workspaceUserMembers = useMemo((): Member[] => {
+  const workspaceUserMembers = useMemo((): UserMember[] => {
     return (
       currentWorkspace?.members
-        ?.map<Member | undefined>(member =>
+        ?.map<UserMember | undefined>(member =>
           member.__typename === "WorkspaceUserMember" && member.user
             ? {
                 userId: member.userId,
@@ -453,7 +453,8 @@ export default () => {
             : undefined,
         )
         .filter(
-          (user): user is Member => !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
+          (user): user is UserMember =>
+            !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
         ) ?? []
     );
   }, [currentWorkspace]);

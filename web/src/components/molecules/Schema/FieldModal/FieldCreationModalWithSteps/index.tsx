@@ -256,9 +256,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               {models?.map(model => (
                 <Select.Option key={model.id} value={model.id}>
                   {model.name}{" "}
-                  <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
-                    #{model.key}
-                  </span>
+                  <StyledModelKey className="ant-form-item-extra">#{model.key}</StyledModelKey>
                 </Select.Option>
               ))}
             </Select>
@@ -489,6 +487,11 @@ const StyledModal = styled(Modal)`
     display: flex;
     justify-content: space-between;
   }
+`;
+
+const StyledModelKey = styled.span`
+  font-size: 12px;
+  margin-left: 4px;
 `;
 
 export default FieldCreationModalWithSteps;

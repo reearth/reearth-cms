@@ -9,11 +9,11 @@ import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import { Item, FormItem, ItemField } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Model } from "@reearth-cms/components/molecules/Schema/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 export type Props = {
   linkedItemsModalList?: FormItem[];
@@ -41,7 +41,7 @@ export type Props = {
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
   groups?: Group[];
-  workspaceUserMembers: Member[];
+  workspaceUserMembers: UserMember[];
   totalCount: number;
   page: number;
   pageSize: number;

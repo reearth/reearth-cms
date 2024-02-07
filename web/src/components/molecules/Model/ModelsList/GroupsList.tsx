@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -33,9 +33,12 @@ const GroupsList: React.FC<Props> = ({
     return selectedSchemaType && selectedSchemaType === "group" && selectedKey ? [selectedKey] : [];
   }, [selectedKey, selectedSchemaType]);
 
-  const handleClick = (e: MenuInfo) => {
-    onGroupSelect?.(e.key);
-  };
+  const handleClick = useCallback(
+    (e: MenuInfo) => {
+      onGroupSelect?.(e.key);
+    },
+    [onGroupSelect],
+  );
 
   return (
     <SchemaStyledMenu className={className}>
@@ -55,9 +58,7 @@ const GroupsList: React.FC<Props> = ({
         <StyledMenu
           selectedKeys={selectedKeys}
           mode={collapsed ? "vertical" : "inline"}
-          style={{
-            color: collapsed ? "#C4C4C4" : undefined,
-          }}
+          collapsed={collapsed}
           items={groups?.map(group => ({
             label: collapsed ? <Icon icon="dot" /> : group.name,
             key: group.id,
@@ -112,7 +113,9 @@ const StyledIcon = styled(Icon)`
   padding: 12px 20px;
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
+  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+
   .ant-menu-item {
     display: flex;
     justify-content: center;

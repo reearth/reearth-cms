@@ -3,7 +3,7 @@ import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModa
 import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 

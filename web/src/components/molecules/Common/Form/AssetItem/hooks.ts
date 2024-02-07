@@ -3,7 +3,7 @@ import { useState, useCallback, useMemo } from "react";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
+import { convertAsset } from "@reearth-cms/components/organisms/Project/Asset/convertAsset";
 import { useGetAssetQuery, Asset as GQLAsset } from "@reearth-cms/gql/graphql-client-api";
 import { useProject, useWorkspace } from "@reearth-cms/state";
 

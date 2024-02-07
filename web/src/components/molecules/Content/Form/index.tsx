@@ -43,11 +43,11 @@ import {
 } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { FieldType, Group, Model, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
@@ -74,7 +74,7 @@ export interface Props {
   requestModalShown: boolean;
   requestCreationLoading: boolean;
   addItemToRequestModalShown: boolean;
-  workspaceUserMembers: Member[];
+  workspaceUserMembers: UserMember[];
   totalCount: number;
   page: number;
   pageSize: number;
