@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -65,13 +65,48 @@ const FormModal: React.FC<Props> = ({
     onClose();
   }, [form, data, onClose]);
 
+  const title = useMemo(
+    () =>
+      isModel
+        ? data?.id
+          ? t("Update Model")
+          : t("New Model")
+        : data?.id
+          ? t("Update Group")
+          : t("New Group"),
+    [data?.id, isModel, t],
+  );
+
+  const nameLabel = useMemo(() => (isModel ? t("Model name") : t("Group name")), [isModel, t]);
+  const nameMessage = useMemo(
+    () =>
+      isModel ? t("Please input the name of the model!") : t("Please input the name of the group!"),
+    [isModel, t],
+  );
+  const descriptionLabel = useMemo(
+    () => (isModel ? t("Model description") : t("Group description")),
+    [isModel, t],
+  );
+  const keyLabel = useMemo(() => (isModel ? t("Model key") : t("Group key")), [isModel, t]);
+  const keyExtra = useMemo(
+    () =>
+      isModel
+        ? t(
+            "Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+          )
+        : t(
+            "Group key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+          ),
+    [isModel, t],
+  );
+
   return (
     <Modal
       open={open}
       onCancel={handleClose}
       onOk={handleSubmit}
       okButtonProps={{ disabled: buttonDisabled }}
-      title={`${data?.id ? "Update" : "New"} ${isModel ? "Model" : "Group"}`}>
+      title={title}>
       <Form
         form={form}
         layout="vertical"
@@ -89,26 +124,22 @@ const FormModal: React.FC<Props> = ({
         }}>
         <Form.Item
           name="name"
-          label={t(`${isModel ? "Model" : "Group"} name`)}
+          label={nameLabel}
           rules={[
             {
               required: true,
-              message: t(`Please input the name of the ${isModel ? "model" : "group"}!`),
+              message: nameMessage,
             },
           ]}>
           <Input />
         </Form.Item>
-        <Form.Item name="description" label={t(`${isModel ? "Model" : "Group"} description`)}>
+        <Form.Item name="description" label={descriptionLabel}>
           <TextArea rows={4} />
         </Form.Item>
         <Form.Item
           name="key"
-          label={t(`${isModel ? "Model" : "Group"} key`)}
-          extra={t(
-            `${
-              isModel ? "Model" : "Group"
-            } key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.`,
-          )}
+          label={keyLabel}
+          extra={keyExtra}
           rules={[
             {
               message: t("Key is not valid"),

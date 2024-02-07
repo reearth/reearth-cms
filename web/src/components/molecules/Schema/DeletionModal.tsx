@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -16,10 +17,25 @@ export type Props = {
 
 const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel }) => {
   const t = useT();
+  const title = useMemo(() => (isModel ? t("Delete Model") : t("Delete Group")), [isModel, t]);
+  const confirmation = useMemo(
+    () =>
+      isModel
+        ? t("Are you sure you want to delete the model")
+        : t("Are you sure you want to delete the group"),
+    [isModel, t],
+  );
+  const description = useMemo(
+    () =>
+      isModel
+        ? t("This action will permanently delete the selected model and cannot be reversed.")
+        : t("This action will permanently delete the selected group and cannot be reversed."),
+    [isModel, t],
+  );
 
   return (
     <Modal
-      title={t(`Delete ${isModel ? "Model" : "Group"}`)}
+      title={title}
       open={open}
       onCancel={() => onClose()}
       footer={[
@@ -27,23 +43,14 @@ const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel
           {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={() => onDelete(data?.id)} danger>
-          {t(`Delete ${isModel ? "Model" : "Group"}`)}
+          {title}
         </Button>,
       ]}>
       <p>
-        {t(`Are you sure you want to delete the ${isModel ? "model" : "group"}`)}
+        {confirmation}
         <Name> {data?.name} </Name>?
       </p>
-      <Alert
-        message={t("Warning")}
-        description={t(
-          `This action will permanently delete the selected ${
-            isModel ? "model" : "group"
-          } and cannot be reversed.`,
-        )}
-        type="warning"
-        showIcon
-      />
+      <Alert message={t("Warning")} description={description} type="warning" showIcon />
     </Modal>
   );
 };
