@@ -65,16 +65,6 @@ export default () => {
     skip: !projectId,
   });
 
-  const rawModel = useMemo(
-    () => modelsData?.models?.nodes?.find(node => node?.id === modelId),
-    [modelsData?.models, modelId],
-  );
-
-  const model = useMemo<Model | undefined>(
-    () => (rawModel?.id ? fromGraphQLModel(rawModel as GQLModel) : undefined),
-    [rawModel],
-  );
-
   const groups = useMemo(() => {
     return groupsData?.groups
       ?.map<Group | undefined>(group => fromGraphQLGroup(group as GQLGroup))
@@ -489,7 +479,6 @@ export default () => {
 
   return {
     models,
-    model,
     groups,
     group,
     isMeta,

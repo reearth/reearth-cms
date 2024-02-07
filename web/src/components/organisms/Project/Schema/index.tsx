@@ -45,7 +45,6 @@ const ProjectSchema: React.FC = () => {
     models,
     groups,
     group,
-    model,
     isMeta,
     setIsMeta,
     fieldModalShown,
@@ -123,17 +122,24 @@ const ProjectSchema: React.FC = () => {
       />
       <ModelFormModal
         isKeyAvailable={isModelKeyAvailable}
-        model={model}
+        model={currentModel}
         open={modelUpdateModalShown}
         onModelKeyCheck={handleModelKeyCheck}
         onClose={handleModelUpdateModalClose}
         onUpdate={handleModelUpdate}
       />
       <DeletionModal
-        data={model && { id: model.id, name: model.name }}
         open={modelDeletionModalShown}
+        data={currentModel && { id: currentModel.id, name: currentModel.name }}
         onDelete={handleModelDelete}
         onClose={handleModelDeletionModalClose}
+      />
+      <DeletionModal
+        open={groupDeletionModalShown}
+        data={group && { id: group.id, name: group.name }}
+        onDelete={handleGroupDelete}
+        onClose={handleGroupDeletionModalClose}
+        isGroup
       />
       {/* create */}
       <GroupFormModal
@@ -152,13 +158,6 @@ const ProjectSchema: React.FC = () => {
         onGroupKeyCheck={handleGroupKeyCheck}
         onClose={handleGroupUpdateModalClose}
         onUpdate={handleGroupUpdate}
-      />
-      <DeletionModal
-        data={group && { id: group.id, name: group.name }}
-        open={groupDeletionModalShown}
-        onDelete={handleGroupDelete}
-        onClose={handleGroupDeletionModalClose}
-        isGroup
       />
       {selectedType && selectedType === "Reference" && (
         <FieldCreationModalWithSteps
