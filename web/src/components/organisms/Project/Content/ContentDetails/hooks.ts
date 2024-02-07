@@ -33,7 +33,6 @@ import {
   useUpdateItemMutation,
   useUpdateRequestMutation,
   useSearchItemQuery,
-  useGetItemsByIdsQuery,
   useGetGroupsQuery,
   FieldType as GQLFieldType,
   StringOperator,
@@ -188,27 +187,9 @@ export default () => {
     [data?.node],
   );
 
-  const formReferenceItemsIds = useMemo(
-    () =>
-      (currentItem?.fields
-        ?.filter(
-          field => field.type === "Reference" && field.value && typeof field.value === "string",
-        )
-        .map(field => field.value) as string[]) ?? [],
-    [currentItem?.fields],
-  );
-
-  const { data: gqlFormItemsData } = useGetItemsByIdsQuery({
-    fetchPolicy: "no-cache",
-    variables: {
-      id: formReferenceItemsIds,
-    },
-    skip: formReferenceItemsIds.length === 0,
-  });
-
   const formItemsData: FormItem[] | undefined = useMemo(
-    () => gqlFormItemsData?.nodes as FormItem[],
-    [gqlFormItemsData?.nodes],
+    () => currentItem?.referencedItems,
+    [currentItem?.referencedItems],
   );
 
   const { data: groupData } = useGetGroupsQuery({
