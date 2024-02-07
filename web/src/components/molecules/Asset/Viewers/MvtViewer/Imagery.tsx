@@ -1,14 +1,6 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import {
-  Cartesian3,
-  ImageryLayer,
-  ImageryLayerCollection,
-  Math,
-  BoundingSphere,
-  HeadingPitchRange,
-  type Viewer,
-} from "cesium";
+import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -37,11 +29,12 @@ type TileCoordinates = {
 };
 
 export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
-  const { viewer } = useCesium() as { viewer: Viewer | undefined };
+  const { viewer } = useCesium();
   const [selectedFeature, setSelectFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
+  const [maximumLevel, setMaximumLevel] = useState<number | undefined>();
 
   const zoomTo = useCallback(
     ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
@@ -64,6 +57,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
+          setMaximumLevel(data.maximumLevel);
         }
         zoomTo(data?.center || defaultCameraPosition, !data?.center);
       } catch (error) {
@@ -79,7 +73,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       return {
         strokeStyle: "white",
         fillStyle: selectedFeature === fid ? "orange" : "red",
-        lineWidth: 1,
+        lineWidth: VectorTileFeature.types[f.type] === "Point" ? 5 : 1,
       };
     },
     [selectedFeature],
@@ -105,11 +99,12 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       layerName: currentLayer,
       style,
       onSelectFeature,
+      maximumLevel,
     });
 
     if (viewer) {
-      const layers: ImageryLayerCollection = viewer.scene.imageryLayers;
-      const currentLayer: ImageryLayer = layers.addImageryProvider(imageryProvider);
+      const layers = viewer.scene.imageryLayers;
+      const currentLayer = layers.addImageryProvider(imageryProvider);
       currentLayer.alpha = 0.5;
 
       return () => {
@@ -127,6 +122,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
     selectFeature,
     onSelectFeature,
     style,
+    maximumLevel,
   ]);
 
   const handleChange = useCallback((value: unknown) => {
@@ -189,10 +185,12 @@ const idFromGeometry = (
   return hash.hex();
 };
 
-export function parseMetadata(
-  json: any,
-):
-  | { layers: string[]; center: [lng: number, lat: number, height: number] | undefined }
+export function parseMetadata(json: any):
+  | {
+      layers: string[];
+      center: [lng: number, lat: number, height: number] | undefined;
+      maximumLevel?: number;
+    }
   | undefined {
   if (!json) return;
 
@@ -215,5 +213,7 @@ export function parseMetadata(
     // ignore
   }
 
-  return { layers, center };
+  const maximumLevel = json.maxzoom;
+
+  return { layers, center, maximumLevel };
 }
