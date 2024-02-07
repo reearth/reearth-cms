@@ -16,7 +16,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import type {
+import {
   Field,
   FieldModalTabs,
   FieldType,
