@@ -32,9 +32,8 @@ export default ({ modelId, groupId }: Params) => {
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const [modelModalShown, setModelModalShown] = useState(false);
-  const [isModelKeyAvailable, setIsModelKeyAvailable] = useState(false);
 
-  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
+  const [CheckModelKeyAvailability] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
 
@@ -47,10 +46,6 @@ export default ({ modelId, groupId }: Params) => {
     },
     [projectId, CheckModelKeyAvailability],
   );
-
-  useEffect(() => {
-    setIsModelKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
-  }, [keyData?.checkModelKeyAvailability]);
 
   const { data } = useGetModelsQuery({
     variables: { projectId: projectId ?? "", pagination: { first: 100 } },
@@ -131,7 +126,6 @@ export default ({ modelId, groupId }: Params) => {
 
   // Group hooks
   const [groupModalShown, setGroupModalShown] = useState(false);
-  const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
 
   const { data: groupData } = useGetGroupsQuery({
     variables: { projectId: projectId ?? "" },
@@ -157,11 +151,9 @@ export default ({ modelId, groupId }: Params) => {
   const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
 
-  const [CheckGroupKeyAvailability, { data: groupKeyData }] = useCheckGroupKeyAvailabilityLazyQuery(
-    {
-      fetchPolicy: "no-cache",
-    },
-  );
+  const [CheckGroupKeyAvailability] = useCheckGroupKeyAvailabilityLazyQuery({
+    fetchPolicy: "no-cache",
+  });
 
   const handleGroupKeyCheck = useCallback(
     async (key: string, ignoredKey?: string) => {
@@ -172,10 +164,6 @@ export default ({ modelId, groupId }: Params) => {
     },
     [projectId, CheckGroupKeyAvailability],
   );
-
-  useEffect(() => {
-    setIsGroupKeyAvailable(!!groupKeyData?.checkGroupKeyAvailability.available);
-  }, [groupKeyData?.checkGroupKeyAvailability]);
 
   const [createNewGroup] = useCreateGroupMutation({
     refetchQueries: ["GetGroups"],
@@ -212,8 +200,6 @@ export default ({ modelId, groupId }: Params) => {
     groups,
     modelModalShown,
     groupModalShown,
-    isModelKeyAvailable,
-    isGroupKeyAvailable,
     handleModelModalOpen,
     handleModelModalClose,
     handleModelCreate,

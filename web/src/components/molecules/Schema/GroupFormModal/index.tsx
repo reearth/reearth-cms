@@ -9,13 +9,12 @@ import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 type Props = {
-  isKeyAvailable: boolean;
   group?: Group;
   open: boolean;
   onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onClose: () => void;
-  onCreate: (values: GroupFormValues) => Promise<void>;
-  onUpdate: (values: GroupFormValues) => Promise<void>;
+  onCreate?: (values: GroupFormValues) => Promise<void>;
+  onUpdate?: (values: GroupFormValues) => Promise<void>;
 };
 
 const GroupFormModal: React.FC<Props> = ({

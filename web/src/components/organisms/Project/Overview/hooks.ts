@@ -28,7 +28,6 @@ export default () => {
     handleModelModalOpen,
     handleModelCreate,
     handleModelKeyCheck,
-    isModelKeyAvailable,
   } = useModelHooks({});
 
   const { data } = useGetModelsQuery({
@@ -133,7 +132,6 @@ export default () => {
   return {
     currentProject,
     models,
-    isModelKeyAvailable,
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,

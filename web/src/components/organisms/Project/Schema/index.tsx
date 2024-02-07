@@ -63,7 +63,6 @@ const ProjectSchema: React.FC = () => {
     handleFieldOrder,
     handleFieldDelete,
     groupModalShown,
-    isGroupKeyAvailable,
     groupDeletionModalShown,
     handleGroupModalOpen,
     handleGroupModalClose,
@@ -74,7 +73,6 @@ const ProjectSchema: React.FC = () => {
     handleGroupUpdate,
     handleGroupKeyCheck,
     modelModalShown,
-    isModelKeyAvailable,
     modelDeletionModalShown,
     handleModelModalOpen,
     handleModelDeletionModalOpen,
@@ -115,7 +113,6 @@ const ProjectSchema: React.FC = () => {
         onFieldDelete={handleFieldDelete}
       />
       <ModelFormModal
-        isKeyAvailable={isModelKeyAvailable}
         model={currentModel}
         open={modelModalShown}
         onModelKeyCheck={handleModelKeyCheck}
@@ -130,7 +127,6 @@ const ProjectSchema: React.FC = () => {
         isModel={isModel}
       />
       <GroupFormModal
-        isKeyAvailable={isGroupKeyAvailable}
         group={group}
         open={groupModalShown}
         onGroupKeyCheck={handleGroupKeyCheck}

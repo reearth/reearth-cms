@@ -10,7 +10,6 @@ export interface Props {
   selectedKey?: string;
   models?: Model[];
   selectedSchemaType?: SelectedSchemaType;
-  isKeyAvailable: boolean;
   open?: boolean;
   onModalOpen: () => void;
   onModelKeyCheck: (key: string, ignoredKey?: string | undefined) => Promise<boolean>;
@@ -26,7 +25,6 @@ const Models: React.FC<Props> = ({
   selectedKey,
   models,
   selectedSchemaType,
-  isKeyAvailable,
   open,
   onModalOpen,
   onModelKeyCheck,
@@ -48,7 +46,6 @@ const Models: React.FC<Props> = ({
         onUpdateModelsOrder={onUpdateModelsOrder}
       />
       <ModelFormModal
-        isKeyAvailable={isKeyAvailable}
         open={open}
         onModelKeyCheck={onModelKeyCheck}
         onClose={onClose}

@@ -545,7 +545,7 @@ export default () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTitle: model?.name,
+    linkItemModalTitle: model?.name ?? "",
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,

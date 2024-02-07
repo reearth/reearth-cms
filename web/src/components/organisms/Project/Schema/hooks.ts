@@ -5,7 +5,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
+import type {
+  FormValues,
+  GroupFormValues,
   ModelFormValues,
+} from "@reearth-cms/components/molecules/Schema/types";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -247,7 +251,6 @@ export default () => {
 
   // group hooks
   const [groupModalShown, setGroupModalShown] = useState(false);
-  const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
   const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
 
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
@@ -260,11 +263,9 @@ export default () => {
     () => setGroupDeletionModalShown(false),
     [setGroupDeletionModalShown],
   );
-  const [CheckGroupKeyAvailability, { data: groupKeyData }] = useCheckGroupKeyAvailabilityLazyQuery(
-    {
-      fetchPolicy: "no-cache",
-    },
-  );
+  const [CheckGroupKeyAvailability] = useCheckGroupKeyAvailabilityLazyQuery({
+    fetchPolicy: "no-cache",
+  });
 
   const handleGroupKeyCheck = useCallback(
     async (key: string, ignoredKey?: string) => {
@@ -275,10 +276,6 @@ export default () => {
     },
     [projectId, CheckGroupKeyAvailability],
   );
-
-  useEffect(() => {
-    setIsGroupKeyAvailable(!!groupKeyData?.checkGroupKeyAvailability.available);
-  }, [groupKeyData?.checkGroupKeyAvailability]);
 
   const { data: modelsByGroupData } = useModelsByGroupQuery({
     variables: {
@@ -396,10 +393,9 @@ export default () => {
 
   // model hooks
   const [modelModalShown, setModelModalShown] = useState(false);
-  const [isModelKeyAvailable, setIsModelKeyAvailable] = useState(false);
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
 
-  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
+  const [CheckModelKeyAvailability] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
 
@@ -412,10 +408,6 @@ export default () => {
     },
     [projectId, CheckModelKeyAvailability],
   );
-
-  useEffect(() => {
-    setIsModelKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
-  }, [keyData?.checkModelKeyAvailability]);
 
   const handleModelDeletionModalOpen = useCallback(
     () => setModelDeletionModalShown(true),
@@ -504,7 +496,6 @@ export default () => {
     handleFieldDelete,
     // group
     groupModalShown,
-    isGroupKeyAvailable,
     groupDeletionModalShown,
     handleGroupModalOpen,
     handleGroupDeletionModalOpen,
@@ -516,7 +507,6 @@ export default () => {
     handleGroupKeyCheck,
     // modal
     modelModalShown,
-    isModelKeyAvailable,
     modelDeletionModalShown,
     handleModelModalOpen,
     handleModelModalClose,
