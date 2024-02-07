@@ -9,7 +9,7 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 import AssetItem from "../../Form/AssetItem";

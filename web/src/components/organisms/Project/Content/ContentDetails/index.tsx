@@ -1,6 +1,6 @@
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 

@@ -13,7 +13,7 @@ import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 import RequestItemForm from "./ItemForm";
 

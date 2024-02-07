@@ -3,7 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Role, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { convertMember } from "@reearth-cms/components/organisms/Workspace/convertWorkspace";
 import {
