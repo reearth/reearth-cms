@@ -4,26 +4,33 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import { Model, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  Model,
+  ModelFormValues,
+  Group,
+  GroupFormValues,
+} from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 type Props = {
-  model?: Model;
+  data?: Model | Group;
   open?: boolean;
   onClose: () => void;
-  onCreate?: (values: ModelFormValues) => Promise<void> | void;
-  onUpdate?: (values: ModelFormValues) => Promise<void> | void;
-  onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
+  onCreate?: (values: ModelFormValues | GroupFormValues) => Promise<void> | void;
+  onUpdate?: (values: ModelFormValues | GroupFormValues) => Promise<void> | void;
+  onKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
+  isModel: boolean;
 };
 
-const ModelFormModal: React.FC<Props> = ({
-  model,
+const FormModal: React.FC<Props> = ({
+  data,
   open,
   onClose,
   onCreate,
   onUpdate,
-  onModelKeyCheck,
+  onKeyCheck,
+  isModel,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -31,32 +38,32 @@ const ModelFormModal: React.FC<Props> = ({
 
   useEffect(() => {
     if (open) {
-      if (!model) {
-        form.resetFields();
+      if (data) {
+        form.setFieldsValue(data);
       } else {
-        form.setFieldsValue(model);
+        form.resetFields();
       }
     }
-  }, [form, model, open]);
+  }, [form, data, open]);
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
-    await onModelKeyCheck(values.key, model?.key);
-    if (!model?.id) {
-      await onCreate?.(values);
+    await onKeyCheck(values.key, data?.key);
+    if (data?.id) {
+      await onUpdate?.({ modelId: data.id, ...values });
     } else {
-      await onUpdate?.({ modelId: model.id, ...values });
+      await onCreate?.(values);
     }
     onClose();
     form.resetFields();
-  }, [onModelKeyCheck, model, form, onClose, onCreate, onUpdate]);
+  }, [onKeyCheck, data, form, onClose, onCreate, onUpdate]);
 
   const handleClose = useCallback(() => {
-    if (!model) {
+    if (!data) {
       form.resetFields();
     }
     onClose();
-  }, [form, model, onClose]);
+  }, [form, data, onClose]);
 
   return (
     <Modal
@@ -64,7 +71,7 @@ const ModelFormModal: React.FC<Props> = ({
       onCancel={handleClose}
       onOk={handleSubmit}
       okButtonProps={{ disabled: buttonDisabled }}
-      title={!model?.id ? t("New Model") : t("Update Model")}>
+      title={`${data?.id ? "Update" : "New"} ${isModel ? "Model" : "Group"}`}>
       <Form
         form={form}
         layout="vertical"
@@ -82,18 +89,25 @@ const ModelFormModal: React.FC<Props> = ({
         }}>
         <Form.Item
           name="name"
-          label={t("Model name")}
-          rules={[{ required: true, message: t("Please input the name of the model!") }]}>
+          label={t(`${isModel ? "Model" : "Group"} name`)}
+          rules={[
+            {
+              required: true,
+              message: t(`Please input the name of the ${isModel ? "model" : "group"}!`),
+            },
+          ]}>
           <Input />
         </Form.Item>
-        <Form.Item name="description" label={t("Model description")}>
+        <Form.Item name="description" label={t(`${isModel ? "Model" : "Group"} description`)}>
           <TextArea rows={4} />
         </Form.Item>
         <Form.Item
           name="key"
-          label={t("Model key")}
+          label={t(`${isModel ? "Model" : "Group"} key`)}
           extra={t(
-            "Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
+            `${
+              isModel ? "Model" : "Group"
+            } key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.`,
           )}
           rules={[
             {
@@ -101,7 +115,7 @@ const ModelFormModal: React.FC<Props> = ({
               required: true,
               validator: async (_, value) => {
                 if (!validateKey(value)) return Promise.reject();
-                const isKeyAvailable = await onModelKeyCheck(value, model?.key);
+                const isKeyAvailable = await onKeyCheck(value, data?.key);
                 if (isKeyAvailable) {
                   return Promise.resolve();
                 } else {
@@ -117,4 +131,4 @@ const ModelFormModal: React.FC<Props> = ({
   );
 };
 
-export default ModelFormModal;
+export default FormModal;

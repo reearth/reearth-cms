@@ -2,8 +2,7 @@ import SchemaMolecule from "@reearth-cms/components/molecules/Schema";
 import DeletionModal from "@reearth-cms/components/molecules/Schema/DeletionModal";
 import FieldModal from "@reearth-cms/components/molecules/Schema/FieldModal";
 import FieldCreationModalWithSteps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModalWithSteps";
-import GroupFormModal from "@reearth-cms/components/molecules/Schema/GroupFormModal";
-import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
+import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
@@ -112,12 +111,14 @@ const ProjectSchema: React.FC = () => {
         onFieldReorder={handleFieldOrder}
         onFieldDelete={handleFieldDelete}
       />
-      <ModelFormModal
-        model={currentModel}
-        open={modelModalShown}
-        onModelKeyCheck={handleModelKeyCheck}
-        onClose={handleModelModalClose}
-        onUpdate={handleModelUpdate}
+      <FormModal
+        data={isModel ? currentModel : group}
+        open={isModel ? modelModalShown : groupModalShown}
+        onKeyCheck={isModel ? handleModelKeyCheck : handleGroupKeyCheck}
+        onClose={isModel ? handleModelModalClose : handleGroupModalClose}
+        onCreate={isModel ? undefined : handleGroupCreate}
+        onUpdate={isModel ? handleModelUpdate : handleGroupUpdate}
+        isModel={isModel}
       />
       <DeletionModal
         open={isModel ? modelDeletionModalShown : groupDeletionModalShown}
@@ -125,14 +126,6 @@ const ProjectSchema: React.FC = () => {
         onDelete={isModel ? handleModelDelete : handleGroupDelete}
         onClose={isModel ? handleModelDeletionModalClose : handleGroupDeletionModalClose}
         isModel={isModel}
-      />
-      <GroupFormModal
-        group={group}
-        open={groupModalShown}
-        onGroupKeyCheck={handleGroupKeyCheck}
-        onClose={handleGroupModalClose}
-        onCreate={handleGroupCreate}
-        onUpdate={handleGroupUpdate}
       />
       {selectedType && selectedType === "Reference" && (
         <FieldCreationModalWithSteps

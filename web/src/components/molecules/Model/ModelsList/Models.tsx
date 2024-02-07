@@ -1,6 +1,6 @@
 import ModelsList from "@reearth-cms/components/molecules/Model/ModelsList/ModelsList";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
+import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { Model, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 
 export interface Props {
@@ -45,11 +45,12 @@ const Models: React.FC<Props> = ({
         onModalOpen={onModalOpen}
         onUpdateModelsOrder={onUpdateModelsOrder}
       />
-      <ModelFormModal
+      <FormModal
         open={open}
-        onModelKeyCheck={onModelKeyCheck}
+        onKeyCheck={onModelKeyCheck}
         onClose={onClose}
         onCreate={onCreate}
+        isModel
       />
     </>
   );
