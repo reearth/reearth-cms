@@ -114,9 +114,9 @@ export default () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const referencedItemsMap = new Map<string, any>();
-  data?.searchItem.nodes.forEach(item => {
-    if (item?.fields && item.fields.length > 0) {
-      item.referencedItems?.forEach(reference => {
+  data?.searchItem.nodes?.forEach(item => {
+    if (item?.referencedItems && item.referencedItems.length > 0) {
+      item.referencedItems.forEach(reference => {
         if (!referencedItemsMap.has(reference.id)) {
           referencedItemsMap.set(reference.id, reference);
         }
