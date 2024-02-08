@@ -112,6 +112,7 @@ export default () => {
     selectedRowKeys: [],
   });
 
+  // refactor here
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const referencedItemsMap = new Map<string, any>();
   data?.searchItem.nodes?.forEach(item => {

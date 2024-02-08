@@ -187,6 +187,7 @@ export default () => {
     [data?.node],
   );
 
+  // refactor here
   const formItemsData: FormItem[] | undefined = useMemo(
     () => currentItem?.referencedItems as FormItem[],
     [currentItem?.referencedItems],
