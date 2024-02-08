@@ -15,7 +15,6 @@ const IntegerField: React.FC<DefaultFieldProps> = ({ field }) => {
 
   return (
     <Form.Item
-      key={field.id}
       extra={field.description}
       rules={[
         {
