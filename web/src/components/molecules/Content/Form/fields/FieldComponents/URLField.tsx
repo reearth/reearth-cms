@@ -10,10 +10,10 @@ import FieldTitle from "../../FieldTitle";
 
 interface URLFieldProps {
   field: Field;
-  handleBlurUpdate?: () => void;
+  handleMetaUpdate?: () => Promise<void>;
 }
 
-const URLField: React.FC<URLFieldProps> = ({ field }) => {
+const URLField: React.FC<URLFieldProps> = ({ field, handleMetaUpdate }) => {
   const { t } = useTranslation();
 
   return (
@@ -47,9 +47,14 @@ const URLField: React.FC<URLFieldProps> = ({ field }) => {
           showCount={true}
           maxLength={field.typeProperty?.maxLength ?? 500}
           FieldInput={Input}
+          onBlur={handleMetaUpdate}
         />
       ) : (
-        <Input showCount={true} maxLength={field.typeProperty?.maxLength ?? 500} />
+        <Input
+          showCount={true}
+          maxLength={field.typeProperty?.maxLength ?? 500}
+          onBlur={handleMetaUpdate}
+        />
       )}
     </Form.Item>
   );

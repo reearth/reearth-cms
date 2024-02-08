@@ -11,14 +11,8 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import GroupItem from "@reearth-cms/components/molecules//Common/Form/GroupItem";
-import MultiValueGroup from "@reearth-cms/components/molecules//Common/MultiValueField/MultiValueGroup";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
-import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
-import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
-import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import ContentSidebarWrapper from "@reearth-cms/components/molecules/Content/Form/SidebarWrapper";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
@@ -39,6 +33,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { transformMomentToString } from "@reearth-cms/utils/format";
 
+import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldComponents";
 import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
@@ -517,189 +512,93 @@ const ContentForm: React.FC<Props> = ({
 
             if (field.type === "Asset") {
               return (
-                <StyledFormItem
-                  key={field.id}
-                  extra={field.description}
-                  rules={[
-                    {
-                      required: field.required,
-                      message: t("Please input field!"),
-                    },
-                  ]}
-                  name={field.id}
-                  label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueAsset
-                      assetList={assetList}
-                      fileList={fileList}
-                      loadingAssets={loadingAssets}
-                      uploading={uploading}
-                      uploadModalVisibility={uploadModalVisibility}
-                      uploadUrl={uploadUrl}
-                      uploadType={uploadType}
-                      totalCount={totalCount}
-                      page={page}
-                      pageSize={pageSize}
-                      onAssetTableChange={onAssetTableChange}
-                      onUploadModalCancel={onUploadModalCancel}
-                      setUploadUrl={setUploadUrl}
-                      setUploadType={setUploadType}
-                      onAssetsCreate={onAssetsCreate}
-                      onAssetCreateFromUrl={onAssetCreateFromUrl}
-                      onAssetsReload={onAssetsReload}
-                      onAssetSearchTerm={onAssetSearchTerm}
-                      setFileList={setFileList}
-                      setUploadModalVisibility={setUploadModalVisibility}
-                    />
-                  ) : (
-                    <AssetItem
-                      key={field.id}
-                      assetList={assetList}
-                      fileList={fileList}
-                      loadingAssets={loadingAssets}
-                      uploading={uploading}
-                      uploadModalVisibility={uploadModalVisibility}
-                      uploadUrl={uploadUrl}
-                      uploadType={uploadType}
-                      totalCount={totalCount}
-                      page={page}
-                      pageSize={pageSize}
-                      onAssetTableChange={onAssetTableChange}
-                      onUploadModalCancel={onUploadModalCancel}
-                      setUploadUrl={setUploadUrl}
-                      setUploadType={setUploadType}
-                      onAssetsCreate={onAssetsCreate}
-                      onAssetCreateFromUrl={onAssetCreateFromUrl}
-                      onAssetsReload={onAssetsReload}
-                      onAssetSearchTerm={onAssetSearchTerm}
-                      setFileList={setFileList}
-                      setUploadModalVisibility={setUploadModalVisibility}
-                    />
-                  )}
-                </StyledFormItem>
+                <StyledFormItemWrapper key={field.id}>
+                  <AssetField
+                    field={field}
+                    assetList={assetList}
+                    fileList={fileList}
+                    loadingAssets={loadingAssets}
+                    uploading={uploading}
+                    uploadModalVisibility={uploadModalVisibility}
+                    uploadUrl={uploadUrl}
+                    uploadType={uploadType}
+                    totalCount={totalCount}
+                    page={page}
+                    pageSize={pageSize}
+                    onAssetTableChange={onAssetTableChange}
+                    onUploadModalCancel={onUploadModalCancel}
+                    setUploadUrl={setUploadUrl}
+                    setUploadType={setUploadType}
+                    onAssetsCreate={onAssetsCreate}
+                    onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsReload={onAssetsReload}
+                    onAssetSearchTerm={onAssetSearchTerm}
+                    setFileList={setFileList}
+                    setUploadModalVisibility={setUploadModalVisibility}
+                  />
+                </StyledFormItemWrapper>
               );
-            }
-
-            if (field.type === "Reference") {
+            } else if (field.type === "Reference") {
               return (
-                <StyledFormItem
-                  key={field.id}
-                  extra={field.description}
-                  name={field.id}
-                  label={
-                    <FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />
-                  }>
-                  <ReferenceFormItem
-                    key={field.id}
-                    correspondingFieldId={field.id}
-                    formItemsData={formItemsData}
-                    modelId={field.typeProperty?.modelId}
-                    onReferenceModelUpdate={onReferenceModelUpdate}
-                    linkItemModalTitle={linkItemModalTitle}
+                <StyledFormItemWrapper key={field.id}>
+                  <ReferenceField
+                    field={field}
                     linkedItemsModalList={linkedItemsModalList}
+                    formItemsData={formItemsData}
+                    linkItemModalTitle={linkItemModalTitle}
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
+                    onReferenceModelUpdate={onReferenceModelUpdate}
                     onSearchTerm={onSearchTerm}
                     onLinkItemTableChange={onLinkItemTableChange}
                   />
-                </StyledFormItem>
+                </StyledFormItemWrapper>
               );
-            }
-
-            if (field.type === "Group") {
+            } else if (field.type === "Group") {
               return (
-                <StyledFormItem
-                  key={field.id}
-                  extra={field.description}
-                  name={field.id}
-                  label={
-                    <FieldTitle
-                      title={field.title}
-                      isUnique={field.unique}
-                      isTitle={field.isTitle}
-                    />
-                  }>
-                  {field.multiple ? (
-                    <MultiValueGroup
-                      parentField={field}
-                      form={form}
-                      groups={groups}
-                      linkedItemsModalList={linkedItemsModalList}
-                      formItemsData={formItemsData}
-                      assetList={assetList}
-                      fileList={fileList}
-                      loadingAssets={loadingAssets}
-                      uploading={uploading}
-                      uploadModalVisibility={uploadModalVisibility}
-                      uploadUrl={uploadUrl}
-                      uploadType={uploadType}
-                      totalCount={totalCount}
-                      page={page}
-                      pageSize={pageSize}
-                      linkItemModalTotalCount={linkItemModalTotalCount}
-                      linkItemModalPage={linkItemModalPage}
-                      linkItemModalPageSize={linkItemModalPageSize}
-                      onReferenceModelUpdate={onReferenceModelUpdate}
-                      onLinkItemTableChange={onLinkItemTableChange}
-                      onAssetTableChange={onAssetTableChange}
-                      onUploadModalCancel={onUploadModalCancel}
-                      setUploadUrl={setUploadUrl}
-                      setUploadType={setUploadType}
-                      onAssetsCreate={onAssetsCreate}
-                      onAssetCreateFromUrl={onAssetCreateFromUrl}
-                      onAssetsReload={onAssetsReload}
-                      onAssetSearchTerm={onAssetSearchTerm}
-                      setFileList={setFileList}
-                      setUploadModalVisibility={setUploadModalVisibility}
-                    />
-                  ) : (
-                    <GroupItem
-                      parentField={field}
-                      linkedItemsModalList={linkedItemsModalList}
-                      formItemsData={formItemsData}
-                      assetList={assetList}
-                      fileList={fileList}
-                      loadingAssets={loadingAssets}
-                      uploading={uploading}
-                      uploadModalVisibility={uploadModalVisibility}
-                      uploadUrl={uploadUrl}
-                      uploadType={uploadType}
-                      totalCount={totalCount}
-                      page={page}
-                      pageSize={pageSize}
-                      linkItemModalTotalCount={linkItemModalTotalCount}
-                      linkItemModalPage={linkItemModalPage}
-                      linkItemModalPageSize={linkItemModalPageSize}
-                      onReferenceModelUpdate={onReferenceModelUpdate}
-                      onLinkItemTableChange={onLinkItemTableChange}
-                      onAssetTableChange={onAssetTableChange}
-                      onUploadModalCancel={onUploadModalCancel}
-                      setUploadUrl={setUploadUrl}
-                      setUploadType={setUploadType}
-                      onAssetsCreate={onAssetsCreate}
-                      onAssetCreateFromUrl={onAssetCreateFromUrl}
-                      onAssetsReload={onAssetsReload}
-                      onAssetSearchTerm={onAssetSearchTerm}
-                      setFileList={setFileList}
-                      setUploadModalVisibility={setUploadModalVisibility}
-                    />
-                  )}
-                </StyledFormItem>
+                <StyledFormItemWrapper key={field.id}>
+                  <GroupField
+                    field={field}
+                    form={form}
+                    groups={groups}
+                    linkedItemsModalList={linkedItemsModalList}
+                    formItemsData={formItemsData}
+                    assetList={assetList}
+                    fileList={fileList}
+                    loadingAssets={loadingAssets}
+                    uploading={uploading}
+                    uploadModalVisibility={uploadModalVisibility}
+                    uploadUrl={uploadUrl}
+                    uploadType={uploadType}
+                    totalCount={totalCount}
+                    page={page}
+                    pageSize={pageSize}
+                    linkItemModalTotalCount={linkItemModalTotalCount}
+                    linkItemModalPage={linkItemModalPage}
+                    linkItemModalPageSize={linkItemModalPageSize}
+                    onReferenceModelUpdate={onReferenceModelUpdate}
+                    onLinkItemTableChange={onLinkItemTableChange}
+                    onAssetTableChange={onAssetTableChange}
+                    onUploadModalCancel={onUploadModalCancel}
+                    setUploadUrl={setUploadUrl}
+                    setUploadType={setUploadType}
+                    onAssetsCreate={onAssetsCreate}
+                    onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsReload={onAssetsReload}
+                    onAssetSearchTerm={onAssetSearchTerm}
+                    setFileList={setFileList}
+                    setUploadModalVisibility={setUploadModalVisibility}
+                  />
+                </StyledFormItemWrapper>
+              );
+            } else {
+              return (
+                <StyledFormItemWrapper key={field.id}>
+                  <FieldComponent field={field} />
+                </StyledFormItemWrapper>
               );
             }
-
-            return (
-              <StyledFormItemWrapper key={field.id}>
-                <FieldComponent field={field} />
-              </StyledFormItemWrapper>
-            );
           })}
         </FormItemsWrapper>
       </StyledForm>
@@ -713,7 +612,7 @@ const ContentForm: React.FC<Props> = ({
               ] || DefaultField;
             return (
               <MetaFormItemWrapper key={field.id}>
-                <FieldComponent field={field} handleBlurUpdate={handleMetaUpdate} />
+                <FieldComponent field={field} handleMetaUpdate={handleMetaUpdate} />
               </MetaFormItemWrapper>
             );
           })}
@@ -756,11 +655,6 @@ const ContentForm: React.FC<Props> = ({
     </>
   );
 };
-
-const StyledFormItem = styled(Form.Item)`
-  width: 500px;
-  word-wrap: break-word;
-`;
 
 const StyledFormItemWrapper = styled.div`
   width: 500px;
