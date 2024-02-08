@@ -1,25 +1,22 @@
 import styled from "@emotion/styled";
 import { useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-export type Props = {
+type Props = {
   integration: Integration;
+  onIntegrationNavigate: (integration: Integration) => void;
 };
 
-const MyIntegrationCard: React.FC<Props> = ({ integration }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleCardNavigation = useCallback(() => {
-    navigate(`${location.pathname}/${integration.id}`);
-  }, [navigate, location, integration.id]);
+const MyIntegrationCard: React.FC<Props> = ({ integration, onIntegrationNavigate }) => {
+  const onCardClick = useCallback(() => {
+    onIntegrationNavigate(integration);
+  }, [integration, onIntegrationNavigate]);
 
   return (
     <CardWrapper>
-      <Card onClick={handleCardNavigation}>
+      <Card onClick={onCardClick}>
         <Icon icon="api" size={40} color="#00000040" />
         <CardTitle>{integration.name}</CardTitle>
         <CardSubTitle>{integration.description}</CardSubTitle>
