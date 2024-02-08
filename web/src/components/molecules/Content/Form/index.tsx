@@ -23,8 +23,9 @@ import {
   ItemField,
   ItemValue,
 } from "@reearth-cms/components/molecules/Content/types";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType, Group, Model, Field } from "@reearth-cms/components/molecules/Schema/types";
+import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   AssetSortType,

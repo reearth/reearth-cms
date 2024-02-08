@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope, Model } from "@reearth-cms/components/molecules/Accessibility/types";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import {
   useUpdateModelMutation,
   useGetModelsQuery,
@@ -11,7 +12,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
-import { fromGraphQLModel } from "@reearth-cms/utils/values";
 
 export default () => {
   const t = useT();

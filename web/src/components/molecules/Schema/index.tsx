@@ -8,9 +8,10 @@ import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/co
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
-import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
