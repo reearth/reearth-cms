@@ -37,12 +37,6 @@ const MyIntegrationDetails: React.FC = () => {
       onWebhookUpdate={handleWebhookUpdate}
       onIntegrationHeaderBack={handleIntegrationHeaderBack}
       onWebhookSelect={handleWebhookSelect}
-      // onWebhookFormHeaderBack={handleWebhookFormHeaderBack}
-      // onWebhookFormNavigation={handleWebhookFormNavigation}
-      // onWebhookEditNavigation={handleWebhookEditNavigation}
-      // onTabChange={handleTabChange}
-      // activeTab={tab}
-      // showWebhookForm={showWebhookForm}
     />
   ) : null;
 };
