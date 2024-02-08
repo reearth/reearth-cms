@@ -8,10 +8,11 @@ import FieldTitle from "../../FieldTitle";
 
 interface DefaultFieldProps {
   field: Field;
+  itemGroupId?: string;
   handleMetaUpdate?: () => Promise<void>;
 }
 
-const DefaultField: React.FC<DefaultFieldProps> = ({ field, handleMetaUpdate }) => {
+const DefaultField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, handleMetaUpdate }) => {
   const t = useT();
 
   return (
@@ -23,7 +24,7 @@ const DefaultField: React.FC<DefaultFieldProps> = ({ field, handleMetaUpdate }) 
           message: t("Please input field!"),
         },
       ]}
-      name={field.id}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
         <MultiValueField

@@ -7,14 +7,15 @@ import FieldTitle from "../../FieldTitle";
 
 interface BoolFieldProps {
   field: Field;
+  itemGroupId?: string;
   handleMetaUpdate?: () => void;
 }
 
-const BoolField: React.FC<BoolFieldProps> = ({ field, handleMetaUpdate }) => {
+const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, handleMetaUpdate }) => {
   return (
     <Form.Item
       extra={field.description}
-      name={field.id}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       valuePropName="checked"
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (

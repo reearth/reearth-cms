@@ -29,6 +29,7 @@ type Props = {
   groups?: Group[];
   fields?: Field[];
   linkedItemsModalList?: FormItem[];
+  linkItemModalTitle: string;
   formItemsData: FormItem[];
   assetList: Asset[];
   fileList: UploadFile[];
@@ -43,6 +44,7 @@ type Props = {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
+  onSearchTerm: (term?: string) => void;
   onReferenceModelUpdate: (modelId?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
@@ -70,6 +72,7 @@ const MultiValueGroup: React.FC<Props> = ({
   value = [],
   onChange,
   linkedItemsModalList,
+  linkItemModalTitle,
   formItemsData,
   assetList,
   fileList,
@@ -84,6 +87,7 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableChange,
   onAssetTableChange,
@@ -178,6 +182,8 @@ const MultiValueGroup: React.FC<Props> = ({
                 value={valueItem}
                 parentField={parentField}
                 linkedItemsModalList={linkedItemsModalList}
+                linkItemModalTitle={linkItemModalTitle}
+                onSearchTerm={onSearchTerm}
                 formItemsData={formItemsData}
                 assetList={assetList}
                 fileList={fileList}

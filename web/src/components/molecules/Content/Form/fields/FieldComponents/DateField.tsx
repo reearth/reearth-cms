@@ -10,10 +10,11 @@ import FieldTitle from "../../FieldTitle";
 
 interface DateFieldProps {
   field: Field;
+  itemGroupId?: string;
   handleMetaUpdate?: () => void;
 }
 
-const DateField: React.FC<DateFieldProps> = ({ field, handleMetaUpdate }) => {
+const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, handleMetaUpdate }) => {
   const t = useT();
 
   return (
@@ -25,7 +26,7 @@ const DateField: React.FC<DateFieldProps> = ({ field, handleMetaUpdate }) => {
           message: t("Please input field!"),
         },
       ]}
-      name={field.id}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
         <MultiValueField onChange={handleMetaUpdate} type="date" FieldInput={StyledDatePicker} />
