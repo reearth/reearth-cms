@@ -612,7 +612,7 @@ const ContentForm: React.FC<Props> = ({
               ] || DefaultField;
             return (
               <MetaFormItemWrapper key={field.id}>
-                <FieldComponent field={field} handleMetaUpdate={handleMetaUpdate} />
+                <FieldComponent field={field} onMetaUpdate={handleMetaUpdate} />
               </MetaFormItemWrapper>
             );
           })}
