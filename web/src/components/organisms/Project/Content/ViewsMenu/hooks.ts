@@ -2,6 +2,12 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } f
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { AndCondition, View } from "@reearth-cms/components/molecules/View/types";
+import {
+  fromGraphQLView,
+  toGraphAndConditionInput,
+  toGraphColumnSelectionInput,
+  toGraphItemSort,
+} from "@reearth-cms/components/organisms/DataConverters/table";
 import { filterConvert } from "@reearth-cms/components/organisms/Project/Content/ContentList/utils";
 import {
   View as GQLView,
@@ -12,12 +18,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject } from "@reearth-cms/state";
-import {
-  fromGraphQLView,
-  toGraphAndConditionInput,
-  toGraphColumnSelectionInput,
-  toGraphItemSort,
-} from "@reearth-cms/utils/values";
 
 import { CurrentViewType } from "../ContentList/hooks";
 

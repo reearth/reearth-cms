@@ -1,4 +1,5 @@
-import { User } from "../Member/types";
+import { Comment } from "@reearth-cms/components/molecules/Content/types";
+import { User } from "@reearth-cms/components/molecules/Member/types";
 
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
 
@@ -32,11 +33,4 @@ export type RequestUpdatePayload = {
   items?: {
     itemId: string;
   }[];
-};
-
-export type Comment = {
-  id: string;
-  author: { id?: string; name: string; type: "User" | "Integration" | null };
-  content: string;
-  createdAt: string;
 };

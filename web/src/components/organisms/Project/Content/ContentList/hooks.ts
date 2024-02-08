@@ -18,11 +18,15 @@ import {
   ItemSort,
   SortDirection,
 } from "@reearth-cms/components/molecules/View/types";
-import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
-  convertItem,
-  convertComment,
-} from "@reearth-cms/components/organisms/Project/Content/utils";
+  fromGraphQLItem,
+  fromGraphQLComment,
+} from "@reearth-cms/components/organisms/DataConverters/content";
+import {
+  toGraphAndConditionInput,
+  toGraphItemSort,
+} from "@reearth-cms/components/organisms/DataConverters/table";
+import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   Item as GQLItem,
   useDeleteItemMutation,
@@ -34,7 +38,6 @@ import {
   SchemaFieldType,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
 import { fileName } from "./utils";
 
@@ -217,11 +220,11 @@ export default () => {
       if (field.type === "Reference") {
         return item.referencedItems?.find(ref => ref.id === field.value)?.title ?? "";
       } else {
-      if (Array.isArray(field.value) && field.value.length > 0) {
-        return field.value.map(v => "" + v);
-      } else {
-        return field.value === null ? null : "" + field.value;
-      }
+        if (Array.isArray(field.value) && field.value.length > 0) {
+          return field.value.map(v => "" + v);
+        } else {
+          return field.value === null ? null : "" + field.value;
+        }
       }
     }
   }, []);
@@ -260,7 +263,9 @@ export default () => {
               createdBy: item.createdBy?.name,
               updatedBy: item.updatedBy?.name || "",
               fields: fieldsGet(item as unknown as Item),
-              comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
+              comments: item.thread.comments.map(comment =>
+                fromGraphQLComment(comment as GQLComment),
+              ),
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
               metadata: metadataGet(item?.metadata?.fields as ItemField[] | undefined),
@@ -398,7 +403,8 @@ export default () => {
   );
 
   const selectedItem = useMemo(
-    () => convertItem(data?.searchItem.nodes.find(item => item?.id === selectedItemId) as GQLItem),
+    () =>
+      fromGraphQLItem(data?.searchItem.nodes.find(item => item?.id === selectedItemId) as GQLItem),
     [data?.searchItem.nodes, selectedItemId],
   );
 
