@@ -15,7 +15,7 @@ interface DateFieldProps {
 }
 
 const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
-const t = useT();
+  const t = useT();
 
   return (
     <Form.Item
