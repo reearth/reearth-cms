@@ -10,10 +10,10 @@ import FieldTitle from "../../FieldTitle";
 
 interface TagFieldProps {
   field: Field;
-  handleMetaUpdate?: () => void;
+  onMetaUpdate?: () => void;
 }
 
-const TagField: React.FC<TagFieldProps> = ({ field, handleMetaUpdate }) => {
+const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
   const t = useT();
 
   return (
@@ -28,7 +28,7 @@ const TagField: React.FC<TagFieldProps> = ({ field, handleMetaUpdate }) => {
       ]}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
-        <StyledMultipleSelect onBlur={handleMetaUpdate} mode="multiple" showArrow allowClear>
+        <StyledMultipleSelect onBlur={onMetaUpdate} mode="multiple" showArrow allowClear>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
@@ -36,7 +36,7 @@ const TagField: React.FC<TagFieldProps> = ({ field, handleMetaUpdate }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select onBlur={handleMetaUpdate} showArrow allowClear>
+        <Select onBlur={onMetaUpdate} showArrow allowClear>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>

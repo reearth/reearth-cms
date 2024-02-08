@@ -7,10 +7,10 @@ import FieldTitle from "../../FieldTitle";
 
 interface CheckboxFieldProps {
   field: Field;
-  handleMetaUpdate?: () => void;
+  onMetaUpdate?: () => void;
 }
 
-const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, handleMetaUpdate }) => {
+const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, onMetaUpdate }) => {
   return (
     <Form.Item
       extra={field.description}
@@ -18,9 +18,9 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, handleMetaUpdate }
       valuePropName="checked"
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
-        <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Checkbox} />
+        <MultiValueBooleanField onChange={onMetaUpdate} FieldInput={Checkbox} />
       ) : (
-        <Checkbox onChange={handleMetaUpdate} />
+        <Checkbox onChange={onMetaUpdate} />
       )}
     </Form.Item>
   );

@@ -8,10 +8,10 @@ import FieldTitle from "../../FieldTitle";
 interface BoolFieldProps {
   field: Field;
   itemGroupId?: string;
-  handleMetaUpdate?: () => void;
+  onMetaUpdate?: () => void;
 }
 
-const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, handleMetaUpdate }) => {
+const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
   return (
     <Form.Item
       extra={field.description}
@@ -19,9 +19,9 @@ const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, handleMetaUpd
       valuePropName="checked"
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueBooleanField onChange={handleMetaUpdate} FieldInput={Switch} />
+        <MultiValueBooleanField onChange={onMetaUpdate} FieldInput={Switch} />
       ) : (
-        <Switch onChange={handleMetaUpdate} />
+        <Switch onChange={onMetaUpdate} />
       )}
     </Form.Item>
   );

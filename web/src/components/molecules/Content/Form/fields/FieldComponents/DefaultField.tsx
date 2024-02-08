@@ -9,10 +9,10 @@ import FieldTitle from "../../FieldTitle";
 interface DefaultFieldProps {
   field: Field;
   itemGroupId?: string;
-  handleMetaUpdate?: () => Promise<void>;
+  onMetaUpdate?: () => Promise<void>;
 }
 
-const DefaultField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, handleMetaUpdate }) => {
+const DefaultField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
   const t = useT();
 
   return (
@@ -28,14 +28,14 @@ const DefaultField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, handleM
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
         <MultiValueField
-          onBlur={handleMetaUpdate}
+          onBlur={onMetaUpdate}
           showCount={true}
           maxLength={field.typeProperty?.maxLength ?? 500}
           FieldInput={Input}
         />
       ) : (
         <Input
-          onBlur={handleMetaUpdate}
+          onBlur={onMetaUpdate}
           showCount={true}
           maxLength={field.typeProperty?.maxLength ?? 500}
         />
