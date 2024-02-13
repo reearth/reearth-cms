@@ -45,6 +45,9 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
       ),
     },
     comments: GQLItem.thread?.comments?.map(comment => convertComment(comment)) ?? [],
+    assets: GQLItem.assets
+      ?.map(asset => asset && { id: asset.id, fileName: asset.fileName })
+      .filter((asset): asset is { id: string; fileName: string } => asset !== null),
   };
 };
 

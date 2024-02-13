@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -9,6 +9,7 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import {
   AssetSortType,
   SortDirection,
@@ -18,6 +19,7 @@ import { useT } from "@reearth-cms/i18n";
 import useHooks from "./hooks";
 
 type Props = {
+  itemAssets?: ItemAsset[];
   assetList: Asset[];
   fileList: UploadFile[];
   value?: string;
@@ -48,6 +50,7 @@ type Props = {
 };
 
 const AssetItem: React.FC<Props> = ({
+  itemAssets,
   assetList,
   fileList,
   value,
@@ -74,8 +77,6 @@ const AssetItem: React.FC<Props> = ({
 }) => {
   const t = useT();
   const {
-    asset,
-    loading,
     visible,
     workspaceId,
     projectId,
@@ -91,8 +92,22 @@ const AssetItem: React.FC<Props> = ({
     onAssetCreateFromUrl,
     setUploadModalVisibility,
     onChange,
-    value,
   );
+  const [asset, setAsset] = useState<ItemAsset>();
+  const selectedAssetRef = useRef<ItemAsset>();
+
+  useEffect(() => {
+    const defaultAsset = itemAssets?.find(itemAsset => itemAsset.id === value);
+    if (defaultAsset) {
+      setAsset(defaultAsset);
+    } else {
+      setAsset(selectedAssetRef.current);
+    }
+  }, [itemAssets, value]);
+
+  const onSelect = (selectedAsset: ItemAsset) => {
+    selectedAssetRef.current = selectedAsset;
+  };
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -156,7 +171,7 @@ const AssetItem: React.FC<Props> = ({
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
           <div>
-            {loading ? <Icon icon="loading" size={24} /> : <Icon icon="linkSolid" size={14} />}
+            <Icon icon="linkSolid" size={14} />
             <div style={{ marginTop: 4 }}>{t("Asset")}</div>
           </div>
         </AssetButton>
@@ -180,6 +195,7 @@ const AssetItem: React.FC<Props> = ({
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}
         onChange={onChange}
+        onSelect={onSelect}
         onAssetsReload={onAssetsReload}
         onSearchTerm={onAssetSearchTerm}
         displayUploadModal={displayUploadModal}
