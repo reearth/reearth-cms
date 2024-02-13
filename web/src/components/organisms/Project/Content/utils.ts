@@ -1,4 +1,9 @@
-import { Item, Comment, ItemField } from "@reearth-cms/components/molecules/Content/types";
+import {
+  Item,
+  Comment,
+  ItemField,
+  ItemAsset,
+} from "@reearth-cms/components/molecules/Content/types";
 import { Item as GQLItem, Comment as GQLComment } from "@reearth-cms/gql/graphql-client-api";
 
 export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
@@ -47,7 +52,7 @@ export const convertItem = (GQLItem: GQLItem | undefined): Item | undefined => {
     comments: GQLItem.thread?.comments?.map(comment => convertComment(comment)) ?? [],
     assets: GQLItem.assets
       ?.map(asset => asset && { id: asset.id, fileName: asset.fileName })
-      .filter((asset): asset is { id: string; fileName: string } => asset !== null),
+      .filter((asset): asset is ItemAsset => asset !== null),
   };
 };
 

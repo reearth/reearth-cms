@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -105,9 +105,9 @@ const AssetItem: React.FC<Props> = ({
     }
   }, [itemAssets, value]);
 
-  const onSelect = (selectedAsset: ItemAsset) => {
+  const onSelect = useCallback((selectedAsset: ItemAsset) => {
     selectedAssetRef.current = selectedAsset;
-  };
+  }, []);
 
   const uploadProps: UploadProps = {
     name: "file",
