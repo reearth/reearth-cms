@@ -8,9 +8,10 @@ import FieldTitle from "../../FieldTitle";
 
 interface DefaultFieldProps {
   field: Field;
+  itemGroupId?: string;
 }
 
-const IntegerField: React.FC<DefaultFieldProps> = ({ field }) => {
+const IntegerField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
   const t = useT();
 
   return (
@@ -22,7 +23,7 @@ const IntegerField: React.FC<DefaultFieldProps> = ({ field }) => {
           message: t("Please input field!"),
         },
       ]}
-      name={field.id}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
         <MultiValueField
