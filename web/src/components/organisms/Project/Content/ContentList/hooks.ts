@@ -112,18 +112,6 @@ export default () => {
     selectedRowKeys: [],
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const referencedItemsMap = new Map<string, any>();
-  data?.searchItem.nodes?.forEach(item => {
-    if (item?.referencedItems && item.referencedItems.length > 0) {
-      item.referencedItems.forEach(reference => {
-        if (!referencedItemsMap.has(reference.id)) {
-          referencedItemsMap.set(reference.id, reference);
-        }
-      });
-    }
-  });
-
   const [updateItemMutation] = useUpdateItemMutation({
     refetchQueries: ["SearchItem", "GetViews"],
   });
@@ -234,7 +222,7 @@ export default () => {
                                 ?.url,
                             )
                         : field.type === "Reference"
-                          ? referencedItemsMap.get(field.value)?.title ?? ""
+                          ? item.referencedItems?.find(ref => ref.id === field.value)?.title ?? ""
                           : Array.isArray(field.value)
                             ? field.value.length > 0
                               ? field.value.map(v => "" + v)
@@ -267,7 +255,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [data?.searchItem.nodes, referencedItemsMap]);
+  }, [data?.searchItem.nodes]);
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
