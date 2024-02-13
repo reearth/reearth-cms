@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   open: boolean;
   data?: Model | Group;
-  onClose: (refetch?: boolean) => void;
+  onClose: () => void;
   onDelete: (modelId?: string) => Promise<void> | void;
   isModel: boolean;
 };
@@ -37,9 +37,9 @@ const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel
     <Modal
       title={title}
       open={open}
-      onCancel={() => onClose()}
+      onCancel={onClose}
       footer={[
-        <Button key="back" onClick={() => onClose()}>
+        <Button key="back" onClick={onClose}>
           {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={() => onDelete(data?.id)} danger>

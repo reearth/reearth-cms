@@ -251,9 +251,7 @@ const FieldModal: React.FC<Props> = ({
                   {groups?.map(group => (
                     <Select.Option key={group.id} value={group.id}>
                       {group.name}{" "}
-                      <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
-                        #{group.key}
-                      </span>
+                      <StyledGroupKey className="ant-form-item-extra">#{group.key}</StyledGroupKey>
                     </Select.Option>
                   ))}
                 </Select>
@@ -347,6 +345,11 @@ const StyledIcon = styled(Icon)`
   span {
     display: inherit;
   }
+`;
+
+const StyledGroupKey = styled.span`
+  font-size: 12px;
+  margin-left: 4px;
 `;
 
 export default FieldModal;
