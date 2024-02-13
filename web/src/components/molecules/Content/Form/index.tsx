@@ -605,6 +605,7 @@ const ContentForm: React.FC<Props> = ({
                 }>
                 {field.multiple ? (
                   <MultiValueAsset
+                    itemAssets={item?.assets}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}
@@ -629,6 +630,7 @@ const ContentForm: React.FC<Props> = ({
                 ) : (
                   <AssetItem
                     key={field.id}
+                    itemAssets={item?.assets}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}
@@ -786,6 +788,7 @@ const ContentForm: React.FC<Props> = ({
                     groups={groups}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
+                    itemAssets={item?.assets}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}
@@ -817,6 +820,7 @@ const ContentForm: React.FC<Props> = ({
                     parentField={field}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
+                    itemAssets={item?.assets}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}

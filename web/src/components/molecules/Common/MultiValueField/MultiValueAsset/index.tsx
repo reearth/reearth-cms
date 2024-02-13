@@ -6,6 +6,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import {
   AssetSortType,
   SortDirection,
@@ -16,6 +17,7 @@ import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
+  itemAssets?: ItemAsset[];
   className?: string;
   value?: string[];
   onChange?: (value: string[]) => void;
@@ -47,6 +49,7 @@ type Props = {
 };
 
 const MultiValueAsset: React.FC<Props> = ({
+  itemAssets,
   className,
   value = [],
   onChange,
@@ -118,6 +121,7 @@ const MultiValueAsset: React.FC<Props> = ({
               </>
             )}
             <AssetItem
+              itemAssets={itemAssets}
               disabled={disabled}
               value={valueItem}
               assetList={assetList}

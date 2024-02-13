@@ -93,6 +93,7 @@ export const GET_ITEM_NODE = gql`
         assets {
           id
           url
+          fileName
         }
         createdBy {
           ... on Integration {
