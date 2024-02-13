@@ -3,6 +3,7 @@ export type Model = {
   name: string;
   description?: string;
   key: string;
+  schemaId: string;
   schema: Schema;
   metadataSchema?: MetaDataSchema;
   public: boolean;
@@ -24,7 +25,7 @@ export type Field = {
   type: FieldType;
   title: string;
   key: string;
-  description: string | null | undefined;
+  description: string;
   required: boolean;
   unique: boolean;
   multiple: boolean;
@@ -67,21 +68,33 @@ export type TypeProperty = {
   values?: string[];
 };
 
-export type CreationFieldTypePropertyInput = {
-  asset?: { defaultValue: string };
-  integer?: { defaultValue: number; min: number; max: number };
-  markdownText?: { defaultValue: string; maxLength: number };
+export type FieldTypePropertyInput = {
+  text?: { defaultValue?: string; maxLength?: number };
+  textArea?: { defaultValue?: string; maxLength?: number };
+  markdownText?: { defaultValue?: string; maxLength?: number };
+  asset?: { defaultValue?: string };
+  date?: { defaultValue: string };
+  bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
-  text?: { defaultValue: string; maxLength: number };
-  textArea?: { defaultValue: string; maxLength: number };
+  integer?: { defaultValue: number | ""; min: number | null; max: number | null };
   url?: { defaultValue: string };
   reference?: {
     modelId: string;
-    correspondingField: any;
+    correspondingField: {
+      key: string;
+      title: string;
+      description: string;
+      required: boolean;
+    } | null;
   };
   group?: {
     groupId: string;
   };
+  tag?: {
+    defaultValue?: string;
+    tags: { color: string; id?: string; name: string }[];
+  };
+  checkbox?: { defaultValue?: boolean };
 };
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
@@ -94,4 +107,43 @@ export type Group = {
   description: string;
   key: string;
   schema: Schema;
+};
+
+export type ModelFormValues = {
+  modelId?: string;
+  name: string;
+  description: string;
+  key: string;
+};
+
+export type GroupFormValues = {
+  groupId?: string;
+  name: string;
+  description: string;
+  key: string;
+};
+
+export type FormValues = {
+  fieldId?: string;
+  groupId?: string;
+  title: string;
+  description: string;
+  key: string;
+  metadata: boolean;
+  multiple: boolean;
+  unique: boolean;
+  isTitle: boolean;
+  required: boolean;
+  type?: FieldType;
+  typeProperty: FieldTypePropertyInput;
+};
+
+export type FormTypes = FormValues & {
+  defaultValue?: any;
+  maxLength?: number;
+  values: string[];
+  min?: number;
+  max?: number;
+  tags: { color: string; id: string; name: string }[];
+  group: string;
 };

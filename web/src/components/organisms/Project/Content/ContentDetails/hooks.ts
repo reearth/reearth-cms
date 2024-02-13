@@ -19,7 +19,6 @@ import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { Role, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/utils";
-import { convertModel } from "@reearth-cms/components/organisms/Project/ModelsMenu/convertModel";
 import {
   Item as GQLItem,
   Model as GQLModel,
@@ -40,7 +39,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
-import { fromGraphQLGroup } from "@reearth-cms/utils/values";
+import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const {
@@ -94,7 +93,7 @@ export default () => {
     variables: { id: referenceModelId ?? "" },
     skip: !referenceModelId,
   });
-  const model = useMemo(() => convertModel(modelData?.node as GQLModel), [modelData?.node]);
+  const model = useMemo(() => fromGraphQLModel(modelData?.node as GQLModel), [modelData?.node]);
   const { data: itemsData } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
@@ -522,7 +521,7 @@ export default () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTitle: model.name,
+    linkItemModalTitle: model?.name ?? "",
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,

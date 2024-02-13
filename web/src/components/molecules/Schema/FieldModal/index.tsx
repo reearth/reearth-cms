@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
@@ -16,44 +15,30 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueColoredTag from "@reearth-cms/components/molecules/Common/MultiValueField/MultValueColoredTag";
 import FieldDefaultInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs";
-import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
+import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
-  CreationFieldTypePropertyInput,
-  FieldModalTabs,
+  Field,
   FieldType,
   Group,
+  FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
-import { SchemaFieldTypePropertyInput } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { transformMomentToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-export type FormValues = {
-  fieldId?: string;
-  groupId?: string;
-  title: string;
-  description?: string;
-  key: string;
-  meta: boolean;
-  multiple: boolean;
-  unique: boolean;
-  isTitle: boolean;
-  required: boolean;
-  type?: FieldType;
-  typeProperty: CreationFieldTypePropertyInput | SchemaFieldTypePropertyInput;
-};
+import useHooks from "./hooks";
 
 export type Props = {
   groups?: Group[];
   open?: boolean;
-  isMeta?: boolean;
-  fieldCreationLoading: boolean;
+  isMeta: boolean;
+  fieldLoading: boolean;
   selectedType: FieldType;
+  selectedField?: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
@@ -84,10 +69,11 @@ export type Props = {
 };
 
 const initialValues: FormValues = {
+  fieldId: "",
   title: "",
   description: "",
   key: "",
-  meta: false,
+  metadata: false,
   multiple: false,
   unique: false,
   isTitle: false,
@@ -96,12 +82,15 @@ const initialValues: FormValues = {
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
 
-const FieldCreationModal: React.FC<Props> = ({
+const { TabPane } = Tabs;
+
+const FieldModal: React.FC<Props> = ({
   groups,
   open,
   isMeta,
-  fieldCreationLoading,
+  fieldLoading,
   selectedType,
+  selectedField,
   onClose,
   onSubmit,
   handleFieldKeyUnique,
@@ -127,176 +116,38 @@ const FieldCreationModal: React.FC<Props> = ({
   setUploadModalVisibility,
 }) => {
   const t = useT();
-  const [form] = Form.useForm();
-  const [buttonDisabled, setButtonDisabled] = useState(true);
-  const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
-  const { TabPane } = Tabs;
-  const selectedValues: string[] = Form.useWatch("values", form);
-  const selectedTags: { id: string; name: string; color: string }[] | undefined = Form.useWatch(
-    "tags",
+
+  const {
     form,
-  );
-  const [multipleValue, setMultipleValue] = useState(false);
-
-  const handleMultipleChange = useCallback(
-    (e: CheckboxChangeEvent) => {
-      const defaultValue = form.getFieldValue("defaultValue");
-      if (e.target.checked) {
-        form.setFieldValue("defaultValue", defaultValue && [defaultValue]);
-      } else {
-        form.setFieldValue("defaultValue", defaultValue?.[0]);
-      }
-      setMultipleValue(e.target.checked);
-    },
-    [form],
-  );
-
-  const handleTabChange = useCallback(
-    (key: string) => {
-      setActiveTab(key as FieldModalTabs);
-    },
-    [setActiveTab],
-  );
-
-  useEffect(() => {
-    if (selectedType === "Select") {
-      const defaultValue = form.getFieldValue("defaultValue");
-      if (Array.isArray(defaultValue)) {
-        const filteredVelue = defaultValue.filter(value => selectedValues?.includes(value));
-        form.setFieldValue("defaultValue", filteredVelue);
-      } else if (!selectedValues?.includes(defaultValue)) {
-        form.setFieldValue("defaultValue", undefined);
-      }
-    }
-  }, [form, selectedValues, selectedType]);
-
-  useEffect(() => {
-    if (selectedType === "Tag") {
-      const defaultValue = form.getFieldValue("defaultValue");
-      if (Array.isArray(defaultValue)) {
-        const filteredVelue = defaultValue.filter(
-          value => selectedTags?.some(tag => tag.name === value),
-        );
-        form.setFieldValue("defaultValue", filteredVelue);
-      } else if (!selectedTags?.some(tag => tag.name === defaultValue)) {
-        form.setFieldValue("defaultValue", undefined);
-      }
-    }
-  }, [form, selectedTags, selectedType]);
-
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        values.type = selectedType;
-        if (selectedType === "Text") {
-          values.typeProperty = {
-            text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-          };
-        } else if (selectedType === "TextArea") {
-          values.typeProperty = {
-            textArea: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-          };
-        } else if (selectedType === "MarkdownText") {
-          values.typeProperty = {
-            markdownText: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-          };
-        } else if (selectedType === "Asset") {
-          values.typeProperty = {
-            asset: { defaultValue: values.defaultValue },
-          };
-        } else if (selectedType === "Select") {
-          const defaultValue = Array.isArray(values.defaultValue)
-            ? values.defaultValue.filter((value: string) => value)
-            : values.defaultValue ?? "";
-          values.typeProperty = {
-            select: { defaultValue, values: values.values },
-          };
-        } else if (selectedType === "Integer") {
-          const defaultValue = Array.isArray(values.defaultValue)
-            ? values.defaultValue.filter((value: number | string) => typeof value === "number")
-            : values.defaultValue ?? "";
-          values.typeProperty = {
-            integer: {
-              defaultValue,
-              min: values.min ?? null,
-              max: values.max ?? null,
-            },
-          };
-        } else if (selectedType === "Bool") {
-          values.typeProperty = {
-            bool: { defaultValue: values.defaultValue },
-          };
-        } else if (selectedType === "Date") {
-          values.typeProperty = {
-            date: { defaultValue: transformMomentToString(values.defaultValue) ?? "" },
-          };
-        } else if (selectedType === "Tag") {
-          values.typeProperty = {
-            tag: { defaultValue: values.defaultValue, tags: values.tags },
-          };
-        } else if (selectedType === "Checkbox") {
-          values.typeProperty = {
-            checkbox: { defaultValue: values.defaultValue },
-          };
-        } else if (selectedType === "URL") {
-          values.typeProperty = {
-            url: { defaultValue: values.defaultValue },
-          };
-        } else if (selectedType === "Group") {
-          values.typeProperty = {
-            group: { groupId: values.group },
-          };
-        }
-        values.metadata = isMeta;
-        await onSubmit?.(values);
-        setMultipleValue(false);
-        onClose?.(true);
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
-  }, [form, onClose, onSubmit, selectedType, isMeta]);
-
-  const handleModalReset = useCallback(() => {
-    form.resetFields();
-    setActiveTab("settings");
-  }, [form]);
-
-  const handleModalCancel = useCallback(() => {
-    setMultipleValue(false);
-    onClose?.(true);
-  }, [onClose]);
-
-  const isRequiredDisabled = useMemo(
-    () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
-    [selectedType],
-  );
-
-  const isUniqueDisabled = useMemo(
-    () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
-    [selectedType],
-  );
+    buttonDisabled,
+    setButtonDisabled,
+    activeTab,
+    selectedValues,
+    selectedTags,
+    multipleValue,
+    handleMultipleChange,
+    handleTabChange,
+    handleSubmit,
+    handleModalReset,
+    handleModalCancel,
+    isRequiredDisabled,
+    isUniqueDisabled,
+  } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit);
 
   return (
     <Modal
       title={
-        selectedType ? (
-          <FieldThumbnail>
-            <StyledIcon
-              icon={fieldTypes[selectedType].icon}
-              color={fieldTypes[selectedType].color}
-            />
-            <h3>
-              {t("Create")} {t(fieldTypes[selectedType].title)}
-            </h3>
-          </FieldThumbnail>
-        ) : null
+        <FieldThumbnail>
+          <StyledIcon icon={fieldTypes[selectedType].icon} color={fieldTypes[selectedType].color} />
+          <h3>
+            {selectedField ? t("Update") : t("Create")} {t(fieldTypes[selectedType].title)}
+          </h3>
+        </FieldThumbnail>
       }
       open={open}
       onCancel={handleModalCancel}
       onOk={handleSubmit}
-      confirmLoading={fieldCreationLoading}
+      confirmLoading={fieldLoading}
       okButtonProps={{ disabled: buttonDisabled }}
       afterClose={handleModalReset}>
       <Form
@@ -336,9 +187,7 @@ const FieldCreationModal: React.FC<Props> = ({
                   message: t("Key is not valid"),
                   required: true,
                   validator: async (_, value) => {
-                    if (!validateKey(value)) return Promise.reject();
-                    const isKeyAvailable = handleFieldKeyUnique(value);
-                    if (isKeyAvailable) {
+                    if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
                       return Promise.resolve();
                     } else {
                       return Promise.reject();
@@ -424,8 +273,8 @@ const FieldCreationModal: React.FC<Props> = ({
               <Checkbox>{t("Use as title")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab="Validation" key="validation" forceRender>
-            <FieldValidationProps selectedType={selectedType} />
+          <TabPane tab={t("Validation")} key="validation" forceRender>
+            <FieldValidationInputs selectedType={selectedType} />
             <Form.Item
               name="required"
               valuePropName="checked"
@@ -435,7 +284,7 @@ const FieldCreationModal: React.FC<Props> = ({
             <Form.Item
               name="unique"
               valuePropName="checked"
-              extra={t("Ensures that a multiple entries can't have the same value for this field")}>
+              extra={t("Ensures that multiple entries can't have the same value for this field")}>
               <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
@@ -503,4 +352,4 @@ const StyledGroupKey = styled.span`
   margin-left: 4px;
 `;
 
-export default FieldCreationModal;
+export default FieldModal;

@@ -17,10 +17,10 @@ export type Props = {
   collapsed?: boolean;
   model?: Model;
   group?: Group;
-  onModelUpdateModalOpen: any;
-  onModelDeletionModalOpen: any;
-  onGroupUpdateModalOpen: any;
-  onGroupDeletionModalOpen: any;
+  onModelModalOpen: () => void;
+  onModelDeletionModalOpen: () => void;
+  onGroupModalOpen: () => void;
+  onGroupDeletionModalOpen: () => void;
   modelsMenu?: JSX.Element;
   selectedSchemaType?: SelectedSchemaType;
   setIsMeta?: (isMeta: boolean) => void;
@@ -38,9 +38,9 @@ const Schema: React.FC<Props> = ({
   collapsed,
   model,
   group,
-  onModelUpdateModalOpen,
+  onModelModalOpen,
   onModelDeletionModalOpen,
-  onGroupUpdateModalOpen,
+  onGroupModalOpen,
   onGroupDeletionModalOpen,
   modelsMenu,
   selectedSchemaType,
@@ -55,11 +55,11 @@ const Schema: React.FC<Props> = ({
   const [tab, setTab] = useState<Tab>("fields");
 
   const handleEdit = useCallback(() => {
-    selectedSchemaType === "model" ? onModelUpdateModalOpen?.() : onGroupUpdateModalOpen?.();
-  }, [onGroupUpdateModalOpen, onModelUpdateModalOpen, selectedSchemaType]);
+    selectedSchemaType === "model" ? onModelModalOpen() : onGroupModalOpen();
+  }, [onModelModalOpen, onGroupModalOpen, selectedSchemaType]);
 
   const handleDelete = useCallback(() => {
-    selectedSchemaType === "model" ? onModelDeletionModalOpen?.() : onGroupDeletionModalOpen?.();
+    selectedSchemaType === "model" ? onModelDeletionModalOpen() : onGroupDeletionModalOpen();
   }, [onGroupDeletionModalOpen, onModelDeletionModalOpen, selectedSchemaType]);
 
   const dropdownItems = useMemo(
