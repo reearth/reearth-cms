@@ -8,7 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { FormItem } from "@reearth-cms/components/molecules/Content/types";
+import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
@@ -30,6 +30,7 @@ type Props = {
   fields?: Field[];
   linkedItemsModalList?: FormItem[];
   formItemsData: FormItem[];
+  itemAssets?: ItemAsset[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -71,6 +72,7 @@ const MultiValueGroup: React.FC<Props> = ({
   onChange,
   linkedItemsModalList,
   formItemsData,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -179,6 +181,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 parentField={parentField}
                 linkedItemsModalList={linkedItemsModalList}
                 formItemsData={formItemsData}
+                itemAssets={itemAssets}
                 assetList={assetList}
                 fileList={fileList}
                 loadingAssets={loadingAssets}
