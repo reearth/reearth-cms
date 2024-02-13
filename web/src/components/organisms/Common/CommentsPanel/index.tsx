@@ -3,7 +3,7 @@ import CommentsPanelMolecule from "@reearth-cms/components/molecules/Common/Comm
 
 import useHooks from "./hooks";
 
-export type Props = {
+type Props = {
   emptyText?: string;
   threadId?: string;
   comments?: Comment[];

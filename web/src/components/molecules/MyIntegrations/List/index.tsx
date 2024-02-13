@@ -9,9 +9,14 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   integrations?: Integration[];
   onIntegrationModalOpen: () => void;
+  onIntegrationNavigate: (integration: Integration) => void;
 };
 
-const MyIntegrationList: React.FC<Props> = ({ integrations, onIntegrationModalOpen }) => {
+const MyIntegrationList: React.FC<Props> = ({
+  integrations,
+  onIntegrationModalOpen,
+  onIntegrationNavigate,
+}) => {
   const t = useT();
 
   return (
@@ -19,7 +24,11 @@ const MyIntegrationList: React.FC<Props> = ({ integrations, onIntegrationModalOp
       <PageHeader title={t("My Integrations")} />
       <ListWrapper>
         {integrations?.map((integration: Integration) => (
-          <MyIntegrationCard key={integration.id} integration={integration} />
+          <MyIntegrationCard
+            key={integration.id}
+            integration={integration}
+            onIntegrationNavigate={onIntegrationNavigate}
+          />
         ))}
         <IntegrationCreationAction onIntegrationModalOpen={onIntegrationModalOpen} />
       </ListWrapper>

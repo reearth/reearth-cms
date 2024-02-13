@@ -186,11 +186,6 @@ export default () => {
     [data?.node],
   );
 
-  const formItemsData: FormItem[] | undefined = useMemo(
-    () => currentItem?.referencedItems as FormItem[],
-    [currentItem?.referencedItems],
-  );
-
   const { data: groupData } = useGetGroupsQuery({
     variables: { projectId: projectId ?? "" },
     skip: !projectId,
@@ -516,7 +511,6 @@ export default () => {
     requestCreationLoading,
     currentModel,
     currentItem,
-    formItemsData,
     initialFormValues,
     initialMetaFormValues,
     itemCreationLoading,
