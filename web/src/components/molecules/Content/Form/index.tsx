@@ -44,7 +44,6 @@ export interface Props {
   showPublishAction?: boolean;
   requests: Request[];
   itemId?: string;
-  formItemsData: FormItem[];
   initialFormValues: any;
   initialMetaFormValues: any;
   loading: boolean;
@@ -125,7 +124,6 @@ const ContentForm: React.FC<Props> = ({
   requests,
   itemId,
   model,
-  formItemsData,
   initialFormValues,
   initialMetaFormValues,
   loading,
@@ -184,6 +182,7 @@ const ContentForm: React.FC<Props> = ({
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const changedKeys = useRef(new Set<string>());
+  const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -563,6 +562,7 @@ const ContentForm: React.FC<Props> = ({
                     form={form}
                     groups={groups}
                     linkedItemsModalList={linkedItemsModalList}
+                    linkItemModalTitle={linkItemModalTitle}
                     formItemsData={formItemsData}
                     assetList={assetList}
                     fileList={fileList}
@@ -577,6 +577,7 @@ const ContentForm: React.FC<Props> = ({
                     linkItemModalTotalCount={linkItemModalTotalCount}
                     linkItemModalPage={linkItemModalPage}
                     linkItemModalPageSize={linkItemModalPageSize}
+                    onSearchTerm={onSearchTerm}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onLinkItemTableChange={onLinkItemTableChange}
                     onAssetTableChange={onAssetTableChange}

@@ -17,6 +17,7 @@ interface GroupFieldProps {
   form?: FormInstance<any>;
   groups?: Group[];
   linkedItemsModalList?: FormItem[];
+  linkItemModalTitle: string;
   formItemsData: FormItem[];
   assetList: Asset[];
   fileList: UploadFile[];
@@ -31,6 +32,7 @@ interface GroupFieldProps {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
+  onSearchTerm: (term?: string) => void;
   onReferenceModelUpdate: (modelId?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
@@ -54,6 +56,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   form,
   groups,
   linkedItemsModalList,
+  linkItemModalTitle,
   formItemsData,
   assetList,
   fileList,
@@ -68,6 +71,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableChange,
   onAssetTableChange,
@@ -92,6 +96,8 @@ const GroupField: React.FC<GroupFieldProps> = ({
           form={form}
           groups={groups}
           linkedItemsModalList={linkedItemsModalList}
+          linkItemModalTitle={linkItemModalTitle}
+          onSearchTerm={onSearchTerm}
           formItemsData={formItemsData}
           assetList={assetList}
           fileList={fileList}
@@ -123,6 +129,8 @@ const GroupField: React.FC<GroupFieldProps> = ({
         <GroupItem
           parentField={field}
           linkedItemsModalList={linkedItemsModalList}
+          linkItemModalTitle={linkItemModalTitle}
+          onSearchTerm={onSearchTerm}
           formItemsData={formItemsData}
           assetList={assetList}
           fileList={fileList}

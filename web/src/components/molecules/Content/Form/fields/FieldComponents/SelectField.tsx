@@ -8,16 +8,17 @@ import FieldTitle from "../../FieldTitle";
 
 interface DefaultFieldProps {
   field: Field;
+  itemGroupId?: string;
 }
 
-const SelectField: React.FC<DefaultFieldProps> = ({ field }) => {
+const SelectField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
   const { Option } = Select;
   const t = useT();
 
   return (
     <Form.Item
       extra={field.description}
-      name={field.id}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}
       rules={[
         {

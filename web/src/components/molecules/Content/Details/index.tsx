@@ -22,7 +22,6 @@ export type Props = {
   collapsed?: boolean;
   model?: Model;
   modelsMenu: React.ReactNode;
-  formItemsData: FormItem[];
   initialFormValues: { [key: string]: any };
   initialMetaFormValues: { [key: string]: any };
   item?: Item;
@@ -107,7 +106,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   collapsed,
   model,
   modelsMenu,
-  formItemsData,
   initialFormValues,
   initialMetaFormValues,
   item,
@@ -206,7 +204,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             loading={loading}
             itemId={itemId}
             model={model}
-            formItemsData={formItemsData}
             initialFormValues={initialFormValues}
             initialMetaFormValues={initialMetaFormValues}
             assetList={assetList}

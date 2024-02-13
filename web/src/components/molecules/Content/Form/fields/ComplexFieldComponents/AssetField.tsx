@@ -14,6 +14,7 @@ import { useT } from "@reearth-cms/i18n";
 
 interface AssetFieldProps {
   field: Field;
+  itemGroupId?: string;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -42,6 +43,7 @@ interface AssetFieldProps {
 
 const AssetField: React.FC<AssetFieldProps> = ({
   field,
+  itemGroupId,
   assetList,
   fileList,
   loadingAssets,
@@ -74,7 +76,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           message: t("Please input field!"),
         },
       ]}
-      name={field.id}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
         <MultiValueAsset

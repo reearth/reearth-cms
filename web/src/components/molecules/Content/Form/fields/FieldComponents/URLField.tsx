@@ -10,16 +10,17 @@ import FieldTitle from "../../FieldTitle";
 
 interface URLFieldProps {
   field: Field;
+  itemGroupId?: string;
   onMetaUpdate?: () => Promise<void>;
 }
 
-const URLField: React.FC<URLFieldProps> = ({ field, onMetaUpdate }) => {
+const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
   const { t } = useTranslation();
 
   return (
     <Form.Item
       extra={field.description}
-      name={field.id}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}
       rules={[
         {
