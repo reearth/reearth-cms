@@ -209,14 +209,12 @@ export default () => {
                     [field.schemaFieldId]:
                       field.type === "Asset"
                         ? Array.isArray(field.value)
-                          ? field.value
-                              .map(value =>
-                                fileName(
-                                  (item?.assets as GQLAsset[])?.find(asset => asset?.id === value)
-                                    ?.url,
-                                ),
-                              )
-                              .join(", ")
+                          ? field.value.map(value =>
+                              fileName(
+                                (item?.assets as GQLAsset[])?.find(asset => asset?.id === value)
+                                  ?.url,
+                              ),
+                            )
                           : fileName(
                               (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)
                                 ?.url,
