@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, Key, useMemo } from "react";
+import { useState, useCallback, Key, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -22,14 +22,13 @@ export type AssetSortType = "DATE" | "NAME" | "SIZE";
 export type SortDirection = "ASC" | "DESC";
 type UploadType = "local" | "url";
 
-export default () => {
+export default (isItemsRequired: boolean) => {
   const t = useT();
 
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
 
   const { workspaceId, projectId } = useParams();
   const navigate = useNavigate();
-  const [assetList, setAssetList] = useState<Asset[]>([]);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
@@ -71,8 +70,8 @@ export default () => {
     [getAsset],
   );
 
-  const { data, refetch, loading, networkStatus } = useGetAssetsQuery({
-    fetchPolicy: "no-cache",
+  const params = {
+    fetchPolicy: "no-cache" as const,
     variables: {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
@@ -83,21 +82,19 @@ export default () => {
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
-  });
+  };
 
-  const { data: assetsItems, refetch: refetchAssetsItems } = useGetAssetsItemsQuery({
-    fetchPolicy: "no-cache",
-    variables: {
-      projectId: projectId ?? "",
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: sort
-        ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
-        : undefined,
-      keyword: searchTerm,
-    },
-    notifyOnNetworkStatusChange: true,
-    skip: !projectId,
-  });
+  const { data, refetch, loading, networkStatus } = isItemsRequired
+    ? useGetAssetsItemsQuery(params)
+    : useGetAssetsQuery(params);
+
+  const assetList = useMemo(
+    () =>
+      (data?.assets.nodes
+        .map(asset => convertAsset(asset as GQLAsset))
+        .filter(asset => !!asset) as Asset[]) ?? [],
+    [data?.assets.nodes],
+  );
 
   const isRefetching = networkStatus === 3;
 
@@ -161,7 +158,6 @@ export default () => {
         if (results?.length > 0) {
           Notification.success({ message: t("Successfully added one or more assets!") });
           await refetch();
-          refetchAssetsItems();
         }
         handleUploadModalCancel();
         return results;
@@ -173,7 +169,6 @@ export default () => {
       createAssetUploadMutation,
       t,
       refetch,
-      refetchAssetsItems,
     ],
   );
 
@@ -193,7 +188,6 @@ export default () => {
         if (result.data?.createAsset) {
           Notification.success({ message: t("Successfully added asset!") });
           await refetch();
-          refetchAssetsItems();
           return convertAsset(result.data.createAsset.asset as GQLAsset);
         }
         return undefined;
@@ -203,7 +197,7 @@ export default () => {
         handleUploadModalCancel();
       }
     },
-    [projectId, createAssetMutation, t, refetch, refetchAssetsItems, handleUploadModalCancel],
+    [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
   );
 
   const [deleteAssetMutation] = useDeleteAssetMutation();
@@ -223,12 +217,11 @@ export default () => {
         );
         if (results) {
           await refetch();
-          refetchAssetsItems();
           Notification.success({ message: t("One or more assets were successfully deleted!") });
           setSelection({ selectedRowKeys: [] });
         }
       })(),
-    [t, deleteAssetMutation, refetch, refetchAssetsItems, projectId],
+    [t, deleteAssetMutation, refetch, projectId],
   );
 
   const handleSearchTerm = useCallback((term?: string) => {
@@ -238,26 +231,11 @@ export default () => {
 
   const handleAssetsReload = useCallback(() => {
     refetch();
-    refetchAssetsItems();
-  }, [refetch, refetchAssetsItems]);
+  }, [refetch]);
 
   const handleNavigateToAsset = (assetId: string) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${assetId}`);
   };
-
-  useEffect(() => {
-    const assets =
-      (data?.assets.nodes
-        .map(asset => asset as GQLAsset)
-        .map(convertAsset)
-        .filter(asset => !!asset) as Asset[]) ?? [];
-    setAssetList(
-      assets.map(asset => ({
-        ...asset,
-        items: assetsItems?.assets.nodes.find(assetItem => assetItem?.id === asset.id)?.items ?? [],
-      })),
-    );
-  }, [data?.assets.nodes, assetsItems?.assets.nodes, setAssetList]);
 
   const handleAssetSelect = useCallback(
     (id: string) => {
