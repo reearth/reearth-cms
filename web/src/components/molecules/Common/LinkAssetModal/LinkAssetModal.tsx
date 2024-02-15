@@ -15,6 +15,7 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import {
   AssetSortType,
   SortDirection,
@@ -27,7 +28,7 @@ type Props = {
   visible: boolean;
   onLinkAssetModalCancel: () => void;
   // table props
-  linkedAsset?: Asset;
+  linkedAsset?: ItemAsset;
   assetList: Asset[];
   fileList: UploadFile<File>[];
   loading: boolean;
@@ -47,6 +48,7 @@ type Props = {
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onChange?: (value: string) => void;
+  onSelect: (selectedAsset: ItemAsset) => void;
   onAssetsReload: () => void;
   onSearchTerm: (term?: string) => void;
   displayUploadModal: () => void;
@@ -73,6 +75,7 @@ const LinkAssetModal: React.FC<Props> = ({
   setUploadUrl,
   setUploadType,
   onChange,
+  onSelect,
   onAssetsReload,
   onSearchTerm,
   displayUploadModal,
@@ -126,6 +129,7 @@ const LinkAssetModal: React.FC<Props> = ({
             icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
             onClick={() => {
               onChange?.(link ? asset.id : "");
+              onSelect({ id: asset.id, fileName: asset.fileName });
               onLinkAssetModalCancel();
             }}
           />

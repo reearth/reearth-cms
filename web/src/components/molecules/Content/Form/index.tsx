@@ -515,6 +515,7 @@ const ContentForm: React.FC<Props> = ({
                   <AssetField
                     field={field}
                     assetList={assetList}
+                    itemAssets={item?.assets}
                     fileList={fileList}
                     loadingAssets={loadingAssets}
                     uploading={uploading}
@@ -564,6 +565,7 @@ const ContentForm: React.FC<Props> = ({
                     linkedItemsModalList={linkedItemsModalList}
                     linkItemModalTitle={linkItemModalTitle}
                     formItemsData={formItemsData}
+                    itemAssets={item?.assets}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}

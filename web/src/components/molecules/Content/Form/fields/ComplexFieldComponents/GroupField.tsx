@@ -5,7 +5,7 @@ import MultiValueGroup from "@reearth-cms/components/molecules//Common/MultiValu
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
-import { FormItem } from "@reearth-cms/components/molecules/Content/types";
+import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
@@ -19,6 +19,7 @@ interface GroupFieldProps {
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
+  itemAssets?: ItemAsset[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -58,6 +59,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -99,6 +101,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}
           formItemsData={formItemsData}
+          itemAssets={itemAssets}
           assetList={assetList}
           fileList={fileList}
           loadingAssets={loadingAssets}
@@ -132,6 +135,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}
           formItemsData={formItemsData}
+          itemAssets={itemAssets}
           assetList={assetList}
           fileList={fileList}
           loadingAssets={loadingAssets}

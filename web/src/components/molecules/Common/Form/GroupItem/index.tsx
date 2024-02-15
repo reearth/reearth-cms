@@ -12,7 +12,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Form/fields/ComplexFieldComponents";
 import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
-import { FormItem } from "@reearth-cms/components/molecules/Content/types";
+import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
@@ -29,6 +29,7 @@ type Props = {
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
+  itemAssets?: ItemAsset[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -73,6 +74,7 @@ const GroupItem: React.FC<Props> = ({
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -177,6 +179,7 @@ const GroupItem: React.FC<Props> = ({
                   <AssetField
                     field={field}
                     itemGroupId={itemGroupId}
+                    itemAssets={itemAssets}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}

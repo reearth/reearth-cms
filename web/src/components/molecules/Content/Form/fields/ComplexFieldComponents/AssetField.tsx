@@ -5,6 +5,7 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
@@ -16,6 +17,7 @@ interface AssetFieldProps {
   field: Field;
   itemGroupId?: string;
   assetList: Asset[];
+  itemAssets?: ItemAsset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
   uploading: boolean;
@@ -45,6 +47,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
   field,
   itemGroupId,
   assetList,
+  itemAssets,
   fileList,
   loadingAssets,
   uploading,
@@ -80,6 +83,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
         <MultiValueAsset
+          itemAssets={itemAssets}
           assetList={assetList}
           fileList={fileList}
           loadingAssets={loadingAssets}
@@ -104,6 +108,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
       ) : (
         <AssetItem
           key={field.id}
+          itemAssets={itemAssets}
           assetList={assetList}
           fileList={fileList}
           loadingAssets={loadingAssets}
