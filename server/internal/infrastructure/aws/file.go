@@ -89,7 +89,7 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 		for _, obj := range output.Contents {
 			fe := gateway.FileEntry{
 				Name: strings.TrimPrefix(lo.FromPtr(obj.Key), p),
-				Size: *obj.Size,
+				Size: lo.FromPtr(obj.Size),
 			}
 			fileEntries = append(fileEntries, fe)
 		}
@@ -171,7 +171,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	file := &file.File{
 		Content:     nil,
 		Name:        u.FileName(),
-		Size:        *obj.ContentLength,
+		Size:        lo.FromPtr(obj.ContentLength),
 		ContentType: lo.FromPtr(obj.ContentType),
 	}
 	return file, nil
@@ -223,7 +223,7 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	return *result.ContentLength, nil
+	return lo.FromPtr(result.ContentLength), nil
 }
 
 func (f *fileRepo) delete(ctx context.Context, filename string) error {

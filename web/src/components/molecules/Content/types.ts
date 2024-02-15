@@ -11,6 +11,8 @@ export type ItemField = {
   value: ItemValue;
 };
 
+export type ItemAsset = { id: string; fileName: string };
+
 export type Item = {
   id: string;
   version: string;
@@ -20,6 +22,7 @@ export type Item = {
   createdAt: Date;
   updatedAt: Date;
   status: ItemStatus;
+  referencedItems?: FormItem[];
   fields: ItemField[] | undefined | null;
   metadata: {
     id?: string;
@@ -28,6 +31,7 @@ export type Item = {
   };
   threadId: string;
   comments: Comment[];
+  assets: ItemAsset[];
 };
 
 export type FormItem = {

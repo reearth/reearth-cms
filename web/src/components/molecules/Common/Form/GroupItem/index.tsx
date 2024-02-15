@@ -21,7 +21,7 @@ import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/Mul
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import ReferenceFormItem from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
-import { FormItem } from "@reearth-cms/components/molecules/Content/types";
+import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
@@ -39,6 +39,7 @@ type Props = {
   parentField: Field;
   linkedItemsModalList?: FormItem[];
   formItemsData: FormItem[];
+  itemAssets?: ItemAsset[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -81,6 +82,7 @@ const GroupItem: React.FC<Props> = ({
   parentField,
   linkedItemsModalList,
   formItemsData,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -259,6 +261,7 @@ const GroupItem: React.FC<Props> = ({
                 }>
                 {field.multiple ? (
                   <MultiValueAsset
+                    itemAssets={itemAssets}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}
@@ -283,6 +286,7 @@ const GroupItem: React.FC<Props> = ({
                 ) : (
                   <AssetItem
                     key={field.id}
+                    itemAssets={itemAssets}
                     assetList={assetList}
                     fileList={fileList}
                     loadingAssets={loadingAssets}
