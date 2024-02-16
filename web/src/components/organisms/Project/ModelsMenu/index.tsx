@@ -38,8 +38,6 @@ const ModelsMenu: React.FC<Props> = ({
     groups,
     modelModalShown,
     groupModalShown,
-    isModelKeyAvailable,
-    isGroupKeyAvailable,
     handleModelModalOpen,
     handleModelModalClose,
     handleGroupModalOpen,
@@ -67,7 +65,6 @@ const ModelsMenu: React.FC<Props> = ({
           selectedSchemaType={selectedSchemaType}
           onModelSelect={onModelSelect}
           onModalOpen={handleModelModalOpen}
-          isKeyAvailable={isModelKeyAvailable}
           open={modelModalShown}
           onModelKeyCheck={handleModelKeyCheck}
           onClose={handleModelModalClose}
@@ -84,7 +81,6 @@ const ModelsMenu: React.FC<Props> = ({
             selectedSchemaType={selectedSchemaType}
             onGroupSelect={onGroupSelect}
             onModalOpen={handleGroupModalOpen}
-            isKeyAvailable={isGroupKeyAvailable}
             open={groupModalShown}
             onGroupKeyCheck={handleGroupKeyCheck}
             onClose={handleGroupModalClose}

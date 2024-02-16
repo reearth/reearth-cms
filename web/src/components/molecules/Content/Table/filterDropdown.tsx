@@ -21,9 +21,9 @@ type Props = {
   defaultValue: DefaultFilterValueType;
   filterRemove: (index: number) => void;
   isFilterOpen: boolean;
-  currentView: CurrentViewType;
-  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
-  onFilterChange: (filter?: AndConditionInput) => void;
+  currentView?: CurrentViewType;
+  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>;
+  onFilterChange?: (filter?: AndConditionInput) => void;
 };
 
 const FilterDropdown: React.FC<Props> = ({
@@ -38,13 +38,13 @@ const FilterDropdown: React.FC<Props> = ({
 }) => {
   const [open, setOpen] = useState(isFilterOpen);
 
-  const close = () => {
+  const close = useCallback(() => {
     setOpen(false);
-  };
+  }, []);
 
-  const handleOpenChange = (newOpen: boolean) => {
+  const handleOpenChange = useCallback((newOpen: boolean) => {
     setOpen(newOpen);
-  };
+  }, []);
 
   const remove = useCallback(
     (event: React.MouseEvent) => {
