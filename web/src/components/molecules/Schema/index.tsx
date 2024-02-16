@@ -17,10 +17,10 @@ export type Props = {
   collapsed?: boolean;
   model?: Model;
   group?: Group;
-  onModelUpdateModalOpen: any;
-  onModelDeletionModalOpen: any;
-  onGroupUpdateModalOpen: any;
-  onGroupDeletionModalOpen: any;
+  onModelModalOpen: () => void;
+  onModelDeletionModalOpen: () => void;
+  onGroupModalOpen: () => void;
+  onGroupDeletionModalOpen: () => void;
   modelsMenu?: JSX.Element;
   selectedSchemaType?: SelectedSchemaType;
   setIsMeta?: (isMeta: boolean) => void;
@@ -38,9 +38,9 @@ const Schema: React.FC<Props> = ({
   collapsed,
   model,
   group,
-  onModelUpdateModalOpen,
+  onModelModalOpen,
   onModelDeletionModalOpen,
-  onGroupUpdateModalOpen,
+  onGroupModalOpen,
   onGroupDeletionModalOpen,
   modelsMenu,
   selectedSchemaType,
@@ -54,29 +54,32 @@ const Schema: React.FC<Props> = ({
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
 
-  const handleEdit = () => {
-    selectedSchemaType === "model" ? onModelUpdateModalOpen?.() : onGroupUpdateModalOpen?.();
-  };
+  const handleEdit = useCallback(() => {
+    selectedSchemaType === "model" ? onModelModalOpen() : onGroupModalOpen();
+  }, [onModelModalOpen, onGroupModalOpen, selectedSchemaType]);
 
-  const handleDelete = () => {
-    selectedSchemaType === "model" ? onModelDeletionModalOpen?.() : onGroupDeletionModalOpen?.();
-  };
+  const handleDelete = useCallback(() => {
+    selectedSchemaType === "model" ? onModelDeletionModalOpen() : onGroupDeletionModalOpen();
+  }, [onGroupDeletionModalOpen, onModelDeletionModalOpen, selectedSchemaType]);
 
-  const dropdownItems = [
-    {
-      key: "edit",
-      label: t("Edit"),
-      icon: <StyledIcon icon="edit" />,
-      onClick: handleEdit,
-    },
-    {
-      key: "delete",
-      label: t("Delete"),
-      icon: <StyledIcon icon="delete" />,
-      onClick: handleDelete,
-      danger: true,
-    },
-  ];
+  const dropdownItems = useMemo(
+    () => [
+      {
+        key: "edit",
+        label: t("Edit"),
+        icon: <StyledIcon icon="edit" />,
+        onClick: handleEdit,
+      },
+      {
+        key: "delete",
+        label: t("Delete"),
+        icon: <StyledIcon icon="delete" />,
+        onClick: handleDelete,
+        danger: true,
+      },
+    ],
+    [handleDelete, handleEdit, t],
+  );
 
   const DropdownMenu = () => (
     <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">

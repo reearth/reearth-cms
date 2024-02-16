@@ -23,9 +23,8 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      // TODO: when assets upload is ready to use
-      values.logoUrl = "_";
-      await onIntegrationUpdate?.(values);
+      values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
+      onIntegrationUpdate?.(values);
     } catch (info) {
       console.log("Validate Failed:", info);
     }
@@ -59,7 +58,7 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
           </Form.Item>
         </Col>
         <Col>
-          <Divider type="vertical" style={{ height: "100%" }} />
+          <StyledDivider type="vertical" />
         </Col>
         <Col span={11}>
           <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>
@@ -95,6 +94,10 @@ const CodeExample = styled.div`
 
 const CodeImportant = styled.span`
   color: #ff4d4f;
+`;
+
+const StyledDivider = styled(Divider)`
+  height: 100%;
 `;
 
 export default MyIntegrationForm;

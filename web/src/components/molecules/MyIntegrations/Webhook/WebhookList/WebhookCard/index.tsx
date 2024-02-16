@@ -37,8 +37,7 @@ const WebhookCard: React.FC<Props> = ({
   );
 
   return (
-    <Card
-      style={{ marginTop: 16 }}
+    <StyledCard
       title={
         <>
           <WebhookTitle>{webhook.name}</WebhookTitle>
@@ -53,17 +52,25 @@ const WebhookCard: React.FC<Props> = ({
       extra={
         <>
           <Icon icon="settings" size={16} onClick={() => onWebhookSettings(webhook.id)} />
-          <Icon icon="delete" size={16} onClick={handleWebhookDelete} style={{ marginLeft: 12 }} />
+          <StyledIcon icon="delete" size={16} onClick={handleWebhookDelete} />
         </>
       }>
       {webhook.url}
-    </Card>
+    </StyledCard>
   );
 };
 
 const WebhookTitle = styled.span`
   display: inline-block;
   margin-right: 8px;
+`;
+
+const StyledCard = styled(Card)`
+  margin-top: 16px;
+`;
+
+const StyledIcon = styled(Icon)`
+  margin-left: 12px;
 `;
 
 export default WebhookCard;

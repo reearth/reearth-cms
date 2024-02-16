@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
@@ -31,15 +32,15 @@ const Asset: React.FC = () => {
 
   const { workspaceSettings } = useSettingsHooks();
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (assetId) {
       await handleAssetUpdate(assetId, selectedPreviewType);
     }
-  };
+  }, [assetId, handleAssetUpdate, selectedPreviewType]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`);
-  };
+  }, [navigate, projectId, workspaceId]);
 
   return isLoading ? (
     <Loading spinnerSize="large" minHeight="100vh" />

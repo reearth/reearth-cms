@@ -1,16 +1,8 @@
-import styled from "@emotion/styled";
-import moment, { Moment } from "moment";
+import { Moment } from "moment";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
-import Button from "@reearth-cms/components/atoms/Button";
-import DatePicker, { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
-import Divider from "@reearth-cms/components/atoms/Divider";
+import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
-import InputNumber from "@reearth-cms/components/atoms/InputNumber";
-import Select from "@reearth-cms/components/atoms/Select";
-import Space from "@reearth-cms/components/atoms/Space";
-import Tag from "@reearth-cms/components/atoms/Tag";
 import {
   DefaultFilterValueType,
   Operator,
@@ -32,31 +24,17 @@ import {
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-const { Option } = Select;
-
-type Props = {
-  filter: DropdownFilterType;
-  close: () => void;
-  defaultValue?: DefaultFilterValueType;
-  open: boolean;
-  isFilter: boolean;
-  index: number;
-  currentView: CurrentViewType;
-  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
-  onFilterChange: (filter?: AndConditionInput) => void;
-};
-
-const DropdownRender: React.FC<Props> = ({
-  filter,
-  close,
-  defaultValue,
-  open,
-  isFilter,
-  index,
-  currentView,
-  setCurrentView,
-  onFilterChange,
-}) => {
+export default (
+  filter: DropdownFilterType,
+  close: () => void,
+  open: boolean,
+  isFilter: boolean,
+  index: number,
+  defaultValue?: DefaultFilterValueType,
+  currentView?: CurrentViewType,
+  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>,
+  onFilterChange?: (filter?: AndConditionInput) => void,
+) => {
   const t = useT();
   const [form] = Form.useForm();
 
@@ -296,7 +274,7 @@ const DropdownRender: React.FC<Props> = ({
             ? "FIELD"
             : "META_FIELD";
       const operatorValue = filterOption.current.value;
-      const currentFilters = currentView.filter?.conditions
+      const currentFilters = currentView?.filter?.conditions
         ? [...currentView.filter.conditions]
         : [];
       const newFilter: {
@@ -337,7 +315,7 @@ const DropdownRender: React.FC<Props> = ({
 
       currentFilters[index] = newFilter;
 
-      onFilterChange({ conditions: currentFilters.filter(Boolean) });
+      onFilterChange?.({ conditions: currentFilters.filter(Boolean) });
     } else {
       const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
       let fieldId = "";
@@ -366,7 +344,7 @@ const DropdownRender: React.FC<Props> = ({
         },
         direction: direction,
       };
-      setCurrentView(prev => ({
+      setCurrentView?.(prev => ({
         ...prev,
         sort: sort,
       }));
@@ -377,7 +355,7 @@ const DropdownRender: React.FC<Props> = ({
     filter.dataIndex,
     filter.id,
     filter.type,
-    currentView.filter,
+    currentView?.filter,
     index,
     setCurrentView,
     form,
@@ -407,11 +385,11 @@ const DropdownRender: React.FC<Props> = ({
     filterValue.current = value;
   }, []);
 
-  const onNumberChange = (value: string | null) => {
+  const onNumberChange = useCallback((value: string | null) => {
     if (value) {
       filterValue.current = value;
     }
-  };
+  }, []);
 
   const onInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     filterValue.current = e.target.value;
@@ -424,114 +402,16 @@ const DropdownRender: React.FC<Props> = ({
     [],
   );
 
-  return (
-    <StyledForm form={form} name="basic" autoComplete="off" colon={false}>
-      <Container>
-        <StyledFormItem label={<TextWrapper>{filter.title}</TextWrapper>} name="condition">
-          <Select
-            style={{ width: 160 }}
-            options={options}
-            onSelect={onFilterSelect}
-            defaultValue={defaultValue?.operator ?? options[0].value}
-            key={defaultValue?.operator}
-          />
-        </StyledFormItem>
-        {isFilter && isShowInputField && (
-          <StyledFormItem name="value">
-            {filter.type === "Select" ||
-            filter.type === "Tag" ||
-            filter.type === "Person" ||
-            filter.type === "Bool" ||
-            filter.type === "Checkbox" ? (
-              <Select
-                placeholder="Select the value"
-                onSelect={onValueSelect}
-                defaultValue={defaultValue?.value?.toString()}
-                key={defaultValue?.value}>
-                {valueOptions.map(option => (
-                  <Option key={option.value} value={option.value} label={option.label}>
-                    {filter.type === "Tag" ? (
-                      <Tag color={option.color?.toLocaleLowerCase()}>{option.label}</Tag>
-                    ) : (
-                      option.label
-                    )}
-                  </Option>
-                ))}
-              </Select>
-            ) : filter.type === "Integer" /*|| filter.type === "Float"*/ ? (
-              <InputNumber
-                onChange={onNumberChange}
-                stringMode
-                defaultValue={defaultValue?.value}
-                style={{ width: "100%" }}
-                placeholder="Enter the value"
-                key={defaultValue?.value}
-              />
-            ) : filter.type === "Date" ? (
-              <DatePicker
-                onChange={onDateChange}
-                style={{ width: "100%" }}
-                placeholder="Select the date"
-                showToday={false}
-                defaultValue={
-                  defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
-                }
-                key={defaultValue?.value}
-              />
-            ) : (
-              <Input
-                onChange={onInputChange}
-                defaultValue={defaultValue?.value}
-                placeholder="Enter the value"
-                key={defaultValue?.value}
-              />
-            )}
-          </StyledFormItem>
-        )}
-      </Container>
-      <StyledDivider />
-      <ButtonsFormItem>
-        <Space size="small">
-          <Button type="default" onClick={close}>
-            {t("Cancel")}
-          </Button>
-          <Button type="primary" htmlType="submit" onClick={confirm}>
-            {t("Confirm")}
-          </Button>
-        </Space>
-      </ButtonsFormItem>
-    </StyledForm>
-  );
+  return {
+    valueOptions,
+    options,
+    form,
+    confirm,
+    isShowInputField,
+    onFilterSelect,
+    onValueSelect,
+    onNumberChange,
+    onInputChange,
+    onDateChange,
+  };
 };
-
-export default DropdownRender;
-
-const StyledForm = styled(Form)`
-  background-color: white;
-  box-shadow:
-    0 3px 6px -4px rgba(0, 0, 0, 0.12),
-    0 6px 16px 0 rgba(0, 0, 0, 0.08),
-    0 9px 28px 8px rgba(0, 0, 0, 0.05);
-`;
-
-const Container = styled.div`
-  padding: 9px 12px 0;
-`;
-
-const StyledFormItem = styled(Form.Item)`
-  margin-bottom: 8px;
-`;
-
-const TextWrapper = styled.span`
-  min-width: 137px;
-  text-align: left;
-`;
-
-const StyledDivider = styled(Divider)`
-  margin: 0;
-`;
-
-const ButtonsFormItem = styled(Form.Item)`
-  text-align: right;
-  padding: 8px 4px;
-`;

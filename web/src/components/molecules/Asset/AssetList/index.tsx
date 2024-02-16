@@ -10,7 +10,7 @@ import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
@@ -41,7 +41,7 @@ type Props = {
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
-  onEdit: (asset: Asset) => void;
+  onEdit: (assetId: string) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;

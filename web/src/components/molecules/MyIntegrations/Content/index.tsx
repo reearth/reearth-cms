@@ -9,12 +9,11 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 
-export type Props = {
+type Props = {
   integration: Integration;
   webhookInitialValues?: any;
-  // activeTab?: string;
-  // showWebhookForm: boolean;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  onIntegrationDelete: () => Promise<void>;
   onWebhookCreate: (data: {
     name: string;
     url: string;
@@ -33,17 +32,11 @@ export type Props = {
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
   onWebhookSelect: (id: string) => void;
-  onIntegrationDelete: () => Promise<void>;
-  // onWebhookFormHeaderBack: () => void;
-  // onWebhookFormNavigation: () => void;
-  // onWebhookEditNavigation: (webhookId: string) => void;
 };
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
   webhookInitialValues,
-  // activeTab,
-  // showWebhookForm,
   onIntegrationUpdate,
   onWebhookCreate,
   onWebhookDelete,
@@ -51,20 +44,13 @@ const MyIntegrationContent: React.FC<Props> = ({
   onIntegrationHeaderBack,
   onIntegrationDelete,
   onWebhookSelect,
-  // onWebhookFormHeaderBack,
-  // onWebhookFormNavigation,
-  // onWebhookEditNavigation,
 }) => {
   const { TabPane } = Tabs;
 
   return (
     <MyIntegrationWrapper>
       <PageHeader title={integration.name} onBack={onIntegrationHeaderBack} />
-      <MyIntegrationTabs
-        defaultActiveKey="integration"
-        // activeKey={activeTab}
-        // onChange={onTabChange}
-      >
+      <MyIntegrationTabs defaultActiveKey="integration">
         <TabPane tab="General" key="integration">
           <MyIntegrationSettings
             integration={integration}
@@ -80,9 +66,6 @@ const MyIntegrationContent: React.FC<Props> = ({
             onWebhookDelete={onWebhookDelete}
             onWebhookUpdate={onWebhookUpdate}
             onWebhookSelect={onWebhookSelect}
-            // onWebhookFormHeaderBack={onWebhookFormHeaderBack}
-            // onWebhookFormNavigation={onWebhookFormNavigation}
-            // onWebhookEditNavigation={onWebhookEditNavigation}
           />
         </TabPane>
       </MyIntegrationTabs>

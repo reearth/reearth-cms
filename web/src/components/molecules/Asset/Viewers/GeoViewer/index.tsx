@@ -17,7 +17,6 @@ type Props = {
   workspaceSettings?: WorkspaceSettings;
 };
 
-// TODO: One generic component for these three datatypes should be created instead.
 const GeoViewer: React.FC<Props> = ({
   viewerProps,
   url,

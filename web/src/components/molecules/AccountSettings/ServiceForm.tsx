@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -33,12 +34,7 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   }, [form, onLanguageUpdate]);
 
   return (
-    <Form
-      style={{ maxWidth: 400 }}
-      form={form}
-      initialValues={user}
-      layout="vertical"
-      autoComplete="off">
+    <StyledForm form={form} initialValues={user} layout="vertical" autoComplete="off">
       <Form.Item
         name="lang"
         label={t("Service Language")}
@@ -54,8 +50,12 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
       <Button onClick={handleSubmit} type="primary" htmlType="submit">
         {t("Save")}
       </Button>
-    </Form>
+    </StyledForm>
   );
 };
+
+const StyledForm = styled(Form)`
+  max-width: 400px;
+`;
 
 export default AccountServiceForm;

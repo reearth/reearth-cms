@@ -39,14 +39,14 @@ const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate,
           title: t("Are you sure you want to delete this view?"),
           content: (
             <div>
-              <p style={{ marginBottom: 0 }}>
+              <StyledCautionText>
                 {t(
                   "Deleting the view is a permanent action. However, the contents will remain unaffected.",
                 )}
-              </p>
-              <p style={{ marginBottom: 0 }}>
+              </StyledCautionText>
+              <StyledCautionText>
                 {t("Please proceed with caution as this action cannot be undone.")}
-              </p>
+              </StyledCautionText>
             </div>
           ),
           icon: <Icon icon="exclamationCircle" />,
@@ -81,4 +81,8 @@ const Wrapper = styled.div`
 
 const StyledDropdown = styled(Dropdown)`
   margin-right: 0 !important;
+`;
+
+const StyledCautionText = styled.p`
+  margin-bottom: 0;
 `;

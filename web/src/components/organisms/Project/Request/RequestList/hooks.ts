@@ -131,17 +131,6 @@ export default () => {
     [requests, selectedRequestId],
   );
 
-  // const selectRequest = useCallback(
-  //   (requestId: string) => {
-  //     if (selectedRequests.includes(requestId)) {
-  //       selectRequests(selectedRequests.filter(id => id !== requestId));
-  //     } else {
-  //       selectRequests([...selectedRequests, requestId]);
-  //     }
-  //   },
-  //   [selectedRequests, selectRequests],
-  // );
-
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term ?? "");
     setPage(1);
@@ -171,7 +160,6 @@ export default () => {
     collapseCommentsPanel,
     selectedRequests,
     selectedRequest,
-    // selectRequest,
     selection,
     handleNavigateToRequest,
     setSelection,

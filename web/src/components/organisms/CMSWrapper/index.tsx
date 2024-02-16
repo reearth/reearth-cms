@@ -20,10 +20,14 @@ const CMSWrapper: React.FC = () => {
     secondaryRoute,
     collapsed,
     handleCollapse,
+    handleProjectMenuNavigate,
+    handleWorkspaceMenuNavigate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleNavigateToSettings,
+    handleWorkspaceNavigation,
+    handleHomeNavigation,
     logoUrl,
   } = useHooks();
 
@@ -36,6 +40,8 @@ const CMSWrapper: React.FC = () => {
           <MoleculeHeader
             onWorkspaceModalOpen={handleWorkspaceModalOpen}
             onNavigateToSettings={handleNavigateToSettings}
+            onWorkspaceNavigation={handleWorkspaceNavigation}
+            onHomeNavigation={handleHomeNavigation}
             personalWorkspace={personalWorkspace}
             workspaces={workspaces}
             currentWorkspace={currentWorkspace}
@@ -47,17 +53,16 @@ const CMSWrapper: React.FC = () => {
         sidebarComponent={
           secondaryRoute === "project" ? (
             <ProjectMenu
-              projectId={currentProject?.id}
               defaultSelectedKey={selectedKey}
               inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}
+              onNavigate={handleProjectMenuNavigate}
             />
           ) : (
             <WorkspaceMenu
               defaultSelectedKey={selectedKey}
               inlineCollapsed={collapsed}
-              workspaceId={currentWorkspace?.id}
               isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
+              onNavigate={handleWorkspaceMenuNavigate}
             />
           )
         }

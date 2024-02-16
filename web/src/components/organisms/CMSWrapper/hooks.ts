@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
+import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
-import { Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import { Role, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
+import { convertMember } from "@reearth-cms/components/organisms/Workspace/convertWorkspace";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
   useGetProjectQuery,
   ProjectPublicationScope,
+  WorkspaceMember,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useProject, useUserId, useWorkspaceId } from "@reearth-cms/state";
@@ -44,9 +47,14 @@ export default () => {
 
   const workspaces = data?.me?.workspaces;
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
-  const personalWorkspace = workspaces?.find(
-    workspace => workspace.id === data?.me?.myWorkspace.id,
-  );
+  const personalWorkspace: Workspace = useMemo(() => {
+    const foundWorkspace = workspaces?.find(workspace => workspace.id === data?.me?.myWorkspace.id);
+    return {
+      id: foundWorkspace?.id,
+      name: foundWorkspace?.name,
+      members: foundWorkspace?.members?.map(member => convertMember(member as WorkspaceMember)),
+    };
+  }, [data?.me?.myWorkspace.id, workspaces]);
   const personal = workspaceId === data?.me?.myWorkspace.id;
 
   useEffect(() => {
@@ -117,6 +125,49 @@ export default () => {
     }
   }, [projectId, projectData?.node, setCurrentProject]);
 
+  const handleProjectMenuNavigate = useCallback(
+    (info: MenuInfo) => {
+      if (info.key === "schema") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
+      } else if (info.key === "content") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/content`);
+      } else if (info.key === "asset") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
+      } else if (info.key === "request") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
+      } else if (info.key === "accessibility") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`);
+      } else if (info.key === "settings") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
+      } else {
+        navigate(`/workspace/${workspaceId}/project/${projectId}`);
+      }
+    },
+    [navigate, workspaceId, projectId],
+  );
+
+  const handleWorkspaceMenuNavigate = useCallback(
+    (info: MenuInfo) => {
+      if (info.key === "home") {
+        navigate(`/workspace/${workspaceId}`);
+      } else {
+        navigate(`/workspace/${workspaceId}/${info.key}`);
+      }
+    },
+    [navigate, workspaceId],
+  );
+
+  const handleWorkspaceNavigation = useCallback(
+    (id: number) => {
+      navigate(`/workspace/${id}`);
+    },
+    [navigate],
+  );
+
+  const handleHomeNavigation = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}`);
+  }, [currentWorkspace?.id, navigate]);
+
   return {
     username,
     personalWorkspace,
@@ -128,10 +179,14 @@ export default () => {
     secondaryRoute,
     collapsed,
     handleCollapse,
+    handleProjectMenuNavigate,
+    handleWorkspaceMenuNavigate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleNavigateToSettings,
+    handleWorkspaceNavigation,
+    handleHomeNavigation,
     logoUrl,
   };
 };

@@ -131,16 +131,15 @@ const MemberAddModal: React.FC<Props> = ({
               </IconButton>
             </SearchedUserResult>
           )}
-          <Form.Item
+          <StyledFormItem
             name="names"
-            label={`${t("Selected Members")} (${searchedUserList.length})`}
-            style={{ marginTop: "16px" }}>
+            label={`${t("Selected Members")} (${searchedUserList.length})`}>
             {searchedUserList &&
               searchedUserList?.length > 0 &&
               searchedUserList
                 .filter(user => Boolean(user))
                 .map(user => (
-                  <SearchedUserResult key={user?.id} style={{ marginBottom: "6px" }}>
+                  <SearchedUserResult key={user?.id}>
                     <SearchedUserAvatar>
                       <UserAvatar username={user?.name} />
                     </SearchedUserAvatar>
@@ -152,7 +151,7 @@ const MemberAddModal: React.FC<Props> = ({
                     </IconButton>
                   </SearchedUserResult>
                 ))}
-          </Form.Item>
+          </StyledFormItem>
         </Form>
       )}
     </Modal>
@@ -162,6 +161,10 @@ const MemberAddModal: React.FC<Props> = ({
 const IconButton = styled.button`
   all: unset;
   cursor: pointer;
+`;
+
+const StyledFormItem = styled(Form.Item)`
+  margin-top: 16px;
 `;
 
 const SearchedUserAvatar = styled.div`
@@ -198,6 +201,7 @@ const SearchedUserResult = styled.div`
   border: 1px solid #d9d9d9;
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
   border-radius: 8px;
+  margin-bottom: 6px;
 `;
 
 export default MemberAddModal;

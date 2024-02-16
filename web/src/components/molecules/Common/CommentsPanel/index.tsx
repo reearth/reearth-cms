@@ -9,7 +9,7 @@ import { useT } from "@reearth-cms/i18n";
 import Editor from "./Editor";
 import Thread from "./Thread";
 
-export type Props = {
+type Props = {
   me?: User;
   comments?: Comment[];
   emptyText?: string;

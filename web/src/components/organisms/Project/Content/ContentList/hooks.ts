@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -30,7 +31,6 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { toGraphAndConditionInput, toGraphItemSort } from "@reearth-cms/utils/values";
 
-import { renderField } from "./renderFields";
 import { fileName } from "./utils";
 
 export type CurrentViewType = {
@@ -110,18 +110,6 @@ export default () => {
   const [selectedItemId, setSelectedItemId] = useState<string>();
   const [selection, setSelection] = useState<{ selectedRowKeys: string[] }>({
     selectedRowKeys: [],
-  });
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const referencedItemsMap = new Map<string, any>();
-  data?.searchItem.nodes?.forEach(item => {
-    if (item?.referencedItems && item.referencedItems.length > 0) {
-      item.referencedItems.forEach(reference => {
-        if (!referencedItemsMap.has(reference.id)) {
-          referencedItemsMap.set(reference.id, reference);
-        }
-      });
-    }
   });
 
   const [updateItemMutation] = useUpdateItemMutation({
@@ -234,7 +222,7 @@ export default () => {
                                 ?.url,
                             )
                         : field.type === "Reference"
-                          ? referencedItemsMap.get(field.value)?.title ?? ""
+                          ? item.referencedItems?.find(ref => ref.id === field.value)?.title ?? ""
                           : Array.isArray(field.value)
                             ? field.value.length > 0
                               ? field.value.map(v => "" + v)
@@ -267,7 +255,7 @@ export default () => {
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [data?.searchItem.nodes, referencedItemsMap]);
+  }, [data?.searchItem.nodes]);
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;

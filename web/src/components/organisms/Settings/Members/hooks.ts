@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/Member/types";
-import { Member, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useGetWorkspacesQuery,
   useAddUsersToWorkspaceMutation,
@@ -23,7 +23,7 @@ export default () => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const [selectedMember, setSelectedMember] = useState<UserMember | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string>();
   const [owner, setOwner] = useState(false);
   const t = useT();
@@ -88,9 +88,9 @@ export default () => {
     }
   }, [data?.me?.id, searchedUser, searchedUserList]);
 
-  const workspaceUserMembers = useMemo((): Member[] | undefined => {
+  const workspaceUserMembers = useMemo((): UserMember[] | undefined => {
     return currentWorkspace?.members
-      ?.map<Member | undefined>(member =>
+      ?.map<UserMember | undefined>(member =>
         member && member.__typename === "WorkspaceUserMember" && member.user
           ? {
               userId: member.userId,
@@ -100,7 +100,7 @@ export default () => {
           : undefined,
       )
       .filter(
-        (user): user is Member =>
+        (user): user is UserMember =>
           !!user && user.user.name.toLowerCase().includes(searchTerm?.toLowerCase() ?? ""),
       )
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
@@ -181,7 +181,7 @@ export default () => {
     setSelectedMember(undefined);
   }, []);
 
-  const handleRoleModalOpen = useCallback((member: Member) => {
+  const handleRoleModalOpen = useCallback((member: UserMember) => {
     setRoleModalShown(true);
     setSelectedMember(member);
   }, []);

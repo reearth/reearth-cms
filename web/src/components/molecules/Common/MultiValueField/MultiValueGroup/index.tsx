@@ -13,7 +13,7 @@ import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
@@ -29,6 +29,7 @@ type Props = {
   groups?: Group[];
   fields?: Field[];
   linkedItemsModalList?: FormItem[];
+  linkItemModalTitle: string;
   formItemsData: FormItem[];
   itemAssets?: ItemAsset[];
   assetList: Asset[];
@@ -44,6 +45,7 @@ type Props = {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
+  onSearchTerm: (term?: string) => void;
   onReferenceModelUpdate: (modelId?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
@@ -71,6 +73,7 @@ const MultiValueGroup: React.FC<Props> = ({
   value = [],
   onChange,
   linkedItemsModalList,
+  linkItemModalTitle,
   formItemsData,
   itemAssets,
   assetList,
@@ -86,6 +89,7 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableChange,
   onAssetTableChange,
@@ -180,6 +184,8 @@ const MultiValueGroup: React.FC<Props> = ({
                 value={valueItem}
                 parentField={parentField}
                 linkedItemsModalList={linkedItemsModalList}
+                linkItemModalTitle={linkItemModalTitle}
+                onSearchTerm={onSearchTerm}
                 formItemsData={formItemsData}
                 itemAssets={itemAssets}
                 assetList={assetList}

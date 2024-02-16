@@ -13,7 +13,7 @@ const IntegrationCreationAction: React.FC<Props> = ({ onIntegrationModalOpen }) 
   return (
     <CardWrapper>
       <Card onClick={onIntegrationModalOpen}>
-        <Icon icon="plus" style={{ fontSize: 36 }} />
+        <StyledIcon icon="plus" />
         <CardTitle>{t("Create new integration")}</CardTitle>
       </Card>
     </CardWrapper>
@@ -22,6 +22,10 @@ const IntegrationCreationAction: React.FC<Props> = ({ onIntegrationModalOpen }) 
 
 const CardWrapper = styled.div`
   padding: 12px;
+`;
+
+const StyledIcon = styled(Icon)`
+  font-size: 36px;
 `;
 
 const Card = styled.div`

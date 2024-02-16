@@ -1,7 +1,9 @@
+import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+
 export type Project = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   requestRoles?: Role[] | null;
 };
 
@@ -9,7 +11,7 @@ export type User = {
   name: string;
 };
 
-export type Member = {
+export type UserMember = {
   userId: string;
   role: Role;
   user: {
@@ -18,6 +20,8 @@ export type Member = {
     email: string;
   };
 };
+
+export type Member = UserMember | IntegrationMember;
 
 export type MemberInput = {
   userId: string;
@@ -29,6 +33,7 @@ export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
 export type Workspace = {
   id?: string;
   name?: string;
+  personal?: boolean;
   members?: Member[];
 };
 

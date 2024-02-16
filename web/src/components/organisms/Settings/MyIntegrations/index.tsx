@@ -10,6 +10,7 @@ const MyIntegrations: React.FC = () => {
     handleIntegrationCreate,
     handleIntegrationModalOpen,
     handleIntegrationModalClose,
+    handleIntegrationNavigate,
   } = useHooks();
 
   return (
@@ -17,6 +18,7 @@ const MyIntegrations: React.FC = () => {
       <MyIntegrationList
         integrations={integrations}
         onIntegrationModalOpen={handleIntegrationModalOpen}
+        onIntegrationNavigate={handleIntegrationNavigate}
       />
       <IntegrationCreationModal
         open={integrationModalShown}

@@ -164,9 +164,9 @@ export default () => {
     [createComment, currentRequest?.threadId, t],
   );
 
-  const handleNavigateToRequestsList = () => {
+  const handleNavigateToRequestsList = useCallback(() => {
     navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-  };
+  }, [currentWorkspace?.id, projectId, navigate]);
 
   const handleNavigateToItemEditForm = useCallback(
     (itemId: string, modelId?: string) => {

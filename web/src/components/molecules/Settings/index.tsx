@@ -65,9 +65,9 @@ const Settings: React.FC<Props> = ({
     indexRef.current = index;
   };
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     setOpen(false);
-  };
+  }, []);
 
   const onChange = useCallback((checked: boolean) => {
     setSettings(prevState => {

@@ -57,12 +57,4 @@ const StatusTitle = styled.p`
   color: #000000d9;
 `;
 
-// const StatusText = styled.p`
-//   display: inline;
-//   font-weight: 400;
-//   font-size: 14px;
-//   line-height: 22px;
-//   margin-left: 12px;
-// `;
-
 export default RequestStatus;

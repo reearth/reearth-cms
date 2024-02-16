@@ -1,7 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { Role } from "@reearth-cms/components/molecules/Workspace/types";
 

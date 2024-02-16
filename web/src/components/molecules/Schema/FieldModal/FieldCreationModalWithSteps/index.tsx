@@ -14,7 +14,6 @@ import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { FormValues } from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
@@ -22,6 +21,7 @@ import {
   FieldModalTabs,
   FieldType,
   Model,
+  FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
@@ -31,7 +31,6 @@ const { Step } = Steps;
 export type Props = {
   selectedField?: Field | null;
   open?: boolean;
-  isUpdate?: boolean;
   selectedType: FieldType;
   models?: Model[];
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
@@ -43,7 +42,6 @@ export type Props = {
 const FieldCreationModalWithSteps: React.FC<Props> = ({
   selectedField,
   open,
-  isUpdate,
   models,
   selectedType,
   handleFieldKeyUnique,
@@ -88,7 +86,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       unique: false,
       required: false,
       isTitle: false,
-      meta: false,
+      metadata: false,
       type: "Text",
       typeProperty: {
         reference: {
@@ -200,7 +198,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               color={fieldTypes[selectedType].color}
             />
             <h3>
-              <span>{isUpdate ? t("Update") : t("Create")} </span>
+              <span>{selectedField ? t("Update") : t("Create")} </span>
               <span>
                 {t(fieldTypes[selectedType].title)} {t("Field")}
               </span>
@@ -258,9 +256,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               {models?.map(model => (
                 <Select.Option key={model.id} value={model.id}>
                   {model.name}{" "}
-                  <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
-                    #{model.key}
-                  </span>
+                  <StyledModelKey className="ant-form-item-extra">#{model.key}</StyledModelKey>
                 </Select.Option>
               ))}
             </Select>
@@ -268,13 +264,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           <StyledFormItem name="direction" label={t("Reference direction")}>
             <Radio.Group onChange={e => setNumSteps(e.target.value)} value={numSteps}>
               <Space direction="vertical" size={0}>
-                <Radio value={1} disabled={isUpdate}>
+                <Radio value={1} disabled={!!selectedField}>
                   {t("One-way reference")}
                 </Radio>
                 <div className="ant-form-item-extra">
                   {t("A unidirectional relationship where an item refers to another item")}
                 </div>
-                <Radio value={2} disabled={isUpdate}>
+                <Radio value={2} disabled={!!selectedField}>
                   {t("Two-way reference")}
                 </Radio>
                 <div className="ant-form-item-extra">
@@ -309,7 +305,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                       if (!validateKey(value)) return Promise.reject();
                       const isKeyAvailable = handleFieldKeyUnique(
                         value,
-                        isUpdate ? selectedField?.id : undefined,
+                        selectedField ? selectedField?.id : undefined,
                       );
                       if (isKeyAvailable) {
                         return Promise.resolve();
@@ -491,6 +487,11 @@ const StyledModal = styled(Modal)`
     display: flex;
     justify-content: space-between;
   }
+`;
+
+const StyledModelKey = styled.span`
+  font-size: 12px;
+  margin-left: 4px;
 `;
 
 export default FieldCreationModalWithSteps;

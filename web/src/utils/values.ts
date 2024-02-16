@@ -46,6 +46,7 @@ export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
           }) as Field,
       ),
     },
+    schemaId: model.schemaId,
     metadataSchema: {
       id: model.metadataSchema?.id,
       fields: model.metadataSchema?.fields.map(

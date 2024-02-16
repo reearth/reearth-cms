@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export default () => {
   const [svgRender, setSvgRender] = useState<boolean>(true);
 
-  const handleCodeSourceClick = () => {
+  const handleCodeSourceClick = useCallback(() => {
     setSvgRender(false);
-  };
+  }, []);
 
-  const handleRenderClick = () => {
+  const handleRenderClick = useCallback(() => {
     setSvgRender(true);
-  };
+  }, []);
 
   return { svgRender, handleCodeSourceClick, handleRenderClick };
 };

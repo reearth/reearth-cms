@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -29,12 +30,7 @@ const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate }) => {
   }, [form, onProjectUpdate]);
 
   return (
-    <Form
-      style={{ maxWidth: 400 }}
-      form={form}
-      layout="vertical"
-      autoComplete="off"
-      initialValues={project}>
+    <StyledForm form={form} layout="vertical" autoComplete="off" initialValues={project}>
       <Form.Item name="name" label={t("Name")}>
         <Input />
       </Form.Item>
@@ -49,8 +45,12 @@ const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate }) => {
           {t("Save changes")}
         </Button>
       </Form.Item>
-    </Form>
+    </StyledForm>
   );
 };
+
+const StyledForm = styled(Form)`
+  max-width: 400px;
+`;
 
 export default ProjectGeneralForm;

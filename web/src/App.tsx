@@ -8,9 +8,9 @@ import {
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
-import Asset from "@reearth-cms/components/organisms/Asset/Asset";
-import AssetList from "@reearth-cms/components/organisms/Asset/AssetList";
 import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility";
+import Asset from "@reearth-cms/components/organisms/Project/Asset/Asset";
+import AssetList from "@reearth-cms/components/organisms/Project/Asset/AssetList";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
 import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
 import ProjectOverview from "@reearth-cms/components/organisms/Project/Overview";

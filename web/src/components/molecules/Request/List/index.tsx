@@ -7,7 +7,7 @@ import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   commentsPanel?: JSX.Element;
   requests: Request[];
   loading: boolean;

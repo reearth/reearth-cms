@@ -18,16 +18,14 @@ const WorkspaceHeader: React.FC<Props> = ({
   onWorkspaceModalOpen,
 }) => {
   const t = useT();
-  const { Search } = Input;
 
   return (
     <ActionHeader>
-      <Search
+      <StyledSearch
         onSearch={onProjectSearch}
         placeholder={t("search projects")}
         allowClear
         type="text"
-        style={{ width: 264 }}
       />
       <ButtonWrapper>
         <Button onClick={onWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
@@ -50,6 +48,10 @@ const ButtonWrapper = styled.div`
   Button + Button {
     margin-left: 8px;
   }
+`;
+
+const StyledSearch = styled(Input.Search)`
+  width: 264px;
 `;
 
 export default WorkspaceHeader;

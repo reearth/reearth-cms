@@ -16,10 +16,9 @@ import {
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import { convertItem } from "@reearth-cms/components/organisms/Project/Content/utils";
-import { convertModel } from "@reearth-cms/components/organisms/Project/ModelsMenu/convertModel";
 import {
   Item as GQLItem,
   Model as GQLModel,
@@ -40,7 +39,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
-import { fromGraphQLGroup } from "@reearth-cms/utils/values";
+import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const {
@@ -94,7 +93,7 @@ export default () => {
     variables: { id: referenceModelId ?? "" },
     skip: !referenceModelId,
   });
-  const model = useMemo(() => convertModel(modelData?.node as GQLModel), [modelData?.node]);
+  const model = useMemo(() => fromGraphQLModel(modelData?.node as GQLModel), [modelData?.node]);
   const { data: itemsData } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
@@ -185,11 +184,6 @@ export default () => {
   const currentItem: Item | undefined = useMemo(
     () => convertItem(data?.node as GQLItem),
     [data?.node],
-  );
-
-  const formItemsData: FormItem[] | undefined = useMemo(
-    () => currentItem?.referencedItems as FormItem[],
-    [currentItem?.referencedItems],
   );
 
   const { data: groupData } = useGetGroupsQuery({
@@ -422,10 +416,10 @@ export default () => {
     return initialValues;
   }, [currentItem, currentModel, dateConvert, itemLoading]);
 
-  const workspaceUserMembers = useMemo((): Member[] => {
+  const workspaceUserMembers = useMemo((): UserMember[] => {
     return (
       currentWorkspace?.members
-        ?.map<Member | undefined>(member =>
+        ?.map<UserMember | undefined>(member =>
           member.__typename === "WorkspaceUserMember" && member.user
             ? {
                 userId: member.userId,
@@ -435,7 +429,8 @@ export default () => {
             : undefined,
         )
         .filter(
-          (user): user is Member => !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
+          (user): user is UserMember =>
+            !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
         ) ?? []
     );
   }, [currentWorkspace]);
@@ -516,7 +511,6 @@ export default () => {
     requestCreationLoading,
     currentModel,
     currentItem,
-    formItemsData,
     initialFormValues,
     initialMetaFormValues,
     itemCreationLoading,
@@ -527,7 +521,7 @@ export default () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTitle: model.name,
+    linkItemModalTitle: model?.name ?? "",
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,

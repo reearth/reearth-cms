@@ -20,7 +20,6 @@ type Props = {
 
 export type Property = { [k: string]: string | number | boolean };
 
-// TODO: these two types should be imported from cesium-mvt-imagery-provider library instead
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
 type TileCoordinates = {
   x: number;
