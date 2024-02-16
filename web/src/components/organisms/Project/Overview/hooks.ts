@@ -86,10 +86,10 @@ export default () => {
 
   const handleModelUpdate = useCallback(
     async (data: ModelFormValues) => {
-      if (!data.modelId) return;
+      if (!data.id) return;
       const model = await updateNewModel({
         variables: {
-          modelId: data.modelId,
+          modelId: data.id,
           name: data.name,
           description: data.description,
           key: data.key,
