@@ -1,9 +1,9 @@
 import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import GroupItem from "@reearth-cms/components/molecules//Common/Form/GroupItem";
-import MultiValueGroup from "@reearth-cms/components/molecules//Common/MultiValueField/MultiValueGroup";
 import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import GroupItem from "@reearth-cms/components/molecules/Common/Form/GroupItem";
+import MultiValueGroup from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGroup";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
