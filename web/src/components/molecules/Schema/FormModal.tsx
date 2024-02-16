@@ -4,12 +4,7 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
-import {
-  Model,
-  ModelFormValues,
-  Group,
-  GroupFormValues,
-} from "@reearth-cms/components/molecules/Schema/types";
+import { Model, ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
@@ -17,10 +12,16 @@ type Props = {
   data?: Model | Group;
   open?: boolean;
   onClose: () => void;
-  onCreate?: (values: ModelFormValues | GroupFormValues) => Promise<void> | void;
-  onUpdate?: (values: ModelFormValues | GroupFormValues) => Promise<void> | void;
+  onCreate?: (values: ModelFormValues) => Promise<void> | void;
+  onUpdate?: (values: ModelFormValues) => Promise<void> | void;
   onKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   isModel: boolean;
+};
+
+type FormType = {
+  name: string;
+  description: string;
+  key: string;
 };
 
 const FormModal: React.FC<Props> = ({
@@ -33,7 +34,7 @@ const FormModal: React.FC<Props> = ({
   isModel,
 }) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
   useEffect(() => {
@@ -50,7 +51,7 @@ const FormModal: React.FC<Props> = ({
     const values = await form.validateFields();
     await onKeyCheck(values.key, data?.key);
     if (data?.id) {
-      await onUpdate?.({ modelId: data.id, ...values });
+      await onUpdate?.({ id: data.id, ...values });
     } else {
       await onCreate?.(values);
     }
