@@ -46,6 +46,7 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   disabled?: boolean;
+  onGetAsset?: (assetId: string) => Promise<string | undefined>;
 };
 
 const MultiValueAsset: React.FC<Props> = ({
@@ -74,6 +75,7 @@ const MultiValueAsset: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   disabled,
+  onGetAsset,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -145,6 +147,7 @@ const MultiValueAsset: React.FC<Props> = ({
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
               onChange={(e: string) => handleInput(e, key)}
+              onGetAsset={onGetAsset}
             />
             {!disabled && (
               <FieldButton

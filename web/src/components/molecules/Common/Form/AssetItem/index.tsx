@@ -47,6 +47,7 @@ type Props = {
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
   disabled?: boolean;
+  onGetAsset?: (assetId: string) => Promise<string | undefined>;
 };
 
 const AssetItem: React.FC<Props> = ({
@@ -74,6 +75,7 @@ const AssetItem: React.FC<Props> = ({
   setUploadModalVisibility,
   onChange,
   disabled,
+  onGetAsset,
 }) => {
   const t = useT();
   const {
@@ -96,14 +98,24 @@ const AssetItem: React.FC<Props> = ({
   const [asset, setAsset] = useState<ItemAsset>();
   const selectedAssetRef = useRef<ItemAsset>();
 
+  const defaultValueGet = useCallback(
+    async (id: string) => {
+      const fileName = await onGetAsset?.(id);
+      if (fileName) setAsset({ id, fileName });
+    },
+    [onGetAsset],
+  );
+
   useEffect(() => {
     const defaultAsset = itemAssets?.find(itemAsset => itemAsset.id === value);
     if (defaultAsset) {
       setAsset(defaultAsset);
+    } else if (value) {
+      defaultValueGet(value);
     } else {
       setAsset(selectedAssetRef.current);
     }
-  }, [itemAssets, value]);
+  }, [itemAssets, defaultValueGet, value]);
 
   const onSelect = useCallback((selectedAsset: ItemAsset) => {
     selectedAssetRef.current = selectedAsset;

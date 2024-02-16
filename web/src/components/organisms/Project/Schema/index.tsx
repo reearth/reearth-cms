@@ -33,6 +33,7 @@ const ProjectSchema: React.FC = () => {
     page,
     pageSize,
     handleAssetTableChange,
+    handleGetAsset,
   } = useAssetHooks();
 
   const {
@@ -170,6 +171,7 @@ const ProjectSchema: React.FC = () => {
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onGetAsset={handleGetAsset}
         />
       )}
     </>
