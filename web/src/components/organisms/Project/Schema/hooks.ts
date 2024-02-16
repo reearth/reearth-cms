@@ -5,11 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
-import type {
-  FormValues,
-  GroupFormValues,
-  ModelFormValues,
-} from "@reearth-cms/components/molecules/Schema/types";
+import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -322,7 +318,7 @@ export default () => {
   });
 
   const handleGroupCreate = useCallback(
-    async (data: GroupFormValues) => {
+    async (data: ModelFormValues) => {
       if (!projectId) return;
       const group = await createNewGroup({
         variables: {
@@ -347,11 +343,11 @@ export default () => {
   });
 
   const handleGroupUpdate = useCallback(
-    async (data: GroupFormValues) => {
-      if (!data.groupId) return;
+    async (data: ModelFormValues) => {
+      if (!data.id) return;
       const group = await updateNewGroup({
         variables: {
-          groupId: data.groupId,
+          groupId: data.id,
           name: data.name,
           description: data.description,
           key: data.key,
@@ -446,10 +442,10 @@ export default () => {
 
   const handleModelUpdate = useCallback(
     async (data: ModelFormValues) => {
-      if (!data.modelId) return;
+      if (!data.id) return;
       const model = await updateNewModel({
         variables: {
-          modelId: data.modelId,
+          modelId: data.id,
           name: data.name,
           description: data.description,
           key: data.key,

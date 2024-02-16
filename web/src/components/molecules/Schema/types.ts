@@ -110,14 +110,7 @@ export type Group = {
 };
 
 export type ModelFormValues = {
-  modelId?: string;
-  name: string;
-  description: string;
-  key: string;
-};
-
-export type GroupFormValues = {
-  groupId?: string;
+  id?: string;
   name: string;
   description: string;
   key: string;
