@@ -6,6 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
+import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
 import PreviewToolbar from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewToolbar";
@@ -182,7 +183,10 @@ const AssetMolecule: React.FC<Props> = ({
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
-          <UserAvatar username={asset.createdBy} shadow />
+          <Space>
+            <UserAvatar username={asset.createdBy} shadow />
+            {asset.createdBy}
+          </Space>
         </SideBarCard>
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (
