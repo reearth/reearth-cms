@@ -29,19 +29,17 @@ const RequestSidebarWrapper: React.FC<Props> = ({
   const formattedCreatedAt = dateTimeFormat(currentRequest?.createdAt);
   const [selectedReviewers, setSelectedReviewers] = useState<string[]>([]);
   const [viewReviewers, toggleViewReviewers] = useState<boolean>(false);
-  const currentReviewers = currentRequest?.reviewers;
+
+  const defaultValue = useMemo(() => {
+    return currentRequest?.reviewers.map(reviewer => reviewer.id);
+  }, [currentRequest?.reviewers]);
+
   const reviewers: { label: string; value: string }[] = useMemo(() => {
-    return workspaceUserMembers
-      ?.filter(
-        member =>
-          currentReviewers?.findIndex(currentReviewer => currentReviewer.id === member.userId) ===
-          -1,
-      )
-      .map(member => ({
-        label: member.user.name,
-        value: member.userId,
-      }));
-  }, [currentReviewers, workspaceUserMembers]);
+    return workspaceUserMembers.map(member => ({
+      label: member.user.name,
+      value: member.userId,
+    }));
+  }, [workspaceUserMembers]);
 
   const displayViewReviewers = useCallback(() => {
     toggleViewReviewers(true);
@@ -58,16 +56,13 @@ const RequestSidebarWrapper: React.FC<Props> = ({
       return;
     }
 
-    const currentReviewersId = currentReviewers?.map(reviewer => reviewer.id) ?? [];
-    const reviewersId: string[] | undefined = [...currentReviewersId, ...selectedReviewers];
-
     try {
       await onRequestUpdate?.({
         requestId: requestId,
         title: currentRequest?.title,
         description: currentRequest?.description,
         state: currentRequest?.state,
-        reviewersId: reviewersId,
+        reviewersId: selectedReviewers,
       });
     } catch (error) {
       console.error("Validate Failed:", error);
@@ -79,7 +74,6 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     currentRequest?.id,
     currentRequest?.state,
     currentRequest?.title,
-    currentReviewers,
     hideViewReviewers,
     onRequestUpdate,
     selectedReviewers,
@@ -110,10 +104,11 @@ const RequestSidebarWrapper: React.FC<Props> = ({
       <SidebarCard title={t("Reviewer")}>
         <ReviewerContainer>
           {currentRequest?.reviewers.map((reviewer, index) => (
-            <StyledUserAvatar username={reviewer.name} key={index} />
+            <UserAvatar username={reviewer.name} key={index} />
           ))}
         </ReviewerContainer>
         <StyledSelect
+          defaultValue={defaultValue}
           placeholder={t("Reviewer")}
           mode="multiple"
           filterOption={(input, option) =>
@@ -147,16 +142,14 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
-  padding: 8px;
+  padding: 7px;
   width: 272px;
-`;
-
-const StyledUserAvatar = styled(UserAvatar)`
-  margin-right: 8px;
 `;
 
 const ReviewerContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   margin: 4px 0;
 `;
 
