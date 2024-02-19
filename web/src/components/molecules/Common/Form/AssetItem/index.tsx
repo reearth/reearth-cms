@@ -115,12 +115,19 @@ const AssetItem: React.FC<Props> = ({
       setAsset(selectedAssetRef.current);
     } else if (value) {
       defaultValueGet(value);
+    } else {
+      setAsset(undefined);
     }
   }, [defaultValueGet, value, loadingAssets, itemAssets]);
 
-  const onSelect = useCallback((selectedAsset: ItemAsset) => {
+  const onSelect = useCallback((selectedAsset?: ItemAsset) => {
     selectedAssetRef.current = selectedAsset;
   }, []);
+
+  const onUnlink = useCallback(() => {
+    onChange?.("");
+    onSelect();
+  }, [onChange, onSelect]);
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -177,7 +184,7 @@ const AssetItem: React.FC<Props> = ({
             <AssetLink
               type="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
-              onClick={() => onChange?.("")}
+              onClick={onUnlink}
             />
           )}
         </>
