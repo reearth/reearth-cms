@@ -48,7 +48,9 @@ export interface Props {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 }
+
 const RequestItemForm: React.FC<Props> = ({
   schema,
   initialFormValues,
@@ -72,6 +74,7 @@ const RequestItemForm: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -178,6 +181,7 @@ const RequestItemForm: React.FC<Props> = ({
                   onAssetSearchTerm={onAssetSearchTerm}
                   setFileList={setFileList}
                   setUploadModalVisibility={setUploadModalVisibility}
+                  onGetAsset={onGetAsset}
                 />
               ) : (
                 <AssetItem
@@ -203,6 +207,7 @@ const RequestItemForm: React.FC<Props> = ({
                   onAssetSearchTerm={onAssetSearchTerm}
                   setFileList={setFileList}
                   setUploadModalVisibility={setUploadModalVisibility}
+                  onGetAsset={onGetAsset}
                 />
               )}
             </Form.Item>

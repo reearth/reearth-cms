@@ -65,6 +65,7 @@ type Props = {
   onDelete?: () => void;
   disableMoveUp?: boolean;
   disableMoveDown?: boolean;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const GroupItem: React.FC<Props> = ({
@@ -106,6 +107,7 @@ const GroupItem: React.FC<Props> = ({
   onDelete,
   disableMoveUp,
   disableMoveDown,
+  onGetAsset,
 }) => {
   const { Panel } = Collapse;
   const { group } = useHooks(parentField?.typeProperty?.groupId);
@@ -200,6 +202,7 @@ const GroupItem: React.FC<Props> = ({
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}
                     setUploadModalVisibility={setUploadModalVisibility}
+                    onGetAsset={onGetAsset}
                   />
                 </StyledFormItemWrapper>
               );

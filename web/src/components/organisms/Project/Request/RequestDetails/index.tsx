@@ -40,6 +40,7 @@ const RequestDetails: React.FC = () => {
     page,
     pageSize,
     handleAssetTableChange,
+    handleGetAsset,
   } = useAssetHooks();
 
   const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
@@ -79,6 +80,7 @@ const RequestDetails: React.FC = () => {
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
+      onGetAsset={handleGetAsset}
     />
   );
 };

@@ -46,7 +46,7 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   disabled?: boolean;
-  onGetAsset?: (assetId: string) => Promise<string | undefined>;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const MultiValueAsset: React.FC<Props> = ({

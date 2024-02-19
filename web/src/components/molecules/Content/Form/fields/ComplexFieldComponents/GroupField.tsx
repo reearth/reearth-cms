@@ -50,6 +50,7 @@ interface GroupFieldProps {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 }
 
 const GroupField: React.FC<GroupFieldProps> = ({
@@ -86,6 +87,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   return (
     <Form.Item
@@ -127,6 +129,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onGetAsset={onGetAsset}
         />
       ) : (
         <GroupItem
@@ -161,6 +164,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onGetAsset={onGetAsset}
         />
       )}
     </Form.Item>

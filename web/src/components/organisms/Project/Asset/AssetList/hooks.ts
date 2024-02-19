@@ -56,9 +56,7 @@ export default () => {
     },
   );
 
-  const [getAsset] = useGetAssetLazyQuery({
-    fetchPolicy: "no-cache",
-  });
+  const [getAsset] = useGetAssetLazyQuery();
 
   const handleGetAsset = useCallback(
     async (assetId: string) => {

@@ -50,6 +50,7 @@ export type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const RequestDetailsMolecule: React.FC<Props> = ({
@@ -86,6 +87,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   return loading ? (
     <Loading spinnerSize="large" minHeight="100vh" />
@@ -123,6 +125,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
       onAssetSearchTerm={onAssetSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
+      onGetAsset={onGetAsset}
     />
   ) : (
     <NotFound />

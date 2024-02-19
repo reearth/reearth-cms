@@ -47,7 +47,7 @@ type Props = {
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
   disabled?: boolean;
-  onGetAsset?: (assetId: string) => Promise<string | undefined>;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const AssetItem: React.FC<Props> = ({
@@ -107,15 +107,16 @@ const AssetItem: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    const defaultAsset = itemAssets?.find(itemAsset => itemAsset.id === value);
-    if (defaultAsset) {
-      setAsset(defaultAsset);
+    if (loadingAssets) return;
+    const assetInfo = itemAssets?.find(itemAsset => itemAsset.id === value);
+    if (assetInfo) {
+      setAsset(assetInfo);
+    } else if (selectedAssetRef.current) {
+      setAsset(selectedAssetRef.current);
     } else if (value) {
       defaultValueGet(value);
-    } else {
-      setAsset(selectedAssetRef.current);
     }
-  }, [itemAssets, defaultValueGet, value]);
+  }, [defaultValueGet, value, loadingAssets, itemAssets]);
 
   const onSelect = useCallback((selectedAsset: ItemAsset) => {
     selectedAssetRef.current = selectedAsset;
