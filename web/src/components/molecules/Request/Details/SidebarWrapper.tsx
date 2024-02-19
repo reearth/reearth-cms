@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
-import { FocusEventHandler, useCallback, useState } from "react";
+import { FocusEventHandler, useCallback, useState, useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
-import Select, { SelectProps } from "@reearth-cms/components/atoms/Select";
+import Select from "@reearth-cms/components/atoms/Select";
+import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import SidebarCard from "@reearth-cms/components/molecules/Request/Details/SidebarCard";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
@@ -11,7 +12,9 @@ import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-export type Props = {
+const { Option } = Select;
+
+type Props = {
   currentRequest?: Request;
   workspaceUserMembers: UserMember[];
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
@@ -27,22 +30,18 @@ const RequestSidebarWrapper: React.FC<Props> = ({
   const [selectedReviewers, setSelectedReviewers] = useState<string[]>([]);
   const [viewReviewers, toggleViewReviewers] = useState<boolean>(false);
   const currentReviewers = currentRequest?.reviewers;
-  const reviewers: SelectProps["options"] = workspaceUserMembers
-    ?.filter(
-      member =>
-        currentReviewers?.findIndex(currentReviewer => currentReviewer.id === member.userId) === -1,
-    )
-    .reduce(
-      (acc, member) => {
-        acc?.push({
-          label: member.user.name,
-          value: member.userId,
-          name: member.user.name,
-        });
-        return acc;
-      },
-      [] as SelectProps["options"],
-    );
+  const reviewers: { label: string; value: string }[] = useMemo(() => {
+    return workspaceUserMembers
+      ?.filter(
+        member =>
+          currentReviewers?.findIndex(currentReviewer => currentReviewer.id === member.userId) ===
+          -1,
+      )
+      .map(member => ({
+        label: member.user.name,
+        value: member.userId,
+      }));
+  }, [currentReviewers, workspaceUserMembers]);
 
   const displayViewReviewers = useCallback(() => {
     toggleViewReviewers(true);
@@ -103,7 +102,10 @@ const RequestSidebarWrapper: React.FC<Props> = ({
         />
       </SidebarCard>
       <SidebarCard title={t("Created By")}>
-        <UserAvatar username={currentRequest?.createdBy?.name} />
+        <Space>
+          <UserAvatar username={currentRequest?.createdBy?.name} />
+          {currentRequest?.createdBy?.name}
+        </Space>
       </SidebarCard>
       <SidebarCard title={t("Reviewer")}>
         <ReviewerContainer>
@@ -111,18 +113,27 @@ const RequestSidebarWrapper: React.FC<Props> = ({
             <StyledUserAvatar username={reviewer.name} key={index} />
           ))}
         </ReviewerContainer>
-        <Select
+        <StyledSelect
           placeholder={t("Reviewer")}
           mode="multiple"
-          options={reviewers}
           filterOption={(input, option) =>
             option?.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
-          style={{ width: "100%", display: viewReviewers ? "initial" : "none" }}
-          onChange={setSelectedReviewers}
+          viewReviewers={viewReviewers}
+          onChange={value => {
+            setSelectedReviewers(value as string[]);
+          }}
           onBlur={handleSubmit}
-          allowClear
-        />
+          allowClear>
+          {reviewers.map(reviewer => (
+            <Option key={reviewer.value}>
+              <Space>
+                <UserAvatar username={reviewer.label} size={22} />
+                {reviewer.label}
+              </Space>
+            </Option>
+          ))}
+        </StyledSelect>
         <ViewReviewers viewReviewers={viewReviewers}>
           <StyledButton type="link" onClick={displayViewReviewers}>
             {t("Assign to")}
@@ -148,6 +159,12 @@ const ReviewerContainer = styled.div`
   display: flex;
   margin: 4px 0;
 `;
+
+const StyledSelect = styled(Select)<{ viewReviewers: boolean }>`
+  width: 100%;
+  display: ${({ viewReviewers }) => (viewReviewers ? "initial" : "none")};
+`;
+
 const ViewReviewers = styled.div<{ viewReviewers: boolean }>`
   display: ${({ viewReviewers }) => (viewReviewers ? "none" : "flex")};
   justify-content: end;
