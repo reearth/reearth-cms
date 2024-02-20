@@ -178,7 +178,7 @@ const FieldModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="key"
-              label="Field Key"
+              label={t("Field Key")}
               extra={t(
                 "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
               )}

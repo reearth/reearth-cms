@@ -43,9 +43,9 @@ export default ({ integrationId }: Params) => {
   const [updateIntegrationMutation] = useUpdateIntegrationMutation();
 
   const handleIntegrationUpdate = useCallback(
-    (data: { name: string; description: string; logoUrl: string }) => {
+    async (data: { name: string; description: string; logoUrl: string }) => {
       if (!integrationId) return;
-      updateIntegrationMutation({
+      const result = await updateIntegrationMutation({
         variables: {
           integrationId,
           name: data.name,
@@ -53,8 +53,13 @@ export default ({ integrationId }: Params) => {
           logoUrl: data.logoUrl,
         },
       });
+      if (result.errors) {
+        Notification.error({ message: t("Failed to update integration.") });
+      } else {
+        Notification.success({ message: t("Successfully updated integration!") });
+      }
     },
-    [integrationId, updateIntegrationMutation],
+    [integrationId, t, updateIntegrationMutation],
   );
 
   const [deleteIntegrationMutation] = useDeleteIntegrationMutation({
