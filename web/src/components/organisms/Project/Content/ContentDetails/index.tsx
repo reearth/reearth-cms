@@ -79,6 +79,7 @@ const ContentDetails: React.FC = () => {
     page,
     pageSize,
     handleAssetTableChange,
+    handleGetAsset,
   } = useAssetHooks();
 
   return (
@@ -164,6 +165,7 @@ const ContentDetails: React.FC = () => {
       onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
       workspaceUserMembers={workspaceUserMembers}
+      onGetAsset={handleGetAsset}
     />
   );
 };

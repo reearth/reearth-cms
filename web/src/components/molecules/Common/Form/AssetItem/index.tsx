@@ -47,6 +47,7 @@ type Props = {
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
   disabled?: boolean;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const AssetItem: React.FC<Props> = ({
@@ -74,6 +75,7 @@ const AssetItem: React.FC<Props> = ({
   setUploadModalVisibility,
   onChange,
   disabled,
+  onGetAsset,
 }) => {
   const t = useT();
   const {
@@ -94,20 +96,34 @@ const AssetItem: React.FC<Props> = ({
     onChange,
   );
   const [asset, setAsset] = useState<ItemAsset>();
-  const selectedAssetRef = useRef<ItemAsset>();
+  const assetInfosRef = useRef<ItemAsset[]>(itemAssets ?? []);
+
+  const defaultValueGet = useCallback(async () => {
+    if (value) {
+      const fileName = await onGetAsset?.(value);
+      if (fileName) setAsset({ id: value, fileName });
+    } else {
+      setAsset(undefined);
+    }
+  }, [onGetAsset, value]);
 
   useEffect(() => {
-    const defaultAsset = itemAssets?.find(itemAsset => itemAsset.id === value);
-    if (defaultAsset) {
-      setAsset(defaultAsset);
+    if (loadingAssets) return;
+    const assetInfo = assetInfosRef.current.find(itemAsset => itemAsset.id === value);
+    if (assetInfo) {
+      setAsset(assetInfo);
     } else {
-      setAsset(selectedAssetRef.current);
+      defaultValueGet();
     }
-  }, [itemAssets, value]);
+  }, [defaultValueGet, loadingAssets, value]);
 
   const onSelect = useCallback((selectedAsset: ItemAsset) => {
-    selectedAssetRef.current = selectedAsset;
+    if (selectedAsset) assetInfosRef.current.push(selectedAsset);
   }, []);
+
+  const onUnlink = useCallback(() => {
+    onChange?.("");
+  }, [onChange]);
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -164,7 +180,7 @@ const AssetItem: React.FC<Props> = ({
             <AssetLink
               type="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
-              onClick={() => onChange?.("")}
+              onClick={onUnlink}
             />
           )}
         </>
