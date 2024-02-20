@@ -94,7 +94,7 @@ export default () => {
     skip: !referenceModelId,
   });
   const model = useMemo(() => fromGraphQLModel(modelData?.node as GQLModel), [modelData?.node]);
-  const { data: itemsData } = useSearchItemQuery({
+  const { data: itemsData, refetch } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
       searchItemInput: {
@@ -136,6 +136,10 @@ export default () => {
     },
     [itemsData?.searchItem.nodes],
   );
+
+  const handleLinkItemTableReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -527,6 +531,7 @@ export default () => {
     linkItemModalPageSize,
     handleReferenceModelUpdate,
     handleSearchTerm,
+    handleLinkItemTableReload,
     handleLinkItemTableChange,
     handleRequestTableChange,
     handleRequestSearchTerm,

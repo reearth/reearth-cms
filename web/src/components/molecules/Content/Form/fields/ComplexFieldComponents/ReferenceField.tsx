@@ -15,6 +15,7 @@ interface ReferenceFieldProps {
   linkItemModalPageSize: number;
   onReferenceModelUpdate: (modelId?: string) => void;
   onSearchTerm: (term?: string) => void;
+  onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
 }
 
@@ -29,6 +30,7 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
   linkItemModalPageSize,
   onReferenceModelUpdate,
   onSearchTerm,
+  onLinkItemTableReload,
   onLinkItemTableChange,
 }) => {
   return (
@@ -48,6 +50,7 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
         linkItemModalPage={linkItemModalPage}
         linkItemModalPageSize={linkItemModalPageSize}
         onSearchTerm={onSearchTerm}
+        onLinkItemTableReload={onLinkItemTableReload}
         onLinkItemTableChange={onLinkItemTableChange}
       />
     </Form.Item>

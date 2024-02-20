@@ -5,7 +5,11 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, { ProColumns, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
+import ProTable, {
+  ProColumns,
+  ListToolBarProps,
+  OptionConfig,
+} from "@reearth-cms/components/atoms/ProTable";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -24,6 +28,7 @@ type Props = {
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
   onSearchTerm: (term?: string) => void;
+  onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
 };
@@ -38,6 +43,7 @@ const LinkItemModal: React.FC<Props> = ({
   linkItemModalPage,
   linkItemModalPageSize,
   onSearchTerm,
+  onLinkItemTableReload,
   onLinkItemTableChange,
   onLinkItemModalCancel,
   onChange,
@@ -50,6 +56,13 @@ const LinkItemModal: React.FC<Props> = ({
     linkItemModalPage,
     linkItemModalPageSize,
     visible,
+  );
+
+  const options: OptionConfig = useMemo(
+    () => ({
+      reload: onLinkItemTableReload,
+    }),
+    [onLinkItemTableReload],
   );
 
   const handleClick = useCallback(
@@ -171,7 +184,7 @@ const LinkItemModal: React.FC<Props> = ({
         columns={columns}
         search={false}
         rowKey="id"
-        options={false}
+        options={options}
         toolbar={toolbar}
         pagination={pagination}
         onChange={pagination => {

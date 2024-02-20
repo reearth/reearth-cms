@@ -9,13 +9,14 @@ import { useT } from "@reearth-cms/i18n";
 
 import ModelCard from "./ModelCard";
 
-export type Props = {
+type Props = {
   projectName?: string;
   projectDescription?: string;
   models?: Model[];
-  onModelModalOpen?: () => void;
-  onSchemaNavigate?: (modelId: string) => void;
-  onContentNavigate?: (modelId: string) => void;
+  onModelModalOpen: () => void;
+  onHomeNavigation: () => void;
+  onSchemaNavigate: (modelId: string) => void;
+  onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
 };
@@ -25,6 +26,7 @@ const ProjectOverview: React.FC<Props> = ({
   projectDescription,
   models,
   onModelModalOpen,
+  onHomeNavigation,
   onSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
@@ -33,7 +35,11 @@ const ProjectOverview: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <InnerContent title={projectName} subtitle={projectDescription} flexChildren>
+    <InnerContent
+      title={projectName}
+      subtitle={projectDescription}
+      flexChildren
+      onHomeNavigation={onHomeNavigation}>
       <ContentSection
         title={t("Models")}
         headerActions={

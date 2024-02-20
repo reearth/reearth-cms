@@ -45,6 +45,7 @@ type Props = {
   linkItemModalPageSize: number;
   onSearchTerm: (term?: string) => void;
   onReferenceModelUpdate: (modelId?: string) => void;
+  onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -91,6 +92,7 @@ const GroupItem: React.FC<Props> = ({
   linkItemModalPage,
   linkItemModalPageSize,
   onReferenceModelUpdate,
+  onLinkItemTableReload,
   onLinkItemTableChange,
   onAssetTableChange,
   onUploadModalCancel,
@@ -220,6 +222,7 @@ const GroupItem: React.FC<Props> = ({
                     linkItemModalPageSize={linkItemModalPageSize}
                     onReferenceModelUpdate={onReferenceModelUpdate}
                     onSearchTerm={onSearchTerm}
+                    onLinkItemTableReload={onLinkItemTableReload}
                     onLinkItemTableChange={onLinkItemTableChange}
                   />
                 </StyledFormItemWrapper>
