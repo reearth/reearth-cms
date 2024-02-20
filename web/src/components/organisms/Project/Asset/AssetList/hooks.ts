@@ -14,6 +14,7 @@ import {
   AssetSortType as GQLSortType,
   useGetAssetsItemsQuery,
   useCreateAssetUploadMutation,
+  useGetAssetLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -53,6 +54,21 @@ export default () => {
       type: "DATE",
       direction: "DESC",
     },
+  );
+
+  const [getAsset] = useGetAssetLazyQuery();
+
+  const handleGetAsset = useCallback(
+    async (assetId: string) => {
+      const { data } = await getAsset({
+        variables: {
+          assetId,
+        },
+      });
+      if (!data?.node || data.node.__typename !== "Asset") return;
+      return data.node.fileName;
+    },
+    [getAsset],
   );
 
   const { data, refetch, loading, networkStatus } = useGetAssetsQuery({
@@ -322,5 +338,6 @@ export default () => {
     handleSearchTerm,
     handleAssetsReload,
     handleNavigateToAsset,
+    handleGetAsset,
   };
 };

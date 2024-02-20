@@ -115,6 +115,7 @@ export interface Props {
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -178,6 +179,7 @@ const ContentForm: React.FC<Props> = ({
   onModalOpen,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onGetAsset,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -537,6 +539,7 @@ const ContentForm: React.FC<Props> = ({
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}
                     setUploadModalVisibility={setUploadModalVisibility}
+                    onGetAsset={onGetAsset}
                   />
                 </StyledFormItemWrapper>
               );
@@ -596,6 +599,7 @@ const ContentForm: React.FC<Props> = ({
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}
                     setUploadModalVisibility={setUploadModalVisibility}
+                    onGetAsset={onGetAsset}
                   />
                 </StyledFormItemWrapper>
               );

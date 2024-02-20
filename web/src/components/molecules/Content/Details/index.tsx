@@ -98,6 +98,7 @@ export type Props = {
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -166,6 +167,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onAssetTableChange,
+  onGetAsset,
 }) => {
   return (
     <ComplexInnerContents
@@ -244,6 +246,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
             onAddItemToRequestModalClose={onAddItemToRequestModalClose}
             workspaceUserMembers={workspaceUserMembers}
+            onGetAsset={onGetAsset}
           />
         )
       }

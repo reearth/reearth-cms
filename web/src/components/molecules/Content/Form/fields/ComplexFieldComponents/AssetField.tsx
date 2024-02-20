@@ -41,6 +41,7 @@ interface AssetFieldProps {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 }
 
 const AssetField: React.FC<AssetFieldProps> = ({
@@ -67,6 +68,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const t = useT();
 
@@ -104,6 +106,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onGetAsset={onGetAsset}
         />
       ) : (
         <AssetItem
@@ -129,6 +132,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onGetAsset={onGetAsset}
         />
       )}
     </Form.Item>

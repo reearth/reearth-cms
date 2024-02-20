@@ -63,6 +63,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
@@ -104,6 +105,7 @@ const MultiValueGroup: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const t = useT();
 
@@ -221,6 +223,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 onDelete={() => handleInputDelete(key)}
                 disableMoveUp={key === 0}
                 disableMoveDown={key === value.length - 1}
+                onGetAsset={onGetAsset}
               />
             </FieldWrapper>
           );

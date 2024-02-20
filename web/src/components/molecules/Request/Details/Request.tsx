@@ -54,6 +54,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const RequestMolecule: React.FC<Props> = ({
@@ -89,6 +90,7 @@ const RequestMolecule: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const t = useT();
 
@@ -154,6 +156,7 @@ const RequestMolecule: React.FC<Props> = ({
             onAssetSearchTerm={onAssetSearchTerm}
             setFileList={setFileList}
             setUploadModalVisibility={setUploadModalVisibility}
+            onGetAsset={onGetAsset}
           />
         </ThreadWrapper>
         <RequestSidebarWrapper
