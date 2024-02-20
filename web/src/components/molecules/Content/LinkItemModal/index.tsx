@@ -58,9 +58,12 @@ const LinkItemModal: React.FC<Props> = ({
     visible,
   );
 
-  const options: OptionConfig = {
-    reload: onLinkItemTableReload,
-  };
+  const options: OptionConfig = useMemo(
+    () => ({
+      reload: onLinkItemTableReload,
+    }),
+    [onLinkItemTableReload],
+  );
 
   const handleClick = useCallback(
     async (link: boolean, item: FormItem) => {

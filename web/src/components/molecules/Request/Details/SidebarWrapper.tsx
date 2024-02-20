@@ -115,9 +115,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
             option?.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
           viewReviewers={viewReviewers}
-          onChange={value => {
-            setSelectedReviewers(value as string[]);
-          }}
+          onChange={value => setSelectedReviewers(value as string[])}
           onBlur={handleSubmit}
           allowClear>
           {reviewers.map(reviewer => (
