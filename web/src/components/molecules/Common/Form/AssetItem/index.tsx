@@ -96,38 +96,34 @@ const AssetItem: React.FC<Props> = ({
     onChange,
   );
   const [asset, setAsset] = useState<ItemAsset>();
-  const selectedAssetRef = useRef<ItemAsset>();
+  const assetInfosRef = useRef<ItemAsset[]>(itemAssets ?? []);
 
-  const defaultValueGet = useCallback(
-    async (id: string) => {
-      const fileName = await onGetAsset?.(id);
-      if (fileName) setAsset({ id, fileName });
-    },
-    [onGetAsset],
-  );
-
-  useEffect(() => {
-    if (loadingAssets) return;
-    const assetInfo = itemAssets?.find(itemAsset => itemAsset.id === value);
-    if (assetInfo) {
-      setAsset(assetInfo);
-    } else if (selectedAssetRef.current) {
-      setAsset(selectedAssetRef.current);
-    } else if (value) {
-      defaultValueGet(value);
+  const defaultValueGet = useCallback(async () => {
+    if (value) {
+      const fileName = await onGetAsset?.(value);
+      if (fileName) setAsset({ id: value, fileName });
     } else {
       setAsset(undefined);
     }
-  }, [defaultValueGet, value, loadingAssets, itemAssets]);
+  }, [onGetAsset, value]);
 
-  const onSelect = useCallback((selectedAsset?: ItemAsset) => {
-    selectedAssetRef.current = selectedAsset;
+  useEffect(() => {
+    if (loadingAssets) return;
+    const assetInfo = assetInfosRef.current.find(itemAsset => itemAsset.id === value);
+    if (assetInfo) {
+      setAsset(assetInfo);
+    } else {
+      defaultValueGet();
+    }
+  }, [defaultValueGet, loadingAssets, value]);
+
+  const onSelect = useCallback((selectedAsset: ItemAsset) => {
+    if (selectedAsset) assetInfosRef.current.push(selectedAsset);
   }, []);
 
   const onUnlink = useCallback(() => {
     onChange?.("");
-    onSelect();
-  }, [onChange, onSelect]);
+  }, [onChange]);
 
   const uploadProps: UploadProps = {
     name: "file",

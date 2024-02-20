@@ -48,7 +48,7 @@ type Props = {
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onChange?: (value: string) => void;
-  onSelect: (selectedAsset?: ItemAsset) => void;
+  onSelect: (selectedAsset: ItemAsset) => void;
   onAssetsReload: () => void;
   onSearchTerm: (term?: string) => void;
   displayUploadModal: () => void;
@@ -117,8 +117,8 @@ const LinkAssetModal: React.FC<Props> = ({
   const onLinkClick = useCallback(
     (isLink: boolean, asset: Asset) => {
       onChange?.(isLink ? asset.id : "");
-      onSelect(isLink ? { id: asset.id, fileName: asset.fileName } : undefined);
       onLinkAssetModalCancel();
+      if (isLink) onSelect({ id: asset.id, fileName: asset.fileName });
     },
     [onChange, onLinkAssetModalCancel, onSelect],
   );
