@@ -35,6 +35,7 @@ interface GroupFieldProps {
   linkItemModalPageSize: number;
   onSearchTerm: (term?: string) => void;
   onReferenceModelUpdate: (modelId?: string) => void;
+  onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -75,6 +76,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   linkItemModalPageSize,
   onSearchTerm,
   onReferenceModelUpdate,
+  onLinkItemTableReload,
   onLinkItemTableChange,
   onAssetTableChange,
   onUploadModalCancel,
@@ -116,6 +118,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}
           onReferenceModelUpdate={onReferenceModelUpdate}
+          onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
           onAssetTableChange={onAssetTableChange}
           onUploadModalCancel={onUploadModalCancel}
@@ -150,6 +153,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           linkItemModalPage={linkItemModalPage}
           linkItemModalPageSize={linkItemModalPageSize}
           onReferenceModelUpdate={onReferenceModelUpdate}
+          onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
           onAssetTableChange={onAssetTableChange}
           onUploadModalCancel={onUploadModalCancel}

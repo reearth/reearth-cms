@@ -47,6 +47,7 @@ type Props = {
   linkItemModalPageSize: number;
   onSearchTerm: (term?: string) => void;
   onReferenceModelUpdate: (modelId?: string) => void;
+  onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -91,6 +92,7 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalPageSize,
   onSearchTerm,
   onReferenceModelUpdate,
+  onLinkItemTableReload,
   onLinkItemTableChange,
   onAssetTableChange,
   onUploadModalCancel,
@@ -202,6 +204,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 linkItemModalPage={linkItemModalPage}
                 linkItemModalPageSize={linkItemModalPageSize}
                 onReferenceModelUpdate={onReferenceModelUpdate}
+                onLinkItemTableReload={onLinkItemTableReload}
                 onLinkItemTableChange={onLinkItemTableChange}
                 onAssetTableChange={onAssetTableChange}
                 onUploadModalCancel={onUploadModalCancel}

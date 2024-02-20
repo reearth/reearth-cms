@@ -2,21 +2,32 @@ import styled from "@emotion/styled";
 import { Children, ReactNode } from "react";
 
 import Content from "@reearth-cms/components/atoms/Content";
+import Icon from "@reearth-cms/components/atoms/Icon";
 
-export type Props = {
+type Props = {
   title?: string;
   subtitle?: string;
   flexChildren?: boolean;
   children?: ReactNode;
+  onHomeNavigation?: () => void;
 };
 
-const BasicInnerContents: React.FC<Props> = ({ title, subtitle, flexChildren, children }) => {
+const BasicInnerContents: React.FC<Props> = ({
+  title,
+  subtitle,
+  flexChildren,
+  children,
+  onHomeNavigation,
+}) => {
   const childrenArray = Children.toArray(children);
   return (
     <PaddedContent>
       {title && (
         <Header>
-          <Title>{title}</Title>
+          <Title>
+            {onHomeNavigation && <Icon icon="arrowLeft" size={16} onClick={onHomeNavigation} />}
+            {title}
+          </Title>
           {subtitle && <Subtitle>{subtitle}</Subtitle>}
         </Header>
       )}
@@ -47,6 +58,9 @@ const Title = styled.p`
   font-size: 20px;
   line-height: 28px;
   margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
 `;
 
 const Subtitle = styled.p`

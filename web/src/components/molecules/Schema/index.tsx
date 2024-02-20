@@ -81,10 +81,14 @@ const Schema: React.FC<Props> = ({
     [handleDelete, handleEdit, t],
   );
 
-  const DropdownMenu = () => (
-    <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
-      <Button type="text" icon={<Icon icon="more" size={20} />} />
-    </Dropdown>
+  const DropdownMenu = useCallback(
+    () =>
+      model || group ? (
+        <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
+          <Button type="text" icon={<Icon icon="more" size={20} />} />
+        </Dropdown>
+      ) : null,
+    [dropdownItems, group, model],
   );
 
   const items: TabsProps["items"] = [

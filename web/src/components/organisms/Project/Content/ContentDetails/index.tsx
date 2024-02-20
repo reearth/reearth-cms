@@ -34,6 +34,7 @@ const ContentDetails: React.FC = () => {
     linkItemModalPageSize,
     handleReferenceModelUpdate,
     handleSearchTerm,
+    handleLinkItemTableReload,
     handleLinkItemTableChange,
     handleRequestTableChange,
     handleRequestSearchTerm,
@@ -87,6 +88,7 @@ const ContentDetails: React.FC = () => {
       linkItemModalPage={linkItemModalPage}
       linkItemModalPageSize={linkItemModalPageSize}
       onSearchTerm={handleSearchTerm}
+      onLinkItemTableReload={handleLinkItemTableReload}
       onLinkItemTableChange={handleLinkItemTableChange}
       onReferenceModelUpdate={handleReferenceModelUpdate}
       linkedItemsModalList={linkedItemsModalList}

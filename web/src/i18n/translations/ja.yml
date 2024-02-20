@@ -79,8 +79,6 @@ Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
 Comment: コメント
 Comments: コメント
-Please input field!: フィールドを入力してください。
-Please select an option!: ''
 Personal Account: パーソナルアカウント
 Workspaces: ワークスペース
 Create Workspace: ワークスペースを作成
@@ -109,6 +107,8 @@ Integrations: インテグレーション
 My Integrations: マイインテグレーション
 Workspace: ワークスペース
 Account: アカウント
+Please input field!: フィールドを入力してください。
+Please select an option!: オプションを選択してください。
 unique: ユニーク
 Title: タイトル
 Leave: 離れる
@@ -186,6 +186,12 @@ Email address or user name: Emailアドレスもしくはユーザー名
 Selected Members: 選択中のメンバー
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
+Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
+Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
+Change Role?: ロールを変更
+Members: メンバー
+New Member: メンバーを追加
+search for a member: 検索
 Groups: グループ
 Add: 追加
 Models: モデル
@@ -286,6 +292,7 @@ Default value must be a valid URL and start with 'http://' or 'https://'.: デ�
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
+Field Key: フィールドキー
 Set Tags: タグを設定する
 Select Group: グループを選択
 Please select the group!: グループを選択してください！
@@ -467,12 +474,8 @@ Failed to add one or more members.: メンバーの追加に失敗しました�
 Successfully added member(s) to the workspace!: メンバーの追加に成功しました。
 Failed to delete member from the workspace.: メンバーの削除に失敗しました。
 Successfully removed member from the workspace!: メンバーの削除に成功しました。
-Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
-Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
-Change Role?: ロールを変更
-Members: メンバー
-New Member: メンバーを追加
-search for a member: 検索
+Failed to update integration.: インテグレーションの更新に失敗しました。
+Successfully updated integration!: インテグレーションの更新に成功しました。
 Failed to delete integration.: インテグレーションの削除に失敗しました。
 Successfully deleted integration!: インテグレーションの削除に成功しました。
 Failed to create webhook.: Webhookの作成に失敗しました。

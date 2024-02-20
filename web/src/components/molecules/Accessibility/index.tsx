@@ -61,8 +61,8 @@ const Accessibility: React.FC<Props> = ({
       title: t("Switch"),
       dataIndex: "public",
       key: "public",
-      align: "right",
-      width: 72,
+      align: "center",
+      width: 90,
     },
     {
       title: t("End point"),

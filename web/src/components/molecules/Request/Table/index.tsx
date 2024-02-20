@@ -165,9 +165,11 @@ const RequestListTable: React.FC<Props> = ({
       render: (_, request) => (
         <Space>
           <div>
-            {request.reviewers.map(reviewer => (
-              <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
-            ))}
+            {request.reviewers
+              .filter((_, index) => index < 3)
+              .map(reviewer => (
+                <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
+              ))}
           </div>
           {request.reviewers.map(reviewer => reviewer.name).join(", ")}
         </Space>
@@ -291,6 +293,9 @@ const CommentsButton = styled(Button)`
 
 const StyledUserAvatar = styled(UserAvatar)`
   :nth-child(1) {
+    z-index: 2;
+  }
+  :nth-child(2) {
     z-index: 1;
   }
   :nth-child(n + 2) {

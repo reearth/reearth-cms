@@ -24,6 +24,7 @@ type Props = {
   linkItemModalPageSize?: number;
   onReferenceModelUpdate?: (modelId?: string) => void;
   onSearchTerm?: (term?: string) => void;
+  onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
   onChange?: (value?: string) => void;
 };
@@ -42,6 +43,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   linkItemModalPageSize,
   onReferenceModelUpdate,
   onSearchTerm,
+  onLinkItemTableReload,
   onLinkItemTableChange,
 }) => {
   const { workspaceId, projectId } = useParams();
@@ -94,7 +96,7 @@ const ReferenceFormItem: React.FC<Props> = ({
       <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
-      {!!onSearchTerm && !!onLinkItemTableChange && (
+      {!!onSearchTerm && !!onLinkItemTableReload && !!onLinkItemTableChange && (
         <LinkItemModal
           linkItemModalTitle={linkItemModalTitle}
           linkItemModalTotalCount={linkItemModalTotalCount}
@@ -102,6 +104,7 @@ const ReferenceFormItem: React.FC<Props> = ({
           correspondingFieldId={correspondingFieldId}
           linkItemModalPageSize={linkItemModalPageSize}
           onSearchTerm={onSearchTerm}
+          onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
           linkedItemsModalList={linkedItemsModalList}
           visible={visible}
