@@ -245,6 +245,20 @@ export default () => {
     [fieldValueGet],
   );
 
+  const metadataGet = useCallback((fields?: ItemField[]) => {
+    const result: { [key: string]: any } = {};
+    fields?.map(field => {
+      result[field.schemaFieldId] = Array.isArray(field.value)
+        ? field.value.length > 0
+          ? field.value.map(v => "" + v)
+          : null
+        : field.value === null
+          ? null
+          : "" + field.value;
+    });
+    return result;
+  }, []);
+
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.searchItem.nodes
       ?.map(item =>
@@ -259,26 +273,14 @@ export default () => {
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
-              metadata: item?.metadata?.fields?.reduce(
-                (obj, field) =>
-                  Object.assign(obj, {
-                    [field.schemaFieldId]: Array.isArray(field.value)
-                      ? field.value.length > 0
-                        ? field.value.map(v => "" + v)
-                        : null
-                      : field.value === null
-                        ? null
-                        : "" + field.value,
-                  }),
-                {},
-              ),
+              metadata: metadataGet(item?.metadata?.fields as ItemField[] | undefined),
               metadataId: item.metadata?.id,
               version: item.metadata?.version,
             }
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [data?.searchItem.nodes, fieldsGet]);
+  }, [data?.searchItem.nodes, fieldsGet, metadataGet]);
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
