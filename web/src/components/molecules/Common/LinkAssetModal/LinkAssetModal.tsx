@@ -136,9 +136,7 @@ const LinkAssetModal: React.FC<Props> = ({
             onMouseEnter={() => setHoveredAssetId(asset.id)}
             onMouseLeave={() => setHoveredAssetId(undefined)}
             icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
-            onClick={() => {
-              onLinkClick(isLink, asset);
-            }}
+            onClick={() => onLinkClick(isLink, asset)}
           />
         );
       },
