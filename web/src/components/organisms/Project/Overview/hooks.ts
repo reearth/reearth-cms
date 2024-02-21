@@ -107,10 +107,6 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
-  const handleHomeNavigation = useCallback(() => {
-    navigate(`/workspace/${currentWorkspace?.id}`);
-  }, [currentWorkspace?.id, navigate]);
-
   const handleSchemaNavigation = useCallback(
     (modelId: string) => {
       navigate(
@@ -140,7 +136,6 @@ export default () => {
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
-    handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,
