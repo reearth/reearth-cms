@@ -1,5 +1,10 @@
 import { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { Item, Comment, ItemField } from "@reearth-cms/components/molecules/Content/types";
+import {
+  Item,
+  Comment,
+  ItemField,
+  ItemAsset,
+} from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { initialValuesGet } from "@reearth-cms/components/organisms/Project/Request/RequestDetails/utils";
 import {
@@ -53,6 +58,9 @@ export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined 
       ),
     },
     comments: GQLItem.thread?.comments?.map(comment => fromGraphQLComment(comment)) ?? [],
+    assets: GQLItem.assets
+      ?.map(asset => asset && { id: asset.id, fileName: asset.fileName })
+      .filter((asset): asset is ItemAsset => asset !== null),
   };
 };
 
