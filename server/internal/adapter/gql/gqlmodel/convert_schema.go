@@ -460,6 +460,9 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			return nil, nil, err
 		}
 		sId, err := ToID[id.Schema](x.SchemaID)
+		if err != nil {
+			return nil, nil, err
+		}
 		var fid *id.FieldID
 		if x.CorrespondingField != nil {
 			fid = ToIDRef[id.Field](x.CorrespondingField.FieldID)
