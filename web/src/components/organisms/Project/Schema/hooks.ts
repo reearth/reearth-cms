@@ -3,9 +3,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
 import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -28,7 +31,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
-import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const t = useT();

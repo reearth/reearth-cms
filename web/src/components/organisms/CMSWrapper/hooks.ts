@@ -5,7 +5,7 @@ import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Role, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
-import { convertMember } from "@reearth-cms/components/organisms/Workspace/convertWorkspace";
+import { fromGraphQLMember } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
@@ -52,7 +52,7 @@ export default () => {
     return {
       id: foundWorkspace?.id,
       name: foundWorkspace?.name,
-      members: foundWorkspace?.members?.map(member => convertMember(member as WorkspaceMember)),
+      members: foundWorkspace?.members?.map(member => fromGraphQLMember(member as WorkspaceMember)),
     };
   }, [data?.me?.myWorkspace.id, workspaces]);
   const personal = workspaceId === data?.me?.myWorkspace.id;

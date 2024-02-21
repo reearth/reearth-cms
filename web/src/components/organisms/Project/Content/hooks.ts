@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
+import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
@@ -45,8 +45,7 @@ export default () => {
   const requests: Request[] = useMemo(
     () =>
       (data?.requests.nodes
-        .map(request => request as GQLRequest)
-        .map(convertRequest)
+        .map(request => fromGraphQLRequest(request as GQLRequest))
         .filter(request => !!request) as Request[]) ?? [],
     [data?.requests.nodes],
   );

@@ -1,7 +1,8 @@
 import ModelsList from "@reearth-cms/components/molecules/Model/ModelsList/ModelsList";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
-import { Model, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 
 export interface Props {
   className?: string;
