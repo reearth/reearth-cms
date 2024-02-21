@@ -217,19 +217,11 @@ export default () => {
       if (field.type === "Reference") {
         return item.referencedItems?.find(ref => ref.id === field.value)?.title ?? "";
       } else {
-        if (Array.isArray(field.value)) {
-          if (field.value.length > 0) {
-            return field.value.map(v => "" + v);
-          } else {
-            return null;
-          }
-        } else {
-          if (field.value === null) {
-            return null;
-          } else {
-            return "" + field.value;
-          }
-        }
+      if (Array.isArray(field.value) && field.value.length > 0) {
+        return field.value.map(v => "" + v);
+      } else {
+        return field.value === null ? null : "" + field.value;
+      }
       }
     }
   }, []);
@@ -247,14 +239,12 @@ export default () => {
 
   const metadataGet = useCallback((fields?: ItemField[]) => {
     const result: { [key: string]: any } = {};
-    fields?.map(field => {
-      result[field.schemaFieldId] = Array.isArray(field.value)
-        ? field.value.length > 0
-          ? field.value.map(v => "" + v)
-          : null
-        : field.value === null
-          ? null
-          : "" + field.value;
+    fields?.forEach(field => {
+      if (Array.isArray(field.value) && field.value.length > 0) {
+        result[field.schemaFieldId] = field.value.map(v => "" + v);
+      } else {
+        result[field.schemaFieldId] = field.value === null ? null : "" + field.value;
+      }
     });
     return result;
   }, []);
