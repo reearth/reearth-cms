@@ -34,7 +34,7 @@ const ProjectSchema: React.FC = () => {
     pageSize,
     handleAssetTableChange,
     handleGetAsset,
-  } = useAssetHooks();
+  } = useAssetHooks(false);
 
   const {
     isModel,
