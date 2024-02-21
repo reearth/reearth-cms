@@ -667,11 +667,11 @@ type ComplexityRoot struct {
 	}
 
 	SchemaFieldReference struct {
-		CorrespondingField    func(childComplexity int) int
-		CorrespondingFieldID  func(childComplexity int) int
-		CorrespondingSchema   func(childComplexity int) int
-		CorrespondingSchemaID func(childComplexity int) int
-		ModelID               func(childComplexity int) int
+		CorrespondingField   func(childComplexity int) int
+		CorrespondingFieldID func(childComplexity int) int
+		ModelID              func(childComplexity int) int
+		Schema               func(childComplexity int) int
+		SchemaID             func(childComplexity int) int
 	}
 
 	SchemaFieldRichText struct {
@@ -999,8 +999,6 @@ type SchemaFieldResolver interface {
 	Model(ctx context.Context, obj *gqlmodel.SchemaField) (*gqlmodel.Model, error)
 }
 type SchemaFieldReferenceResolver interface {
-	CorrespondingSchema(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.Schema, error)
-
 	CorrespondingField(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.SchemaField, error)
 }
 type ThreadResolver interface {
@@ -3878,26 +3876,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldReference.CorrespondingFieldID(childComplexity), true
 
-	case "SchemaFieldReference.correspondingSchema":
-		if e.complexity.SchemaFieldReference.CorrespondingSchema == nil {
-			break
-		}
-
-		return e.complexity.SchemaFieldReference.CorrespondingSchema(childComplexity), true
-
-	case "SchemaFieldReference.correspondingSchemaId":
-		if e.complexity.SchemaFieldReference.CorrespondingSchemaID == nil {
-			break
-		}
-
-		return e.complexity.SchemaFieldReference.CorrespondingSchemaID(childComplexity), true
-
 	case "SchemaFieldReference.modelId":
 		if e.complexity.SchemaFieldReference.ModelID == nil {
 			break
 		}
 
 		return e.complexity.SchemaFieldReference.ModelID(childComplexity), true
+
+	case "SchemaFieldReference.schema":
+		if e.complexity.SchemaFieldReference.Schema == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldReference.Schema(childComplexity), true
+
+	case "SchemaFieldReference.schemaId":
+		if e.complexity.SchemaFieldReference.SchemaID == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldReference.SchemaID(childComplexity), true
 
 	case "SchemaFieldRichText.defaultValue":
 		if e.complexity.SchemaFieldRichText.DefaultValue == nil {
@@ -5081,8 +5079,8 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
-  correspondingSchemaId: ID
-  correspondingSchema: Schema
+  schemaId: ID!
+  schema: Schema!
   correspondingFieldId: ID
   correspondingField: SchemaField
 }
@@ -5161,15 +5159,15 @@ input SchemaFieldIntegerInput {
 
 input CorrespondingFieldInput {
   fieldId: ID
-  title: String
-  key: String
-  description: String
-  required: Boolean
+  title: String!
+  key: String!
+  description: String!
+  required: Boolean!
 } 
 
 input SchemaFieldReferenceInput {
   modelId: ID!
-  correspondingSchemaId: ID
+  schemaId: ID!
   correspondingField: CorrespondingFieldInput
 }
 
@@ -26127,8 +26125,8 @@ func (ec *executionContext) fieldContext_SchemaFieldReference_modelId(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SchemaFieldReference_correspondingSchemaId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SchemaFieldReference_correspondingSchemaId(ctx, field)
+func (ec *executionContext) _SchemaFieldReference_schemaId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldReference_schemaId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26141,21 +26139,24 @@ func (ec *executionContext) _SchemaFieldReference_correspondingSchemaId(ctx cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CorrespondingSchemaID, nil
+		return obj.SchemaID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*gqlmodel.ID)
+	res := resTmp.(gqlmodel.ID)
 	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingSchemaId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SchemaFieldReference_schemaId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SchemaFieldReference",
 		Field:      field,
@@ -26168,8 +26169,8 @@ func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingSchem
 	return fc, nil
 }
 
-func (ec *executionContext) _SchemaFieldReference_correspondingSchema(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SchemaFieldReference_correspondingSchema(ctx, field)
+func (ec *executionContext) _SchemaFieldReference_schema(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldReference) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldReference_schema(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26182,26 +26183,29 @@ func (ec *executionContext) _SchemaFieldReference_correspondingSchema(ctx contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.SchemaFieldReference().CorrespondingSchema(rctx, obj)
+		return obj.Schema, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*gqlmodel.Schema)
 	fc.Result = res
-	return ec.marshalOSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx, field.Selections, res)
+	return ec.marshalNSchema2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SchemaFieldReference_correspondingSchema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SchemaFieldReference_schema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SchemaFieldReference",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -32939,28 +32943,28 @@ func (ec *executionContext) unmarshalInputCorrespondingFieldInput(ctx context.Co
 			it.FieldID = data
 		case "title":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Title = data
 		case "key":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Key = data
 		case "description":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Description = data
 		case "required":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("required"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -35181,7 +35185,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"modelId", "correspondingSchemaId", "correspondingField"}
+	fieldsInOrder := [...]string{"modelId", "schemaId", "correspondingField"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -35195,13 +35199,13 @@ func (ec *executionContext) unmarshalInputSchemaFieldReferenceInput(ctx context.
 				return it, err
 			}
 			it.ModelID = data
-		case "correspondingSchemaId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("correspondingSchemaId"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+		case "schemaId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("schemaId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.CorrespondingSchemaID = data
+			it.SchemaID = data
 		case "correspondingField":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("correspondingField"))
 			data, err := ec.unmarshalOCorrespondingFieldInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐCorrespondingFieldInput(ctx, v)
@@ -43269,41 +43273,16 @@ func (ec *executionContext) _SchemaFieldReference(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "correspondingSchemaId":
-			out.Values[i] = ec._SchemaFieldReference_correspondingSchemaId(ctx, field, obj)
-		case "correspondingSchema":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._SchemaFieldReference_correspondingSchema(ctx, field, obj)
-				return res
+		case "schemaId":
+			out.Values[i] = ec._SchemaFieldReference_schemaId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
+		case "schema":
+			out.Values[i] = ec._SchemaFieldReference_schema(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "correspondingFieldId":
 			out.Values[i] = ec._SchemaFieldReference_correspondingFieldId(ctx, field, obj)
 		case "correspondingField":

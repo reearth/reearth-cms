@@ -14,10 +14,10 @@ func (r *Resolver) SchemaFieldReference() SchemaFieldReferenceResolver {
 type schemaFieldReferenceResolver struct{ *Resolver }
 
 func (s schemaFieldReferenceResolver) CorrespondingField(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.SchemaField, error) {
-	if obj.CorrespondingFieldID == nil || obj.CorrespondingSchemaID == nil {
+	if obj.CorrespondingFieldID == nil {
 		return nil, nil
 	}
-	ss, err := dataloaders(ctx).Schema.Load(*obj.CorrespondingSchemaID)
+	ss, err := dataloaders(ctx).Schema.Load(obj.SchemaID)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +32,5 @@ func (s schemaFieldReferenceResolver) CorrespondingField(ctx context.Context, ob
 }
 
 func (s schemaFieldReferenceResolver) CorrespondingSchema(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.Schema, error) {
-	if obj.CorrespondingSchemaID == nil {
-		return nil, nil
-	}
-	return dataloaders(ctx).Schema.Load(*obj.CorrespondingSchemaID)
+	return dataloaders(ctx).Schema.Load(obj.SchemaID)
 }

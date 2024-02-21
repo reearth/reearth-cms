@@ -9,7 +9,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,22 +18,22 @@ func Test_AreItemsReferenced(t *testing.T) {
 	fid1, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
 	sid1, sid2, sid3 := id.NewSchemaID(), id.NewSchemaID(), id.NewSchemaID()
 	cf1 := &schema.CorrespondingField{
-		FieldID:     fid2.Ref(),
-		Title:       lo.ToPtr("title"),
-		Key:         lo.ToPtr("key"),
-		Description: lo.ToPtr("description"),
-		Required:    lo.ToPtr(true),
+		// FieldID:     fid2.Ref(),
+		Title:       "title",
+		Key:         "key",
+		Description: "description",
+		Required:    true,
 	}
 	cf2 := &schema.CorrespondingField{
-		FieldID:     fid1.Ref(),
-		Title:       lo.ToPtr("title"),
-		Key:         lo.ToPtr("key"),
-		Description: lo.ToPtr("description"),
-		Required:    lo.ToPtr(true),
+		// FieldID:     fid1.Ref(),
+		Title:       "title",
+		Key:         "key",
+		Description: "description",
+		Required:    true,
 	}
-	f1 := schema.NewField(schema.NewReference(mid2, sid1.Ref(), cf1, cf1.FieldID).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
-	f2 := schema.NewField(schema.NewReference(mid1, sid2.Ref(), cf2, cf2.FieldID).TypeProperty()).ID(fid2).Key(key.Random()).MustBuild()
-	f3 := schema.NewField(schema.NewReference(mid3, nil, nil, nil).TypeProperty()).ID(fid3).Key(key.Random()).MustBuild()
+	f1 := schema.NewField(schema.NewReference(mid2, sid1, fid2.Ref(), cf1).TypeProperty()).ID(fid1).Key(key.Random()).MustBuild()
+	f2 := schema.NewField(schema.NewReference(mid1, sid2, fid1.Ref(), cf2).TypeProperty()).ID(fid2).Key(key.Random()).MustBuild()
+	f3 := schema.NewField(schema.NewReference(mid3, sid3, nil, nil).TypeProperty()).ID(fid3).Key(key.Random()).MustBuild()
 	s1 := schema.New().ID(sid1).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{f1}).MustBuild()
 	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{f2}).MustBuild()
 	s3 := schema.New().ID(sid3).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{f3}).MustBuild()
