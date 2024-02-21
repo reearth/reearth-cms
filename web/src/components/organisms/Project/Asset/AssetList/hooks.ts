@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
-import { convertAsset } from "@reearth-cms/components/organisms/Project/Asset/convertAsset";
+import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
+import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useGetAssetsQuery,
   useCreateAssetMutation,
@@ -91,7 +91,7 @@ export default (isItemsRequired: boolean) => {
   const assetList = useMemo(
     () =>
       (data?.assets.nodes
-        .map(asset => convertAsset(asset as GQLAsset))
+        .map(asset => fromGraphQLAsset(asset as GQLAsset))
         .filter(asset => !!asset) as Asset[]) ?? [],
     [data?.assets.nodes],
   );
@@ -151,7 +151,7 @@ export default (isItemsRequired: boolean) => {
                 handleUploadModalCancel();
                 return undefined;
               }
-              return convertAsset(result.data.createAsset.asset as GQLAsset);
+              return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
             }),
           )
         ).filter(Boolean);
@@ -188,7 +188,7 @@ export default (isItemsRequired: boolean) => {
         if (result.data?.createAsset) {
           Notification.success({ message: t("Successfully added asset!") });
           await refetch();
-          return convertAsset(result.data.createAsset.asset as GQLAsset);
+          return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
         }
         return undefined;
       } catch {

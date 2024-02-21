@@ -1,7 +1,7 @@
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/previewModal";
-import { ViewerType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {

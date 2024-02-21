@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
+import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import { useGetGroupQuery, Group } from "@reearth-cms/gql/graphql-client-api";
-import { fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default (groupId?: string) => {
   const { data } = useGetGroupQuery({

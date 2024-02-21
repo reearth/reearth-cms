@@ -5,7 +5,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   TileType,
   TerrainType,

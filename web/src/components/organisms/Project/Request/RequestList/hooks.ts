@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { convertComment } from "@reearth-cms/components/organisms/Project/Content/utils";
+import { fromGraphQLComment } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useGetRequestsQuery,
   useDeleteRequestMutation,
@@ -75,7 +75,7 @@ export default () => {
           description: r.description ?? "",
           state: r.state,
           threadId: r.threadId,
-          comments: r.thread?.comments.map(c => convertComment(c as GQLComment)) ?? [],
+          comments: r.thread?.comments.map(c => fromGraphQLComment(c as GQLComment)) ?? [],
           reviewers: r.reviewers,
           createdBy: r.createdBy ?? undefined,
           createdAt: r.createdAt,

@@ -1,3 +1,5 @@
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+
 import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSelect";
 
 export type PreviewType = PreviewTypeType;
@@ -46,11 +48,4 @@ export type AssetFile = {
   name: string;
   path: string;
   size: number;
-};
-
-export type Comment = {
-  id: string;
-  author: { id?: string; name: string; type: "User" | "Integration" | null };
-  content: string;
-  createdAt: string;
 };

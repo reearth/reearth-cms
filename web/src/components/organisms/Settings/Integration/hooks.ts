@@ -6,6 +6,7 @@ import {
   IntegrationMember,
   Role,
 } from "@reearth-cms/components/molecules/Integration/types";
+import { fromGraphQLIntegration } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
@@ -14,8 +15,6 @@ import {
   useRemoveIntegrationFromWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-
-import { fromIntegration } from "./convertIntegration";
 
 export default (workspaceId?: string) => {
   const [selectedIntegrationMember, SetSelectedIntegrationMember] = useState<IntegrationMember>();
@@ -33,7 +32,7 @@ export default (workspaceId?: string) => {
 
   const integrations = useMemo(() => {
     return data?.me?.integrations
-      ?.map<Integration | undefined>(integration => fromIntegration(integration))
+      ?.map<Integration | undefined>(integration => fromGraphQLIntegration(integration))
       .filter((integration): integration is Integration => !!integration);
   }, [data?.me?.integrations]);
 
@@ -44,7 +43,7 @@ export default (workspaceId?: string) => {
           ? {
               id: member.integration.id,
               active: member.active,
-              integration: fromIntegration(member.integration),
+              integration: fromGraphQLIntegration(member.integration),
               integrationRole: member.integrationRole,
               invitedById: member.invitedById,
             }

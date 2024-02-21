@@ -2,7 +2,9 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
 import {
   useDeleteModelMutation,
@@ -12,7 +14,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
-import { fromGraphQLModel } from "@reearth-cms/utils/values";
 
 export default () => {
   const [currentProject] = useProject();

@@ -5,10 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
 import Tree, { DataNode, TreeProps } from "@reearth-cms/components/atoms/Tree";
-import {
-  ArchiveExtractionStatus,
-  AssetFile,
-} from "@reearth-cms/components/molecules/Asset/asset.type";
+import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {

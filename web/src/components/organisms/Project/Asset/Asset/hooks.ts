@@ -10,7 +10,7 @@ import {
   PreviewType,
   ViewerType,
   AssetFile,
-} from "@reearth-cms/components/molecules/Asset/asset.type";
+} from "@reearth-cms/components/molecules/Asset/types";
 import {
   geoFormats,
   geo3dFormats,
@@ -20,6 +20,7 @@ import {
   imageSVGFormat,
   compressedFileFormats,
 } from "@reearth-cms/components/molecules/Common/Asset";
+import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { config } from "@reearth-cms/config";
 import {
   Asset as GQLAsset,
@@ -32,8 +33,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
-
-import { convertAsset } from "../convertAsset";
 
 export default (assetId?: string) => {
   const t = useT();
@@ -66,7 +65,7 @@ export default (assetId?: string) => {
 
   const convertedAsset: Asset | undefined = useMemo(() => {
     return rawAsset?.node?.__typename === "Asset"
-      ? convertAsset(rawAsset.node as GQLAsset)
+      ? fromGraphQLAsset(rawAsset.node as GQLAsset)
       : undefined;
   }, [rawAsset]);
 

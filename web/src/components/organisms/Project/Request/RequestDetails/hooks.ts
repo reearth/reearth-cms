@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { getInitialFormValues } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
 import {
   useDeleteRequestMutation,
   useApproveRequestMutation,
@@ -16,6 +15,8 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
+
+import { initialValuesGet } from "./utils";
 
 export default () => {
   const t = useT();
@@ -78,7 +79,7 @@ export default () => {
       items: r.items.map(item => ({
         id: item.itemId,
         modelName: item?.item?.value.model.name,
-        initialValues: getInitialFormValues(item.item?.value.fields),
+        initialValues: initialValuesGet(item.item?.value.fields),
         schema: item.item?.value.schema ? item.item?.value.schema : undefined,
       })),
     };

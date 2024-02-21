@@ -10,13 +10,13 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment as CommentType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 
 const { TextArea } = Input;
 
 type Props = {
   me?: User;
-  comment: CommentType;
+  comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
 };

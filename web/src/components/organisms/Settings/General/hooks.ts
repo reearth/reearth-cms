@@ -6,6 +6,7 @@ import {
   TileInput,
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLWorkspaceSettings } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetWorkspaceSettingsQuery,
   useUpdateWorkspaceSettingsMutation,
@@ -15,8 +16,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
-
-import { convertWorkspaceSettings } from "./convertWorkspaceSettings";
 
 export default () => {
   const t = useT();
@@ -43,7 +42,7 @@ export default () => {
 
   const workspaceSettings: WorkspaceSettings = useMemo(() => {
     return data?.node
-      ? convertWorkspaceSettings(data.node as GQLWorkspaceSettings)
+      ? fromGraphQLWorkspaceSettings(data.node as GQLWorkspaceSettings)
       : defaultSettings;
   }, [data?.node, defaultSettings]);
 

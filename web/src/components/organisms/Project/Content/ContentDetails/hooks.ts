@@ -17,8 +17,10 @@ import {
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { Role, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
-import { convertItem } from "@reearth-cms/components/organisms/Project/Content/utils";
 import {
   Item as GQLItem,
   Model as GQLModel,
@@ -39,7 +41,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
-import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const {
@@ -186,7 +187,7 @@ export default () => {
   );
 
   const currentItem: Item | undefined = useMemo(
-    () => convertItem(data?.node as GQLItem),
+    () => fromGraphQLItem(data?.node as GQLItem),
     [data?.node],
   );
 
