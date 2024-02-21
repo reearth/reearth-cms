@@ -41,7 +41,7 @@ const RequestDetails: React.FC = () => {
     pageSize,
     handleAssetTableChange,
     handleGetAsset,
-  } = useAssetHooks();
+  } = useAssetHooks(false);
 
   const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
 

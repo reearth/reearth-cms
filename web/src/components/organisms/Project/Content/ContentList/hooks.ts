@@ -4,7 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
-import { ContentTableField, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
+import {
+  ContentTableField,
+  Item,
+  ItemStatus,
+  ItemField,
+} from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
   AndConditionInput,
@@ -193,6 +198,57 @@ export default () => {
     [createNewItem, currentModel, data?.searchItem.nodes, t, updateItemMutation],
   );
 
+  const fieldValueGet = useCallback((field: ItemField, item: Item) => {
+    if (field.type === "Asset") {
+      if (Array.isArray(field.value)) {
+        if (field.value.length > 0) {
+          return field.value.map(value =>
+            fileName((item?.assets as GQLAsset[])?.find(asset => asset?.id === value)?.url),
+          );
+        } else {
+          return null;
+        }
+      } else {
+        return fileName(
+          (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)?.url,
+        );
+      }
+    } else {
+      if (field.type === "Reference") {
+        return item.referencedItems?.find(ref => ref.id === field.value)?.title ?? "";
+      } else {
+      if (Array.isArray(field.value) && field.value.length > 0) {
+        return field.value.map(v => "" + v);
+      } else {
+        return field.value === null ? null : "" + field.value;
+      }
+      }
+    }
+  }, []);
+
+  const fieldsGet = useCallback(
+    (item: Item) => {
+      const result: { [key: string]: any } = {};
+      item?.fields?.map(field => {
+        result[field.schemaFieldId] = fieldValueGet(field, item);
+      });
+      return result;
+    },
+    [fieldValueGet],
+  );
+
+  const metadataGet = useCallback((fields?: ItemField[]) => {
+    const result: { [key: string]: any } = {};
+    fields?.forEach(field => {
+      if (Array.isArray(field.value) && field.value.length > 0) {
+        result[field.schemaFieldId] = field.value.map(v => "" + v);
+      } else {
+        result[field.schemaFieldId] = field.value === null ? null : "" + field.value;
+      }
+    });
+    return result;
+  }, []);
+
   const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
     return data?.searchItem.nodes
       ?.map(item =>
@@ -203,59 +259,18 @@ export default () => {
               status: item.status as ItemStatus,
               createdBy: item.createdBy?.name,
               updatedBy: item.updatedBy?.name || "",
-              fields: item?.fields?.reduce(
-                (obj, field) =>
-                  Object.assign(obj, {
-                    [field.schemaFieldId]:
-                      field.type === "Asset"
-                        ? Array.isArray(field.value)
-                          ? field.value
-                              .map(value =>
-                                fileName(
-                                  (item?.assets as GQLAsset[])?.find(asset => asset?.id === value)
-                                    ?.url,
-                                ),
-                              )
-                              .join(", ")
-                          : fileName(
-                              (item?.assets as GQLAsset[])?.find(asset => asset?.id === field.value)
-                                ?.url,
-                            )
-                        : field.type === "Reference"
-                          ? item.referencedItems?.find(ref => ref.id === field.value)?.title ?? ""
-                          : Array.isArray(field.value)
-                            ? field.value.length > 0
-                              ? field.value.map(v => "" + v)
-                              : null
-                            : field.value === null
-                              ? null
-                              : "" + field.value,
-                  }),
-                {},
-              ),
+              fields: fieldsGet(item as unknown as Item),
               comments: item.thread.comments.map(comment => convertComment(comment as GQLComment)),
               createdAt: item.createdAt,
               updatedAt: item.updatedAt,
-              metadata: item?.metadata?.fields?.reduce(
-                (obj, field) =>
-                  Object.assign(obj, {
-                    [field.schemaFieldId]: Array.isArray(field.value)
-                      ? field.value.length > 0
-                        ? field.value.map(v => "" + v)
-                        : null
-                      : field.value === null
-                        ? null
-                        : "" + field.value,
-                  }),
-                {},
-              ),
+              metadata: metadataGet(item?.metadata?.fields as ItemField[] | undefined),
               metadataId: item.metadata?.id,
               version: item.metadata?.version,
             }
           : undefined,
       )
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
-  }, [data?.searchItem.nodes]);
+  }, [data?.searchItem.nodes, fieldsGet, metadataGet]);
 
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
