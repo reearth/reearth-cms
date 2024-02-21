@@ -1,4 +1,4 @@
-import { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { ArchiveExtractionStatus, Asset } from "@reearth-cms/components/molecules/Asset/types";
 import {
   Item,
   Comment,

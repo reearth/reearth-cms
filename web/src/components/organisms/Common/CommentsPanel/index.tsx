@@ -1,4 +1,4 @@
-import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment } from "@reearth-cms/components/molecules/Asset/types";
 import CommentsPanelMolecule from "@reearth-cms/components/molecules/Common/CommentsPanel";
 
 import useHooks from "./hooks";

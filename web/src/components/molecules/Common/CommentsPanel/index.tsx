@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
 

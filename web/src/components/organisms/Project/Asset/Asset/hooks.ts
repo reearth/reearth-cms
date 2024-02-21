@@ -10,7 +10,7 @@ import {
   PreviewType,
   ViewerType,
   AssetFile,
-} from "@reearth-cms/components/molecules/Asset/asset.type";
+} from "@reearth-cms/components/molecules/Asset/types";
 import {
   geoFormats,
   geo3dFormats,

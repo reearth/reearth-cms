@@ -15,8 +15,8 @@ import ProTable, {
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
+import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
 import {
   AssetSortType,
   SortDirection,

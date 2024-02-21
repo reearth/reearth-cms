@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useGetAssetsQuery,

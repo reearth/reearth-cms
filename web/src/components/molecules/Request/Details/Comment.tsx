@@ -10,7 +10,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment as CommentType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment as CommentType } from "@reearth-cms/components/molecules/Asset/types";
 
 const { TextArea } = Input;
 

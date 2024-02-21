@@ -1,6 +1,6 @@
 import List from "@reearth-cms/components/atoms/List";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment } from "@reearth-cms/components/molecules/Asset/types";
 
 import CommentMolecule from "./Comment";
 
