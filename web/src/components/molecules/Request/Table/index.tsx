@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
-import { Key, useEffect, useState } from "react";
+import { Key } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProTable, {
+import {
   ListToolBarProps,
   ProColumns,
   OptionConfig,
@@ -14,11 +14,14 @@ import ProTable, {
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-export type Props = {
+type StretchColumn = ProColumns<Request> & { minWidth: number };
+
+type Props = {
   requests: Request[];
   loading: boolean;
   selectedRequest: Request | undefined;
@@ -69,13 +72,14 @@ const RequestListTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: ProColumns<Request>[] = [
+  const columns: StretchColumn[] = [
     {
       title: "",
       render: (_, request) => (
         <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
       ),
       width: 48,
+      minWidth: 48,
       align: "center",
     },
     {
@@ -93,6 +97,7 @@ const RequestListTable: React.FC<Props> = ({
         );
       },
       width: 48,
+      minWidth: 48,
       align: "center",
     },
     {
@@ -100,6 +105,7 @@ const RequestListTable: React.FC<Props> = ({
       dataIndex: "title",
       key: "title",
       width: 100,
+      minWidth: 100,
       ellipsis: true,
     },
     {
@@ -136,6 +142,7 @@ const RequestListTable: React.FC<Props> = ({
       ],
       defaultFilteredValue: requestState,
       width: 100,
+      minWidth: 100,
     },
     {
       title: t("Created By"),
@@ -156,6 +163,7 @@ const RequestListTable: React.FC<Props> = ({
       filters: true,
       defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
       width: 105,
+      minWidth: 105,
       ellipsis: true,
     },
     {
@@ -183,6 +191,7 @@ const RequestListTable: React.FC<Props> = ({
       filters: true,
       defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
       width: 105,
+      minWidth: 105,
       ellipsis: true,
     },
     {
@@ -191,6 +200,7 @@ const RequestListTable: React.FC<Props> = ({
       key: "createdAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
       width: 150,
+      minWidth: 150,
     },
     {
       title: t("Updated At"),
@@ -198,11 +208,13 @@ const RequestListTable: React.FC<Props> = ({
       key: "updatedAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
       width: 150,
+      minWidth: 150,
     },
   ];
 
   const options: OptionConfig = {
     search: true,
+    fullScreen: true,
     reload: onRequestsReload,
   };
 
@@ -249,17 +261,8 @@ const RequestListTable: React.FC<Props> = ({
     );
   };
 
-  const [isRowSelected, setIsRowSelected] = useState(false);
-  useEffect(() => {
-    if (selection.selectedRowKeys.length) {
-      setIsRowSelected(true);
-    } else {
-      setIsRowSelected(false);
-    }
-  }, [selection.selectedRowKeys.length]);
-
   return (
-    <StyledProTable
+    <ResizableProTable
       dataSource={requests}
       columns={columns}
       tableAlertOptionRender={AlertOptions}
@@ -269,7 +272,6 @@ const RequestListTable: React.FC<Props> = ({
       pagination={pagination}
       toolbar={handleToolbarEvents}
       rowSelection={rowSelection}
-      isRowSelected={isRowSelected}
       loading={loading}
       onChange={(pagination, filters) => {
         onRequestTableChange(
@@ -280,7 +282,7 @@ const RequestListTable: React.FC<Props> = ({
           !!filters?.reviewers?.[0],
         );
       }}
-      scroll={{ x: "", y: "" }}
+      heightOffset={72}
     />
   );
 };
@@ -311,32 +313,4 @@ const DeselectButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
-`;
-
-const StyledProTable = styled(ProTable)<{ isRowSelected: boolean }>`
-  height: calc(100% - 72px);
-  .ant-pro-card-body {
-    padding-bottom: 0;
-  }
-  .ant-pro-card,
-  .ant-pro-card-body,
-  .ant-spin-nested-loading,
-  .ant-spin-container,
-  .ant-table-container {
-    height: 100%;
-  }
-  .ant-table-wrapper {
-    height: ${({ isRowSelected }) => `calc(100% - ${isRowSelected ? 128 : 64}px)`};
-  }
-  .ant-table {
-    height: calc(100% - 64px);
-  }
-  .ant-table-small,
-  .ant-table-middle {
-    height: calc(100% - 56px);
-  }
-  .ant-table-body {
-    overflow: auto !important;
-    height: calc(100% - 47px);
-  }
 `;

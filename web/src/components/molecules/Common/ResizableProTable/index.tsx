@@ -9,7 +9,9 @@ import ProTable, {
 import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 
-export type Props = ProTableProps<Record<string, any> | any, ParamsType, "text">;
+type Props = ProTableProps<Record<string, any> | any, ParamsType, "text"> & {
+  heightOffset: number;
+};
 
 const ResizableProTable: React.FC<Props> = ({
   dataSource,
@@ -24,8 +26,11 @@ const ResizableProTable: React.FC<Props> = ({
   onChange,
   columnsState,
   showSorterTooltip,
+  heightOffset,
 }) => {
-  const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>([]);
+  const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>(
+    columns ?? [],
+  );
 
   useEffect(() => {
     if (columns) {
@@ -103,14 +108,19 @@ const ResizableProTable: React.FC<Props> = ({
       columnsState={columnsState}
       showSorterTooltip={showSorterTooltip}
       scroll={{ x: "", y: "" }}
+      heightOffset={heightOffset}
     />
   );
 };
 
 export default ResizableProTable;
 
-const StyledProTable = styled(ProTable)<{ nthOfType: number; isRowSelected: boolean }>`
-  height: calc(100% - 102px);
+const StyledProTable = styled(ProTable)<{
+  nthOfType: number;
+  isRowSelected: boolean;
+  heightOffset: number;
+}>`
+  height: ${({ heightOffset }) => `calc(100% - ${heightOffset}px)`};
   .ant-pro-card-body {
     padding-bottom: 0;
   }

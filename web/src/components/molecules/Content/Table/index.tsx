@@ -743,6 +743,7 @@ const ContentTable: React.FC<Props> = ({
                   : undefined,
             );
           }}
+          heightOffset={102}
         />
       ) : null}
       {selection && (
