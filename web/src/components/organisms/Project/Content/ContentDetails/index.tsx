@@ -80,7 +80,7 @@ const ContentDetails: React.FC = () => {
     pageSize,
     handleAssetTableChange,
     handleGetAsset,
-  } = useAssetHooks();
+  } = useAssetHooks(false);
 
   return (
     <ContentDetailsMolecule

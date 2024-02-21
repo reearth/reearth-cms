@@ -3,12 +3,6 @@ import { gql } from "@apollo/client";
 export const GET_ASSETS = gql`
   query GetAssets($projectId: ID!, $keyword: String, $sort: AssetSort, $pagination: Pagination) {
     assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
-      edges {
-        cursor
-        node {
-          ...assetFragment
-        }
-      }
       nodes {
         ...assetFragment
       }
@@ -31,23 +25,20 @@ export const GET_ASSETS_ITEMS = gql`
     $pagination: Pagination
   ) {
     assets(projectId: $projectId, keyword: $keyword, sort: $sort, pagination: $pagination) {
-      edges {
-        cursor
-        node {
-          id
-          items {
-            itemId
-            modelId
-          }
-        }
-      }
       nodes {
-        id
+        ...assetFragment
         items {
           itemId
           modelId
         }
       }
+      pageInfo {
+        startCursor
+        endCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      totalCount
     }
   }
 `;
