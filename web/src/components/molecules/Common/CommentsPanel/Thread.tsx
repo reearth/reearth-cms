@@ -1,5 +1,5 @@
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment } from "@reearth-cms/components/molecules/Asset/types";
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 
 import { CommentList } from "./CommentList";
 
