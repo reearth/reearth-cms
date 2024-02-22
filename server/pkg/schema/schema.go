@@ -103,8 +103,13 @@ func (s *Schema) TitleField() *FieldID {
 }
 
 func (s *Schema) SetTitleField(tf *FieldID) error {
-	if !s.HasField(*tf) || s.Fields() == nil || len(s.Fields()) == 0 {
+	// unsetting title
+	if tf == nil {
 		s.titleField = nil
+		return nil
+	}
+
+	if !s.HasField(*tf) || s.Fields() == nil || len(s.Fields()) == 0 {
 		return ErrInvalidTitleField
 	}
 	s.titleField = tf.CloneRef()
