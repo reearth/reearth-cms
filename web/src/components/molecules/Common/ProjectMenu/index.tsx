@@ -15,13 +15,14 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
   const t = useT();
 
   const topItems: ItemType[] = [
-    { label: t("Overview"), key: "home", icon: <Icon icon="dashboard" /> },
+    { label: t("Home"), key: "home", icon: <Icon icon="home" /> },
+    { label: t("Overview"), key: "overview", icon: <Icon icon="dashboard" /> },
     { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
     { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
     { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
   ];
-  const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
+  const [selected, changeSelected] = useState([defaultSelectedKey ?? "overview"]);
 
   useEffect(() => {
     if (defaultSelectedKey && defaultSelectedKey !== selected[0]) {

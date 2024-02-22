@@ -5,7 +5,7 @@ import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Role, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
-import { convertMember } from "@reearth-cms/components/organisms/Workspace/convertWorkspace";
+import { fromGraphQLMember } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
@@ -35,8 +35,6 @@ export default () => {
 
   const [, secondaryRoute, subRoute] = useMemo(() => splitPathname(pathname), [pathname]);
 
-  const selectedKey = useMemo(() => subRoute ?? "home", [subRoute]);
-
   const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
 
   setCurrentUserId(data?.me?.id);
@@ -52,7 +50,7 @@ export default () => {
     return {
       id: foundWorkspace?.id,
       name: foundWorkspace?.name,
-      members: foundWorkspace?.members?.map(member => convertMember(member as WorkspaceMember)),
+      members: foundWorkspace?.members?.map(member => fromGraphQLMember(member as WorkspaceMember)),
     };
   }, [data?.me?.myWorkspace.id, workspaces]);
   const personal = workspaceId === data?.me?.myWorkspace.id;
@@ -127,20 +125,12 @@ export default () => {
 
   const handleProjectMenuNavigate = useCallback(
     (info: MenuInfo) => {
-      if (info.key === "schema") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
-      } else if (info.key === "content") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/content`);
-      } else if (info.key === "asset") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/asset`);
-      } else if (info.key === "request") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/request`);
-      } else if (info.key === "accessibility") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/accessibility`);
-      } else if (info.key === "settings") {
-        navigate(`/workspace/${workspaceId}/project/${projectId}/settings`);
-      } else {
+      if (info.key === "home") {
+        navigate(`/workspace/${workspaceId}`);
+      } else if (info.key === "overview") {
         navigate(`/workspace/${workspaceId}/project/${projectId}`);
+      } else {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/${info.key}`);
       }
     },
     [navigate, workspaceId, projectId],
@@ -175,7 +165,7 @@ export default () => {
     currentWorkspace,
     workspaceModalShown,
     currentProject,
-    selectedKey,
+    selectedKey: subRoute,
     secondaryRoute,
     collapsed,
     handleCollapse,
