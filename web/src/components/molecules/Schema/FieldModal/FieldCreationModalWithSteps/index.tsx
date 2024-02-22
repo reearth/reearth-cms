@@ -367,7 +367,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 extra={t(
                   "Ensures that a multiple entries can't have the same value for this field",
                 )}>
-                <Checkbox>{t("Set field as unique")}</Checkbox>
+                <Checkbox disabled={!!selectedField?.typeProperty?.correspondingField}>
+                  {t("Set field as unique")}
+                </Checkbox>
               </Form.Item>
             </TabPane>
           </Tabs>
