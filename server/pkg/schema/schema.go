@@ -110,7 +110,6 @@ func (s *Schema) SetTitleField(tf *FieldID) error {
 	}
 
 	if !s.HasField(*tf) || s.Fields() == nil || len(s.Fields()) == 0 {
-		s.titleField = nil
 		return ErrInvalidTitleField
 	}
 	s.titleField = tf.CloneRef()
