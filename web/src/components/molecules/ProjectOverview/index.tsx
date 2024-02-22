@@ -14,7 +14,6 @@ type Props = {
   projectDescription?: string;
   models?: Model[];
   onModelModalOpen: () => void;
-  onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
@@ -26,7 +25,6 @@ const ProjectOverview: React.FC<Props> = ({
   projectDescription,
   models,
   onModelModalOpen,
-  onHomeNavigation,
   onSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
@@ -35,11 +33,7 @@ const ProjectOverview: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <InnerContent
-      title={projectName}
-      subtitle={projectDescription}
-      flexChildren
-      onHomeNavigation={onHomeNavigation}>
+    <InnerContent title={projectName} subtitle={projectDescription} flexChildren>
       <ContentSection
         title={t("Models")}
         headerActions={
