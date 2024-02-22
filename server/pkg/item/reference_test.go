@@ -18,14 +18,12 @@ func Test_AreItemsReferenced(t *testing.T) {
 	fid1, fid2, fid3 := id.NewFieldID(), id.NewFieldID(), id.NewFieldID()
 	sid1, sid2, sid3 := id.NewSchemaID(), id.NewSchemaID(), id.NewSchemaID()
 	cf1 := &schema.CorrespondingField{
-		// FieldID:     fid2.Ref(),
 		Title:       "title",
 		Key:         "key",
 		Description: "description",
 		Required:    true,
 	}
 	cf2 := &schema.CorrespondingField{
-		// FieldID:     fid1.Ref(),
 		Title:       "title",
 		Key:         "key",
 		Description: "description",

@@ -17,7 +17,7 @@ type FieldReference struct {
 	modelID              id.ModelID
 	schemaID             id.SchemaID
 	correspondingFieldID *id.FieldID
-	correspondingField   *CorrespondingField
+	correspondingField   *CorrespondingField // from user input only
 }
 
 func NewReference(mID id.ModelID, sID id.SchemaID, cfID *id.FieldID, cf *CorrespondingField) *FieldReference {
@@ -44,6 +44,8 @@ func (f *FieldReference) Schema() id.SchemaID {
 	return f.schemaID
 }
 
+// CorrespondingField returns the corresponding field of this reference from user input.
+// This is not stored in the database.
 func (f *FieldReference) CorrespondingField() *CorrespondingField {
 	return f.correspondingField
 }
