@@ -252,7 +252,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             name="model"
             label={t("Select the model to reference")}
             rules={[{ required: true, message: t("Please select the model!") }]}>
-            <Select value={selectedModel} onChange={handleSelectModel}>
+            <Select value={selectedModel} onChange={handleSelectModel} disabled={!!selectedField}>
               {models?.map(model => (
                 <Select.Option key={model.id} value={model.id}>
                   {model.name}{" "}
