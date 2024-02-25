@@ -44,7 +44,7 @@ func RefFieldSchema(ctx context.Context, dbURL string, wetRun bool) error {
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURL))
 	if err != nil {
-		return fmt.Errorf("failed to init client: %w", err)
+		return fmt.Errorf("db: failed to init client err: %w", err)
 	}
 	sCol := client.Database("reearth_cms").Collection("schema")
 	mCol := client.Database("reearth_cms").Collection("model")
@@ -85,9 +85,7 @@ func RefFieldSchema(ctx context.Context, dbURL string, wetRun bool) error {
 			if f.TypeProperty.Type != "reference" {
 				return
 			}
-			m, ok := lo.Find(models, func(m Model) bool {
-				return m.ID == f.TypeProperty.Reference.Model
-			})
+			m, ok := models[f.TypeProperty.Reference.Model]
 			if !ok {
 				fmt.Printf("no model found for schema '%s' model id '%s'\n", s.ID, f.TypeProperty.Reference.Model)
 			}
@@ -96,30 +94,40 @@ func RefFieldSchema(ctx context.Context, dbURL string, wetRun bool) error {
 	})
 
 	// update all documents in col
-	//writes := lo.FilterMap(schemas, func(s Schema, _ int) (mongo.WriteModel, bool) {
-	//
-	//	return mongo.NewUpdateOneModel().
-	//		SetFilter(bson.M{"id": s.ID}).
-	//		SetUpdate(bson.M{
-	//			"$set": bson.M{
-	//				"schema": s.ID,
-	//			},
-	//		}), true
-	//})
-	//
-	//if !wetRun {
-	//	fmt.Printf("dry run\n")
-	//	fmt.Printf("%d docs will be updated\n", len(writes))
-	//	return nil
-	//}
-	//
-	//fmt.Printf("writing docs...")
-	//res, err := sCol.BulkWrite(ctx, writes)
-	//if err != nil {
-	//	return fmt.Errorf("failed to bulk write: %w", err)
-	//}
-	//
-	//fmt.Printf("%d docs updated\n", res.ModifiedCount)
+	writes := lo.FlatMap(schemas, func(s Schema, _ int) []mongo.WriteModel {
+		return lo.FilterMap(s.Fields, func(f *Field, _ int) (mongo.WriteModel, bool) {
+			if f.TypeProperty.Type != "reference" {
+				return nil, false
+			}
+			return mongo.NewUpdateOneModel().
+				SetFilter(bson.M{
+					"id":        s.ID,
+					"fields.id": f.ID,
+				}).
+				SetUpdate(bson.M{
+					"$set": bson.M{
+						"fields.$[f].typeproperty.reference.schema": f.TypeProperty.Reference.Schema,
+					},
+				}).
+				SetArrayFilters(options.ArrayFilters{
+					Filters: []interface{}{bson.M{"f.id": f.ID}},
+				}), true
+		})
+	})
+
+	if !wetRun {
+		fmt.Printf("dry run\n")
+		fmt.Printf("%d docs will be updated\n", len(writes))
+		return nil
+	}
+
+	fmt.Printf("writing docs...")
+	res, err := sCol.BulkWrite(ctx, writes)
+	if err != nil {
+		return fmt.Errorf("failed to bulk write: %w", err)
+	}
+
+	fmt.Printf("%d docs updated\n", res.ModifiedCount)
 	return nil
 }
 
@@ -130,31 +138,34 @@ func loadSchemas(ctx context.Context, col *mongo.Collection) ([]Schema, error) {
 		options.Find().SetProjection(bson.M{"id": 1, "fields": 1}),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find docs: %w", err)
+		return nil, fmt.Errorf("failed to find schemas docs: %w", err)
 	}
 
 	var schemas []Schema
 	err = cur.All(ctx, &schemas)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode docs: %w", err)
+		return nil, fmt.Errorf("failed to decode schemas docs: %w", err)
 	}
 	return schemas, nil
 }
 
-func loadModels(ctx context.Context, sIDs []string, col *mongo.Collection) ([]Model, error) {
+func loadModels(ctx context.Context, sIDs []string, col *mongo.Collection) (map[string]Model, error) {
 	cur, err := col.Find(
 		ctx,
 		bson.M{"id": bson.M{"$in": sIDs}},
 		options.Find().SetProjection(bson.M{"id": 1, "schema": 1}),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find docs: %w", err)
+		return nil, fmt.Errorf("failed to find models docs: %w", err)
 	}
 
 	var models []Model
 	err = cur.All(ctx, &models)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode docs: %w", err)
+		return nil, fmt.Errorf("failed to decode models docs: %w", err)
 	}
-	return models, nil
+	return lo.SliceToMap(models, func(m Model) (string, Model) {
+		return m.ID, m
+
+	}), nil
 }
