@@ -265,7 +265,7 @@ func (i Schema) updateCorrespondingField(ctx context.Context, s *schema.Schema, 
 	}
 
 	if oldFr.Model() != newFr.Model() || oldFr.Schema() != newFr.Schema() {
-		return interfaces.ErrReferenceDirectionChanged
+		return interfaces.ErrReferenceModelChanged
 	}
 
 	rs := s

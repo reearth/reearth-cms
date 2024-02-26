@@ -24,7 +24,7 @@ failed to delete file: ファイルの削除に失敗しました。
 failed to lock: ロックに失敗しました。
 failed to update user: ユーザー情報の更新に失敗しました。
 failed to upload file: ファイルのアップロードに失敗しました。
-field not found: ファイルが見つかりませんでした。
+field not found: フィールドが見つかりませんでした。
 field value exist: フィールドの値はすでに存在します。
 file not found: ファイルが見つかりませんでした。
 file not included: ファイルが含まれていません。
@@ -74,6 +74,7 @@ project alias is already used by another project: プロジェクトエイリア
 project alias is not set: プロジェクトエイリアスが設定されていません。
 projectID is required: プロジェクトIDは必須です。
 reference field direction can not be changed: 参照フィールドの方向は変更できません
+reference field model can not be changed: 参照フィールドのモデルは変更できません
 referenced field key exists: 参照フィールドのキーがすでに存在します
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
 thread is required: スレッドは必須です。

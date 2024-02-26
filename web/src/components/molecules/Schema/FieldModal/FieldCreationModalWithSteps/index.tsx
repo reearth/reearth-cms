@@ -98,6 +98,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     [],
   );
 
+  const isTwoWayReference = useMemo(() => numSteps === 2, [numSteps]);
+  const isUpdate = useMemo(() => !!selectedField, [selectedField]);
+
   const [field1FormValues, setField1FormValues] = useState(initialValues);
 
   const handleTabChange = useCallback(
@@ -252,7 +255,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             name="model"
             label={t("Select the model to reference")}
             rules={[{ required: true, message: t("Please select the model!") }]}>
-            <Select value={selectedModel} onChange={handleSelectModel}>
+            <Select value={selectedModel} onChange={handleSelectModel} disabled={isUpdate}>
               {models?.map(model => (
                 <Select.Option key={model.id} value={model.id}>
                   {model.name}{" "}
@@ -264,13 +267,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           <StyledFormItem name="direction" label={t("Reference direction")}>
             <Radio.Group onChange={e => setNumSteps(e.target.value)} value={numSteps}>
               <Space direction="vertical" size={0}>
-                <Radio value={1} disabled={!!selectedField}>
+                <Radio value={1} disabled={isUpdate}>
                   {t("One-way reference")}
                 </Radio>
                 <div className="ant-form-item-extra">
                   {t("A unidirectional relationship where an item refers to another item")}
                 </div>
-                <Radio value={2} disabled={!!selectedField}>
+                <Radio value={2} disabled={isUpdate}>
                   {t("Two-way reference")}
                 </Radio>
                 <div className="ant-form-item-extra">
@@ -367,7 +370,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 extra={t(
                   "Ensures that a multiple entries can't have the same value for this field",
                 )}>
-                <Checkbox>{t("Set field as unique")}</Checkbox>
+                <Checkbox disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
               </Form.Item>
             </TabPane>
           </Tabs>

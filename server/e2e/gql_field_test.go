@@ -373,7 +373,7 @@ func TestCreateField(t *testing.T) {
 	tags := res.Path("$.data.node.schema.fields[0].typeProperty.tags").Raw().([]any)
 
 	_, _ = updateField(e, mId, fId, "test", "test", "test",
-		true, true, true, true, nil, "Tag",
+		true, true, false, true, nil, "Tag",
 		map[string]any{
 			"tag": map[string]any{
 				"defaultValue": []string{"s1", "s3"},
@@ -388,6 +388,8 @@ func TestCreateField(t *testing.T) {
 		Value("node").Object().
 		HasValue("id", mId)
 
+	title := res.Path("$.data.node.schema.fields[0].isTitle").Raw().(bool)
+	assert.False(t, title)
 	_, _ = createField(e, mId, "test2", "test2", "test2",
 		false, false, false, false, "Tag",
 		map[string]any{
