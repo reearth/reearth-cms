@@ -1,16 +1,11 @@
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+import { createProject, deleteProject } from "./utils";
+
 test("Model CRUD on Overview page has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "plus New Project" }).click();
-  await page.getByLabel("Project name").click();
-  await page.getByLabel("Project name").fill("e2e project name");
-  await page.getByLabel("Project alias").click();
-  await page.getByLabel("Project alias").fill("e2e-project-alias");
-  await page.getByLabel("Project description").click();
-  await page.getByLabel("Project description").fill("e2e project description");
-  await page.getByRole("button", { name: "OK" }).click();
-  await page.getByText("e2e project name", { exact: true }).click();
+  await createProject(page);
+
   await page.getByRole("button", { name: "plus New Model" }).click();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("model name");
@@ -45,8 +40,5 @@ test("Model CRUD on Overview page has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted model!");
   await expect(page.locator("#root")).not.toContainText("new model name");
 
-  await page.getByText("Settings").click();
-  await page.getByRole("button", { name: "Delete Project" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted project!");
+  await deleteProject(page);
 });
