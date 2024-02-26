@@ -1,6 +1,6 @@
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("name and email has updated", async ({ reearth, page }) => {
+test("Name and email has updated", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("Account").click();
 
@@ -29,7 +29,7 @@ test("name and email has updated", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated user!");
 });
 
-test("language has updated from English to Japanese", async ({ reearth, page }) => {
+test("Language has updated from English to Japanese", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("Account").click();
 
@@ -61,7 +61,7 @@ test("language has updated from English to Japanese", async ({ reearth, page }) 
   await expect(page.getByRole("alert").last()).toContainText("言語設定の更新に成功しました。");
 });
 
-test("language has updated from Auto to English", async ({ reearth, page }) => {
+test("Language has updated from Auto to English", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("Account").click();
 

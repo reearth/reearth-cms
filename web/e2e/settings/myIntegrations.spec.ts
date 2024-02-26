@@ -1,6 +1,6 @@
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("myIntegration CRUD has succeeded", async ({ reearth, page }) => {
+test("MyIntegration CRUD has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
 
@@ -30,7 +30,7 @@ test("myIntegration CRUD has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("main")).not.toContainText("newNamenewDescription");
 });
 
-test("webhook CRUD has succeeded", async ({ reearth, page }) => {
+test("Webhook CRUD has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
 
