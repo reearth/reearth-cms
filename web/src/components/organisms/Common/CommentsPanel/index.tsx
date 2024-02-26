@@ -1,5 +1,8 @@
 import CommentsPanelMolecule from "@reearth-cms/components/molecules/Common/CommentsPanel";
-import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import {
+  Comment,
+  RefetchQueries,
+} from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 
 import useHooks from "./hooks";
 
@@ -9,6 +12,7 @@ type Props = {
   comments?: Comment[];
   collapsed: boolean;
   onCollapse: (value: boolean) => void;
+  refetchQueries: RefetchQueries;
 };
 
 const CommentsPanel: React.FC<Props> = ({
@@ -17,9 +21,11 @@ const CommentsPanel: React.FC<Props> = ({
   comments,
   collapsed,
   onCollapse,
+  refetchQueries,
 }) => {
   const { me, handleCommentCreate, handleCommentUpdate, handleCommentDelete } = useHooks({
     threadId,
+    refetchQueries,
   });
 
   return (
