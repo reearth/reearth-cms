@@ -57,6 +57,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
 
   await expect(page.getByRole("switch")).toBeEnabled();
   await page.getByRole("switch").click();
+  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
   await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).toBeVisible();
   await page.getByRole("button", { name: "plus Add new Terrain option" }).click();
   await page
@@ -120,5 +121,6 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("switch").click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
+  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).not.toBeVisible();
 });
