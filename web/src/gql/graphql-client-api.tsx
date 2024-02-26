@@ -242,13 +242,17 @@ export type CreateAssetPayload = {
 };
 
 export type CreateAssetUploadInput = {
-  filename: Scalars['String'];
+  contentLength?: InputMaybe<Scalars['Int']>;
+  cursor?: InputMaybe<Scalars['String']>;
+  filename?: InputMaybe<Scalars['String']>;
   projectId: Scalars['ID'];
 };
 
 export type CreateAssetUploadPayload = {
   __typename?: 'CreateAssetUploadPayload';
-  contentType: Scalars['String'];
+  contentLength: Scalars['Int'];
+  contentType?: Maybe<Scalars['String']>;
+  next?: Maybe<Scalars['String']>;
   token: Scalars['String'];
   url: Scalars['String'];
 };
@@ -2222,10 +2226,12 @@ export type DecompressAssetMutation = { __typename?: 'Mutation', decompressAsset
 export type CreateAssetUploadMutationVariables = Exact<{
   projectId: Scalars['ID'];
   filename: Scalars['String'];
+  cursor: Scalars['String'];
+  contentLength: Scalars['Int'];
 }>;
 
 
-export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType: string } | null };
+export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType?: string | null, contentLength: number, next?: string | null } | null };
 
 export type AddCommentMutationVariables = Exact<{
   threadId: Scalars['ID'];
@@ -3483,11 +3489,15 @@ export type DecompressAssetMutationHookResult = ReturnType<typeof useDecompressA
 export type DecompressAssetMutationResult = Apollo.MutationResult<DecompressAssetMutation>;
 export type DecompressAssetMutationOptions = Apollo.BaseMutationOptions<DecompressAssetMutation, DecompressAssetMutationVariables>;
 export const CreateAssetUploadDocument = gql`
-    mutation CreateAssetUpload($projectId: ID!, $filename: String!) {
-  createAssetUpload(input: {projectId: $projectId, filename: $filename}) {
+    mutation CreateAssetUpload($projectId: ID!, $filename: String!, $cursor: String!, $contentLength: Int!) {
+  createAssetUpload(
+    input: {projectId: $projectId, filename: $filename, cursor: $cursor, contentLength: $contentLength}
+  ) {
     url
     token
     contentType
+    contentLength
+    next
   }
 }
     `;
@@ -3508,6 +3518,8 @@ export type CreateAssetUploadMutationFn = Apollo.MutationFunction<CreateAssetUpl
  *   variables: {
  *      projectId: // value for 'projectId'
  *      filename: // value for 'filename'
+ *      cursor: // value for 'cursor'
+ *      contentLength: // value for 'contentLength'
  *   },
  * });
  */

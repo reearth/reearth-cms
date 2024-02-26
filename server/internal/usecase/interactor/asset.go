@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mime"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -237,42 +237,112 @@ func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *us
 	)
 }
 
-func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUploadParam, op *usecase.Operator) (string, string, string, error) {
+type wrappedUploadCursor struct {
+	UUID   string
+	Cursor string
+}
+
+func (c wrappedUploadCursor) String() string {
+	return c.UUID + "_" + c.Cursor
+}
+
+func parseWrappedUploadCursor(c string) (*wrappedUploadCursor, error) {
+	uuid, cursor, found := strings.Cut(c, "_")
+	if !found {
+		return nil, fmt.Errorf("separator not found")
+	}
+	return &wrappedUploadCursor{
+		UUID:   uuid,
+		Cursor: cursor,
+	}, nil
+}
+
+func wrapUploadCursor(uuid, cursor string) string {
+	if cursor == "" {
+		return ""
+	}
+	return wrappedUploadCursor{UUID: uuid, Cursor: cursor}.String()
+}
+
+func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUploadParam, op *usecase.Operator) (*interfaces.AssetUpload, error) {
 	if op.AcOperator.User == nil && op.Integration == nil {
-		return "", "", "", interfaces.ErrInvalidOperator
+		return nil, interfaces.ErrInvalidOperator
 	}
-	if inp.Filename == "" {
-		return "", "", "", interfaces.ErrFileNotIncluded
+	var param *gateway.IssueUploadAssetParam
+	if inp.Cursor == "" {
+		if inp.Filename == "" {
+			// TODO: Change to the appropriate error
+			return nil, interfaces.ErrFileNotIncluded
+		}
+		if inp.ContentLength == 0 {
+			// TODO: Change to the appropriate error
+			return nil, interfaces.ErrFileNotIncluded
+		}
+		const week = 7 * 24 * time.Hour
+		expiresAt := time.Now().Add(1 * week)
+		param = &gateway.IssueUploadAssetParam{
+			UUID:          uuid.New().String(),
+			Filename:      inp.Filename,
+			ContentLength: inp.ContentLength,
+			ExpiresAt:     expiresAt,
+			Cursor:        "",
+		}
+	} else {
+		wrapped, err := parseWrappedUploadCursor(inp.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("parse cursor(%s): %w", inp.Cursor, err)
+		}
+		au, err := i.repos.AssetUpload.FindByID(ctx, wrapped.UUID)
+		if err != nil {
+			return nil, fmt.Errorf("find asset upload(uuid=%s): %w", wrapped.UUID, err)
+		}
+		if inp.ProjectID.Compare(au.Project()) != 0 {
+			return nil, fmt.Errorf("unmatched project id(in=%s,db=%s)", inp.ProjectID, au.Project())
+		}
+		param = &gateway.IssueUploadAssetParam{
+			UUID:          wrapped.UUID,
+			Filename:      au.FileName(),
+			ContentLength: au.ContentLength(),
+			ExpiresAt:     au.ExpiresAt(),
+			Cursor:        wrapped.Cursor,
+		}
 	}
+
 	prj, err := i.repos.Project.FindByID(ctx, inp.ProjectID)
 	if err != nil {
-		return "", "", "", err
+		return nil, err
 	}
 	if !op.IsWritableWorkspace(prj.Workspace()) {
-		return "", "", "", interfaces.ErrOperationDenied
+		return nil, interfaces.ErrOperationDenied
 	}
 
-	const week = 7 * 24 * time.Hour
-	expiresAt := time.Now().Add(1 * week)
-
-	contentType := mime.TypeByExtension(path.Ext(inp.Filename))
-	uploadURL, uuid, err := i.gateways.File.IssueUploadAssetLink(ctx, inp.Filename, contentType, expiresAt)
+	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctx, *param)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
-		return "", "", "", rerror.ErrNotFound
+		return nil, rerror.ErrNotFound
 	}
 	if err != nil {
-		return "", "", "", err
+		return nil, err
 	}
-	u := asset.NewUpload().
-		UUID(uuid).
-		Project(prj.ID()).
-		FileName(inp.Filename).
-		ExpiresAt(expiresAt).
-		Build()
-	if err := i.repos.AssetUpload.Save(ctx, u); err != nil {
-		return "", "", "", err
+
+	if inp.Cursor == "" {
+		u := asset.NewUpload().
+			UUID(param.UUID).
+			Project(prj.ID()).
+			FileName(param.Filename).
+			ExpiresAt(param.ExpiresAt).
+			ContentLength(param.ContentLength).
+			Build()
+		if err := i.repos.AssetUpload.Save(ctx, u); err != nil {
+			return nil, err
+		}
 	}
-	return uploadURL, uuid, contentType, nil
+	return &interfaces.AssetUpload{
+		URL:           uploadLink.URL,
+		UUID:          param.UUID,
+		ContentType:   uploadLink.ContentType,
+		ContentLength: uploadLink.ContentLength,
+		Next:          wrapUploadCursor(param.UUID, uploadLink.Next),
+	}, nil
 }
 
 func (i *Asset) triggerDecompressEvent(ctx context.Context, a *asset.Asset, f *asset.File) error {

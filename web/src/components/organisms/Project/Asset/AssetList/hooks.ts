@@ -114,35 +114,45 @@ export default (isItemsRequired: boolean) => {
         const results = (
           await Promise.all(
             files.map(async file => {
-              const createAssetUploadResult = await createAssetUploadMutation({
-                variables: {
-                  projectId,
-                  filename: file.name,
-                },
-              });
-              if (
-                createAssetUploadResult.errors ||
-                !createAssetUploadResult.data?.createAssetUpload
-              ) {
-                Notification.error({ message: t("Failed to add one or more assets.") });
-                handleUploadModalCancel();
-                return undefined;
-              }
-              const { url, token, contentType } = createAssetUploadResult.data.createAssetUpload;
-              if (url !== "") {
-                await fetch(url, {
-                  method: "PUT",
-                  body: file as any,
-                  headers: {
-                    "content-type": contentType,
+              let cursor = "";
+              let offset = 0;
+              let uploadToken = "";
+              while (true) {
+                const createAssetUploadResult = await createAssetUploadMutation({
+                  variables: {
+                    projectId,
+                    filename: file.name,
+                    contentLength: file.size ?? 0,
+                    cursor,
                   },
                 });
+                if (
+                  createAssetUploadResult.errors ||
+                  !createAssetUploadResult.data?.createAssetUpload
+                ) {
+                  Notification.error({ message: t("Failed to add one or more assets.") });
+                  handleUploadModalCancel();
+                  return undefined;
+                }
+                const { url, token, contentType, contentLength, next } = createAssetUploadResult.data.createAssetUpload;
+                uploadToken = token ?? ""; 
+                if (url === "") {
+                  break;
+                }
+                const headers = contentType ? { "content-type": contentType } : undefined;
+                await fetch(url, {
+                  method: "PUT",
+                  body: (file as any).slice(offset, offset + contentLength),
+                  headers,
+                });
+                offset += contentLength;
+                cursor = next ?? "";
               }
               const result = await createAssetMutation({
                 variables: {
                   projectId,
-                  token,
-                  file: url === "" ? file : null,
+                  token: uploadToken,
+                  file: uploadToken === "" ? file : null,
                   skipDecompression: !!file.skipDecompression,
                 },
               });
