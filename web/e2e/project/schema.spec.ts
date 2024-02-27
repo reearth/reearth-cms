@@ -2,18 +2,10 @@ import { Page } from "@playwright/test";
 
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+import { handleFieldForm } from "./utils/field";
 import { crudGroup } from "./utils/group";
 import { createModel, crudModel } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
-
-async function handleFieldForm(page: Page, name: string, key = name) {
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill(name);
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill(key);
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByText(`${name} #${key}`)).toBeVisible();
-}
 
 async function deleteField(page: Page, name: string, key = name) {
   await page.getByLabel("delete").locator("svg").click();
