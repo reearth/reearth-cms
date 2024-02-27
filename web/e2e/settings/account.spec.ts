@@ -44,7 +44,7 @@ test("Language has updated from English to Japanese", async ({ reearth, page }) 
     .filter({ hasText: "Service Language日本語日本語This" })
     .getByRole("button")
     .click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated language!");
+  await expect(page.getByRole("alert").last()).toContainText("言語設定の更新に成功しました。");
   await expect(page.locator("#root")).toContainText("ホーム");
   await page
     .locator("div")
@@ -58,22 +58,13 @@ test("Language has updated from English to Japanese", async ({ reearth, page }) 
     .filter({ hasText: "利用言語EnglishEnglishUI" })
     .getByRole("button")
     .click();
-  await expect(page.getByRole("alert").last()).toContainText("言語設定の更新に成功しました。");
+  await expect(page.getByRole("alert").last()).toContainText("Successfully updated language!");
 });
 
-test("Language has updated from Auto to English", async ({ reearth, page }) => {
+test("Language has updated from English to Auto", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("Account").click();
 
-  await page
-    .locator("div")
-    .filter({ hasText: /^AutoThis will change the UI language$/ })
-    .locator("div")
-    .nth(3)
-    .click();
-  await page.getByTitle("English").click();
-  await page.locator("form").filter({ hasText: "Service" }).getByRole("button").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated language!");
   await page
     .locator("div")
     .filter({ hasText: /^EnglishThis will change the UI language$/ })
@@ -86,5 +77,14 @@ test("Language has updated from Auto to English", async ({ reearth, page }) => {
     .filter({ hasText: "Service LanguageAutoAutoThis" })
     .getByRole("button")
     .click();
+  await expect(page.getByRole("alert").last()).toContainText("Successfully updated language!");
+  await page
+    .locator("div")
+    .filter({ hasText: /^AutoThis will change the UI language$/ })
+    .locator("div")
+    .nth(3)
+    .click();
+  await page.getByTitle("English").click();
+  await page.locator("form").filter({ hasText: "Service" }).getByRole("button").click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated language!");
 });

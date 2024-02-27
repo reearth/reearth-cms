@@ -1,7 +1,9 @@
+import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test("Tiles CRUD has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await createWorkspace(page);
   await page.getByText("Settings").click();
 
   await page.getByRole("button", { name: "plus Add new Tiles option" }).click();
@@ -49,10 +51,12 @@ test("Tiles CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
   await expect(page.getByText("url", { exact: true })).not.toBeVisible();
+  await deleteWorkspace(page);
 });
 
 test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await createWorkspace(page);
   await page.getByText("Settings").click();
 
   await expect(page.getByRole("switch")).toBeEnabled();
@@ -69,12 +73,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
-
-  await page
-    .locator(
-      "div:nth-child(9) > .css-1o8fsgp > div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon",
-    )
-    .click();
+  await page.getByLabel("edit").locator("svg").click();
   await expect(page.locator("form")).toContainText("ArcGIS Terrain");
   await page
     .locator("div")
@@ -96,11 +95,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await expect(page.getByText("name", { exact: true })).toBeVisible();
-  await page
-    .locator(
-      "div:nth-child(9) > .css-1o8fsgp > div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon",
-    )
-    .click();
+  await page.getByLabel("edit").locator("svg").click();
   await expect(page.locator("form")).toContainText("Cesium Ion");
   await expect(page.getByLabel("Name")).toHaveValue("name");
   await expect(page.getByLabel("Terrain Cesium Ion asset ID")).toHaveValue("id");
@@ -108,12 +103,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await expect(page.getByLabel("Terrain URL")).toHaveValue("http://terrain.com");
   await expect(page.getByLabel("Image URL")).toHaveValue("http://image.com");
   await page.getByLabel("Close", { exact: true }).click();
-
-  await page
-    .locator(
-      "div:nth-child(9) > .css-1o8fsgp > div:last-child > .ant-card-actions > li:nth-child(1) > span > .anticon",
-    )
-    .click();
+  await page.getByLabel("delete").locator("svg").click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await expect(page.getByText("name", { exact: true })).not.toBeVisible();
@@ -123,4 +113,5 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).not.toBeVisible();
+  await deleteWorkspace(page);
 });

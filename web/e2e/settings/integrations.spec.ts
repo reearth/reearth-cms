@@ -6,27 +6,27 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
 
   await page.locator("div").filter({ hasText: "Create new integration" }).nth(4).click();
   await page.getByLabel("Integration Name").click();
-  await page.getByLabel("Integration Name").fill("name");
+  await page.getByLabel("Integration Name").fill("e2e integration name");
   await page.getByLabel("Description").click();
-  await page.getByLabel("Description").fill("description");
+  await page.getByLabel("Description").fill("e2e integration description");
   await page.getByRole("button", { name: "Create" }).click();
+  await page.locator("a").nth(3).click();
   await page.getByText("Integrations", { exact: true }).click();
   await page.getByRole("button", { name: "api Connect Integration" }).click();
   await page
     .locator("div")
-    .filter({ hasText: /^name$/ })
+    .filter({ hasText: /^e2e integration name$/ })
     .click();
   await page.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(page.getByRole("alert").last()).toContainText(
     "Successfully connected integration to the workspace!",
   );
-  await expect(page.getByRole("cell", { name: "name", exact: true })).toBeVisible();
-  await page
-    .getByRole("row", { name: "name READER kazuma setting" })
-    .getByRole("cell")
-    .nth(4)
-    .click();
-  await page.getByRole("row", { name: "name READER kazuma setting" }).locator("svg").click();
+  await page.locator("a").nth(3).click();
+  await expect(page.getByRole("cell", { name: "e2e integration name", exact: true })).toBeVisible();
+  await page.getByPlaceholder("Please enter").click();
+  await page.getByPlaceholder("Please enter").fill("e2e integration name");
+  await page.getByRole("button", { name: "search" }).click();
+  await page.getByRole("cell", { name: "setting" }).locator("svg").click();
   await page
     .locator("div")
     .filter({ hasText: /^Reader$/ })
@@ -37,26 +37,25 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await expect(page.getByRole("alert").last()).toContainText(
     "Successfully updated workspace integration!",
   );
-  await expect(page.getByRole("cell", { name: "WRITER" }).nth(1)).toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("namee");
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByRole("cell", { name: "name", exact: true })).not.toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("name");
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByRole("cell", { name: "name", exact: true })).toBeVisible();
-  await page
-    .getByRole("row", { name: "name WRITER kazuma setting" })
-    .getByLabel("", { exact: true })
-    .check();
-  await page.getByText("Remove").click();
   await page.locator("a").nth(3).click();
+  await expect(page.getByRole("cell", { name: "WRITER" })).toBeVisible();
+  await page.getByPlaceholder("Please enter").click();
+  await page.getByPlaceholder("Please enter").fill("no integration");
+  await page.getByRole("button", { name: "search" }).click();
+  await expect(
+    page.getByRole("cell", { name: "e2e integration name", exact: true }),
+  ).not.toBeVisible();
+  await page.getByPlaceholder("Please enter").click();
+  await page.getByPlaceholder("Please enter").fill("e2e integration name");
+  await page.getByRole("button", { name: "search" }).click();
+  await expect(page.getByRole("cell", { name: "e2e integration name", exact: true })).toBeVisible();
+  await page.getByLabel("", { exact: true }).check();
+  await page.getByText("Remove").click();
   await expect(page.getByRole("alert").last()).toContainText(
     "One or more integrations were successfully deleted!",
   );
   await page.getByText("My Integrations").click();
-  await page.getByText("namedescription").click();
+  await page.getByText("e2e integration namee2e").click();
   await page.getByRole("button", { name: "Remove Integration" }).click();
   await page.getByRole("button", { name: "OK" }).click();
 });
