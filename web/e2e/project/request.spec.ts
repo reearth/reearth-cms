@@ -1,28 +1,12 @@
-import { Page } from "@playwright/test";
-
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { crudComment } from "./utils/comment";
+import { createRequest } from "./utils/item";
 import { createModel } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 
 const requestTitle = "title";
-
-async function createRequest(page: Page, reviewerName: string) {
-  await page.getByText("Content").click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
-  await page.getByRole("button", { name: "New Request" }).click();
-  await page.getByLabel("Title").click();
-  await page.getByLabel("Title").fill(requestTitle);
-  await page.locator(".ant-select-selection-overflow").click();
-
-  await page.getByTitle(reviewerName).locator("div").click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created request!");
-}
 
 test("Request creating, searching, updating reviewer, and approving has succeeded", async ({
   reearth,
@@ -34,7 +18,7 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await createWorkspace(page);
   await createProject(page);
   await createModel(page);
-  await createRequest(page, username);
+  await createRequest(page, username, requestTitle);
 
   await page.getByText("Request", { exact: true }).click();
   await expect(page.getByText(requestTitle, { exact: true })).toBeVisible();
@@ -53,7 +37,7 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await page.getByRole("button", { name: "Assign to" }).click();
   await page.getByLabel("close-circle").locator("svg").click();
   await page.locator(".ant-select-selection-overflow").click();
-  await page.getByText(username).nth(3).click();
+  await page.locator(".ant-select-item").click();
   await page.getByRole("heading", { name: "Reviewer" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated request!");
   await page.getByRole("button", { name: "Approve" }).click();
@@ -76,7 +60,7 @@ test("Request closing and reopening has succeeded", async ({ reearth, page }) =>
   await createWorkspace(page);
   await createProject(page);
   await createModel(page);
-  await createRequest(page, username);
+  await createRequest(page, username, requestTitle);
 
   await page.getByText("Request", { exact: true }).click();
   await expect(page.getByText(requestTitle, { exact: true })).toBeVisible();
@@ -125,7 +109,7 @@ test("Comment CRUD on edit page has succeeded", async ({ reearth, page }) => {
   await createWorkspace(page);
   await createProject(page);
   await createModel(page);
-  await createRequest(page, username);
+  await createRequest(page, username, requestTitle);
 
   await page.getByText("Request", { exact: true }).click();
   await expect(page.getByText(requestTitle, { exact: true })).toBeVisible();
@@ -158,7 +142,7 @@ test("Comment CRUD on Request page has succeeded", async ({ reearth, page }) => 
   await createWorkspace(page);
   await createProject(page);
   await createModel(page);
-  await createRequest(page, username);
+  await createRequest(page, username, requestTitle);
 
   await page.getByText("Request", { exact: true }).click();
   await page.getByRole("button", { name: "0" }).click();
