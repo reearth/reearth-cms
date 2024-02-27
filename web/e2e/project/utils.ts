@@ -2,10 +2,25 @@ import { Page } from "@playwright/test";
 
 import { expect } from "@reearth-cms/e2e/utils";
 
+export async function createWorkspace(page: Page) {
+  await page.getByRole("button", { name: "Create a Workspace" }).click();
+  await page.getByLabel("Workspace name").click();
+  await page.getByLabel("Workspace name").fill("e2e workspace name");
+  await page.getByRole("button", { name: "OK" }).click();
+  await expect(page.getByRole("alert").last()).toContainText("Successfully created workspace!");
+}
+
+export async function deleteWorkspace(page: Page) {
+  await page.getByText("Workspace", { exact: true }).click();
+  await page.getByRole("button", { name: "Remove Workspace" }).click();
+  await page.getByRole("button", { name: "OK" }).click();
+  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted workspace!");
+}
+
 export async function createProject(page: Page) {
-  await page.getByRole("button", { name: "plus New Project" }).click();
-  await page.getByLabel("Project name").click();
-  await page.getByLabel("Project name").fill("e2e project name");
+  await page.getByRole("button", { name: "plus New Project" }).first().click();
+  await page.getByRole("dialog").locator("#name").click();
+  await page.getByRole("dialog").locator("#name").fill("e2e project name");
   await page.getByLabel("Project alias").click();
   await page.getByLabel("Project alias").fill("e2e-project-alias");
   await page.getByLabel("Project description").click();
@@ -19,6 +34,16 @@ export async function deleteProject(page: Page) {
   await page.getByRole("button", { name: "Delete Project" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted project!");
+}
+
+export async function createModel(page: Page) {
+  await page.getByText("Schema").click();
+  await page.getByRole("button", { name: "plus Add" }).first().click();
+  await page.getByLabel("Model name").click();
+  await page.getByLabel("Model name").fill("e2e model name");
+  await page.getByLabel("Model key").click();
+  await page.getByLabel("Model key").fill("e2e-model-key");
+  await page.getByRole("button", { name: "OK" }).click();
 }
 
 async function createComment(page: Page) {
