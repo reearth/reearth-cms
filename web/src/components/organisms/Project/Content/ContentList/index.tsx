@@ -64,6 +64,7 @@ const ContentList: React.FC = () => {
           }
           comments={selectedItem?.comments}
           threadId={selectedItem?.threadId}
+          refetchQueries={["SearchItem"]}
         />
       }
       modelsMenu={

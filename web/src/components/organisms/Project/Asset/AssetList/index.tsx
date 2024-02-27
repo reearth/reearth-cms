@@ -50,8 +50,9 @@ const AssetList: React.FC = () => {
               ? t("No comments.")
               : t("Please click the comment bubble in the table to check comments.")
           }
-          comments={assetList.find(asset => asset.id === selectedAsset?.id)?.comments}
-          threadId={assetList.find(asset => asset.id === selectedAsset?.id)?.threadId}
+          comments={selectedAsset?.comments}
+          threadId={selectedAsset?.threadId}
+          refetchQueries={["GetAssetsItems"]}
         />
       }
       assetList={assetList}

@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
+import { RefetchQueries } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import {
   useAddCommentMutation,
   useDeleteCommentMutation,
@@ -12,9 +13,10 @@ import { useT } from "@reearth-cms/i18n";
 
 type Params = {
   threadId?: string;
+  refetchQueries: RefetchQueries;
 };
 
-export default ({ threadId }: Params) => {
+export default ({ threadId, refetchQueries }: Params) => {
   const t = useT();
 
   const { data: userData } = useGetMeQuery();
@@ -31,7 +33,7 @@ export default ({ threadId }: Params) => {
   }, [userData]);
 
   const [createComment] = useAddCommentMutation({
-    refetchQueries: ["GetAsset", "GetAssets", "SearchItem", "GetRequests", "GetItem"],
+    refetchQueries,
   });
 
   const handleCommentCreate = useCallback(
@@ -53,7 +55,7 @@ export default ({ threadId }: Params) => {
   );
 
   const [updateComment] = useUpdateCommentMutation({
-    refetchQueries: ["GetAsset", "GetAssets", "SearchItem", "GetRequests", "GetItem"],
+    refetchQueries,
   });
 
   const handleCommentUpdate = useCallback(
@@ -76,7 +78,7 @@ export default ({ threadId }: Params) => {
   );
 
   const [deleteComment] = useDeleteCommentMutation({
-    refetchQueries: ["GetAsset", "GetAssets", "SearchItem", "GetRequests", "GetItem"],
+    refetchQueries,
   });
 
   const handleCommentDelete = useCallback(

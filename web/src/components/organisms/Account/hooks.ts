@@ -52,7 +52,7 @@ export default () => {
         Notification.error({ message: t("Failed to update language.") });
         return;
       } else {
-        Notification.success({ message: t("Successfully updated language!") });
+        Notification.success({ message: t("Successfully updated language!", { lng: lang }) });
       }
     },
     [updateMeMutation, t],

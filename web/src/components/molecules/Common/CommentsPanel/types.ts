@@ -4,3 +4,11 @@ export type Comment = {
   content: string;
   createdAt: string;
 };
+
+export type RefetchQueries = (
+  | "GetItem"
+  | "SearchItem"
+  | "GetAsset"
+  | "GetAssetsItems"
+  | "GetRequests"
+)[];

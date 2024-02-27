@@ -43,6 +43,7 @@ const RequestList: React.FC = () => {
           }
           comments={selectedRequest?.comments}
           threadId={selectedRequest?.threadId}
+          refetchQueries={["GetRequests"]}
         />
       }
       requests={requests}

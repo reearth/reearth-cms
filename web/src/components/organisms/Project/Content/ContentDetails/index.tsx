@@ -111,6 +111,7 @@ const ContentDetails: React.FC = () => {
             threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}
             onCollapse={collapseCommentsPanel}
+            refetchQueries={["GetItem"]}
           />
         ) : undefined
       }
