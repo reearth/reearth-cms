@@ -1,6 +1,6 @@
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import { crudComment } from "./utils";
+import { crudComment } from "./utils/comment";
 import { createProject, deleteProject } from "./utils/project";
 
 const uploadFileUrl =

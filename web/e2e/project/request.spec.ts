@@ -2,7 +2,7 @@ import { Page } from "@playwright/test";
 
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import { crudComment } from "./utils";
+import { crudComment } from "./utils/comment";
 import { createModel } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 import { createWorkspace, deleteWorkspace } from "./utils/workspace";
