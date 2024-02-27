@@ -1,5 +1,7 @@
 import { Page } from "@playwright/test";
 
+import { expect } from "@reearth-cms/e2e/utils";
+
 export async function createProject(page: Page) {
   await page.getByRole("button", { name: "plus New Project" }).first().click();
   await page.getByRole("dialog").locator("#name").click();
