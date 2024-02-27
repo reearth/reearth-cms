@@ -80,6 +80,26 @@ test("Donwloading asset has succeeded", async ({ reearth, page }) => {
   await deleteProject(page);
 });
 
+test("Comment CRUD on edit page has succeeded", async ({ reearth, page }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await createProject(page);
+
+  await page.getByText("Asset").click();
+  await page.getByRole("button", { name: "upload Upload Asset" }).click();
+  await page.getByRole("tab", { name: "URL" }).click();
+  await page.getByPlaceholder("Please input a valid URL").click();
+  await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl);
+  await page.getByRole("button", { name: "Upload", exact: true }).click();
+  await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
+  await expect(page.getByText(uploadFileName)).toBeVisible();
+
+  await page.getByRole("cell", { name: "edit" }).locator("svg").click();
+  await page.getByLabel("message").click();
+  await expect(page.getByText("CommentsComment")).toBeVisible();
+  await crudComment(page);
+  await deleteProject(page);
+});
+
 test("Comment CRUD on Asset page has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
@@ -95,11 +115,6 @@ test("Comment CRUD on Asset page has succeeded", async ({ reearth, page }) => {
 
   await page.getByRole("button", { name: "0" }).click();
   await expect(page.getByText("CommentsNo comments.Comment")).toBeVisible();
-  await deleteProject(page);
-
-  await page.getByRole("cell", { name: "edit" }).locator("svg").click();
-  await page.getByLabel("message").click();
-  await expect(page.getByText("CommentsComment")).toBeVisible();
   await crudComment(page);
   await deleteProject(page);
 });
