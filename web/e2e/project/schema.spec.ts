@@ -2,7 +2,8 @@ import { Page } from "@playwright/test";
 
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import { createModel, crudModel, crudGroup } from "./utils";
+import { crudGroup } from "./utils";
+import { createModel, crudModel } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 
 async function handleFieldForm(page: Page, name: string, key = name) {
