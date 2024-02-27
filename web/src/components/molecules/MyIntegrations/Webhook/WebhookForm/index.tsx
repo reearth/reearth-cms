@@ -107,6 +107,7 @@ const WebhookForm: React.FC<Props> = ({
               extra={t("Please note that all webhook URLs must start with http://.")}
               rules={[
                 {
+                  required: true,
                   message: t("URL is not valid"),
                   validator: async (_, value) => {
                     if (!validateURL(value) && value.length > 0) return Promise.reject();
