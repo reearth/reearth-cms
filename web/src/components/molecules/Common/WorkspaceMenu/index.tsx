@@ -5,16 +5,16 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   inlineCollapsed: boolean;
   isPersonalWorkspace?: boolean;
   defaultSelectedKey?: string;
   onNavigate?: (info: MenuInfo) => void;
 };
 
-export type MenuShowType = "personal" | "notPersonal" | "both";
+type MenuShowType = "personal" | "notPersonal" | "both";
 
-export type WorkspaceItemType = ItemType & { show: MenuShowType };
+type WorkspaceItemType = ItemType & { show: MenuShowType };
 
 const WorkspaceMenu: React.FC<Props> = ({
   inlineCollapsed,
@@ -26,9 +26,7 @@ const WorkspaceMenu: React.FC<Props> = ({
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
 
   useEffect(() => {
-    if (defaultSelectedKey) {
-      changeSelected([defaultSelectedKey]);
-    }
+    changeSelected([defaultSelectedKey ?? "home"]);
   }, [defaultSelectedKey]);
 
   const topItems: WorkspaceItemType[] = [
