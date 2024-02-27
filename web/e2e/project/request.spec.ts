@@ -2,14 +2,8 @@ import { Page } from "@playwright/test";
 
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import {
-  createWorkspace,
-  deleteWorkspace,
-  createProject,
-  deleteProject,
-  createModel,
-  crudComment,
-} from "./utils";
+import { createProject, deleteProject, createModel, crudComment } from "./utils";
+import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 
 const requestTitle = "title";
 
