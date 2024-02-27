@@ -1,6 +1,6 @@
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import { createProject, deleteProject } from "./utils";
+import { createProject, deleteProject } from "./utils/project";
 
 test("Update settings on Accesibility page has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });

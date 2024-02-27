@@ -2,7 +2,8 @@ import { Page } from "@playwright/test";
 
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import { createProject, deleteProject, createModel, crudModel, crudGroup } from "./utils";
+import { createModel, crudModel, crudGroup } from "./utils";
+import { createProject, deleteProject } from "./utils/project";
 
 async function handleFieldForm(page: Page, name: string, key = name) {
   await page.getByLabel("Display name").click();

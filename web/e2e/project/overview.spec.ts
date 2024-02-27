@@ -1,6 +1,6 @@
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-import { createProject, deleteProject } from "./utils";
+import { createProject, deleteProject } from "./utils/project";
 
 test("Model CRUD on Overview page has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
