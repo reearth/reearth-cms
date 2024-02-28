@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { crudComment } from "./utils/comment";
@@ -40,8 +41,10 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await page.locator(".ant-select-item").click();
   await page.getByRole("heading", { name: "Reviewer" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated request!");
+  await closeNotification(page);
   await page.getByRole("button", { name: "Approve" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully approved request!");
+  await closeNotification(page);
   await expect(page.getByText(requestTitle, { exact: true })).not.toBeVisible();
   await page.getByRole("cell", { name: "State filter" }).getByRole("button").click();
   await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
@@ -71,6 +74,7 @@ test("Request closing and reopening has succeeded", async ({ reearth, page }) =>
   await expect(page.getByRole("alert").last()).toContainText(
     "One or more requests were successfully closed!",
   );
+  await closeNotification(page);
   await expect(page.getByText(requestTitle, { exact: true })).not.toBeVisible();
   await expect(page.getByText("WAITING")).not.toBeVisible();
 
@@ -83,6 +87,7 @@ test("Request closing and reopening has succeeded", async ({ reearth, page }) =>
   await expect(page.getByText("Closed", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Reopen" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated request!");
+  await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("title", { exact: true })).toBeVisible();
   await expect(page.getByText("WAITING")).toBeVisible();
@@ -91,6 +96,7 @@ test("Request closing and reopening has succeeded", async ({ reearth, page }) =>
   await expect(page.getByRole("alert").last()).toContainText(
     "One or more requests were successfully closed!",
   );
+  await closeNotification(page);
   await page.getByRole("cell", { name: "State filter" }).getByRole("button").click();
   await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
   await page.getByRole("button", { name: "OK" }).click();
@@ -120,15 +126,18 @@ test("Comment CRUD on edit page has succeeded", async ({ reearth, page }) => {
   await page.locator("#content").fill("comment");
   await page.getByRole("button", { name: "Comment" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created comment!");
+  await closeNotification(page);
   await expect(page.getByText("comment").nth(1)).toBeVisible();
   await page.getByLabel("edit").locator("svg").click();
   await page.locator("textarea").filter({ hasText: "comment" }).click();
   await page.locator("textarea").filter({ hasText: "comment" }).fill("new comment");
   await page.getByLabel("check").locator("svg").first().click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated comment!");
+  await closeNotification(page);
   await expect(page.getByText("new comment").nth(1)).toBeVisible();
   await page.getByLabel("delete").locator("svg").click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted comment!");
+  await closeNotification(page);
   await expect(page.getByText("new comment").nth(1)).not.toBeVisible();
 
   await deleteProject(page);

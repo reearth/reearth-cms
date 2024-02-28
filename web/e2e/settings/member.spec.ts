@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test("Searching current members has succeeded", async ({ reearth, page }) => {
@@ -18,4 +19,5 @@ test("Searching current members has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Remove Workspace" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted workspace!");
+  await closeNotification(page);
 });

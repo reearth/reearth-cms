@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
@@ -16,6 +17,7 @@ test("Tiles CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
+  await closeNotification(page);
   await page
     .locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon")
     .click();
@@ -35,6 +37,7 @@ test("Tiles CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
+  await closeNotification(page);
   await expect(page.getByText("url", { exact: true })).toBeVisible();
   await expect(page.locator("img")).toBeVisible();
   await page
@@ -50,6 +53,7 @@ test("Tiles CRUD has succeeded", async ({ reearth, page }) => {
     .click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
+  await closeNotification(page);
   await expect(page.getByText("url", { exact: true })).not.toBeVisible();
   await deleteWorkspace(page);
 });
@@ -73,6 +77,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
+  await closeNotification(page);
   await page.getByLabel("edit").locator("svg").click();
   await expect(page.locator("form")).toContainText("ArcGIS Terrain");
   await page
@@ -94,6 +99,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
+  await closeNotification(page);
   await expect(page.getByText("name", { exact: true })).toBeVisible();
   await page.getByLabel("edit").locator("svg").click();
   await expect(page.locator("form")).toContainText("Cesium Ion");
@@ -106,11 +112,13 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("delete").locator("svg").click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
+  await closeNotification(page);
   await expect(page.getByText("name", { exact: true })).not.toBeVisible();
 
   await page.getByRole("switch").click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
+  await closeNotification(page);
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).not.toBeVisible();
   await deleteWorkspace(page);

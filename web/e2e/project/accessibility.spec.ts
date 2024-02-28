@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { createProject, deleteProject } from "./utils/project";
@@ -16,6 +17,7 @@ test("Update settings on Accesibility page has succeeded", async ({ reearth, pag
   await expect(page.getByRole("alert").last()).toContainText(
     "Successfully updated publication settings!",
   );
+  await closeNotification(page);
   await expect(page.locator("form")).toContainText("Public");
   await expect(page.getByRole("textbox")).toHaveValue("new-e2e-project-alias");
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");

@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test("Integration CRUD and searching has succeeded", async ({ reearth, page }) => {
@@ -21,6 +22,7 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await expect(page.getByRole("alert").last()).toContainText(
     "Successfully connected integration to the workspace!",
   );
+  await closeNotification(page);
   await page.locator("a").nth(3).click();
   await expect(page.getByRole("cell", { name: "e2e integration name", exact: true })).toBeVisible();
   await page.getByPlaceholder("Please enter").click();
@@ -37,6 +39,7 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await expect(page.getByRole("alert").last()).toContainText(
     "Successfully updated workspace integration!",
   );
+  await closeNotification(page);
   await page.locator("a").nth(3).click();
   await expect(page.getByRole("cell", { name: "WRITER" })).toBeVisible();
   await page.getByPlaceholder("Please enter").click();
@@ -54,6 +57,7 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await expect(page.getByRole("alert").last()).toContainText(
     "One or more integrations were successfully deleted!",
   );
+  await closeNotification(page);
   await page.getByText("My Integrations").click();
   await page.getByText("e2e integration namee2e").click();
   await page.getByRole("button", { name: "Remove Integration" }).click();

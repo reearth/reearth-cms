@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
@@ -11,10 +12,12 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Project description").fill("project description");
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert").last()).toContainText("input: createProject invalid alias");
+  await closeNotification(page);
   await page.getByLabel("Project alias").click();
   await page.getByLabel("Project alias").fill("project-alias");
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created project!");
+  await closeNotification(page);
 
   await expect(page.getByText("project name", { exact: true })).toBeVisible();
   await expect(page.getByText("project description", { exact: true })).toBeVisible();
@@ -35,6 +38,7 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Description").fill("new project description");
   await page.locator("form").getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated project!");
+  await closeNotification(page);
 
   await expect(page.locator("#root")).toContainText("Project Settings / new project name");
   await expect(page.locator("header")).toContainText("new project name");
@@ -45,6 +49,7 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
     "false",
   );
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated request roles!");
+  await closeNotification(page);
 
   await page.getByText("Overview").click();
   await expect(page.locator("#root")).toContainText("new project name");
@@ -53,5 +58,6 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Delete Project" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted project!");
+  await closeNotification(page);
   await expect(page.getByText("new project name", { exact: true })).not.toBeVisible();
 });

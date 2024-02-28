@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test("MyIntegration CRUD has succeeded", async ({ reearth, page }) => {
@@ -11,6 +12,7 @@ test("MyIntegration CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Description").fill("description");
   await page.getByRole("button", { name: "Create" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created integration!");
+  await closeNotification(page);
 
   await page.getByText("namedescription", { exact: true }).click();
   await page.getByLabel("Integration Name").click();
@@ -19,6 +21,7 @@ test("MyIntegration CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Description").fill("newDescription");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated integration!");
+  await closeNotification(page);
 
   await expect(page.locator("#root")).toContainText("newName");
   await page.getByLabel("Back").click();
@@ -27,6 +30,7 @@ test("MyIntegration CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Remove Integration" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted integration!");
+  await closeNotification(page);
   await expect(page.getByRole("main")).not.toContainText("newNamenewDescription");
 });
 
@@ -56,6 +60,7 @@ test("Webhook CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Secret").fill("secret");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created webhook!");
+  await closeNotification(page);
   await expect(page.getByLabel("Webhook")).toContainText("webhook name");
   await expect(page.getByLabel("Webhook")).toContainText("http://test.com");
 
@@ -72,6 +77,7 @@ test("Webhook CRUD has succeeded", async ({ reearth, page }) => {
   await expect(page.getByLabel("Upload")).toBeChecked();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated webhook!");
+  await closeNotification(page);
   await expect(page.getByLabel("Webhook")).toContainText("new webhook name");
   await expect(page.getByLabel("Webhook")).toContainText("http://new.com");
   await page.getByLabel("Webhook").getByLabel("setting").locator("svg").click();
@@ -82,8 +88,10 @@ test("Webhook CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("switch", { name: "OFF" }).click();
   await expect(page.getByRole("switch")).toContainText("ON");
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated webhook!");
+  await closeNotification(page);
   await page.getByLabel("delete").locator("svg").click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted webhook!");
+  await closeNotification(page);
   await expect(page.getByLabel("Webhook")).not.toContainText("new webhook name");
 
   await page
@@ -100,9 +108,11 @@ test("Webhook CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await page.getByLabel("delete").locator("svg").click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted webhook!");
+  await closeNotification(page);
 
   await page.getByRole("tab", { name: "General" }).click();
   await page.getByRole("button", { name: "Remove Integration" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully deleted integration!");
+  await closeNotification(page);
 });

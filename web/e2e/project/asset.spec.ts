@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { crudComment } from "./utils/comment";
@@ -18,6 +19,7 @@ test("Asset CRUD and Searching has succeeded", async ({ reearth, page }) => {
   await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl);
   await page.getByRole("button", { name: "Upload", exact: true }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
+  await closeNotification(page);
   await expect(page.getByText(uploadFileName)).toBeVisible();
   await page.getByPlaceholder("Please enter").click();
   await page.getByPlaceholder("Please enter").fill("no asset");
@@ -36,6 +38,7 @@ test("Asset CRUD and Searching has succeeded", async ({ reearth, page }) => {
   await page.getByText("GEOJSON/KML/CZML").click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Asset was successfully updated!");
+  await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByLabel("", { exact: true }).check();
   await page.getByText("Delete").click();
@@ -43,6 +46,7 @@ test("Asset CRUD and Searching has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText(
     "One or more assets were successfully deleted!",
   );
+  await closeNotification(page);
 
   await deleteProject(page);
 });
@@ -58,6 +62,7 @@ test("Donwloading asset has succeeded", async ({ reearth, page }) => {
   await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl);
   await page.getByRole("button", { name: "Upload", exact: true }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
+  await closeNotification(page);
   await expect(page.getByText(uploadFileName)).toBeVisible();
 
   await page.getByLabel("", { exact: true }).check();
@@ -78,6 +83,7 @@ test("Donwloading asset has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText(
     "One or more assets were successfully deleted!",
   );
+  await closeNotification(page);
   await deleteProject(page);
 });
 
@@ -92,6 +98,7 @@ test("Comment CRUD on edit page has succeeded", async ({ reearth, page }) => {
   await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl);
   await page.getByRole("button", { name: "Upload", exact: true }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
+  await closeNotification(page);
   await expect(page.getByText(uploadFileName)).toBeVisible();
 
   await page.getByRole("cell", { name: "edit" }).locator("svg").click();
@@ -112,6 +119,7 @@ test("Comment CRUD on Asset page has succeeded", async ({ reearth, page }) => {
   await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl);
   await page.getByRole("button", { name: "Upload", exact: true }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
+  await closeNotification(page);
   await expect(page.getByText(uploadFileName)).toBeVisible();
 
   await page.getByRole("button", { name: "0" }).click();

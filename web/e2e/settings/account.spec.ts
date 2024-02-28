@@ -1,3 +1,4 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 test("Name and email has updated", async ({ reearth, page }) => {
@@ -16,6 +17,7 @@ test("Name and email has updated", async ({ reearth, page }) => {
     .getByRole("button")
     .click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated user!");
+  await closeNotification(page);
 
   await page.getByLabel("Account Name").click();
   await page.getByLabel("Account Name").fill(username);
@@ -27,6 +29,7 @@ test("Name and email has updated", async ({ reearth, page }) => {
     .getByRole("button")
     .click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated user!");
+  await closeNotification(page);
 });
 
 test("Language has updated from English to Japanese", async ({ reearth, page }) => {
@@ -45,6 +48,7 @@ test("Language has updated from English to Japanese", async ({ reearth, page }) 
     .getByRole("button")
     .click();
   await expect(page.getByRole("alert").last()).toContainText("言語設定の更新に成功しました。");
+  await closeNotification(page);
   await expect(page.locator("#root")).toContainText("ホーム");
   await page
     .locator("div")
@@ -59,6 +63,7 @@ test("Language has updated from English to Japanese", async ({ reearth, page }) 
     .getByRole("button")
     .click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated language!");
+  await closeNotification(page);
 });
 
 test("Language has updated from English to Auto", async ({ reearth, page }) => {
@@ -78,6 +83,7 @@ test("Language has updated from English to Auto", async ({ reearth, page }) => {
     .getByRole("button")
     .click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated language!");
+  await closeNotification(page);
   await page
     .locator("div")
     .filter({ hasText: /^AutoThis will change the UI language$/ })
@@ -87,4 +93,5 @@ test("Language has updated from English to Auto", async ({ reearth, page }) => {
   await page.getByTitle("English").click();
   await page.locator("form").filter({ hasText: "Service" }).getByRole("button").click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated language!");
+  await closeNotification(page);
 });
