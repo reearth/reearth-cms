@@ -6,6 +6,8 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import ProTable, { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
+import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -110,7 +112,18 @@ const LinkItemRequestModal: React.FC<Props> = ({
         title: t("Reviewers"),
         dataIndex: "reviewers.name",
         key: "reviewers",
-        render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
+        render: (_, request) => (
+          <Space>
+            <div>
+              {request.reviewers
+                .filter((_, index) => index < 3)
+                .map(reviewer => (
+                  <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
+                ))}
+            </div>
+            {request.reviewers.map(reviewer => reviewer.name).join(", ")}
+          </Space>
+        ),
       },
       {
         title: t("Created At"),
@@ -171,6 +184,18 @@ const LinkItemRequestModal: React.FC<Props> = ({
 };
 
 export default LinkItemRequestModal;
+
+const StyledUserAvatar = styled(UserAvatar)`
+  :nth-child(1) {
+    z-index: 2;
+  }
+  :nth-child(2) {
+    z-index: 1;
+  }
+  :nth-child(n + 2) {
+    margin-left: -18px;
+  }
+`;
 
 const StyledProTable = styled(ProTable)`
   .ant-pro-card-body {
