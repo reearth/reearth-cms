@@ -25,6 +25,7 @@ type Props = {
   requestList: Request[];
   onChange?: (value: Request, itemIds: string[]) => void;
   onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
 };
 
 const LinkItemRequestModal: React.FC<Props> = ({
@@ -39,6 +40,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
   requestModalPageSize,
   onChange,
   onRequestSearchTerm,
+  onRequestTableReload,
 }) => {
   const t = useT();
   const { pagination, submit, resetFlag, selectedRequestId, setSelectedRequestId } = useHooks(
@@ -120,6 +122,10 @@ const LinkItemRequestModal: React.FC<Props> = ({
     [selectedRequestId, setSelectedRequestId, t],
   );
 
+  const options = {
+    reload: onRequestTableReload,
+  };
+
   const toolbar = {
     search: (
       <Input.Search
@@ -156,6 +162,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
         onChange={pagination => {
           onRequestTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}
+        options={options}
         toolbar={toolbar}
         scroll={{ x: "max-content", y: 330 }}
       />

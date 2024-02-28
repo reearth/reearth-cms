@@ -51,7 +51,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-export type Props = {
+type Props = {
   className?: string;
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
@@ -87,6 +87,7 @@ export type Props = {
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -120,6 +121,7 @@ const ContentTable: React.FC<Props> = ({
   onItemsReload,
   modelKey,
   onRequestSearchTerm,
+  onRequestTableReload,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -760,6 +762,7 @@ const ContentTable: React.FC<Props> = ({
           requestModalPage={requestModalPage}
           requestModalPageSize={requestModalPageSize}
           onRequestSearchTerm={onRequestSearchTerm}
+          onRequestTableReload={onRequestTableReload}
         />
       )}
     </>
