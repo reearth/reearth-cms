@@ -13,10 +13,11 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await page.getByRole("button", { name: "Create" }).click();
   await closeNotification(page);
   await page.getByText("Integrations", { exact: true }).click();
-  await page.getByRole("button", { name: "api Connect Integration" }).click();
+  await page.getByRole("button", { name: "api Connect Integration" }).first().click();
   await page
     .locator("div")
     .filter({ hasText: /^e2e integration name$/ })
+    .first()
     .click();
   await page.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(page.getByRole("alert").last()).toContainText(
@@ -57,7 +58,7 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   );
   await closeNotification(page);
   await page.getByText("My Integrations").click();
-  await page.getByText("e2e integration namee2e").click();
+  await page.getByText("e2e integration namee2e").first().click();
   await page.getByRole("button", { name: "Remove Integration" }).click();
   await page.getByRole("button", { name: "OK" }).click();
 });
