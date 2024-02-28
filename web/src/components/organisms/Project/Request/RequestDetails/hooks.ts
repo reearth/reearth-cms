@@ -29,6 +29,7 @@ export default () => {
   const { data: rawRequest, loading: requestLoading } = useGetRequestQuery({
     variables: { requestId: requestId ?? "" },
     skip: !requestId,
+    fetchPolicy: "cache-and-network",
   });
 
   const me: User | undefined = useMemo(() => {

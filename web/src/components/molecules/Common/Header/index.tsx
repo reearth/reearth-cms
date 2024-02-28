@@ -130,7 +130,11 @@ const HeaderMolecule: React.FC<Props> = ({
         <Logo onClick={onHomeNavigation}>{t("Re:Earth CMS")}</Logo>
       )}
       <VerticalDivider />
-      <WorkspaceDropdown name={username} items={WorkspacesItems} personal={currentIsPersonal} />
+      <WorkspaceDropdown
+        name={currentWorkspace?.name}
+        items={WorkspacesItems}
+        personal={currentIsPersonal}
+      />
       {currentProject?.name && (
         <CurrentProject>
           <Break>/</Break>
