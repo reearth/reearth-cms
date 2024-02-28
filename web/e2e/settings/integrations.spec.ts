@@ -11,7 +11,7 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await page.getByLabel("Description").click();
   await page.getByLabel("Description").fill("e2e integration description");
   await page.getByRole("button", { name: "Create" }).click();
-  await page.locator("a").nth(3).click();
+  await closeNotification(page);
   await page.getByText("Integrations", { exact: true }).click();
   await page.getByRole("button", { name: "api Connect Integration" }).click();
   await page
@@ -23,7 +23,6 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
     "Successfully connected integration to the workspace!",
   );
   await closeNotification(page);
-  await page.locator("a").nth(3).click();
   await expect(page.getByRole("cell", { name: "e2e integration name", exact: true })).toBeVisible();
   await page.getByPlaceholder("Please enter").click();
   await page.getByPlaceholder("Please enter").fill("e2e integration name");
@@ -40,7 +39,6 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
     "Successfully updated workspace integration!",
   );
   await closeNotification(page);
-  await page.locator("a").nth(3).click();
   await expect(page.getByRole("cell", { name: "WRITER" })).toBeVisible();
   await page.getByPlaceholder("Please enter").click();
   await page.getByPlaceholder("Please enter").fill("no integration");
