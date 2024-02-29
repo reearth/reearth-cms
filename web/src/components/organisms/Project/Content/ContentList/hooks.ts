@@ -68,6 +68,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     loading: requestModalLoading,
     totalCount: requestModalTotalCount,
     page: requestModalPage,
@@ -482,5 +483,6 @@ export default () => {
     handleItemDelete,
     handleContentTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
   };
 };
