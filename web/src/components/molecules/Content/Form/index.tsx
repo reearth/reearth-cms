@@ -77,6 +77,7 @@ export interface Props {
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
   onAssetTableChange: (
     page: number,
     pageSize: number,
@@ -146,6 +147,7 @@ const ContentForm: React.FC<Props> = ({
   onLinkItemTableReload,
   onRequestTableChange,
   onRequestSearchTerm,
+  onRequestTableReload,
   requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
@@ -654,6 +656,7 @@ const ContentForm: React.FC<Props> = ({
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
             onRequestSearchTerm={onRequestSearchTerm}
+            onRequestTableReload={onRequestTableReload}
           />
           <PublishItemModal
             unpublishedItems={unpublishedItems}

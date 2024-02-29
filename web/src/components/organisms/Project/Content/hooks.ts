@@ -30,7 +30,7 @@ export default () => {
     setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const { data, loading } = useGetModalRequestsQuery({
+  const { data, refetch, loading } = useGetModalRequestsQuery({
     fetchPolicy: "no-cache",
     variables: {
       projectId: currentProject?.id ?? "",
@@ -138,6 +138,10 @@ export default () => {
     setPage(1);
   }, []);
 
+  const handleRequestTableReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   return {
     currentWorkspace,
     currentModel,
@@ -148,6 +152,7 @@ export default () => {
     handleUnpublish,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
