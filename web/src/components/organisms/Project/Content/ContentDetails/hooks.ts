@@ -442,7 +442,7 @@ export default () => {
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetModalRequests"],
   });
 
   const handleRequestCreate = useCallback(
