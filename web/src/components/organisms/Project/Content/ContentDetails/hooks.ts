@@ -56,6 +56,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     loading,
     totalCount,
     page,
@@ -441,7 +442,7 @@ export default () => {
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetModalRequests"],
   });
 
   const handleRequestCreate = useCallback(
@@ -536,6 +537,7 @@ export default () => {
     handleLinkItemTableChange,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,

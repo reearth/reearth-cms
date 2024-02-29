@@ -79,21 +79,23 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     selectedReviewers,
   ]);
 
+  const badgeColor = useMemo(() => {
+    switch (currentRequest?.state) {
+      case "APPROVED":
+        return "#52C41A";
+      case "CLOSED":
+        return "#F5222D";
+      case "WAITING":
+        return "#FA8C16";
+      default:
+        return "";
+    }
+  }, [currentRequest?.state]);
+
   return (
     <SideBarWrapper>
       <SidebarCard title={t("State")}>
-        <Badge
-          color={
-            currentRequest?.state === "APPROVED"
-              ? "#52C41A"
-              : currentRequest?.state === "CLOSED"
-                ? "#F5222D"
-                : currentRequest?.state === "WAITING"
-                  ? "#FA8C16"
-                  : ""
-          }
-          text={currentRequest?.state}
-        />
+        <Badge color={badgeColor} text={currentRequest?.state} />
       </SidebarCard>
       <SidebarCard title={t("Created By")}>
         <Space>
@@ -107,31 +109,34 @@ const RequestSidebarWrapper: React.FC<Props> = ({
             <UserAvatar username={reviewer.name} key={index} />
           ))}
         </ReviewerContainer>
-        <StyledSelect
-          defaultValue={defaultValue}
-          placeholder={t("Reviewer")}
-          mode="multiple"
-          filterOption={(input, option) =>
-            option?.name.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
-          viewReviewers={viewReviewers}
-          onChange={value => setSelectedReviewers(value as string[])}
-          onBlur={handleSubmit}
-          allowClear>
-          {reviewers.map(reviewer => (
-            <Option key={reviewer.value}>
-              <Space>
-                <UserAvatar username={reviewer.label} size={22} />
-                {reviewer.label}
-              </Space>
-            </Option>
-          ))}
-        </StyledSelect>
-        <ViewReviewers viewReviewers={viewReviewers}>
-          <StyledButton type="link" onClick={displayViewReviewers}>
-            {t("Assign to")}
-          </StyledButton>
-        </ViewReviewers>
+        {viewReviewers ? (
+          <StyledSelect
+            autoFocus
+            defaultValue={defaultValue}
+            placeholder={t("Reviewer")}
+            mode="multiple"
+            filterOption={(input, option) =>
+              option?.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            onChange={value => setSelectedReviewers(value as string[])}
+            onBlur={handleSubmit}
+            allowClear>
+            {reviewers.map(reviewer => (
+              <Option key={reviewer.value} label={reviewer.label}>
+                <Space>
+                  <UserAvatar username={reviewer.label} size={22} />
+                  {reviewer.label}
+                </Space>
+              </Option>
+            ))}
+          </StyledSelect>
+        ) : (
+          <ViewReviewers>
+            <StyledButton type="link" onClick={displayViewReviewers}>
+              {t("Assign to")}
+            </StyledButton>
+          </ViewReviewers>
+        )}
       </SidebarCard>
       <SidebarCard title={t("Created Time")}>{formattedCreatedAt}</SidebarCard>
     </SideBarWrapper>
@@ -151,14 +156,12 @@ const ReviewerContainer = styled.div`
   margin: 4px 0;
 `;
 
-const StyledSelect = styled(Select)<{ viewReviewers: boolean }>`
+const StyledSelect = styled(Select)`
   width: 100%;
-  display: ${({ viewReviewers }) => (viewReviewers ? "initial" : "none")};
 `;
 
-const ViewReviewers = styled.div<{ viewReviewers: boolean }>`
-  display: ${({ viewReviewers }) => (viewReviewers ? "none" : "flex")};
-  justify-content: end;
+const ViewReviewers = styled.div`
+  text-align: right;
 `;
 
 const StyledButton = styled(Button)`

@@ -61,6 +61,7 @@ export type Props = {
   onLinkItemTableReload: () => void;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
   onAssetTableChange: (
     page: number,
     pageSize: number,
@@ -134,6 +135,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onLinkItemTableReload,
   onRequestTableChange,
   onRequestSearchTerm,
+  onRequestTableReload,
   requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
@@ -203,6 +205,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onLinkItemTableReload={onLinkItemTableReload}
             onRequestTableChange={onRequestTableChange}
             onRequestSearchTerm={onRequestSearchTerm}
+            onRequestTableReload={onRequestTableReload}
             requestModalLoading={requestModalLoading}
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}

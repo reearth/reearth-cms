@@ -15,7 +15,7 @@ import { ItemSort, AndConditionInput } from "@reearth-cms/components/molecules/V
 import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   commentsPanel?: JSX.Element;
   viewsMenu: JSX.Element;
   collapsed?: boolean;
@@ -56,6 +56,7 @@ export type Props = {
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -97,6 +98,7 @@ const ContentListMolecule: React.FC<Props> = ({
   onItemEdit,
   onItemDelete,
   onRequestSearchTerm,
+  onRequestTableReload,
 }) => {
   const t = useT();
 
@@ -161,6 +163,7 @@ const ContentListMolecule: React.FC<Props> = ({
             setCurrentView={setCurrentView}
             modelKey={model?.key}
             onRequestSearchTerm={onRequestSearchTerm}
+            onRequestTableReload={onRequestTableReload}
           />
         </Content>
       }
