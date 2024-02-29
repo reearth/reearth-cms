@@ -39,15 +39,15 @@ type Model struct {
 	Schema string `bson:"schema"`
 }
 
-func RefFieldSchema(ctx context.Context, dbURL string, wetRun bool) error {
+func RefFieldSchema(ctx context.Context, dbURL, dbName string, wetRun bool) error {
 	testID := ""
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURL))
 	if err != nil {
 		return fmt.Errorf("db: failed to init client err: %w", err)
 	}
-	sCol := client.Database("reearth_cms").Collection("schema")
-	mCol := client.Database("reearth_cms").Collection("model")
+	sCol := client.Database(dbName).Collection("schema")
+	mCol := client.Database(dbName).Collection("model")
 
 	schemas, err := loadSchemas(ctx, sCol)
 	if err != nil {

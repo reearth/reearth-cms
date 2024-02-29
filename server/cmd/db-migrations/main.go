@@ -9,7 +9,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type command = func(ctx context.Context, dbURL string, wetRun bool) error
+type command = func(ctx context.Context, dbURL, dbName string, wetRun bool) error
 
 var commands = map[string]command{
 	"ref-field-schema": RefFieldSchema,
@@ -49,7 +49,7 @@ func main() {
 	// exec command
 	fmt.Printf("command: '%s' ", *cmd)
 	ctx := context.Background()
-	if err := command(ctx, dbURL, *wet); err != nil {
+	if err := command(ctx, dbURL, "reearth_cms", *wet); err != nil {
 		fmt.Printf("faild: %s.\n", err)
 		return
 	}
