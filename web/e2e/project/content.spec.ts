@@ -163,12 +163,7 @@ test("Comment CRUD on edit page has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
-  await page
-    .locator("li")
-    .filter({ hasText: "TextHeading and titles, one-" })
-    .locator("div")
-    .first()
-    .click();
+  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await closeNotification(page);
   await page.getByText("Content").click();
