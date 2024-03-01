@@ -113,3 +113,33 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 	r.Keys().
 		ContainsAll("id", "file", "name", "projectId", "url", "contentType", "createdAt", "previewType", "totalSize", "updatedAt")
 }
+
+// POST projects/{projectId}/assets/uploads
+func TestIntegrationCreateAssetUploadAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusBadRequest)
+
+	e.POST("/api/projects/{projectId}/assets/uploads", pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{"name": "test.jpg"}).
+		Expect().
+		Status(http.StatusNotFound) // FS does not support upload link
+}
