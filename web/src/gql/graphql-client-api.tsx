@@ -221,11 +221,11 @@ export type ConditionInput = {
 };
 
 export type CorrespondingFieldInput = {
-  description?: InputMaybe<Scalars['String']>;
+  description: Scalars['String'];
   fieldId?: InputMaybe<Scalars['ID']>;
-  key?: InputMaybe<Scalars['String']>;
-  required?: InputMaybe<Scalars['Boolean']>;
-  title?: InputMaybe<Scalars['String']>;
+  key: Scalars['String'];
+  required: Scalars['Boolean'];
+  title: Scalars['String'];
 };
 
 export type CreateAssetInput = {
@@ -1578,15 +1578,15 @@ export type SchemaFieldReference = {
   __typename?: 'SchemaFieldReference';
   correspondingField?: Maybe<SchemaField>;
   correspondingFieldId?: Maybe<Scalars['ID']>;
-  correspondingSchema?: Maybe<Schema>;
-  correspondingSchemaId?: Maybe<Scalars['ID']>;
   modelId: Scalars['ID'];
+  schema: Schema;
+  schemaId: Scalars['ID'];
 };
 
 export type SchemaFieldReferenceInput = {
   correspondingField?: InputMaybe<CorrespondingFieldInput>;
-  correspondingSchemaId?: InputMaybe<Scalars['ID']>;
   modelId: Scalars['ID'];
+  schemaId: Scalars['ID'];
 };
 
 export type SchemaFieldRichText = {

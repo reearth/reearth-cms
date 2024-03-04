@@ -68,6 +68,7 @@ export type FieldTypePropertyInput = {
   url?: { defaultValue: string };
   reference?: {
     modelId: string;
+    schemaId: string;
     correspondingField: {
       key: string;
       title: string;
