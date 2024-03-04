@@ -11,7 +11,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import WarningText from "@reearth-cms/components/molecules/Content/WarningText";
 import { RequestState } from "@reearth-cms/components/molecules/Request/types";
-import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../types";
@@ -31,7 +31,7 @@ export type Props = {
   requestCreationLoading: boolean;
   itemId: string;
   unpublishedItems: FormItem[];
-  workspaceUserMembers: Member[];
+  workspaceUserMembers: UserMember[];
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (data: FormValues) => Promise<void>;
 };

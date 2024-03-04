@@ -5,8 +5,8 @@ import ReactDragListView from "react-drag-listview";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -32,9 +32,12 @@ const ModelsList: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const handleClick = (e: MenuInfo) => {
-    onModelSelect(e.key);
-  };
+  const handleClick = useCallback(
+    (e: MenuInfo) => {
+      onModelSelect(e.key);
+    },
+    [onModelSelect],
+  );
 
   const onDragEnd = useCallback(
     (fromIndex: number, toIndex: number) => {
@@ -91,9 +94,7 @@ const ModelsList: React.FC<Props> = ({
           <StyledMenu
             selectedKeys={selectedKeys}
             mode={collapsed ? "vertical" : "inline"}
-            style={{
-              color: collapsed ? "#C4C4C4" : undefined,
-            }}
+            collapsed={collapsed}
             items={items}
             onClick={handleClick}
           />
@@ -146,7 +147,9 @@ const StyledIcon = styled(Icon)`
   padding: 12px 20px;
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
+  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+
   .ant-menu-item {
     display: flex;
     justify-content: center;

@@ -64,19 +64,18 @@ const WebhookForm: React.FC<Props> = ({
         (ac, a) => ({ ...ac, [a]: true }),
         {},
       ) as WebhookTrigger;
-      // TODO: refactor
-      values.active = false;
+      const payload = {
+        ...values,
+        active: false,
+        trigger,
+      };
       if (webhookInitialValues?.id) {
-        const val = {
-          ...values,
-          active: webhookInitialValues.active,
-          webhookId: webhookInitialValues.id,
-          trigger,
-        };
-        await onWebhookUpdate(val);
+        payload.active = webhookInitialValues.active;
+        payload.webhookId = webhookInitialValues.id;
+        await onWebhookUpdate(payload);
         onBack?.();
       } else {
-        await onWebhookCreate?.({ ...values, trigger });
+        await onWebhookCreate?.(payload);
         form.resetFields();
       }
     } catch (info) {
@@ -108,6 +107,7 @@ const WebhookForm: React.FC<Props> = ({
               extra={t("Please note that all webhook URLs must start with http://.")}
               rules={[
                 {
+                  required: true,
                   message: t("URL is not valid"),
                   validator: async (_, value) => {
                     if (!validateURL(value) && value.length > 0) return Promise.reject();
@@ -137,7 +137,7 @@ const WebhookForm: React.FC<Props> = ({
             </Form.Item>
           </Col>
           <Col>
-            <Divider type="vertical" style={{ height: "100%" }} />
+            <StyledDivider type="vertical" />
           </Col>
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
@@ -187,6 +187,10 @@ const CheckboxTitle = styled.h5`
   line-height: 24px;
   color: #000000d9;
   margin-bottom: 24px;
+`;
+
+const StyledDivider = styled(Divider)`
+  height: 100%;
 `;
 
 export default WebhookForm;

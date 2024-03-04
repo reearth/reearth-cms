@@ -10,13 +10,13 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Comment as CommentType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 
 const { TextArea } = Input;
 
 type Props = {
   me?: User;
-  comment: CommentType;
+  comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
 };
@@ -30,9 +30,9 @@ const ThreadCommentMolecule: React.FC<Props> = ({
   const [showEditor, setShowEditor] = useState(false);
   const [value, setValue] = useState(comment.content);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
-  };
+  }, []);
 
   useEffect(() => {
     setValue(comment.content);
@@ -70,16 +70,7 @@ const ThreadCommentMolecule: React.FC<Props> = ({
       }
       avatar={
         comment.author.type === "Integration" ? (
-          <Badge
-            count={
-              <Icon
-                icon="api"
-                size={8}
-                style={{ borderRadius: "50%", backgroundColor: "#F0F0F0", padding: 3 }}
-                color="#BFBFBF"
-              />
-            }
-            offset={[0, 24]}>
+          <Badge count={<StyledIcon icon="api" size={8} color="#BFBFBF" />} offset={[0, 24]}>
             <UserAvatar
               username={comment.author.name}
               anonymous={comment.author.name === "Anonymous"}
@@ -124,4 +115,10 @@ const StyledAntDComment = styled(AntDComment)`
     right: 24px;
     margin: 0;
   }
+`;
+
+const StyledIcon = styled(Icon)`
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  padding: 3px;
 `;

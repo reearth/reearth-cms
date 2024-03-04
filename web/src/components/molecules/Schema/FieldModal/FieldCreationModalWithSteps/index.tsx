@@ -14,14 +14,14 @@ import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import { FormValues } from "@reearth-cms/components/molecules/Schema/FieldModal/FieldCreationModal";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
   FieldModalTabs,
   FieldType,
-  Model,
+  FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
@@ -31,7 +31,6 @@ const { Step } = Steps;
 export type Props = {
   selectedField?: Field | null;
   open?: boolean;
-  isUpdate?: boolean;
   selectedType: FieldType;
   models?: Model[];
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
@@ -43,7 +42,6 @@ export type Props = {
 const FieldCreationModalWithSteps: React.FC<Props> = ({
   selectedField,
   open,
-  isUpdate,
   models,
   selectedType,
   handleFieldKeyUnique,
@@ -88,7 +86,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       unique: false,
       required: false,
       isTitle: false,
-      meta: false,
+      metadata: false,
       type: "Text",
       typeProperty: {
         reference: {
@@ -99,6 +97,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     }),
     [],
   );
+
+  const isTwoWayReference = useMemo(() => numSteps === 2, [numSteps]);
+  const isUpdate = useMemo(() => !!selectedField, [selectedField]);
 
   const [field1FormValues, setField1FormValues] = useState(initialValues);
 
@@ -200,7 +201,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               color={fieldTypes[selectedType].color}
             />
             <h3>
-              <span>{isUpdate ? t("Update") : t("Create")} </span>
+              <span>{selectedField ? t("Update") : t("Create")} </span>
               <span>
                 {t(fieldTypes[selectedType].title)} {t("Field")}
               </span>
@@ -254,13 +255,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             name="model"
             label={t("Select the model to reference")}
             rules={[{ required: true, message: t("Please select the model!") }]}>
-            <Select value={selectedModel} onChange={handleSelectModel}>
+            <Select value={selectedModel} onChange={handleSelectModel} disabled={isUpdate}>
               {models?.map(model => (
                 <Select.Option key={model.id} value={model.id}>
                   {model.name}{" "}
-                  <span style={{ fontSize: 12, marginLeft: 4 }} className="ant-form-item-extra">
-                    #{model.key}
-                  </span>
+                  <StyledModelKey className="ant-form-item-extra">#{model.key}</StyledModelKey>
                 </Select.Option>
               ))}
             </Select>
@@ -309,7 +308,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                       if (!validateKey(value)) return Promise.reject();
                       const isKeyAvailable = handleFieldKeyUnique(
                         value,
-                        isUpdate ? selectedField?.id : undefined,
+                        selectedField ? selectedField?.id : undefined,
                       );
                       if (isKeyAvailable) {
                         return Promise.resolve();
@@ -371,7 +370,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 extra={t(
                   "Ensures that a multiple entries can't have the same value for this field",
                 )}>
-                <Checkbox>{t("Set field as unique")}</Checkbox>
+                <Checkbox disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
               </Form.Item>
             </TabPane>
           </Tabs>
@@ -491,6 +490,11 @@ const StyledModal = styled(Modal)`
     display: flex;
     justify-content: space-between;
   }
+`;
+
+const StyledModelKey = styled.span`
+  font-size: 12px;
+  margin-left: 4px;
 `;
 
 export default FieldCreationModalWithSteps;

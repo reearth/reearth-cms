@@ -3,8 +3,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Field, FieldType, Model, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
+import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
   useCreateFieldMutation,
   SchemaFieldType,
@@ -27,35 +31,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel } from "@reearth-cms/state";
-import { fromGraphQLModel, fromGraphQLGroup } from "@reearth-cms/utils/values";
-
-type UpdateDataType = {
-  groupId?: string;
-  fieldId?: string;
-  title: string;
-  metadata?: boolean;
-  description?: string;
-  key: string;
-  multiple: boolean;
-  unique: boolean;
-  isTitle: boolean;
-  required: boolean;
-  typeProperty: SchemaFieldTypePropertyInput;
-};
-
-type CreateDataType = {
-  groupId?: string;
-  title: string;
-  metadata?: boolean;
-  description?: string;
-  key: string;
-  multiple: boolean;
-  unique: boolean;
-  isTitle: boolean;
-  required: boolean;
-  type?: FieldType;
-  typeProperty: SchemaFieldTypePropertyInput;
-};
 
 export default () => {
   const t = useT();
@@ -64,13 +39,12 @@ export default () => {
   const { projectId, workspaceId, modelId } = useParams();
   const [currentModel] = useModel();
 
+  const [fieldModalShown, setFieldModalShown] = useState(false);
   const [groupId, setGroupId] = useState<string | undefined>(undefined);
-  const [fieldCreationModalShown, setFieldCreationModalShown] = useState(false);
-  const [isMeta, setIsMeta] = useState<boolean | undefined>(false);
-  const [fieldUpdateModalShown, setFieldUpdateModalShown] = useState(false);
+  const [isMeta, setIsMeta] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const [collapsed, collapse] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [selectedSchemaType, setSelectedSchemaType] = useState<SelectedSchemaType>("model");
   const { data: modelsData } = useGetModelsQuery({
     variables: {
@@ -93,16 +67,6 @@ export default () => {
     skip: !projectId,
   });
 
-  const rawModel = useMemo(
-    () => modelsData?.models?.nodes?.find(node => node?.id === modelId),
-    [modelsData?.models, modelId],
-  );
-
-  const model = useMemo<Model | undefined>(
-    () => (rawModel?.id ? fromGraphQLModel(rawModel as GQLModel) : undefined),
-    [rawModel],
-  );
-
   const groups = useMemo(() => {
     return groupsData?.groups
       ?.map<Group | undefined>(group => fromGraphQLGroup(group as GQLGroup))
@@ -123,7 +87,7 @@ export default () => {
     if (!modelId && currentModel) {
       navigate(`/workspace/${workspaceId}/project/${projectId}/schema/${currentModel.id}`);
     }
-  }, [modelId, currentModel, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [modelId, currentModel, navigate, workspaceId, projectId]);
 
   const handleModelSelect = useCallback(
     (modelId: string) => {
@@ -181,7 +145,7 @@ export default () => {
   );
 
   const handleFieldUpdate = useCallback(
-    async (data: UpdateDataType) => {
+    async (data: FormValues) => {
       if ((!modelId && !groupId) || !data.fieldId) return;
       const options = {
         variables: {
@@ -194,7 +158,7 @@ export default () => {
           unique: data.unique,
           isTitle: data.isTitle,
           required: data.required,
-          typeProperty: data.typeProperty,
+          typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
           modelId: selectedSchemaType === "model" ? modelId : undefined,
           groupId: selectedSchemaType !== "model" ? groupId : undefined,
         },
@@ -205,7 +169,7 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated field!") });
-      setFieldUpdateModalShown(false);
+      setFieldModalShown(false);
     },
     [modelId, groupId, selectedSchemaType, updateField, t],
   );
@@ -233,13 +197,13 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated field!") });
-      setFieldUpdateModalShown(false);
+      setFieldModalShown(false);
     },
     [modelId, groupId, updateFieldsOrder, t, selectedSchemaType],
   );
 
   const handleFieldCreate = useCallback(
-    async (data: CreateDataType) => {
+    async (data: FormValues) => {
       if (!modelId && !groupId) return;
       const options = {
         variables: {
@@ -252,7 +216,7 @@ export default () => {
           isTitle: data.isTitle,
           required: data.required,
           type: data.type as SchemaFieldType,
-          typeProperty: data.typeProperty,
+          typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
           modelId: selectedSchemaType === "model" ? modelId : undefined,
           groupId: selectedSchemaType !== "model" ? groupId : undefined,
         },
@@ -260,44 +224,35 @@ export default () => {
       const field = await createNewField(options);
       if (field.errors || !field.data?.createField) {
         Notification.error({ message: t("Failed to create field.") });
-        setFieldCreationModalShown(false);
+        setFieldModalShown(false);
         return;
       }
       Notification.success({ message: t("Successfully created field!") });
-      setFieldCreationModalShown(false);
+      setFieldModalShown(false);
     },
     [modelId, groupId, selectedSchemaType, createNewField, t],
   );
 
-  const handleFieldUpdateModalClose = useCallback(() => {
+  const handleFieldModalClose = useCallback(() => {
     setSelectedField(null);
-    setFieldUpdateModalShown(false);
+    setFieldModalShown(false);
   }, [setSelectedField]);
-
-  const handleFieldCreationModalClose = useCallback(() => {
-    setFieldCreationModalShown(false);
-    handleFieldUpdateModalClose();
-  }, [handleFieldUpdateModalClose]);
 
   const handleFieldUpdateModalOpen = useCallback(
     (field: Field) => {
       setSelectedType(field.type);
       setSelectedField(field);
-      setFieldUpdateModalShown(true);
+      setFieldModalShown(true);
     },
     [setSelectedField],
   );
 
   // group hooks
-  const [groupCreateModalShown, setGroupCreateModalShown] = useState(false);
-  const [groupUpdateModalShown, setGroupUpdateModalShown] = useState(false);
-  const [isGroupKeyAvailable, setIsGroupKeyAvailable] = useState(false);
+  const [groupModalShown, setGroupModalShown] = useState(false);
   const [groupDeletionModalShown, setGroupDeletionModalShown] = useState(false);
 
-  const handleGroupCreateModalClose = useCallback(() => setGroupCreateModalShown(false), []);
-  const handleGroupUpdateModalClose = useCallback(() => setGroupUpdateModalShown(false), []);
-  const handleGroupCreateModalOpen = useCallback(() => setGroupCreateModalShown(true), []);
-  const handleGroupUpdateModalOpen = useCallback(() => setGroupUpdateModalShown(true), []);
+  const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
+  const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupDeletionModalOpen = useCallback(
     () => setGroupDeletionModalShown(true),
     [setGroupDeletionModalShown],
@@ -306,11 +261,9 @@ export default () => {
     () => setGroupDeletionModalShown(false),
     [setGroupDeletionModalShown],
   );
-  const [CheckGroupKeyAvailability, { data: groupKeyData }] = useCheckGroupKeyAvailabilityLazyQuery(
-    {
-      fetchPolicy: "no-cache",
-    },
-  );
+  const [CheckGroupKeyAvailability] = useCheckGroupKeyAvailabilityLazyQuery({
+    fetchPolicy: "no-cache",
+  });
 
   const handleGroupKeyCheck = useCallback(
     async (key: string, ignoredKey?: string) => {
@@ -321,10 +274,6 @@ export default () => {
     },
     [projectId, CheckGroupKeyAvailability],
   );
-
-  useEffect(() => {
-    setIsGroupKeyAvailable(!!groupKeyData?.checkGroupKeyAvailability.available);
-  }, [groupKeyData?.checkGroupKeyAvailability]);
 
   const { data: modelsByGroupData } = useModelsByGroupQuery({
     variables: {
@@ -371,7 +320,7 @@ export default () => {
   });
 
   const handleGroupCreate = useCallback(
-    async (data: { name: string; description: string; key: string }) => {
+    async (data: ModelFormValues) => {
       if (!projectId) return;
       const group = await createNewGroup({
         variables: {
@@ -386,9 +335,9 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully created group!") });
-      handleGroupCreateModalClose();
+      handleGroupModalClose();
     },
-    [projectId, createNewGroup, t, handleGroupCreateModalClose],
+    [projectId, createNewGroup, t, handleGroupModalClose],
   );
 
   const [updateNewGroup] = useUpdateGroupMutation({
@@ -396,11 +345,11 @@ export default () => {
   });
 
   const handleGroupUpdate = useCallback(
-    async (data: { groupId?: string; name: string; description: string; key: string }) => {
-      if (!data.groupId) return;
+    async (data: ModelFormValues) => {
+      if (!data.id) return;
       const group = await updateNewGroup({
         variables: {
-          groupId: data.groupId,
+          groupId: data.id,
           name: data.name,
           description: data.description,
           key: data.key,
@@ -411,9 +360,9 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated group!") });
-      handleGroupUpdateModalClose();
+      handleGroupModalClose();
     },
-    [updateNewGroup, handleGroupUpdateModalClose, t],
+    [updateNewGroup, handleGroupModalClose, t],
   );
 
   const handleFieldCreationModalOpen = useCallback(
@@ -426,26 +375,25 @@ export default () => {
           okType: "primary",
           cancelText: t("Cancel"),
           onOk() {
-            handleGroupCreateModalOpen();
+            handleGroupModalOpen();
           },
           onCancel() {
-            handleGroupCreateModalClose();
+            handleGroupModalClose();
           },
         });
       } else {
         setSelectedType(fieldType);
-        if (modelId) setFieldCreationModalShown(true);
+        if (modelId) setFieldModalShown(true);
       }
     },
-    [confirm, groups?.length, handleGroupCreateModalClose, handleGroupCreateModalOpen, modelId, t],
+    [confirm, groups?.length, handleGroupModalClose, handleGroupModalOpen, modelId, t],
   );
 
   // model hooks
-  const [modelUpdateModalShown, setModelUpdateModalShown] = useState(false);
-  const [isModelKeyAvailable, setIsModelKeyAvailable] = useState(false);
+  const [modelModalShown, setModelModalShown] = useState(false);
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
 
-  const [CheckModelKeyAvailability, { data: keyData }] = useCheckModelKeyAvailabilityLazyQuery({
+  const [CheckModelKeyAvailability] = useCheckModelKeyAvailabilityLazyQuery({
     fetchPolicy: "no-cache",
   });
 
@@ -458,10 +406,6 @@ export default () => {
     },
     [projectId, CheckModelKeyAvailability],
   );
-
-  useEffect(() => {
-    setIsModelKeyAvailable(!!keyData?.checkModelKeyAvailability.available);
-  }, [keyData?.checkModelKeyAvailability]);
 
   const handleModelDeletionModalOpen = useCallback(
     () => setModelDeletionModalShown(true),
@@ -495,15 +439,15 @@ export default () => {
     refetchQueries: ["GetModels"],
   });
 
-  const handleModelUpdateModalClose = useCallback(() => setModelUpdateModalShown(false), []);
-  const handleModelUpdateModalOpen = useCallback(() => setModelUpdateModalShown(true), []);
+  const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
+  const handleModelModalOpen = useCallback(() => setModelModalShown(true), []);
 
   const handleModelUpdate = useCallback(
-    async (data: { modelId?: string; name: string; description: string; key: string }) => {
-      if (!data.modelId) return;
+    async (data: ModelFormValues) => {
+      if (!data.id) return;
       const model = await updateNewModel({
         variables: {
-          modelId: data.modelId,
+          modelId: data.id,
           name: data.name,
           description: data.description,
           key: data.key,
@@ -515,60 +459,56 @@ export default () => {
         return;
       }
       Notification.success({ message: t("Successfully updated model!") });
-      handleModelUpdateModalClose();
+      handleModelModalClose();
     },
-    [updateNewModel, handleModelUpdateModalClose, t],
+    [updateNewModel, handleModelModalClose, t],
   );
 
+  const isModel = useMemo(() => selectedSchemaType === "model", [selectedSchemaType]);
+
   return {
+    isModel,
     models,
-    model,
     groups,
     group,
     isMeta,
     setIsMeta,
-    fieldCreationModalShown,
-    fieldUpdateModalShown,
+    fieldModalShown,
     selectedField,
     currentModel,
     selectedType,
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
-    collapse,
+    setCollapsed,
     selectedSchemaType,
     handleModelSelect,
     handleGroupSelect,
-    handleFieldCreationModalClose,
     handleFieldCreationModalOpen,
     handleFieldUpdateModalOpen,
-    handleFieldUpdateModalClose,
+    handleFieldModalClose,
     handleFieldCreate,
     handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldOrder,
     handleFieldDelete,
     // group
-    groupCreateModalShown,
-    groupUpdateModalShown,
-    isGroupKeyAvailable,
+    groupModalShown,
     groupDeletionModalShown,
-    handleGroupUpdateModalOpen,
+    handleGroupModalOpen,
     handleGroupDeletionModalOpen,
-    handleGroupCreateModalClose,
-    handleGroupUpdateModalClose,
+    handleGroupModalClose,
     handleGroupDeletionModalClose,
     handleGroupDelete,
     handleGroupCreate,
     handleGroupUpdate,
     handleGroupKeyCheck,
     // modal
-    modelUpdateModalShown,
-    isModelKeyAvailable,
+    modelModalShown,
     modelDeletionModalShown,
-    handleModelUpdateModalOpen,
+    handleModelModalOpen,
+    handleModelModalClose,
     handleModelDeletionModalOpen,
-    handleModelUpdateModalClose,
     handleModelDeletionModalClose,
     handleModelDelete,
     handleModelUpdate,
