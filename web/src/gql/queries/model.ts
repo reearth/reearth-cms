@@ -145,6 +145,10 @@ export const GET_MODELS = gql`
               }
               ... on SchemaFieldReference {
                 modelId
+                schema {
+                  id
+                  titleFieldId
+                }
                 correspondingField {
                   id
                   type

@@ -54,6 +54,7 @@ export type TypeProperty = {
   groupId?: string;
   tags?: Tag[];
   values?: string[];
+  schema?: { titleFieldId: string | null };
 };
 
 export type FieldTypePropertyInput = {

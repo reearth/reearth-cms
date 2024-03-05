@@ -13,7 +13,7 @@ interface ReferenceFieldProps {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId?: string) => void;
+  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm: (term?: string) => void;
   onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
@@ -43,6 +43,7 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
         correspondingFieldId={field.id}
         formItemsData={formItemsData}
         modelId={field.typeProperty?.modelId}
+        titleFieldId={field.typeProperty?.schema?.titleFieldId}
         onReferenceModelUpdate={onReferenceModelUpdate}
         linkItemModalTitle={linkItemModalTitle}
         linkedItemsModalList={linkedItemsModalList}
