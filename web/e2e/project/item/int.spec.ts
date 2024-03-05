@@ -132,6 +132,6 @@ test("Int field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
-  await expect(page.getByRole("tooltip", { name: "new int1 2" })).toBeVisible();
+  await expect(page.getByRole("tooltip")).toContainText("new int123");
   await deleteProject(page);
 });
