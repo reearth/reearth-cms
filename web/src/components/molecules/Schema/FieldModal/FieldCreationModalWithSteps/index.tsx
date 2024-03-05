@@ -125,6 +125,16 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     setField1FormValues(initialValues);
   }, [modelForm, field1Form, field2Form, initialValues, setCurrentStep]);
 
+  const prevStep = useCallback(() => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+    setActiveTab("settings");
+  }, [currentStep]);
+
+  const nextStep = useCallback(() => {
+    setCurrentStep(currentStep + 1);
+    setActiveTab("settings");
+  }, [currentStep]);
+
   const handleFirstField = useCallback(async () => {
     field1Form
       .validateFields()
@@ -137,8 +147,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           },
         };
         setField1FormValues(values);
-        if (currentStep < numSteps) setCurrentStep(currentStep + 1);
-        else {
+        if (currentStep < numSteps) {
+          nextStep();
+        } else {
           if (selectedField) {
             await onUpdate?.({ ...values, fieldId: selectedField.id });
           } else {
@@ -146,48 +157,59 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           }
         }
       })
-      .catch(info => {
-        console.log("Validate Failed:", info);
+      .catch(_ => {
+        setActiveTab("settings");
       });
-  }, [currentStep, numSteps, field1Form, selectedModel, selectedField, onSubmit, onUpdate]);
-
-  const prevStep = useCallback(() => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
-  }, [currentStep]);
-
-  const nextStep = useCallback(() => {
-    if (currentStep == 0) setCurrentStep(currentStep + 1);
-  }, [currentStep]);
+  }, [
+    field1Form,
+    selectedModel,
+    currentStep,
+    numSteps,
+    nextStep,
+    selectedField,
+    onUpdate,
+    onSubmit,
+  ]);
 
   const handleSecondField = useCallback(() => {
     if (selectedField) {
-      field2Form.validateFields().then(async fields2Values => {
-        field1FormValues.typeProperty = {
-          reference: {
-            modelId: selectedModel ?? "",
-            correspondingField: {
-              ...fields2Values,
-              fieldId: selectedField?.typeProperty?.correspondingField.id,
+      field2Form
+        .validateFields()
+        .then(async fields2Values => {
+          field1FormValues.typeProperty = {
+            reference: {
+              modelId: selectedModel ?? "",
+              correspondingField: {
+                ...fields2Values,
+                fieldId: selectedField?.typeProperty?.correspondingField.id,
+              },
             },
-          },
-        };
-        await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
-        onClose?.(true);
-      });
+          };
+          await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
+          onClose?.(true);
+        })
+        .catch(_ => {
+          setActiveTab("settings");
+        });
     } else {
-      field2Form.validateFields().then(async fields2Values => {
-        field1FormValues.typeProperty = {
-          reference: {
-            modelId: selectedModel ?? "",
-            correspondingField: {
-              ...fields2Values,
+      field2Form
+        .validateFields()
+        .then(async fields2Values => {
+          field1FormValues.typeProperty = {
+            reference: {
+              modelId: selectedModel ?? "",
+              correspondingField: {
+                ...fields2Values,
+              },
             },
-          },
-        };
+          };
 
-        await onSubmit?.(field1FormValues);
-        onClose?.(true);
-      });
+          await onSubmit?.(field1FormValues);
+          onClose?.(true);
+        })
+        .catch(_ => {
+          setActiveTab("settings");
+        });
     }
   }, [onClose, onSubmit, onUpdate, selectedField, field1FormValues, field2Form, selectedModel]);
 
