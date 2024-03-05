@@ -108,10 +108,6 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 		skipDecompression = lo.FromPtr(request.JSONBody.SkipDecompression)
 	}
 
-	if f == nil {
-		return AssetCreate400Response{}, ErrFileIsMissing
-	}
-
 	cp := interfaces.CreateAssetParam{
 		ProjectID:         request.ProjectId,
 		File:              f,
