@@ -26,7 +26,9 @@ test("Markdown field editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByLabel("Display name")).toBeVisible();
   await expect(page.getByLabel("Display name")).toHaveValue("text1");
   await expect(page.getByLabel("Settings").locator("#key")).toHaveValue("text1");
-  await expect(page.getByText("text1 description")).toHaveValue("text1 description");
+  await expect(page.getByLabel("Settings").locator("#description")).toHaveValue(
+    "text1 description",
+  );
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
   await expect(page.getByLabel("Use as title")).not.toBeChecked();
   await page.getByRole("tab", { name: "Validation" }).click();
