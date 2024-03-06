@@ -56,6 +56,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     loading,
     totalCount,
     page,
@@ -129,14 +130,10 @@ export default () => {
     skip: !model?.id,
   });
 
-  const handleSearchTerm = useCallback(
-    (term?: string) => {
-      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1]?.schemaFieldId ?? titleId.current;
-      setSearchTerm(term ?? "");
-      setLinkItemModalPage(1);
-    },
-    [itemsData?.searchItem.nodes],
-  );
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setLinkItemModalPage(1);
+  }, []);
 
   const handleLinkItemTableReload = useCallback(() => {
     refetch();
@@ -441,7 +438,7 @@ export default () => {
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetModalRequests"],
   });
 
   const handleRequestCreate = useCallback(
@@ -503,9 +500,14 @@ export default () => {
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
-  const handleReferenceModelUpdate = useCallback((modelId?: string) => {
-    setReferenceModelId(modelId);
-  }, []);
+  const handleReferenceModelUpdate = useCallback(
+    (modelId: string, titleFieldId: string) => {
+      setReferenceModelId(modelId);
+      titleId.current = titleFieldId;
+      handleSearchTerm();
+    },
+    [handleSearchTerm],
+  );
 
   return {
     linkedItemsModalList,
@@ -536,6 +538,7 @@ export default () => {
     handleLinkItemTableChange,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,

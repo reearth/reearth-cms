@@ -37,6 +37,7 @@ const ContentDetails: React.FC = () => {
     handleLinkItemTableReload,
     handleLinkItemTableChange,
     handleRequestTableChange,
+    handleRequestTableReload,
     handleRequestSearchTerm,
     requestModalLoading,
     requestModalTotalCount,
@@ -98,6 +99,7 @@ const ContentDetails: React.FC = () => {
       requestCreationLoading={requestCreationLoading}
       onRequestTableChange={handleRequestTableChange}
       onRequestSearchTerm={handleRequestSearchTerm}
+      onRequestTableReload={handleRequestTableReload}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}

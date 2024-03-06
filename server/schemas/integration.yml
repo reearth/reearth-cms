@@ -533,17 +533,58 @@ paths:
               properties:
                 url:
                   type: string
+                token:
+                  type: string
                 skipDecompression:
                   type: boolean
                   nullable: true
                   default: false
       responses:
         '200':
-          description: assets list
+          description: assets
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/projects/{projectId}/assets/uploads':
+    post:
+      operationId: AssetUploadCreate
+      tags:
+        - Assets project
+      security:
+        - bearerAuth: []
+      summary: Upload an asset.
+      description: Issue a URL and a token to upload an asset.
+      parameters:
+        - $ref: '#/components/parameters/projectIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: asset upload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  token:
+                    type: string
+                  contentType:
+                    type: string
         '400':
           description: Invalid request parameter value
         '401':

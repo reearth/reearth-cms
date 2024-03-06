@@ -69,10 +69,11 @@ export const itemFormat = (
           }}
         />
       ) : (
-        <Switch
+        <ReadOnlySwitch
           checkedChildren={<Icon icon={"check"} />}
           unCheckedChildren={<Icon icon={"close"} />}
           checked={item === "true"}
+          disabled
         />
       );
     case "Asset":
@@ -124,6 +125,15 @@ const StyledTag = styled(Tag)`
 
 const StyledIcon = styled(Icon)`
   height: 14px;
+`;
+
+const ReadOnlySwitch = styled(Switch)`
+  opacity: 1;
+  cursor: default;
+
+  &:disabled * {
+    cursor: default !important;
+  }
 `;
 
 const StyledInput = styled(Input)`
