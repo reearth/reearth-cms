@@ -17,12 +17,13 @@ type Props = {
   disabled?: boolean;
   correspondingFieldId: string;
   modelId?: string;
+  titleFieldId?: string | null;
   formItemsData?: FormItem[];
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  onReferenceModelUpdate?: (modelId?: string) => void;
+  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm?: (term?: string) => void;
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
@@ -36,6 +37,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   correspondingFieldId,
   onChange,
   modelId,
+  titleFieldId,
   formItemsData,
   linkItemModalTitle,
   linkItemModalTotalCount,
@@ -53,11 +55,10 @@ const ReferenceFormItem: React.FC<Props> = ({
   const [currentItem, setCurrentItem] = useState<FormItem | undefined>();
 
   const handleClick = useCallback(() => {
-    if (!onReferenceModelUpdate) return;
-    onReferenceModelUpdate(modelId);
+    if (!onReferenceModelUpdate || !modelId) return;
+    onReferenceModelUpdate(modelId, titleFieldId ?? "");
     setVisible(true);
-    onSearchTerm?.("");
-  }, [setVisible, onReferenceModelUpdate, modelId, onSearchTerm]);
+  }, [onReferenceModelUpdate, modelId, titleFieldId]);
 
   const handleLinkItemModalCancel = useCallback(() => {
     if (disabled) return;

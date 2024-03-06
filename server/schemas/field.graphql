@@ -124,8 +124,8 @@ type SchemaFieldInteger {
 
 type SchemaFieldReference {
   modelId: ID!
-  correspondingSchemaId: ID
-  correspondingSchema: Schema
+  schemaId: ID!
+  schema: Schema!
   correspondingFieldId: ID
   correspondingField: SchemaField
 }
@@ -204,15 +204,15 @@ input SchemaFieldIntegerInput {
 
 input CorrespondingFieldInput {
   fieldId: ID
-  title: String
-  key: String
-  description: String
-  required: Boolean
+  title: String!
+  key: String!
+  description: String!
+  required: Boolean!
 } 
 
 input SchemaFieldReferenceInput {
   modelId: ID!
-  correspondingSchemaId: ID
+  schemaId: ID!
   correspondingField: CorrespondingFieldInput
 }
 

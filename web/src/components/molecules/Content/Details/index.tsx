@@ -53,7 +53,7 @@ export type Props = {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId?: string) => void;
+  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm: (term?: string) => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;

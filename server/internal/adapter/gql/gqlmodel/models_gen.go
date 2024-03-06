@@ -208,11 +208,11 @@ type ConditionInput struct {
 }
 
 type CorrespondingFieldInput struct {
-	FieldID     *ID     `json:"fieldId,omitempty"`
-	Title       *string `json:"title,omitempty"`
-	Key         *string `json:"key,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Required    *bool   `json:"required,omitempty"`
+	FieldID     *ID    `json:"fieldId,omitempty"`
+	Title       string `json:"title"`
+	Key         string `json:"key"`
+	Description string `json:"description"`
+	Required    bool   `json:"required"`
 }
 
 type CreateAssetInput struct {
@@ -987,19 +987,19 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID               ID           `json:"modelId"`
-	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
-	CorrespondingSchema   *Schema      `json:"correspondingSchema,omitempty"`
-	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
-	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
+	ModelID              ID           `json:"modelId"`
+	SchemaID             ID           `json:"schemaId"`
+	Schema               *Schema      `json:"schema"`
+	CorrespondingFieldID *ID          `json:"correspondingFieldId,omitempty"`
+	CorrespondingField   *SchemaField `json:"correspondingField,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID               ID                       `json:"modelId"`
-	CorrespondingSchemaID *ID                      `json:"correspondingSchemaId,omitempty"`
-	CorrespondingField    *CorrespondingFieldInput `json:"correspondingField,omitempty"`
+	ModelID            ID                       `json:"modelId"`
+	SchemaID           ID                       `json:"schemaId"`
+	CorrespondingField *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {

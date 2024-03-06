@@ -44,7 +44,7 @@ type Props = {
   linkItemModalPage: number;
   linkItemModalPageSize: number;
   onSearchTerm: (term?: string) => void;
-  onReferenceModelUpdate: (modelId?: string) => void;
+  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (

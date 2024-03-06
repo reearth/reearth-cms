@@ -99,9 +99,9 @@ models:
         resolver: true
   SchemaFieldReference:
     fields:
-      correspondingField:
+      schema:
         resolver: true
-      correspondingSchema:
+      correspondingField:
         resolver: true
   Asset:
     fields:

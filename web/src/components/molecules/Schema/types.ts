@@ -54,6 +54,7 @@ export type TypeProperty = {
   groupId?: string;
   tags?: Tag[];
   values?: string[];
+  schema?: { titleFieldId: string | null };
 };
 
 export type FieldTypePropertyInput = {
@@ -68,6 +69,7 @@ export type FieldTypePropertyInput = {
   url?: { defaultValue: string };
   reference?: {
     modelId: string;
+    schemaId: string;
     correspondingField: {
       key: string;
       title: string;

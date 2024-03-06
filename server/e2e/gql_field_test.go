@@ -39,11 +39,14 @@ func createField(e *httpexpect.Expect, mID, title, desc, key string, multiple, u
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
+		Expect()
 
-	return res.Path("$.data.createField.field.id").Raw().(string), res
+	if res.Raw().StatusCode != http.StatusOK {
+		res.JSON().IsNull()
+	}
+
+	json := res.JSON()
+	return json.Path("$.data.createField.field.id").Raw().(string), json
 }
 
 func createMetaField(e *httpexpect.Expect, mID, title, desc, key string, multiple, unique, isTitle, required bool, fType string, fTypeProp map[string]any) (string, *httpexpect.Value) {

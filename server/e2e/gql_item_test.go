@@ -469,7 +469,8 @@ func TestTwoWayReferenceFields(t *testing.T) {
 		false, false, false, false, "Reference",
 		map[string]any{
 			"reference": map[string]any{
-				"modelId": m1Id,
+				"modelId":  m1Id,
+				"schemaId": s1Id,
 				"correspondingField": map[string]any{
 					"title":       "Ref to test 1",
 					"key":         "test-1-ref",

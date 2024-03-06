@@ -128,6 +128,7 @@ func TestToSchemaField(t *testing.T) {
 
 func TestToSchemaFieldTypeProperty(t *testing.T) {
 	mid := id.NewModelID()
+	sid := id.NewSchemaID()
 
 	type args struct {
 		tp *schema.TypeProperty
@@ -180,8 +181,8 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "reference",
-			args: args{tp: schema.NewReference(mid, nil, nil, nil).TypeProperty()},
-			want: &SchemaFieldReference{ModelID: IDFrom(mid)},
+			args: args{tp: schema.NewReference(mid, sid, nil, nil).TypeProperty()},
+			want: &SchemaFieldReference{ModelID: IDFrom(mid), SchemaID: IDFrom(sid)},
 		},
 		{
 			name: "asset",
@@ -221,6 +222,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 
 func TestFromSchemaFieldTypeProperty(t *testing.T) {
 	mid := id.NewModelID()
+	sid := id.NewSchemaID()
 
 	tests := []struct {
 		name      string
@@ -289,11 +291,12 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			name: "reference",
 			argsInp: &SchemaFieldTypePropertyInput{
 				Reference: &SchemaFieldReferenceInput{
-					ModelID: ID(mid.String()),
+					ModelID:  ID(mid.String()),
+					SchemaID: ID(sid.String()),
 				},
 			},
 			argsT:  SchemaFieldTypeReference,
-			wantTp: schema.NewReference(mid, nil, nil, nil).TypeProperty(),
+			wantTp: schema.NewReference(mid, sid, nil, nil).TypeProperty(),
 		},
 		{
 			name: "asset",
@@ -360,13 +363,12 @@ func TestFromCorrespondingField(t *testing.T) {
 
 	cf = &CorrespondingFieldInput{
 		FieldID:     IDFromRef(id.NewFieldID().Ref()),
-		Title:       lo.ToPtr("title"),
-		Key:         lo.ToPtr("key"),
-		Description: lo.ToPtr(""),
-		Required:    lo.ToPtr(false),
+		Title:       "title",
+		Key:         "key",
+		Description: "",
+		Required:    false,
 	}
 	want := &schema.CorrespondingField{
-		FieldID:     ToIDRef[id.Field](cf.FieldID),
 		Title:       cf.Title,
 		Key:         cf.Key,
 		Description: cf.Description,

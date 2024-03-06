@@ -71,7 +71,7 @@ export interface Props {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId?: string) => void;
+  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm: (term?: string) => void;
   onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;

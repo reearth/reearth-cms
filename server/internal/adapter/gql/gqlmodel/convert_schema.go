@@ -214,9 +214,9 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 		},
 		Reference: func(f *schema.FieldReference) {
 			res = &SchemaFieldReference{
-				ModelID:               IDFrom(f.Model()),
-				CorrespondingSchemaID: IDFromRef(f.CorrespondingSchema()),
-				CorrespondingFieldID:  IDFromRef(f.CorrespondingFieldID()),
+				ModelID:              IDFrom(f.Model()),
+				SchemaID:             IDFrom(f.Schema()),
+				CorrespondingFieldID: IDFromRef(f.CorrespondingFieldID()),
 			}
 		},
 		URL: func(f *schema.FieldURL) {
@@ -252,6 +252,7 @@ func valueString(dv *value.Multiple, multiple bool) any {
 }
 
 var ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
+var ErrMultipleReference = rerror.NewE(i18n.T("multiple reference is not supported"))
 var ErrEmptyOptions = rerror.NewE(i18n.T("Options could not be empty!"))
 
 func FromCorrespondingField(cf *CorrespondingFieldInput) *schema.CorrespondingField {
@@ -260,7 +261,6 @@ func FromCorrespondingField(cf *CorrespondingFieldInput) *schema.CorrespondingFi
 	}
 
 	return &schema.CorrespondingField{
-		FieldID:     ToIDRef[id.Field](cf.FieldID),
 		Title:       cf.Title,
 		Key:         cf.Key,
 		Description: cf.Description,
@@ -452,7 +452,14 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
+		if multiple {
+			return nil, nil, ErrMultipleReference
+		}
 		mId, err := ToID[id.Model](x.ModelID)
+		if err != nil {
+			return nil, nil, err
+		}
+		sId, err := ToID[id.Schema](x.SchemaID)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -460,11 +467,7 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		if x.CorrespondingField != nil {
 			fid = ToIDRef[id.Field](x.CorrespondingField.FieldID)
 		}
-		var sid *id.SchemaID
-		if x.CorrespondingSchemaID != nil {
-			sid = ToIDRef[id.Schema](x.CorrespondingSchemaID)
-		}
-		tpRes = schema.NewReference(mId, sid, FromCorrespondingField(x.CorrespondingField), fid).TypeProperty()
+		tpRes = schema.NewReference(mId, sId, fid, FromCorrespondingField(x.CorrespondingField)).TypeProperty()
 	case SchemaFieldTypeGroup:
 		x := tp.Group
 		if x == nil {

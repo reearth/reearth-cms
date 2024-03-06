@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -51,6 +51,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [selectedModel, setSelectedModel] = useState<string | undefined>();
+  const schemaIdRef = useRef<string>();
   const [modelForm] = Form.useForm();
   const [field1Form] = Form.useForm();
   const [field2Form] = Form.useForm();
@@ -91,6 +92,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       typeProperty: {
         reference: {
           modelId: "",
+          schemaId: "",
           correspondingField: null,
         },
       },
@@ -111,8 +113,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   );
 
   const handleSelectModel = useCallback(
-    (modelId: string) => {
+    (modelId: string, option: { schemaId: string }) => {
       setSelectedModel(modelId);
+      schemaIdRef.current = option.schemaId;
     },
     [setSelectedModel],
   );
@@ -133,6 +136,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         values.typeProperty = {
           reference: {
             modelId: selectedModel,
+            schemaId: schemaIdRef.current,
             correspondingField: null,
           },
         };
@@ -165,6 +169,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         field1FormValues.typeProperty = {
           reference: {
             modelId: selectedModel ?? "",
+            schemaId: schemaIdRef.current ?? "",
             correspondingField: {
               ...fields2Values,
               fieldId: selectedField?.typeProperty?.correspondingField.id,
@@ -179,6 +184,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         field1FormValues.typeProperty = {
           reference: {
             modelId: selectedModel ?? "",
+            schemaId: schemaIdRef.current ?? "",
             correspondingField: {
               ...fields2Values,
             },
@@ -255,9 +261,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             name="model"
             label={t("Select the model to reference")}
             rules={[{ required: true, message: t("Please select the model!") }]}>
-            <Select value={selectedModel} onChange={handleSelectModel} disabled={isUpdate}>
+            <Select value={selectedModel} onSelect={handleSelectModel} disabled={isUpdate}>
               {models?.map(model => (
-                <Select.Option key={model.id} value={model.id}>
+                <Select.Option key={model.id} value={model.id} schemaId={model.schema.id}>
                   {model.name}{" "}
                   <StyledModelKey className="ant-form-item-extra">#{model.key}</StyledModelKey>
                 </Select.Option>

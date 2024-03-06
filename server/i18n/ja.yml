@@ -9,14 +9,14 @@ auth0 is not set up: Auth0が設定されていません。
 "auth0: domain is not set": Auth0のドメインが設定されていません。
 bucket name is empty: ストレージバケット名が空白です。
 can't delete a group as it's used by some models: いくつかのモデルで使用されているため、グループを削除できません。
-can't update by approve: このメソッドでApproveすることはできません
+can't update by approve: このメソッドで承認することはできません
 comment already exist in this thread: コメントは既にこのスレッドに存在します。
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
 comment not found: コメントが見つかりませんでした。
 createdBy is required: createdByは必須です。
-duplicated item: 重複したアイテム
+duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
-duplicated value: 値が重複すています。
+duplicated value: 値が重複しています。
 either model or group should be provided: モデルまたはグループのどちらかを指定してください。
 failed to auth: 認証に失敗しました。
 failed to create asset: アセットの作成に失敗しました。
@@ -24,7 +24,7 @@ failed to delete file: ファイルの削除に失敗しました。
 failed to lock: ロックに失敗しました。
 failed to update user: ユーザー情報の更新に失敗しました。
 failed to upload file: ファイルのアップロードに失敗しました。
-field not found: ファイルが見つかりませんでした。
+field not found: フィールドが見つかりませんでした。
 field value exist: フィールドの値はすでに存在します。
 file not found: ファイルが見つかりませんでした。
 file not included: ファイルが含まれていません。
@@ -60,6 +60,7 @@ metadata item and schema mismatch: メタデータのアイテムのスキーマ
 metadata schema not found: メタデータのスキーマが見つかりません。
 model key is already used by another model: このキーはすでに別のモデルで使用されています。
 model should have at least one view: モデルには少なくとも 1 つのビューが必要です
+multiple reference is not supported: 複数参照はサポートされていません
 not found: 見つかりませんでした。
 not implemented: 未実装です。
 not implemented yet: 未実装です。
@@ -72,6 +73,9 @@ operation denied: 操作が拒否されました。
 project alias is already used by another project: プロジェクトエイリアスはすでに別のプロジェクトで使用されています。
 project alias is not set: プロジェクトエイリアスが設定されていません。
 projectID is required: プロジェクトIDは必須です。
+reference field direction can not be changed: 参照フィールドの方向は変更できません
+reference field model can not be changed: 参照フィールドのモデルは変更できません
+referenced field key exists: 参照フィールドのキーがすでに存在します
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。
