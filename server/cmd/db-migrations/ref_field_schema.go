@@ -26,8 +26,9 @@ type TypeProperty struct {
 }
 
 type Reference struct {
-	Model  string `bson:"model"`
-	Schema string `bson:"schema"`
+	Model               string  `bson:"model"`
+	Schema              string  `bson:"schema"`
+	CorrespondingSchema *string `bson:"correspondingschema"`
 }
 
 func (r *Reference) SetSchema(s string) {
@@ -86,10 +87,15 @@ func RefFieldSchema(ctx context.Context, dbURL, dbName string, wetRun bool) erro
 				return
 			}
 			m, ok := models[f.TypeProperty.Reference.Model]
-			if !ok {
-				fmt.Printf("no model found for schema '%s' model id '%s'\n", s.ID, f.TypeProperty.Reference.Model)
+			if ok {
+				f.TypeProperty.Reference.SetSchema(m.Schema)
+				return
 			}
-			f.TypeProperty.Reference.SetSchema(m.Schema)
+			if f.TypeProperty.Reference.CorrespondingSchema != nil {
+				f.TypeProperty.Reference.SetSchema(*f.TypeProperty.Reference.CorrespondingSchema)
+				return
+			}
+			fmt.Printf("no model found for schema '%s' model id '%s'\n", s.ID, f.TypeProperty.Reference.Model)
 		})
 	})
 
@@ -99,6 +105,7 @@ func RefFieldSchema(ctx context.Context, dbURL, dbName string, wetRun bool) erro
 			if f.TypeProperty.Type != "reference" {
 				return nil, false
 			}
+			fmt.Printf("updating schema '%s' field '%s' referenced schema '%s'\n", s.ID, f.ID, f.TypeProperty.Reference.Schema)
 			return mongo.NewUpdateOneModel().
 				SetFilter(bson.M{
 					"id":        s.ID,
