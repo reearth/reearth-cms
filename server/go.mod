@@ -2,8 +2,6 @@ module github.com/reearth/reearth-cms/server
 
 go 1.21
 
-replace github.com/reearth/reearthx => ../../reearthx
-
 require (
 	cloud.google.com/go/pubsub v1.36.1
 	cloud.google.com/go/storage v1.37.0
