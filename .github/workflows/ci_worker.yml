@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.21
+          go-version: 1.22
       - name: checkout
         uses: actions/checkout@v4
       - name: cache
