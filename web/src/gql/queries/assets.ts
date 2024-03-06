@@ -54,7 +54,7 @@ export const GET_ASSET = gql`
 export const GET_ASSET_FILE = gql`
   query GetAssetFile($assetId: ID!) {
     assetFile(assetId: $assetId) {
-      ...assetFile5Fragment
+      ...assetFile10Fragment
     }
   }
 `;

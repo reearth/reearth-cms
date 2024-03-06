@@ -2135,7 +2135,7 @@ export type AssetFragmentFragment = { __typename?: 'Asset', id: string, fileName
 
 export type AssetFileFragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string };
 
-export type AssetFile5FragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null };
+export type AssetFile10FragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null };
 
 export type IntegrationFragmentFragment = { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null };
 
@@ -2177,7 +2177,7 @@ export type GetAssetFileQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetFileQuery = { __typename?: 'Query', assetFile: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null } };
+export type GetAssetFileQuery = { __typename?: 'Query', assetFile: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null } };
 
 export type GetAssetItemQueryVariables = Exact<{
   assetId: Scalars['ID'];
@@ -2948,8 +2948,8 @@ export const AssetFileFragmentFragmentDoc = gql`
   path
 }
     `;
-export const AssetFile5FragmentFragmentDoc = gql`
-    fragment assetFile5Fragment on AssetFile {
+export const AssetFile10FragmentFragmentDoc = gql`
+    fragment assetFile10Fragment on AssetFile {
   ...assetFileFragment
   children {
     ...assetFileFragment
@@ -2961,6 +2961,21 @@ export const AssetFile5FragmentFragmentDoc = gql`
           ...assetFileFragment
           children {
             ...assetFileFragment
+            children {
+              ...assetFileFragment
+              children {
+                ...assetFileFragment
+                children {
+                  ...assetFileFragment
+                  children {
+                    ...assetFileFragment
+                    children {
+                      ...assetFileFragment
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -3249,10 +3264,10 @@ export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQuer
 export const GetAssetFileDocument = gql`
     query GetAssetFile($assetId: ID!) {
   assetFile(assetId: $assetId) {
-    ...assetFile5Fragment
+    ...assetFile10Fragment
   }
 }
-    ${AssetFile5FragmentFragmentDoc}`;
+    ${AssetFile10FragmentFragmentDoc}`;
 
 /**
  * __useGetAssetFileQuery__
