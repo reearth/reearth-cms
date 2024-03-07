@@ -5,10 +5,10 @@ on:
 env:
   # server
   IMAGE: reearth/reearth-cms:nightly
-  IMAGE_AWS: reearth-cms-test-server:latest
+  IMAGE_AWS: reearth-cms-server:latest
   # worker
   WORKER_IMAGE: reearth/reearth-cms-worker:nightly
-  WORKER_IMAGE_AWS: reearth-cms-test-worker:latest
+  WORKER_IMAGE_AWS: reearth-cms-worker:latest
 
 jobs:
   deploy_web:
