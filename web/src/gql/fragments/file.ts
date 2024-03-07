@@ -9,8 +9,8 @@ export const assetFileFragment = gql`
   }
 `;
 
-export const assetFile5Fragment = gql`
-  fragment assetFile5Fragment on AssetFile {
+export const assetFile10Fragment = gql`
+  fragment assetFile10Fragment on AssetFile {
     ...assetFileFragment
     children {
       ...assetFileFragment
@@ -22,6 +22,21 @@ export const assetFile5Fragment = gql`
             ...assetFileFragment
             children {
               ...assetFileFragment
+              children {
+                ...assetFileFragment
+                children {
+                  ...assetFileFragment
+                  children {
+                    ...assetFileFragment
+                    children {
+                      ...assetFileFragment
+                      children {
+                        ...assetFileFragment
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }

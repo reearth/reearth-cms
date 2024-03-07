@@ -219,7 +219,7 @@ export default () => {
       }
     } else {
       if (field.type === "Reference") {
-        return item.referencedItems?.find(ref => ref.id === field.value)?.title ?? "";
+        return item.referencedItems?.find(ref => ref.id === field.value)?.title ?? field.value;
       } else {
         if (Array.isArray(field.value) && field.value.length > 0) {
           return field.value.map(v => "" + v);
