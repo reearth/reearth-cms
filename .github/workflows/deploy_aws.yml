@@ -80,8 +80,8 @@ jobs:
           context: ./server
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
 
   deploy_worker:
     name: Deploy worker to AWS
@@ -106,5 +106,5 @@ jobs:
           context: ./worker
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/$WORKER_IMAGE_AWS
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
