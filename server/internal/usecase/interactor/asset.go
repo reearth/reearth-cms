@@ -268,16 +268,14 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 	if op.AcOperator.User == nil && op.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
+
 	var param *gateway.IssueUploadAssetParam
 	if inp.Cursor == "" {
 		if inp.Filename == "" {
 			// TODO: Change to the appropriate error
 			return nil, interfaces.ErrFileNotIncluded
 		}
-		if inp.ContentLength == 0 {
-			// TODO: Change to the appropriate error
-			return nil, interfaces.ErrFileNotIncluded
-		}
+
 		const week = 7 * 24 * time.Hour
 		expiresAt := time.Now().Add(1 * week)
 		param = &gateway.IssueUploadAssetParam{

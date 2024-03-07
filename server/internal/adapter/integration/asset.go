@@ -170,8 +170,10 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 	au, err := uc.Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
-		ProjectID: request.ProjectId,
-		Filename:  lo.FromPtr(request.Body.Name),
+		ProjectID:     request.ProjectId,
+		Filename:      lo.FromPtr(request.Body.Name),
+		ContentLength: int64(lo.FromPtr(request.Body.ContentLength)),
+		Cursor:        lo.FromPtr(request.Body.Cursor),
 	}, op)
 
 	if err != nil {
@@ -182,8 +184,10 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 	}
 
 	return AssetUploadCreate200JSONResponse{
-		Url:         &au.URL,
-		Token:       &au.UUID,
-		ContentType: &au.ContentType,
+		Url:           &au.URL,
+		Token:         &au.UUID,
+		ContentType:   &au.ContentType,
+		ContentLength: lo.ToPtr(int(au.ContentLength)),
+		Next:          &au.Next,
 	}, nil
 }

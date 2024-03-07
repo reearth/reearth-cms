@@ -478,7 +478,9 @@ type AssetCreateMultipartBody struct {
 
 // AssetUploadCreateJSONBody defines parameters for AssetUploadCreate.
 type AssetUploadCreateJSONBody struct {
-	Name *string `json:"name,omitempty"`
+	ContentLength *int    `json:"contentLength,omitempty"`
+	Cursor        *string `json:"cursor,omitempty"`
+	Name          *string `json:"name,omitempty"`
 }
 
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
