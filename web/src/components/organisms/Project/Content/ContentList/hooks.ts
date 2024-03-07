@@ -122,7 +122,7 @@ export default () => {
   });
 
   const [updateItemMutation] = useUpdateItemMutation({
-    refetchQueries: ["SearchItem", "GetViews"],
+    refetchQueries: ["SearchItem"],
   });
 
   const [createNewItem] = useCreateItemMutation();

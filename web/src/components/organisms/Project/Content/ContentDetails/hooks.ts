@@ -262,7 +262,7 @@ export default () => {
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
-    refetchQueries: ["SearchItem", "GetItem"],
+    refetchQueries: ["GetItem"],
   });
 
   const handleItemUpdate = useCallback(
