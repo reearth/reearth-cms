@@ -7,6 +7,18 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
+func SimpleToUser(u *user.Simple) *User {
+	if u == nil {
+		return nil
+	}
+
+	return &User{
+		ID:    IDFrom(u.ID),
+		Name:  u.Name,
+		Email: u.Email,
+	}
+}
+
 func ToUser(u *user.User) *User {
 	if u == nil {
 		return nil
