@@ -4,18 +4,20 @@ import { useCallback, useEffect } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
+  itemAssets?: ItemAsset[];
   className?: string;
   value?: string[];
   onChange?: (value: string[]) => void;
@@ -44,9 +46,11 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   disabled?: boolean;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const MultiValueAsset: React.FC<Props> = ({
+  itemAssets,
   className,
   value = [],
   onChange,
@@ -71,6 +75,7 @@ const MultiValueAsset: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   disabled,
+  onGetAsset,
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -118,6 +123,7 @@ const MultiValueAsset: React.FC<Props> = ({
               </>
             )}
             <AssetItem
+              itemAssets={itemAssets}
               disabled={disabled}
               value={valueItem}
               assetList={assetList}
@@ -141,6 +147,7 @@ const MultiValueAsset: React.FC<Props> = ({
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
               onChange={(e: string) => handleInput(e, key)}
+              onGetAsset={onGetAsset}
             />
             {!disabled && (
               <FieldButton

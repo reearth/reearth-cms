@@ -39,11 +39,14 @@ func createField(e *httpexpect.Expect, mID, title, desc, key string, multiple, u
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
+		Expect()
 
-	return res.Path("$.data.createField.field.id").Raw().(string), res
+	if res.Raw().StatusCode != http.StatusOK {
+		res.JSON().IsNull()
+	}
+
+	json := res.JSON()
+	return json.Path("$.data.createField.field.id").Raw().(string), json
 }
 
 func createMetaField(e *httpexpect.Expect, mID, title, desc, key string, multiple, unique, isTitle, required bool, fType string, fTypeProp map[string]any) (string, *httpexpect.Value) {
@@ -133,6 +136,8 @@ type fIds struct {
 	integerFId  string
 	urlFId      string
 	dateFId     string
+	tagFID      string
+	checkFid    string
 }
 
 func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds {
@@ -198,6 +203,25 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 				"defaultValue": "2024-01-01T18:06:09+09:00",
 			},
 		})
+	tagFId, _ := createField(e, mId, "tag", "tag", "m_tag",
+		false, false, false, false, "Tag",
+		map[string]any{
+			"tag": map[string]any{
+				"tags": []any{
+					map[string]any{"name": "Tag1", "color": "RED"},
+					map[string]any{"name": "Tag2", "color": "MAGENTA"},
+					map[string]any{"name": "Tag3", "color": "GREEN"},
+					map[string]any{"name": "Tag4", "color": "BLUE"},
+					map[string]any{"name": "Tag5", "color": "GOLD"},
+				},
+			},
+		})
+
+	checkboxFId, _ := createField(e, mId, "checkbox", "checkbox", "m_checkbox",
+		false, false, false, false, "Checkbox",
+		map[string]any{
+			"checkbox": map[string]any{},
+		})
 
 	_, _, res := getModel(e, mId)
 
@@ -218,6 +242,8 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		integerFId,
 		urlFId,
 		dateFId,
+		tagFId,
+		checkboxFId,
 	}, ids)
 
 	return fIds{
@@ -230,6 +256,8 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		integerFId:  integerFId,
 		urlFId:      urlFId,
 		dateFId:     dateFId,
+		tagFID:      tagFId,
+		checkFid:    checkboxFId,
 	}
 }
 
@@ -345,7 +373,7 @@ func TestCreateField(t *testing.T) {
 	tags := res.Path("$.data.node.schema.fields[0].typeProperty.tags").Raw().([]any)
 
 	_, _ = updateField(e, mId, fId, "test", "test", "test",
-		true, true, true, true, nil, "Tag",
+		true, true, false, true, nil, "Tag",
 		map[string]any{
 			"tag": map[string]any{
 				"defaultValue": []string{"s1", "s3"},
@@ -360,6 +388,8 @@ func TestCreateField(t *testing.T) {
 		Value("node").Object().
 		HasValue("id", mId)
 
+	title := res.Path("$.data.node.schema.fields[0].isTitle").Raw().(bool)
+	assert.False(t, title)
 	_, _ = createField(e, mId, "test2", "test2", "test2",
 		false, false, false, false, "Tag",
 		map[string]any{

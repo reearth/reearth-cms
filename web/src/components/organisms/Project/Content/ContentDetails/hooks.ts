@@ -4,22 +4,28 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { FormItem, Item, ItemStatus } from "@reearth-cms/components/molecules/Content/types";
+import {
+  FormItem,
+  Item,
+  ItemValue,
+  ItemStatus,
+  ItemField,
+} from "@reearth-cms/components/molecules/Content/types";
 import {
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import { FieldType, Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
-import { convertItem } from "@reearth-cms/components/organisms/Project/Content/convertItem";
+import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
+import { Role, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
-import { convertModel } from "@reearth-cms/components/organisms/Project/ModelsMenu/convertModel";
 import {
   Item as GQLItem,
   Model as GQLModel,
   Group as GQLGroup,
   RequestState as GQLRequestState,
-  SchemaFieldType,
   useCreateItemMutation,
   useCreateRequestMutation,
   useGetItemQuery,
@@ -28,14 +34,13 @@ import {
   useUpdateItemMutation,
   useUpdateRequestMutation,
   useSearchItemQuery,
-  useGetItemsByIdsQuery,
   useGetGroupsQuery,
   FieldType as GQLFieldType,
   StringOperator,
+  ItemFieldInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
-import { fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const {
@@ -51,6 +56,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     loading,
     totalCount,
     page,
@@ -89,8 +95,8 @@ export default () => {
     variables: { id: referenceModelId ?? "" },
     skip: !referenceModelId,
   });
-  const model = useMemo(() => convertModel(modelData?.node as GQLModel), [modelData?.node]);
-  const { data: itemsData } = useSearchItemQuery({
+  const model = useMemo(() => fromGraphQLModel(modelData?.node as GQLModel), [modelData?.node]);
+  const { data: itemsData, refetch } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
       searchItemInput: {
@@ -124,14 +130,14 @@ export default () => {
     skip: !model?.id,
   });
 
-  const handleSearchTerm = useCallback(
-    (term?: string) => {
-      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1]?.schemaFieldId ?? titleId.current;
-      setSearchTerm(term ?? "");
-      setLinkItemModalPage(1);
-    },
-    [itemsData?.searchItem.nodes],
-  );
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setLinkItemModalPage(1);
+  }, []);
+
+  const handleLinkItemTableReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -178,29 +184,8 @@ export default () => {
   );
 
   const currentItem: Item | undefined = useMemo(
-    () => convertItem(data?.node as GQLItem),
+    () => fromGraphQLItem(data?.node as GQLItem),
     [data?.node],
-  );
-
-  const formReferenceItemsIds = useMemo(
-    () =>
-      currentItem?.fields
-        ?.filter(field => field.value && field.type === "Reference")
-        .map(field => field.value) ?? [],
-    [currentItem?.fields],
-  );
-
-  const { data: gqlFormItemsData } = useGetItemsByIdsQuery({
-    fetchPolicy: "no-cache",
-    variables: {
-      id: formReferenceItemsIds,
-    },
-    skip: formReferenceItemsIds.length === 0,
-  });
-
-  const formItemsData: FormItem[] | undefined = useMemo(
-    () => gqlFormItemsData?.nodes as FormItem[],
-    [gqlFormItemsData?.nodes],
   );
 
   const { data: groupData } = useGetGroupsQuery({
@@ -224,42 +209,44 @@ export default () => {
     },
     [navigate, currentWorkspace?.id, currentProject?.id, location.state],
   );
-  const [createNewItem, { loading: itemCreationLoading }] = useCreateItemMutation({
+  const [createItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["SearchItem", "GetRequests"],
   });
 
   const handleItemCreate = useCallback(
-    async (data: {
+    async ({
+      schemaId,
+      metaSchemaId,
+      fields,
+      metaFields,
+    }: {
       schemaId: string;
-      metaSchemaId: string;
-      fields: { schemaFieldId: string; type: FieldType; value: string }[];
-      metaFields: { schemaFieldId: string; type: FieldType; value: string }[];
+      metaSchemaId?: string;
+      fields: ItemField[];
+      metaFields: ItemField[];
     }) => {
       if (!currentModel?.id) return;
-      let metaItemId = null;
-      if (data.metaSchemaId) {
-        const metaItem = await createNewItem({
+      let metadataId = null;
+      if (metaSchemaId) {
+        const metaItem = await createItem({
           variables: {
             modelId: currentModel.id,
-            schemaId: data.metaSchemaId,
-            fields: data.metaFields.map(field => ({
-              ...field,
-              type: field.type as SchemaFieldType,
-            })),
+            schemaId: metaSchemaId,
+            fields: metaFields as ItemFieldInput[],
           },
         });
         if (metaItem.errors || !metaItem.data?.createItem) {
           Notification.error({ message: t("Failed to create item.") });
           return;
         }
-        metaItemId = metaItem?.data.createItem.item.id;
+        metadataId = metaItem.data.createItem.item.id;
       }
-      const item = await createNewItem({
+      const item = await createItem({
         variables: {
           modelId: currentModel.id,
-          schemaId: data.schemaId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
-          metadataId: metaItemId ?? null,
+          schemaId: schemaId,
+          fields: fields as ItemFieldInput[],
+          metadataId,
         },
       });
       if (item.errors || !item.data?.createItem) {
@@ -271,7 +258,7 @@ export default () => {
       );
       Notification.success({ message: t("Successfully created Item!") });
     },
-    [currentModel, currentProject?.id, currentWorkspace?.id, createNewItem, navigate, t],
+    [currentModel?.id, createItem, navigate, currentWorkspace?.id, currentProject?.id, t],
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
@@ -279,14 +266,11 @@ export default () => {
   });
 
   const handleItemUpdate = useCallback(
-    async (data: {
-      itemId: string;
-      fields: { schemaFieldId: string; type: FieldType; value: string }[];
-    }) => {
+    async ({ itemId, fields }: { itemId: string; fields: ItemField[] }) => {
       const item = await updateItem({
         variables: {
-          itemId: data.itemId,
-          fields: data.fields.map(field => ({ ...field, type: field.type as SchemaFieldType })),
+          itemId: itemId,
+          fields: fields as ItemFieldInput[],
           version: currentItem?.version ?? "",
         },
       });
@@ -294,210 +278,131 @@ export default () => {
         Notification.error({ message: t("Failed to update item.") });
         return;
       }
-
       Notification.success({ message: t("Successfully updated Item!") });
     },
-    [updateItem, currentItem, t],
+    [updateItem, currentItem?.version, t],
   );
 
   const handleMetaItemUpdate = useCallback(
-    async (data: {
-      itemId: string;
-      metaSchemaId: string;
-      metaItemId?: string;
-      metaFields: { schemaFieldId: string; type: FieldType; value: string }[];
-      fields: { schemaFieldId: string; type: FieldType; value: string }[];
-    }) => {
-      if (!currentModel?.id) return;
-      let metaItemId = null;
-      if (data.metaSchemaId && !data.metaItemId) {
-        const metaItem = await createNewItem({
-          variables: {
-            modelId: currentModel.id,
-            schemaId: data.metaSchemaId,
-            fields: data.metaFields.map(field => ({
-              ...field,
-              type: field.type as SchemaFieldType,
-            })),
-          },
-        });
-        if (metaItem.errors || !metaItem.data?.createItem) {
-          Notification.error({ message: t("Failed to create item.") });
-          return;
-        }
-        metaItemId = metaItem?.data.createItem.item.id;
-        const item = await updateItem({
-          variables: {
-            itemId: data.itemId,
-            fields: data.fields.map(field => ({
-              ...field,
-              type: field.type as SchemaFieldType,
-            })),
-            metadataId: metaItemId,
-            version: currentItem?.version ?? "",
-          },
-        });
-        if (item.errors || !item.data?.updateItem) {
-          Notification.error({ message: t("Failed to update item.") });
-          return;
-        }
-      } else {
-        const item = await updateItem({
-          variables: {
-            itemId: data.metaItemId as string,
-            fields: data.metaFields.map(field => ({
-              ...field,
-              type: field.type as SchemaFieldType,
-            })),
-            version: currentItem?.metadata?.version ?? "",
-          },
-        });
-        if (item.errors || !item.data?.updateItem) {
-          Notification.error({ message: t("Failed to update item.") });
-          return;
-        }
+    async ({ metaItemId, metaFields }: { metaItemId: string; metaFields: ItemField[] }) => {
+      const item = await updateItem({
+        variables: {
+          itemId: metaItemId,
+          fields: metaFields as ItemFieldInput[],
+          version: currentItem?.metadata?.version ?? "",
+        },
+      });
+      if (item.errors || !item.data?.updateItem) {
+        Notification.error({ message: t("Failed to update item.") });
+        return;
       }
-
       Notification.success({ message: t("Successfully updated Item!") });
     },
-    [updateItem, createNewItem, currentItem, currentModel?.id, t],
+    [updateItem, currentItem?.metadata?.version, t],
+  );
+
+  const dateConvert = useCallback((value?: ItemValue) => {
+    if (Array.isArray(value)) {
+      return (value as string[]).map(valueItem => (valueItem ? moment(valueItem) : ""));
+    } else {
+      return value ? moment(value as string) : "";
+    }
+  }, []);
+
+  const valueGet = useCallback(
+    (field: Field) => {
+      switch (field.type) {
+        case "Select":
+          return field.typeProperty?.selectDefaultValue;
+        case "Integer":
+          return field.typeProperty?.integerDefaultValue;
+        case "Asset":
+          return field.typeProperty?.assetDefaultValue;
+        case "Date":
+          return dateConvert(field.typeProperty?.defaultValue);
+        default:
+          return field.typeProperty?.defaultValue;
+      }
+    },
+    [dateConvert],
+  );
+
+  const updateValueConvert = useCallback(
+    ({ type, value }: ItemField) => {
+      if (type === "Group") {
+        if (value) {
+          return value;
+        } else {
+          return newID();
+        }
+      } else if (type === "Date") {
+        return dateConvert(value);
+      } else {
+        return value;
+      }
+    },
+    [dateConvert],
   );
 
   const initialFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
-    if (!currentItem) {
-      const valueGet = (field: Field) => {
-        switch (field.type) {
-          case "Select":
-            return field.typeProperty?.selectDefaultValue;
-          case "Integer":
-            return field.typeProperty?.integerDefaultValue;
-          case "Asset":
-            return field.typeProperty?.assetDefaultValue;
-          case "Date":
-            if (Array.isArray(field.typeProperty?.defaultValue)) {
-              return field.typeProperty?.defaultValue.map((valueItem: any) =>
-                valueItem ? moment(valueItem) : "",
-              );
-            } else if (field.typeProperty?.defaultValue) {
-              return moment(field.typeProperty.defaultValue as string);
-            } else {
-              return "";
-            }
-          default:
-            return field.typeProperty?.defaultValue;
-        }
-      };
 
-      const updateInitialValues = (value: any, id: string, itemGroupId: string) => {
-        if (typeof initialValues[id] === "object" && !Array.isArray(initialValues[id])) {
-          initialValues[id][itemGroupId] = value;
+    const updateInitialValues = (value: any, id: string, itemGroupId: string) => {
+      initialValues[id] = {
+        ...initialValues[id],
+        ...{ [itemGroupId]: value },
+      };
+    };
+
+    const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
+      group?.schema?.fields?.forEach(field => {
+        updateInitialValues(valueGet(field), field.id, itemGroupId);
+      });
+    };
+
+    if (currentItem) {
+      currentItem?.fields?.forEach(field => {
+        if (field.itemGroupId) {
+          initialValues[field.schemaFieldId] = {
+            ...initialValues[field.schemaFieldId],
+            ...{ [field.itemGroupId]: updateValueConvert(field) },
+          };
         } else {
-          initialValues[id] = { [itemGroupId]: value };
-        }
-      };
-
-      const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
-        group?.schema?.fields?.forEach(field => {
-          updateInitialValues(valueGet(field), field.id, itemGroupId);
-        });
-      };
-
-      currentModel?.schema.fields.forEach(field => {
-        switch (field.type) {
-          case "Select":
-            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
-            break;
-          case "Integer":
-            initialValues[field.id] = field.typeProperty?.integerDefaultValue;
-            break;
-          case "Asset":
-            initialValues[field.id] = field.typeProperty?.assetDefaultValue;
-            break;
-          case "Date":
-            if (Array.isArray(field.typeProperty?.defaultValue)) {
-              initialValues[field.id] = field.typeProperty?.defaultValue.map(valueItem =>
-                valueItem ? moment(valueItem as string) : "",
-              );
-            } else {
-              initialValues[field.id] = field.typeProperty?.defaultValue
-                ? moment(field.typeProperty.defaultValue as string)
-                : "";
-            }
-            break;
-          case "Group":
-            if (field.multiple) {
-              initialValues[field.id] = [];
-            } else {
-              const id = newID();
-              initialValues[field.id] = id;
-              const group = groups?.find(group => group.id === field.typeProperty?.groupId);
-              if (group) groupInitialValuesUpdate(group, id);
-            }
-            break;
-          default:
-            initialValues[field.id] = field.typeProperty?.defaultValue;
-            break;
+          initialValues[field.schemaFieldId] = updateValueConvert(field);
         }
       });
     } else {
-      currentItem?.fields?.forEach(field => {
-        if (field.type === "Date") {
-          if (Array.isArray(field.value)) {
-            field.value = field.value.map((valueItem: string) =>
-              valueItem ? moment(valueItem) : "",
-            );
+      currentModel?.schema.fields.forEach(field => {
+        if (field.type === "Group") {
+          if (field.multiple) {
+            initialValues[field.id] = [];
           } else {
-            field.value = field.value ? moment(field.value) : "";
-          }
-        }
-        if (field.itemGroupId) {
-          if (
-            typeof initialValues[field.schemaFieldId] === "object" &&
-            !Array.isArray(initialValues[field.schemaFieldId]) &&
-            !moment.isMoment(initialValues[field.schemaFieldId])
-          ) {
-            initialValues[field.schemaFieldId][field.itemGroupId] = field.value;
-          } else {
-            initialValues[field.schemaFieldId] = {
-              [field.itemGroupId]: field.value,
-            };
+            const id = newID();
+            initialValues[field.id] = id;
+            const group = groups?.find(group => group.id === field.typeProperty?.groupId);
+            if (group) groupInitialValuesUpdate(group, id);
           }
         } else {
-          initialValues[field.schemaFieldId] = field.value;
+          initialValues[field.id] = valueGet(field);
         }
       });
     }
+
     return initialValues;
-  }, [currentItem, currentModel, groups]);
+  }, [currentItem, currentModel?.schema.fields, groups, updateValueConvert, valueGet]);
 
   const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
-    if (!currentItem) {
+    if (!currentItem && !itemLoading) {
       currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {
-          case "Select":
-            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
+          case "Tag": {
+            const value = field.typeProperty?.selectDefaultValue;
+            initialValues[field.id] = field.multiple ? (Array.isArray(value) ? value : []) : value;
             break;
-          case "Tag":
-            initialValues[field.id] = field.typeProperty?.selectDefaultValue;
-            break;
-          case "Integer":
-            initialValues[field.id] = field.typeProperty?.integerDefaultValue;
-            break;
-          case "Asset":
-            initialValues[field.id] = field.typeProperty?.assetDefaultValue;
-            break;
+          }
           case "Date":
-            if (Array.isArray(field.typeProperty?.defaultValue)) {
-              initialValues[field.id] = field.typeProperty?.defaultValue.map(valueItem =>
-                valueItem ? moment(valueItem as string) : "",
-              );
-            } else {
-              initialValues[field.id] = field.typeProperty?.defaultValue
-                ? moment(field.typeProperty.defaultValue as string)
-                : "";
-            }
+            initialValues[field.id] = dateConvert(field.typeProperty?.defaultValue);
             break;
           default:
             initialValues[field.id] = field.typeProperty?.defaultValue;
@@ -506,27 +411,17 @@ export default () => {
       });
     } else {
       currentItem?.metadata.fields?.forEach(field => {
-        if (field.type === "Date") {
-          if (Array.isArray(field.value)) {
-            initialValues[field.schemaFieldId] = field.value.map((valueItem: string) =>
-              field.value ? moment(valueItem) : "",
-            );
-          } else {
-            initialValues[field.schemaFieldId] = field.value ? moment(field.value) : "";
-          }
-        } else {
-          initialValues[field.schemaFieldId] = field.value;
-        }
+        initialValues[field.schemaFieldId] =
+          field.type === "Date" ? dateConvert(field.value) : field.value;
       });
     }
-
     return initialValues;
-  }, [currentItem, currentModel?.metadataSchema?.fields]);
+  }, [currentItem, currentModel, dateConvert, itemLoading]);
 
-  const workspaceUserMembers = useMemo((): Member[] => {
+  const workspaceUserMembers = useMemo((): UserMember[] => {
     return (
       currentWorkspace?.members
-        ?.map<Member | undefined>(member =>
+        ?.map<UserMember | undefined>(member =>
           member.__typename === "WorkspaceUserMember" && member.user
             ? {
                 userId: member.userId,
@@ -536,13 +431,14 @@ export default () => {
             : undefined,
         )
         .filter(
-          (user): user is Member => !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
+          (user): user is UserMember =>
+            !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
         ) ?? []
     );
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetModalRequests"],
   });
 
   const handleRequestCreate = useCallback(
@@ -604,9 +500,14 @@ export default () => {
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
-  const handleReferenceModelUpdate = useCallback((modelId?: string) => {
-    setReferenceModelId(modelId);
-  }, []);
+  const handleReferenceModelUpdate = useCallback(
+    (modelId: string, titleFieldId: string) => {
+      setReferenceModelId(modelId);
+      titleId.current = titleFieldId;
+      handleSearchTerm();
+    },
+    [handleSearchTerm],
+  );
 
   return {
     linkedItemsModalList,
@@ -617,7 +518,6 @@ export default () => {
     requestCreationLoading,
     currentModel,
     currentItem,
-    formItemsData,
     initialFormValues,
     initialMetaFormValues,
     itemCreationLoading,
@@ -628,15 +528,17 @@ export default () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTitle: model.name,
+    linkItemModalTitle: model?.name ?? "",
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,
     handleSearchTerm,
+    handleLinkItemTableReload,
     handleLinkItemTableChange,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,

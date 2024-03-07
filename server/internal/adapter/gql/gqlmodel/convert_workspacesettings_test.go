@@ -43,8 +43,6 @@ func Test_ToTileType(t *testing.T) {
 	assert.Equal(t, TileTypeDefault, ToTileType(workspacesettings.TileTypeDefault))
 	assert.Equal(t, TileTypeLabelled, ToTileType(workspacesettings.TileTypeLabelled))
 	assert.Equal(t, TileTypeRoadMap, ToTileType(workspacesettings.TileTypeRoadMap))
-	assert.Equal(t, TileTypeStamenWatercolor, ToTileType(workspacesettings.TileTypeStamenWaterColor))
-	assert.Equal(t, TileTypeStamenToner, ToTileType(workspacesettings.TileTypeStamenToner))
 	assert.Equal(t, TileTypeOpenStreetMap, ToTileType(workspacesettings.TileTypeOpenStreetMap))
 	assert.Equal(t, TileTypeEsriTopography, ToTileType(workspacesettings.TileTypeESRITopography))
 	assert.Equal(t, TileTypeEarthAtNight, ToTileType(workspacesettings.TileTypeEarthAtNight))
@@ -135,7 +133,7 @@ func Test_FromResource(t *testing.T) {
 
 	rid2 := workspacesettings.NewResourceID()
 	pp2 := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
-	tt2 := workspacesettings.NewTileResource(rid2,workspacesettings.TileTypeDefault, pp2)
+	tt2 := workspacesettings.NewTileResource(rid2, workspacesettings.TileTypeDefault, pp2)
 	r2 := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt2, nil)
 
 	tid2 := IDFrom(r2.Tile().ID())
@@ -144,9 +142,9 @@ func Test_FromResource(t *testing.T) {
 			ID:   tid2,
 			Type: TileTypeDefault,
 			Props: &URLResourcePropsInput{
-				Name:                 "foo",
-				URL:                  "bar",
-				Image:                "baz",
+				Name:  "foo",
+				URL:   "bar",
+				Image: "baz",
 			},
 		},
 	}
@@ -165,8 +163,6 @@ func Test_FromTileType(t *testing.T) {
 	assert.Equal(t, workspacesettings.TileTypeDefault, FromTileType(TileTypeDefault))
 	assert.Equal(t, workspacesettings.TileTypeLabelled, FromTileType(TileTypeLabelled))
 	assert.Equal(t, workspacesettings.TileTypeRoadMap, FromTileType(TileTypeRoadMap))
-	assert.Equal(t, workspacesettings.TileTypeStamenWaterColor, FromTileType(TileTypeStamenWatercolor))
-	assert.Equal(t, workspacesettings.TileTypeStamenToner, FromTileType(TileTypeStamenToner))
 	assert.Equal(t, workspacesettings.TileTypeOpenStreetMap, FromTileType(TileTypeOpenStreetMap))
 	assert.Equal(t, workspacesettings.TileTypeESRITopography, FromTileType(TileTypeEsriTopography))
 	assert.Equal(t, workspacesettings.TileTypeEarthAtNight, FromTileType(TileTypeEarthAtNight))

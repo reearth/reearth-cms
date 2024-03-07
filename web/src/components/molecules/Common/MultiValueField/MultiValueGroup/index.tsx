@@ -6,14 +6,14 @@ import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { FormItem } from "@reearth-cms/components/molecules/Content/types";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
@@ -29,7 +29,9 @@ type Props = {
   groups?: Group[];
   fields?: Field[];
   linkedItemsModalList?: FormItem[];
+  linkItemModalTitle: string;
   formItemsData: FormItem[];
+  itemAssets?: ItemAsset[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -43,7 +45,9 @@ type Props = {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId?: string) => void;
+  onSearchTerm: (term?: string) => void;
+  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
+  onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -59,6 +63,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
@@ -70,7 +75,9 @@ const MultiValueGroup: React.FC<Props> = ({
   value = [],
   onChange,
   linkedItemsModalList,
+  linkItemModalTitle,
   formItemsData,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -84,7 +91,9 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onSearchTerm,
   onReferenceModelUpdate,
+  onLinkItemTableReload,
   onLinkItemTableChange,
   onAssetTableChange,
   onUploadModalCancel,
@@ -96,6 +105,7 @@ const MultiValueGroup: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const t = useT();
 
@@ -178,7 +188,10 @@ const MultiValueGroup: React.FC<Props> = ({
                 value={valueItem}
                 parentField={parentField}
                 linkedItemsModalList={linkedItemsModalList}
+                linkItemModalTitle={linkItemModalTitle}
+                onSearchTerm={onSearchTerm}
                 formItemsData={formItemsData}
+                itemAssets={itemAssets}
                 assetList={assetList}
                 fileList={fileList}
                 loadingAssets={loadingAssets}
@@ -193,6 +206,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 linkItemModalPage={linkItemModalPage}
                 linkItemModalPageSize={linkItemModalPageSize}
                 onReferenceModelUpdate={onReferenceModelUpdate}
+                onLinkItemTableReload={onLinkItemTableReload}
                 onLinkItemTableChange={onLinkItemTableChange}
                 onAssetTableChange={onAssetTableChange}
                 onUploadModalCancel={onUploadModalCancel}
@@ -209,6 +223,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 onDelete={() => handleInputDelete(key)}
                 disableMoveUp={key === 0}
                 disableMoveDown={key === value.length - 1}
+                onGetAsset={onGetAsset}
               />
             </FieldWrapper>
           );

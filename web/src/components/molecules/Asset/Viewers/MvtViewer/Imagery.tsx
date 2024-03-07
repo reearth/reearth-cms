@@ -1,14 +1,6 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
-import {
-  Cartesian3,
-  ImageryLayer,
-  ImageryLayerCollection,
-  Math,
-  BoundingSphere,
-  HeadingPitchRange,
-  type Viewer,
-} from "cesium";
+import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
 import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -23,12 +15,10 @@ const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 type Props = {
   url: string;
   handleProperties: (prop: Property) => void;
-  selectFeature?: (selected: boolean) => void;
 };
 
 export type Property = { [k: string]: string | number | boolean };
 
-// TODO: these two types should be imported from cesium-mvt-imagery-provider library instead
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
 type TileCoordinates = {
   x: number;
@@ -36,12 +26,13 @@ type TileCoordinates = {
   level: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
-  const { viewer } = useCesium() as { viewer: Viewer | undefined };
+export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
+  const { viewer } = useCesium();
   const [selectedFeature, setSelectFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
   const [currentLayer, setCurrentLayer] = useState("");
   const [layers, setLayers] = useState<string[]>([]);
+  const [maximumLevel, setMaximumLevel] = useState<number | undefined>();
 
   const zoomTo = useCallback(
     ([lng, lat, height]: [lng: number, lat: number, height: number], useDefaultRange?: boolean) => {
@@ -64,6 +55,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
           setUrlTemplate(`${data.base}/{z}/{x}/{y}.mvt` as URLTemplate);
           setLayers(data.layers ?? []);
           setCurrentLayer(data.layers?.[0] || "");
+          setMaximumLevel(data.maximumLevel);
         }
         zoomTo(data?.center || defaultCameraPosition, !data?.center);
       } catch (error) {
@@ -79,7 +71,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       return {
         strokeStyle: "white",
         fillStyle: selectedFeature === fid ? "orange" : "red",
-        lineWidth: 1,
+        lineWidth: VectorTileFeature.types[f.type] === "Point" ? 5 : 1,
       };
     },
     [selectedFeature],
@@ -88,11 +80,10 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const onSelectFeature = useCallback(
     (feature: VectorTileFeature, tileCoords: TileCoordinates) => {
       const id = idFromGeometry(feature.loadGeometry(), tileCoords);
-      selectFeature?.(true);
       setSelectFeature(id);
       handleProperties(feature.properties);
     },
-    [handleProperties, selectFeature],
+    [handleProperties],
   );
 
   useEffect(() => {
@@ -105,29 +96,19 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
       layerName: currentLayer,
       style,
       onSelectFeature,
+      maximumLevel,
     });
 
     if (viewer) {
-      const layers: ImageryLayerCollection = viewer.scene.imageryLayers;
-      const currentLayer: ImageryLayer = layers.addImageryProvider(imageryProvider);
+      const layers = viewer.scene.imageryLayers;
+      const currentLayer = layers.addImageryProvider(imageryProvider);
       currentLayer.alpha = 0.5;
 
       return () => {
         layers.remove(currentLayer);
       };
     }
-  }, [
-    viewer,
-    selectedFeature,
-    url,
-    urlTemplate,
-    currentLayer,
-    layers,
-    handleProperties,
-    selectFeature,
-    onSelectFeature,
-    style,
-  ]);
+  }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewer]);
 
   const handleChange = useCallback((value: unknown) => {
     if (typeof value !== "string") return;
@@ -189,10 +170,12 @@ const idFromGeometry = (
   return hash.hex();
 };
 
-export function parseMetadata(
-  json: any,
-):
-  | { layers: string[]; center: [lng: number, lat: number, height: number] | undefined }
+export function parseMetadata(json: any):
+  | {
+      layers: string[];
+      center?: [lng: number, lat: number, height: number];
+      maximumLevel?: number;
+    }
   | undefined {
   if (!json) return;
 
@@ -215,5 +198,7 @@ export function parseMetadata(
     // ignore
   }
 
-  return { layers, center };
+  const maximumLevel = json.maxzoom;
+
+  return { layers, center, maximumLevel };
 }

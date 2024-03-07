@@ -79,8 +79,6 @@ Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
 Comment: コメント
 Comments: コメント
-Please input field!: フィールドを入力してください。
-Please select an option!: ''
 Personal Account: パーソナルアカウント
 Workspaces: ワークスペース
 Create Workspace: ワークスペースを作成
@@ -107,10 +105,10 @@ Home: ホーム
 Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
-Role: ロール
-API key: APIキー
 Workspace: ワークスペース
 Account: アカウント
+Please input field!: フィールドを入力してください。
+Please select an option!: オプションを選択してください。
 unique: ユニーク
 Title: タイトル
 Leave: 離れる
@@ -174,6 +172,7 @@ Writer: 編集者
 Maintainer: メインテイナー
 Owner: オーナー
 Name: 名前
+Role: ロール
 Creator: 作成者
 Remove: 削除
 No Integration yet: まだインテグレーションはありません
@@ -187,6 +186,12 @@ Email address or user name: Emailアドレスもしくはユーザー名
 Selected Members: 選択中のメンバー
 Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
+Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
+Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
+Change Role?: ロールを変更
+Members: メンバー
+New Member: メンバーを追加
+search for a member: 検索
 Groups: グループ
 Add: 追加
 Models: モデル
@@ -235,11 +240,19 @@ Reopen: 再開
 Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
+Assign to: 割り当てる
 DRAFT: ドラフト
 APPROVED: 承認済
 CLOSED: クローズ済
 WAITING: レビュー待ち
 Current user: 現在のユーザー
+Delete Model: モデルを削除
+Delete Group: グループを削除
+Are you sure you want to delete the model: 本当にこのモデルを削除してよろしいですか？
+Are you sure you want to delete the group: 本当にグループを削除しますか？
+This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
+This action will permanently delete the selected group and cannot be reversed.: この操作は選択したグループを永久に削除し、元に戻すことはできません。
+Warning: 注意
 Text: テキスト
 Time: ''
 Boolean: ブーリアン
@@ -249,23 +262,6 @@ Relation: 関係
 Group: グループ
 Meta Data: メタデータ
 Add Field: フィールドを追加
-Display name: 表示名
-Please input the display name of field!: このフィールドの表示名を入力してください
-Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: フィールドのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
-Key is not valid: 無効なキーです
-Set Options: オプションを設定
-Set Tags: タグを設定する
-Select Group: グループを選択
-Please select the group!: グループを選択してください！
-Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
-Support multiple values: 複数値の設定を許可
-Only one field can be used as the title: タイトルとして使用できるフィールドは1つだけです。
-Use as title: タイトルとして使用
-Prevents saving an entry if this field is empty: このフィールドを必須項目とします
-Make field required: このフィールドを必須項目にする
-Ensures that a multiple entries can't have the same value for this field: 複数のアイテム間でこのフィールドの値がユニークであることを担保します
-Set field as unique: ユニーク制約
-Default value: デフォルト値
 Field: フィールド
 Previous: 前
 Next: 次
@@ -278,14 +274,31 @@ One-way reference: 一方向の参照
 A unidirectional relationship where an item refers to another item: 項目が別の項目を参照する一方向の関係
 Two-way reference: 双方向の参照
 A bidirectional relationship where two items refer to each other: 2つの項目が互いを参照する双方向の関係
+Display name: 表示名
+Please input the display name of field!: このフィールドの表示名を入力してください
+Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: フィールドのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
+Key is not valid: 無効なキーです
+Set Options: オプションを設定
+Stores a list of values instead of a single value: このフィールドに複数の値をリスト形式で設定します
+Support multiple values: 複数値の設定を許可
+Only one field can be used as the title: タイトルとして使用できるフィールドは1つだけです。
+Use as title: タイトルとして使用
+Prevents saving an entry if this field is empty: このフィールドを必須項目とします
+Make field required: このフィールドを必須項目にする
+Ensures that a multiple entries can't have the same value for this field: 複数のアイテム間でこのフィールドの値がユニークであることを担保します
+Set field as unique: ユニーク制約
 Set default value: デフォルト値を設定
 Default value must be a valid URL and start with 'http://' or 'https://'.: デフォルト値はhttp://もしくはhttps://で始まる有効なURLである必要があります。
-Field key must be unique and at least 1 characters long. It can only contain letters, numbers, underscores and dashes.: フィールドのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
-Validation: バリデーション
-Ensures that multiple entries can't have the same value for this field: このフィールドには同じ値のエントリーを持つことができません。
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
+Field Key: フィールドキー
+Set Tags: タグを設定する
+Select Group: グループを選択
+Please select the group!: グループを選択してください！
+Validation: バリデーション
+Ensures that multiple entries can't have the same value for this field: このフィールドには同じ値のエントリーを持つことができません。
+Default value: デフォルト値
 Heading and titles, one-line field: タイトルなどに利用する1行のフィールドです。
 TextArea: テキストエリア
 Multi line text: 複数行テキスト
@@ -306,35 +319,28 @@ Select from a list of tags: タグのリストから選択する
 Check Box: チェックボックス
 Select from a list of checkboxes: チェックボックスのリストから選択する
 Customize a group of fields: フィールドのグループをカスタマイズ
-Delete Group: グループを削除
-Are you sure you want to delete the group: 本当にグループを削除しますか？
-Warning: 注意
-This action will permanently delete the selected group and cannot be reversed.: この操作は選択したグループを永久に削除し、元に戻すことはできません。
-New Group: 新グループ
+Update Model: モデルを更新
 Update Group: 更新グループ
+New Group: 新グループ
+Model name: モデル名
 Group name: グループ名
+Please input the name of the model!: このモデル名を入力してください
 Please input the name of the group!: グループ名を入力してください！
+Model description: モデル概要
 Group description: グループ概要
+Model key: モデルキー
 Group key: グループキー
+Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
 Group key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: グループキーはユニークで1文字以上でなければなりません。文字、数字、アンダースコア、ダッシュのみを含むことができます。
 Fields: フィールド
-Delete Model: モデルを削除
-Are you sure you want to delete the model: 本当にこのモデルを削除してよろしいですか？
-This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
 Are you sure you want to delete this field?: このフィールドを削除します、よろしいですか？
 Publish Status: 公開ステータス
-Update Model: モデルを更新
-Model name: モデル名
-Please input the name of the model!: このモデル名を入力してください
-Model description: モデル概要
-Model key: モデルキー
-Model key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: モデルのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
 New Tiles: 新しいタイル
 New Terrain: 新しい地形
 Tiles type: タイルの種類
 Terrain type: 地形の種類
-example: ''
 Name of tiles: タイルの名前
+example: ''
 Image URL: イメージURL
 Name of terrain: 地形の名前
 Terrain Cesium Ion asset ID: Terrain Cesium Ion アセットID
@@ -377,6 +383,15 @@ Failed to update language.: 言語設定の更新に失敗しました。
 Successfully updated language!: 言語設定の更新に成功しました。
 Failed to delete user.: ユーザーの削除に失敗しました。
 Successfully deleted user!: ユーザーの削除に成功しました。
+Successfully created workspace!: ワークスペースの作成に成功しました。
+Failed to create comment.: コメントの作成に失敗しました。
+Successfully created comment!: コメントの作成に成功しました。
+Failed to update comment.: コメントの更新に失敗しました。
+Successfully updated comment!: コメントの更新に成功しました。
+Failed to delete comment.: コメントの削除に失敗しました。
+Successfully deleted comment!: コメントの削除に成功しました。
+Failed to update publication settings.: 公開設定の更新に失敗しました。
+Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
 Failed to update asset.: アセットの更新に失敗しました。
 Asset was successfully updated!: アセットの更新に成功しました。
 Failed to decompress asset.: アセットの解凍に失敗しました。
@@ -389,15 +404,6 @@ Failed to delete one or more assets.: アセットの削除に失敗しました
 One or more assets were successfully deleted!: アセットの削除に成功しました。
 No comments.: コメントはありません。
 Please click the comment bubble in the table to check comments.: コメントを確認するには、表のコメントアイコンををクリックしてください。
-Successfully created workspace!: ワークスペースの作成に成功しました。
-Failed to create comment.: コメントの作成に失敗しました。
-Successfully created comment!: コメントの作成に成功しました。
-Failed to update comment.: コメントの更新に失敗しました。
-Successfully updated comment!: コメントの更新に成功しました。
-Failed to delete comment.: コメントの削除に失敗しました。
-Successfully deleted comment!: コメントの削除に成功しました。
-Failed to update publication settings.: 公開設定の更新に失敗しました。
-Successfully updated publication settings!: 公開設定の更新に更新に成功しました。
 Failed to create item.: アイテムの作成に失敗しました。
 Successfully created Item!: アイテムの作成に成功しました。
 Failed to update item.: アイテムの更新に失敗しました。
@@ -456,6 +462,8 @@ Failed to update request roles.: リクエストロールの更新に失敗し�
 Successfully updated request roles!: リクエストロールの更新に成功しました。
 Failed to delete project.: プロジェクトの削除に失敗しました。
 Successfully deleted project!: プロジェクトの削除に成功しました。
+Failed to update workspace.: ワークスペースの更新に失敗しました。
+Successfully updated workspace!: ワークスペースの更新に成功しました。
 Failed to connect integration.: インテグレーションの接続に失敗しました。
 Successfully connected integration to the workspace!: インテグレーションの接続に成功しました。
 Failed to update workspace integration.: ワークスペースのインテグレーションの更新に失敗しました。
@@ -466,12 +474,8 @@ Failed to add one or more members.: メンバーの追加に失敗しました�
 Successfully added member(s) to the workspace!: メンバーの追加に成功しました。
 Failed to delete member from the workspace.: メンバーの削除に失敗しました。
 Successfully removed member from the workspace!: メンバーの削除に成功しました。
-Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
-Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
-Change Role?: ロールを変更
-Members: メンバー
-New Member: メンバーを追加
-search for a member: 検索
+Failed to update integration.: インテグレーションの更新に失敗しました。
+Successfully updated integration!: インテグレーションの更新に成功しました。
 Failed to delete integration.: インテグレーションの削除に失敗しました。
 Successfully deleted integration!: インテグレーションの削除に成功しました。
 Failed to create webhook.: Webhookの作成に失敗しました。
@@ -484,7 +488,5 @@ Failed to create integration.: インテグレーションの作成に失敗し�
 Successfully created integration!: インテグレーションの作成に成功しました。
 Failed to create project.: プロジェクトの作成に失敗しました。
 Successfully created project!: プロジェクトの作成に成功しました。
-Failed to update workspace.: ワークスペースの更新に失敗しました。
-Successfully updated workspace!: ワークスペースの更新に成功しました。
 Failed to delete workspace.: ワークスペースの削除に失敗しました。
 Successfully deleted workspace!: ワークスペースの削除に成功しました。

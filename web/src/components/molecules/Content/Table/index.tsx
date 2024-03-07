@@ -51,7 +51,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-export type Props = {
+type Props = {
   className?: string;
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
@@ -87,6 +87,7 @@ export type Props = {
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -120,6 +121,7 @@ const ContentTable: React.FC<Props> = ({
   onItemsReload,
   modelKey,
   onRequestSearchTerm,
+  onRequestTableReload,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -370,9 +372,9 @@ const ContentTable: React.FC<Props> = ({
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
 
-  const handleControlMenuOpenChange = (open: boolean) => {
+  const handleControlMenuOpenChange = useCallback((open: boolean) => {
     setControlMenuOpen(open);
-  };
+  }, []);
 
   const toolBarItemClick = (isFilterMode: boolean) => {
     setInputValue("");
@@ -381,31 +383,18 @@ const ContentTable: React.FC<Props> = ({
     handleOptionsOpenChange(true);
   };
 
-  const handleOptionsOpenChange = (open: boolean) => {
+  const handleOptionsOpenChange = useCallback((open: boolean) => {
     setControlMenuOpen(false);
     setOptionsOpen(open);
-  };
+  }, []);
 
-  const handleConditionMenuOpenChange = (open: boolean) => {
+  const handleConditionMenuOpenChange = useCallback((open: boolean) => {
     setConditionMenuOpen(open);
-  };
+  }, []);
 
-  const close = () => {
+  const close = useCallback(() => {
     setConditionMenuOpen(false);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    const reg = new RegExp(e.target.value, "i");
-    const result = getOptions(optionsOpen)?.filter(item => {
-      if (item && "label" in item && typeof item.label === "string") {
-        return reg.test(item.label);
-      }
-    });
-    setItems(result);
-  };
-
-  const isFilterOpen = useRef(false);
+  }, []);
 
   const getOptions = useCallback(
     (isFromMenu: boolean): MenuProps["items"] => {
@@ -470,12 +459,31 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [/*actionsColumns,*/ contentTableColumns, currentWorkspace?.members],
+    [
+      contentTableColumns,
+      currentWorkspace?.members,
+      handleConditionMenuOpenChange,
+      handleOptionsOpenChange,
+    ],
   );
 
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(e.target.value);
+      const reg = new RegExp(e.target.value, "i");
+      const result = getOptions(optionsOpen)?.filter(item => {
+        if (item && "label" in item && typeof item.label === "string") {
+          return reg.test(item.label);
+        }
+      });
+      setItems(result);
+    },
+    [getOptions, optionsOpen],
+  );
+
+  const isFilterOpen = useRef(false);
   const defaultItems = getOptions(false);
   const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
-
   const [inputValue, setInputValue] = useState("");
 
   const sharedProps = {
@@ -737,6 +745,7 @@ const ContentTable: React.FC<Props> = ({
                   : undefined,
             );
           }}
+          heightOffset={102}
         />
       ) : null}
       {selection && (
@@ -753,6 +762,7 @@ const ContentTable: React.FC<Props> = ({
           requestModalPage={requestModalPage}
           requestModalPageSize={requestModalPageSize}
           onRequestSearchTerm={onRequestSearchTerm}
+          onRequestTableReload={onRequestTableReload}
         />
       )}
     </>

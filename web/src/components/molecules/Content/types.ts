@@ -2,12 +2,16 @@ import { FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
 
+export type ItemValue = string | string[] | number | number[] | boolean | boolean[];
+
 export type ItemField = {
   schemaFieldId: string;
   itemGroupId?: string;
   type: FieldType;
-  value: any;
+  value: ItemValue;
 };
+
+export type ItemAsset = { id: string; fileName: string };
 
 export type Item = {
   id: string;
@@ -18,6 +22,7 @@ export type Item = {
   createdAt: Date;
   updatedAt: Date;
   status: ItemStatus;
+  referencedItems?: FormItem[];
   fields: ItemField[] | undefined | null;
   metadata: {
     id?: string;
@@ -26,6 +31,7 @@ export type Item = {
   };
   threadId: string;
   comments: Comment[];
+  assets: ItemAsset[];
 };
 
 export type FormItem = {

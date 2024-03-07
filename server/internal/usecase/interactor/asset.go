@@ -258,7 +258,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 	contentType := mime.TypeByExtension(path.Ext(inp.Filename))
 	uploadURL, uuid, err := i.gateways.File.IssueUploadAssetLink(ctx, inp.Filename, contentType, expiresAt)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
-		return "", "", "", nil
+		return "", "", "", rerror.ErrNotFound
 	}
 	if err != nil {
 		return "", "", "", err

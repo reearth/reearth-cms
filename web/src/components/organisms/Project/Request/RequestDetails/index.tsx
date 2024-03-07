@@ -1,5 +1,5 @@
 import RequestDetailsMolecule from "@reearth-cms/components/molecules/Request/Details";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/ContentDetails/hooks";
 
 import useHooks from "./hooks";
@@ -40,7 +40,8 @@ const RequestDetails: React.FC = () => {
     page,
     pageSize,
     handleAssetTableChange,
-  } = useAssetHooks();
+    handleGetAsset,
+  } = useAssetHooks(false);
 
   const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
 
@@ -79,6 +80,7 @@ const RequestDetails: React.FC = () => {
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
+      onGetAsset={handleGetAsset}
     />
   );
 };

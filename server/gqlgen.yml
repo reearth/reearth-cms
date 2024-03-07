@@ -52,6 +52,8 @@ models:
         resolver: true
       assets:
         resolver: true
+      referencedItems:
+        resolver: true
       updatedBy:
         resolver: true
 
@@ -97,9 +99,9 @@ models:
         resolver: true
   SchemaFieldReference:
     fields:
-      correspondingField:
+      schema:
         resolver: true
-      correspondingSchema:
+      correspondingField:
         resolver: true
   Asset:
     fields:

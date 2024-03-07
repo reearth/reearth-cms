@@ -17,13 +17,15 @@ type Props = {
   disabled?: boolean;
   correspondingFieldId: string;
   modelId?: string;
+  titleFieldId?: string | null;
   formItemsData?: FormItem[];
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  onReferenceModelUpdate?: (modelId?: string) => void;
+  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onSearchTerm?: (term?: string) => void;
+  onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
   onChange?: (value?: string) => void;
 };
@@ -35,6 +37,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   correspondingFieldId,
   onChange,
   modelId,
+  titleFieldId,
   formItemsData,
   linkItemModalTitle,
   linkItemModalTotalCount,
@@ -42,6 +45,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   linkItemModalPageSize,
   onReferenceModelUpdate,
   onSearchTerm,
+  onLinkItemTableReload,
   onLinkItemTableChange,
 }) => {
   const { workspaceId, projectId } = useParams();
@@ -51,11 +55,10 @@ const ReferenceFormItem: React.FC<Props> = ({
   const [currentItem, setCurrentItem] = useState<FormItem | undefined>();
 
   const handleClick = useCallback(() => {
-    if (!onReferenceModelUpdate) return;
-    onReferenceModelUpdate(modelId);
+    if (!onReferenceModelUpdate || !modelId) return;
+    onReferenceModelUpdate(modelId, titleFieldId ?? "");
     setVisible(true);
-    onSearchTerm?.("");
-  }, [setVisible, onReferenceModelUpdate, modelId, onSearchTerm]);
+  }, [onReferenceModelUpdate, modelId, titleFieldId]);
 
   const handleLinkItemModalCancel = useCallback(() => {
     if (disabled) return;
@@ -94,7 +97,7 @@ const ReferenceFormItem: React.FC<Props> = ({
       <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
-      {!!onSearchTerm && !!onLinkItemTableChange && (
+      {!!onSearchTerm && !!onLinkItemTableReload && !!onLinkItemTableChange && (
         <LinkItemModal
           linkItemModalTitle={linkItemModalTitle}
           linkItemModalTotalCount={linkItemModalTotalCount}
@@ -102,6 +105,7 @@ const ReferenceFormItem: React.FC<Props> = ({
           correspondingFieldId={correspondingFieldId}
           linkItemModalPageSize={linkItemModalPageSize}
           onSearchTerm={onSearchTerm}
+          onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
           linkedItemsModalList={linkedItemsModalList}
           visible={visible}

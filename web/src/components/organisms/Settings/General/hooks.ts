@@ -6,28 +6,45 @@ import {
   TileInput,
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLWorkspaceSettings } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetWorkspaceSettingsQuery,
   useUpdateWorkspaceSettingsMutation,
   ResourceInput,
   WorkspaceSettings as GQLWorkspaceSettings,
+  useGetMeQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
-
-import { convertWorkspaceSettings } from "./convertWorkspaceSettings";
 
 export default () => {
   const t = useT();
 
   const [currentWorkspace] = useWorkspace();
   const workspaceId = currentWorkspace?.id;
-  const { data } = useGetWorkspaceSettingsQuery({
+  const { data, refetch } = useGetWorkspaceSettingsQuery({
     variables: { workspaceId: workspaceId ?? "" },
   });
-  const workspaceSettings: WorkspaceSettings | undefined = useMemo(() => {
-    return data?.node ? convertWorkspaceSettings(data.node as GQLWorkspaceSettings) : undefined;
-  }, [data]);
+
+  const defaultSettings: WorkspaceSettings = useMemo(
+    () => ({
+      id: workspaceId ?? "",
+      tiles: {
+        resources: [],
+      },
+      terrains: {
+        enabled: false,
+        resources: [],
+      },
+    }),
+    [workspaceId],
+  );
+
+  const workspaceSettings: WorkspaceSettings = useMemo(() => {
+    return data?.node
+      ? fromGraphQLWorkspaceSettings(data.node as GQLWorkspaceSettings)
+      : defaultSettings;
+  }, [data?.node, defaultSettings]);
 
   const tiles: TileInput[] = useMemo(() => {
     const tiles: TileInput[] = [];
@@ -66,8 +83,9 @@ export default () => {
       } else {
         Notification.success({ message: t("Successfully updated workspace!") });
       }
+      refetch();
     },
-    [t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
+    [refetch, t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
   );
 
   const handleTerrainToggle = useCallback(
@@ -77,11 +95,18 @@ export default () => {
     [handleWorkspaceSettingsUpdate, tiles, terrains],
   );
 
+  const { data: userData } = useGetMeQuery();
+  const hasPrivilege: boolean = useMemo(() => {
+    const myRole = currentWorkspace?.members?.find(m => m.userId === userData?.me?.id)?.role;
+    return myRole === "OWNER" || myRole === "MAINTAINER";
+  }, [currentWorkspace?.members, userData?.me?.id]);
+
   return {
     workspaceSettings,
     tiles,
     terrains,
     handleWorkspaceSettingsUpdate,
     handleTerrainToggle,
+    hasPrivilege,
   };
 };

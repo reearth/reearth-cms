@@ -6,8 +6,6 @@ const (
 	TileTypeDefault             TileType = "DEFAULT"
 	TileTypeLabelled            TileType = "LABELLED"
 	TileTypeRoadMap             TileType = "ROAD_MAP"
-	TileTypeStamenWaterColor    TileType = "STAMEN_WATERCOLOR"
-	TileTypeStamenToner         TileType = "STAMEN_TONER"
 	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
 	TileTypeESRITopography      TileType = "ESRI_TOPOGRAPHY"
 	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
@@ -20,7 +18,6 @@ type TileResource struct {
 	rtype TileType
 	props UrlResourceProps
 }
-
 
 func NewTileResource(id ResourceID, rtype TileType, props UrlResourceProps) *TileResource {
 	return &TileResource{

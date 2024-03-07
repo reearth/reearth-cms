@@ -137,7 +137,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	// region schema & model
 	sf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(fId1).Key(sfKey1).MustBuild()
 	sf2 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
-	sf3 := schema.NewField(schema.NewReference(mId1, nil, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
+	sf3 := schema.NewField(schema.NewReference(mId1, sid1, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId4).Key(sfKey4).MustBuild()
 
 	s1 := schema.New().ID(sid1).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf1, sf2}).TitleField(sf1.ID().Ref()).MustBuild()
@@ -909,14 +909,25 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 	raw["modelId"] = mId1.String()
 
 	//	get Metadata Item
-	e.GET("/api/items/{itemId}", itmId3).
+	rm := e.GET("/api/items/{itemId}", itmId3).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
+		Object()
+	rm.
 		Value("isMetadata").
 		IsEqual(true)
+
+	rm.Value("fields").
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId4.String(),
+				"type":  "bool",
+				"value": true,
+				"key":   sfKey4.String(),
+			},
+		})
 
 	r := e.GET("/api/items/{itemId}", itmId4).
 		WithHeader("authorization", "Bearer "+secret).

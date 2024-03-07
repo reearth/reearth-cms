@@ -1,7 +1,9 @@
+import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+
 export type Project = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   requestRoles?: Role[] | null;
 };
 
@@ -9,7 +11,7 @@ export type User = {
   name: string;
 };
 
-export type Member = {
+export type UserMember = {
   userId: string;
   role: Role;
   user: {
@@ -18,6 +20,8 @@ export type Member = {
     email: string;
   };
 };
+
+export type Member = UserMember | IntegrationMember;
 
 export type MemberInput = {
   userId: string;
@@ -29,6 +33,7 @@ export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
 export type Workspace = {
   id?: string;
   name?: string;
+  personal?: boolean;
   members?: Member[];
 };
 
@@ -46,13 +51,13 @@ type ResourceList<T> = {
 
 export type Resource = TileResource | TerrainResource;
 
-type TileResource = {
+export type TileResource = {
   id: string;
   type: TileType;
   props: UrlResourceProps;
 };
 
-type TerrainResource = {
+export type TerrainResource = {
   id: string;
   type: TerrainType;
   props: CesiumResourceProps;
@@ -70,8 +75,6 @@ export type TileType =
   | "DEFAULT"
   | "LABELLED"
   | "ROAD_MAP"
-  | "STAMEN_WATERCOLOR"
-  | "STAMEN_TONER"
   | "OPEN_STREET_MAP"
   | "ESRI_TOPOGRAPHY"
   | "EARTH_AT_NIGHT"
@@ -80,13 +83,13 @@ export type TileType =
 
 export type TerrainType = "CESIUM_WORLD_TERRAIN" | "ARC_GIS_TERRAIN" | "CESIUM_ION";
 
-type UrlResourceProps = {
+export type UrlResourceProps = {
   name: string;
   url: string;
   image: string;
 };
 
-type CesiumResourceProps = {
+export type CesiumResourceProps = {
   name: string;
   url: string;
   image: string;

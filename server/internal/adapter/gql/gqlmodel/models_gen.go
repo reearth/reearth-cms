@@ -208,11 +208,11 @@ type ConditionInput struct {
 }
 
 type CorrespondingFieldInput struct {
-	FieldID     *ID     `json:"fieldId,omitempty"`
-	Title       *string `json:"title,omitempty"`
-	Key         *string `json:"key,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Required    *bool   `json:"required,omitempty"`
+	FieldID     *ID    `json:"fieldId,omitempty"`
+	Title       string `json:"title"`
+	Key         string `json:"key"`
+	Description string `json:"description"`
+	Required    bool   `json:"required"`
 }
 
 type CreateAssetInput struct {
@@ -533,6 +533,7 @@ type Item struct {
 	Thread                 *Thread      `json:"thread"`
 	Fields                 []*ItemField `json:"fields"`
 	Assets                 []*Asset     `json:"assets"`
+	ReferencedItems        []*Item      `json:"referencedItems,omitempty"`
 	CreatedAt              time.Time    `json:"createdAt"`
 	UpdatedAt              time.Time    `json:"updatedAt"`
 	UpdatedBy              Operator     `json:"updatedBy,omitempty"`
@@ -669,6 +670,9 @@ type MultipleFieldConditionInput struct {
 	Value    []interface{}       `json:"value"`
 }
 
+type Mutation struct {
+}
+
 type NullableFieldCondition struct {
 	FieldID  *FieldSelector   `json:"fieldId"`
 	Operator NullableOperator `json:"operator"`
@@ -787,6 +791,9 @@ type PublishModelInput struct {
 type PublishModelPayload struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
+}
+
+type Query struct {
 }
 
 type RemoveIntegrationFromWorkspaceInput struct {
@@ -980,19 +987,19 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID               ID           `json:"modelId"`
-	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
-	CorrespondingSchema   *Schema      `json:"correspondingSchema,omitempty"`
-	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
-	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
+	ModelID              ID           `json:"modelId"`
+	SchemaID             ID           `json:"schemaId"`
+	Schema               *Schema      `json:"schema"`
+	CorrespondingFieldID *ID          `json:"correspondingFieldId,omitempty"`
+	CorrespondingField   *SchemaField `json:"correspondingField,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID               ID                       `json:"modelId"`
-	CorrespondingSchemaID *ID                      `json:"correspondingSchemaId,omitempty"`
-	CorrespondingField    *CorrespondingFieldInput `json:"correspondingField,omitempty"`
+	ModelID            ID                       `json:"modelId"`
+	SchemaID           ID                       `json:"schemaId"`
+	CorrespondingField *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
@@ -2498,8 +2505,6 @@ const (
 	TileTypeDefault             TileType = "DEFAULT"
 	TileTypeLabelled            TileType = "LABELLED"
 	TileTypeRoadMap             TileType = "ROAD_MAP"
-	TileTypeStamenWatercolor    TileType = "STAMEN_WATERCOLOR"
-	TileTypeStamenToner         TileType = "STAMEN_TONER"
 	TileTypeOpenStreetMap       TileType = "OPEN_STREET_MAP"
 	TileTypeEsriTopography      TileType = "ESRI_TOPOGRAPHY"
 	TileTypeEarthAtNight        TileType = "EARTH_AT_NIGHT"
@@ -2511,8 +2516,6 @@ var AllTileType = []TileType{
 	TileTypeDefault,
 	TileTypeLabelled,
 	TileTypeRoadMap,
-	TileTypeStamenWatercolor,
-	TileTypeStamenToner,
 	TileTypeOpenStreetMap,
 	TileTypeEsriTopography,
 	TileTypeEarthAtNight,
@@ -2522,7 +2525,7 @@ var AllTileType = []TileType{
 
 func (e TileType) IsValid() bool {
 	switch e {
-	case TileTypeDefault, TileTypeLabelled, TileTypeRoadMap, TileTypeStamenWatercolor, TileTypeStamenToner, TileTypeOpenStreetMap, TileTypeEsriTopography, TileTypeEarthAtNight, TileTypeJapanGsiStandardMap, TileTypeURL:
+	case TileTypeDefault, TileTypeLabelled, TileTypeRoadMap, TileTypeOpenStreetMap, TileTypeEsriTopography, TileTypeEarthAtNight, TileTypeJapanGsiStandardMap, TileTypeURL:
 		return true
 	}
 	return false

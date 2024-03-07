@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -20,8 +21,7 @@ const WorkspaceGeneralForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdat
   }, [form, onWorkspaceUpdate]);
 
   return (
-    <Form
-      style={{ maxWidth: 400 }}
+    <StyledForm
       form={form}
       initialValues={{ name: workspaceName }}
       layout="vertical"
@@ -35,10 +35,14 @@ const WorkspaceGeneralForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdat
         <Input />
       </Form.Item>
       <Button onClick={handleSubmit} type="primary" htmlType="submit">
-        {t("Save")}
+        {t("Save changes")}
       </Button>
-    </Form>
+    </StyledForm>
   );
 };
+
+const StyledForm = styled(Form)`
+  max-width: 400px;
+`;
 
 export default WorkspaceGeneralForm;

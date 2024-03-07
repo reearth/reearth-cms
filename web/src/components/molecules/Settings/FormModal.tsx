@@ -5,15 +5,17 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { Model } from "@reearth-cms/components/molecules/ProjectOverview";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   TileType,
   TerrainType,
   TileInput,
   TerrainInput,
+  WorkspaceSettings,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
+import { validateURL } from "@reearth-cms/utils/regex";
 
 type FormValues = {
   type: TileType | TerrainType;
@@ -28,8 +30,6 @@ const TileTypeFormat: { [key in TileType]: string } = {
   DEFAULT: "Default",
   LABELLED: "Labelled",
   ROAD_MAP: "Road Map",
-  STAMEN_WATERCOLOR: "Stamen Watercolor",
-  STAMEN_TONER: "Stamen Toner",
   OPEN_STREET_MAP: "OpenStreetMap",
   ESRI_TOPOGRAPHY: "ESRI Topography",
   EARTH_AT_NIGHT: "Earth at night",
@@ -49,7 +49,7 @@ export interface Props {
   onClose: () => void;
   tiles: TileInput[];
   terrains: TerrainInput[];
-  onWorkspaceSettingsUpdate: (tiles: TileInput[], terrains: TerrainInput[]) => Promise<void>;
+  setSettings: React.Dispatch<React.SetStateAction<WorkspaceSettings | undefined>>;
   isTile: boolean;
   index?: number;
 }
@@ -59,7 +59,7 @@ const FormModal: React.FC<Props> = ({
   onClose,
   tiles,
   terrains,
-  onWorkspaceSettingsUpdate,
+  setSettings,
   isTile,
   index,
 }) => {
@@ -109,24 +109,34 @@ const FormModal: React.FC<Props> = ({
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    const values = form.getFieldsValue();
+    const values = await form.validateFields();
     const { type, name, url, image, cesiumIonAssetId, cesiumIonAccessToken } = values;
-    if (isTile) {
-      const newTile = {
-        tile: {
+    setSettings(prevState => {
+      if (!prevState) return;
+      const copySettings = structuredClone(prevState);
+      if (isTile) {
+        if (!copySettings.tiles) {
+          copySettings.tiles = {
+            resources: [],
+          };
+        }
+        const newTile = {
           id: newID(),
           type: type as TileType,
           props: { name: name ?? "", url: url ?? "", image: image ?? "" },
-        },
-      };
-      if (index === undefined) {
-        tiles.push(newTile);
+        };
+        if (index === undefined) {
+          copySettings.tiles.resources.push(newTile);
+        } else {
+          copySettings.tiles.resources[index] = newTile;
+        }
       } else {
-        tiles[index] = newTile;
-      }
-    } else {
-      const newTerrain = {
-        terrain: {
+        if (!copySettings.terrains) {
+          copySettings.terrains = {
+            resources: [],
+          };
+        }
+        const newTerrain = {
           id: newID(),
           type: type as TerrainType,
           props: {
@@ -136,17 +146,29 @@ const FormModal: React.FC<Props> = ({
             cesiumIonAssetId: cesiumIonAssetId ?? "",
             cesiumIonAccessToken: cesiumIonAccessToken ?? "",
           },
-        },
-      };
-      if (index === undefined) {
-        terrains.push(newTerrain);
-      } else {
-        terrains[index] = newTerrain;
+        };
+        if (index === undefined) {
+          copySettings.terrains.resources.push(newTerrain);
+        } else {
+          copySettings.terrains.resources[index] = newTerrain;
+        }
       }
-    }
-    onWorkspaceSettingsUpdate(tiles, terrains);
+      return copySettings;
+    });
     onClose();
-  }, [form, index, isTile, onClose, onWorkspaceSettingsUpdate, terrains, tiles]);
+  }, [form, index, isTile, onClose, setSettings]);
+
+  const urlRules = useMemo(
+    () => [
+      {
+        message: t("URL is not valid"),
+        validator: async (_: any, value: string) => {
+          return value && !validateURL(value) ? Promise.reject() : Promise.resolve();
+        },
+      },
+    ],
+    [t],
+  );
 
   return (
     <Modal
@@ -168,10 +190,10 @@ const FormModal: React.FC<Props> = ({
               <Form.Item name="name" label={t("Name")} extra={t("Name of tiles")}>
                 <Input placeholder={t("example")} />
               </Form.Item>
-              <Form.Item name="url" label={t("URL")}>
+              <Form.Item name="url" label={t("URL")} rules={urlRules}>
                 <Input placeholder={t("example")} />
               </Form.Item>
-              <Form.Item name="image" label={t("Image URL")}>
+              <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
                 <Input placeholder={t("example")} />
               </Form.Item>
             </>
@@ -186,10 +208,10 @@ const FormModal: React.FC<Props> = ({
               <Form.Item name="cesiumIonAccessToken" label={t("Terrain Cesium Ion access token")}>
                 <Input placeholder={t("example")} />
               </Form.Item>
-              <Form.Item name="url" label={t("Terrain URL")}>
+              <Form.Item name="url" label={t("Terrain URL")} rules={urlRules}>
                 <Input placeholder={t("example")} />
               </Form.Item>
-              <Form.Item name="image" label={t("Image URL")}>
+              <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
                 <Input placeholder={t("example")} />
               </Form.Item>
             </>
