@@ -147,8 +147,11 @@ export default (isItemsRequired: boolean) => {
                   body: (file as any).slice(offset, offset + contentLength),
                   headers,
                 });
+                if (!next) {
+                  break;
+                }
+                cursor = next;
                 offset += contentLength;
-                cursor = next ?? "";
               }
               const result = await createAssetMutation({
                 variables: {
