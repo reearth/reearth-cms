@@ -51,6 +51,7 @@ type Config struct {
 	AuthM2M AuthM2MConfig
 
 	DB_Account string
+	DB_Users   []appx.NamedURI
 }
 
 type AuthConfig struct {
