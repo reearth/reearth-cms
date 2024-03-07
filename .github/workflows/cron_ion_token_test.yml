@@ -23,15 +23,21 @@ jobs:
       - name: Get Cesium Ion token
         id: ion_token
         run: |
-          ION_TOKEN=$(\
-            curl https://raw.githubusercontent.com/CesiumGS/cesium/main/packages/engine/Source/Core/Ion.js \
-              | node -e "console.log(\
-                  require('fs')\
-                    .readFileSync(process.stdin.fd)\
-                    .toString()\
-                    .match(/const defaultAccessToken =(\n| ).*\"(.*)\";/)[2]\
-                )"\
+          ION_TOKEN=$( \
+          curl -s https://raw.githubusercontent.com/CesiumGS/cesium/main/packages/engine/Source/Core/Ion.js | \
+          node -e " \
+            process.stdin.resume(); \
+            process.stdin.setEncoding('utf8'); \
+            let data = ''; \
+            process.stdin.on('data', chunk => { data += chunk; }); \
+            process.stdin.on('end', () => { \
+              const defaultAccessTokenRegex = /const defaultAccessToken =(\n| ).*\"(.*)\";/; \
+              const match = data.match(defaultAccessTokenRegex); \
+              console.log(match ? match[2] : 'Token not found'); \
+            }); \
+          " \
           )
+          echo "token=${ION_TOKEN}"
           echo "token=${ION_TOKEN}" >> $GITHUB_OUTPUT
       - name: Update Ion token in reearth config
         run: |
