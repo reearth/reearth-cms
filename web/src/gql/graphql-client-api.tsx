@@ -244,6 +244,7 @@ export type CreateAssetPayload = {
 export type CreateAssetUploadInput = {
   contentLength?: InputMaybe<Scalars['Int']>;
   cursor?: InputMaybe<Scalars['String']>;
+  etags?: InputMaybe<Array<Scalars['String']>>;
   filename?: InputMaybe<Scalars['String']>;
   projectId: Scalars['ID'];
 };
@@ -2228,6 +2229,7 @@ export type CreateAssetUploadMutationVariables = Exact<{
   filename: Scalars['String'];
   cursor: Scalars['String'];
   contentLength: Scalars['Int'];
+  etags?: InputMaybe<Array<Scalars['String']> | Scalars['String']>;
 }>;
 
 
@@ -3489,9 +3491,9 @@ export type DecompressAssetMutationHookResult = ReturnType<typeof useDecompressA
 export type DecompressAssetMutationResult = Apollo.MutationResult<DecompressAssetMutation>;
 export type DecompressAssetMutationOptions = Apollo.BaseMutationOptions<DecompressAssetMutation, DecompressAssetMutationVariables>;
 export const CreateAssetUploadDocument = gql`
-    mutation CreateAssetUpload($projectId: ID!, $filename: String!, $cursor: String!, $contentLength: Int!) {
+    mutation CreateAssetUpload($projectId: ID!, $filename: String!, $cursor: String!, $contentLength: Int!, $etags: [String!]) {
   createAssetUpload(
-    input: {projectId: $projectId, filename: $filename, cursor: $cursor, contentLength: $contentLength}
+    input: {projectId: $projectId, filename: $filename, cursor: $cursor, contentLength: $contentLength, etags: $etags}
   ) {
     url
     token
@@ -3520,6 +3522,7 @@ export type CreateAssetUploadMutationFn = Apollo.MutationFunction<CreateAssetUpl
  *      filename: // value for 'filename'
  *      cursor: // value for 'cursor'
  *      contentLength: // value for 'contentLength'
+ *      etags: // value for 'etags'
  *   },
  * });
  */

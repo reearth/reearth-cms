@@ -4906,6 +4906,7 @@ input CreateAssetUploadInput {
 
   # Required if uploading in multiple parts.
   cursor: String
+  etags: [String!]
 }
 
 input UpdateAssetInput {
@@ -33160,7 +33161,7 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "filename", "contentLength", "cursor"}
+	fieldsInOrder := [...]string{"projectId", "filename", "contentLength", "cursor", "etags"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -33195,6 +33196,13 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 				return it, err
 			}
 			it.Cursor = data
+		case "etags":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("etags"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Etags = data
 		}
 	}
 

@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -151,10 +152,18 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		}
 		uploaded := maxPartSize * (cursor.Part - 1)
 		if completed := param.ContentLength <= uploaded; completed {
+			var mu types.CompletedMultipartUpload
+			for i, etag := range param.ETags {
+				mu.Parts = append(mu.Parts, types.CompletedPart{
+					ETag:       aws.String(etag),
+					PartNumber: aws.Int32(int32(i + 1)),
+				})
+			}
 			if _, err := f.s3Client.CompleteMultipartUpload(ctx, &s3.CompleteMultipartUploadInput{
-				Bucket:   aws.String(f.bucketName),
-				Key:      aws.String(p),
-				UploadId: aws.String(cursor.UploadID),
+				Bucket:          aws.String(f.bucketName),
+				Key:             aws.String(p),
+				UploadId:        aws.String(cursor.UploadID),
+				MultipartUpload: &mu,
 			}); err != nil {
 				return nil, fmt.Errorf("complete multipart uplaod: %w", err)
 			}

@@ -102,6 +102,7 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 		Filename:      lo.FromPtr(input.Filename),
 		ContentLength: int64(lo.FromPtr(input.ContentLength)),
 		Cursor:        lo.FromPtr(input.Cursor),
+		ETags:         input.Etags,
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
