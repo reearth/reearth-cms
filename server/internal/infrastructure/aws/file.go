@@ -347,11 +347,11 @@ func (c uploadCursor) Next() uploadCursor {
 }
 
 func (c uploadCursor) String() string {
-	return c.UploadID + "_" + strconv.FormatInt(c.Part, 10)
+	return strconv.FormatInt(c.Part, 10) + "_" + c.UploadID
 }
 
 func parseUploadCursor(c string) (*uploadCursor, error) {
-	uploadID, partStr, found := strings.Cut(c, "_")
+	partStr, uploadID, found := strings.Cut(c, "_")
 	if !found {
 		return nil, fmt.Errorf("separator not found")
 	}
