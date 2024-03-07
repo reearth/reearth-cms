@@ -1,8 +1,5 @@
 name: Update Cesium Ion access token (test)
 on:
-  push:
-    branches:
-      - "ci-web/add-an-action-to-update-ion-token"
   schedule:
     - cron: "0 0 2 * *"
   workflow_dispatch:
@@ -37,7 +34,6 @@ jobs:
             }); \
           " \
           )
-          echo "token=${ION_TOKEN}"
           echo "token=${ION_TOKEN}" >> $GITHUB_OUTPUT
       - name: Update Ion token in reearth config
         run: |
