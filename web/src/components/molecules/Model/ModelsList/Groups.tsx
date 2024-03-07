@@ -1,6 +1,6 @@
 import GroupsList from "@reearth-cms/components/molecules/Model/ModelsList/GroupsList";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import GroupFormModal from "@reearth-cms/components/molecules/Schema/GroupFormModal";
+import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 
 export type Props = {
@@ -10,12 +10,11 @@ export type Props = {
   selectedKey?: string;
   groups?: Group[];
   selectedSchemaType?: SelectedSchemaType;
-  isKeyAvailable: boolean;
-  open?: boolean;
+  open: boolean;
   onModalOpen: () => void;
-  onGroupKeyCheck: (key: string, ignoredKey?: string | undefined) => Promise<boolean>;
+  onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onClose: () => void;
-  onCreate?: (data: { name: string; description: string; key: string }) => Promise<void>;
+  onCreate: (data: { name: string; description: string; key: string }) => Promise<void>;
   onGroupSelect?: (groupId: string) => void;
 };
 
@@ -25,7 +24,6 @@ const Groups: React.FC<Props> = ({
   selectedKey,
   groups,
   selectedSchemaType,
-  isKeyAvailable,
   open,
   onModalOpen,
   onGroupKeyCheck,
@@ -44,12 +42,12 @@ const Groups: React.FC<Props> = ({
         onGroupSelect={onGroupSelect}
         onModalOpen={onModalOpen}
       />
-      <GroupFormModal
-        isKeyAvailable={isKeyAvailable}
+      <FormModal
         open={open}
-        onGroupKeyCheck={onGroupKeyCheck}
         onClose={onClose}
         onCreate={onCreate}
+        onKeyCheck={onGroupKeyCheck}
+        isModel={false}
       />
     </>
   );

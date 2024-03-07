@@ -49,6 +49,7 @@ const ContentList: React.FC = () => {
     handleItemDelete,
     handleContentTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
   } = useHooks();
 
   return (
@@ -64,6 +65,7 @@ const ContentList: React.FC = () => {
           }
           comments={selectedItem?.comments}
           threadId={selectedItem?.threadId}
+          refetchQueries={["SearchItem"]}
         />
       }
       modelsMenu={
@@ -115,6 +117,7 @@ const ContentList: React.FC = () => {
       onAddItemToRequest={handleAddItemToRequest}
       addItemToRequestModalShown={addItemToRequestModalShown}
       onRequestSearchTerm={handleRequestSearchTerm}
+      onRequestTableReload={handleRequestTableReload}
     />
   );
 };

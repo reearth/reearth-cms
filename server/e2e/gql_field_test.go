@@ -39,11 +39,14 @@ func createField(e *httpexpect.Expect, mID, title, desc, key string, multiple, u
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
 		WithJSON(requestBody).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
+		Expect()
 
-	return res.Path("$.data.createField.field.id").Raw().(string), res
+	if res.Raw().StatusCode != http.StatusOK {
+		res.JSON().IsNull()
+	}
+
+	json := res.JSON()
+	return json.Path("$.data.createField.field.id").Raw().(string), json
 }
 
 func createMetaField(e *httpexpect.Expect, mID, title, desc, key string, multiple, unique, isTitle, required bool, fType string, fTypeProp map[string]any) (string, *httpexpect.Value) {
@@ -370,7 +373,7 @@ func TestCreateField(t *testing.T) {
 	tags := res.Path("$.data.node.schema.fields[0].typeProperty.tags").Raw().([]any)
 
 	_, _ = updateField(e, mId, fId, "test", "test", "test",
-		true, true, true, true, nil, "Tag",
+		true, true, false, true, nil, "Tag",
 		map[string]any{
 			"tag": map[string]any{
 				"defaultValue": []string{"s1", "s3"},
@@ -385,6 +388,8 @@ func TestCreateField(t *testing.T) {
 		Value("node").Object().
 		HasValue("id", mId)
 
+	title := res.Path("$.data.node.schema.fields[0].isTitle").Raw().(bool)
+	assert.False(t, title)
 	_, _ = createField(e, mId, "test2", "test2", "test2",
 		false, false, false, false, "Tag",
 		map[string]any{

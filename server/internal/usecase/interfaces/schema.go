@@ -43,10 +43,13 @@ type UpdateFieldParam struct {
 }
 
 var (
-	ErrInvalidTypeProperty = rerror.NewE(i18n.T("invalid type property"))
-	ErrFieldNotFound       = rerror.NewE(i18n.T("field not found"))
-	ErrInvalidValue        = rerror.NewE(i18n.T("invalid value"))
-	ErrEitherModelOrGroup  = rerror.NewE(i18n.T("either model or group should be provided"))
+	ErrInvalidTypeProperty       = rerror.NewE(i18n.T("invalid type property"))
+	ErrReferencedFiledKeyExists  = rerror.NewE(i18n.T("referenced field key exists"))
+	ErrReferenceDirectionChanged = rerror.NewE(i18n.T("reference field direction can not be changed"))
+	ErrReferenceModelChanged     = rerror.NewE(i18n.T("reference field model can not be changed"))
+	ErrFieldNotFound             = rerror.NewE(i18n.T("field not found"))
+	ErrInvalidValue              = rerror.NewE(i18n.T("invalid value"))
+	ErrEitherModelOrGroup        = rerror.NewE(i18n.T("either model or group should be provided"))
 )
 
 type Schema interface {

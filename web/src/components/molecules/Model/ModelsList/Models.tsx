@@ -1,7 +1,8 @@
 import ModelsList from "@reearth-cms/components/molecules/Model/ModelsList/ModelsList";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import ModelFormModal from "@reearth-cms/components/molecules/Schema/ModelFormModal";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
+import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 
 export interface Props {
   className?: string;
@@ -10,12 +11,11 @@ export interface Props {
   selectedKey?: string;
   models?: Model[];
   selectedSchemaType?: SelectedSchemaType;
-  isKeyAvailable: boolean;
   open?: boolean;
   onModalOpen: () => void;
   onModelKeyCheck: (key: string, ignoredKey?: string | undefined) => Promise<boolean>;
   onClose: () => void;
-  onCreate?: (data: { name: string; description: string; key: string }) => Promise<void>;
+  onCreate?: (data: ModelFormValues) => Promise<void>;
   onModelSelect: (modelId: string) => void;
   onUpdateModelsOrder: (modelIds: string[]) => void;
 }
@@ -26,7 +26,6 @@ const Models: React.FC<Props> = ({
   selectedKey,
   models,
   selectedSchemaType,
-  isKeyAvailable,
   open,
   onModalOpen,
   onModelKeyCheck,
@@ -47,12 +46,12 @@ const Models: React.FC<Props> = ({
         onModalOpen={onModalOpen}
         onUpdateModelsOrder={onUpdateModelsOrder}
       />
-      <ModelFormModal
-        isKeyAvailable={isKeyAvailable}
+      <FormModal
         open={open}
-        onModelKeyCheck={onModelKeyCheck}
+        onKeyCheck={onModelKeyCheck}
         onClose={onClose}
         onCreate={onCreate}
+        isModel
       />
     </>
   );

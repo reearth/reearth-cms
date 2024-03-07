@@ -15,12 +15,10 @@ const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 type Props = {
   url: string;
   handleProperties: (prop: Property) => void;
-  selectFeature?: (selected: boolean) => void;
 };
 
 export type Property = { [k: string]: string | number | boolean };
 
-// TODO: these two types should be imported from cesium-mvt-imagery-provider library instead
 type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
 type TileCoordinates = {
   x: number;
@@ -28,7 +26,7 @@ type TileCoordinates = {
   level: number;
 };
 
-export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature }) => {
+export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   const { viewer } = useCesium();
   const [selectedFeature, setSelectFeature] = useState<string>();
   const [urlTemplate, setUrlTemplate] = useState<URLTemplate>(url as URLTemplate);
@@ -82,11 +80,10 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
   const onSelectFeature = useCallback(
     (feature: VectorTileFeature, tileCoords: TileCoordinates) => {
       const id = idFromGeometry(feature.loadGeometry(), tileCoords);
-      selectFeature?.(true);
       setSelectFeature(id);
       handleProperties(feature.properties);
     },
-    [handleProperties, selectFeature],
+    [handleProperties],
   );
 
   useEffect(() => {
@@ -111,19 +108,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties, selectFeature 
         layers.remove(currentLayer);
       };
     }
-  }, [
-    viewer,
-    selectedFeature,
-    url,
-    urlTemplate,
-    currentLayer,
-    layers,
-    handleProperties,
-    selectFeature,
-    onSelectFeature,
-    style,
-    maximumLevel,
-  ]);
+  }, [currentLayer, maximumLevel, onSelectFeature, style, urlTemplate, viewer]);
 
   const handleChange = useCallback((value: unknown) => {
     if (typeof value !== "string") return;
@@ -188,7 +173,7 @@ const idFromGeometry = (
 export function parseMetadata(json: any):
   | {
       layers: string[];
-      center: [lng: number, lat: number, height: number] | undefined;
+      center?: [lng: number, lat: number, height: number];
       maximumLevel?: number;
     }
   | undefined {

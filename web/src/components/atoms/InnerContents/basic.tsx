@@ -3,7 +3,7 @@ import { Children, ReactNode } from "react";
 
 import Content from "@reearth-cms/components/atoms/Content";
 
-export type Props = {
+type Props = {
   title?: string;
   subtitle?: string;
   flexChildren?: boolean;

@@ -16,10 +16,11 @@ import {
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
-import { convertItem } from "@reearth-cms/components/organisms/Project/Content/utils";
-import { convertModel } from "@reearth-cms/components/organisms/Project/ModelsMenu/convertModel";
 import {
   Item as GQLItem,
   Model as GQLModel,
@@ -40,7 +41,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
-import { fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const {
@@ -56,6 +56,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     loading,
     totalCount,
     page,
@@ -94,8 +95,8 @@ export default () => {
     variables: { id: referenceModelId ?? "" },
     skip: !referenceModelId,
   });
-  const model = useMemo(() => convertModel(modelData?.node as GQLModel), [modelData?.node]);
-  const { data: itemsData } = useSearchItemQuery({
+  const model = useMemo(() => fromGraphQLModel(modelData?.node as GQLModel), [modelData?.node]);
+  const { data: itemsData, refetch } = useSearchItemQuery({
     fetchPolicy: "no-cache",
     variables: {
       searchItemInput: {
@@ -129,14 +130,14 @@ export default () => {
     skip: !model?.id,
   });
 
-  const handleSearchTerm = useCallback(
-    (term?: string) => {
-      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1]?.schemaFieldId ?? titleId.current;
-      setSearchTerm(term ?? "");
-      setLinkItemModalPage(1);
-    },
-    [itemsData?.searchItem.nodes],
-  );
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setLinkItemModalPage(1);
+  }, []);
+
+  const handleLinkItemTableReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -183,13 +184,8 @@ export default () => {
   );
 
   const currentItem: Item | undefined = useMemo(
-    () => convertItem(data?.node as GQLItem),
+    () => fromGraphQLItem(data?.node as GQLItem),
     [data?.node],
-  );
-
-  const formItemsData: FormItem[] | undefined = useMemo(
-    () => currentItem?.referencedItems as FormItem[],
-    [currentItem?.referencedItems],
   );
 
   const { data: groupData } = useGetGroupsQuery({
@@ -422,10 +418,10 @@ export default () => {
     return initialValues;
   }, [currentItem, currentModel, dateConvert, itemLoading]);
 
-  const workspaceUserMembers = useMemo((): Member[] => {
+  const workspaceUserMembers = useMemo((): UserMember[] => {
     return (
       currentWorkspace?.members
-        ?.map<Member | undefined>(member =>
+        ?.map<UserMember | undefined>(member =>
           member.__typename === "WorkspaceUserMember" && member.user
             ? {
                 userId: member.userId,
@@ -435,13 +431,14 @@ export default () => {
             : undefined,
         )
         .filter(
-          (user): user is Member => !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
+          (user): user is UserMember =>
+            !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
         ) ?? []
     );
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetModalRequests"],
   });
 
   const handleRequestCreate = useCallback(
@@ -503,9 +500,14 @@ export default () => {
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
-  const handleReferenceModelUpdate = useCallback((modelId?: string) => {
-    setReferenceModelId(modelId);
-  }, []);
+  const handleReferenceModelUpdate = useCallback(
+    (modelId: string, titleFieldId: string) => {
+      setReferenceModelId(modelId);
+      titleId.current = titleFieldId;
+      handleSearchTerm();
+    },
+    [handleSearchTerm],
+  );
 
   return {
     linkedItemsModalList,
@@ -516,7 +518,6 @@ export default () => {
     requestCreationLoading,
     currentModel,
     currentItem,
-    formItemsData,
     initialFormValues,
     initialMetaFormValues,
     itemCreationLoading,
@@ -527,15 +528,17 @@ export default () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTitle: model.name,
+    linkItemModalTitle: model?.name ?? "",
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,
     handleSearchTerm,
+    handleLinkItemTableReload,
     handleLinkItemTableChange,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,

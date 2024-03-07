@@ -12,8 +12,6 @@ const RequestList: React.FC = () => {
     loading,
     collapsedCommentsPanel,
     selectedRequest,
-    // selectRequest,
-    // selectedRequests,
     selection,
     setSelection,
     collapseCommentsPanel,
@@ -45,6 +43,7 @@ const RequestList: React.FC = () => {
           }
           comments={selectedRequest?.comments}
           threadId={selectedRequest?.threadId}
+          refetchQueries={["GetRequests"]}
         />
       }
       requests={requests}

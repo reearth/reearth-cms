@@ -36,8 +36,7 @@ const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
     form
       .validateFields()
       .then(async (values: FormValues) => {
-        // TODO: when assets upload is ready to use
-        values.logoUrl = "_";
+        values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
         values.type = IntegrationType.Private;
         await onSubmit?.(values);
         onClose();
