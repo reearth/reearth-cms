@@ -21,6 +21,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -124,12 +125,12 @@ func TestCommon_webhook(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	uc := New(nil, nil, nil, nil, ContainerConfig{})
+	uc := New(nil, nil, &accountrepo.Container{}, nil, ContainerConfig{})
 	assert.NotNil(t, uc)
 	assert.Equal(t, interfaces.Container{
 		Asset:             NewAsset(nil, nil),
-		Workspace:         accountinteractor.NewWorkspace(nil, nil),
-		User:              accountinteractor.NewUser(nil, nil, "", ""),
+		Workspace:         accountinteractor.NewWorkspace(&accountrepo.Container{}, nil),
+		User:              accountinteractor.NewUser(&accountrepo.Container{}, nil, "", ""),
 		Item:              NewItem(nil, nil),
 		View:              NewView(nil, nil),
 		Project:           NewProject(nil, nil),
