@@ -79,7 +79,7 @@ jobs:
         with:
           context: ./server
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_AWS }}
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
 
@@ -105,6 +105,6 @@ jobs:
         with:
           context: ./worker
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/$WORKER_IMAGE_AWS
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.WORKER_IMAGE_AWS }}
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
