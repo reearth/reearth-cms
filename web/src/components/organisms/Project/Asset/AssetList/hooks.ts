@@ -117,6 +117,7 @@ export default (isItemsRequired: boolean) => {
               let cursor = "";
               let offset = 0;
               let uploadToken = "";
+              // eslint-disable-next-line no-constant-condition
               while (true) {
                 const createAssetUploadResult = await createAssetUploadMutation({
                   variables: {
@@ -134,8 +135,9 @@ export default (isItemsRequired: boolean) => {
                   handleUploadModalCancel();
                   return undefined;
                 }
-                const { url, token, contentType, contentLength, next } = createAssetUploadResult.data.createAssetUpload;
-                uploadToken = token ?? ""; 
+                const { url, token, contentType, contentLength, next } =
+                  createAssetUploadResult.data.createAssetUpload;
+                uploadToken = token ?? "";
                 if (url === "") {
                   break;
                 }
