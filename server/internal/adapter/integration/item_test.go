@@ -28,7 +28,7 @@ func Test_convertMetaFields(t *testing.T) {
 	var vi any = "日本語"
 	var vi2 any = "xyz"
 	s := schema.New().NewID().Fields(schema.FieldList{sf1, sf2}).Project(id.NewProjectID()).Workspace(accountdomain.NewWorkspaceID()).MustBuild()
-	sp := schema.NewPackage(s, nil, nil)
+	sp := schema.NewPackage(s, nil, nil, nil)
 
 	tests := []struct {
 		name string

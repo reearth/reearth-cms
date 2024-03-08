@@ -83,7 +83,7 @@ func TestNewItem(t *testing.T) {
 			},
 			"ggggg": resGroup,
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}), asset.List{as}, func(a *asset.Asset) string {
+	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), asset.List{as}, func(a *asset.Asset) string {
 		return "https://example.com/" + a.ID().String() + af.Path()
 	}, nil))
 
@@ -94,7 +94,7 @@ func TestNewItem(t *testing.T) {
 			"aaaaa": "aaaa",
 			"ggggg": resGroup,
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}), nil, nil, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), nil, nil, nil))
 }
 
 func TestNewItem_Multiple(t *testing.T) {
@@ -138,7 +138,7 @@ func TestNewItem_Multiple(t *testing.T) {
 				URL:  "https://example.com/" + as.ID().String() + af.Path(),
 			}},
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, nil), asset.List{as}, func(a *asset.Asset) string {
+	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), asset.List{as}, func(a *asset.Asset) string {
 		return "https://example.com/" + a.ID().String() + af.Path()
 	}, nil))
 
@@ -148,7 +148,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, nil), nil, nil, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), nil, nil, nil))
 }
 
 func TestItem_MarshalJSON(t *testing.T) {
