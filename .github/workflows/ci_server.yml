@@ -27,13 +27,11 @@ jobs:
   ci-server-lint:
     name: lint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: server
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: go setup
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
@@ -50,7 +48,8 @@ jobs:
       run:
         working-directory: server
     steps:
-      - uses: actions/setup-go@v4
+      - name: go setup
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: checkout
