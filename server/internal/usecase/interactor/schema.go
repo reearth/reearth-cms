@@ -54,30 +54,23 @@ func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Oper
 		return nil, nil
 	}
 
-	gIds := lo.Map(s.FieldsByType(value.TypeGroup), func(f *schema.Field, _ int) id.GroupID {
-		var gID id.GroupID
-		f.TypeProperty().Match(schema.TypePropertyMatch{
-			Group: func(f *schema.FieldGroup) {
-				gID = f.Group()
-			},
-		})
-		return gID
-	})
-
-	groups, err := i.repos.Group.FindByIDs(ctx, gIds)
+	groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
 	if err != nil {
 		return nil, err
 	}
 
-	gsl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs())
+	sl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
 	if err != nil {
 		return nil, err
 	}
-	gm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-		return g.ID(), gsl.Schema(lo.ToPtr(g.Schema()))
+	gsm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+		return g.ID(), sl.Schema(lo.ToPtr(g.Schema()))
+	})
+	rs := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
+		return sl.Schema(&s)
 	})
 
-	return schema.NewPackage(s, sList.Schema(m.Metadata()), gm), nil
+	return schema.NewPackage(s, sList.Schema(m.Metadata()), gsm, rs), nil
 }
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, op *usecase.Operator) (*schema.Field, error) {
