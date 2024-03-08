@@ -165,9 +165,11 @@ type ComplexityRoot struct {
 	}
 
 	CreateAssetUploadPayload struct {
-		ContentType func(childComplexity int) int
-		Token       func(childComplexity int) int
-		URL         func(childComplexity int) int
+		ContentLength func(childComplexity int) int
+		ContentType   func(childComplexity int) int
+		Next          func(childComplexity int) int
+		Token         func(childComplexity int) int
+		URL           func(childComplexity int) int
 	}
 
 	CreateWorkspacePayload struct {
@@ -1421,12 +1423,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateAssetPayload.Asset(childComplexity), true
 
+	case "CreateAssetUploadPayload.contentLength":
+		if e.complexity.CreateAssetUploadPayload.ContentLength == nil {
+			break
+		}
+
+		return e.complexity.CreateAssetUploadPayload.ContentLength(childComplexity), true
+
 	case "CreateAssetUploadPayload.contentType":
 		if e.complexity.CreateAssetUploadPayload.ContentType == nil {
 			break
 		}
 
 		return e.complexity.CreateAssetUploadPayload.ContentType(childComplexity), true
+
+	case "CreateAssetUploadPayload.next":
+		if e.complexity.CreateAssetUploadPayload.Next == nil {
+			break
+		}
+
+		return e.complexity.CreateAssetUploadPayload.Next(childComplexity), true
 
 	case "CreateAssetUploadPayload.token":
 		if e.complexity.CreateAssetUploadPayload.Token == nil {
@@ -4903,9 +4919,17 @@ input CreateAssetInput {
   skipDecompression: Boolean
 }
 
+# If ` + "`" + `cursor` + "`" + ` is specified, both ` + "`" + `filename` + "`" + ` and ` + "`" + `contentLength` + "`" + ` will be ignored.
 input CreateAssetUploadInput {
   projectId: ID!
-  filename: String!
+
+  # The name of the file to upload.
+  filename: String
+  # The size of the file to upload.
+  contentLength: Int
+
+  # Required if uploading in multiple parts.
+  cursor: String
 }
 
 input UpdateAssetInput {
@@ -4938,9 +4962,20 @@ type DecompressAssetPayload {
 }
 
 type CreateAssetUploadPayload {
-  url: String!
+  # A token identifying the sequence of uploads.
+  # If an empty string is returned, it means that issuing URLs is not supported, and the ` + "`" + `file` + "`" + ` in CreateAsset must be used.
+  # If splitting the upload is necessary, it is guaranteed that the same value will be returned.
   token: String!
-  contentType: String!
+  # The URL to which the PUT request should be made.
+  # An empty string return means that the upload process has been completed.
+  url: String!
+  # The MIME type for the PUT request.
+  # If unspecified or an empty string, the Content-Type should not be sent.
+  contentType: String
+  # The size of the upload.
+  contentLength: Int!
+  # A cursor to obtain the URL for the next PUT request.
+  next: String
 }
 
 type AssetConnection {
@@ -10482,50 +10517,6 @@ func (ec *executionContext) fieldContext_CreateAssetPayload_asset(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _CreateAssetUploadPayload_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CreateAssetUploadPayload_url(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.URL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CreateAssetUploadPayload_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CreateAssetUploadPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _CreateAssetUploadPayload_token(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateAssetUploadPayload_token(ctx, field)
 	if err != nil {
@@ -10570,6 +10561,50 @@ func (ec *executionContext) fieldContext_CreateAssetUploadPayload_token(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateAssetUploadPayload_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateAssetUploadPayload_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateAssetUploadPayload_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateAssetUploadPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreateAssetUploadPayload_contentType(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateAssetUploadPayload_contentType(ctx, field)
 	if err != nil {
@@ -10591,17 +10626,99 @@ func (ec *executionContext) _CreateAssetUploadPayload_contentType(ctx context.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateAssetUploadPayload_contentType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateAssetUploadPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateAssetUploadPayload_contentLength(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateAssetUploadPayload_contentLength(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ContentLength, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
 		if !graphql.HasFieldError(ctx, fc) {
 			ec.Errorf(ctx, "must not be null")
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CreateAssetUploadPayload_contentType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CreateAssetUploadPayload_contentLength(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateAssetUploadPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateAssetUploadPayload_next(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.CreateAssetUploadPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateAssetUploadPayload_next(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Next, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateAssetUploadPayload_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateAssetUploadPayload",
 		Field:      field,
@@ -17165,12 +17282,16 @@ func (ec *executionContext) fieldContext_Mutation_createAssetUpload(ctx context.
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "url":
-				return ec.fieldContext_CreateAssetUploadPayload_url(ctx, field)
 			case "token":
 				return ec.fieldContext_CreateAssetUploadPayload_token(ctx, field)
+			case "url":
+				return ec.fieldContext_CreateAssetUploadPayload_url(ctx, field)
 			case "contentType":
 				return ec.fieldContext_CreateAssetUploadPayload_contentType(ctx, field)
+			case "contentLength":
+				return ec.fieldContext_CreateAssetUploadPayload_contentLength(ctx, field)
+			case "next":
+				return ec.fieldContext_CreateAssetUploadPayload_next(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CreateAssetUploadPayload", field.Name)
 		},
@@ -33203,7 +33324,7 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"projectId", "filename"}
+	fieldsInOrder := [...]string{"projectId", "filename", "contentLength", "cursor"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -33219,11 +33340,25 @@ func (ec *executionContext) unmarshalInputCreateAssetUploadInput(ctx context.Con
 			it.ProjectID = data
 		case "filename":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filename"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Filename = data
+		case "contentLength":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contentLength"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ContentLength = data
+		case "cursor":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cursor = data
 		}
 	}
 
@@ -38616,21 +38751,25 @@ func (ec *executionContext) _CreateAssetUploadPayload(ctx context.Context, sel a
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CreateAssetUploadPayload")
-		case "url":
-			out.Values[i] = ec._CreateAssetUploadPayload_url(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "token":
 			out.Values[i] = ec._CreateAssetUploadPayload_token(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "contentType":
-			out.Values[i] = ec._CreateAssetUploadPayload_contentType(ctx, field, obj)
+		case "url":
+			out.Values[i] = ec._CreateAssetUploadPayload_url(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "contentType":
+			out.Values[i] = ec._CreateAssetUploadPayload_contentType(ctx, field, obj)
+		case "contentLength":
+			out.Values[i] = ec._CreateAssetUploadPayload_contentLength(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "next":
+			out.Values[i] = ec._CreateAssetUploadPayload_next(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
