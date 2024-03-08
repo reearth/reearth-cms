@@ -9,18 +9,20 @@ import (
 )
 
 type AssetUploadDocument struct {
-	UUID      string    `bson:"uuid"`
-	Project   string    `bson:"project"`
-	FileName  string    `bson:"filename"`
-	ExpiresAt time.Time `bson:"expires_at"`
+	UUID          string    `bson:"uuid"`
+	Project       string    `bson:"project"`
+	FileName      string    `bson:"filename"`
+	ExpiresAt     time.Time `bson:"expires_at"`
+	ContentLength int64     `bson:"content_length"`
 }
 
 func NewAssetUpload(u *asset.Upload) *AssetUploadDocument {
 	return &AssetUploadDocument{
-		UUID:      u.UUID(),
-		Project:   u.Project().String(),
-		FileName:  u.FileName(),
-		ExpiresAt: u.ExpiresAt(),
+		UUID:          u.UUID(),
+		Project:       u.Project().String(),
+		FileName:      u.FileName(),
+		ExpiresAt:     u.ExpiresAt(),
+		ContentLength: u.ContentLength(),
 	}
 }
 
@@ -34,6 +36,7 @@ func (d *AssetUploadDocument) Model() (*asset.Upload, error) {
 		Project(pid).
 		FileName(d.FileName).
 		ExpiresAt(d.ExpiresAt).
+		ContentLength(d.ContentLength).
 		Build(), nil
 }
 

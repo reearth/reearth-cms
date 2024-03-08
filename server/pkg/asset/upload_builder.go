@@ -34,6 +34,11 @@ func (b *UploadBuilder) ExpiresAt(expiresAt time.Time) *UploadBuilder {
 	return b
 }
 
+func (b *UploadBuilder) ContentLength(contentLength int64) *UploadBuilder {
+	b.u.contentLength = contentLength
+	return b
+}
+
 func (b *UploadBuilder) Build() *Upload {
 	return b.u
 }

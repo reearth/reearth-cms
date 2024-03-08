@@ -61,6 +61,8 @@ jobs:
     name: Deploy server to AWS
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -72,16 +74,21 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: docker pull, push to ECR
-        run: |
-          docker pull $IMAGE
-          docker tag $IMAGE ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
-          docker push ${{ steps.login-ecr.outputs.registry }}/$IMAGE_AWS
+      - name: Build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_AWS }}
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
 
   deploy_worker:
     name: Deploy worker to AWS
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -93,8 +100,11 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: docker pull, push to ECR
-        run: |
-          docker pull $WORKER_IMAGE
-          docker tag $WORKER_IMAGE ${{ steps.login-ecr.outputs.registry }}/$WORKER_IMAGE_AWS
-          docker push ${{ steps.login-ecr.outputs.registry }}/$WORKER_IMAGE_AWS
+      - name: Build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./worker
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.WORKER_IMAGE_AWS }}
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max

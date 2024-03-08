@@ -228,14 +228,18 @@ type CreateAssetPayload struct {
 }
 
 type CreateAssetUploadInput struct {
-	ProjectID ID     `json:"projectId"`
-	Filename  string `json:"filename"`
+	ProjectID     ID      `json:"projectId"`
+	Filename      *string `json:"filename,omitempty"`
+	ContentLength *int    `json:"contentLength,omitempty"`
+	Cursor        *string `json:"cursor,omitempty"`
 }
 
 type CreateAssetUploadPayload struct {
-	URL         string `json:"url"`
-	Token       string `json:"token"`
-	ContentType string `json:"contentType"`
+	Token         string  `json:"token"`
+	URL           string  `json:"url"`
+	ContentType   *string `json:"contentType,omitempty"`
+	ContentLength int     `json:"contentLength"`
+	Next          *string `json:"next,omitempty"`
 }
 
 type CreateFieldInput struct {
