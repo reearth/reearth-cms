@@ -608,7 +608,7 @@ type Me struct {
 	MyWorkspaceID ID             `json:"myWorkspaceId"`
 	Auths         []string       `json:"auths"`
 	Workspaces    []*Workspace   `json:"workspaces"`
-	MyWorkspace   *Workspace     `json:"myWorkspace"`
+	MyWorkspace   *Workspace     `json:"myWorkspace,omitempty"`
 	Integrations  []*Integration `json:"integrations"`
 }
 
