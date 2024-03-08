@@ -1,25 +1,6 @@
 name: ci-server
 on:
-  push:
-    branches: [main, release]
-    paths:
-      - server/**
-      - .github/workflows/ci_server.yml
-      - .github/workflows/server_build.yml
-      - .github/workflows/deploy_test.yml
-      - .github/workflows/pr_title.yml
-      - .github/workflows/stage.yml
-      - .github/workflows/release.yml
-      - .github/workflows/server_build.yml
-  pull_request:
-    paths:
-      - server/**
-      - .github/workflows/ci_server.yml
-      - .github/workflows/server_build.yml
-      - .github/workflows/deploy_test.yml
-      - .github/workflows/pr_title.yml
-      - .github/workflows/stage.yml
-      - .github/workflows/release.yml
+  workflow_call:
 env:
   GO_VERSION: "1.22"
 
