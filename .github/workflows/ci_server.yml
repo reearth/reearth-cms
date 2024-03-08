@@ -34,13 +34,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: false
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
         with:
           version: v1.55
           working-directory: server
           args: --config=../.golangci.yml
+          skip-cache: true
   ci-server-i18n:
     name: i18n
     runs-on: ubuntu-latest
