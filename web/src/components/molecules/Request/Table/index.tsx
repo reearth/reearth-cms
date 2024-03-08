@@ -5,7 +5,7 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ProTable, {
+import {
   ListToolBarProps,
   ProColumns,
   OptionConfig,
@@ -13,11 +13,15 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-export type Props = {
+type StretchColumn = ProColumns<Request> & { minWidth: number };
+
+type Props = {
   requests: Request[];
   loading: boolean;
   selectedRequest: Request | undefined;
@@ -68,12 +72,15 @@ const RequestListTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: ProColumns<Request>[] = [
+  const columns: StretchColumn[] = [
     {
       title: "",
       render: (_, request) => (
         <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
       ),
+      width: 48,
+      minWidth: 48,
+      align: "center",
     },
     {
       title: () => <Icon icon="message" />,
@@ -81,19 +88,25 @@ const RequestListTable: React.FC<Props> = ({
       key: "commentsCount",
       render: (_, request) => {
         return (
-          <Button type="link" onClick={() => onRequestSelect(request.id)}>
+          <CommentsButton type="link" onClick={() => onRequestSelect(request.id)}>
             <CustomTag
               value={request.comments?.length || 0}
               color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
             />
-          </Button>
+          </CommentsButton>
         );
       },
+      width: 48,
+      minWidth: 48,
+      align: "center",
     },
     {
       title: t("Title"),
       dataIndex: "title",
       key: "title",
+      width: 100,
+      minWidth: 100,
+      ellipsis: true,
     },
     {
       title: t("State"),
@@ -128,14 +141,19 @@ const RequestListTable: React.FC<Props> = ({
         { text: t("DRAFT"), value: "DRAFT" },
       ],
       defaultFilteredValue: requestState,
+      width: 100,
+      minWidth: 100,
     },
     {
       title: t("Created By"),
       dataIndex: "createdBy.name",
       key: "createdBy",
-      render: (_, request) => {
-        return request.createdBy?.name;
-      },
+      render: (_, request) => (
+        <Space>
+          <UserAvatar username={request.createdBy?.name} size={"small"} />
+          {request.createdBy?.name}
+        </Space>
+      ),
       valueEnum: {
         all: { text: "All", status: "Default" },
         createdByMe: {
@@ -144,12 +162,26 @@ const RequestListTable: React.FC<Props> = ({
       },
       filters: true,
       defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
+      width: 105,
+      minWidth: 105,
+      ellipsis: true,
     },
     {
       title: t("Reviewers"),
       dataIndex: "reviewers.name",
       key: "reviewers",
-      render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
+      render: (_, request) => (
+        <Space>
+          <div>
+            {request.reviewers
+              .filter((_, index) => index < 3)
+              .map(reviewer => (
+                <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
+              ))}
+          </div>
+          {request.reviewers.map(reviewer => reviewer.name).join(", ")}
+        </Space>
+      ),
       valueEnum: {
         all: { text: "All", status: "Default" },
         reviewedByMe: {
@@ -158,23 +190,31 @@ const RequestListTable: React.FC<Props> = ({
       },
       filters: true,
       defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
+      width: 105,
+      minWidth: 105,
+      ellipsis: true,
     },
     {
       title: t("Created At"),
       dataIndex: "createdAt",
       key: "createdAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
+      width: 150,
+      minWidth: 150,
     },
     {
       title: t("Updated At"),
       dataIndex: "updatedAt",
       key: "updatedAt",
       render: (_text, record) => dateTimeFormat(record.createdAt),
+      width: 150,
+      minWidth: 150,
     },
   ];
 
   const options: OptionConfig = {
     search: true,
+    fullScreen: true,
     reload: onRequestsReload,
   };
 
@@ -222,7 +262,7 @@ const RequestListTable: React.FC<Props> = ({
   };
 
   return (
-    <ProTable
+    <ResizableProTable
       dataSource={requests}
       columns={columns}
       tableAlertOptionRender={AlertOptions}
@@ -232,7 +272,6 @@ const RequestListTable: React.FC<Props> = ({
       pagination={pagination}
       toolbar={handleToolbarEvents}
       rowSelection={rowSelection}
-      tableStyle={{ overflowX: "scroll" }}
       loading={loading}
       onChange={(pagination, filters) => {
         onRequestTableChange(
@@ -243,11 +282,28 @@ const RequestListTable: React.FC<Props> = ({
           !!filters?.reviewers?.[0],
         );
       }}
+      heightOffset={72}
     />
   );
 };
 
 export default RequestListTable;
+
+const CommentsButton = styled(Button)`
+  padding: 0;
+`;
+
+const StyledUserAvatar = styled(UserAvatar)`
+  :nth-child(1) {
+    z-index: 2;
+  }
+  :nth-child(2) {
+    z-index: 1;
+  }
+  :nth-child(n + 2) {
+    margin-left: -18px;
+  }
+`;
 
 const DeselectButton = styled.a`
   display: flex;

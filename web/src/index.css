@@ -14,6 +14,10 @@ code {
     border-bottom: dashed 2px rgba(0, 0, 0, 0.85) !important;
 }
 
+.dragLineColumn {
+    border-left: dashed 2px rgba(0, 0, 0, 0.85) !important;
+}
+
 .ant-table-cell{
     word-break: break-all;
 }

@@ -4,13 +4,14 @@ import { Key, useCallback } from "react";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/asset.type";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
+import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
 
@@ -30,7 +31,6 @@ type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
-  sort?: { type?: AssetSortType; direction?: SortDirection };
   searchTerm: string;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
@@ -41,7 +41,7 @@ type Props = {
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
   onSearchTerm: (term?: string) => void;
-  onEdit: (asset: Asset) => void;
+  onEdit: (assetId: string) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
@@ -66,7 +66,6 @@ const AssetList: React.FC<Props> = ({
   selectedAsset,
   totalCount,
   searchTerm,
-  sort,
   page,
   pageSize,
   onAssetItemSelect,
@@ -85,6 +84,8 @@ const AssetList: React.FC<Props> = ({
   onAssetsReload,
   onAssetTableChange,
 }) => {
+  const t = useT();
+
   const displayUploadModal = useCallback(() => {
     setUploadModalVisibility(true);
   }, [setUploadModalVisibility]);
@@ -122,7 +123,7 @@ const AssetList: React.FC<Props> = ({
       center={
         <Wrapper>
           <StyledPageHeader
-            title="Asset"
+            title={t("Asset")}
             extra={
               <UploadAsset
                 fileList={fileList}
@@ -146,7 +147,6 @@ const AssetList: React.FC<Props> = ({
             selectedAsset={selectedAsset}
             totalCount={totalCount}
             searchTerm={searchTerm}
-            sort={sort}
             page={page}
             pageSize={pageSize}
             onAssetItemSelect={onAssetItemSelect}

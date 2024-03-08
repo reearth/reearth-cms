@@ -56,20 +56,21 @@ export default ({ projectId }: Params) => {
   const handleProjectUpdate = useCallback(
     async (name?: string, description?: string) => {
       if (!projectId || !name) return;
-      const project = await updateProjectMutation({
+      const result = await updateProjectMutation({
         variables: {
           projectId,
-          name: name,
-          description: description,
+          name,
+          description,
+          requestRoles: project?.requestRoles as GQLRole[],
         },
       });
-      if (project.errors || !project.data?.updateProject) {
+      if (result.errors || !result.data?.updateProject) {
         Notification.error({ message: t("Failed to update project.") });
         return;
       }
       Notification.success({ message: t("Successfully updated project!") });
     },
-    [projectId, updateProjectMutation, t],
+    [projectId, updateProjectMutation, project?.requestRoles, t],
   );
 
   const handleProjectRequestRolesUpdate = useCallback(

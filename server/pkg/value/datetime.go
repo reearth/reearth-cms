@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const TypeDateTime Type = "datetime"
@@ -22,6 +23,9 @@ func (p *propertyDateTime) ToValue(i any) (any, bool) {
 	case time.Time:
 		return v, true
 	case string:
+		if v == "" {
+			return nil, true
+		}
 		for _, l := range timeLayouts {
 			if tt, err := time.Parse(l, v); err == nil {
 				return tt, true
@@ -35,6 +39,8 @@ func (p *propertyDateTime) ToValue(i any) (any, bool) {
 		if v != nil {
 			return p.ToValue(*v)
 		}
+	case primitive.DateTime:
+		return time.Unix(int64(v)/1000, 0), true
 	}
 
 	if _, ok := i.(bool); ok {
@@ -61,8 +67,13 @@ func (*propertyDateTime) Validate(i any) bool {
 }
 
 func (*propertyDateTime) Equal(v, w any) bool {
-	vv := v.(DateTime)
-	ww := w.(DateTime)
+	var vv, ww DateTime
+	if v != nil {
+		vv = v.(DateTime)
+	}
+	if w != nil {
+		ww = w.(DateTime)
+	}
 	return vv.Equal(ww)
 }
 

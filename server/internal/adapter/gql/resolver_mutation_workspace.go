@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 )
@@ -14,16 +15,29 @@ func (r *mutationResolver) CreateWorkspace(ctx context.Context, input gqlmodel.C
 		return nil, err
 	}
 
-	return &gqlmodel.CreateWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
-}
-
-func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.DeleteWorkspaceInput) (*gqlmodel.DeleteWorkspacePayload, error) {
-	tid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
+	_, err = usecases(ctx).WorkspaceSettings.UpdateOrCreate(ctx, interfaces.UpdateOrCreateWorkspaceSettingsParam{
+		ID: res.ID(),
+	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	if err := usecases(ctx).Workspace.Remove(ctx, tid, getAcOperator(ctx)); err != nil {
+	return &gqlmodel.CreateWorkspacePayload{Workspace: gqlmodel.ToWorkspace(res)}, nil
+}
+
+func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.DeleteWorkspaceInput) (*gqlmodel.DeleteWorkspacePayload, error) {
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := usecases(ctx).WorkspaceSettings.Delete(ctx, interfaces.DeleteWorkspaceSettingsParam{
+		ID: wid,
+	}, getOperator(ctx)); err != nil {
+		return nil, err
+	}
+
+	if err := usecases(ctx).Workspace.Remove(ctx, wid, getAcOperator(ctx)); err != nil {
 		return nil, err
 	}
 
@@ -31,12 +45,12 @@ func (r *mutationResolver) DeleteWorkspace(ctx context.Context, input gqlmodel.D
 }
 
 func (r *mutationResolver) UpdateWorkspace(ctx context.Context, input gqlmodel.UpdateWorkspaceInput) (*gqlmodel.UpdateWorkspacePayload, error) {
-	tid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
+	wid, err := gqlmodel.ToID[accountdomain.Workspace](input.WorkspaceID)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := usecases(ctx).Workspace.Update(ctx, tid, input.Name, getAcOperator(ctx))
+	res, err := usecases(ctx).Workspace.Update(ctx, wid, input.Name, getAcOperator(ctx))
 	if err != nil {
 		return nil, err
 	}

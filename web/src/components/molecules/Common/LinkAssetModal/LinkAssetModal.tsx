@@ -1,7 +1,9 @@
-import { useState } from "react";
+import styled from "@emotion/styled";
+import { useState, useRef, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import ProTable, {
   ProColumns,
@@ -10,13 +12,14 @@ import ProTable, {
   TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -25,7 +28,7 @@ type Props = {
   visible: boolean;
   onLinkAssetModalCancel: () => void;
   // table props
-  linkedAsset?: Asset;
+  linkedAsset?: ItemAsset;
   assetList: Asset[];
   fileList: UploadFile<File>[];
   loading: boolean;
@@ -45,6 +48,7 @@ type Props = {
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   onChange?: (value: string) => void;
+  onSelect: (selectedAsset: ItemAsset) => void;
   onAssetsReload: () => void;
   onSearchTerm: (term?: string) => void;
   displayUploadModal: () => void;
@@ -71,6 +75,7 @@ const LinkAssetModal: React.FC<Props> = ({
   setUploadUrl,
   setUploadType,
   onChange,
+  onSelect,
   onAssetsReload,
   onSearchTerm,
   displayUploadModal,
@@ -79,6 +84,7 @@ const LinkAssetModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [hoveredAssetId, setHoveredAssetId] = useState<string>();
+  const resetFlag = useRef(false);
 
   const options: OptionConfig = {
     search: true,
@@ -86,15 +92,19 @@ const LinkAssetModal: React.FC<Props> = ({
   };
 
   const handleToolbarEvents: ListToolBarProps | undefined = {
-    search: {
-      onSearch: (value: string) => {
-        if (value) {
-          onSearchTerm(value);
-        } else {
-          onSearchTerm();
-        }
-      },
-    },
+    search: (
+      <Input.Search
+        placeholder={t("Please enter")}
+        onSearch={(value: string) => {
+          if (value) {
+            onSearchTerm(value);
+          } else {
+            onSearchTerm();
+          }
+        }}
+        key={+resetFlag.current}
+      />
+    ),
   };
 
   const pagination: TablePaginationConfig = {
@@ -104,11 +114,20 @@ const LinkAssetModal: React.FC<Props> = ({
     pageSize: pageSize,
   };
 
+  const onLinkClick = useCallback(
+    (isLink: boolean, asset: Asset) => {
+      onChange?.(isLink ? asset.id : "");
+      onLinkAssetModalCancel();
+      if (isLink) onSelect({ id: asset.id, fileName: asset.fileName });
+    },
+    [onChange, onLinkAssetModalCancel, onSelect],
+  );
+
   const columns: ProColumns<Asset>[] = [
     {
       title: "",
       render: (_, asset) => {
-        const link =
+        const isLink =
           (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
           (asset.id !== linkedAsset?.id && hoveredAssetId === asset.id);
         return (
@@ -116,11 +135,8 @@ const LinkAssetModal: React.FC<Props> = ({
             type="link"
             onMouseEnter={() => setHoveredAssetId(asset.id)}
             onMouseLeave={() => setHoveredAssetId(undefined)}
-            icon={<Icon icon={link ? "linkSolid" : "unlinkSolid"} size={16} />}
-            onClick={() => {
-              onChange?.(link ? asset.id : "");
-              onLinkAssetModalCancel();
-            }}
+            icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
+            onClick={() => onLinkClick(isLink, asset)}
           />
         );
       },
@@ -135,11 +151,13 @@ const LinkAssetModal: React.FC<Props> = ({
       dataIndex: "size",
       key: "size",
       render: (_text, record) => bytesFormat(record.size),
+      width: 130,
     },
     {
       title: t("Preview Type"),
       dataIndex: "previewType",
       key: "previewType",
+      width: 130,
     },
     {
       title: t("Created At"),
@@ -151,6 +169,7 @@ const LinkAssetModal: React.FC<Props> = ({
       title: t("Created By"),
       dataIndex: "createdBy",
       key: "createdBy",
+      width: 130,
     },
   ];
 
@@ -160,6 +179,10 @@ const LinkAssetModal: React.FC<Props> = ({
       centered
       open={visible}
       onCancel={onLinkAssetModalCancel}
+      afterClose={() => {
+        onSearchTerm();
+        resetFlag.current = !resetFlag.current;
+      }}
       footer={[
         <UploadAsset
           key={1}
@@ -182,9 +205,9 @@ const LinkAssetModal: React.FC<Props> = ({
       bodyStyle={{
         minHeight: "50vh",
         position: "relative",
-        paddingBottom: "80px",
+        padding: "12px",
       }}>
-      <ProTable
+      <StyledProTable
         dataSource={assetList}
         columns={columns}
         search={false}
@@ -192,7 +215,6 @@ const LinkAssetModal: React.FC<Props> = ({
         options={options}
         pagination={pagination}
         toolbar={handleToolbarEvents}
-        tableStyle={{ overflowX: "scroll" }}
         loading={loading}
         onChange={(pagination, _, sorter: any) => {
           onAssetTableChange(
@@ -203,9 +225,19 @@ const LinkAssetModal: React.FC<Props> = ({
               : undefined,
           );
         }}
+        scroll={{ x: "max-content", y: 330 }}
       />
     </Modal>
   );
 };
 
 export default LinkAssetModal;
+
+const StyledProTable = styled(ProTable)`
+  .ant-pro-card-body {
+    padding: 0;
+    .ant-pro-table-list-toolbar {
+      padding-left: 12px;
+    }
+  }
+`;

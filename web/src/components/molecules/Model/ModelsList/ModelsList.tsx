@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
+import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
@@ -16,6 +17,7 @@ export type Props = {
   collapsed?: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
+  onUpdateModelsOrder: (modelIds: string[]) => void;
 };
 
 const ModelsList: React.FC<Props> = ({
@@ -26,20 +28,49 @@ const ModelsList: React.FC<Props> = ({
   collapsed,
   onModalOpen,
   onModelSelect,
+  onUpdateModelsOrder,
 }) => {
   const t = useT();
 
-  const handleClick = (e: MenuInfo) => {
-    onModelSelect(e.key);
-  };
+  const handleClick = useCallback(
+    (e: MenuInfo) => {
+      onModelSelect(e.key);
+    },
+    [onModelSelect],
+  );
+
+  const onDragEnd = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0 || !models) return;
+      const [removed] = models.splice(fromIndex, 1);
+      models.splice(toIndex, 0, removed);
+      const modelIds = models.map(model => model.id);
+      onUpdateModelsOrder(modelIds);
+    },
+    [models, onUpdateModelsOrder],
+  );
 
   const selectedKeys = useMemo(() => {
     return !selectedSchemaType
       ? [selectedKey ?? ""]
       : selectedSchemaType === "model" && selectedKey
-      ? [selectedKey]
-      : [];
+        ? [selectedKey]
+        : [];
   }, [selectedKey, selectedSchemaType]);
+
+  const items = useMemo(() => {
+    return models
+      ?.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        return 0;
+      })
+      .map(model => ({
+        label: collapsed ? <Icon icon="dot" /> : model.name,
+        key: model.id,
+      }));
+  }, [collapsed, models]);
 
   return (
     <SchemaStyledMenu className={className}>
@@ -56,18 +87,18 @@ const ModelsList: React.FC<Props> = ({
         </Header>
       )}
       <MenuWrapper>
-        <StyledMenu
-          selectedKeys={selectedKeys}
-          mode={collapsed ? "vertical" : "inline"}
-          style={{
-            color: collapsed ? "#C4C4C4" : undefined,
-          }}
-          items={models?.map(model => ({
-            label: collapsed ? <Icon icon="dot" /> : model.name,
-            key: model.id,
-          }))}
-          onClick={handleClick}
-        />
+        <ReactDragListView
+          nodeSelector=".ant-menu-item"
+          lineClassName="dragLine"
+          onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
+          <StyledMenu
+            selectedKeys={selectedKeys}
+            mode={collapsed ? "vertical" : "inline"}
+            collapsed={collapsed}
+            items={items}
+            onClick={handleClick}
+          />
+        </ReactDragListView>
       </MenuWrapper>
     </SchemaStyledMenu>
   );
@@ -116,7 +147,9 @@ const StyledIcon = styled(Icon)`
   padding: 12px 20px;
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
+  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+
   .ant-menu-item {
     display: flex;
     justify-content: center;

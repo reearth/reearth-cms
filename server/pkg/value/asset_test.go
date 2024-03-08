@@ -34,6 +34,12 @@ func Test_propertyAsset_ToValue(t *testing.T) {
 			want1: nil,
 			want2: false,
 		},
+		{
+			name:  "empty string",
+			args:  []any{""},
+			want1: nil,
+			want2: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -61,6 +67,9 @@ func Test_propertyAsset_Equal(t *testing.T) {
 	aId := id.NewAssetID()
 	assert.True(t, (&propertyAsset{}).Equal(aId, aId))
 	assert.True(t, (&propertyAsset{}).Equal(id.AssetID{}, id.AssetID{}))
+	assert.True(t, (&propertyAsset{}).Equal(nil, nil))
+	assert.False(t, (&propertyAsset{}).Equal(nil, id.NewAssetID()))
+	assert.False(t, (&propertyAsset{}).Equal(id.NewAssetID(), nil))
 	assert.False(t, (&propertyAsset{}).Equal(id.AssetID{}, id.NewAssetID()))
 	assert.False(t, (&propertyAsset{}).Equal(id.NewAssetID(), id.NewAssetID()))
 }

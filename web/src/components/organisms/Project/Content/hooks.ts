@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
+import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
@@ -21,21 +21,23 @@ export default () => {
   const [addItemToRequestModalShown, setAddItemToRequestModalShown] = useState(false);
   const t = useT();
 
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setPage(+page);
     setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const { data, loading } = useGetModalRequestsQuery({
+  const { data, refetch, loading } = useGetModalRequestsQuery({
     fetchPolicy: "no-cache",
     variables: {
       projectId: currentProject?.id ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       sort: { key: "createdAt", reverted: true },
       state: ["WAITING"] as GQLRequestState[],
+      key: searchTerm,
     },
     skip: !currentProject?.id,
   });
@@ -43,8 +45,7 @@ export default () => {
   const requests: Request[] = useMemo(
     () =>
       (data?.requests.nodes
-        .map(request => request as GQLRequest)
-        .map(convertRequest)
+        .map(request => fromGraphQLRequest(request as GQLRequest))
         .filter(request => !!request) as Request[]) ?? [],
     [data?.requests.nodes],
   );
@@ -123,6 +124,7 @@ export default () => {
   const handleAddItemToRequestModalOpen = useCallback(() => {
     setPage(1);
     setPageSize(10);
+    setSearchTerm("");
     setAddItemToRequestModalShown(true);
   }, []);
 
@@ -130,6 +132,15 @@ export default () => {
     setPage(page);
     setPageSize(pageSize);
   }, []);
+
+  const handleRequestSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setPage(1);
+  }, []);
+
+  const handleRequestTableReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   return {
     currentWorkspace,
@@ -140,6 +151,8 @@ export default () => {
     handlePublish,
     handleUnpublish,
     handleRequestTableChange,
+    handleRequestSearchTerm,
+    handleRequestTableReload,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,

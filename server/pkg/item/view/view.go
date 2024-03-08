@@ -14,7 +14,7 @@ type View struct {
 	project   ProjectID
 	sort      *Sort
 	filter    *Condition
-	columns   *FieldSelectorList
+	columns   *ColumnList
 	user      UserID
 	updatedAt time.Time
 }
@@ -53,16 +53,16 @@ func (v *View) SetName(name string) {
 	v.name = name
 }
 
-func (v *View) SetFilter(condition Condition) {
-	v.filter = &condition
+func (v *View) SetFilter(condition *Condition) {
+	v.filter = condition
 }
 
-func (v *View) SetSort(sort Sort) {
-	v.sort = &sort
+func (v *View) SetSort(sort *Sort) {
+	v.sort = sort
 }
 
-func (v *View) SetColumns(fields FieldSelectorList) {
-	v.columns = &fields
+func (v *View) SetColumns(columns *ColumnList) {
+	v.columns = columns
 }
 
 func (v *View) SetUpdatedAt(now time.Time) {
@@ -77,7 +77,7 @@ func (v *View) Sort() *Sort {
 	return v.sort
 }
 
-func (v *View) Columns() *FieldSelectorList {
+func (v *View) Columns() *ColumnList {
 	return v.columns
 }
 

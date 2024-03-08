@@ -29,6 +29,7 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 		IntegrationID:          IDFromRef(i.Integration()),
 		ThreadID:               IDFrom(i.Thread()),
 		MetadataID:             IDFromRef(i.MetadataItem()),
+		IsMetadata:             i.IsMetadata(),
 		OriginalID:             IDFromRef(i.MetadataItem()),
 		UpdatedByIntegrationID: IDFromRef(i.UpdatedByIntegration()),
 		UpdatedByUserID:        IDFromRef(i.UpdatedByUser()),
@@ -110,7 +111,12 @@ func ToItemQuery(inp SearchItemInput) *item.Query {
 		return nil
 	}
 
-	return item.NewQuery(pid, ToIDRef[id.Schema](q.Schema), ToIDRef[id.Model](q.Model), lo.FromPtr(q.Q), nil).
+	mid, err := ToID[id.Model](q.Model)
+	if err != nil {
+		return nil
+	}
+
+	return item.NewQuery(pid, mid, ToIDRef[id.Schema](q.Schema), lo.FromPtr(q.Q), nil).
 		WithSort(inp.Sort.Into()).
 		WithFilter(inp.Filter.Into())
 }

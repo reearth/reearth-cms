@@ -14,6 +14,9 @@ type propertyBool struct{}
 type Bool = bool
 
 func (p *propertyBool) ToValue(i any) (any, bool) {
+	if i == "" {
+		return nil, true
+	}
 	switch v := i.(type) {
 	case bool:
 		return v, true
@@ -48,8 +51,13 @@ func (*propertyBool) Validate(i any) bool {
 }
 
 func (*propertyBool) Equal(v, w any) bool {
-	vv := v.(Bool)
-	ww := w.(Bool)
+	var vv, ww Bool
+	if v != nil {
+		vv = v.(Bool)
+	}
+	if w != nil {
+		ww = w.(Bool)
+	}
 	return vv == ww
 }
 

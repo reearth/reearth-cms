@@ -1,36 +1,32 @@
 import { ItemType } from "antd/lib/menu/hooks/useItems";
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Menu from "@reearth-cms/components/atoms/Menu";
+import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   inlineCollapsed: boolean;
   isPersonalWorkspace?: boolean;
-  workspaceId?: string;
   defaultSelectedKey?: string;
+  onNavigate?: (info: MenuInfo) => void;
 };
 
-export type MenuShowType = "personal" | "notPersonal" | "both";
+type MenuShowType = "personal" | "notPersonal" | "both";
 
-export type WorkspaceItemType = ItemType & { show: MenuShowType };
+type WorkspaceItemType = ItemType & { show: MenuShowType };
 
 const WorkspaceMenu: React.FC<Props> = ({
   inlineCollapsed,
   isPersonalWorkspace,
-  workspaceId,
   defaultSelectedKey,
+  onNavigate,
 }) => {
   const t = useT();
-  const navigate = useNavigate();
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "home"]);
 
   useEffect(() => {
-    if (defaultSelectedKey) {
-      changeSelected([defaultSelectedKey]);
-    }
+    changeSelected([defaultSelectedKey ?? "home"]);
   }, [defaultSelectedKey]);
 
   const topItems: WorkspaceItemType[] = [
@@ -56,29 +52,23 @@ const WorkspaceMenu: React.FC<Props> = ({
       icon: <Icon icon="myIntegrations" />,
       show: "personal" as MenuShowType,
     },
-    // {
-    //   label: t("Role"),
-    //   key: "role",
-    //   icon: <Icon icon="userSwitch" />,
-    //   show: "notPersonal" as MenuShowType,
-    // },
-    // {
-    //   label: t("API key"),
-    //   key: "apiKey",
-    //   icon: <Icon icon="key" />,
-    //   show: "both" as MenuShowType,
-    // },
+    {
+      label: t("Settings"),
+      key: "settings",
+      icon: <Icon icon="settings" />,
+      show: "both" as MenuShowType,
+    },
+    {
+      label: t("Workspace"),
+      key: "workspaceSettings",
+      icon: <Icon icon="workspaceSettings" />,
+      show: "notPersonal" as MenuShowType,
+    },
     {
       label: t("Account"),
       key: "account",
       icon: <Icon icon="user" />,
       show: "personal" as MenuShowType,
-    },
-    {
-      label: t("Settings"),
-      key: "settings",
-      icon: <Icon icon="settings" />,
-      show: "notPersonal" as MenuShowType,
     },
   ].filter(
     item =>
@@ -88,27 +78,11 @@ const WorkspaceMenu: React.FC<Props> = ({
   );
 
   const onClick = useCallback(
-    (e: any) => {
-      changeSelected([e.key]);
-      if (e.key === "members") {
-        navigate(`/workspace/${workspaceId}/members`);
-      } else if (e.key === "myIntegrations") {
-        navigate(`/workspace/${workspaceId}/myIntegrations`);
-      } else if (e.key === "integrations") {
-        navigate(`/workspace/${workspaceId}/integrations`);
-      } else if (e.key === "role") {
-        navigate(`/workspace/${workspaceId}/role`);
-      } else if (e.key === "apiKey") {
-        navigate(`/workspace/${workspaceId}/apiKey`);
-      } else if (e.key === "settings") {
-        navigate(`/workspace/${workspaceId}/settings`);
-      } else if (e.key === "account") {
-        navigate(`/workspace/${workspaceId}/account`);
-      } else {
-        navigate(`/workspace/${workspaceId}`);
-      }
+    (info: MenuInfo) => {
+      changeSelected([info.key]);
+      onNavigate?.(info);
     },
-    [navigate, workspaceId],
+    [onNavigate],
   );
 
   return (

@@ -7,13 +7,13 @@ import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 import RequestItemForm from "./ItemForm";
 
@@ -45,6 +45,7 @@ type Props = {
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 export const RequestDescription: React.FC<Props> = ({
@@ -69,6 +70,7 @@ export const RequestDescription: React.FC<Props> = ({
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const fromNow = useMemo(
     () => moment(currentRequest.createdAt?.toString()).fromNow(),
@@ -115,6 +117,7 @@ export const RequestDescription: React.FC<Props> = ({
                       onAssetSearchTerm={onAssetSearchTerm}
                       setFileList={setFileList}
                       setUploadModalVisibility={setUploadModalVisibility}
+                      onGetAsset={onGetAsset}
                     />
                   </Panel>
                 ))}

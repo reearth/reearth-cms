@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useCallback } from "react";
+import { useState, useCallback, Dispatch, SetStateAction } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -10,6 +10,8 @@ import {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
+import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
+import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 
 import DropdownRender from "./DropdownRender";
 
@@ -18,18 +20,31 @@ type Props = {
   index: number;
   defaultValue: DefaultFilterValueType;
   filterRemove: (index: number) => void;
+  isFilterOpen: boolean;
+  currentView?: CurrentViewType;
+  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>;
+  onFilterChange?: (filter?: AndConditionInput) => void;
 };
 
-const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value, filterRemove }) => {
-  const [open, setOpen] = useState(false);
+const FilterDropdown: React.FC<Props> = ({
+  filter,
+  index,
+  defaultValue: value,
+  filterRemove,
+  isFilterOpen,
+  currentView,
+  setCurrentView,
+  onFilterChange,
+}) => {
+  const [open, setOpen] = useState(isFilterOpen);
 
-  const close = () => {
+  const close = useCallback(() => {
     setOpen(false);
-  };
+  }, []);
 
-  const handleOpenChange = (newOpen: boolean) => {
+  const handleOpenChange = useCallback((newOpen: boolean) => {
     setOpen(newOpen);
-  };
+  }, []);
 
   const remove = useCallback(
     (event: React.MouseEvent) => {
@@ -50,11 +65,14 @@ const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value, f
           defaultValue={value}
           open={open}
           isFilter={true}
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+          onFilterChange={onFilterChange}
         />
       )}
       trigger={["click"]}
       placement="bottomLeft"
-      arrow
+      arrow={false}
       open={open}
       onOpenChange={handleOpenChange}>
       <Badge offset={[-3, 3]} color="blue" dot>
@@ -71,6 +89,8 @@ const FilterDropdown: React.FC<Props> = ({ filter, index, defaultValue: value, f
   );
 };
 
+export default FilterDropdown;
+
 const StyledButton = styled(Button)`
   color: rgba(0, 0, 0, 0.45);
   background-color: #f8f8f8;
@@ -83,5 +103,3 @@ const StyledIcon = styled(Icon)`
     color: rgba(0, 0, 0, 0.85);
   }
 `;
-
-export default FilterDropdown;

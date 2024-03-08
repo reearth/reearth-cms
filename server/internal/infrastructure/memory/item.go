@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/rerror"
@@ -240,7 +241,7 @@ func sortItems(items []*version.Value[*item.Item]) {
 	})
 }
 
-func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
+func (r *Item) Search(_ context.Context, sp schema.Package, q *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	// TODO: support filters, sort, and pagination
 	if r.err != nil {
 		return nil, nil, r.err
@@ -263,7 +264,7 @@ func (r *Item) Search(_ context.Context, q *item.Query, pagination *usecasex.Pag
 			})
 		})
 		schemaMatched := q.Schema() == nil || itv.Schema() == *q.Schema()
-		modelMatched := q.Model() == nil || itv.Model() == *q.Model()
+		modelMatched := itv.Model() == q.Model()
 		if searchMatched && schemaMatched && modelMatched && r.f.CanRead(itv.Project()) {
 			res = append(res, it)
 		}

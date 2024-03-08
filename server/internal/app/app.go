@@ -1,7 +1,6 @@
 package app
 
 import (
-	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -17,10 +16,11 @@ import (
 	rlog "github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
-func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
+func initEcho(cfg *ServerConfig) *echo.Echo {
 	if cfg.Config == nil {
 		log.Fatalln("ServerConfig.Config is nil")
 	}
@@ -94,7 +94,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	), integration.NewStrictHandler(integration.NewServer(), nil))
 
 	serveFiles(e, cfg.Gateways.File)
-	Web(e, cfg.Config.Web, cfg.Config.AuthForWeb(), cfg.Config.Web_Disabled, nil)
+	Web(e, cfg.Config.WebConfig(), cfg.Config.Web_Disabled, nil)
 	return e
 }
 
@@ -110,29 +110,43 @@ func allowedOrigins(cfg *ServerConfig) []string {
 }
 
 func errorMessage(err error, log func(string, ...interface{})) (int, string) {
-	code := http.StatusBadRequest
-	msg := err.Error()
+	code := http.StatusInternalServerError
+	msg := "internal server error"
 
-	if err2, ok := err.(*echo.HTTPError); ok {
-		code = err2.Code
-		if msg2, ok := err2.Message.(string); ok {
-			msg = msg2
-		} else if msg2, ok := err2.Message.(error); ok {
-			msg = msg2.Error()
+	var httpErr *echo.HTTPError
+	if errors.As(err, &httpErr) {
+		code = httpErr.Code
+		if m, ok := httpErr.Message.(string); ok {
+			msg = m
+		} else if m, ok := httpErr.Message.(error); ok {
+			msg = m.Error()
 		} else {
 			msg = "error"
 		}
-		if err2.Internal != nil {
-			log("echo internal err: %+v", err2)
+		if httpErr.Internal != nil {
+			log("echo internal err: %+v", httpErr)
 		}
-	} else if errors.Is(err, rerror.ErrNotFound) {
+		return code, msg
+	}
+
+	if errors.Is(err, rerror.ErrNotFound) {
 		code = http.StatusNotFound
 		msg = "not found"
-	} else {
-		if ierr := rerror.UnwrapErrInternal(err); ierr != nil {
-			code = http.StatusInternalServerError
-			msg = "internal server error"
-		}
+		return code, msg
+	}
+
+	var rErr *rerror.E
+	if errors.As(err, &rErr) {
+		code = http.StatusBadRequest
+		msg = rErr.Error()
+		return code, msg
+	}
+
+	var gqlErr *gqlerror.Error
+	if errors.As(err, &gqlErr) {
+		code = http.StatusBadRequest
+		msg = gqlErr.Error()
+		return code, msg
 	}
 
 	return code, msg

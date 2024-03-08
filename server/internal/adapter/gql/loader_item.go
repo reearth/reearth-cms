@@ -3,6 +3,10 @@ package gql
 import (
 	"context"
 	"errors"
+	"github.com/reearth/reearthx/log"
+	"go.opencensus.io/trace"
+	"time"
+
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -145,9 +149,19 @@ func (c *ItemLoader) FindByProject(ctx context.Context, projectID gqlmodel.ID, p
 }
 
 func (c *ItemLoader) Search(ctx context.Context, query gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error) {
+	_, span := trace.StartSpan(ctx, "loader/item/search")
+	t := time.Now()
+	defer func() { span.End(); log.Infof("trace: loader/item/search %s", time.Since(t)) }()
+
 	op := getOperator(ctx)
 	q := gqlmodel.ToItemQuery(query)
-	res, pi, err := c.usecase.Search(ctx, q, query.Pagination.Into(), op)
+
+	sp, err := c.schemaUsecase.FindByModel(ctx, q.Model(), op)
+	if err != nil {
+		return nil, err
+	}
+
+	res, pi, err := c.usecase.Search(ctx, *sp, q, query.Pagination.Into(), op)
 	if err != nil {
 		return nil, err
 	}

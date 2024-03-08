@@ -16,7 +16,7 @@ export interface Props {
   addField: (fieldType: FieldType) => void;
 }
 
-type FieldListItem = { title: string; fields: string[] };
+type FieldListItem = { title: string; fields: FieldType[] };
 
 const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();
@@ -94,7 +94,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         renderItem={item => (
           <>
             <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>
-            {(item as FieldListItem).fields?.map((field: string) => (
+            {(item as FieldListItem).fields?.map(field => (
               <List.Item key={field} onClick={() => addField(field as FieldType)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
@@ -120,6 +120,9 @@ const FieldCategoryTitle = styled.h2`
 `;
 
 const FieldStyledList = styled(List)`
+  max-height: calc(100% - 34px);
+  overflow-y: auto;
+  padding-bottom: 24px;
   .ant-list-item {
     background-color: #fff;
     cursor: pointer;

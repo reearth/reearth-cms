@@ -4,19 +4,18 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
-import ModelCard, { Model as ModelType } from "./ModelCard";
+import ModelCard from "./ModelCard";
 
-export type Model = ModelType;
-
-export type Props = {
+type Props = {
   projectName?: string;
   projectDescription?: string;
   models?: Model[];
-  onModelModalOpen?: () => void;
-  onSchemaNavigate?: (modelId: string) => void;
-  onContentNavigate?: (modelId: string) => void;
+  onModelModalOpen: () => void;
+  onSchemaNavigate: (modelId: string) => void;
+  onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
 };

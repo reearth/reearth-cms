@@ -1,15 +1,14 @@
 import styled from "@emotion/styled";
 import { MenuProps } from "antd";
-import { useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
+import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { Project, Workspace } from "@reearth-cms/state";
 
 import HeaderDropdown from "./Dropdown";
 
@@ -23,6 +22,8 @@ export interface Props {
   currentProject?: Project;
   onWorkspaceModalOpen: () => void;
   onNavigateToSettings: () => void;
+  onWorkspaceNavigation: (id: number) => void;
+  onHomeNavigation: () => void;
   logoUrl?: string;
 }
 
@@ -34,27 +35,23 @@ const HeaderMolecule: React.FC<Props> = ({
   currentProject,
   onWorkspaceModalOpen,
   onNavigateToSettings,
+  onWorkspaceNavigation,
+  onHomeNavigation,
   logoUrl,
 }) => {
   const t = useT();
   const { logout } = useAuth();
-  const navigate = useNavigate();
+  const url = useMemo(() => {
+    if (window.REEARTH_CONFIG?.editorUrl && currentWorkspace?.id) {
+      return new URL(`dashboard/${currentWorkspace.id}`, window.REEARTH_CONFIG?.editorUrl);
+    }
+    return undefined;
+  }, [currentWorkspace?.id]);
 
   const currentIsPersonal = useMemo(
     () => currentWorkspace?.id === personalWorkspace?.id,
     [currentWorkspace?.id, personalWorkspace?.id],
   );
-
-  const handleWorkspaceNavigation = useCallback(
-    (id: number) => {
-      navigate(`/workspace/${id}`);
-    },
-    [navigate],
-  );
-
-  const handleHomeNavigation = useCallback(() => {
-    navigate(`/workspace/${currentWorkspace?.id}`);
-  }, [currentWorkspace?.id, navigate]);
 
   const WorkspacesItems: MenuProps["items"] = useMemo(
     () => [
@@ -73,7 +70,7 @@ const HeaderMolecule: React.FC<Props> = ({
             key: workspace.id,
             icon: <UserAvatar username={workspace.name} size="small" />,
             style: { paddingLeft: 0, paddingRight: 0 },
-            onClick: () => handleWorkspaceNavigation(workspace.id),
+            onClick: () => onWorkspaceNavigation(workspace.id),
           })),
       },
       {
@@ -94,7 +91,7 @@ const HeaderMolecule: React.FC<Props> = ({
             key: workspace.id,
             icon: <UserAvatar username={workspace.name} size="small" shape="square" />,
             style: { paddingLeft: 0, paddingRight: 0 },
-            onClick: () => handleWorkspaceNavigation(workspace.id),
+            onClick: () => onWorkspaceNavigation(workspace.id),
           })),
       },
       {
@@ -104,7 +101,7 @@ const HeaderMolecule: React.FC<Props> = ({
         onClick: onWorkspaceModalOpen,
       },
     ],
-    [t, onWorkspaceModalOpen, handleWorkspaceNavigation, workspaces, personalWorkspace],
+    [t, workspaces, onWorkspaceModalOpen, personalWorkspace?.id, onWorkspaceNavigation],
   );
 
   const AccountItems: MenuProps["items"] = useMemo(
@@ -128,9 +125,9 @@ const HeaderMolecule: React.FC<Props> = ({
   return (
     <MainHeader>
       {logoUrl ? (
-        <LogoIcon src={logoUrl} onClick={handleHomeNavigation} />
+        <LogoIcon src={logoUrl} onClick={onHomeNavigation} />
       ) : (
-        <Logo onClick={handleHomeNavigation}>{t("Re:Earth CMS")}</Logo>
+        <Logo onClick={onHomeNavigation}>{t("Re:Earth CMS")}</Logo>
       )}
       <VerticalDivider />
       <WorkspaceDropdown
@@ -146,6 +143,13 @@ const HeaderMolecule: React.FC<Props> = ({
       )}
       <Spacer />
       <AccountDropdown name={username} items={AccountItems} personal={true} />
+      {url && (
+        <LinkWrapper>
+          <EditorLink rel="noreferrer" href={url.href} target="_blank">
+            {t("Go to Editor")}
+          </EditorLink>
+        </LinkWrapper>
+      )}
     </MainHeader>
   );
 };
@@ -224,6 +228,19 @@ const MenuText = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   width: 140px;
+`;
+
+const LinkWrapper = styled.div`
+  padding-right: 16px;
+`;
+
+const EditorLink = styled.a`
+  border: 1px solid;
+  color: #d9d9d9;
+  padding: 5px 16px;
+  :hover {
+    color: #d9d9d9;
+  }
 `;
 
 export default HeaderMolecule;

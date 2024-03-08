@@ -9,11 +9,13 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/language"
 )
@@ -27,6 +29,8 @@ var (
 	iId1 = accountdomain.NewIntegrationID()
 	iId2 = accountdomain.NewIntegrationID()
 	iId3 = accountdomain.NewIntegrationID()
+	rid  = workspacesettings.NewResourceID()
+	rid2 = workspacesettings.NewResourceID()
 )
 
 func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
@@ -92,6 +96,23 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
+	rid := workspacesettings.NewResourceID()
+	pp := workspacesettings.NewURLResourceProps("foo", "bar", "baz")
+	tt := workspacesettings.NewTileResource(rid, workspacesettings.TileTypeDefault, pp)
+	r1 := workspacesettings.NewResource(workspacesettings.ResourceTypeTile, tt, nil)
+	tiles := workspacesettings.NewResourceList([]*workspacesettings.Resource{r1}, rid.Ref(), lo.ToPtr(false))
+
+	rid2 := workspacesettings.NewResourceID()
+	pp2 := workspacesettings.NewCesiumResourceProps("foo", "bar", "baz", "test", "test")
+	tt2 := workspacesettings.NewTerrainResource(rid, workspacesettings.TerrainType(workspacesettings.TerrainTypeCesiumIon), pp2)
+	r2 := workspacesettings.NewResource(workspacesettings.ResourceTypeTerrain, nil, tt2)
+	terrains := workspacesettings.NewResourceList([]*workspacesettings.Resource{r2}, rid2.Ref(), lo.ToPtr(true))
+
+	ws := workspacesettings.New().ID(wId).Tiles(tiles).Terrains(terrains).MustBuild()
+	if err := r.WorkspaceSettings.Save(ctx, ws); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -106,12 +127,18 @@ func TestCreateWorkspace(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
+	e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("data").Object().Value("createWorkspace").Object().Value("workspace").Object().Value("name").String().IsEqual("test")
+		WithBytes(jsonData).
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object().
+		Value("data").Object().
+		Value("createWorkspace").Object().
+		Value("workspace").Object().
+		Value("name").String().IsEqual("test")
 }
 
 func TestDeleteWorkspace(t *testing.T) {

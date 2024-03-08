@@ -463,6 +463,7 @@ func TestItem_FindByProject(t *testing.T) {
 }
 
 func TestItem_Search(t *testing.T) {
+	mid := id.NewModelID()
 	sid1 := id.NewSchemaID()
 	sf1 := id.NewFieldID()
 	sf2 := id.NewFieldID()
@@ -470,11 +471,11 @@ func TestItem_Search(t *testing.T) {
 	f2 := item.NewField(sf2, value.TypeText.Value("hoge").AsMultiple(), nil)
 	id1 := id.NewItemID()
 	pid := id.NewProjectID()
-	i1 := item.New().ID(id1).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
+	i1 := item.New().ID(id1).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
 	id2 := id.NewItemID()
-	i2 := item.New().ID(id2).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
+	i2 := item.New().ID(id2).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f1}).Thread(id.NewThreadID()).MustBuild()
 	id3 := id.NewItemID()
-	i3 := item.New().ID(id3).Schema(sid1).Model(id.NewModelID()).Project(pid).Fields([]*item.Field{f2}).Thread(id.NewThreadID()).MustBuild()
+	i3 := item.New().ID(id3).Schema(sid1).Model(mid).Project(pid).Fields([]*item.Field{f2}).Thread(id.NewThreadID()).MustBuild()
 
 	wid := accountdomain.NewWorkspaceID()
 	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid).Name("foo").MustBuild()
@@ -508,7 +509,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, nil, nil, "foo", nil),
+				query:    item.NewQuery(pid, mid, nil, "foo", nil),
 				operator: op,
 			},
 			want:    2,
@@ -525,7 +526,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, nil, nil, "hoge", nil),
+				query:    item.NewQuery(pid, mid, nil, "hoge", nil),
 				operator: op,
 			},
 			want:    1,
@@ -542,7 +543,7 @@ func TestItem_Search(t *testing.T) {
 				query    *item.Query
 				operator *usecase.Operator
 			}{
-				query:    item.NewQuery(pid, nil, nil, "xxx", nil),
+				query:    item.NewQuery(pid, mid, nil, "xxx", nil),
 				operator: op,
 			},
 			want:    0,
@@ -567,7 +568,7 @@ func TestItem_Search(t *testing.T) {
 			itemUC := NewItem(db, nil)
 			itemUC.ignoreEvent = true
 
-			got, _, err := itemUC.Search(ctx, tc.args.query, nil, tc.args.operator)
+			got, _, err := itemUC.Search(ctx, schema.Package{}, tc.args.query, nil, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -589,33 +590,31 @@ func TestItem_IsItemReferenced(t *testing.T) {
 	fid1 := id.NewFieldID()
 	fid2 := id.NewFieldID()
 	cf1 := &schema.CorrespondingField{
-		FieldID:     fid2.Ref(),
-		Title:       lo.ToPtr("title"),
-		Key:         lo.ToPtr("key"),
-		Description: lo.ToPtr("description"),
-		Required:    lo.ToPtr(true),
+		Title:       "title",
+		Key:         "key",
+		Description: "description",
+		Required:    true,
 	}
-	sf1 := schema.NewField(schema.NewReference(id.NewModelID(), sid2.Ref(), cf1, cf1.FieldID).TypeProperty()).ID(fid1).Name("f").Unique(true).Key(key.Random()).MustBuild()
+	sf1 := schema.NewField(schema.NewReference(id.NewModelID(), sid2, fid2.Ref(), cf1).TypeProperty()).ID(fid1).Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s1 := schema.New().ID(sid1).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{sf1}).MustBuild()
 	m1 := model.New().NewID().Schema(s1.ID()).Key(key.Random()).Project(s1.Project()).MustBuild()
 	fs1 := []*item.Field{item.NewField(sf1.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple(), nil)}
 	i1 := item.New().NewID().Schema(s1.ID()).Model(m1.ID()).Project(s1.Project()).Thread(id.NewThreadID()).Fields(fs1).MustBuild()
 
 	cf2 := &schema.CorrespondingField{
-		FieldID:     fid1.Ref(),
-		Title:       lo.ToPtr("title"),
-		Key:         lo.ToPtr("key"),
-		Description: lo.ToPtr("description"),
-		Required:    lo.ToPtr(true),
+		Title:       "title",
+		Key:         "key",
+		Description: "description",
+		Required:    true,
 	}
-	sf2 := schema.NewField(schema.NewReference(id.NewModelID(), sid1.Ref(), cf2, cf2.FieldID).TypeProperty()).ID(fid2).Name("f").Unique(true).Key(key.Random()).MustBuild()
+	sf2 := schema.NewField(schema.NewReference(id.NewModelID(), sid1, fid1.Ref(), cf2).TypeProperty()).ID(fid2).Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s2 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf2}).MustBuild()
 	m2 := model.New().NewID().Schema(s2.ID()).Key(key.Random()).Project(s2.Project()).MustBuild()
 	fs2 := []*item.Field{item.NewField(sf2.ID(), value.TypeReference.Value(id.NewItemID()).AsMultiple(), nil)}
 	i2 := item.New().NewID().Schema(s2.ID()).Model(m2.ID()).Project(s2.Project()).Thread(id.NewThreadID()).Fields(fs2).MustBuild()
 
 	fid3 := id.NewFieldID()
-	sf3 := schema.NewField(schema.NewReference(id.NewModelID(), nil, nil, nil).TypeProperty()).ID(fid3).Name("f").Unique(true).Key(key.Random()).MustBuild()
+	sf3 := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).ID(fid3).Name("f").Unique(true).Key(key.Random()).MustBuild()
 	s3 := schema.New().ID(sid2).Workspace(accountdomain.NewWorkspaceID()).Project(prj.ID()).Fields(schema.FieldList{sf3}).MustBuild()
 	m3 := model.New().NewID().Schema(s3.ID()).Key(key.Random()).Project(s3.Project()).MustBuild()
 	fs3 := []*item.Field{item.NewField(sf3.ID(), value.TypeReference.Value(nil).AsMultiple(), nil)}

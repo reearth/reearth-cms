@@ -1,6 +1,6 @@
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -14,9 +14,9 @@ const ContentDetails: React.FC = () => {
     showPublishAction,
     requests,
     itemId,
+    itemLoading,
     currentModel,
     currentItem,
-    formItemsData,
     initialFormValues,
     initialMetaFormValues,
     itemCreationLoading,
@@ -28,12 +28,17 @@ const ContentDetails: React.FC = () => {
     groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
+    linkItemModalTitle,
     linkItemModalTotalCount,
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,
+    handleSearchTerm,
+    handleLinkItemTableReload,
     handleLinkItemTableChange,
     handleRequestTableChange,
+    handleRequestTableReload,
+    handleRequestSearchTerm,
     requestModalLoading,
     requestModalTotalCount,
     requestModalPage,
@@ -70,19 +75,22 @@ const ContentDetails: React.FC = () => {
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleAssetsReload,
-    handleSearchTerm,
+    handleSearchTerm: handleAssetSearchTerm,
     totalCount,
     page,
     pageSize,
     handleAssetTableChange,
-  } = useAssetHooks();
+    handleGetAsset,
+  } = useAssetHooks(false);
 
   return (
     <ContentDetailsMolecule
-      formItemsData={formItemsData}
+      linkItemModalTitle={linkItemModalTitle}
       linkItemModalTotalCount={linkItemModalTotalCount}
       linkItemModalPage={linkItemModalPage}
       linkItemModalPageSize={linkItemModalPageSize}
+      onSearchTerm={handleSearchTerm}
+      onLinkItemTableReload={handleLinkItemTableReload}
       onLinkItemTableChange={handleLinkItemTableChange}
       onReferenceModelUpdate={handleReferenceModelUpdate}
       linkedItemsModalList={linkedItemsModalList}
@@ -90,6 +98,8 @@ const ContentDetails: React.FC = () => {
       requests={requests}
       requestCreationLoading={requestCreationLoading}
       onRequestTableChange={handleRequestTableChange}
+      onRequestSearchTerm={handleRequestSearchTerm}
+      onRequestTableReload={handleRequestTableReload}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
@@ -103,11 +113,13 @@ const ContentDetails: React.FC = () => {
             threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}
             onCollapse={collapseCommentsPanel}
+            refetchQueries={["GetItem"]}
           />
         ) : undefined
       }
       item={currentItem}
       itemId={itemId}
+      itemLoading={itemLoading}
       model={currentModel}
       groups={groups}
       initialFormValues={initialFormValues}
@@ -145,7 +157,7 @@ const ContentDetails: React.FC = () => {
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetsReload={handleAssetsReload}
-      onAssetSearchTerm={handleSearchTerm}
+      onAssetSearchTerm={handleAssetSearchTerm}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
       requestModalShown={requestModalShown}
@@ -156,6 +168,7 @@ const ContentDetails: React.FC = () => {
       onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
       workspaceUserMembers={workspaceUserMembers}
+      onGetAsset={handleGetAsset}
     />
   );
 };

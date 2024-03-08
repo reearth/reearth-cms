@@ -160,6 +160,34 @@ export enum BoolOperator {
   NotEquals = 'NOT_EQUALS'
 }
 
+export type CesiumResourceProps = {
+  __typename?: 'CesiumResourceProps';
+  cesiumIonAccessToken: Scalars['String'];
+  cesiumIonAssetId: Scalars['String'];
+  image: Scalars['String'];
+  name: Scalars['String'];
+  url: Scalars['String'];
+};
+
+export type CesiumResourcePropsInput = {
+  cesiumIonAccessToken: Scalars['String'];
+  cesiumIonAssetId: Scalars['String'];
+  image: Scalars['String'];
+  name: Scalars['String'];
+  url: Scalars['String'];
+};
+
+export type Column = {
+  __typename?: 'Column';
+  field: FieldSelector;
+  visible: Scalars['Boolean'];
+};
+
+export type ColumnSelectionInput = {
+  field: FieldSelectorInput;
+  visible: Scalars['Boolean'];
+};
+
 export type Comment = {
   __typename?: 'Comment';
   author?: Maybe<Operator>;
@@ -193,11 +221,11 @@ export type ConditionInput = {
 };
 
 export type CorrespondingFieldInput = {
-  description?: InputMaybe<Scalars['String']>;
+  description: Scalars['String'];
   fieldId?: InputMaybe<Scalars['ID']>;
-  key?: InputMaybe<Scalars['String']>;
-  required?: InputMaybe<Scalars['Boolean']>;
-  title?: InputMaybe<Scalars['String']>;
+  key: Scalars['String'];
+  required: Scalars['Boolean'];
+  title: Scalars['String'];
 };
 
 export type CreateAssetInput = {
@@ -214,13 +242,17 @@ export type CreateAssetPayload = {
 };
 
 export type CreateAssetUploadInput = {
-  filename: Scalars['String'];
+  contentLength?: InputMaybe<Scalars['Int']>;
+  cursor?: InputMaybe<Scalars['String']>;
+  filename?: InputMaybe<Scalars['String']>;
   projectId: Scalars['ID'];
 };
 
 export type CreateAssetUploadPayload = {
   __typename?: 'CreateAssetUploadPayload';
-  contentType: Scalars['String'];
+  contentLength: Scalars['Int'];
+  contentType?: Maybe<Scalars['String']>;
+  next?: Maybe<Scalars['String']>;
   token: Scalars['String'];
   url: Scalars['String'];
 };
@@ -291,7 +323,7 @@ export type CreateThreadInput = {
 };
 
 export type CreateViewInput = {
-  columns?: InputMaybe<Array<FieldSelectorInput>>;
+  columns?: InputMaybe<Array<ColumnSelectionInput>>;
   filter?: InputMaybe<ConditionInput>;
   modelId: Scalars['ID'];
   name: Scalars['String'];
@@ -538,6 +570,7 @@ export type Item = Node & {
   fields: Array<ItemField>;
   id: Scalars['ID'];
   integrationId?: Maybe<Scalars['ID']>;
+  isMetadata: Scalars['Boolean'];
   metadata?: Maybe<Item>;
   metadataId?: Maybe<Scalars['ID']>;
   model: Model;
@@ -546,6 +579,7 @@ export type Item = Node & {
   originalId?: Maybe<Scalars['ID']>;
   project: Project;
   projectId: Scalars['ID'];
+  referencedItems?: Maybe<Array<Item>>;
   schema: Schema;
   schemaId: Scalars['ID'];
   status: ItemStatus;
@@ -595,7 +629,7 @@ export type ItemPayload = {
 };
 
 export type ItemQueryInput = {
-  model?: InputMaybe<Scalars['ID']>;
+  model: Scalars['ID'];
   project: Scalars['ID'];
   q?: InputMaybe<Scalars['String']>;
   schema?: InputMaybe<Scalars['ID']>;
@@ -630,10 +664,11 @@ export type Me = {
   __typename?: 'Me';
   auths: Array<Scalars['String']>;
   email: Scalars['String'];
+  host?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   integrations: Array<Integration>;
   lang: Scalars['Lang'];
-  myWorkspace: Workspace;
+  myWorkspace?: Maybe<Workspace>;
   myWorkspaceId: Scalars['ID'];
   name: Scalars['String'];
   theme: Theme;
@@ -654,6 +689,7 @@ export type Model = Node & {
   metadataSchema?: Maybe<Schema>;
   metadataSchemaId?: Maybe<Scalars['ID']>;
   name: Scalars['String'];
+  order?: Maybe<Scalars['Int']>;
   project: Project;
   projectId: Scalars['ID'];
   public: Scalars['Boolean'];
@@ -679,6 +715,11 @@ export type ModelEdge = {
 export type ModelPayload = {
   __typename?: 'ModelPayload';
   model: Model;
+};
+
+export type ModelsPayload = {
+  __typename?: 'ModelsPayload';
+  models: Array<Model>;
 };
 
 export type MultipleFieldCondition = {
@@ -750,12 +791,14 @@ export type Mutation = {
   updateItem?: Maybe<ItemPayload>;
   updateMe?: Maybe<UpdateMePayload>;
   updateModel?: Maybe<ModelPayload>;
+  updateModelsOrder?: Maybe<ModelsPayload>;
   updateProject?: Maybe<ProjectPayload>;
   updateRequest?: Maybe<RequestPayload>;
   updateUserOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateView?: Maybe<ViewPayload>;
   updateWebhook?: Maybe<WebhookPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
+  updateWorkspaceSettings?: Maybe<UpdateWorkspaceSettingsPayload>;
 };
 
 
@@ -994,6 +1037,11 @@ export type MutationUpdateModelArgs = {
 };
 
 
+export type MutationUpdateModelsOrderArgs = {
+  input: UpdateModelsOrderInput;
+};
+
+
 export type MutationUpdateProjectArgs = {
   input: UpdateProjectInput;
 };
@@ -1023,6 +1071,11 @@ export type MutationUpdateWorkspaceArgs = {
   input: UpdateWorkspaceInput;
 };
 
+
+export type MutationUpdateWorkspaceSettingsArgs = {
+  input: UpdateWorkspaceSettingsInput;
+};
+
 export type Node = {
   id: Scalars['ID'];
 };
@@ -1038,7 +1091,8 @@ export enum NodeType {
   Schema = 'Schema',
   User = 'USER',
   View = 'View',
-  Workspace = 'WORKSPACE'
+  Workspace = 'WORKSPACE',
+  WorkspaceSettings = 'WorkspaceSettings'
 }
 
 export type NullableFieldCondition = {
@@ -1403,6 +1457,26 @@ export enum RequestState {
   Waiting = 'WAITING'
 }
 
+export type Resource = TerrainResource | TileResource;
+
+export type ResourceInput = {
+  terrain?: InputMaybe<TerrainResourceInput>;
+  tile?: InputMaybe<TileResourceInput>;
+};
+
+export type ResourceList = {
+  __typename?: 'ResourceList';
+  enabled?: Maybe<Scalars['Boolean']>;
+  resources: Array<Resource>;
+  selectedResource?: Maybe<Scalars['ID']>;
+};
+
+export type ResourcesListInput = {
+  enabled?: InputMaybe<Scalars['Boolean']>;
+  resources: Array<ResourceInput>;
+  selectedResource?: InputMaybe<Scalars['ID']>;
+};
+
 export enum Role {
   Maintainer = 'MAINTAINER',
   Owner = 'OWNER',
@@ -1509,15 +1583,15 @@ export type SchemaFieldReference = {
   __typename?: 'SchemaFieldReference';
   correspondingField?: Maybe<SchemaField>;
   correspondingFieldId?: Maybe<Scalars['ID']>;
-  correspondingSchema?: Maybe<Schema>;
-  correspondingSchemaId?: Maybe<Scalars['ID']>;
   modelId: Scalars['ID'];
+  schema: Schema;
+  schemaId: Scalars['ID'];
 };
 
 export type SchemaFieldReferenceInput = {
   correspondingField?: InputMaybe<CorrespondingFieldInput>;
-  correspondingSchemaId?: InputMaybe<Scalars['ID']>;
   modelId: Scalars['ID'];
+  schemaId: Scalars['ID'];
 };
 
 export type SchemaFieldRichText = {
@@ -1691,6 +1765,25 @@ export enum StringOperator {
   StartsWith = 'STARTS_WITH'
 }
 
+export type TerrainResource = {
+  __typename?: 'TerrainResource';
+  id: Scalars['ID'];
+  props?: Maybe<CesiumResourceProps>;
+  type: TerrainType;
+};
+
+export type TerrainResourceInput = {
+  id: Scalars['ID'];
+  props?: InputMaybe<CesiumResourcePropsInput>;
+  type: TerrainType;
+};
+
+export enum TerrainType {
+  ArcGisTerrain = 'ARC_GIS_TERRAIN',
+  CesiumIon = 'CESIUM_ION',
+  CesiumWorldTerrain = 'CESIUM_WORLD_TERRAIN'
+}
+
 export enum Theme {
   Dark = 'DARK',
   Default = 'DEFAULT',
@@ -1709,6 +1802,30 @@ export type ThreadPayload = {
   __typename?: 'ThreadPayload';
   thread: Thread;
 };
+
+export type TileResource = {
+  __typename?: 'TileResource';
+  id: Scalars['ID'];
+  props?: Maybe<UrlResourceProps>;
+  type: TileType;
+};
+
+export type TileResourceInput = {
+  id: Scalars['ID'];
+  props?: InputMaybe<UrlResourcePropsInput>;
+  type: TileType;
+};
+
+export enum TileType {
+  Default = 'DEFAULT',
+  EarthAtNight = 'EARTH_AT_NIGHT',
+  EsriTopography = 'ESRI_TOPOGRAPHY',
+  JapanGsiStandardMap = 'JAPAN_GSI_STANDARD_MAP',
+  Labelled = 'LABELLED',
+  OpenStreetMap = 'OPEN_STREET_MAP',
+  RoadMap = 'ROAD_MAP',
+  Url = 'URL'
+}
 
 export type TimeFieldCondition = {
   __typename?: 'TimeFieldCondition';
@@ -1829,6 +1946,10 @@ export type UpdateModelInput = {
   public: Scalars['Boolean'];
 };
 
+export type UpdateModelsOrderInput = {
+  modelIds: Array<Scalars['ID']>;
+};
+
 export type UpdateProjectInput = {
   alias?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
@@ -1859,7 +1980,7 @@ export type UpdateUserOfWorkspaceInput = {
 };
 
 export type UpdateViewInput = {
-  columns?: InputMaybe<Array<FieldSelectorInput>>;
+  columns?: InputMaybe<Array<ColumnSelectionInput>>;
   filter?: InputMaybe<ConditionInput>;
   name?: InputMaybe<Scalars['String']>;
   sort?: InputMaybe<ItemSortInput>;
@@ -1886,9 +2007,34 @@ export type UpdateWorkspacePayload = {
   workspace: Workspace;
 };
 
+export type UpdateWorkspaceSettingsInput = {
+  id: Scalars['ID'];
+  terrains?: InputMaybe<ResourcesListInput>;
+  tiles?: InputMaybe<ResourcesListInput>;
+};
+
+export type UpdateWorkspaceSettingsPayload = {
+  __typename?: 'UpdateWorkspaceSettingsPayload';
+  workspaceSettings: WorkspaceSettings;
+};
+
+export type UrlResourceProps = {
+  __typename?: 'UrlResourceProps';
+  image: Scalars['String'];
+  name: Scalars['String'];
+  url: Scalars['String'];
+};
+
+export type UrlResourcePropsInput = {
+  image: Scalars['String'];
+  name: Scalars['String'];
+  url: Scalars['String'];
+};
+
 export type User = Node & {
   __typename?: 'User';
   email: Scalars['String'];
+  host?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
 };
@@ -1903,7 +2049,7 @@ export type VersionedItem = {
 
 export type View = Node & {
   __typename?: 'View';
-  columns?: Maybe<Array<FieldSelector>>;
+  columns?: Maybe<Array<Column>>;
   filter?: Maybe<Condition>;
   id: Scalars['ID'];
   modelId: Scalars['ID'];
@@ -1977,8 +2123,16 @@ export type WorkspaceIntegrationMember = {
 
 export type WorkspaceMember = WorkspaceIntegrationMember | WorkspaceUserMember;
 
+export type WorkspaceSettings = Node & {
+  __typename?: 'WorkspaceSettings';
+  id: Scalars['ID'];
+  terrains?: Maybe<ResourceList>;
+  tiles?: Maybe<ResourceList>;
+};
+
 export type WorkspaceUserMember = {
   __typename?: 'WorkspaceUserMember';
+  host?: Maybe<Scalars['String']>;
   role: Role;
   user?: Maybe<User>;
   userId: Scalars['ID'];
@@ -1988,7 +2142,7 @@ export type AssetFragmentFragment = { __typename?: 'Asset', id: string, fileName
 
 export type AssetFileFragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string };
 
-export type AssetFile5FragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null };
+export type AssetFile10FragmentFragment = { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null };
 
 export type IntegrationFragmentFragment = { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null };
 
@@ -2006,7 +2160,7 @@ export type GetAssetsQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetAssetsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, nodes: Array<{ __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetAssetsItemsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2016,28 +2170,28 @@ export type GetAssetsItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetsItemsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', edges: Array<{ __typename?: 'AssetEdge', cursor: string, node?: { __typename?: 'Asset', id: string, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null } | null }>, nodes: Array<{ __typename?: 'Asset', id: string, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null } | null> } };
+export type GetAssetsItemsQuery = { __typename?: 'Query', assets: { __typename?: 'AssetConnection', totalCount: number, nodes: Array<{ __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | null>, pageInfo: { __typename?: 'PageInfo', startCursor?: string | null, endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetAssetQueryVariables = Exact<{
   assetId: Scalars['ID'];
 }>;
 
 
-export type GetAssetQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetAssetQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string, fileName: string, projectId: string, createdAt: Date, size: number, previewType?: PreviewType | null, uuid: string, url: string, archiveExtractionStatus?: ArchiveExtractionStatus | null, createdBy: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | { __typename?: 'User', id: string, name: string, email: string }, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
 
 export type GetAssetFileQueryVariables = Exact<{
   assetId: Scalars['ID'];
 }>;
 
 
-export type GetAssetFileQuery = { __typename?: 'Query', assetFile: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null } };
+export type GetAssetFileQuery = { __typename?: 'Query', assetFile: { __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string, children?: Array<{ __typename?: 'AssetFile', name: string, size: number, contentType?: string | null, path: string }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null }> | null } };
 
 export type GetAssetItemQueryVariables = Exact<{
   assetId: Scalars['ID'];
 }>;
 
 
-export type GetAssetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetAssetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string, items?: Array<{ __typename?: 'AssetItem', itemId: string, modelId: string }> | null } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
 
 export type CreateAssetMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2075,10 +2229,12 @@ export type DecompressAssetMutation = { __typename?: 'Mutation', decompressAsset
 export type CreateAssetUploadMutationVariables = Exact<{
   projectId: Scalars['ID'];
   filename: Scalars['String'];
+  cursor: Scalars['String'];
+  contentLength: Scalars['Int'];
 }>;
 
 
-export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType: string } | null };
+export type CreateAssetUploadMutation = { __typename?: 'Mutation', createAssetUpload?: { __typename?: 'CreateAssetUploadPayload', url: string, token: string, contentType?: string | null, contentLength: number, next?: string | null } | null };
 
 export type AddCommentMutationVariables = Exact<{
   threadId: Scalars['ID'];
@@ -2171,7 +2327,7 @@ export type GetGroupQueryVariables = Exact<{
 }>;
 
 
-export type GetGroupQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetGroupQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group', id: string, schemaId: string, projectId: string, name: string, description: string, key: string, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
 
 export type CreateGroupMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2248,14 +2404,14 @@ export type GetItemsQueryVariables = Exact<{
 }>;
 
 
-export type GetItemsQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> }, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
+export type GetItemsQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> }, metadata?: { __typename?: 'Item', id: string, version: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }> } | null } | null> } };
 
 export type GetItemQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetItemQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, assets: Array<{ __typename?: 'Asset', id: string, url: string, fileName: string } | null>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, metadata?: { __typename?: 'Item', id: string, version: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
 
 export type IsItemReferencedQueryVariables = Exact<{
   itemId: Scalars['ID'];
@@ -2265,19 +2421,12 @@ export type IsItemReferencedQueryVariables = Exact<{
 
 export type IsItemReferencedQuery = { __typename?: 'Query', isItemReferenced: boolean };
 
-export type GetItemsByIdsQueryVariables = Exact<{
-  id: Array<Scalars['ID']> | Scalars['ID'];
-}>;
-
-
-export type GetItemsByIdsQuery = { __typename?: 'Query', nodes: Array<{ __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus } | { __typename?: 'Model' } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null> };
-
 export type SearchItemQueryVariables = Exact<{
   searchItemInput: SearchItemInput;
 }>;
 
 
-export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename: 'Integration', name: string } | { __typename: 'User', name: string } | null, metadata?: { __typename?: 'Item', id: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
+export type SearchItemQuery = { __typename?: 'Query', searchItem: { __typename?: 'ItemConnection', totalCount: number, nodes: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, createdAt: Date, updatedAt: Date, status: ItemStatus, version: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null, assets: Array<{ __typename?: 'Asset', id: string, url: string } | null>, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, itemGroupId?: string | null, type: SchemaFieldType, value?: any | null }>, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null, updatedBy?: { __typename: 'Integration', name: string } | { __typename: 'User', name: string } | null, metadata?: { __typename?: 'Item', id: string, version: string, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }> } | null, thread: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
 
 export type CreateItemMutationVariables = Exact<{
   modelId: Scalars['ID'];
@@ -2287,7 +2436,7 @@ export type CreateItemMutationVariables = Exact<{
 }>;
 
 
-export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string, itemGroupId?: string | null }> } } | null };
+export type CreateItemMutation = { __typename?: 'Mutation', createItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string, itemGroupId?: string | null }>, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null } } | null };
 
 export type DeleteItemMutationVariables = Exact<{
   itemId: Scalars['ID'];
@@ -2304,21 +2453,21 @@ export type UpdateItemMutationVariables = Exact<{
 }>;
 
 
-export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string, itemGroupId?: string | null }> } } | null };
+export type UpdateItemMutation = { __typename?: 'Mutation', updateItem?: { __typename?: 'ItemPayload', item: { __typename?: 'Item', id: string, schemaId: string, fields: Array<{ __typename?: 'ItemField', value?: any | null, type: SchemaFieldType, schemaFieldId: string, itemGroupId?: string | null }>, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null } } | null };
 
 export type UnpublishItemMutationVariables = Exact<{
   itemIds: Array<Scalars['ID']> | Scalars['ID'];
 }>;
 
 
-export type UnpublishItemMutation = { __typename?: 'Mutation', unpublishItem?: { __typename?: 'UnpublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
+export type UnpublishItemMutation = { __typename?: 'Mutation', unpublishItem?: { __typename?: 'UnpublishItemPayload', items: Array<{ __typename?: 'Item', id: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null }> } | null };
 
 export type PublishItemMutationVariables = Exact<{
   itemIds: Array<Scalars['ID']> | Scalars['ID'];
 }>;
 
 
-export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', items: Array<{ __typename?: 'Item', id: string }> } | null };
+export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', items: Array<{ __typename?: 'Item', id: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null }> } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2326,14 +2475,14 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, public: boolean, order?: number | null, metadataSchema?: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } | null, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, order?: number | null, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox', defaultValue?: any | null } | { __typename?: 'SchemaFieldDate', defaultValue?: any | null } | { __typename?: 'SchemaFieldGroup', groupId: string } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference', modelId: string, schema: { __typename?: 'Schema', id: string, titleFieldId?: string | null }, correspondingField?: { __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, multiple: boolean, order?: number | null } | null } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag', selectDefaultValue?: any | null, tags: Array<{ __typename?: 'SchemaFieldTagValue', id: string, name: string, color: SchemaFieldTagColor }> } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } | null> } };
 
 export type GetModelQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetModelQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model', id: string, schemaId: string } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | null };
+export type GetModelQuery = { __typename?: 'Query', node?: { __typename?: 'Asset' } | { __typename?: 'Group' } | { __typename?: 'Integration' } | { __typename?: 'Item' } | { __typename?: 'Model', id: string, schemaId: string, name: string } | { __typename?: 'Project' } | { __typename?: 'Request' } | { __typename?: 'Schema' } | { __typename?: 'User' } | { __typename?: 'View' } | { __typename?: 'Workspace' } | { __typename?: 'WorkspaceSettings' } | null };
 
 export type CreateModelMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2371,12 +2520,19 @@ export type CheckModelKeyAvailabilityQueryVariables = Exact<{
 
 export type CheckModelKeyAvailabilityQuery = { __typename?: 'Query', checkModelKeyAvailability: { __typename?: 'KeyAvailability', key: string, available: boolean } };
 
+export type UpdateModelsOrderMutationVariables = Exact<{
+  modelIds: Array<Scalars['ID']> | Scalars['ID'];
+}>;
+
+
+export type UpdateModelsOrderMutation = { __typename?: 'Mutation', updateModelsOrder?: { __typename?: 'ModelsPayload', models: Array<{ __typename?: 'Model', id: string }> } | null };
+
 export type GetProjectQueryVariables = Exact<{
   projectId: Scalars['ID'];
 }>;
 
 
-export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | null };
+export type GetProjectQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', name: string, description: string, alias: string, requestRoles?: Array<Role> | null, id: string, publication?: { __typename?: 'ProjectPublication', scope: ProjectPublicationScope, assetPublic: boolean } | null } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
 
 export type GetProjectsQueryVariables = Exact<{
   workspaceId: Scalars['ID'];
@@ -2453,7 +2609,7 @@ export type GetRequestQueryVariables = Exact<{
 }>;
 
 
-export type GetRequestQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', id: string } | { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | null };
+export type GetRequestQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', id: string } | { __typename?: 'Request', id: string, title: string, description?: string | null, workspaceId: string, projectId: string, threadId: string, reviewersId: Array<string>, state: RequestState, createdAt: Date, updatedAt: Date, approvedAt?: Date | null, closedAt?: Date | null, items: Array<{ __typename?: 'RequestItem', itemId: string, version?: string | null, ref?: string | null, item?: { __typename?: 'VersionedItem', version: string, parents?: Array<string> | null, refs: Array<string>, value: { __typename?: 'Item', id: string, schemaId: string, modelId: string, model: { __typename?: 'Model', name: string }, fields: Array<{ __typename?: 'ItemField', schemaFieldId: string, type: SchemaFieldType, value?: any | null }>, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType, title: string, key: string, description?: string | null, required: boolean, unique: boolean, isTitle: boolean, multiple: boolean, typeProperty?: { __typename?: 'SchemaFieldAsset', assetDefaultValue?: any | null } | { __typename?: 'SchemaFieldBool', defaultValue?: any | null } | { __typename?: 'SchemaFieldCheckbox' } | { __typename?: 'SchemaFieldDate' } | { __typename?: 'SchemaFieldGroup' } | { __typename?: 'SchemaFieldInteger', min?: number | null, max?: number | null, integerDefaultValue?: any | null } | { __typename?: 'SchemaFieldMarkdown', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldReference' } | { __typename?: 'SchemaFieldRichText' } | { __typename?: 'SchemaFieldSelect', values: Array<string>, selectDefaultValue?: any | null } | { __typename?: 'SchemaFieldTag' } | { __typename?: 'SchemaFieldText', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldTextArea', defaultValue?: any | null, maxLength?: number | null } | { __typename?: 'SchemaFieldURL', defaultValue?: any | null } | null }> } } } | null }>, createdBy?: { __typename?: 'User', id: string, name: string, email: string } | null, thread?: { __typename?: 'Thread', id: string, workspaceId: string, comments: Array<{ __typename?: 'Comment', id: string, authorId: string, content: string, createdAt: Date, author?: { __typename?: 'Integration', id: string, name: string } | { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, project?: { __typename?: 'Project', id: string, name: string, createdAt: Date, updatedAt: Date } | null, reviewers: Array<{ __typename?: 'User', id: string, name: string, email: string }> } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string } | null };
 
 export type CreateRequestMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2504,12 +2660,12 @@ export type GetUserBySearchQuery = { __typename?: 'Query', searchUser?: { __type
 export type GetMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }>, integrations: Array<{ __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null }> } | null };
+export type GetMeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, auths: Array<string>, myWorkspace?: { __typename?: 'Workspace', id: string, name: string } | null, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }>, integrations: Array<{ __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null }> } | null };
 
 export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetProfileQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, theme: Theme, auths: Array<string>, myWorkspace: { __typename?: 'Workspace', id: string, name: string } } | null };
+export type GetProfileQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, email: string, lang: string, theme: Theme, auths: Array<string>, myWorkspace?: { __typename?: 'Workspace', id: string, name: string } | null } | null };
 
 export type GetLanguageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2531,7 +2687,7 @@ export type UpdateMeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeMutation = { __typename?: 'Mutation', updateMe?: { __typename?: 'UpdateMePayload', me: { __typename?: 'Me', id: string, name: string, email: string, lang: string, theme: Theme, myWorkspace: { __typename?: 'Workspace', id: string, name: string } } } | null };
+export type UpdateMeMutation = { __typename?: 'Mutation', updateMe?: { __typename?: 'UpdateMePayload', me: { __typename?: 'Me', id: string, name: string, email: string, lang: string, theme: Theme, myWorkspace?: { __typename?: 'Workspace', id: string, name: string } | null } } | null };
 
 export type DeleteMeMutationVariables = Exact<{
   userId: Scalars['ID'];
@@ -2545,7 +2701,7 @@ export type GetViewsQueryVariables = Exact<{
 }>;
 
 
-export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
+export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'Column', visible: boolean, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', basicOperator: BasicOperator, basicValue: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition', boolOperator: BoolOperator, boolValue: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'MultipleFieldCondition', multipleOperator: MultipleOperator, multipleValue: Array<any>, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NullableFieldCondition', nullableOperator: NullableOperator, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NumberFieldCondition', numberOperator: NumberOperator, numberValue: number, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition', stringOperator: StringOperator, stringValue: string, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'TimeFieldCondition', timeOperator: TimeOperator, timeValue: Date, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
 
 export type CreateViewMutationVariables = Exact<{
   projectId: Scalars['ID'];
@@ -2553,22 +2709,22 @@ export type CreateViewMutationVariables = Exact<{
   name: Scalars['String'];
   sort?: InputMaybe<ItemSortInput>;
   filter?: InputMaybe<ConditionInput>;
-  columns?: InputMaybe<Array<FieldSelectorInput> | FieldSelectorInput>;
+  columns?: InputMaybe<Array<ColumnSelectionInput> | ColumnSelectionInput>;
 }>;
 
 
-export type CreateViewMutation = { __typename?: 'Mutation', createView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
+export type CreateViewMutation = { __typename?: 'Mutation', createView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'Column', visible: boolean, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', basicOperator: BasicOperator, basicValue: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition', boolOperator: BoolOperator, boolValue: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'MultipleFieldCondition', multipleOperator: MultipleOperator, multipleValue: Array<any>, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NullableFieldCondition', nullableOperator: NullableOperator, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NumberFieldCondition', numberOperator: NumberOperator, numberValue: number, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition', stringOperator: StringOperator, stringValue: string, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'TimeFieldCondition', timeOperator: TimeOperator, timeValue: Date, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
 
 export type UpdateViewMutationVariables = Exact<{
   viewId: Scalars['ID'];
   name: Scalars['String'];
   sort?: InputMaybe<ItemSortInput>;
   filter?: InputMaybe<ConditionInput>;
-  columns?: InputMaybe<Array<FieldSelectorInput> | FieldSelectorInput>;
+  columns?: InputMaybe<Array<ColumnSelectionInput> | ColumnSelectionInput>;
 }>;
 
 
-export type UpdateViewMutation = { __typename?: 'Mutation', updateView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'FieldSelector', type: FieldType, id?: string | null }> | null, filter?: { __typename?: 'AndCondition' } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition', operator: BoolOperator, value: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
+export type UpdateViewMutation = { __typename?: 'Mutation', updateView?: { __typename?: 'ViewPayload', view: { __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'Column', visible: boolean, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', basicOperator: BasicOperator, basicValue: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition', boolOperator: BoolOperator, boolValue: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'MultipleFieldCondition', multipleOperator: MultipleOperator, multipleValue: Array<any>, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NullableFieldCondition', nullableOperator: NullableOperator, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NumberFieldCondition', numberOperator: NumberOperator, numberValue: number, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition', stringOperator: StringOperator, stringValue: string, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'TimeFieldCondition', timeOperator: TimeOperator, timeValue: Date, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null } } | null };
 
 export type DeleteViewMutationVariables = Exact<{
   viewId: Scalars['ID'];
@@ -2613,7 +2769,7 @@ export type DeleteWebhookMutation = { __typename?: 'Mutation', deleteWebhook?: {
 export type GetWorkspacesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetWorkspacesQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, myWorkspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
+export type GetWorkspacesQuery = { __typename?: 'Query', me?: { __typename?: 'Me', id: string, name: string, myWorkspace?: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } | null, workspaces: Array<{ __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> }> } | null };
 
 export type UpdateWorkspaceMutationVariables = Exact<{
   workspaceId: Scalars['ID'];
@@ -2687,6 +2843,22 @@ export type CreateWorkspaceMutationVariables = Exact<{
 
 
 export type CreateWorkspaceMutation = { __typename?: 'Mutation', createWorkspace?: { __typename?: 'CreateWorkspacePayload', workspace: { __typename?: 'Workspace', id: string, name: string, personal: boolean, members: Array<{ __typename?: 'WorkspaceIntegrationMember', active: boolean, invitedById: string, integrationRole: Role, integration?: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType, developerId: string, createdAt: Date, updatedAt: Date, developer: { __typename?: 'User', id: string, name: string, email: string }, config?: { __typename?: 'IntegrationConfig', token: string, webhooks: Array<{ __typename?: 'Webhook', id: string, name: string, url: string, active: boolean, secret: string, createdAt: Date, updatedAt: Date, trigger: { __typename?: 'WebhookTrigger', onItemCreate?: boolean | null, onItemUpdate?: boolean | null, onItemDelete?: boolean | null, onItemPublish?: boolean | null, onItemUnPublish?: boolean | null, onAssetUpload?: boolean | null, onAssetDecompress?: boolean | null, onAssetDelete?: boolean | null } }> } | null } | null, invitedBy?: { __typename?: 'User', id: string, name: string, email: string } | null } | { __typename?: 'WorkspaceUserMember', userId: string, role: Role, user?: { __typename?: 'User', id: string, name: string, email: string } | null }> } } | null };
+
+export type GetWorkspaceSettingsQueryVariables = Exact<{
+  workspaceId: Scalars['ID'];
+}>;
+
+
+export type GetWorkspaceSettingsQuery = { __typename?: 'Query', node?: { __typename?: 'Asset', id: string } | { __typename?: 'Group', id: string } | { __typename?: 'Integration', id: string } | { __typename?: 'Item', id: string } | { __typename?: 'Model', id: string } | { __typename?: 'Project', id: string } | { __typename?: 'Request', id: string } | { __typename?: 'Schema', id: string } | { __typename?: 'User', id: string } | { __typename?: 'View', id: string } | { __typename?: 'Workspace', id: string } | { __typename?: 'WorkspaceSettings', id: string, tiles?: { __typename?: 'ResourceList', enabled?: boolean | null, selectedResource?: string | null, resources: Array<{ __typename?: 'TerrainResource' } | { __typename?: 'TileResource', id: string, type: TileType, props?: { __typename?: 'UrlResourceProps', name: string, url: string, image: string } | null }> } | null, terrains?: { __typename?: 'ResourceList', enabled?: boolean | null, selectedResource?: string | null, resources: Array<{ __typename?: 'TerrainResource', id: string, type: TerrainType, props?: { __typename?: 'CesiumResourceProps', name: string, url: string, image: string, cesiumIonAssetId: string, cesiumIonAccessToken: string } | null } | { __typename?: 'TileResource' }> } | null } | null };
+
+export type UpdateWorkspaceSettingsMutationVariables = Exact<{
+  id: Scalars['ID'];
+  tiles?: InputMaybe<ResourcesListInput>;
+  terrains?: InputMaybe<ResourcesListInput>;
+}>;
+
+
+export type UpdateWorkspaceSettingsMutation = { __typename?: 'Mutation', updateWorkspaceSettings?: { __typename?: 'UpdateWorkspaceSettingsPayload', workspaceSettings: { __typename?: 'WorkspaceSettings', id: string, tiles?: { __typename?: 'ResourceList', enabled?: boolean | null, selectedResource?: string | null, resources: Array<{ __typename?: 'TerrainResource' } | { __typename?: 'TileResource', id: string, type: TileType, props?: { __typename?: 'UrlResourceProps', name: string, url: string, image: string } | null }> } | null, terrains?: { __typename?: 'ResourceList', enabled?: boolean | null, selectedResource?: string | null, resources: Array<{ __typename?: 'TerrainResource', id: string, type: TerrainType, props?: { __typename?: 'CesiumResourceProps', name: string, url: string, image: string, cesiumIonAssetId: string, cesiumIonAccessToken: string } | null } | { __typename?: 'TileResource' }> } | null } } | null };
 
 export const IntegrationFragmentFragmentDoc = gql`
     fragment integrationFragment on Integration {
@@ -2785,8 +2957,8 @@ export const AssetFileFragmentFragmentDoc = gql`
   path
 }
     `;
-export const AssetFile5FragmentFragmentDoc = gql`
-    fragment assetFile5Fragment on AssetFile {
+export const AssetFile10FragmentFragmentDoc = gql`
+    fragment assetFile10Fragment on AssetFile {
   ...assetFileFragment
   children {
     ...assetFileFragment
@@ -2798,6 +2970,21 @@ export const AssetFile5FragmentFragmentDoc = gql`
           ...assetFileFragment
           children {
             ...assetFileFragment
+            children {
+              ...assetFileFragment
+              children {
+                ...assetFileFragment
+                children {
+                  ...assetFileFragment
+                  children {
+                    ...assetFileFragment
+                    children {
+                      ...assetFileFragment
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2948,12 +3135,6 @@ export const GetAssetsDocument = gql`
     sort: $sort
     pagination: $pagination
   ) {
-    edges {
-      cursor
-      node {
-        ...assetFragment
-      }
-    }
     nodes {
       ...assetFragment
     }
@@ -3006,26 +3187,23 @@ export const GetAssetsItemsDocument = gql`
     sort: $sort
     pagination: $pagination
   ) {
-    edges {
-      cursor
-      node {
-        id
-        items {
-          itemId
-          modelId
-        }
-      }
-    }
     nodes {
-      id
+      ...assetFragment
       items {
         itemId
         modelId
       }
     }
+    pageInfo {
+      startCursor
+      endCursor
+      hasNextPage
+      hasPreviousPage
+    }
+    totalCount
   }
 }
-    `;
+    ${AssetFragmentFragmentDoc}`;
 
 /**
  * __useGetAssetsItemsQuery__
@@ -3095,10 +3273,10 @@ export type GetAssetQueryResult = Apollo.QueryResult<GetAssetQuery, GetAssetQuer
 export const GetAssetFileDocument = gql`
     query GetAssetFile($assetId: ID!) {
   assetFile(assetId: $assetId) {
-    ...assetFile5Fragment
+    ...assetFile10Fragment
   }
 }
-    ${AssetFile5FragmentFragmentDoc}`;
+    ${AssetFile10FragmentFragmentDoc}`;
 
 /**
  * __useGetAssetFileQuery__
@@ -3314,11 +3492,15 @@ export type DecompressAssetMutationHookResult = ReturnType<typeof useDecompressA
 export type DecompressAssetMutationResult = Apollo.MutationResult<DecompressAssetMutation>;
 export type DecompressAssetMutationOptions = Apollo.BaseMutationOptions<DecompressAssetMutation, DecompressAssetMutationVariables>;
 export const CreateAssetUploadDocument = gql`
-    mutation CreateAssetUpload($projectId: ID!, $filename: String!) {
-  createAssetUpload(input: {projectId: $projectId, filename: $filename}) {
+    mutation CreateAssetUpload($projectId: ID!, $filename: String!, $cursor: String!, $contentLength: Int!) {
+  createAssetUpload(
+    input: {projectId: $projectId, filename: $filename, cursor: $cursor, contentLength: $contentLength}
+  ) {
     url
     token
     contentType
+    contentLength
+    next
   }
 }
     `;
@@ -3339,6 +3521,8 @@ export type CreateAssetUploadMutationFn = Apollo.MutationFunction<CreateAssetUpl
  *   variables: {
  *      projectId: // value for 'projectId'
  *      filename: // value for 'filename'
+ *      cursor: // value for 'cursor'
+ *      contentLength: // value for 'contentLength'
  *   },
  * });
  */
@@ -4154,6 +4338,22 @@ export const GetItemsDocument = gql`
       createdAt
       updatedAt
       status
+      referencedItems {
+        id
+        title
+        schemaId
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        status
+        createdAt
+        updatedAt
+      }
       createdBy {
         ... on Integration {
           name
@@ -4173,6 +4373,7 @@ export const GetItemsDocument = gql`
       }
       metadata {
         id
+        version
         fields {
           schemaFieldId
           itemGroupId
@@ -4224,10 +4425,27 @@ export const GetItemDocument = gql`
       createdAt
       updatedAt
       status
+      referencedItems {
+        id
+        title
+        schemaId
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        status
+        createdAt
+        updatedAt
+      }
       version
       assets {
         id
         url
+        fileName
       }
       createdBy {
         ... on Integration {
@@ -4253,6 +4471,7 @@ export const GetItemDocument = gql`
       }
       metadata {
         id
+        version
         fields {
           schemaFieldId
           type
@@ -4328,48 +4547,6 @@ export function useIsItemReferencedLazyQuery(baseOptions?: Apollo.LazyQueryHookO
 export type IsItemReferencedQueryHookResult = ReturnType<typeof useIsItemReferencedQuery>;
 export type IsItemReferencedLazyQueryHookResult = ReturnType<typeof useIsItemReferencedLazyQuery>;
 export type IsItemReferencedQueryResult = Apollo.QueryResult<IsItemReferencedQuery, IsItemReferencedQueryVariables>;
-export const GetItemsByIdsDocument = gql`
-    query GetItemsByIds($id: [ID!]!) {
-  nodes(id: $id, type: Item) {
-    ... on Item {
-      id
-      title
-      schemaId
-      createdAt
-      updatedAt
-      status
-    }
-  }
-}
-    `;
-
-/**
- * __useGetItemsByIdsQuery__
- *
- * To run a query within a React component, call `useGetItemsByIdsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetItemsByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetItemsByIdsQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetItemsByIdsQuery(baseOptions: Apollo.QueryHookOptions<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>(GetItemsByIdsDocument, options);
-      }
-export function useGetItemsByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>(GetItemsByIdsDocument, options);
-        }
-export type GetItemsByIdsQueryHookResult = ReturnType<typeof useGetItemsByIdsQuery>;
-export type GetItemsByIdsLazyQueryHookResult = ReturnType<typeof useGetItemsByIdsLazyQuery>;
-export type GetItemsByIdsQueryResult = Apollo.QueryResult<GetItemsByIdsQuery, GetItemsByIdsQueryVariables>;
 export const SearchItemDocument = gql`
     query SearchItem($searchItemInput: SearchItemInput!) {
   searchItem(input: $searchItemInput) {
@@ -4380,6 +4557,22 @@ export const SearchItemDocument = gql`
       createdAt
       updatedAt
       status
+      referencedItems {
+        id
+        title
+        schemaId
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        status
+        createdAt
+        updatedAt
+      }
       version
       assets {
         id
@@ -4411,6 +4604,7 @@ export const SearchItemDocument = gql`
       }
       metadata {
         id
+        version
         fields {
           schemaFieldId
           type
@@ -4472,6 +4666,22 @@ export const CreateItemDocument = gql`
         type
         schemaFieldId
         itemGroupId
+      }
+      referencedItems {
+        id
+        title
+        schemaId
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        status
+        createdAt
+        updatedAt
       }
     }
   }
@@ -4553,6 +4763,22 @@ export const UpdateItemDocument = gql`
         schemaFieldId
         itemGroupId
       }
+      referencedItems {
+        id
+        title
+        schemaId
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        status
+        createdAt
+        updatedAt
+      }
     }
   }
 }
@@ -4591,6 +4817,22 @@ export const UnpublishItemDocument = gql`
   unpublishItem(input: {itemIds: $itemIds}) {
     items {
       id
+      referencedItems {
+        id
+        title
+        schemaId
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        status
+        createdAt
+        updatedAt
+      }
     }
   }
 }
@@ -4626,6 +4868,22 @@ export const PublishItemDocument = gql`
   publishItem(input: {itemIds: $itemIds}) {
     items {
       id
+      referencedItems {
+        id
+        title
+        schemaId
+        createdBy {
+          ... on Integration {
+            name
+          }
+          ... on User {
+            name
+          }
+        }
+        status
+        createdAt
+        updatedAt
+      }
     }
   }
 }
@@ -4665,6 +4923,7 @@ export const GetModelsDocument = gql`
       description
       key
       public
+      order
       metadataSchema {
         id
         fields {
@@ -4800,6 +5059,10 @@ export const GetModelsDocument = gql`
             }
             ... on SchemaFieldReference {
               modelId
+              schema {
+                id
+                titleFieldId
+              }
               correspondingField {
                 id
                 type
@@ -4857,6 +5120,7 @@ export const GetModelDocument = gql`
     ... on Model {
       id
       schemaId
+      name
     }
   }
 }
@@ -5042,6 +5306,43 @@ export function useCheckModelKeyAvailabilityLazyQuery(baseOptions?: Apollo.LazyQ
 export type CheckModelKeyAvailabilityQueryHookResult = ReturnType<typeof useCheckModelKeyAvailabilityQuery>;
 export type CheckModelKeyAvailabilityLazyQueryHookResult = ReturnType<typeof useCheckModelKeyAvailabilityLazyQuery>;
 export type CheckModelKeyAvailabilityQueryResult = Apollo.QueryResult<CheckModelKeyAvailabilityQuery, CheckModelKeyAvailabilityQueryVariables>;
+export const UpdateModelsOrderDocument = gql`
+    mutation UpdateModelsOrder($modelIds: [ID!]!) {
+  updateModelsOrder(input: {modelIds: $modelIds}) {
+    models {
+      ... on Model {
+        id
+      }
+    }
+  }
+}
+    `;
+export type UpdateModelsOrderMutationFn = Apollo.MutationFunction<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>;
+
+/**
+ * __useUpdateModelsOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateModelsOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateModelsOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateModelsOrderMutation, { data, loading, error }] = useUpdateModelsOrderMutation({
+ *   variables: {
+ *      modelIds: // value for 'modelIds'
+ *   },
+ * });
+ */
+export function useUpdateModelsOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>(UpdateModelsOrderDocument, options);
+      }
+export type UpdateModelsOrderMutationHookResult = ReturnType<typeof useUpdateModelsOrderMutation>;
+export type UpdateModelsOrderMutationResult = Apollo.MutationResult<UpdateModelsOrderMutation>;
+export type UpdateModelsOrderMutationOptions = Apollo.BaseMutationOptions<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>;
 export const GetProjectDocument = gql`
     query GetProject($projectId: ID!) {
   node(id: $projectId, type: PROJECT) {
@@ -5948,17 +6249,77 @@ export const GetViewsDocument = gql`
       direction
     }
     columns {
-      type
-      id
+      field {
+        type
+        id
+      }
+      visible
     }
     filter {
-      ... on BoolFieldCondition {
-        fieldId {
-          type
-          id
+      ... on AndCondition {
+        conditions {
+          ... on BasicFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            basicOperator: operator
+            basicValue: value
+            __typename
+          }
+          ... on NullableFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            nullableOperator: operator
+            __typename
+          }
+          ... on MultipleFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            multipleOperator: operator
+            multipleValue: value
+            __typename
+          }
+          ... on BoolFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            boolOperator: operator
+            boolValue: value
+          }
+          ... on StringFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            stringOperator: operator
+            stringValue: value
+          }
+          ... on NumberFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            numberOperator: operator
+            numberValue: value
+            __typename
+          }
+          ... on TimeFieldCondition {
+            fieldId {
+              type
+              id
+            }
+            timeOperator: operator
+            timeValue: value
+            __typename
+          }
+          __typename
         }
-        operator
-        value
       }
     }
     __typename
@@ -5995,7 +6356,7 @@ export type GetViewsQueryHookResult = ReturnType<typeof useGetViewsQuery>;
 export type GetViewsLazyQueryHookResult = ReturnType<typeof useGetViewsLazyQuery>;
 export type GetViewsQueryResult = Apollo.QueryResult<GetViewsQuery, GetViewsQueryVariables>;
 export const CreateViewDocument = gql`
-    mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+    mutation CreateView($projectId: ID!, $modelId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [ColumnSelectionInput!]) {
   createView(
     input: {projectId: $projectId, modelId: $modelId, name: $name, sort: $sort, filter: $filter, columns: $columns}
   ) {
@@ -6012,17 +6373,77 @@ export const CreateViewDocument = gql`
         direction
       }
       columns {
-        type
-        id
+        field {
+          type
+          id
+        }
+        visible
       }
       filter {
-        ... on BoolFieldCondition {
-          fieldId {
-            type
-            id
+        ... on AndCondition {
+          conditions {
+            ... on BasicFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              basicOperator: operator
+              basicValue: value
+              __typename
+            }
+            ... on NullableFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              nullableOperator: operator
+              __typename
+            }
+            ... on MultipleFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              multipleOperator: operator
+              multipleValue: value
+              __typename
+            }
+            ... on BoolFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              boolOperator: operator
+              boolValue: value
+            }
+            ... on StringFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              stringOperator: operator
+              stringValue: value
+            }
+            ... on NumberFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              numberOperator: operator
+              numberValue: value
+              __typename
+            }
+            ... on TimeFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              timeOperator: operator
+              timeValue: value
+              __typename
+            }
+            __typename
           }
-          operator
-          value
         }
       }
       __typename
@@ -6062,7 +6483,7 @@ export type CreateViewMutationHookResult = ReturnType<typeof useCreateViewMutati
 export type CreateViewMutationResult = Apollo.MutationResult<CreateViewMutation>;
 export type CreateViewMutationOptions = Apollo.BaseMutationOptions<CreateViewMutation, CreateViewMutationVariables>;
 export const UpdateViewDocument = gql`
-    mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [FieldSelectorInput!]) {
+    mutation UpdateView($viewId: ID!, $name: String!, $sort: ItemSortInput, $filter: ConditionInput, $columns: [ColumnSelectionInput!]) {
   updateView(
     input: {viewId: $viewId, name: $name, sort: $sort, filter: $filter, columns: $columns}
   ) {
@@ -6079,17 +6500,77 @@ export const UpdateViewDocument = gql`
         direction
       }
       columns {
-        type
-        id
+        field {
+          type
+          id
+        }
+        visible
       }
       filter {
-        ... on BoolFieldCondition {
-          fieldId {
-            type
-            id
+        ... on AndCondition {
+          conditions {
+            ... on BasicFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              basicOperator: operator
+              basicValue: value
+              __typename
+            }
+            ... on NullableFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              nullableOperator: operator
+              __typename
+            }
+            ... on MultipleFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              multipleOperator: operator
+              multipleValue: value
+              __typename
+            }
+            ... on BoolFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              boolOperator: operator
+              boolValue: value
+            }
+            ... on StringFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              stringOperator: operator
+              stringValue: value
+            }
+            ... on NumberFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              numberOperator: operator
+              numberValue: value
+              __typename
+            }
+            ... on TimeFieldCondition {
+              fieldId {
+                type
+                id
+              }
+              timeOperator: operator
+              timeValue: value
+              __typename
+            }
+            __typename
           }
-          operator
-          value
         }
       }
       __typename
@@ -6693,3 +7174,142 @@ export function useCreateWorkspaceMutation(baseOptions?: Apollo.MutationHookOpti
 export type CreateWorkspaceMutationHookResult = ReturnType<typeof useCreateWorkspaceMutation>;
 export type CreateWorkspaceMutationResult = Apollo.MutationResult<CreateWorkspaceMutation>;
 export type CreateWorkspaceMutationOptions = Apollo.BaseMutationOptions<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>;
+export const GetWorkspaceSettingsDocument = gql`
+    query GetWorkspaceSettings($workspaceId: ID!) {
+  node(id: $workspaceId, type: WorkspaceSettings) {
+    id
+    ... on WorkspaceSettings {
+      id
+      tiles {
+        resources {
+          ... on TileResource {
+            id
+            type
+            props {
+              name
+              url
+              image
+            }
+          }
+        }
+        enabled
+        selectedResource
+      }
+      terrains {
+        resources {
+          ... on TerrainResource {
+            id
+            type
+            props {
+              name
+              url
+              image
+              cesiumIonAssetId
+              cesiumIonAccessToken
+            }
+          }
+        }
+        enabled
+        selectedResource
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetWorkspaceSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetWorkspaceSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWorkspaceSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWorkspaceSettingsQuery({
+ *   variables: {
+ *      workspaceId: // value for 'workspaceId'
+ *   },
+ * });
+ */
+export function useGetWorkspaceSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetWorkspaceSettingsQuery, GetWorkspaceSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWorkspaceSettingsQuery, GetWorkspaceSettingsQueryVariables>(GetWorkspaceSettingsDocument, options);
+      }
+export function useGetWorkspaceSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWorkspaceSettingsQuery, GetWorkspaceSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWorkspaceSettingsQuery, GetWorkspaceSettingsQueryVariables>(GetWorkspaceSettingsDocument, options);
+        }
+export type GetWorkspaceSettingsQueryHookResult = ReturnType<typeof useGetWorkspaceSettingsQuery>;
+export type GetWorkspaceSettingsLazyQueryHookResult = ReturnType<typeof useGetWorkspaceSettingsLazyQuery>;
+export type GetWorkspaceSettingsQueryResult = Apollo.QueryResult<GetWorkspaceSettingsQuery, GetWorkspaceSettingsQueryVariables>;
+export const UpdateWorkspaceSettingsDocument = gql`
+    mutation UpdateWorkspaceSettings($id: ID!, $tiles: ResourcesListInput, $terrains: ResourcesListInput) {
+  updateWorkspaceSettings(input: {id: $id, tiles: $tiles, terrains: $terrains}) {
+    workspaceSettings {
+      id
+      tiles {
+        resources {
+          ... on TileResource {
+            id
+            type
+            props {
+              name
+              url
+              image
+            }
+          }
+        }
+        enabled
+        selectedResource
+      }
+      terrains {
+        resources {
+          ... on TerrainResource {
+            id
+            type
+            props {
+              name
+              url
+              image
+              cesiumIonAssetId
+              cesiumIonAccessToken
+            }
+          }
+        }
+        enabled
+        selectedResource
+      }
+    }
+  }
+}
+    `;
+export type UpdateWorkspaceSettingsMutationFn = Apollo.MutationFunction<UpdateWorkspaceSettingsMutation, UpdateWorkspaceSettingsMutationVariables>;
+
+/**
+ * __useUpdateWorkspaceSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateWorkspaceSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateWorkspaceSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateWorkspaceSettingsMutation, { data, loading, error }] = useUpdateWorkspaceSettingsMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      tiles: // value for 'tiles'
+ *      terrains: // value for 'terrains'
+ *   },
+ * });
+ */
+export function useUpdateWorkspaceSettingsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateWorkspaceSettingsMutation, UpdateWorkspaceSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateWorkspaceSettingsMutation, UpdateWorkspaceSettingsMutationVariables>(UpdateWorkspaceSettingsDocument, options);
+      }
+export type UpdateWorkspaceSettingsMutationHookResult = ReturnType<typeof useUpdateWorkspaceSettingsMutation>;
+export type UpdateWorkspaceSettingsMutationResult = Apollo.MutationResult<UpdateWorkspaceSettingsMutation>;
+export type UpdateWorkspaceSettingsMutationOptions = Apollo.BaseMutationOptions<UpdateWorkspaceSettingsMutation, UpdateWorkspaceSettingsMutationVariables>;
