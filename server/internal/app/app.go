@@ -1,7 +1,6 @@
 package app
 
 import (
-	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -21,7 +20,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
-func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
+func initEcho(cfg *ServerConfig) *echo.Echo {
 	if cfg.Config == nil {
 		log.Fatalln("ServerConfig.Config is nil")
 	}
@@ -95,7 +94,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	), integration.NewStrictHandler(integration.NewServer(), nil))
 
 	serveFiles(e, cfg.Gateways.File)
-	Web(e, cfg.Config.Web, cfg.Config.AuthForWeb(), cfg.Config.Web_Disabled, nil)
+	Web(e, cfg.Config.WebConfig(), cfg.Config.Web_Disabled, nil)
 	return e
 }
 

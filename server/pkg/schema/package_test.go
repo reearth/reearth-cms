@@ -21,7 +21,7 @@ func TestPackage_New(t *testing.T) {
 	groupSchemas := make(map[id.GroupID]*Schema)
 	groupSchemas[gID] = &Schema{id: gsID, fields: FieldList{f3}}
 
-	p := NewPackage(s, meta, groupSchemas)
+	p := NewPackage(s, meta, groupSchemas, nil)
 
 	assert.Equal(t, p, &Package{
 		schema:       s,
@@ -43,7 +43,7 @@ func TestPackage_Schema(t *testing.T) {
 	groupSchemas := make(map[id.GroupID]*Schema)
 	groupSchemas[gID] = &Schema{id: gsID, fields: FieldList{f3}}
 
-	p := NewPackage(s, meta, groupSchemas)
+	p := NewPackage(s, meta, groupSchemas, nil)
 
 	assert.Equal(t, s, p.Schema())
 }
@@ -61,7 +61,7 @@ func TestPackage_MetaSchema(t *testing.T) {
 	groupSchemas := make(map[id.GroupID]*Schema)
 	groupSchemas[gID] = &Schema{id: gsID, fields: FieldList{f3}}
 
-	p := NewPackage(s, meta, groupSchemas)
+	p := NewPackage(s, meta, groupSchemas, nil)
 
 	assert.Equal(t, meta, p.MetaSchema())
 }
@@ -79,9 +79,9 @@ func TestPackage_GroupSchemas(t *testing.T) {
 	groupSchemas := make(map[id.GroupID]*Schema)
 	groupSchemas[gID] = &Schema{id: gsID, fields: FieldList{f3}}
 
-	p := NewPackage(s, meta, groupSchemas)
+	p := NewPackage(s, meta, groupSchemas, nil)
 
-	assert.Equal(t, []*Schema{groupSchemas[gID]}, p.GroupSchemas())
+	assert.Equal(t, List{groupSchemas[gID]}, p.GroupSchemas())
 }
 
 func TestPackage_GroupSchema(t *testing.T) {
@@ -97,7 +97,7 @@ func TestPackage_GroupSchema(t *testing.T) {
 	groupSchemas := make(map[id.GroupID]*Schema)
 	groupSchemas[gID] = &Schema{id: gsID, fields: FieldList{f3}}
 
-	p := NewPackage(s, meta, groupSchemas)
+	p := NewPackage(s, meta, groupSchemas, nil)
 
 	assert.Equal(t, groupSchemas[gID], p.GroupSchema(gID))
 	assert.Nil(t, p.GroupSchema(id.NewGroupID()))
@@ -116,7 +116,7 @@ func TestPackage_Field(t *testing.T) {
 	groupSchemas := make(map[id.GroupID]*Schema)
 	groupSchemas[gID] = &Schema{id: gsID, fields: FieldList{f3}}
 
-	p := NewPackage(s, meta, groupSchemas)
+	p := NewPackage(s, meta, groupSchemas, nil)
 
 	assert.Nil(t, p.Field(id.NewFieldID()))
 	assert.Equal(t, f1, p.Field(f1.ID()))

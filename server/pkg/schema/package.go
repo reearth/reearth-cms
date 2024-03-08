@@ -6,16 +6,18 @@ import (
 )
 
 type Package struct {
-	schema       *Schema
-	metaSchema   *Schema
-	groupSchemas map[id.GroupID]*Schema
+	schema            *Schema
+	metaSchema        *Schema
+	groupSchemas      map[id.GroupID]*Schema
+	referencedSchemas List
 }
 
-func NewPackage(s *Schema, meta *Schema, groupSchemas map[id.GroupID]*Schema) *Package {
+func NewPackage(s *Schema, meta *Schema, groupSchemas map[id.GroupID]*Schema, referencedSchemas List) *Package {
 	return &Package{
-		schema:       s,
-		metaSchema:   meta,
-		groupSchemas: groupSchemas,
+		schema:            s,
+		metaSchema:        meta,
+		groupSchemas:      groupSchemas,
+		referencedSchemas: referencedSchemas,
 	}
 }
 
@@ -27,7 +29,7 @@ func (p *Package) MetaSchema() *Schema {
 	return p.metaSchema
 }
 
-func (p *Package) GroupSchemas() []*Schema {
+func (p *Package) GroupSchemas() List {
 	return lo.FilterMap(lo.Values(p.groupSchemas), func(s *Schema, _ int) (*Schema, bool) {
 		if s == nil {
 			return nil, false
@@ -45,6 +47,18 @@ func (p *Package) GroupSchema(gid id.GroupID) *Schema {
 		return nil
 	}
 	return s
+}
+
+func (p *Package) ReferencedSchemas() List {
+	return p.referencedSchemas
+}
+
+func (p *Package) ReferencedSchema(fieldID id.FieldID) *Schema {
+	f := p.schema.Field(fieldID)
+	if f == nil {
+		return nil
+	}
+	return p.referencedSchemas.Schema(f.TypeProperty().reference.Schema().Ref())
 }
 
 func (p *Package) Field(fieldID id.FieldID) *Field {
