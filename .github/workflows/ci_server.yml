@@ -25,6 +25,7 @@ env:
 
 jobs:
   ci-server-lint:
+    name: lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -49,6 +50,7 @@ jobs:
           working-directory: server
           args: --config=../.golangci.yml
   ci-server-i18n:
+    name: i18n
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -69,6 +71,7 @@ jobs:
       - name: check forgotten translations
         run: make i18n-ci
   ci-server-test:
+    name: test
     runs-on: ubuntu-latest
     defaults:
       run:
