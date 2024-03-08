@@ -23,7 +23,7 @@ func NotifyHandler() echo.HandlerFunc {
 		if isAWS(c.Request()) {
 			input, err = parseSNSMessage(c.Request().Body)
 		} else if isGCP(c.Request()) {
-			input, err = parsePubSubMessage(c, c.Request().Body)
+			input, err = parsePubSubMessage(c)
 		} else {
 			err = errors.New("unsupported request source")
 		}
@@ -51,7 +51,7 @@ func isAWS(r *http.Request) bool {
 	return r.Header.Get("X-Amz-Sns-Message-Type") == "Notification"
 }
 
-func isGCP(r *http.Request) bool {
+func isGCP(_ *http.Request) bool {
 	// TODO: need to find a way to detect GCP requests
 	return true
 }
@@ -76,7 +76,7 @@ func parseSNSMessage(body io.Reader) (rhttp.NotifyInput, error) {
 	return input, nil
 }
 
-func parsePubSubMessage(c echo.Context, body io.Reader) (rhttp.NotifyInput, error) {
+func parsePubSubMessage(c echo.Context) (rhttp.NotifyInput, error) {
 	var input rhttp.NotifyInput
 	var b pubsubBody
 	if err := c.Bind(&b); err != nil {

@@ -25,7 +25,7 @@ import (
 
 const databaseName = "reearth_cms"
 
-func initReposAndGateways(ctx context.Context, conf *Config, debug bool) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
+func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *gateway.Container, *accountrepo.Container, *accountgateway.Container) {
 	gateways := &gateway.Container{}
 	acGateways := &accountgateway.Container{}
 

@@ -29,7 +29,7 @@ func Start(debug bool, version string) {
 	log.Infof("config: %s", conf.Print())
 
 	// Init repositories
-	repos, gateways, acRepos, acGateways := initReposAndGateways(ctx, conf, debug)
+	repos, gateways, acRepos, acGateways := initReposAndGateways(ctx, conf)
 
 	// Start web server
 	NewServer(ctx, &ServerConfig{
@@ -76,7 +76,7 @@ func NewServer(ctx context.Context, cfg *ServerConfig) *WebServer {
 		address: address,
 	}
 
-	w.appServer = initEcho(ctx, cfg)
+	w.appServer = initEcho(cfg)
 	return w
 }
 
