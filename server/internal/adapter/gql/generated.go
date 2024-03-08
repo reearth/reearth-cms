@@ -349,6 +349,7 @@ type ComplexityRoot struct {
 	Me struct {
 		Auths         func(childComplexity int) int
 		Email         func(childComplexity int) int
+		Host          func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Integrations  func(childComplexity int) int
 		Lang          func(childComplexity int) int
@@ -776,6 +777,7 @@ type ComplexityRoot struct {
 
 	User struct {
 		Email func(childComplexity int) int
+		Host  func(childComplexity int) int
 		ID    func(childComplexity int) int
 		Name  func(childComplexity int) int
 	}
@@ -850,6 +852,7 @@ type ComplexityRoot struct {
 	}
 
 	WorkspaceUserMember struct {
+		Host   func(childComplexity int) int
 		Role   func(childComplexity int) int
 		User   func(childComplexity int) int
 		UserID func(childComplexity int) int
@@ -2054,6 +2057,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Me.Email(childComplexity), true
+
+	case "Me.host":
+		if e.complexity.Me.Host == nil {
+			break
+		}
+
+		return e.complexity.Me.Host(childComplexity), true
 
 	case "Me.id":
 		if e.complexity.Me.ID == nil {
@@ -4186,6 +4196,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Email(childComplexity), true
 
+	case "User.host":
+		if e.complexity.User.Host == nil {
+			break
+		}
+
+		return e.complexity.User.Host(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -4493,6 +4510,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.WorkspaceSettings.Tiles(childComplexity), true
+
+	case "WorkspaceUserMember.host":
+		if e.complexity.WorkspaceUserMember.Host == nil {
+			break
+		}
+
+		return e.complexity.WorkspaceUserMember.Host(childComplexity), true
 
 	case "WorkspaceUserMember.role":
 		if e.complexity.WorkspaceUserMember.Role == nil {
@@ -6255,6 +6279,7 @@ extend type Mutation {
   id: ID!
   name: String!
   email: String!
+  host: String
 }
 
 type Me {
@@ -6263,6 +6288,7 @@ type Me {
   email: String!
   lang: Lang!
   theme: Theme!
+  host: String
   myWorkspaceId: ID!
   auths: [String!]!
   workspaces: [Workspace!]!
@@ -6318,6 +6344,7 @@ union WorkspaceMember = WorkspaceUserMember | WorkspaceIntegrationMember
 type WorkspaceUserMember {
     userId: ID!
     role: Role!
+    host: String
     user: User
 }
 
@@ -6428,7 +6455,8 @@ extend type Mutation {
     removeIntegrationFromWorkspace(input: RemoveIntegrationFromWorkspaceInput!): RemoveMemberFromWorkspacePayload
     updateUserOfWorkspace(input: UpdateUserOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../../../schemas/workspacesettings.graphql", Input: `type WorkspaceSettings implements Node {
     id: ID! # same as workspaceId
     tiles: ResourceList
@@ -12427,6 +12455,8 @@ func (ec *executionContext) fieldContext_Integration_developer(ctx context.Conte
 				return ec.fieldContext_User_name(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "host":
+				return ec.fieldContext_User_host(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -15290,6 +15320,47 @@ func (ec *executionContext) fieldContext_Me_theme(ctx context.Context, field gra
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Theme does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Me_host(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Me) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Me_host(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Host, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Me_host(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Me",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -22654,6 +22725,8 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 				return ec.fieldContext_Me_lang(ctx, field)
 			case "theme":
 				return ec.fieldContext_Me_theme(ctx, field)
+			case "host":
+				return ec.fieldContext_Me_host(ctx, field)
 			case "myWorkspaceId":
 				return ec.fieldContext_Me_myWorkspaceId(ctx, field)
 			case "auths":
@@ -22713,6 +22786,8 @@ func (ec *executionContext) fieldContext_Query_searchUser(ctx context.Context, f
 				return ec.fieldContext_User_name(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "host":
+				return ec.fieldContext_User_host(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -23624,6 +23699,8 @@ func (ec *executionContext) fieldContext_Request_createdBy(ctx context.Context, 
 				return ec.fieldContext_User_name(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "host":
+				return ec.fieldContext_User_host(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -23790,6 +23867,8 @@ func (ec *executionContext) fieldContext_Request_reviewers(ctx context.Context, 
 				return ec.fieldContext_User_name(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "host":
+				return ec.fieldContext_User_host(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -27982,6 +28061,8 @@ func (ec *executionContext) fieldContext_UpdateMePayload_me(ctx context.Context,
 				return ec.fieldContext_Me_lang(ctx, field)
 			case "theme":
 				return ec.fieldContext_Me_theme(ctx, field)
+			case "host":
+				return ec.fieldContext_Me_host(ctx, field)
 			case "myWorkspaceId":
 				return ec.fieldContext_Me_myWorkspaceId(ctx, field)
 			case "auths":
@@ -28411,6 +28492,47 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 }
 
 func (ec *executionContext) fieldContext_User_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_host(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_host(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Host, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_host(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -30179,6 +30301,8 @@ func (ec *executionContext) fieldContext_WorkspaceIntegrationMember_invitedBy(ct
 				return ec.fieldContext_User_name(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "host":
+				return ec.fieldContext_User_host(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -30479,6 +30603,47 @@ func (ec *executionContext) fieldContext_WorkspaceUserMember_role(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _WorkspaceUserMember_host(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceUserMember) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkspaceUserMember_host(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Host, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkspaceUserMember_host(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkspaceUserMember",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WorkspaceUserMember_user(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkspaceUserMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkspaceUserMember_user(ctx, field)
 	if err != nil {
@@ -30521,6 +30686,8 @@ func (ec *executionContext) fieldContext_WorkspaceUserMember_user(ctx context.Co
 				return ec.fieldContext_User_name(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "host":
+				return ec.fieldContext_User_host(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -40353,6 +40520,8 @@ func (ec *executionContext) _Me(ctx context.Context, sel ast.SelectionSet, obj *
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "host":
+			out.Values[i] = ec._Me_host(ctx, field, obj)
 		case "myWorkspaceId":
 			out.Values[i] = ec._Me_myWorkspaceId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -44275,6 +44444,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "host":
+			out.Values[i] = ec._User_host(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -44849,6 +45020,8 @@ func (ec *executionContext) _WorkspaceUserMember(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "host":
+			out.Values[i] = ec._WorkspaceUserMember_host(ctx, field, obj)
 		case "user":
 			field := field
 

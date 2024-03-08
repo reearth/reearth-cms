@@ -41,21 +41,22 @@ func initReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		log.Fatalf("repo initialization error: %+v\n", err)
 	}
 
+	accountDatabase := conf.DB_Account
+	if accountDatabase == "" {
+		accountDatabase = databaseName
+	}
+
 	accountUsers := make([]accountrepo.User, 0, len(conf.DB_Users))
 	for _, u := range conf.DB_Users {
 		c, err := mongo.Connect(ctx, options.Client().ApplyURI(u.URI).SetMonitor(otelmongo.NewMonitor()))
 		if err != nil {
 			log.Fatalf("mongo error: %+v\n", err)
 		}
-		accountUsers = append(accountUsers, accountmongo.NewUserWithHost(mongox.NewClient("reearth_account", c), u.Name))
+		accountUsers = append(accountUsers, accountmongo.NewUserWithHost(mongox.NewClient(accountDatabase, c), u.Name))
 	}
 
 	txAvailable := mongox.IsTransactionAvailable(conf.DB)
 
-	accountDatabase := conf.DB_Account
-	if accountDatabase == "" {
-		accountDatabase = databaseName
-	}
 	acRepos, err := accountmongo.New(ctx, client, accountDatabase, txAvailable, false, accountUsers)
 	if err != nil {
 		log.Fatalf("Failed to init mongo: %+v\n", err)

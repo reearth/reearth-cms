@@ -604,6 +604,7 @@ type Me struct {
 	Email         string         `json:"email"`
 	Lang          language.Tag   `json:"lang"`
 	Theme         Theme          `json:"theme"`
+	Host          *string        `json:"host,omitempty"`
 	MyWorkspaceID ID             `json:"myWorkspaceId"`
 	Auths         []string       `json:"auths"`
 	Workspaces    []*Workspace   `json:"workspaces"`
@@ -1360,9 +1361,10 @@ type URLResourcePropsInput struct {
 }
 
 type User struct {
-	ID    ID     `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID    ID      `json:"id"`
+	Name  string  `json:"name"`
+	Email string  `json:"email"`
+	Host  *string `json:"host,omitempty"`
 }
 
 func (User) IsOperator() {}
@@ -1462,9 +1464,10 @@ func (WorkspaceSettings) IsNode()        {}
 func (this WorkspaceSettings) GetID() ID { return this.ID }
 
 type WorkspaceUserMember struct {
-	UserID ID    `json:"userId"`
-	Role   Role  `json:"role"`
-	User   *User `json:"user,omitempty"`
+	UserID ID      `json:"userId"`
+	Role   Role    `json:"role"`
+	Host   *string `json:"host,omitempty"`
+	User   *User   `json:"user,omitempty"`
 }
 
 func (WorkspaceUserMember) IsWorkspaceMember() {}

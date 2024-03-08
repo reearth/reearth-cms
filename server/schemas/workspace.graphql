@@ -10,6 +10,7 @@ union WorkspaceMember = WorkspaceUserMember | WorkspaceIntegrationMember
 type WorkspaceUserMember {
     userId: ID!
     role: Role!
+    host: String
     user: User
 }
 

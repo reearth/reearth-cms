@@ -308,8 +308,10 @@ github.com/posener/complete v1.2.3/go.mod h1:WZIdtGGp+qx0sLrYKtIRAruyNpv6hFCicSg
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/ravilushqa/otelgqlgen v0.15.0 h1:U85nrlweMXTGaMChUViYM39/MXBZVeVVlpuHq+6eECQ=
 github.com/ravilushqa/otelgqlgen v0.15.0/go.mod h1:o+1Eju0VySmgq2BP8Vupz2YrN21Bj7D7imBqu3m2uB8=
-github.com/reearth/reearthx v0.0.0-20240206154804-13a660b86aad h1:NsO9H6wNLxkKjh2Xz14u13hPz5tSOoFS+3M6PvPdxVo=
-github.com/reearth/reearthx v0.0.0-20240206154804-13a660b86aad/go.mod h1:8DSD6e+h1KhfhO4TceYDDPpLkhZJH2CLF6nHxyV8hts=
+github.com/reearth/reearthx v0.0.0-20240308122534-eae6d3e0b420 h1:WPSRKeO9A9tbIA66XBtNAjr6Kz4EDR1RSToltcZb5Iw=
+github.com/reearth/reearthx v0.0.0-20240308122534-eae6d3e0b420/go.mod h1:8DSD6e+h1KhfhO4TceYDDPpLkhZJH2CLF6nHxyV8hts=
+github.com/reearth/reearthx v0.0.0-20240308123042-6b50be05cf48 h1:OZxrJZQxtlhUJXF2XR6wZM7432xhcO3zv4YH/ElfidU=
+github.com/reearth/reearthx v0.0.0-20240308123042-6b50be05cf48/go.mod h1:8DSD6e+h1KhfhO4TceYDDPpLkhZJH2CLF6nHxyV8hts=
 github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68 h1:Jknsfy5cqCH6qAuoU1qNZ51hfBJfMSJYwsH9j9mdVnw=
 github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68/go.mod h1:9CDhL7uDVy8vEVDNPJzxq89dPaPBWP6hxQcC8woBHus=
 github.com/rogpeppe/go-internal v1.12.0 h1:exVL4IDcn6na9z1rAb56Vxr+CgyK3nn3O+epU5NdKM8=
