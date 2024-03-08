@@ -165,7 +165,7 @@ func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
 				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
 					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 				}
-				op, err := generateMachineOperator(ctx)
+				op, err := generateMachineOperator()
 				if err != nil {
 					return err
 				}
@@ -314,7 +314,7 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}, nil
 }
 
-func generateMachineOperator(ctx context.Context) (*usecase.Operator, error) {
+func generateMachineOperator() (*usecase.Operator, error) {
 	return &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User: nil,
