@@ -660,6 +660,7 @@ export type Me = {
   __typename?: 'Me';
   auths: Array<Scalars['String']>;
   email: Scalars['String'];
+  host?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   integrations: Array<Integration>;
   lang: Scalars['Lang'];
@@ -2029,6 +2030,7 @@ export type UrlResourcePropsInput = {
 export type User = Node & {
   __typename?: 'User';
   email: Scalars['String'];
+  host?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
 };
@@ -2126,6 +2128,7 @@ export type WorkspaceSettings = Node & {
 
 export type WorkspaceUserMember = {
   __typename?: 'WorkspaceUserMember';
+  host?: Maybe<Scalars['String']>;
   role: Role;
   user?: Maybe<User>;
   userId: Scalars['ID'];
