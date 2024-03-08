@@ -303,7 +303,6 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 			ContentLength: au.ContentLength(),
 			ExpiresAt:     au.ExpiresAt(),
 			Cursor:        wrapped.Cursor,
-			ETags:         inp.ETags,
 		}
 	}
 

@@ -228,11 +228,10 @@ type CreateAssetPayload struct {
 }
 
 type CreateAssetUploadInput struct {
-	ProjectID     ID       `json:"projectId"`
-	Filename      *string  `json:"filename,omitempty"`
-	ContentLength *int     `json:"contentLength,omitempty"`
-	Cursor        *string  `json:"cursor,omitempty"`
-	Etags         []string `json:"etags,omitempty"`
+	ProjectID     ID      `json:"projectId"`
+	Filename      *string `json:"filename,omitempty"`
+	ContentLength *int    `json:"contentLength,omitempty"`
+	Cursor        *string `json:"cursor,omitempty"`
 }
 
 type CreateAssetUploadPayload struct {

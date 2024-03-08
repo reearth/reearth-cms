@@ -41,7 +41,6 @@ type IssueUploadAssetParam struct {
 	ExpiresAt     time.Time
 
 	Cursor string
-	ETags  []string
 }
 
 func (p IssueUploadAssetParam) ContentType() string {

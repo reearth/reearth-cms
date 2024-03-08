@@ -126,22 +126,8 @@ export const DECOMPRESS_ASSET = gql`
 `;
 
 export const CREATE_ASSET_UPLOAD = gql`
-  mutation CreateAssetUpload(
-    $projectId: ID!
-    $filename: String!
-    $cursor: String!
-    $contentLength: Int!
-    $etags: [String!]
-  ) {
-    createAssetUpload(
-      input: {
-        projectId: $projectId
-        filename: $filename
-        cursor: $cursor
-        contentLength: $contentLength
-        etags: $etags
-      }
-    ) {
+  mutation CreateAssetUpload($projectId: ID!, $filename: String!, $cursor: String!, $contentLength: Int!) {
+    createAssetUpload(input: { projectId: $projectId, filename: $filename, cursor: $cursor, contentLength: $contentLength }) {
       url
       token
       contentType

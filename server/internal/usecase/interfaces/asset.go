@@ -34,7 +34,6 @@ type CreateAssetUploadParam struct {
 	ContentLength int64
 
 	Cursor string
-	ETags  []string
 }
 
 var (

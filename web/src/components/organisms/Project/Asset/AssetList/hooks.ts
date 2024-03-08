@@ -117,7 +117,6 @@ export default (isItemsRequired: boolean) => {
               let cursor = "";
               let offset = 0;
               let uploadToken = "";
-              const etags: string[] = [];
               // eslint-disable-next-line no-constant-condition
               while (true) {
                 const createAssetUploadResult = await createAssetUploadMutation({
@@ -126,7 +125,6 @@ export default (isItemsRequired: boolean) => {
                     filename: file.name,
                     contentLength: file.size ?? 0,
                     cursor,
-                    etags,
                   },
                 });
                 if (
@@ -144,7 +142,7 @@ export default (isItemsRequired: boolean) => {
                   break;
                 }
                 const headers = contentType ? { "content-type": contentType } : undefined;
-                const res = await fetch(url, {
+                await fetch(url, {
                   method: "PUT",
                   body: (file as any).slice(offset, offset + contentLength),
                   headers,
@@ -152,8 +150,6 @@ export default (isItemsRequired: boolean) => {
                 if (!next) {
                   break;
                 }
-                const etag = res.headers.get("ETag");
-                if (etag) etags.push(etag);
                 cursor = next;
                 offset += contentLength;
               }

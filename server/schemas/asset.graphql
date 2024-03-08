@@ -66,7 +66,6 @@ input CreateAssetUploadInput {
 
   # Required if uploading in multiple parts.
   cursor: String
-  etags: [String!]
 }
 
 input UpdateAssetInput {
