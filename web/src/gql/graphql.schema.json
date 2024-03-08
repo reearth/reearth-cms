@@ -5783,13 +5783,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "Workspace",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "Workspace",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null

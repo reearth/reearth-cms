@@ -46,18 +46,20 @@ export default () => {
   const workspaces = data?.me?.workspaces;
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
   const personalWorkspace: Workspace = useMemo(() => {
-    const foundWorkspace = workspaces?.find(workspace => workspace.id === data?.me?.myWorkspace.id);
+    const foundWorkspace = workspaces?.find(
+      workspace => workspace.id === data?.me?.myWorkspace?.id,
+    );
     return {
       id: foundWorkspace?.id,
       name: foundWorkspace?.name,
       members: foundWorkspace?.members?.map(member => fromGraphQLMember(member as WorkspaceMember)),
     };
-  }, [data?.me?.myWorkspace.id, workspaces]);
-  const personal = workspaceId === data?.me?.myWorkspace.id;
+  }, [data?.me?.myWorkspace?.id, workspaces]);
+  const personal = workspaceId === data?.me?.myWorkspace?.id;
 
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
-    setCurrentWorkspace(data.me?.myWorkspace);
+    setCurrentWorkspace(data.me?.myWorkspace ?? undefined);
     setCurrentWorkspaceId(data.me?.myWorkspace?.id);
     navigate(`/workspace/${data.me?.myWorkspace?.id}`);
   }, [data, navigate, setCurrentWorkspace, setCurrentWorkspaceId, currentWorkspace, workspaceId]);

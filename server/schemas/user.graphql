@@ -15,7 +15,7 @@ type Me {
   myWorkspaceId: ID!
   auths: [String!]!
   workspaces: [Workspace!]!
-  myWorkspace: Workspace!
+  myWorkspace: Workspace
   integrations: [Integration!]!
 }
 
