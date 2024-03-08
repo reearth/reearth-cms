@@ -48,50 +48,36 @@ jobs:
       run:
         working-directory: server
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
       - name: go setup
         uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: cache
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: check forgotten translations
+        working-directory: server
         run: make i18n-ci
   ci-server-test:
     name: test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: server
     services:
       mongo:
         image: mongo:6-focal
         ports:
           - 27017:27017
     steps:
-      - uses: actions/setup-go@v4
-        with:
-          go-version: ${{ env.GO_VERSION }}
       - name: checkout
         uses: actions/checkout@v4
-      - name: cache
-        uses: actions/cache@v3
+      - name: go setup
+        uses: actions/setup-go@v4
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          go-version: ${{ env.GO_VERSION }}
       - name: test
-        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+        run: go test ./... -v -race -coverprofile=coverage.txt -covermode=atomic -timeout 10m
+        working-directory: server
         env:
           REEARTH_CMS_DB: mongodb://localhost
-      - name: codecov
+      - name: Send coverage report
         uses: codecov/codecov-action@v4
         with:
           flags: server
