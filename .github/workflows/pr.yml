@@ -32,3 +32,11 @@ jobs:
             The subject "{subject}" found in the pull request title "{title}"
             didn't match the configured pattern. Please ensure that the subject
             doesn't start with an uppercase character.
+  pr_title:
+    runs-on: ubuntu-latest
+    needs:
+      - labeler
+      - title_check
+    if: '!failure()'
+    steps:
+      - run: echo OK
