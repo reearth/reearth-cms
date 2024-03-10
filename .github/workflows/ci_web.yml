@@ -15,7 +15,7 @@ jobs:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
-      - name: Install
+      - name: Install dependencies
         run: yarn install
       - name: Lint
         run: yarn run lint
