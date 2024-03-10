@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
@@ -39,6 +41,17 @@ func ContextMiddleware(fn func(ctx context.Context) context.Context) echo.Middle
 		return func(c echo.Context) error {
 			req := c.Request()
 			c.SetRequest(req.WithContext(fn(req.Context())))
+			return next(c)
+		}
+	}
+}
+
+func AuthTokenMiddleware(token string, key any) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			if !strings.Contains(c.QueryParam("token"), token) {
+				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
+			}
 			return next(c)
 		}
 	}

@@ -165,13 +165,13 @@ func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
 				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
 					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 				}
-				op, err := generateMachineOperator()
-				if err != nil {
-					return err
-				}
-				ctx = adapter.AttachOperator(ctx, op)
-				c.SetRequest(c.Request().WithContext(ctx))
 			}
+			op, err := generateMachineOperator()
+			if err != nil {
+				return err
+			}
+			ctx = adapter.AttachOperator(ctx, op)
+			c.SetRequest(c.Request().WithContext(ctx))
 			return next(c)
 		}
 	}
