@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	rlog "github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
+	sns "github.com/robbiet480/go.sns"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
@@ -24,7 +26,6 @@ func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Ec
 	e.HidePort = true
 	e.HTTPErrorHandler = errorHandler(e.DefaultHTTPErrorHandler)
 
-	// basic middleware
 	logger := rlog.NewEcho()
 	e.Logger = logger
 	e.Use(
@@ -33,15 +34,17 @@ func initEcho(ctx context.Context, cfg *ServerConfig, handler *Handler) *echo.Ec
 		otelecho.Middleware("reearth-cms/worker"),
 	)
 
+	awsSNSSubscriptionConfirmationMiddleware := awsSNSSubscriptionConfirmationMiddleware()
+
 	api := e.Group("/api")
 
 	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, "pong") })
 
 	t := handler.DecompressHandler()
-	api.POST("/decompress", t)
+	api.POST("/decompress", t, awsSNSSubscriptionConfirmationMiddleware)
 
 	wh := handler.WebhookHandler()
-	api.POST("/webhook", wh)
+	api.POST("/webhook", wh, awsSNSSubscriptionConfirmationMiddleware)
 
 	return e
 }
@@ -88,6 +91,33 @@ func errorHandler(next func(error, echo.Context)) func(error, echo.Context) {
 			"error": msg,
 		}); err != nil {
 			next(err, c)
+		}
+	}
+}
+
+func handleSubscriptionConfirmation(c echo.Context) error {
+	var payload sns.Payload
+	if err := json.NewDecoder(c.Request().Body).Decode(&payload); err != nil {
+		rlog.Errorf("failed to decode request body: %s", err.Error())
+		return err
+	}
+
+	_, err := payload.Subscribe()
+	if err != nil {
+		rlog.Errorf("failed to verify payload: %s", err.Error())
+		return err
+	}
+
+	return c.JSON(http.StatusOK, "OK")
+}
+
+func awsSNSSubscriptionConfirmationMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			if c.Request().Header.Get("X-Amz-Sns-Message-Type") == "SubscriptionConfirmation" {
+				return handleSubscriptionConfirmation(c)
+			}
+			return next(c)
 		}
 	}
 }

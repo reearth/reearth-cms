@@ -20,6 +20,13 @@ func NotifyHandler() echo.HandlerFunc {
 		var input rhttp.NotifyInput
 		var err error
 
+		if isAWSSNSSubscriptionConfirmation(c.Request()) {
+			// Handle AWS SNS subscription confirmation
+			// This is used to handle requests for AWS SNS subscription confirmation and is only executed during initial setup
+			// https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.prepare.html
+			return handleSubscriptionConfirmation(c)
+		}
+
 		if isAWS(c.Request()) {
 			input, err = parseSNSMessage(c.Request().Body)
 		} else if isGCP(c.Request()) {
@@ -45,6 +52,26 @@ func NotifyHandler() echo.HandlerFunc {
 		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
 		return c.JSON(http.StatusOK, "OK")
 	}
+}
+
+func handleSubscriptionConfirmation(c echo.Context) error {
+	var payload sns.Payload
+	if err := json.NewDecoder(c.Request().Body).Decode(&payload); err != nil {
+		log.Errorf("failed to decode request body: %s", err.Error())
+		return err
+	}
+
+	_, err := payload.Subscribe()
+	if err != nil {
+		log.Errorf("failed to verify payload: %s", err.Error())
+		return err
+	}
+
+	return c.JSON(http.StatusOK, "OK")
+}
+
+func isAWSSNSSubscriptionConfirmation(request *http.Request) bool {
+	return request.Header.Get("X-Amz-Sns-Message-Type") == "SubscriptionConfirmation"
 }
 
 func isAWS(r *http.Request) bool {
