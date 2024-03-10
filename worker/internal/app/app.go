@@ -104,7 +104,7 @@ func handleSubscriptionConfirmation(c echo.Context) error {
 
 	_, err := payload.Subscribe()
 	if err != nil {
-		rlog.Errorf("failed to verify payload: %s", err.Error())
+		rlog.Errorf("failed to subscribe confirmation: %s", err.Error())
 		return err
 	}
 
