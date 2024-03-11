@@ -8,7 +8,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 
-import { itemFormat } from "./itemFormat";
+import ItemFormat from "./ItemFormat";
 
 export const renderField = (
   el: { props: { children: string | string[] } },
@@ -19,7 +19,7 @@ export const renderField = (
   const items = Array.isArray(value) ? value : [value];
 
   if ((field.type === "Bool" || field.type === "Checkbox") && !field.multiple) {
-    return itemFormat(items[0], field, update);
+    return <ItemFormat item={items[0]} field={field} update={update} />;
   } else if (field.type === "Tag") {
     const tags = field.typeProperty?.tags;
     const filteredTags = tags?.filter(tag => value.includes(tag.id)) || [];
@@ -47,8 +47,12 @@ export const renderField = (
       </StyledSelect>
     );
   } else if (value === "-") {
-    if ((field.type === "Text" || field.type === "Date") && !field.multiple && update) {
-      return itemFormat("", field, update);
+    if (
+      (field.type === "Text" || field.type === "Date" || field.type === "URL") &&
+      !field.multiple &&
+      update
+    ) {
+      return <ItemFormat item="" field={field} update={update} />;
     }
     return <span>-</span>;
   } else if (field.type === "Select") {
@@ -63,7 +67,11 @@ export const renderField = (
     const content = (
       <>
         {items.map((item, index) => {
-          return <Content key={index}>{itemFormat(item, field, update, index)}</Content>;
+          return (
+            <Content key={index}>
+              <ItemFormat item={item} field={field} update={update} index={index} />
+            </Content>
+          );
         })}
       </>
     );
@@ -76,7 +84,7 @@ export const renderField = (
       </Popover>
     );
   } else {
-    return itemFormat(items[0], field, update);
+    return <ItemFormat item={items[0]} field={field} update={update} />;
   }
 };
 
