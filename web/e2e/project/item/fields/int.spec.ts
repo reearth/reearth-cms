@@ -62,6 +62,7 @@ test("Int field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("int1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
@@ -122,6 +123,7 @@ test("Int field editing has succeeded", async ({ reearth, page }) => {
 
   await expect(page.getByText("new int1 *#new-int1(unique)")).toBeVisible();
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new int1");
   await expect(page.getByRole("cell", { name: "1", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByText("new int1(unique)Title")).toBeVisible();

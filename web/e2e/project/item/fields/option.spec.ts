@@ -96,6 +96,7 @@ test("Option field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("option1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByText("third")).toBeVisible();
   await page.getByText("third").click();
@@ -166,6 +167,7 @@ test("Option field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await expect(page.getByText("new option1 *#new-option1(")).toBeVisible();
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("option1");
   await expect(page.getByText("third")).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByText("new option1(unique)Title")).toBeVisible();

@@ -62,6 +62,7 @@ test("URL field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("url1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
@@ -94,6 +95,7 @@ test("URL field editing has succeeded", async ({ reearth, page }) => {
 
   await expect(page.getByText("new url1 *#new-url1(unique)")).toBeVisible();
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new url1");
   await expect(page.getByRole("cell", { name: "http://test1.com", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByText("new url1(unique)Title")).toBeVisible();

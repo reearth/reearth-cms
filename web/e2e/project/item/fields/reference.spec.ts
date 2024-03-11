@@ -79,6 +79,7 @@ test("One-way reference field creating and updating has succeeded", async ({ ree
   ).not.toBeEnabled();
   await page.getByLabel("Close", { exact: true }).click();
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("ref");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("p").filter({ hasText: "ref(unique)" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Refer to item" })).toBeVisible();
@@ -91,7 +92,7 @@ test("One-way reference field creating and updating has succeeded", async ({ ree
   await page.getByPlaceholder("input search text").fill("1");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByText("text1")).toBeVisible();
-  // await expect(page.getByText('text2')).not.toBeVisible();
+  await expect(page.getByText("text2")).not.toBeVisible();
   await page.getByRole("row").getByRole("button").nth(0).hover();
   await page.getByRole("row").getByRole("button").nth(0).click();
   await expect(page.locator("#root").getByText("text1")).toBeVisible();
@@ -226,7 +227,7 @@ test("Two-way reference field editing has succeeded", async ({ reearth, page }) 
   ).not.toBeEnabled();
   await page.getByLabel("Close", { exact: true }).click();
   await page.getByText("Content").click();
-
+  await expect(page.locator("thead")).toContainText("ref1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("p").filter({ hasText: "ref1" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Refer to item" })).toBeVisible();
@@ -263,6 +264,7 @@ test("Two-way reference field editing has succeeded", async ({ reearth, page }) 
     page.getByRole("cell", { name: "reference text2" }).locator("span").first(),
   ).toBeVisible();
   await page.getByText("ref model").click();
+  await expect(page.locator("thead")).toContainText("ref2");
   await expect(
     page.getByRole("cell", { name: "text1", exact: true }).locator("span").first(),
   ).toBeVisible();

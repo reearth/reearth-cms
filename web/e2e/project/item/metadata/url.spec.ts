@@ -34,6 +34,7 @@ test("Url metadata creating and updating has succeeded", async ({ reearth, page 
   await expect(page.getByLabel("Set default value")).toBeEmpty();
   await page.getByRole("button", { name: "Cancel" }).click();
   await page.getByText("Content").click();
+  await expect(page.getByLabel("edit").locator("svg")).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("url1");
   await expect(page.getByRole("main")).toContainText("url1 description");
@@ -52,6 +53,16 @@ test("Url metadata creating and updating has succeeded", async ({ reearth, page 
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByRole("link", { name: "http://test2.com" })).toBeVisible();
+
+  await page.getByRole("link", { name: "http://test2.com" }).hover();
+  await page.getByRole("tooltip", { name: "edit" }).locator("svg").click();
+  await page.getByPlaceholder("-").fill("http://test3.com");
+  await page.locator(".ant-table-body").click();
+  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
+  await closeNotification(page);
+  await expect(page.getByRole("link", { name: "http://test3.com" })).toBeVisible();
+  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await expect(page.getByLabel("url1")).toHaveValue("http://test3.com");
 
   await deleteProject(page);
 });
@@ -76,6 +87,7 @@ test("Url metadata editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("url1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByLabel("url1")).toHaveValue("http://default1.com");
   await page.getByRole("button", { name: "Save" }).click();
@@ -112,6 +124,7 @@ test("Url metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByLabel("Meta Data")).toContainText("new url1 *#new-url1(unique)");
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new url1");
   await expect(page.getByRole("link", { name: "http://default1.com" })).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByText("url1(unique)")).toBeVisible();
@@ -132,7 +145,15 @@ test("Url metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("tooltip").getByRole("link").nth(1)).toContainText(
     "http://default1.com",
   );
+
+  await page.getByRole("link", { name: "http://default2.com" }).hover();
+  await page.getByRole("tooltip", { name: "edit" }).locator("svg").click();
+  await page.getByPlaceholder("-").fill("http://new-default2.com");
+  await page.getByRole("tooltip").getByText("new url1").click();
+  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
+  await closeNotification(page);
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://new-default2.com");
   await page.getByRole("button", { name: "plus New" }).click();
   await page
     .locator("div")

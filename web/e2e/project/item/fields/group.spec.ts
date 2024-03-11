@@ -215,6 +215,7 @@ test("Group field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1 #group1");
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("group1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label").first()).toContainText("group1");
   await expect(page.getByRole("main")).toContainText("group1 description");
@@ -237,6 +238,7 @@ test("Group field editing has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert")).toContainText("Successfully updated field!");
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new group1");
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await expect(page.getByRole("main")).toContainText("new group1");
   await expect(page.getByRole("main")).toContainText("new group1 (1)");

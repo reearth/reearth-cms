@@ -61,6 +61,7 @@ test("Date field editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("date1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-01");
   await page.getByRole("button", { name: "Save" }).click();
@@ -96,6 +97,7 @@ test("Date field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await expect(page.getByText("new date1 *#new-date1(unique)")).toBeVisible();
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new date1");
   await expect(page.locator("tbody")).toContainText("2024-01-01");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("new date1(unique)Title");

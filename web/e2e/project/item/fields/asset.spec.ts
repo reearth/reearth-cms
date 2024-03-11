@@ -108,6 +108,7 @@ test("Asset field editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("asset1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
   await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
@@ -156,6 +157,7 @@ test("Asset field editing has succeeded", async ({ reearth, page }) => {
     "new asset1 *#new-asset1(unique)Title",
   );
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new asset1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("new asset1(unique)Title");
   await expect(page.getByRole("main")).toContainText("new asset1 description");

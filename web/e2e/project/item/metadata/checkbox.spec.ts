@@ -36,6 +36,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({ reearth, 
   await page.getByRole("button", { name: "Cancel" }).click();
 
   await page.getByText("Content").click();
+  await expect(page.getByLabel("edit").locator("svg")).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label").first()).toContainText("checkbox1");
   await expect(page.getByRole("main")).toContainText("checkbox1 description");
@@ -81,6 +82,7 @@ test("Checkbox metadata editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("checkbox1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByLabel("checkbox1")).toBeChecked();
   await page.getByRole("button", { name: "Save" }).click();
@@ -116,6 +118,7 @@ test("Checkbox metadata editing has succeeded", async ({ reearth, page }) => {
 
   await expect(page.getByLabel("Meta Data")).toContainText("new checkbox1 #new-checkbox1");
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new checkbox1");
   await expect(page.getByLabel("", { exact: true }).nth(1)).toBeChecked();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label").first()).toContainText("new checkbox1");

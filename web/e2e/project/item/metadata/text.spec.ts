@@ -37,6 +37,7 @@ test("Text metadata creating and updating has succeeded", async ({ reearth, page
   await expect(page.getByLabel("Set default value")).toBeEmpty();
   await page.getByRole("button", { name: "Cancel" }).click();
   await page.getByText("Content").click();
+  await expect(page.getByLabel("edit").locator("svg")).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("text1");
   await expect(page.getByRole("main")).toContainText("text1 description");
@@ -88,6 +89,7 @@ test("Text metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("text1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
@@ -131,6 +133,7 @@ test("Text metadata editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await expect(page.getByLabel("Meta Data")).toContainText("new text1 *#new-text1(unique)");
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new text1");
   await expect(page.getByPlaceholder("-")).toHaveValue("text1 default value");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("new text1(unique)");

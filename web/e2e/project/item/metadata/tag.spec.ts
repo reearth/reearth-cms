@@ -42,6 +42,7 @@ test("Tag metadata creating and updating has succeeded", async ({ reearth, page 
   await page.getByRole("button", { name: "Cancel" }).click();
 
   await page.getByText("Content").click();
+  await expect(page.getByLabel("edit").locator("svg")).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("tag1");
   await expect(page.getByRole("main")).toContainText("tag1 description");
@@ -121,6 +122,7 @@ test("Tag metadata editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("tag1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
@@ -163,6 +165,7 @@ test("Tag metadata editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await expect(page.getByLabel("Meta Data")).toContainText("new tag1 *#new-tag1(unique)");
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new tag1");
   await expect(page.getByText("Tag1", { exact: true })).not.toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("new tag1(unique)");

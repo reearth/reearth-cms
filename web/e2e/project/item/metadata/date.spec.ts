@@ -36,6 +36,7 @@ test("Date metadata creating and updating has succeeded", async ({ reearth, page
   await page.getByRole("button", { name: "Cancel" }).click();
 
   await page.getByText("Content").click();
+  await expect(page.getByLabel("edit").locator("svg")).toBeVisible();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("date1");
   await expect(page.getByRole("main")).toContainText("date1 description");
@@ -90,6 +91,7 @@ test("Date metadata editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("date1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-01");
   await page.getByRole("button", { name: "Save" }).click();
@@ -131,6 +133,7 @@ test("Date metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByText("new date1 *#new-date1(unique)")).toBeVisible();
 
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new date1");
   await expect(page.getByPlaceholder("-")).toHaveValue("2024-01-01");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByText("new date1(unique)")).toBeVisible();

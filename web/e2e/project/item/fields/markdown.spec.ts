@@ -39,6 +39,7 @@ test("Markdown field editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByLabel("Set default value")).toHaveValue("text1 default value");
   await page.getByRole("button", { name: "Cancel" }).click();
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("text1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("text1");
   await page.getByText("text1 description").click();
@@ -82,6 +83,7 @@ test("Markdown field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await expect(page.getByText("new text1 *#new-text1(unique)")).toBeVisible();
   await page.getByText("Content").click();
+  await expect(page.locator("thead")).toContainText("new text1");
   await page.locator(".ant-table-row > td:nth-child(9)").getByRole("button").click();
   await expect(page.getByRole("tooltip")).toContainText("text1text1 default value");
   await page.getByRole("button", { name: "plus New Item" }).click();
