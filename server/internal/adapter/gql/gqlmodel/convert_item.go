@@ -9,17 +9,11 @@ import (
 	"github.com/samber/lo"
 )
 
-func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
+func ToItem(vi item.Versioned, sp *schema.Package) *Item {
 	if vi == nil || vi.Value() == nil {
 		return nil
 	}
-
 	i := vi.Value()
-	itemFields := toItemFields(i.Fields(), s, false)
-	var groupFields []*ItemField
-	for _, s2 := range gsList {
-		groupFields = append(groupFields, toItemFields(i.Fields(), s2, true)...)
-	}
 	return &Item{
 		ID:                     IDFrom(i.ID()),
 		ProjectID:              IDFrom(i.Project()),
@@ -35,39 +29,26 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 		UpdatedByUserID:        IDFromRef(i.UpdatedByUser()),
 		CreatedAt:              i.ID().Timestamp(),
 		UpdatedAt:              i.Timestamp(),
-		Fields:                 append(itemFields, groupFields...),
+		Fields:                 toItemFields(i, sp),
 		Version:                vi.Version().String(),
-		Title:                  i.GetTitle(s),
+		Title:                  i.GetTitle(sp.Schema()),
 	}
 }
-func toItemFields(fields item.Fields, s *schema.Schema, isGroupSchema bool) []*ItemField {
+func toItemFields(item *item.Item, sp *schema.Package) []*ItemField {
 	var res []*ItemField
-	for _, sf := range s.Fields() {
-		var f item.Fields
-		if isGroupSchema {
-			f = lo.Filter(fields, func(itf *item.Field, _ int) bool {
-				return itf.FieldID() == sf.ID()
-			})
-		} else {
-			f = item.Fields{fields.Field(sf.ID())}
-		}
-		var v any = nil
-		for _, field := range f {
-			if f != nil {
-				v = ToValue(field.Value(), sf.Multiple())
-			}
-			res = append(res, &ItemField{
-				ItemGroupID:   IDFromRef(field.ItemGroup()),
-				SchemaFieldID: IDFrom(sf.ID()),
-				Type:          ToValueType(sf.Type()),
-				Value:         v,
-			})
-		}
+	for _, f := range item.NormalizedFields(sp) {
+		v := ToValue(f.Value(), sp.Field(f.FieldID()).Multiple())
+		res = append(res, &ItemField{
+			ItemGroupID:   IDFromRef(f.ItemGroup()),
+			SchemaFieldID: IDFrom(f.FieldID()),
+			Type:          ToValueType(f.Type()),
+			Value:         v,
+		})
 	}
 	return res
 }
 
-func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema, gsList schema.List) *VersionedItem {
+func ToVersionedItem(v *version.Value[*item.Item], sp *schema.Package) *VersionedItem {
 	if v == nil {
 		return nil
 	}
@@ -82,7 +63,7 @@ func ToVersionedItem(v *version.Value[*item.Item], s *schema.Schema, gsList sche
 		Version: v.Version().String(),
 		Parents: parents,
 		Refs:    refs,
-		Value:   ToItem(v, s, gsList),
+		Value:   ToItem(v, sp),
 	}
 }
 

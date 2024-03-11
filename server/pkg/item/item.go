@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -19,16 +18,16 @@ type Item struct {
 	schema               SchemaID
 	model                ModelID
 	project              ProjectID
-	fields               []*Field
+	fields               Fields
 	timestamp            time.Time
 	thread               ThreadID
-	isMetadata           bool
 	user                 *UserID
+	integration          *IntegrationID
 	updatedByUser        *UserID
 	updatedByIntegration *IntegrationID
+	isMetadata           bool
 	metadataItem         *id.ItemID
 	originalItem         *id.ItemID
-	integration          *IntegrationID
 }
 
 type Versioned = *version.Value[*Item]
@@ -47,6 +46,48 @@ func (i *Item) Integration() *IntegrationID {
 
 func (i *Item) Fields() Fields {
 	return slices.Clone(i.fields)
+}
+
+func (i *Item) NormalizedFields(sp *schema.Package) Fields {
+	if sp == nil {
+		return nil
+	}
+	nf := lo.Map(sp.Schema().Fields(), func(sf *schema.Field, _ int) *Field {
+		if f := i.Field(sf.ID()); f != nil {
+			return f
+		}
+		return NewField(sf.ID(), value.NewMultiple(sf.Type(), nil), nil)
+	})
+	for _, gsf := range sp.Schema().FieldsByType(value.TypeGroup) {
+		var gID schema.GroupID
+		gsf.TypeProperty().Match(schema.TypePropertyMatch{
+			Group: func(g *schema.FieldGroup) {
+				gID = g.Group()
+			},
+		})
+
+		gf := i.Field(gsf.ID())
+		if gf.Value().IsEmpty() {
+			continue
+		}
+		igIDs, ok := gf.Value().ValuesGroup()
+		if !ok {
+			continue
+		}
+		for _, igID := range igIDs {
+			for _, gsf := range sp.GroupSchema(gID).Fields() {
+				f := i.FieldByItemGroupAndID(gsf.ID(), igID)
+				if f == nil {
+					f = NewField(gsf.ID(), value.NewMultiple(gsf.Type(), nil), &igID)
+				}
+				nf = append(nf, f)
+			}
+			if !gsf.Multiple() {
+				break
+			}
+		}
+	}
+	return nf
 }
 
 func (i *Item) Project() ProjectID {
@@ -77,10 +118,7 @@ func (i *Item) OriginalItem() *ID {
 }
 
 func (i *Item) Field(f FieldID) *Field {
-	ff, _ := lo.Find(i.fields, func(g *Field) bool {
-		return g.FieldID() == f
-	})
-	return ff
+	return i.fields.Field(f)
 }
 
 func (i *Item) FieldByItemGroupAndID(fid FieldID, igID ItemGroupID) *Field {
