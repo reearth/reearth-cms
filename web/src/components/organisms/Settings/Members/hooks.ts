@@ -36,7 +36,7 @@ export default () => {
   const [searchedUserList, changeSearchedUserList] = useState<User[]>([]);
 
   const { data, loading } = useGetWorkspacesQuery();
-  const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace.id };
+  const me = { id: data?.me?.id, myWorkspace: data?.me?.myWorkspace?.id };
   const workspaces = data?.me?.workspaces as Workspace[];
   const workspaceId = currentWorkspace?.id;
 

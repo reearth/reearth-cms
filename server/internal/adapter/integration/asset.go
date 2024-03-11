@@ -169,9 +169,11 @@ func (s *Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (A
 func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreateRequestObject) (AssetUploadCreateResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
-	url, token, contentType, err := uc.Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
-		ProjectID: request.ProjectId,
-		Filename:  lo.FromPtr(request.Body.Name),
+	au, err := uc.Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
+		ProjectID:     request.ProjectId,
+		Filename:      lo.FromPtr(request.Body.Name),
+		ContentLength: int64(lo.FromPtr(request.Body.ContentLength)),
+		Cursor:        lo.FromPtr(request.Body.Cursor),
 	}, op)
 
 	if err != nil {
@@ -182,8 +184,10 @@ func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreat
 	}
 
 	return AssetUploadCreate200JSONResponse{
-		Url:         &url,
-		Token:       &token,
-		ContentType: &contentType,
+		Url:           &au.URL,
+		Token:         &au.UUID,
+		ContentType:   &au.ContentType,
+		ContentLength: lo.ToPtr(int(au.ContentLength)),
+		Next:          &au.Next,
 	}, nil
 }

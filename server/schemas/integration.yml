@@ -571,6 +571,10 @@ paths:
               properties:
                 name:
                   type: string
+                contentLength:
+                  type: integer
+                cursor:
+                  type: string
       responses:
         '200':
           description: asset upload
@@ -584,6 +588,10 @@ paths:
                   token:
                     type: string
                   contentType:
+                    type: string
+                  contentLength:
+                    type: integer
+                  next:
                     type: string
         '400':
           description: Invalid request parameter value

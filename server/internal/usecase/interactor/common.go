@@ -30,7 +30,7 @@ func New(r *repo.Container, g *gateway.Container,
 	return interfaces.Container{
 		Asset:             NewAsset(r, g),
 		Workspace:         accountinteractor.NewWorkspace(ar, nil),
-		User:              accountinteractor.NewUser(ar, ag, config.SignupSecret, config.AuthSrvUIDomain),
+		User:              accountinteractor.NewMultiUser(ar, ag, config.SignupSecret, config.AuthSrvUIDomain, ar.Users),
 		Project:           NewProject(r, g),
 		Item:              NewItem(r, g),
 		View:              NewView(r, g),
