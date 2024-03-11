@@ -63,7 +63,7 @@ export const GET_ASSET_ITEM = gql`
   query GetAssetItem($assetId: ID!) {
     node(id: $assetId, type: ASSET) {
       ... on Asset {
-        id
+        ...assetFragment
         items {
           itemId
           modelId
