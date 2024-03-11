@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
+import { renderTitle } from "@reearth-cms/components/molecules/Content/RenderTitle";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import {
   ContentTableField,
@@ -278,6 +279,21 @@ export default () => {
       .filter((contentTableField): contentTableField is ContentTableField => !!contentTableField);
   }, [data?.searchItem.nodes, fieldsGet, metadataGet]);
 
+  const sortOrderGet = useCallback(
+    (fieldId: string) => {
+      if (fieldId === currentView.sort?.field.id) {
+        if (currentView.sort?.direction === "ASC") {
+          return "ascend" as const;
+        } else {
+          return "descend" as const;
+        }
+      } else {
+        return null;
+      }
+    },
+    [currentView.sort?.direction, currentView.sort?.field.id],
+  );
+
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
@@ -293,18 +309,13 @@ export default () => {
       multiple: field.multiple,
       required: field.required,
       sorter: true,
-      sortOrder:
-        currentView.sort?.field.id === field.id
-          ? currentView.sort?.direction === "ASC"
-            ? ("ascend" as const)
-            : ("descend" as const)
-          : null,
+      sortOrder: sortOrderGet(field.id),
       render: (el: any) => renderField(el, field),
     }));
 
     const metadataColumns =
       currentModel?.metadataSchema?.fields?.map(field => ({
-        title: field.title,
+        title: renderTitle(field),
         dataIndex: ["metadata", field.id],
         fieldType: "META_FIELD",
         key: field.id,
@@ -316,12 +327,7 @@ export default () => {
         multiple: field.multiple,
         required: field.required,
         sorter: true,
-        sortOrder:
-          currentView.sort?.field.id === field.id
-            ? currentView.sort?.direction === "ASC"
-              ? ("ascend" as const)
-              : ("descend" as const)
-            : null,
+        sortOrder: sortOrderGet(field.id),
         render: (el: any, record: ContentTableField) => {
           return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
             handleMetaItemUpdate(record.id, record.version, field.id, value, index);
@@ -330,7 +336,7 @@ export default () => {
       })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
-  }, [currentModel, currentView.sort?.direction, currentView.sort?.field.id, handleMetaItemUpdate]);
+  }, [currentModel, handleMetaItemUpdate, sortOrderGet]);
 
   useEffect(() => {
     if (!modelId && currentModel?.id) {

@@ -2,6 +2,7 @@ package schema
 
 import (
 	"errors"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -34,6 +35,30 @@ func (s *Schema) Project() ProjectID {
 
 func (s *Schema) SetWorkspace(workspace accountdomain.WorkspaceID) {
 	s.workspace = workspace
+}
+
+func (s *Schema) ReferencedSchemas() IDList {
+	return lo.Map(s.FieldsByType(value.TypeReference), func(f *Field, _ int) ID {
+		var sID ID
+		f.TypeProperty().Match(TypePropertyMatch{
+			Reference: func(rf *FieldReference) {
+				sID = rf.Schema()
+			},
+		})
+		return sID
+	})
+}
+
+func (s *Schema) Groups() GroupIDList {
+	return lo.Map(s.FieldsByType(value.TypeGroup), func(f *Field, _ int) id.GroupID {
+		var gID id.GroupID
+		f.TypeProperty().Match(TypePropertyMatch{
+			Group: func(f *FieldGroup) {
+				gID = f.Group()
+			},
+		})
+		return gID
+	})
 }
 
 func (s *Schema) HasField(f FieldID) bool {

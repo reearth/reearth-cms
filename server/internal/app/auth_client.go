@@ -16,7 +16,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/account/accountusecase/accountinteractor"
-	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -55,12 +54,8 @@ func attachUserOperator(ctx context.Context, req *http.Request, cfg *ServerConfi
 
 	if ai := adapter.GetAuthInfo(ctx); ai != nil {
 		var err error
-		userUsecase := accountinteractor.NewUser(cfg.AcRepos, cfg.AcGateways, cfg.Config.SignupSecret, cfg.Config.Host_Web)
-		u, err = userUsecase.FindOrCreate(ctx, accountinterfaces.UserFindOrCreateParam{
-			Sub:   ai.Sub,
-			ISS:   ai.Iss,
-			Token: ai.Token,
-		})
+		userUsecase := accountinteractor.NewMultiUser(cfg.AcRepos, cfg.AcGateways, cfg.Config.SignupSecret, cfg.Config.Host_Web, cfg.AcRepos.Users)
+		u, err = userUsecase.FetchBySub(ctx, ai.Sub)
 		if err != nil {
 			return nil, err
 		}
@@ -170,7 +165,7 @@ func M2MAuthMiddleware(email string) echo.MiddlewareFunc {
 				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
 					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 				}
-				op, err := generateMachineOperator(ctx)
+				op, err := generateMachineOperator()
 				if err != nil {
 					return err
 				}
@@ -319,7 +314,7 @@ func generateIntegrationOperator(ctx context.Context, cfg *ServerConfig, i *inte
 	}, nil
 }
 
-func generateMachineOperator(ctx context.Context) (*usecase.Operator, error) {
+func generateMachineOperator() (*usecase.Operator, error) {
 	return &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User: nil,

@@ -29,7 +29,7 @@ var (
 	iId1 = accountdomain.NewIntegrationID()
 	iId2 = accountdomain.NewIntegrationID()
 	iId3 = accountdomain.NewIntegrationID()
-	rid = workspacesettings.NewResourceID()
+	rid  = workspacesettings.NewResourceID()
 	rid2 = workspacesettings.NewResourceID()
 )
 
@@ -127,12 +127,18 @@ func TestCreateWorkspace(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
+	e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object()
-	o.Value("data").Object().Value("createWorkspace").Object().Value("workspace").Object().Value("name").String().IsEqual("test")
+		WithBytes(jsonData).
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object().
+		Value("data").Object().
+		Value("createWorkspace").Object().
+		Value("workspace").Object().
+		Value("name").String().IsEqual("test")
 }
 
 func TestDeleteWorkspace(t *testing.T) {

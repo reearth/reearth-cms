@@ -35,7 +35,8 @@ type Config struct {
 	Task         gcp.TaskConfig
 	AWSTask      aws.TaskConfig
 	AssetBaseURL string
-	Web          WebConfig
+	Web          map[string]string
+	Web_Config   JSON
 	Web_Disabled bool
 	// auth
 	Auth          AuthConfigs
@@ -51,6 +52,7 @@ type Config struct {
 	AuthM2M AuthM2MConfig
 
 	DB_Account string
+	DB_Users   []appx.NamedURI
 }
 
 type AuthConfig struct {
@@ -115,7 +117,7 @@ type AuthM2MConfig struct {
 	JWKSURI *string
 }
 
-func (c Config) Auths() (res AuthConfigs) {
+func (c *Config) Auths() (res AuthConfigs) {
 	if cc := c.Cognito.Configs(); cc != nil {
 		return cc
 	}
@@ -141,11 +143,11 @@ func (c Config) Auths() (res AuthConfigs) {
 	return append(res, c.Auth...)
 }
 
-func (c Config) JWTProviders() (res []appx.JWTProvider) {
+func (c *Config) JWTProviders() (res []appx.JWTProvider) {
 	return c.Auths().JWTProviders()
 }
 
-func (c Config) AuthForWeb() *AuthConfig {
+func (c *Config) AuthForWeb() *AuthConfig {
 	if ac := c.Auth0.AuthConfigForWeb(); ac != nil {
 		return ac
 	}
@@ -287,7 +289,7 @@ func ReadConfig(debug bool) (*Config, error) {
 	return &c, err
 }
 
-func (c Config) Print() string {
+func (c *Config) Print() string {
 	s := fmt.Sprintf("%+v", c)
 	for _, secret := range []string{c.DB, c.Auth0.ClientSecret} {
 		if secret == "" {
@@ -304,4 +306,56 @@ func prepareUrl(url string) string {
 	}
 	url = strings.TrimSuffix(url, "/")
 	return url
+}
+
+func (c *Config) WebConfig() map[string]any {
+	config := make(map[string]any)
+
+	if ac := c.AuthForWeb(); ac != nil {
+		if ac.ISS != "" {
+			config["auth0Domain"] = strings.TrimSuffix(ac.ISS, "/")
+		}
+		if ac.ClientID != nil {
+			config["auth0ClientId"] = *ac.ClientID
+		}
+		if len(ac.AUD) > 0 {
+			config["auth0Audience"] = ac.AUD[0]
+		}
+	}
+
+	for k, v := range c.Web {
+		config[k] = v
+	}
+	if m := c.Web_Config.Object(); m != nil {
+		for k, v := range m {
+			config[k] = v
+		}
+	}
+
+	return config
+}
+
+type JSON struct {
+	Data any
+}
+
+func (j *JSON) Decode(value string) error {
+	if value == "" {
+		return nil
+	}
+	return json.Unmarshal([]byte(value), &j.Data)
+}
+
+func (j *JSON) Object() map[string]any {
+	if j == nil {
+		return nil
+	}
+	if m, ok := j.Data.(map[string]any); ok {
+		w := make(map[string]any)
+		for k, v := range m {
+			w[k] = v
+		}
+		return w
+	}
+	return nil
 }

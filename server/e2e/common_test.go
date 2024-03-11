@@ -44,7 +44,7 @@ func StartServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Se
 	if useMongo {
 		db := mongotest.Connect(t)(t)
 		log.Infof("test: new db created with name: %v", db.Name())
-		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false))
+		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
 		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
 	} else {
 		repos = memory.New()
@@ -120,7 +120,7 @@ func StartGQLServerAndRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder
 	if useMongo {
 		db := mongotest.Connect(t)(t)
 		log.Infof("test: new db created with name: %v", db.Name())
-		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false))
+		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
 		repos = lo.Must(mongo.New(ctx, db.Client(), db.Name(), false, accountRepos))
 	} else {
 		repos = memory.New()
