@@ -8,6 +8,7 @@ import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverte
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
   useGetModelsQuery,
+  useGetModelQuery,
   useGetGroupsQuery,
   useCreateModelMutation,
   useUpdateModelsOrderMutation,
@@ -27,7 +28,7 @@ type Params = {
 
 export default ({ modelId, groupId }: Params) => {
   const t = useT();
-  const [currentModel, setCurrentModel] = useModel();
+  const [, setCurrentModel] = useModel();
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
   const navigate = useNavigate();
@@ -60,19 +61,20 @@ export default ({ modelId, groupId }: Params) => {
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
-  const rawModel = useMemo(
-    () => data?.models.nodes?.find(node => node?.id === modelId),
-    [data, modelId],
-  );
+  const { data: modelData } = useGetModelQuery({
+    fetchPolicy: "cache-and-network",
+    variables: { id: modelId ?? "" },
+    skip: !modelId,
+  });
 
   const model = useMemo<Model | undefined>(
-    () => (rawModel?.id ? fromGraphQLModel(rawModel as GQLModel) : undefined),
-    [rawModel],
+    () => fromGraphQLModel(modelData?.node as GQLModel),
+    [modelData?.node],
   );
 
   useEffect(() => {
     setCurrentModel(model ?? undefined);
-  }, [model, currentModel, modelId, setCurrentModel]);
+  }, [model, setCurrentModel]);
 
   const [createNewModel] = useCreateModelMutation({
     refetchQueries: ["GetModels"],
