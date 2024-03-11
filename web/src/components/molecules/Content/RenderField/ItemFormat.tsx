@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import moment from "moment";
+import { useCallback, useState, FocusEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -9,16 +10,31 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat, transformMomentToString } from "@reearth-cms/utils/format";
+import { validateURL } from "@reearth-cms/utils/regex";
 
-export const itemFormat = (
-  item: string,
-  field: Field,
-  update?: (value: string | boolean, index?: number) => void,
-  index?: number,
-) => {
+type Props = {
+  item: string;
+  field: Field;
+  update?: (value: string | boolean, index?: number) => void;
+  index?: number;
+};
+
+export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
+  const [isEditable, setIsEditable] = useState(false);
+
+  const handleUrlBlur = useCallback(
+    (e: FocusEvent<HTMLInputElement>) => {
+      if (e.target.value && !validateURL(e.target.value)) return;
+      update?.(e.target.value, index);
+      setIsEditable(false);
+    },
+    [index, update],
+  );
+
   switch (field.type) {
     case "Text":
       return update ? (
@@ -84,7 +100,30 @@ export const itemFormat = (
         </AssetValue>
       );
     case "URL":
-      return (
+      return update ? (
+        !item || isEditable ? (
+          <StyledInput
+            defaultValue={item}
+            placeholder="-"
+            autoFocus={isEditable}
+            onBlur={handleUrlBlur}
+          />
+        ) : (
+          <Tooltip
+            showArrow={false}
+            placement="right"
+            color="#fff"
+            overlayStyle={{ paddingLeft: 0 }}
+            overlayInnerStyle={{ transform: "translateX(-40px)" }}
+            title={<Icon color="#1890ff" icon={"edit"} onClick={() => setIsEditable(true)} />}>
+            <UrlWrapper>
+              <a href={item} target="_blank" rel="noreferrer">
+                {item}
+              </a>
+            </UrlWrapper>
+          </Tooltip>
+        )
+      ) : (
         <a href={item} target="_blank" rel="noreferrer">
           {item}
         </a>
@@ -183,3 +222,11 @@ const StyledDatePicker = styled(DatePicker)`
     border-color: #40a9ff;
   }
 `;
+
+const UrlWrapper = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export default ItemFormat;
