@@ -5,7 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, {
+import {
   ProColumns,
   ListToolBarProps,
   OptionConfig,
@@ -15,6 +15,7 @@ import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import {
   AssetSortType,
@@ -22,6 +23,8 @@ import {
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+
+type StretchColumn = ProColumns<Asset> & { minWidth: number };
 
 type Props = {
   visible: boolean;
@@ -124,13 +127,15 @@ const LinkAssetModal: React.FC<Props> = ({
     [onChange, onLinkAssetModalCancel, onSelect],
   );
 
-  const columns: ProColumns<Asset>[] = useMemo(
+  const columns: StretchColumn[] = useMemo(
     () => [
       {
         title: "",
         hideInSetting: true,
         fixed: "left",
+        align: "center",
         width: 48,
+        minWidth: 48,
         render: (_, asset) => {
           const isLink =
             (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
@@ -150,38 +155,50 @@ const LinkAssetModal: React.FC<Props> = ({
         title: t("File"),
         dataIndex: "fileName",
         key: "fileName",
+        ellipsis: true,
+        width: 170,
+        minWidth: 170,
       },
       {
         title: t("Size"),
         dataIndex: "size",
         key: "size",
         render: (_text, record) => bytesFormat(record.size),
+        ellipsis: true,
         width: 130,
+        minWidth: 130,
       },
       {
         title: t("Preview Type"),
         dataIndex: "previewType",
         key: "previewType",
+        ellipsis: true,
         width: 130,
+        minWidth: 130,
       },
       {
         title: t("Created At"),
         dataIndex: "createdAt",
         key: "createdAt",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
       {
         title: t("Created By"),
         dataIndex: "createdBy",
         key: "createdBy",
-        width: 130,
+        ellipsis: true,
+        width: 100,
+        minWidth: 100,
       },
     ],
     [hoveredAssetId, linkedAsset?.id, onLinkClick, t],
   );
 
   return (
-    <Modal
+    <StyledModal
       title={t("Link Asset")}
       centered
       open={visible}
@@ -214,11 +231,10 @@ const LinkAssetModal: React.FC<Props> = ({
         position: "relative",
         padding: "12px",
       }}>
-      <StyledProTable
+      <ResizableProTable
         dataSource={assetList}
         columns={columns}
         search={false}
-        rowKey="id"
         options={options}
         pagination={pagination}
         toolbar={toolbar}
@@ -232,15 +248,15 @@ const LinkAssetModal: React.FC<Props> = ({
               : undefined,
           );
         }}
-        scroll={{ x: "max-content", y: 330 }}
+        heightOffset={0}
       />
-    </Modal>
+    </StyledModal>
   );
 };
 
 export default LinkAssetModal;
 
-const StyledProTable = styled(ProTable)`
+const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {
