@@ -30,6 +30,7 @@ test("Name and email has updated", async ({ reearth, page }) => {
     .click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated user!");
   await closeNotification(page);
+  await expect(page.locator("header")).toContainText(username);
 });
 
 test("Language has updated from English to Japanese", async ({ reearth, page }) => {
