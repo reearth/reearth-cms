@@ -135,14 +135,18 @@ const LinkItemRequestModal: React.FC<Props> = ({
     [selectedRequestId, setSelectedRequestId, t],
   );
 
-  const options = {
-    reload: onRequestTableReload,
-  };
+  const options = useMemo(
+    () => ({
+      reload: onRequestTableReload,
+    }),
+    [onRequestTableReload],
+  );
 
   const toolbar = {
     search: (
       <Input.Search
-        placeholder={t("Please enter")}
+        allowClear
+        placeholder={t("input search text")}
         onSearch={onRequestSearchTerm}
         key={+resetFlag.current}
       />

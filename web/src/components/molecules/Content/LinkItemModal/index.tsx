@@ -152,11 +152,7 @@ const LinkItemModal: React.FC<Props> = ({
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {
-            if (value) {
-              onSearchTerm(value);
-            } else {
-              onSearchTerm();
-            }
+            onSearchTerm(value);
           }}
           value={value}
           onChange={handleInput}

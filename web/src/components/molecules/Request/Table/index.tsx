@@ -1,10 +1,11 @@
 import styled from "@emotion/styled";
-import { Key } from "react";
+import { Key, useMemo, useCallback } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import {
   ListToolBarProps,
   ProColumns,
@@ -42,7 +43,6 @@ type Props = {
     reviewedByMe?: boolean,
   ) => void;
   totalCount: number;
-  searchTerm: string;
   reviewedByMe: boolean;
   createdByMe: boolean;
   requestState: RequestState[];
@@ -63,7 +63,6 @@ const RequestListTable: React.FC<Props> = ({
   onRequestDelete,
   onRequestTableChange,
   totalCount,
-  searchTerm,
   reviewedByMe,
   createdByMe,
   requestState,
@@ -72,194 +71,211 @@ const RequestListTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: StretchColumn[] = [
-    {
-      title: "",
-      render: (_, request) => (
-        <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
-      ),
-      width: 48,
-      minWidth: 48,
-      align: "center",
-    },
-    {
-      title: () => <Icon icon="message" />,
-      dataIndex: "commentsCount",
-      key: "commentsCount",
-      render: (_, request) => {
-        return (
-          <CommentsButton type="link" onClick={() => onRequestSelect(request.id)}>
-            <CustomTag
-              value={request.comments?.length || 0}
-              color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
-            />
-          </CommentsButton>
-        );
+  const columns: StretchColumn[] = useMemo(
+    () => [
+      {
+        title: "",
+        render: (_, request) => (
+          <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
+        ),
+        width: 48,
+        minWidth: 48,
+        align: "center",
       },
-      width: 48,
-      minWidth: 48,
-      align: "center",
-    },
-    {
-      title: t("Title"),
-      dataIndex: "title",
-      key: "title",
-      width: 100,
-      minWidth: 100,
-      ellipsis: true,
-    },
-    {
-      title: t("State"),
-      dataIndex: "requestState",
-      key: "requestState",
-      render: (_, request) => {
-        let color = "";
-        let text = t("DRAFT");
-        switch (request.state) {
-          case "APPROVED":
-            color = "#52C41A";
-            text = t("APPROVED");
-            break;
-          case "CLOSED":
-            color = "#F5222D";
-            text = t("CLOSED");
-            break;
-          case "WAITING":
-            color = "#FA8C16";
-            text = t("WAITING");
-            break;
-          case "DRAFT":
-          default:
-            break;
-        }
-        return <Badge color={color} text={text} />;
-      },
-      filters: [
-        { text: t("WAITING"), value: "WAITING" },
-        { text: t("APPROVED"), value: "APPROVED" },
-        { text: t("CLOSED"), value: "CLOSED" },
-        { text: t("DRAFT"), value: "DRAFT" },
-      ],
-      defaultFilteredValue: requestState,
-      width: 100,
-      minWidth: 100,
-    },
-    {
-      title: t("Created By"),
-      dataIndex: "createdBy.name",
-      key: "createdBy",
-      render: (_, request) => (
-        <Space>
-          <UserAvatar username={request.createdBy?.name} size={"small"} />
-          {request.createdBy?.name}
-        </Space>
-      ),
-      valueEnum: {
-        all: { text: "All", status: "Default" },
-        createdByMe: {
-          text: t("Current user"),
+      {
+        title: () => <Icon icon="message" />,
+        dataIndex: "commentsCount",
+        key: "commentsCount",
+        render: (_, request) => {
+          return (
+            <CommentsButton type="link" onClick={() => onRequestSelect(request.id)}>
+              <CustomTag
+                value={request.comments?.length || 0}
+                color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
+              />
+            </CommentsButton>
+          );
         },
+        width: 48,
+        minWidth: 48,
+        align: "center",
       },
-      filters: true,
-      defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
-      width: 105,
-      minWidth: 105,
-      ellipsis: true,
-    },
-    {
-      title: t("Reviewers"),
-      dataIndex: "reviewers.name",
-      key: "reviewers",
-      render: (_, request) => (
-        <Space>
-          <div>
-            {request.reviewers
-              .filter((_, index) => index < 3)
-              .map(reviewer => (
-                <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
-              ))}
-          </div>
-          {request.reviewers.map(reviewer => reviewer.name).join(", ")}
-        </Space>
-      ),
-      valueEnum: {
-        all: { text: "All", status: "Default" },
-        reviewedByMe: {
-          text: t("Current user"),
+      {
+        title: t("Title"),
+        dataIndex: "title",
+        key: "title",
+        width: 100,
+        minWidth: 100,
+        ellipsis: true,
+      },
+      {
+        title: t("State"),
+        dataIndex: "requestState",
+        key: "requestState",
+        render: (_, request) => {
+          let color = "";
+          let text = t("DRAFT");
+          switch (request.state) {
+            case "APPROVED":
+              color = "#52C41A";
+              text = t("APPROVED");
+              break;
+            case "CLOSED":
+              color = "#F5222D";
+              text = t("CLOSED");
+              break;
+            case "WAITING":
+              color = "#FA8C16";
+              text = t("WAITING");
+              break;
+            case "DRAFT":
+            default:
+              break;
+          }
+          return <Badge color={color} text={text} />;
         },
+        filters: [
+          { text: t("WAITING"), value: "WAITING" },
+          { text: t("APPROVED"), value: "APPROVED" },
+          { text: t("CLOSED"), value: "CLOSED" },
+          { text: t("DRAFT"), value: "DRAFT" },
+        ],
+        defaultFilteredValue: requestState,
+        width: 100,
+        minWidth: 100,
       },
-      filters: true,
-      defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
-      width: 105,
-      minWidth: 105,
-      ellipsis: true,
-    },
-    {
-      title: t("Created At"),
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (_text, record) => dateTimeFormat(record.createdAt),
-      width: 150,
-      minWidth: 150,
-    },
-    {
-      title: t("Updated At"),
-      dataIndex: "updatedAt",
-      key: "updatedAt",
-      render: (_text, record) => dateTimeFormat(record.createdAt),
-      width: 150,
-      minWidth: 150,
-    },
-  ];
-
-  const options: OptionConfig = {
-    search: true,
-    fullScreen: true,
-    reload: onRequestsReload,
-  };
-
-  const pagination: TablePaginationConfig = {
-    showSizeChanger: true,
-    current: page,
-    total: totalCount,
-    pageSize: pageSize,
-  };
-
-  const rowSelection: TableRowSelection = {
-    selectedRowKeys: selection.selectedRowKeys,
-    onChange: (selectedRowKeys: any) => {
-      setSelection({
-        ...selection,
-        selectedRowKeys: selectedRowKeys,
-      });
-    },
-  };
-
-  const handleToolbarEvents: ListToolBarProps | undefined = {
-    search: {
-      defaultValue: searchTerm,
-      onSearch: (value: string) => {
-        if (value) {
-          onSearchTerm(value);
-        } else {
-          onSearchTerm();
-        }
+      {
+        title: t("Created By"),
+        dataIndex: "createdBy.name",
+        key: "createdBy",
+        render: (_, request) => (
+          <Space>
+            <UserAvatar username={request.createdBy?.name} size={"small"} />
+            {request.createdBy?.name}
+          </Space>
+        ),
+        valueEnum: {
+          all: { text: "All", status: "Default" },
+          createdByMe: {
+            text: t("Current user"),
+          },
+        },
+        filters: true,
+        defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
+        width: 105,
+        minWidth: 105,
+        ellipsis: true,
       },
-    },
-  };
+      {
+        title: t("Reviewers"),
+        dataIndex: "reviewers.name",
+        key: "reviewers",
+        render: (_, request) => (
+          <Space>
+            <div>
+              {request.reviewers
+                .filter((_, index) => index < 3)
+                .map(reviewer => (
+                  <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
+                ))}
+            </div>
+            {request.reviewers.map(reviewer => reviewer.name).join(", ")}
+          </Space>
+        ),
+        valueEnum: {
+          all: { text: "All", status: "Default" },
+          reviewedByMe: {
+            text: t("Current user"),
+          },
+        },
+        filters: true,
+        defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
+        width: 105,
+        minWidth: 105,
+        ellipsis: true,
+      },
+      {
+        title: t("Created At"),
+        dataIndex: "createdAt",
+        key: "createdAt",
+        render: (_text, record) => dateTimeFormat(record.createdAt),
+        width: 150,
+        minWidth: 150,
+      },
+      {
+        title: t("Updated At"),
+        dataIndex: "updatedAt",
+        key: "updatedAt",
+        render: (_text, record) => dateTimeFormat(record.createdAt),
+        width: 150,
+        minWidth: 150,
+      },
+    ],
+    [createdByMe, onEdit, onRequestSelect, requestState, reviewedByMe, selectedRequest?.id, t],
+  );
 
-  const AlertOptions = (props: any) => {
-    return (
-      <Space size={16}>
-        <DeselectButton onClick={props.onCleanSelected}>
-          <Icon icon="clear" /> {t("Deselect")}
-        </DeselectButton>
-        <DeleteButton onClick={() => onRequestDelete?.(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Close")}
-        </DeleteButton>
-      </Space>
-    );
-  };
+  const options: OptionConfig = useMemo(
+    () => ({
+      search: true,
+      fullScreen: true,
+      reload: onRequestsReload,
+    }),
+    [onRequestsReload],
+  );
+
+  const pagination: TablePaginationConfig = useMemo(
+    () => ({
+      showSizeChanger: true,
+      current: page,
+      total: totalCount,
+      pageSize: pageSize,
+    }),
+    [page, pageSize, totalCount],
+  );
+
+  const rowSelection: TableRowSelection = useMemo(
+    () => ({
+      selectedRowKeys: selection.selectedRowKeys,
+      onChange: (selectedRowKeys: any) => {
+        setSelection({
+          ...selection,
+          selectedRowKeys: selectedRowKeys,
+        });
+      },
+    }),
+    [selection, setSelection],
+  );
+
+  const handleToolbarEvents: ListToolBarProps = useMemo(
+    () => ({
+      search: (
+        <Input.Search
+          allowClear
+          placeholder={t("input search text")}
+          onSearch={(value: string) => {
+            onSearchTerm(value);
+          }}
+        />
+      ),
+    }),
+    [onSearchTerm, t],
+  );
+
+  const AlertOptions = useCallback(
+    (props: any) => {
+      return (
+        <Space size={16}>
+          <DeselectButton onClick={props.onCleanSelected}>
+            <Icon icon="clear" /> {t("Deselect")}
+          </DeselectButton>
+          <DeleteButton onClick={() => onRequestDelete?.(props.selectedRowKeys)}>
+            <Icon icon="delete" /> {t("Close")}
+          </DeleteButton>
+        </Space>
+      );
+    },
+    [onRequestDelete, t],
+  );
 
   return (
     <ResizableProTable

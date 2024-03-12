@@ -167,7 +167,6 @@ export default () => {
     handleRequestsReload,
     handleRequestDelete,
     handleSearchTerm,
-    searchTerm,
     reviewedByMe,
     createdByMe,
     requestState,
