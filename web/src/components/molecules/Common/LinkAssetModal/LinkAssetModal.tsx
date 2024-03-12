@@ -128,6 +128,9 @@ const LinkAssetModal: React.FC<Props> = ({
     () => [
       {
         title: "",
+        hideInSetting: true,
+        fixed: "left",
+        width: 48,
         render: (_, asset) => {
           const isLink =
             (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||

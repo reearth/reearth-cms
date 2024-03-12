@@ -59,6 +59,9 @@ const LinkItemRequestModal: React.FC<Props> = ({
     () => [
       {
         title: "",
+        hideInSetting: true,
+        fixed: "left",
+        width: 32,
         render: (_, request) => {
           return (
             <Radio.Group
@@ -70,7 +73,6 @@ const LinkItemRequestModal: React.FC<Props> = ({
             </Radio.Group>
           );
         },
-        width: 32,
       },
       {
         title: t("Title"),

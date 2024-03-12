@@ -100,7 +100,9 @@ const LinkItemModal: React.FC<Props> = ({
     () => [
       {
         title: "",
-        width: 40,
+        hideInSetting: true,
+        fixed: "left",
+        width: 48,
         render: (_, item) => {
           const link =
             (item.id === linkedItem && hoveredAssetId !== item.id) ||
