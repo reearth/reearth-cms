@@ -122,7 +122,7 @@ test("Group field creating and updating has succeeded", async ({ reearth, page }
   await page.getByLabel("new text1(unique)").click();
   await page.getByLabel("new text1(unique)").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert")).toContainText("Successfully updated Item!");
+  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("link", { name: "edit", exact: true }).click();
@@ -236,7 +236,7 @@ test("Group field editing has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Description(optional)").fill("new group1 description");
   await page.getByLabel("Support multiple values").check();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert")).toContainText("Successfully updated field!");
+  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new group1");
   await page.getByRole("link", { name: "edit", exact: true }).click();
