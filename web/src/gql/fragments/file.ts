@@ -6,6 +6,7 @@ export const assetFileFragment = gql`
     size
     contentType
     path
+    filePaths
   }
 `;
 

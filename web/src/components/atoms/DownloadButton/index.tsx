@@ -16,6 +16,7 @@ export type PreviewType =
 
 export type AssetFile = {
   children?: AssetFile[];
+  filePaths?: string[];
   contentType?: string;
   name: string;
   path: string;

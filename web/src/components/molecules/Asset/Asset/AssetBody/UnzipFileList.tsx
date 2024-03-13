@@ -64,6 +64,7 @@ const UnzipFileList: React.FC<Props> = ({
 
   useEffect(() => {
     setTreeData(getTreeData(file));
+    console.log(getTreeData(file));
   }, [file, getTreeData]);
 
   const previewFile = useCallback(
