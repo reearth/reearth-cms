@@ -136,6 +136,7 @@ const ContentDetails: React.FC = () => {
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
           displayGroups={false}
+          selectedSchemaType="model"
         />
       }
       onChange={handleAddItemToRequest}
