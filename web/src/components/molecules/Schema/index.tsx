@@ -14,7 +14,7 @@ import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldL
 import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   collapsed?: boolean;
   model?: Model;
   group?: Group;
@@ -23,7 +23,7 @@ export type Props = {
   onGroupModalOpen: () => void;
   onGroupDeletionModalOpen: () => void;
   modelsMenu?: JSX.Element;
-  selectedSchemaType?: SelectedSchemaType;
+  selectedSchemaType: SelectedSchemaType;
   setIsMeta?: (isMeta: boolean) => void;
   onCollapse?: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void> | void;

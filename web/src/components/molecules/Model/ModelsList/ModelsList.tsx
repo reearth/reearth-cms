@@ -6,14 +6,11 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  className?: string;
+type Props = {
   selectedKey?: string;
   models?: Model[];
-  selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
@@ -21,10 +18,8 @@ export type Props = {
 };
 
 const ModelsList: React.FC<Props> = ({
-  className,
   selectedKey,
   models,
-  selectedSchemaType,
   collapsed,
   onModalOpen,
   onModelSelect,
@@ -51,12 +46,8 @@ const ModelsList: React.FC<Props> = ({
   );
 
   const selectedKeys = useMemo(() => {
-    return !selectedSchemaType
-      ? [selectedKey ?? ""]
-      : selectedSchemaType === "model" && selectedKey
-        ? [selectedKey]
-        : [];
-  }, [selectedKey, selectedSchemaType]);
+    return selectedKey ? [selectedKey] : [];
+  }, [selectedKey]);
 
   const items = useMemo(() => {
     return models
@@ -73,7 +64,7 @@ const ModelsList: React.FC<Props> = ({
   }, [collapsed, models]);
 
   return (
-    <SchemaStyledMenu className={className}>
+    <SchemaStyledMenu>
       {collapsed ? (
         <StyledIcon icon="caretRight" />
       ) : (
