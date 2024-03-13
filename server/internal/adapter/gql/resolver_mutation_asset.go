@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateAsset(ctx context.Context, input gqlmodel.CreateAssetInput) (*gqlmodel.CreateAssetPayload, error) {
@@ -96,16 +97,20 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 	if err != nil {
 		return nil, err
 	}
-	uploadURL, uuid, contentType, err := usecases(ctx).Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
-		ProjectID: pid,
-		Filename:  input.Filename,
+	au, err := usecases(ctx).Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
+		ProjectID:     pid,
+		Filename:      lo.FromPtr(input.Filename),
+		ContentLength: int64(lo.FromPtr(input.ContentLength)),
+		Cursor:        lo.FromPtr(input.Cursor),
 	}, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 	return &gqlmodel.CreateAssetUploadPayload{
-		URL:         uploadURL,
-		Token:       uuid,
-		ContentType: contentType,
+		URL:           au.URL,
+		Token:         au.UUID,
+		ContentType:   lo.ToPtr(au.ContentType),
+		ContentLength: int(au.ContentLength),
+		Next:          lo.ToPtr(au.Next),
 	}, nil
 }

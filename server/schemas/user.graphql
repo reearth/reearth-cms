@@ -2,6 +2,7 @@ type User implements Node {
   id: ID!
   name: String!
   email: String!
+  host: String
 }
 
 type Me {
@@ -10,10 +11,11 @@ type Me {
   email: String!
   lang: Lang!
   theme: Theme!
+  host: String
   myWorkspaceId: ID!
   auths: [String!]!
   workspaces: [Workspace!]!
-  myWorkspace: Workspace!
+  myWorkspace: Workspace
   integrations: [Integration!]!
 }
 

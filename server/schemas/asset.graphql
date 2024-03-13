@@ -56,9 +56,17 @@ input CreateAssetInput {
   skipDecompression: Boolean
 }
 
+# If `cursor` is specified, both `filename` and `contentLength` will be ignored.
 input CreateAssetUploadInput {
   projectId: ID!
-  filename: String!
+
+  # The name of the file to upload.
+  filename: String
+  # The size of the file to upload.
+  contentLength: Int
+
+  # Required if uploading in multiple parts.
+  cursor: String
 }
 
 input UpdateAssetInput {
@@ -91,9 +99,20 @@ type DecompressAssetPayload {
 }
 
 type CreateAssetUploadPayload {
-  url: String!
+  # A token identifying the sequence of uploads.
+  # If an empty string is returned, it means that issuing URLs is not supported, and the `file` in CreateAsset must be used.
+  # If splitting the upload is necessary, it is guaranteed that the same value will be returned.
   token: String!
-  contentType: String!
+  # The URL to which the PUT request should be made.
+  # An empty string return means that the upload process has been completed.
+  url: String!
+  # The MIME type for the PUT request.
+  # If unspecified or an empty string, the Content-Type should not be sent.
+  contentType: String
+  # The size of the upload.
+  contentLength: Int!
+  # A cursor to obtain the URL for the next PUT request.
+  next: String
 }
 
 type AssetConnection {
