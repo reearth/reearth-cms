@@ -48,6 +48,11 @@ func (b *FileBuilder) Children(children []*File) *FileBuilder {
 	return b
 }
 
+func (b *FileBuilder) FilePaths(filePaths []string) *FileBuilder {
+	b.f.filePaths = slices.Clone(filePaths)
+	return b
+}
+
 func (b *FileBuilder) GuessContentType() *FileBuilder {
 	b.detectContentType = true
 	return b

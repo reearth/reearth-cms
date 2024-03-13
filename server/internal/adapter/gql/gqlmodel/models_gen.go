@@ -113,6 +113,7 @@ type AssetFile struct {
 	ContentType *string      `json:"contentType,omitempty"`
 	Path        string       `json:"path"`
 	Children    []*AssetFile `json:"children,omitempty"`
+	FilePaths   []string     `json:"filePaths,omitempty"`
 }
 
 type AssetItem struct {

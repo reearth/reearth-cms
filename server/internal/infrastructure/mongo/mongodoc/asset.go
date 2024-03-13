@@ -38,6 +38,7 @@ type AssetFileDocument struct {
 	ContentType string
 	Path        string
 	Children    []*AssetFileDocument
+	FilePaths   []string
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -131,6 +132,7 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	return ab.Build()
 }
 
+// update here
 func NewFile(f *asset.File) *AssetFileDocument {
 	if f == nil {
 		return nil
@@ -149,8 +151,17 @@ func NewFile(f *asset.File) *AssetFileDocument {
 		ContentType: f.ContentType(),
 		Path:        f.Path(),
 		Children:    c,
+		FilePaths:   lo.Map(f.Files(), func(f *asset.File, _ int) string { return f.Path() }),
 	}
 }
+
+// func getAllChildren(asset *asset.File, result []string) []string {
+// 	result = append(result, asset.Path())
+// 	for _, child := range asset.Children() {
+// 		result = getAllChildren(child, result)
+// 	}
+// 	return result
+// }
 
 func (f *AssetFileDocument) Model() *asset.File {
 	if f == nil {
@@ -171,6 +182,7 @@ func (f *AssetFileDocument) Model() *asset.File {
 		ContentType(f.ContentType).
 		Path(f.Path).
 		Children(c).
+		FilePaths(f.FilePaths).
 		Build()
 
 	return af
@@ -204,6 +216,7 @@ type AssetFilesPageDocument struct {
 
 const assetFilesPageSize = 1000
 
+// update here
 func NewFiles(assetID id.AssetID, fs []*asset.File) AssetFilesDocument {
 	pageCount := (len(fs) + assetFilesPageSize - 1) / assetFilesPageSize
 	pages := make([]*AssetFilesPageDocument, 0, pageCount)

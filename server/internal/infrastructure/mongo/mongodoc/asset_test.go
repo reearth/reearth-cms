@@ -154,3 +154,66 @@ func TestNewFile(t *testing.T) {
 		})
 	}
 }
+
+// func TestGetAllChildren(t *testing.T) {
+//     doc := &AssetFileDocument{
+//         Name:        "Document",
+//         Size:        100,
+//         ContentType: "text/plain",
+//         Path:        "/documents/doc",
+//         Children: []*AssetFileDocument{
+//             {
+//                 Name:        "Child Document 1",
+//                 Size:        50,
+//                 ContentType: "text/plain",
+//                 Path:        "/documents/doc/child1",
+//                 Children: []*AssetFileDocument{
+//                     {
+//                         Name:        "Grandchild 1 Document 1",
+//                         Size:        25,
+//                         ContentType: "text/plain",
+//                         Path:        "/documents/doc/child1/grandchild1.txt",
+//                         Children:    nil,
+//                     },
+//                     {
+//                         Name:        "Grandchild 1 Document 2",
+//                         Size:        25,
+//                         ContentType: "text/plain",
+//                         Path:        "/documents/doc/child1/grandchild2.txt",
+//                         Children:    nil,
+//                     },
+//                 },
+//             },
+//             {
+//                 Name:        "Child Document 2",
+//                 Size:        50,
+//                 ContentType: "text/plain",
+//                 Path:        "/documents/doc/child2",
+//                 Children: []*AssetFileDocument{
+//                     {
+//                         Name:        "Grandchild 2 Document 1",
+//                         Size:        25,
+//                         ContentType: "text/plain",
+//                         Path:        "/documents/doc/child2/grandchild1.txt",
+//                         Children:    nil,
+//                     },
+//                 },
+//             },
+//         },
+//     }
+
+//     want := []string{
+//         "/documents/doc",
+//         "/documents/doc/child1",
+//         "/documents/doc/child1/grandchild1.txt",
+//         "/documents/doc/child1/grandchild2.txt",
+//         "/documents/doc/child2",
+//         "/documents/doc/child2/grandchild1.txt",
+//     }
+
+//     var got []string
+//     got = getAllChildren(doc.Model(), got)
+
+// 	assert.True(t, reflect.DeepEqual(want, got))
+// }
+
