@@ -3,6 +3,9 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"time"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
@@ -16,8 +19,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.opencensus.io/trace"
-	"regexp"
-	"time"
 )
 
 func (r *Item) Search(ctx context.Context, sp schema.Package, query *item.Query, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -203,15 +204,13 @@ func lookupAssetField(f schema.Field) []any {
 				"foreignField": "id",
 				"as":           "__temp.&" + f.ID().String(),
 				"pipeline": []bson.M{
-					{
-						"$limit": 1,
-					},
+					{"$limit": 1},
+					{"$project": bson.M{"filename": 1}},
 				},
 			},
 		},
 		bson.M{
 			"$set": bson.M{
-				//"__temp.fields." + f.ID().String(): bson.M{"$arrayElemAt": bson.A{"$__temp.&" + f.ID().String() + ".filename", 0}},
 				"__temp.fields." + f.ID().String(): "$__temp.&" + f.ID().String() + ".filename",
 			},
 		},
