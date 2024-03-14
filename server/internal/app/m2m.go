@@ -12,19 +12,17 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	rhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
-	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
-	"github.com/reearth/reearthx/rerror"
 	sns "github.com/robbiet480/go.sns"
 	"github.com/samber/lo"
 )
 
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		ctx := c.Request().Context()
 		var input rhttp.NotifyInput
 		var err error
 
@@ -37,27 +35,18 @@ func NotifyHandler() echo.HandlerFunc {
 		}
 
 		if err != nil {
-			log.Errorf("failed to parse request body: %s", err.Error())
+			log.Errorfc(ctx, "failed to parse request body: %s", err.Error())
 			return err
 		}
 
-		ctx := c.Request().Context()
+		log.Infofc(ctx, "notified and updating files begin: assetID=%s type=%s status=%s", input.AssetID, input.Type, input.Status)
 
-		log.Infof("notified and updati	ng files begin: assetID=%s type=%s status=%s", input.AssetID, input.Type, input.Status)
 		assetUC := adapter.Usecases(ctx).Asset
 		controller := rhttp.NewTaskController(assetUC)
+
 		if err := controller.Notify(ctx, input); err != nil {
 			log.Errorf("failed to update files: assetID=%s, type=%s, status=%s, err=%v", input.AssetID, input.Type, input.Status, err)
-
-			if errors.Is(err, interfaces.ErrOperationDenied) {
-				return err
-			}
-
-			if errors.Is(err, id.ErrInvalidID) {
-				return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid asset id"})
-			}
-
-			return rerror.ErrInternalByWithContext(ctx, err)
+			return err
 		}
 
 		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)

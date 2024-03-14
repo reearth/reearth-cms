@@ -407,6 +407,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		func(ctx context.Context) (*asset.Asset, error) {
 			a, err := i.repos.Asset.FindByID(ctx, aid)
 			if err != nil {
+				if err == rerror.ErrNotFound {
+					return nil, err
+				}
 				return nil, fmt.Errorf("failed to find an asset: %v", err)
 			}
 
@@ -430,6 +433,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 
 			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
 			if err != nil {
+				if err == gateway.ErrFileNotFound {
+					return nil, err
+				}
 				return nil, fmt.Errorf("failed to get asset files: %v", err)
 			}
 
