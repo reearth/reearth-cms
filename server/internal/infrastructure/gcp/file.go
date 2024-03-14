@@ -137,7 +137,7 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 }
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
-	uuid := newUUID()
+	uuid := param.UUID
 	contentType := param.ContentType()
 
 	p := getGCSObjectPath(uuid, param.Filename)
@@ -174,7 +174,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	}
 	attrs, err := bucket.Object(p).Attrs(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("attrs(object=%s): %w", p, err)
 	}
 	return &file.File{
 		Content:     nil,
