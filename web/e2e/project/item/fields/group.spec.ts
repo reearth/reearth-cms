@@ -4,10 +4,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Group field creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(
     page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
   ).toBeVisible();
@@ -157,13 +164,9 @@ test("Group field creating and updating has succeeded", async ({ reearth, page }
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text1");
-  await deleteProject(page);
 });
 
-test("Group field editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Group field editing has succeeded", async ({ page }) => {
   await expect(
     page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
   ).toBeVisible();
@@ -318,6 +321,4 @@ test("Group field editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(3)).toHaveValue("text1");
-
-  await deleteProject(page);
 });

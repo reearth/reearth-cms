@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Text field editing has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Text field editing has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text1");
@@ -115,6 +122,4 @@ test("Text field editing has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).nth(1).click();
   await expect(page.getByRole("main")).toContainText("new text1text2text");
-
-  await deleteProject(page);
 });

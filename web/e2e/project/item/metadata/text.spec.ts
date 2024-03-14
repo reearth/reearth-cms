@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Text metadata creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Text metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await expect(page.getByText("Item Information")).toBeVisible();
   await expect(page.getByText("Publish Status")).toBeVisible();
@@ -66,14 +73,9 @@ test("Text metadata creating and updating has succeeded", async ({ reearth, page
   await page.getByRole("link", { name: "edit", exact: true }).click();
 
   await expect(page.getByLabel("text1")).toHaveValue("text1");
-
-  await deleteProject(page);
 });
 
-test("Text metadata editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Text metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -194,5 +196,4 @@ test("Text metadata editing has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "x2" }).click();
   await expect(page.getByPlaceholder("-").nth(1)).toHaveValue("text2");
   await expect(page.getByPlaceholder("-").nth(2)).toHaveValue("text3");
-  await deleteProject(page);
 });

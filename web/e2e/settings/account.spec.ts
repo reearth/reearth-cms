@@ -10,7 +10,7 @@ test("Name and email has updated", async ({ reearth, page }) => {
   await page.getByLabel("Account Name").fill("new name");
   const email = await page.getByLabel("Your Email").inputValue();
   await page.getByLabel("Your Email").click();
-  await page.getByLabel("Your Email").fill("test@test.co");
+  await page.getByLabel("Your Email").fill("test@test.com");
   await page
     .locator("form")
     .filter({ hasText: "Account NameThis is your ID" })

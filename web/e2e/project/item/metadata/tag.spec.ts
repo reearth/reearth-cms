@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Tag metadata creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Tag metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Tag" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -88,14 +95,9 @@ test("Tag metadata creating and updating has succeeded", async ({ reearth, page 
   await expect(page.locator("#root").getByText("Tag1", { exact: true }).first()).not.toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await expect(page.locator("#root").getByText("Tag1", { exact: true })).not.toBeVisible();
-
-  await deleteProject(page);
 });
 
-test("Tag metadata editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Tag metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Tag" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -190,6 +192,4 @@ test("Tag metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByText("Tag2")).toBeVisible();
-
-  await deleteProject(page);
 });

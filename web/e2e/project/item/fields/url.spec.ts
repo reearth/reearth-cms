@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("URL field creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("URL field creating and updating has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "URL" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("url1");
@@ -40,13 +47,9 @@ test("URL field creating and updating has succeeded", async ({ reearth, page }) 
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "http://test2.com", exact: true })).toBeVisible();
-  await deleteProject(page);
 });
 
-test("URL field editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("URL field editing has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "URL" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("url1");
@@ -109,5 +112,4 @@ test("URL field editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("tooltip")).toContainText("http://test1.comhttp://test2.com");
 
   await expect(page.getByRole("tooltip")).toContainText("new url1http://test1.comhttp://test2.com");
-  await deleteProject(page);
 });

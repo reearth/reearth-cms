@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Date field creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Date field creating and updating has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Date" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("date1");
@@ -39,13 +46,9 @@ test("Date field creating and updating has succeeded", async ({ reearth, page })
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.locator("tbody")).not.toContainText("2024-01-01");
-  await deleteProject(page);
 });
 
-test("Date field editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Date field editing has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Date" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("date1");
@@ -115,5 +118,4 @@ test("Date field editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("tooltip").locator("p").nth(0)).toContainText("2024-01-03");
   await expect(page.getByRole("tooltip").locator("p").nth(1)).toContainText("2024-01-02");
   await expect(page.getByRole("tooltip").locator("p").nth(2)).toContainText("2024-01-04");
-  await deleteProject(page);
 });

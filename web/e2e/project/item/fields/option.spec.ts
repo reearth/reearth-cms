@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Option field creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Option field creating and updating has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Option" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("option1");
@@ -50,13 +57,9 @@ test("Option field creating and updating has succeeded", async ({ reearth, page 
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("second")).toBeVisible();
-  await deleteProject(page);
 });
 
-test("Option field editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Option field editing has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Option" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("option1");
@@ -178,5 +181,4 @@ test("Option field editing has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "new first new third" })).toBeVisible();
-  await deleteProject(page);
 });

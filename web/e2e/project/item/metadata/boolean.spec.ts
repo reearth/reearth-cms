@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Boolean metadata creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Boolean metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -58,14 +65,9 @@ test("Boolean metadata creating and updating has succeeded", async ({ reearth, p
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "false");
-
-  await deleteProject(page);
 });
 
-test("Boolean metadata editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Boolean metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -164,6 +166,4 @@ test("Boolean metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("switch", { name: "close" }).nth(1)).toBeVisible();
   await expect(page.getByRole("switch", { name: "close" }).nth(2)).toBeVisible();
   await expect(page.getByRole("tooltip").getByRole("switch", { name: "check" })).toBeVisible();
-
-  await deleteProject(page);
 });

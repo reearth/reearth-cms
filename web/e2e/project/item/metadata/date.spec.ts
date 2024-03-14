@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Date metadata creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Date" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -66,14 +73,9 @@ test("Date metadata creating and updating has succeeded", async ({ reearth, page
   await expect(page.getByPlaceholder("-")).toHaveValue("2024-01-03");
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-03");
-
-  await deleteProject(page);
 });
 
-test("Date metadata editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Date metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Date" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -198,6 +200,4 @@ test("Date metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("tooltip").getByRole("textbox").nth(1)).toHaveValue("2024-01-02");
   await expect(page.getByRole("tooltip").getByRole("textbox").nth(2)).toHaveValue("2024-01-05");
   await expect(page.getByRole("tooltip").getByRole("textbox").nth(3)).toHaveValue("2024-01-06");
-
-  await deleteProject(page);
 });

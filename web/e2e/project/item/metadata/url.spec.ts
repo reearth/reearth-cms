@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Url metadata creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await expect(page.getByText("Item Information")).toBeVisible();
   await expect(page.getByText("Publish Status")).toBeVisible();
@@ -63,14 +70,9 @@ test("Url metadata creating and updating has succeeded", async ({ reearth, page 
   await expect(page.getByRole("link", { name: "http://test3.com" })).toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await expect(page.getByLabel("url1")).toHaveValue("http://test3.com");
-
-  await deleteProject(page);
 });
 
-test("Url metadata editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Url metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Url" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -182,6 +184,4 @@ test("Url metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("tooltip").getByRole("link").nth(1)).toContainText(
     "http://default1.com",
   );
-
-  await deleteProject(page);
 });

@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Checkbox metadata creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Checkbox metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Check Box" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -59,14 +66,9 @@ test("Checkbox metadata creating and updating has succeeded", async ({ reearth, 
   await expect(page.getByLabel("", { exact: true }).nth(1)).not.toBeChecked();
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await expect(page.getByLabel("checkbox1")).not.toBeChecked();
-
-  await deleteProject(page);
 });
 
-test("Checkbox metadata editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Checkbox metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Check Box" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -184,6 +186,4 @@ test("Checkbox metadata editing has succeeded", async ({ reearth, page }) => {
   await expect(
     page.getByRole("tooltip", { name: "new checkbox1" }).getByLabel("").nth(3),
   ).toBeChecked();
-
-  await deleteProject(page);
 });

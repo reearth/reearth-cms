@@ -10,10 +10,17 @@ const uploadFileUrl_2 =
   "https://assets.cms.plateau.reearth.io/assets/ec/0de34c-889a-459a-b49c-47c89d02ee3e/lowpolycar.gltf";
 const uploadFileName_2 = "lowpolycar.gltf";
 
-test("Asset field creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Asset field creating and updating has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("asset1");
@@ -66,13 +73,9 @@ test("Asset field creating and updating has succeeded", async ({ reearth, page }
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("lowpolycar.gltf")).toBeVisible();
-  await deleteProject(page);
 });
 
-test("Asset field editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Asset field editing has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("asset1");
@@ -176,5 +179,4 @@ test("Asset field editing has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
   await expect(page.getByRole("tooltip")).toContainText("new asset1 lowpolycar.gltf tileset.json");
-  await deleteProject(page);
 });

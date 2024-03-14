@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Boolean field creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Boolean field creating and updating has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("boolean1");
@@ -38,13 +45,9 @@ test("Boolean field creating and updating has succeeded", async ({ reearth, page
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
-  await deleteProject(page);
 });
 
-test("Boolean field editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Boolean field editing has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("boolean1");
@@ -109,5 +112,4 @@ test("Boolean field editing has succeeded", async ({ reearth, page }) => {
   await expect(
     page.getByRole("tooltip", { name: "new boolean1 close close check" }).locator("div").nth(1),
   ).toBeVisible();
-  await deleteProject(page);
 });

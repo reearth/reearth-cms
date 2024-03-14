@@ -3,10 +3,17 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("One-way reference field creating and updating has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await createModel(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("One-way reference field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus Add" }).first().click();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("ref model");
@@ -119,14 +126,9 @@ test("One-way reference field creating and updating has succeeded", async ({ ree
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "text2" }).locator("span").first()).toBeVisible();
-
-  await deleteProject(page);
 });
 
-test("Two-way reference field editing has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-  await createModel(page);
+test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus Add" }).first().click();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("ref model");
@@ -294,5 +296,4 @@ test("Two-way reference field editing has succeeded", async ({ reearth, page }) 
   await expect(
     page.getByRole("cell", { name: "reference text2", exact: true }).locator("span").first(),
   ).toBeVisible();
-  await deleteProject(page);
 });

@@ -3,10 +3,16 @@ import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { createProject, deleteProject } from "./utils/project";
 
-test("Update settings on Accesibility page has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
+});
 
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Update settings on Accesibility page has succeeded", async ({ page }) => {
   await page.getByText("Accessibility").click();
   await page.getByText("Private").click();
   await page.getByText("Public", { exact: true }).click();
@@ -24,6 +30,4 @@ test("Update settings on Accesibility page has succeeded", async ({ reearth, pag
   await expect(page.locator("tbody")).toContainText(
     "http://localhost:8080/api/p/new-e2e-project-alias/assets",
   );
-
-  await deleteProject(page);
 });
