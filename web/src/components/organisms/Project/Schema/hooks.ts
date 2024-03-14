@@ -484,9 +484,20 @@ export default () => {
     [CheckGroupKeyAvailability, CheckModelKeyAvailability, isGroup, projectId],
   );
 
+  const handleModalOpen = useMemo(
+    () => (selectedSchemaType === "model" ? handleModelModalOpen : handleGroupModalOpen),
+    [handleGroupModalOpen, handleModelModalOpen, selectedSchemaType],
+  );
+
   const handleModalClose = useMemo(
     () => (isGroup ? handleGroupModalClose : handleModelModalClose),
     [handleGroupModalClose, handleModelModalClose, isGroup],
+  );
+
+  const handleDeletionModalOpen = useMemo(
+    () =>
+      selectedSchemaType === "model" ? handleModelDeletionModalOpen : handleGroupDeletionModalOpen,
+    [handleGroupDeletionModalOpen, handleModelDeletionModalOpen, selectedSchemaType],
   );
 
   const handleDeletionModalClose = useMemo(
@@ -513,12 +524,10 @@ export default () => {
     data,
     models,
     groups,
-    group,
     isMeta,
     setIsMeta,
     fieldModalShown,
     selectedField,
-    currentModel,
     selectedType,
     collapsed,
     fieldCreationLoading,
@@ -536,20 +545,16 @@ export default () => {
     handleFieldOrder,
     handleFieldDelete,
     handleKeyCheck,
+    handleModalOpen,
+    handleDeletionModalOpen,
     handleModalClose,
     handleDeletionModalClose,
     handleSchemaCreate,
     handleSchemaUpdate,
     handleSchemaDelete,
-    // group
     groupModalShown,
     groupDeletionModalShown,
-    handleGroupModalOpen,
-    handleGroupDeletionModalOpen,
-    // modal
     modelModalShown,
     modelDeletionModalShown,
-    handleModelModalOpen,
-    handleModelDeletionModalOpen,
   };
 };

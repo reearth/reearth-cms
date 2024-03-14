@@ -41,12 +41,10 @@ const ProjectSchema: React.FC = () => {
     data,
     models,
     groups,
-    group,
     isMeta,
     setIsMeta,
     fieldModalShown,
     selectedField,
-    currentModel,
     selectedType,
     collapsed,
     fieldCreationLoading,
@@ -64,19 +62,17 @@ const ProjectSchema: React.FC = () => {
     handleFieldOrder,
     handleFieldDelete,
     handleKeyCheck,
+    handleModalOpen,
     handleModalClose,
+    handleDeletionModalOpen,
     handleDeletionModalClose,
     handleSchemaCreate,
     handleSchemaUpdate,
     handleSchemaDelete,
     groupModalShown,
     groupDeletionModalShown,
-    handleGroupModalOpen,
-    handleGroupDeletionModalOpen,
     modelModalShown,
     modelDeletionModalShown,
-    handleModelModalOpen,
-    handleModelDeletionModalOpen,
   } = useHooks();
 
   return (
@@ -84,12 +80,9 @@ const ProjectSchema: React.FC = () => {
       <SchemaMolecule
         collapsed={collapsed}
         selectedSchemaType={selectedSchemaType}
-        model={currentModel}
-        group={group}
-        onModelModalOpen={handleModelModalOpen}
-        onModelDeletionModalOpen={handleModelDeletionModalOpen}
-        onGroupModalOpen={handleGroupModalOpen}
-        onGroupDeletionModalOpen={handleGroupDeletionModalOpen}
+        data={data}
+        onModalOpen={handleModalOpen}
+        onDeletionModalOpen={handleDeletionModalOpen}
         modelsMenu={
           <ModelsMenu
             title={t("Schema")}
