@@ -10,6 +10,24 @@ export const GET_MODELS = gql`
         key
         public
         order
+        schema {
+          id
+        }
+      }
+    }
+  }
+`;
+
+export const GET_MODEL_NODE = gql`
+  query GetModel($id: ID!) {
+    node(id: $id, type: Model) {
+      ... on Model {
+        id
+        name
+        description
+        key
+        public
+        order
         metadataSchema {
           id
           fields {
@@ -27,26 +45,6 @@ export const GET_MODELS = gql`
               ... on SchemaFieldText {
                 defaultValue
                 maxLength
-              }
-              ... on SchemaFieldTextArea {
-                defaultValue
-                maxLength
-              }
-              ... on SchemaFieldMarkdown {
-                defaultValue
-                maxLength
-              }
-              ... on SchemaFieldAsset {
-                assetDefaultValue: defaultValue
-              }
-              ... on SchemaFieldSelect {
-                selectDefaultValue: defaultValue
-                values
-              }
-              ... on SchemaFieldInteger {
-                integerDefaultValue: defaultValue
-                min
-                max
               }
               ... on SchemaFieldBool {
                 defaultValue
@@ -67,20 +65,6 @@ export const GET_MODELS = gql`
               }
               ... on SchemaFieldURL {
                 defaultValue
-              }
-              ... on SchemaFieldReference {
-                modelId
-                correspondingField {
-                  id
-                  type
-                  title
-                  key
-                  description
-                  required
-                  unique
-                  multiple
-                  order
-                }
               }
             }
           }
@@ -126,17 +110,6 @@ export const GET_MODELS = gql`
               ... on SchemaFieldBool {
                 defaultValue
               }
-              ... on SchemaFieldCheckbox {
-                defaultValue
-              }
-              ... on SchemaFieldTag {
-                selectDefaultValue: defaultValue
-                tags {
-                  id
-                  name
-                  color
-                }
-              }
               ... on SchemaFieldDate {
                 defaultValue
               }
@@ -167,18 +140,6 @@ export const GET_MODELS = gql`
             }
           }
         }
-      }
-    }
-  }
-`;
-
-export const GET_MODEL_NODE = gql`
-  query GetModel($id: ID!) {
-    node(id: $id, type: Model) {
-      ... on Model {
-        id
-        schemaId
-        name
       }
     }
   }

@@ -49,10 +49,10 @@ export type CurrentViewType = {
   columns?: Column[];
 };
 
-const defaultViewSort = {
-  direction: "DESC" as SortDirection,
+const defaultViewSort: { direction: SortDirection; field: { type: FieldType } } = {
+  direction: "DESC",
   field: {
-    type: "MODIFICATION_DATE" as FieldType,
+    type: "MODIFICATION_DATE",
   },
 };
 
@@ -123,7 +123,7 @@ export default () => {
   });
 
   const [updateItemMutation] = useUpdateItemMutation({
-    refetchQueries: ["SearchItem", "GetViews"],
+    refetchQueries: ["SearchItem"],
   });
 
   const [createNewItem] = useCreateItemMutation();

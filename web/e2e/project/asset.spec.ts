@@ -8,10 +8,16 @@ const uploadFileUrl =
   "https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/tileset.json";
 const uploadFileName = "tileset.json";
 
-test("Asset CRUD and Searching has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
+});
 
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Asset CRUD and Searching has succeeded", async ({ page }) => {
   await page.getByText("Asset").click();
   await page.getByRole("button", { name: "upload Upload Asset" }).click();
   await page.getByRole("tab", { name: "URL" }).click();
@@ -47,14 +53,9 @@ test("Asset CRUD and Searching has succeeded", async ({ reearth, page }) => {
     "One or more assets were successfully deleted!",
   );
   await closeNotification(page);
-
-  await deleteProject(page);
 });
 
-test("Donwloading asset has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-
+test("Donwloading asset has succeeded", async ({ page }) => {
   await page.getByText("Asset").click();
   await page.getByRole("button", { name: "upload Upload Asset" }).click();
   await page.getByRole("tab", { name: "URL" }).click();
@@ -84,13 +85,9 @@ test("Donwloading asset has succeeded", async ({ reearth, page }) => {
     "One or more assets were successfully deleted!",
   );
   await closeNotification(page);
-  await deleteProject(page);
 });
 
-test("Comment CRUD on edit page has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-
+test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByText("Asset").click();
   await page.getByRole("button", { name: "upload Upload Asset" }).click();
   await page.getByRole("tab", { name: "URL" }).click();
@@ -105,13 +102,9 @@ test("Comment CRUD on edit page has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("message").click();
   await expect(page.getByText("CommentsComment")).toBeVisible();
   await crudComment(page);
-  await deleteProject(page);
 });
 
-test("Comment CRUD on Asset page has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
-
+test("Comment CRUD on Asset page has succeeded", async ({ page }) => {
   await page.getByText("Asset").click();
   await page.getByRole("button", { name: "upload Upload Asset" }).click();
   await page.getByRole("tab", { name: "URL" }).click();
@@ -125,5 +118,4 @@ test("Comment CRUD on Asset page has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "0" }).click();
   await expect(page.getByText("CommentsNo comments.Comment")).toBeVisible();
   await crudComment(page);
-  await deleteProject(page);
 });
