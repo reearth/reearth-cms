@@ -102,7 +102,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		file.Size = size
 	}
 
-	return Run2(
+	a, f, err := Run2[*asset.Asset, *asset.File](
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
@@ -185,18 +185,21 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				}
 			}
 
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: prj.Workspace(),
-				Type:      event.AssetCreate,
-				Object:    a,
-				Operator:  op.Operator(),
-			}); err != nil {
-				return nil, nil, err
-			}
-
 			return a, f, nil
 		})
+
+	// In AWS, extraction is done in very short time when a zip file is small, so it often results in an error because an asset is not saved yet in MongoDB. So an event should be created after commtting the transaction.
+	if err := i.event(ctx, Event{
+		Project:   prj,
+		Workspace: prj.Workspace(),
+		Type:      event.AssetCreate,
+		Object:    a,
+		Operator:  op.Operator(),
+	}); err != nil {
+		return nil, nil, err
+	}
+
+	return a, f, nil
 }
 
 func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
