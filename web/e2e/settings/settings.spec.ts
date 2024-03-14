@@ -2,9 +2,16 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test("Tiles CRUD has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteWorkspace(page);
+});
+
+test("Tiles CRUD has succeeded", async ({ page }) => {
   await page.getByText("Settings").click();
 
   await page.getByRole("button", { name: "plus Add new Tiles option" }).click();
@@ -55,12 +62,9 @@ test("Tiles CRUD has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
   await closeNotification(page);
   await expect(page.getByText("url", { exact: true })).not.toBeVisible();
-  await deleteWorkspace(page);
 });
 
-test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createWorkspace(page);
+test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
   await page.getByText("Settings").click();
 
   await expect(page.getByRole("switch")).toBeEnabled();
@@ -121,5 +125,4 @@ test("Terrain on/off and CRUD has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).not.toBeVisible();
-  await deleteWorkspace(page);
 });

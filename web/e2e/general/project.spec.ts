@@ -1,6 +1,15 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+test.afterEach(async ({ page }) => {
+  await page.getByText("Settings").click();
+  await page.getByRole("button", { name: "Delete Project" }).click();
+  await page.getByRole("button", { name: "OK" }).click();
+  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted project!");
+  await closeNotification(page);
+  await expect(page.getByText("new project name", { exact: true })).not.toBeVisible();
+});
+
 test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "plus New Project" }).click();
@@ -54,10 +63,4 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByText("Overview").click();
   await expect(page.locator("#root")).toContainText("new project name");
   await expect(page.locator("#root")).toContainText("new project description");
-  await page.getByText("Settings").click();
-  await page.getByRole("button", { name: "Delete Project" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted project!");
-  await closeNotification(page);
-  await expect(page.getByText("new project name", { exact: true })).not.toBeVisible();
 });

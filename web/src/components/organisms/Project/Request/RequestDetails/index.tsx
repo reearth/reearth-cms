@@ -34,6 +34,7 @@ const RequestDetails: React.FC = () => {
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
+    handleAssetsGet,
     handleAssetsReload,
     handleSearchTerm,
     totalCount,
@@ -76,6 +77,7 @@ const RequestDetails: React.FC = () => {
       setUploadType={setUploadType}
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
+      onAssetsGet={handleAssetsGet}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleSearchTerm}
       setFileList={setFileList}

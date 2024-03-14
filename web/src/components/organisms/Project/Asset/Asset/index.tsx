@@ -52,7 +52,7 @@ const Asset: React.FC = () => {
           threadId={asset?.threadId}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
-          refetchQueries={["GetAsset"]}
+          refetchQueries={["GetAssetItem"]}
         />
       }
       asset={asset}

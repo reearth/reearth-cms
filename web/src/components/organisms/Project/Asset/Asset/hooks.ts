@@ -28,7 +28,6 @@ import {
   useDecompressAssetMutation,
   useGetAssetFileQuery,
   useGetAssetItemQuery,
-  useGetAssetQuery,
   useUpdateAssetMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
@@ -43,24 +42,18 @@ export default (assetId?: string) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
 
-  const { data: rawAsset, loading } = useGetAssetQuery({
+  const { data: rawAsset, loading } = useGetAssetItemQuery({
     variables: {
       assetId: assetId ?? "",
     },
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
   });
 
   const { data: rawFile, loading: loading2 } = useGetAssetFileQuery({
     variables: {
       assetId: assetId ?? "",
     },
-    fetchPolicy: "network-only",
-  });
-
-  const { data: rawAssetItem } = useGetAssetItemQuery({
-    variables: {
-      assetId: assetId ?? "",
-    },
+    fetchPolicy: "cache-and-network",
   });
 
   const convertedAsset: Asset | undefined = useMemo(() => {
@@ -73,11 +66,6 @@ export default (assetId?: string) => {
     return convertedAsset
       ? {
           ...convertedAsset,
-          ...(convertedAsset && rawAssetItem?.node?.__typename === "Asset"
-            ? {
-                items: rawAssetItem?.node.items ?? [],
-              }
-            : {}),
           ...(convertedAsset && rawFile?.assetFile
             ? {
                 file: rawFile?.assetFile as AssetFile,
@@ -85,7 +73,7 @@ export default (assetId?: string) => {
             : {}),
         }
       : undefined;
-  }, [convertedAsset, rawAssetItem?.node, rawFile?.assetFile]);
+  }, [convertedAsset, rawFile?.assetFile]);
 
   const [updateAssetMutation] = useUpdateAssetMutation();
   const handleAssetUpdate = useCallback(

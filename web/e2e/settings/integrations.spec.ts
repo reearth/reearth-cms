@@ -1,6 +1,13 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+test.afterEach(async ({ page }) => {
+  await page.getByText("My Integrations").click();
+  await page.getByText("e2e integration namee2e").first().click();
+  await page.getByRole("button", { name: "Remove Integration" }).click();
+  await page.getByRole("button", { name: "OK" }).click();
+});
+
 test("Integration CRUD and searching has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
@@ -57,8 +64,4 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
     "One or more integrations were successfully deleted!",
   );
   await closeNotification(page);
-  await page.getByText("My Integrations").click();
-  await page.getByText("e2e integration namee2e").first().click();
-  await page.getByRole("button", { name: "Remove Integration" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
 });

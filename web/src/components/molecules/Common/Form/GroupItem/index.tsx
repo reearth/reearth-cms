@@ -57,6 +57,7 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -100,6 +101,7 @@ const GroupItem: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -200,6 +202,7 @@ const GroupItem: React.FC<Props> = ({
                     setUploadType={setUploadType}
                     onAssetsCreate={onAssetsCreate}
                     onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsGet={onAssetsGet}
                     onAssetsReload={onAssetsReload}
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}

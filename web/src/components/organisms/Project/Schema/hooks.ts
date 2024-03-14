@@ -37,7 +37,7 @@ export default () => {
   const { confirm } = Modal;
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId } = useParams();
-  const [currentModel] = useModel();
+  const [currentModel, setCurrentModel] = useModel();
 
   const [fieldModalShown, setFieldModalShown] = useState(false);
   const [groupId, setGroupId] = useState<string | undefined>(undefined);
@@ -112,15 +112,15 @@ export default () => {
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
-    refetchQueries: ["GetModels", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroups"],
   });
 
   const [updateField, { loading: fieldUpdateLoading }] = useUpdateFieldMutation({
-    refetchQueries: ["GetModels", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroups"],
   });
 
   const [deleteFieldMutation] = useDeleteFieldMutation({
-    refetchQueries: ["GetModels", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroups"],
   });
 
   const handleFieldDelete = useCallback(
@@ -175,7 +175,7 @@ export default () => {
   );
 
   const [updateFieldsOrder] = useUpdateFieldsMutation({
-    refetchQueries: ["GetModels"],
+    refetchQueries: ["GetModel"],
   });
 
   const handleFieldOrder = useCallback(
@@ -430,9 +430,19 @@ export default () => {
       } else {
         Notification.success({ message: t("Successfully deleted model!") });
         handleModelDeletionModalClose();
+        setCurrentModel(undefined);
+        navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
       }
     },
-    [deleteModel, handleModelDeletionModalClose, t],
+    [
+      deleteModel,
+      handleModelDeletionModalClose,
+      navigate,
+      projectId,
+      setCurrentModel,
+      t,
+      workspaceId,
+    ],
   );
 
   const [updateNewModel] = useUpdateModelMutation({

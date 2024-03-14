@@ -28,6 +28,7 @@ const ProjectSchema: React.FC = () => {
     handleAssetsCreate,
     handleAssetCreateFromUrl,
     handleSearchTerm,
+    handleAssetsGet,
     handleAssetsReload,
     totalCount,
     page,
@@ -168,6 +169,7 @@ const ProjectSchema: React.FC = () => {
           onAssetsCreate={handleAssetsCreate}
           onAssetCreateFromUrl={handleAssetCreateFromUrl}
           onAssetSearchTerm={handleSearchTerm}
+          onAssetsGet={handleAssetsGet}
           onAssetsReload={handleAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}

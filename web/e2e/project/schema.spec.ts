@@ -16,23 +16,24 @@ async function deleteField(page: Page, name: string, key = name) {
   await expect(page.getByText(`${name} #${key}`)).not.toBeVisible();
 }
 
-test("Model CRUD has succeeded", async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
+});
+
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
+});
+
+test("Model CRUD has succeeded", async ({ page }) => {
   await crudModel(page);
-  await deleteProject(page);
 });
 
-test("Group CRUD has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
+test("Group CRUD has succeeded", async ({ page }) => {
   await crudGroup(page);
-  await deleteProject(page);
 });
 
-test("Text field CRUD has succeeded", async ({ reearth, page }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await createProject(page);
+test("Text field CRUD has succeeded", async ({ page }) => {
   await createModel(page);
   await page
     .locator("li")
@@ -48,6 +49,4 @@ test("Text field CRUD has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await deleteField(page, "new text", "new-text");
-
-  await deleteProject(page);
 });

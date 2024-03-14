@@ -14,7 +14,7 @@ test("MyIntegration CRUD has succeeded", async ({ reearth, page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully created integration!");
   await closeNotification(page);
 
-  await page.getByText("namedescription", { exact: true }).click();
+  await page.getByText("namedescription", { exact: true }).first().click();
   await page.getByLabel("Integration Name").click();
   await page.getByLabel("Integration Name").fill("newName");
   await page.getByLabel("Description").click();
@@ -44,7 +44,7 @@ test("Webhook CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Description").click();
   await page.getByLabel("Description").fill("description");
   await page.getByRole("button", { name: "Create" }).click();
-  await page.getByText("namedescription", { exact: true }).click();
+  await page.getByText("namedescription", { exact: true }).first().click();
 
   await page.getByRole("tab", { name: "Webhook" }).click();
   await page

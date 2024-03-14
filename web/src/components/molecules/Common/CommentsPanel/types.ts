@@ -8,7 +8,7 @@ export type Comment = {
 export type RefetchQueries = (
   | "GetItem"
   | "SearchItem"
-  | "GetAsset"
+  | "GetAssetItem"
   | "GetAssetsItems"
   | "GetRequests"
 )[];

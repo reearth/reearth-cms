@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const config: PlaywrightTestConfig = {
+  retries: 2,
   use: {
     baseURL: process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:3000/",
     screenshot: "only-on-failure",

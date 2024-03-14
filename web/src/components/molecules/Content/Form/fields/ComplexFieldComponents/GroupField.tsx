@@ -47,6 +47,7 @@ interface GroupFieldProps {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -85,6 +86,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -128,6 +130,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           setUploadType={setUploadType}
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
@@ -164,6 +167,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           setUploadType={setUploadType}
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}

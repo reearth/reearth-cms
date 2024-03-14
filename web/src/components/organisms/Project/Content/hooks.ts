@@ -7,7 +7,7 @@ import {
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
   Request as GQLRequest,
-  useGetModalRequestsQuery,
+  useGetModalRequestsLazyQuery,
   useUnpublishItemMutation,
   usePublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -30,8 +30,8 @@ export default () => {
     setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const { data, refetch, loading } = useGetModalRequestsQuery({
-    fetchPolicy: "no-cache",
+  const [getModalRequests, { data, refetch, loading }] = useGetModalRequestsLazyQuery({
+    fetchPolicy: "cache-and-network",
     variables: {
       projectId: currentProject?.id ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
@@ -39,7 +39,6 @@ export default () => {
       state: ["WAITING"] as GQLRequestState[],
       key: searchTerm,
     },
-    skip: !currentProject?.id,
   });
 
   const requests: Request[] = useMemo(
@@ -126,7 +125,8 @@ export default () => {
     setPageSize(10);
     setSearchTerm("");
     setAddItemToRequestModalShown(true);
-  }, []);
+    getModalRequests();
+  }, [getModalRequests]);
 
   const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
     setPage(page);
