@@ -132,17 +132,9 @@ func (d *AssetDocument) Model() (*asset.Asset, error) {
 	return ab.Build()
 }
 
-// update here
 func NewFile(f *asset.File) *AssetFileDocument {
 	if f == nil {
 		return nil
-	}
-
-	c := []*AssetFileDocument{}
-	if len(f.Children()) > 0 {
-		for _, v := range f.Children() {
-			c = append(c, NewFile(v))
-		}
 	}
 
 	return &AssetFileDocument{
@@ -150,18 +142,10 @@ func NewFile(f *asset.File) *AssetFileDocument {
 		Size:        f.Size(),
 		ContentType: f.ContentType(),
 		Path:        f.Path(),
-		Children:    c,
-		FilePaths:   lo.Map(f.Files(), func(f *asset.File, _ int) string { return f.Path() }),
+		Children:    []*AssetFileDocument{},
+		FilePaths:   f.FilePaths(),
 	}
 }
-
-// func getAllChildren(asset *asset.File, result []string) []string {
-// 	result = append(result, asset.Path())
-// 	for _, child := range asset.Children() {
-// 		result = getAllChildren(child, result)
-// 	}
-// 	return result
-// }
 
 func (f *AssetFileDocument) Model() *asset.File {
 	if f == nil {
@@ -216,7 +200,6 @@ type AssetFilesPageDocument struct {
 
 const assetFilesPageSize = 1000
 
-// update here
 func NewFiles(assetID id.AssetID, fs []*asset.File) AssetFilesDocument {
 	pageCount := (len(fs) + assetFilesPageSize - 1) / assetFilesPageSize
 	pages := make([]*AssetFilesPageDocument, 0, pageCount)

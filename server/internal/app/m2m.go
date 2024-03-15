@@ -15,7 +15,6 @@ import (
 	sns "github.com/robbiet480/go.sns"
 )
 
-// here as well
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var input rhttp.NotifyInput

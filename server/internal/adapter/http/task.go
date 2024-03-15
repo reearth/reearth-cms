@@ -29,7 +29,6 @@ func NewTaskController(uc interfaces.Asset) *TaskController {
 	return &TaskController{usecase: uc}
 }
 
-// This function
 func (tc *TaskController) Notify(ctx context.Context, input NotifyInput) error {
 	if input.Task != nil && input.Task.Status == "EXPIRED" {
 		return tc.usecase.RetryDecompression(ctx, input.Task.TaskID)

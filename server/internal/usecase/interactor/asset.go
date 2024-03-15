@@ -396,7 +396,6 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 	)
 }
 
-// update this function
 func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.ArchiveExtractionStatus, op *usecase.Operator) (*asset.Asset, error) {
 	if op.AcOperator.User == nil && op.Integration == nil && !op.Machine {
 		return nil, interfaces.ErrInvalidOperator
@@ -416,7 +415,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 	if err != nil {
 		return nil, err
 	}
-	// update here
 	assetFiles := lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
 		return asset.NewFile().
 			Name(path.Base(f.Name)).
@@ -451,6 +449,9 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return srcfile.Path() != f.Path()
 			})
 
+			filePaths := lo.Map(assetFiles, func(f *asset.File, _ int) string { return f.Path() })
+			srcfile.SetFilePaths(filePaths)
+
 			a.UpdateArchiveExtractionStatus(s)
 			if previewType := detectPreviewType(files); previewType != nil {
 				a.UpdatePreviewType(previewType)
@@ -460,7 +461,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, err
 			}
 
-			// here as well
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
 				return nil, err
 			}

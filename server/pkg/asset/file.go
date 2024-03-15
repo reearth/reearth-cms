@@ -63,6 +63,13 @@ func (f *File) FilePaths() []string {
 	return slices.Clone(f.filePaths)
 }
 
+func (f *File) SetFilePaths(p []string) {
+	if f == nil {
+		return
+	}
+	f.filePaths = slices.Clone(p)
+}
+
 func (f *File) IsDir() bool {
 	return f != nil && f.children != nil
 }

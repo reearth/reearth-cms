@@ -52,7 +52,7 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 	})); err != nil {
 		return nil, err
 	}
-	f := c.Result[0].File.Model() 
+	f := c.Result[0].File.Model()
 	if f == nil {
 		return nil, rerror.ErrNotFound
 	}
@@ -89,7 +89,6 @@ func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) e
 	return nil
 }
 
-// update here
 func (r *AssetFile) SaveFlat(ctx context.Context, id id.AssetID, parent *asset.File, files []*asset.File) error {
 	doc := mongodoc.NewFile(parent)
 	_, err := r.client.Client().UpdateOne(ctx, bson.M{
