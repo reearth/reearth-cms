@@ -4,7 +4,7 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect } from "@reearth-cms/e2e/utils";
 
 export async function createModel(page: Page) {
-  await page.getByText("Schema").click();
+  await page.getByText("Schema").first().click();
   await page.getByRole("button", { name: "plus Add" }).first().click();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("e2e model name");

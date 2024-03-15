@@ -102,7 +102,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		file.Size = size
 	}
 
-	return Run2(
+	a, f, err := Run2[*asset.Asset, *asset.File](
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, *asset.File, error) {
@@ -184,19 +184,25 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 					return nil, nil, err
 				}
 			}
-
-			if err := i.event(ctx, Event{
-				Project:   prj,
-				Workspace: prj.Workspace(),
-				Type:      event.AssetCreate,
-				Object:    a,
-				Operator:  op.Operator(),
-			}); err != nil {
-				return nil, nil, err
-			}
-
 			return a, f, nil
 		})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// In AWS, extraction is done in very short time when a zip file is small, so it often results in an error because an asset is not saved yet in MongoDB. So an event should be created after commtting the transaction.
+	if err := i.event(ctx, Event{
+		Project:   prj,
+		Workspace: prj.Workspace(),
+		Type:      event.AssetCreate,
+		Object:    a,
+		Operator:  op.Operator(),
+	}); err != nil {
+		return nil, nil, err
+	}
+
+	return a, f, nil
 }
 
 func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
@@ -401,40 +407,16 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	a, err := i.repos.Asset.FindByID(ctx, aid)
-	if err != nil {
-		return nil, err
-	}
-	if !op.CanUpdate(a) {
-		return nil, interfaces.ErrOperationDenied
-	}
-	if shouldSkipUpdate(a.ArchiveExtractionStatus(), s) {
-		return a, nil
-	}
-	files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
-	if err != nil {
-		return nil, err
-	}
-	assetFiles := lo.Map(files, func(f gateway.FileEntry, _ int) *asset.File {
-		return asset.NewFile().
-			Name(path.Base(f.Name)).
-			Path(f.Name).
-			GuessContentType().
-			Build()
-	})
-
 	return Run1(
 		ctx, op, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (*asset.Asset, error) {
 			a, err := i.repos.Asset.FindByID(ctx, aid)
 			if err != nil {
-				return nil, err
-			}
-
-			srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
-			if err != nil {
-				return nil, err
+				if err == rerror.ErrNotFound {
+					return nil, err
+				}
+				return nil, fmt.Errorf("failed to find an asset: %v", err)
 			}
 
 			if !op.CanUpdate(a) {
@@ -445,9 +427,23 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return a, nil
 			}
 
-			assetFiles := lo.Filter(assetFiles, func(f *asset.File, _ int) bool {
-				return srcfile.Path() != f.Path()
-			})
+			prj, err := i.repos.Project.FindByID(ctx, a.Project())
+			if err != nil {
+				return nil, fmt.Errorf("failed to find a project: %v", err)
+			}
+
+			srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
+			if err != nil {
+				return nil, fmt.Errorf("failed to find an asset file: %v", err)
+			}
+
+			files, err := i.gateways.File.GetAssetFiles(ctx, a.UUID())
+			if err != nil {
+				if err == gateway.ErrFileNotFound {
+					return nil, err
+				}
+				return nil, fmt.Errorf("failed to get asset files: %v", err)
+			}
 
 			filePaths := lo.Map(assetFiles, func(f *asset.File, _ int) string { return f.Path() })
 			srcfile.SetFilePaths(filePaths)
@@ -458,26 +454,33 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 			}
 
 			if err := i.repos.Asset.Save(ctx, a); err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to save an asset: %v", err)
 			}
+
+			srcPath := srcfile.Path()
+			assetFiles := lo.FilterMap(files, func(f gateway.FileEntry, _ int) (*asset.File, bool) {
+				if srcPath == f.Name {
+					return nil, false
+				}
+				return asset.NewFile().
+					Name(path.Base(f.Name)).
+					Path(f.Name).
+					GuessContentType().
+					Build(), true
+			})
 
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
-				return nil, err
-			}
-
-			p, err := i.repos.Project.FindByID(ctx, a.Project())
-			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to save asset files: %v", err)
 			}
 
 			if err := i.event(ctx, Event{
-				Project:   p,
-				Workspace: p.Workspace(),
+				Project:   prj,
+				Workspace: prj.Workspace(),
 				Type:      event.AssetDecompress,
 				Object:    a,
 				Operator:  op.Operator(),
 			}); err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to create an event: %v", err)
 			}
 
 			return a, nil
