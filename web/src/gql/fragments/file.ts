@@ -6,13 +6,13 @@ export const assetFileFragment = gql`
     size
     contentType
     path
-    filePaths
   }
 `;
 
 export const assetFile10Fragment = gql`
   fragment assetFile10Fragment on AssetFile {
     ...assetFileFragment
+    filePaths
     children {
       ...assetFileFragment
       children {

@@ -32,10 +32,10 @@ const UnzipFileList: React.FC<Props> = ({
   const [treeData, setTreeData] = useState<FileNode[]>([]);
 
   const getTreeData = useCallback(
-    (assetFile: AssetFile, parentKey?: string): FileNode[] =>
+    (assetFile?: AssetFile, parentKey?: string): FileNode[] =>
       assetFile?.children?.map((file: AssetFile, index: number) => {
         let children: FileNode[] = [];
-        const key = parentKey ? parentKey + "-" + index.toString() : index.toString();
+        const key = parentKey ? `${parentKey}-${index}` : `${index}`;
 
         if (file.children && file.children.length > 0) {
           children = getTreeData(file, key);
@@ -62,10 +62,45 @@ const UnzipFileList: React.FC<Props> = ({
     [selectedKeys, assetBaseUrl],
   );
 
+  const constructFileTree = useCallback((filepaths?: string[]): AssetFile | undefined => {
+    if (!filepaths) return;
+    const rootName = filepaths[0]?.split("/")[1] || "";
+    const root: AssetFile = {
+      name: rootName,
+      path: `/${rootName}/`,
+      children: [],
+      size: 0,
+    };
+
+    for (const filepath of filepaths) {
+      const parts = filepath.split("/");
+      let currentNode = root;
+
+      for (const part of parts.slice(2)) {
+        const existingNode = currentNode.children?.find(node => node.name === part);
+        if (!existingNode) {
+          const newNode: AssetFile = {
+            name: part,
+            path: `${currentNode.path}${part}/`,
+            children: [],
+            size: 0,
+          };
+
+          currentNode.children?.push(newNode);
+          currentNode = newNode;
+        } else {
+          currentNode = existingNode;
+        }
+      }
+    }
+
+    return root;
+  }, []);
+
   useEffect(() => {
-    setTreeData(getTreeData(file));
-    console.log(getTreeData(file));
-  }, [file, getTreeData]);
+    const asset = constructFileTree(file.filePaths);
+    setTreeData(getTreeData(asset));
+  }, [constructFileTree, file, getTreeData]);
 
   const previewFile = useCallback(
     (file: AssetFile) => {
