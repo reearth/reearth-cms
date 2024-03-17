@@ -137,12 +137,19 @@ func NewFile(f *asset.File) *AssetFileDocument {
 		return nil
 	}
 
+	c := []*AssetFileDocument{}
+	if len(f.Children()) > 0 {
+		for _, v := range f.Children() {
+			c = append(c, NewFile(v))
+		}
+	}
+
 	return &AssetFileDocument{
 		Name:        f.Name(),
 		Size:        f.Size(),
 		ContentType: f.ContentType(),
 		Path:        f.Path(),
-		Children:    []*AssetFileDocument{},
+		Children:    c,
 		FilePaths:   f.FilePaths(),
 	}
 }
