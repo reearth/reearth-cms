@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -33,7 +33,7 @@ import {
   useGetMeQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
-  useSearchItemQuery,
+  useSearchItemLazyQuery,
   useGetGroupsQuery,
   FieldType as GQLFieldType,
   StringOperator,
@@ -77,33 +77,27 @@ export default () => {
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const titleId = useRef("");
-
-  useEffect(() => {
-    setLinkItemModalPage(+linkItemModalPage);
-    setLinkItemModalPageSize(+linkItemModalPageSize);
-  }, [setLinkItemModalPage, setLinkItemModalPageSize, linkItemModalPage, linkItemModalPageSize]);
   const t = useT();
 
   const { data, loading: itemLoading } = useGetItemQuery({
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-and-network",
     variables: { id: itemId ?? "" },
     skip: !itemId,
   });
 
   const { data: modelData } = useGetModelQuery({
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-and-network",
     variables: { id: referenceModelId ?? "" },
     skip: !referenceModelId,
   });
   const model = useMemo(() => fromGraphQLModel(modelData?.node as GQLModel), [modelData?.node]);
-  const { data: itemsData, refetch } = useSearchItemQuery({
-    fetchPolicy: "no-cache",
+  const [searchItem, { data: itemsData, refetch }] = useSearchItemLazyQuery({
+    fetchPolicy: "cache-and-network",
     variables: {
       searchItemInput: {
         query: {
           project: currentProject?.id ?? "",
-          model: model?.id ?? "",
-          schema: model?.schemaId,
+          model: referenceModelId ?? "",
         },
         pagination: {
           first: linkItemModalPageSize,
@@ -127,7 +121,6 @@ export default () => {
             : undefined,
       },
     },
-    skip: !model?.id,
   });
 
   const handleSearchTerm = useCallback((term?: string) => {
@@ -262,7 +255,7 @@ export default () => {
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
-    refetchQueries: ["SearchItem", "GetItem"],
+    refetchQueries: ["GetItem"],
   });
 
   const handleItemUpdate = useCallback(
@@ -505,8 +498,9 @@ export default () => {
       setReferenceModelId(modelId);
       titleId.current = titleFieldId;
       handleSearchTerm();
+      searchItem();
     },
-    [handleSearchTerm],
+    [handleSearchTerm, searchItem],
   );
 
   return {

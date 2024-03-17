@@ -97,6 +97,7 @@ export interface Props {
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -172,6 +173,7 @@ const ContentForm: React.FC<Props> = ({
   onItemUpdate,
   onMetaItemUpdate,
   onBack,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -538,6 +540,7 @@ const ContentForm: React.FC<Props> = ({
                     setUploadType={setUploadType}
                     onAssetsCreate={onAssetsCreate}
                     onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsGet={onAssetsGet}
                     onAssetsReload={onAssetsReload}
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}
@@ -598,6 +601,7 @@ const ContentForm: React.FC<Props> = ({
                     setUploadType={setUploadType}
                     onAssetsCreate={onAssetsCreate}
                     onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsGet={onAssetsGet}
                     onAssetsReload={onAssetsReload}
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}
