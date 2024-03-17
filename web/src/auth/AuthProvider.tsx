@@ -1,5 +1,5 @@
 import { Auth0Provider } from "@auth0/auth0-react";
-import React, { createContext, ReactNode } from "react";
+import React, { createContext, ReactNode, useState } from "react";
 
 import { getAuthInfo, getSignInCallbackUrl } from "@reearth-cms/config";
 
@@ -20,7 +20,7 @@ const CognitoWrapper = ({ children }: { children: ReactNode }) => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const authInfo = getAuthInfo();
+  const [authInfo] = useState(() => getAuthInfo());
   const authProvider = authInfo?.authProvider;
 
   if (authProvider === "auth0") {
