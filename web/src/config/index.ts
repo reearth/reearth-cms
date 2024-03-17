@@ -1,4 +1,4 @@
-import { getAuthInfo } from "./authInfo";
+import { type AuthInfo, getAuthInfo } from "./authInfo";
 import { configureCognito } from "./aws";
 
 export { getAuthInfo, getSignInCallbackUrl } from "./authInfo";
@@ -11,25 +11,6 @@ export type Config = {
   editorUrl: string;
   multitenant?: Record<string, AuthInfo>;
 } & AuthInfo;
-
-export type AuthInfo = {
-  auth0ClientId?: string;
-  auth0Domain?: string;
-  auth0Audience?: string;
-  authProvider?: string;
-  cognito?: CognitoParams;
-} & CognitoParams;
-
-export type CognitoParams = {
-  cognitoRegion?: string;
-  cognitoUserPoolId?: string;
-  cognitoUserPoolWebClientId?: string;
-  cognitoOauthScope?: string;
-  cognitoOauthDomain?: string;
-  cognitoOauthRedirectSignIn?: string;
-  cognitoOauthRedirectSignOut?: string;
-  cognitoOauthResponseType?: string;
-};
 
 const env = import.meta.env;
 

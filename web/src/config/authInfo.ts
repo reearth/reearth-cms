@@ -1,4 +1,6 @@
-import { config, type CognitoParams } from ".";
+import { type CognitoParams } from "./aws";
+
+import { config } from ".";
 
 export type AuthInfo = {
   auth0ClientId?: string;
@@ -6,7 +8,7 @@ export type AuthInfo = {
   auth0Audience?: string;
   authProvider?: string;
   cognito?: CognitoParams;
-};
+} & CognitoParams;
 
 export function getAuthInfo(conf = config()): AuthInfo | undefined {
   return getMultitenantAuthInfo(conf) || defaultAuthInfo(conf);
