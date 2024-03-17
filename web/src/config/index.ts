@@ -35,7 +35,7 @@ export default async function loadConfig() {
   };
 
   const authInfo = getAuthInfo(window.REEARTH_CONFIG);
-  if (authInfo?.cognito) configureCognito(authInfo.cognito);
+  if (authInfo?.authProvider === "cognito") configureCognito(authInfo.cognito ?? authInfo);
 }
 
 export function config(): Config | undefined {
