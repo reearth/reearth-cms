@@ -1,8 +1,26 @@
+import { getAuthInfo } from "./authInfo";
+import { configureCognito } from "./aws";
+
+export { getAuthInfo, getSignInCallbackUrl } from "./authInfo";
+
 export type Config = {
   api: string;
+  logoUrl?: string;
+  coverImageUrl?: string;
+  cesiumIonAccessToken?: string;
+  editorUrl: string;
+  multitenant?: Record<string, AuthInfo>;
+} & AuthInfo;
+
+export type AuthInfo = {
   auth0ClientId?: string;
   auth0Domain?: string;
   auth0Audience?: string;
+  authProvider?: string;
+  cognito?: CognitoParams;
+} & CognitoParams;
+
+export type CognitoParams = {
   cognitoRegion?: string;
   cognitoUserPoolId?: string;
   cognitoUserPoolWebClientId?: string;
@@ -11,11 +29,6 @@ export type Config = {
   cognitoOauthRedirectSignIn?: string;
   cognitoOauthRedirectSignOut?: string;
   cognitoOauthResponseType?: string;
-  authProvider?: string;
-  logoUrl?: string;
-  coverImageUrl?: string;
-  cesiumIonAccessToken?: string;
-  editorUrl: string;
 };
 
 const env = import.meta.env;
@@ -39,6 +52,9 @@ export default async function loadConfig() {
     ...defaultConfig,
     ...(await (await fetch("/reearth_config.json")).json()),
   };
+
+  const authInfo = getAuthInfo(window.REEARTH_CONFIG);
+  if (authInfo?.cognito) configureCognito(authInfo.cognito);
 }
 
 export function config(): Config | undefined {

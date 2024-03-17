@@ -34,6 +34,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/" element={<RootPage />} />
+      <Route path="/auth/*" element={<RootPage />} />
       <Route path="workspace" element={<CMSPageWrapper />}>
         <Route path=":workspaceId" element={<Workspace />} />
         <Route path=":workspaceId/account" element={<AccountSettings />} />
