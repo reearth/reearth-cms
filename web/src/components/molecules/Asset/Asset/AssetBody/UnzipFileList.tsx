@@ -62,21 +62,19 @@ const UnzipFileList: React.FC<Props> = ({
     [selectedKeys, assetBaseUrl],
   );
 
-  const constructFileTree = useCallback((filepaths?: string[]): AssetFile | undefined => {
-    if (!filepaths) return;
-    const rootName = filepaths[0]?.split("/")[1] || "";
+  const constructFileTree = useCallback((file?: AssetFile): AssetFile | undefined => {
+    if (!file?.filePaths) return;
+
     const root: AssetFile = {
-      name: rootName,
-      path: `/${rootName}/`,
+      ...file,
       children: [],
-      size: 0,
     };
 
-    for (const filepath of filepaths) {
+    for (const filepath of file.filePaths) {
       const parts = filepath.split("/");
       let currentNode = root;
 
-      for (const part of parts.slice(2)) {
+      for (const part of parts.slice(1)) {
         const existingNode = currentNode.children?.find(node => node.name === part);
         if (!existingNode) {
           const newNode: AssetFile = {
@@ -98,8 +96,8 @@ const UnzipFileList: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    const asset = constructFileTree(file.filePaths);
-    setTreeData(getTreeData(asset));
+    const assetFile = constructFileTree(file);
+    setTreeData(getTreeData(assetFile));
   }, [constructFileTree, file, getTreeData]);
 
   const previewFile = useCallback(
