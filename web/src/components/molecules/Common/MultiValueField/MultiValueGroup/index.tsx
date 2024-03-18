@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import moment from "moment";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
@@ -26,7 +26,6 @@ type Props = {
   onChange?: (value: string[]) => void;
   parentField: Field;
   form?: FormInstance<any>;
-  groups?: Group[];
   fields?: Field[];
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
@@ -65,12 +64,12 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
   className,
   parentField,
-  groups,
   form,
   fields,
   value = [],
@@ -108,6 +107,7 @@ const MultiValueGroup: React.FC<Props> = ({
   setFileList,
   setUploadModalVisibility,
   onGetAsset,
+  onGroupGet,
 }) => {
   const t = useT();
 
@@ -126,12 +126,7 @@ const MultiValueGroup: React.FC<Props> = ({
     [onChange, value],
   );
 
-  const group = useMemo<Group | undefined>(
-    () => groups?.find(g => g.id === parentField.typeProperty?.groupId),
-    [groups, parentField.typeProperty?.groupId],
-  );
-
-  const handleAdd = useCallback(() => {
+  const handleAdd = useCallback(async () => {
     const currentValues = value || [];
     const itemGroupId = newID();
 
@@ -143,6 +138,8 @@ const MultiValueGroup: React.FC<Props> = ({
 
     // set default value
     const newValues = { ...form?.getFieldsValue() };
+    if (!parentField.typeProperty?.groupId) return;
+    const group = await onGroupGet(parentField.typeProperty.groupId);
     group?.schema.fields.forEach((field: Field) => {
       const defaultValue = field.typeProperty?.defaultValue;
       const setValue = (value: any) => {
@@ -177,7 +174,7 @@ const MultiValueGroup: React.FC<Props> = ({
           break;
       }
     });
-  }, [form, group?.schema.fields, onChange, value]);
+  }, [form, onChange, onGroupGet, parentField.typeProperty?.groupId, value]);
 
   return (
     <div className={className}>

@@ -15,7 +15,6 @@ import {
 interface GroupFieldProps {
   field: Field;
   form?: FormInstance<any>;
-  groups?: Group[];
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
@@ -53,12 +52,12 @@ interface GroupFieldProps {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 }
 
 const GroupField: React.FC<GroupFieldProps> = ({
   field,
   form,
-  groups,
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
@@ -92,6 +91,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   setFileList,
   setUploadModalVisibility,
   onGetAsset,
+  onGroupGet,
 }) => {
   return (
     <Form.Item
@@ -102,7 +102,6 @@ const GroupField: React.FC<GroupFieldProps> = ({
         <MultiValueGroup
           parentField={field}
           form={form}
-          groups={groups}
           linkedItemsModalList={linkedItemsModalList}
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}
@@ -136,6 +135,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
           onGetAsset={onGetAsset}
+          onGroupGet={onGroupGet}
         />
       ) : (
         <GroupItem

@@ -306,9 +306,19 @@ export default () => {
       } else {
         Notification.success({ message: t("Successfully deleted group!") });
         handleGroupDeletionModalClose();
+        navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
       }
     },
-    [deleteGroup, group?.name, handleGroupDeletionModalClose, modelsByGroupData?.modelsByGroup, t],
+    [
+      deleteGroup,
+      group?.name,
+      handleGroupDeletionModalClose,
+      modelsByGroupData?.modelsByGroup,
+      navigate,
+      projectId,
+      t,
+      workspaceId,
+    ],
   );
 
   const [createNewGroup] = useCreateGroupMutation({
