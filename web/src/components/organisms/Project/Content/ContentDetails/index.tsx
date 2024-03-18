@@ -74,6 +74,7 @@ const ContentDetails: React.FC = () => {
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
+    handleAssetsGet,
     handleAssetsReload,
     handleSearchTerm: handleAssetSearchTerm,
     totalCount,
@@ -156,6 +157,7 @@ const ContentDetails: React.FC = () => {
       setUploadType={setUploadType}
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
+      onAssetsGet={handleAssetsGet}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleAssetSearchTerm}
       setFileList={setFileList}
