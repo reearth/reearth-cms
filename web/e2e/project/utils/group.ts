@@ -13,7 +13,6 @@ export async function createGroup(page: Page) {
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.getByRole("alert").last()).toContainText("Successfully created group!");
   await closeNotification(page);
-  await page.getByText("e2e group name").click();
   await expect(page.getByTitle("e2e group name")).toBeVisible();
   await expect(page.getByText("#e2e-group-key")).toBeVisible();
 }
