@@ -18,6 +18,7 @@ import {
   useUpdateFieldsMutation,
   useGetModelsQuery,
   useGetGroupsQuery,
+  useGetGroupQuery,
   Model as GQLModel,
   Group as GQLGroup,
   useCheckGroupKeyAvailabilityLazyQuery,
@@ -71,19 +72,19 @@ export default () => {
       .filter((group): group is Group => !!group);
   }, [groupsData?.groups]);
 
-  const rawGroup = useMemo(
-    () => groupsData?.groups?.find(node => node?.id === schemaId),
-    [groupsData?.groups, schemaId],
-  );
+  const { data: groupData } = useGetGroupQuery({
+    fetchPolicy: "cache-and-network",
+    variables: {
+      id: schemaId ?? "",
+    },
+    skip: !schemaId,
+  });
 
-  const group = useMemo<Group | undefined>(
-    () => (rawGroup?.id ? fromGraphQLGroup(rawGroup as GQLGroup) : undefined),
-    [rawGroup],
-  );
+  const group = useMemo(() => fromGraphQLGroup(groupData?.node as GQLGroup), [groupData?.node]);
 
   const selectedSchemaType: SelectedSchemaType = useMemo(
-    () => (groups?.find(group => group.id === schemaId) ? "group" : "model"),
-    [groups, schemaId],
+    () => (group ? "group" : "model"),
+    [group],
   );
 
   useEffect(() => {
@@ -116,15 +117,15 @@ export default () => {
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
-    refetchQueries: ["GetModel", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroup"],
   });
 
   const [updateField, { loading: fieldUpdateLoading }] = useUpdateFieldMutation({
-    refetchQueries: ["GetModel", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroup"],
   });
 
   const [deleteFieldMutation] = useDeleteFieldMutation({
-    refetchQueries: ["GetModel", "GetGroups"],
+    refetchQueries: ["GetModel", "GetGroup"],
   });
 
   const handleFieldDelete = useCallback(
