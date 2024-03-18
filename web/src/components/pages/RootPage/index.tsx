@@ -18,10 +18,10 @@ const RootPage: React.FC = () => {
     if (isAuthenticated) {
       if (data?.me?.id) {
         if (currentWorkspaceId && currentUserId === data.me.id) {
-          navigate(`workspace/${currentWorkspaceId}`);
+          navigate(`/workspace/${currentWorkspaceId || ""}`);
         } else {
           setCurrentWorkspaceId(undefined);
-          navigate("workspace");
+          navigate("/workspace");
         }
       }
     }

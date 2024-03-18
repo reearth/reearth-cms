@@ -33,8 +33,10 @@ import { Provider as I18nProvider } from "@reearth-cms/i18n";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<RootPage />} />
+      <Route index element={<RootPage />} />
+      <Route path="auth/*" element={<RootPage />} />
       <Route path="workspace" element={<CMSPageWrapper />}>
+        <Route index element={<Workspace />} />
         <Route path=":workspaceId" element={<Workspace />} />
         <Route path=":workspaceId/account" element={<AccountSettings />} />
         <Route path=":workspaceId/members" element={<Members />} />
