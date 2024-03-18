@@ -43,7 +43,6 @@ const ModelsMenu: React.FC<Props> = ({
     handleUpdateModelsOrder,
   } = useHooks({
     modelId: selectedSchemaType === "model" ? schemaId : undefined,
-    groupId: selectedSchemaType === "group" ? schemaId : undefined,
   });
 
   return (
