@@ -11,7 +11,6 @@ import "./index.css";
   try {
     await loadConfig();
   } finally {
-    await import("./aws-config");
     const element = document.getElementById("root");
     if (element) {
       const root = ReactDOM.createRoot(element);

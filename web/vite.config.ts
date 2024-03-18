@@ -70,8 +70,18 @@ function config(): Plugin {
   return {
     name: "reearth-config",
     async configureServer(server) {
+      const envs = loadEnv(
+        server.config.mode,
+        server.config.envDir ?? process.cwd(),
+        server.config.envPrefix,
+      );
+      const remoteReearthConfig = envs.REEARTH_WEB_CONFIG_URL
+        ? await (await fetch(envs.REEARTH_WEB_CONFIG_URL)).json()
+        : {};
       const configRes = JSON.stringify(
         {
+          ...remoteReearthConfig,
+          api: "http://localhost:8080/api",
           ...readEnv("REEARTH_CMS", {
             source: loadEnv(
               server.config.mode,
