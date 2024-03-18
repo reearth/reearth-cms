@@ -1,7 +1,7 @@
 import { type AuthInfo, getAuthInfo } from "./authInfo";
 import { configureCognito } from "./aws";
 
-export { getAuthInfo, getSignInCallbackUrl } from "./authInfo";
+export { getAuthInfo, getSignInCallbackUrl, logInToTenant, logOutFromTenant } from "./authInfo";
 
 export type Config = {
   api: string;
@@ -9,7 +9,7 @@ export type Config = {
   coverImageUrl?: string;
   cesiumIonAccessToken?: string;
   editorUrl: string;
-  multitenant?: Record<string, AuthInfo>;
+  multiTenant?: Record<string, AuthInfo>;
 } & AuthInfo;
 
 const env = import.meta.env;
@@ -48,25 +48,7 @@ export function e2eAccessToken(): string | undefined {
 
 declare global {
   interface Window {
-    REEARTH_CONFIG?: {
-      api: string;
-      auth0ClientId?: string;
-      auth0Domain?: string;
-      auth0Audience?: string;
-      cognitoRegion?: string;
-      cognitoUserPoolId?: string;
-      cognitoUserPoolWebClientId?: string;
-      cognitoOauthScope?: string;
-      cognitoOauthDomain?: string;
-      cognitoOauthRedirectSignIn?: string;
-      cognitoOauthRedirectSignOut?: string;
-      cognitoOauthResponseType?: string;
-      authProvider?: string;
-      logoUrl?: string;
-      coverImageUrl?: string;
-      cesiumIonAccessToken?: string;
-      editorUrl: string;
-    };
+    REEARTH_CONFIG?: Config;
     REEARTH_E2E_ACCESS_TOKEN?: string;
   }
 }
