@@ -32,8 +32,8 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   );
   await closeNotification(page);
   await expect(page.getByRole("cell", { name: "e2e integration name", exact: true })).toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("e2e integration name");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("e2e integration name");
   await page.getByRole("button", { name: "search" }).click();
   await page.getByRole("cell", { name: "setting" }).locator("svg").click();
   await page
@@ -48,14 +48,14 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   );
   await closeNotification(page);
   await expect(page.getByRole("cell", { name: "WRITER" })).toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("no integration");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("no integration");
   await page.getByRole("button", { name: "search" }).click();
   await expect(
     page.getByRole("cell", { name: "e2e integration name", exact: true }),
   ).not.toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("e2e integration name");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("e2e integration name");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByRole("cell", { name: "e2e integration name", exact: true })).toBeVisible();
   await page.getByLabel("", { exact: true }).check();
