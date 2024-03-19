@@ -4,25 +4,20 @@ import { useCallback, useMemo } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  className?: string;
+type Props = {
   selectedKey?: string;
   groups?: Group[];
-  selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
 };
 
 const GroupsList: React.FC<Props> = ({
-  className,
   selectedKey,
   groups,
-  selectedSchemaType,
   collapsed,
   onModalOpen,
   onGroupSelect,
@@ -30,8 +25,8 @@ const GroupsList: React.FC<Props> = ({
   const t = useT();
 
   const selectedKeys = useMemo(() => {
-    return selectedSchemaType && selectedSchemaType === "group" && selectedKey ? [selectedKey] : [];
-  }, [selectedKey, selectedSchemaType]);
+    return selectedKey ? [selectedKey] : [];
+  }, [selectedKey]);
 
   const handleClick = useCallback(
     (e: MenuInfo) => {
@@ -41,7 +36,7 @@ const GroupsList: React.FC<Props> = ({
   );
 
   return (
-    <SchemaStyledMenu className={className}>
+    <SchemaStyledMenu>
       {collapsed ? (
         <StyledIcon icon="caretRight" />
       ) : (

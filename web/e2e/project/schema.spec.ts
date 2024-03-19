@@ -33,14 +33,46 @@ test("Group CRUD has succeeded", async ({ page }) => {
   await crudGroup(page);
 });
 
+test("Group creating from adding field has succeeded", async ({ page }) => {
+  await createModel(page);
+  await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
+  await page.getByRole("button", { name: "Create Group" }).click();
+  await expect(page.getByLabel("New Group")).toContainText("New Group");
+  await expect(page.getByRole("button", { name: "OK" })).toBeDisabled();
+
+  await page.getByLabel("New Group").locator("#name").click();
+  await page.getByLabel("New Group").locator("#name").fill("e2e group name");
+  await page.getByLabel("New Group").locator("#key").click();
+  await page.getByLabel("New Group").locator("#key").fill("e2e-group-key");
+  await page.getByRole("button", { name: "OK" }).click();
+  await expect(page.getByRole("alert").last()).toContainText("Successfully created group!");
+  await closeNotification(page);
+  await expect(
+    page.getByRole("menuitem", { name: "e2e group name" }).locator("span"),
+  ).toBeVisible();
+  await expect(page.getByText("e2e group name#e2e-group-key")).toBeVisible();
+  await expect(page.getByText("FieldsMeta Data")).not.toBeVisible();
+  await expect(
+    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
+  ).not.toBeVisible();
+  await expect(
+    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
+  ).not.toBeVisible();
+  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
+  await handleFieldForm(page, "text");
+  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
+  await closeNotification(page);
+  await page.getByText("e2e model name").click();
+  await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
+  await expect(page.getByRole("heading", { name: "Create Group" })).toBeVisible();
+  await page.getByLabel("Select Group").click();
+  await expect(page.getByText("e2e group name #e2e-group-key")).toBeVisible();
+  await page.getByRole("button", { name: "Cancel" }).click();
+});
+
 test("Text field CRUD has succeeded", async ({ page }) => {
   await createModel(page);
-  await page
-    .locator("li")
-    .filter({ hasText: "TextHeading and titles, one-" })
-    .locator("div")
-    .first()
-    .click();
+  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
