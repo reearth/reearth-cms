@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, MouseEvent } from "react";
+import { useCallback, useMemo, MouseEvent, useState, useEffect } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,13 +13,11 @@ import {
 import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
-
-import useHooks from "./hooks";
 
 type Props = {
   value?: string;
@@ -68,6 +66,7 @@ type Props = {
   disableMoveUp?: boolean;
   disableMoveDown?: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const GroupItem: React.FC<Props> = ({
@@ -112,11 +111,21 @@ const GroupItem: React.FC<Props> = ({
   disableMoveUp,
   disableMoveDown,
   onGetAsset,
+  onGroupGet,
 }) => {
   const { Panel } = Collapse;
-  const { group } = useHooks(parentField?.typeProperty?.groupId);
 
-  const fields = useMemo(() => group?.schema.fields, [group?.schema.fields]);
+  const [fields, setFields] = useState<Field[]>();
+
+  useEffect(() => {
+    const handleFieldsSet = async (id: string) => {
+      const group = await onGroupGet(id);
+      setFields(group?.schema.fields);
+    };
+
+    if (parentField?.typeProperty?.groupId) handleFieldsSet(parentField.typeProperty.groupId);
+  }, [onGroupGet, parentField?.typeProperty?.groupId]);
+
   const itemGroupId = useMemo(() => value ?? "", [value]);
 
   const handleMoveUp = useCallback(

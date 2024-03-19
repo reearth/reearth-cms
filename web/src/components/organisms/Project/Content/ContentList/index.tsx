@@ -73,6 +73,7 @@ const ContentList: React.FC = () => {
           title={t("Content")}
           collapsed={collapsedModelMenu}
           onModelSelect={handleModelSelect}
+          selectedSchemaType="model"
         />
       }
       viewsMenu={

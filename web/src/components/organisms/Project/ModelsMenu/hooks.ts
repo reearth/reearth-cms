@@ -23,10 +23,9 @@ import { useModel, useWorkspace, useProject } from "@reearth-cms/state";
 
 type Params = {
   modelId?: string;
-  groupId?: string;
 };
 
-export default ({ modelId, groupId }: Params) => {
+export default ({ modelId }: Params) => {
   const t = useT();
   const [, setCurrentModel] = useModel();
   const [currentWorkspace] = useWorkspace();
@@ -142,16 +141,6 @@ export default ({ modelId, groupId }: Params) => {
       .filter((group): group is Group => !!group);
   }, [groupData?.groups]);
 
-  const rawGroup = useMemo(
-    () => groupData?.groups?.find(node => node?.id === groupId),
-    [groupData?.groups, groupId],
-  );
-
-  const group = useMemo<Group | undefined>(
-    () => (rawGroup?.id ? fromGraphQLGroup(rawGroup as GQLGroup) : undefined),
-    [rawGroup],
-  );
-
   const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
 
@@ -198,9 +187,7 @@ export default ({ modelId, groupId }: Params) => {
   );
 
   return {
-    model,
     models,
-    group,
     groups,
     modelModalShown,
     groupModalShown,
