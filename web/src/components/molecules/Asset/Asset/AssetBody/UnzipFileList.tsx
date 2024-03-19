@@ -62,15 +62,15 @@ const UnzipFileList: React.FC<Props> = ({
     [selectedKeys, assetBaseUrl],
   );
 
-  const constructFileTree = useCallback((file?: AssetFile): AssetFile | undefined => {
-    if (!file?.filePaths) return;
+  const constructFileTree = useCallback((assetFile?: AssetFile): AssetFile | undefined => {
+    if (!assetFile?.filePaths) return;
 
     const root: AssetFile = {
-      ...file,
+      ...assetFile,
       children: [],
     };
 
-    for (const filepath of file.filePaths) {
+    for (const filepath of assetFile.filePaths) {
       const parts = filepath.split("/");
       let currentNode = root;
 
