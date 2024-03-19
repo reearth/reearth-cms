@@ -31,8 +31,8 @@ export type MemberInput = {
 export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
 
 export type Workspace = {
-  id?: string;
-  name?: string;
+  id: string;
+  name: string;
   personal?: boolean;
   members?: Member[];
 };
