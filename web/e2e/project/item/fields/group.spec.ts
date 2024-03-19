@@ -116,6 +116,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await page.getByText("Content").click();
+  await page.getByText("e2e model name").click();
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await expect(page.getByRole("main")).toContainText("new text1(unique)");
   await expect(page.getByRole("main")).toContainText("new text1 description");
@@ -304,6 +305,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await closeNotification(page);
 
   await page.getByText("Content").click();
+  await page.getByText("e2e model name").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "plus New" }).click();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("text1");
