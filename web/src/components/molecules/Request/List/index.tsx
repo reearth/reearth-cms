@@ -29,7 +29,6 @@ type Props = {
     reviewedByMe?: boolean,
   ) => void;
   totalCount: number;
-  searchTerm: string;
   reviewedByMe: boolean;
   createdByMe: boolean;
   requestState: RequestState[];
@@ -51,7 +50,6 @@ const RequestListMolecule: React.FC<Props> = ({
   onRequestDelete,
   onRequestTableChange,
   totalCount,
-  searchTerm,
   reviewedByMe,
   createdByMe,
   requestState,
@@ -78,7 +76,6 @@ const RequestListMolecule: React.FC<Props> = ({
             selectedRequest={selectedRequest}
             onRequestTableChange={onRequestTableChange}
             totalCount={totalCount}
-            searchTerm={searchTerm}
             reviewedByMe={reviewedByMe}
             createdByMe={createdByMe}
             requestState={requestState}

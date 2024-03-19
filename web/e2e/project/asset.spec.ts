@@ -27,12 +27,12 @@ test("Asset CRUD and Searching has succeeded", async ({ page }) => {
   await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
   await closeNotification(page);
   await expect(page.getByText(uploadFileName)).toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("no asset");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("no asset");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByText(uploadFileName)).not.toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByText(uploadFileName)).toBeVisible();
   await page.getByLabel("edit").locator("svg").click();

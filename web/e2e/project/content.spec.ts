@@ -17,12 +17,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("Item CRUD and searching has succeeded", async ({ page }) => {
-  await page
-    .locator("li")
-    .filter({ hasText: "TextHeading and titles, one-" })
-    .locator("div")
-    .first()
-    .click();
+  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await closeNotification(page);
   await page.getByText("Content").click();
@@ -34,11 +29,11 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "text", exact: true })).toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("no field");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("no field");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByRole("cell", { name: "text", exact: true })).not.toBeVisible();
-  await page.getByPlaceholder("Please enter").fill("");
+  await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByRole("cell", { name: "text", exact: true })).toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();

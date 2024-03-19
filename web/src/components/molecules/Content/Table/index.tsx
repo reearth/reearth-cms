@@ -269,34 +269,40 @@ const ContentTable: React.FC<Props> = ({
     return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : [...actionsColumns];
   }, [actionsColumns, contentTableColumns]);
 
-  const rowSelection: TableRowSelection = {
-    selectedRowKeys: selection.selectedRowKeys,
-    onChange: (selectedRowKeys: Key[]) => {
-      setSelection({
-        ...selection,
-        selectedRowKeys: selectedRowKeys as string[],
-      });
-    },
-  };
+  const rowSelection: TableRowSelection = useMemo(
+    () => ({
+      selectedRowKeys: selection.selectedRowKeys,
+      onChange: (selectedRowKeys: Key[]) => {
+        setSelection({
+          ...selection,
+          selectedRowKeys: selectedRowKeys as string[],
+        });
+      },
+    }),
+    [selection, setSelection],
+  );
 
-  const AlertOptions = (props: any) => {
-    return (
-      <Space size={16}>
-        <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
-          <Icon icon="plus" /> {t("Add to Request")}
-        </PrimaryButton>
-        <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
-          <Icon icon="eyeInvisible" /> {t("Unpublish")}
-        </PrimaryButton>
-        <PrimaryButton onClick={props.onCleanSelected}>
-          <Icon icon="clear" /> {t("Deselect")}
-        </PrimaryButton>
-        <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Delete")}
-        </DeleteButton>
-      </Space>
-    );
-  };
+  const AlertOptions = useCallback(
+    (props: any) => {
+      return (
+        <Space size={16}>
+          <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
+            <Icon icon="plus" /> {t("Add to Request")}
+          </PrimaryButton>
+          <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
+            <Icon icon="eyeInvisible" /> {t("Unpublish")}
+          </PrimaryButton>
+          <PrimaryButton onClick={props.onCleanSelected}>
+            <Icon icon="clear" /> {t("Deselect")}
+          </PrimaryButton>
+          <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
+            <Icon icon="delete" /> {t("Delete")}
+          </DeleteButton>
+        </Space>
+      );
+    },
+    [onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t],
+  );
 
   const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
 
@@ -375,13 +381,6 @@ const ContentTable: React.FC<Props> = ({
   const handleControlMenuOpenChange = useCallback((open: boolean) => {
     setControlMenuOpen(open);
   }, []);
-
-  const toolBarItemClick = (isFilterMode: boolean) => {
-    setInputValue("");
-    setItems(getOptions(true));
-    isFilter.current = isFilterMode;
-    handleOptionsOpenChange(true);
-  };
 
   const handleOptionsOpenChange = useCallback((open: boolean) => {
     setControlMenuOpen(false);
@@ -467,6 +466,16 @@ const ContentTable: React.FC<Props> = ({
     ],
   );
 
+  const toolBarItemClick = useCallback(
+    (isFilterMode: boolean) => {
+      setInputValue("");
+      setItems(getOptions(true));
+      isFilter.current = isFilterMode;
+      handleOptionsOpenChange(true);
+    },
+    [getOptions, handleOptionsOpenChange],
+  );
+
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setInputValue(e.target.value);
@@ -486,113 +495,136 @@ const ContentTable: React.FC<Props> = ({
   const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
   const [inputValue, setInputValue] = useState("");
 
-  const sharedProps = {
-    menu: { items },
-    dropdownRender: (menu: React.ReactNode): React.ReactNode => (
-      <Wrapper>
-        <InputWrapper>
-          <Input
-            value={inputValue}
-            placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
-            onChange={handleChange}
-          />
-        </InputWrapper>
-        {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
-      </Wrapper>
-    ),
-    arrow: false,
-  };
+  const sharedProps = useMemo(
+    () => ({
+      menu: { items },
+      dropdownRender: (menu: React.ReactNode): React.ReactNode => (
+        <Wrapper>
+          <InputWrapper>
+            <Input
+              value={inputValue}
+              placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
+              onChange={handleChange}
+            />
+          </InputWrapper>
+          {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
+        </Wrapper>
+      ),
+      arrow: false,
+    }),
+    [handleChange, inputValue, items],
+  );
 
-  const handleToolbarEvents: ListToolBarProps = {
-    search: (
-      <StyledSearchContainer>
-        <StyledSearchInput
-          placeholder={t("Please enter")}
-          onSearch={(value: string) => {
-            if (value) {
+  const handleToolbarEvents: ListToolBarProps = useMemo(
+    () => ({
+      search: (
+        <StyledSearchContainer>
+          <StyledSearchInput
+            allowClear
+            placeholder={t("input search text")}
+            onSearch={(value: string) => {
               onSearchTerm(value);
-            } else {
-              onSearchTerm();
-            }
-          }}
-          key={`${modelKey}${currentView.id}`}
-        />
-        <StyledFilterWrapper>
-          <StyledFilterSpace size={[0, 8]}>
-            {filters.map((filter, index) => (
-              <FilterDropdown
-                key={index}
-                filter={filter}
-                defaultValue={defaultFilterValues.current[index]}
-                index={index}
-                filterRemove={filterRemove}
-                isFilterOpen={isFilterOpen.current}
-                currentView={currentView}
-                setCurrentView={setCurrentView}
-                onFilterChange={onFilterChange}
-              />
-            ))}
-          </StyledFilterSpace>
-          <Dropdown
-            {...sharedProps}
-            placement="bottomLeft"
-            trigger={["click"]}
-            onOpenChange={() => {
-              isFilter.current = true;
-              setInputValue("");
-              setItems(defaultItems);
+            }}
+            key={`${modelKey}${currentView.id}`}
+          />
+          <StyledFilterWrapper>
+            <StyledFilterSpace size={[0, 8]}>
+              {filters.map((filter, index) => (
+                <FilterDropdown
+                  key={index}
+                  filter={filter}
+                  defaultValue={defaultFilterValues.current[index]}
+                  index={index}
+                  filterRemove={filterRemove}
+                  isFilterOpen={isFilterOpen.current}
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  onFilterChange={onFilterChange}
+                />
+              ))}
+            </StyledFilterSpace>
+            <Dropdown
+              {...sharedProps}
+              placement="bottomLeft"
+              trigger={["click"]}
+              onOpenChange={() => {
+                isFilter.current = true;
+                setInputValue("");
+                setItems(defaultItems);
+              }}>
+              <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
+                Filter
+              </StyledFilterButton>
+            </Dropdown>
+          </StyledFilterWrapper>
+        </StyledSearchContainer>
+      ),
+    }),
+    [
+      currentView,
+      defaultItems,
+      filterRemove,
+      filters,
+      modelKey,
+      onFilterChange,
+      onSearchTerm,
+      setCurrentView,
+      sharedProps,
+      t,
+    ],
+  );
+
+  const pagination: TablePaginationConfig = useMemo(
+    () => ({
+      showSizeChanger: true,
+      current: page,
+      total: totalCount,
+      pageSize: pageSize,
+    }),
+    [page, pageSize, totalCount],
+  );
+
+  const options = useMemo(
+    () => ({
+      search: true,
+      fullScreen: true,
+      reload: onItemsReload,
+      setting: true,
+    }),
+    [onItemsReload],
+  );
+
+  const toolBarItems: MenuProps["items"] = useMemo(
+    () => [
+      {
+        label: (
+          <span
+            onClick={() => {
+              toolBarItemClick(true);
             }}>
-            <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
-              Filter
-            </StyledFilterButton>
-          </Dropdown>
-        </StyledFilterWrapper>
-      </StyledSearchContainer>
-    ),
-  };
+            {t("Add Filter")}
+          </span>
+        ),
+        key: "filter",
+        icon: <Icon icon="filter" />,
+      },
+      {
+        label: (
+          <span
+            onClick={() => {
+              toolBarItemClick(false);
+            }}>
+            {t("Add Sort")}
+          </span>
+        ),
+        key: "sort",
+        icon: <Icon icon="sortAscending" />,
+      },
+    ],
+    [t, toolBarItemClick],
+  );
 
-  const pagination: TablePaginationConfig = {
-    showSizeChanger: true,
-    current: page,
-    total: totalCount,
-    pageSize: pageSize,
-  };
-
-  const options = {
-    search: true,
-    fullScreen: true,
-    reload: onItemsReload,
-    setting: true,
-  };
-
-  const toolBarItems: MenuProps["items"] = [
-    {
-      label: (
-        <span
-          onClick={() => {
-            toolBarItemClick(true);
-          }}>
-          {t("Add Filter")}
-        </span>
-      ),
-      key: "filter",
-      icon: <Icon icon="filter" />,
-    },
-    {
-      label: (
-        <span
-          onClick={() => {
-            toolBarItemClick(false);
-          }}>
-          {t("Add Sort")}
-        </span>
-      ),
-      key: "sort",
-      icon: <Icon icon="sortAscending" />,
-    },
-  ];
-
-  const toolBarRender = () => {
+  const toolBarRender = useCallback(() => {
     return [
       <Dropdown
         {...sharedProps}
@@ -637,7 +669,23 @@ const ContentTable: React.FC<Props> = ({
         </Dropdown>
       </Dropdown>,
     ];
-  };
+  }, [
+    close,
+    conditionMenuOpen,
+    controlMenuOpen,
+    currentView,
+    filters.length,
+    handleConditionMenuOpenChange,
+    handleControlMenuOpenChange,
+    handleOptionsOpenChange,
+    onFilterChange,
+    optionsOpen,
+    selectedFilter,
+    setCurrentView,
+    sharedProps,
+    t,
+    toolBarItems,
+  ]);
 
   const settingOptions = useMemo(() => {
     const cols: Record<string, ColumnsState> = {};

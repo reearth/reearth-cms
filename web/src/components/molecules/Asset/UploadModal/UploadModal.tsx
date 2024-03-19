@@ -82,7 +82,7 @@ const UploadModal: React.FC<Props> = ({
         <Button
           type="primary"
           onClick={onUpload}
-          disabled={fileList?.length === 0 && !uploadUrl}
+          disabled={fileList?.length === 0 && !uploadUrl.url}
           loading={uploading}>
           {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
         </Button>

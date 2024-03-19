@@ -31,7 +31,6 @@ type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
-  searchTerm: string;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
@@ -65,7 +64,6 @@ const AssetList: React.FC<Props> = ({
   uploadType,
   selectedAsset,
   totalCount,
-  searchTerm,
   page,
   pageSize,
   onAssetItemSelect,
@@ -146,7 +144,6 @@ const AssetList: React.FC<Props> = ({
             loading={loading}
             selectedAsset={selectedAsset}
             totalCount={totalCount}
-            searchTerm={searchTerm}
             page={page}
             pageSize={pageSize}
             onAssetItemSelect={onAssetItemSelect}

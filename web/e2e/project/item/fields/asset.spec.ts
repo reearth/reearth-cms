@@ -96,12 +96,12 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
   await page.getByLabel("Default value").getByRole("button").nth(3).click();
   await page.getByRole("button", { name: "Asset" }).click();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("no asset");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("no asset");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.locator(".ant-table-row").first()).not.toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();
   await page.locator(".ant-table-row > td").first().getByRole("button").hover();
   await page.locator(".ant-table-row > td").first().getByRole("button").click();
