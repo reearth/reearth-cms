@@ -4,7 +4,6 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
-import { Role } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   fromGraphQLMember,
   fromGraphQLWorkspace,
@@ -129,7 +128,7 @@ export default () => {
           scope: convertScope(project.publication?.scope),
           alias: project.alias,
           assetPublic: project.publication?.assetPublic,
-          requestRoles: project.requestRoles as Role[],
+          requestRoles: project.requestRoles ?? undefined,
         });
       }
     } else {
