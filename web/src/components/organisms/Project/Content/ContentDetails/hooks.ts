@@ -173,7 +173,7 @@ export default () => {
   );
 
   const showPublishAction = useMemo(
-    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : false),
+    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
     [currentProject?.requestRoles, myRole],
   );
 
