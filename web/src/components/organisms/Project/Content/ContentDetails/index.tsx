@@ -25,7 +25,6 @@ const ContentDetails: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
-    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
     linkItemModalTitle,
@@ -57,6 +56,7 @@ const ContentDetails: React.FC = () => {
     handleModalOpen,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleGroupGet,
   } = useHooks();
 
   const {
@@ -122,7 +122,6 @@ const ContentDetails: React.FC = () => {
       itemId={itemId}
       itemLoading={itemLoading}
       model={currentModel}
-      groups={groups}
       initialFormValues={initialFormValues}
       initialMetaFormValues={initialMetaFormValues}
       loading={itemCreationLoading || itemUpdatingLoading}
@@ -136,6 +135,7 @@ const ContentDetails: React.FC = () => {
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
           displayGroups={false}
+          selectedSchemaType="model"
         />
       }
       onChange={handleAddItemToRequest}
@@ -171,6 +171,7 @@ const ContentDetails: React.FC = () => {
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
       workspaceUserMembers={workspaceUserMembers}
       onGetAsset={handleGetAsset}
+      onGroupGet={handleGroupGet}
     />
   );
 };
