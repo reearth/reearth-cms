@@ -224,6 +224,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 disableMoveUp={key === 0}
                 disableMoveDown={key === value.length - 1}
                 onGetAsset={onGetAsset}
+                onGroupGet={onGroupGet}
               />
             </FieldWrapper>
           );

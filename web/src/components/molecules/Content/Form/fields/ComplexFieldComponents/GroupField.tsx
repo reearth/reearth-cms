@@ -173,6 +173,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
           onGetAsset={onGetAsset}
+          onGroupGet={onGroupGet}
         />
       )}
     </Form.Item>
