@@ -29,6 +29,42 @@ test("Model CRUD has succeeded", async ({ page }) => {
   await crudModel(page);
 });
 
+test("Model reordering has succeeded", async ({ page }) => {
+  await createModel(page, "model1", "model1");
+  await createModel(page, "model2", "model2");
+  await expect(
+    page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(0),
+  ).toContainText("model1");
+  await expect(
+    page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(1),
+  ).toContainText("model2");
+  await page
+    .getByRole("main")
+    .getByRole("menu")
+    .first()
+    .getByRole("menuitem")
+    .nth(1)
+    .dragTo(page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(0));
+  await expect(page.getByRole("alert").last()).toContainText("Successfully updated models order!");
+  await closeNotification(page);
+  await expect(
+    page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(0),
+  ).toContainText("model2");
+  await expect(
+    page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(1),
+  ).toContainText("model1");
+  await createModel(page, "model3", "model3");
+  await expect(
+    page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(0),
+  ).toContainText("model2");
+  await expect(
+    page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(1),
+  ).toContainText("model1");
+  await expect(
+    page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(2),
+  ).toContainText("model3");
+});
+
 test("Group CRUD has succeeded", async ({ page }) => {
   await crudGroup(page);
 });
@@ -77,7 +113,7 @@ test("Text field CRUD has succeeded", async ({ page }) => {
   await deleteField(page, "new text", "new-text");
 });
 
-test("Reordering has succeeded", async ({ page }) => {
+test("Schema reordering has succeeded", async ({ page }) => {
   await createModel(page);
   await page.locator("li").filter({ hasText: /Text/ }).locator("div").first().click();
   await handleFieldForm(page, "text1");
