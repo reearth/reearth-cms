@@ -318,7 +318,6 @@ export default (isItemsRequired: boolean) => {
     selectedAsset,
     collapsed,
     totalCount: data?.assets.totalCount ?? 0,
-    searchTerm,
     page,
     pageSize,
     sort,
