@@ -5,7 +5,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewAsset(a *asset.Asset, f *asset.File, url string, all bool) *Asset {
+func NewAsset(a *asset.Asset, f *asset.File, url string, embed bool) *Asset {
 	if a == nil {
 		return nil
 	}
@@ -23,44 +23,44 @@ func NewAsset(a *asset.Asset, f *asset.File, url string, all bool) *Asset {
 		ContentType:             ct,
 		CreatedAt:               a.CreatedAt(),
 		Name:                    n,
-		PreviewType:             ToPreviewType(a.PreviewType()),
+		PreviewType:             NewPreviewType(a.PreviewType()),
 		ProjectId:               a.Project(),
 		TotalSize:               lo.ToPtr(float32(a.Size())),
 		Url:                     url,
-		File:                    ToAssetFile(f, all),
-		ArchiveExtractionStatus: ToAssetArchiveExtractionStatus(a.ArchiveExtractionStatus()),
+		File:                    NewAssetFile(f, embed),
+		ArchiveExtractionStatus: NewAssetArchiveExtractionStatus(a.ArchiveExtractionStatus()),
 	}
 }
 
-func ToAssetArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *AssetArchiveExtractionStatus {
+func NewAssetArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *AssetArchiveExtractionStatus {
 	if s == nil {
 		return nil
 	}
 	ss := ""
 	switch *s {
 	case asset.ArchiveExtractionStatusDone:
-		ss = "done"
+		ss = string(Done)
 	case asset.ArchiveExtractionStatusFailed:
-		ss = "failed"
+		ss = string(Failed)
 	case asset.ArchiveExtractionStatusInProgress:
-		ss = "in_progress"
+		ss = string(InProgress)
 	case asset.ArchiveExtractionStatusPending:
-		ss = "pending"
+		ss = string(Pending)
 	default:
 		return nil
 	}
 	return lo.ToPtr(AssetArchiveExtractionStatus(ss))
 }
 
-func ToAssetFile(f *asset.File, all bool) *File {
+func NewAssetFile(f *asset.File, embed bool) *File {
 	if f == nil {
 		return nil
 	}
 
 	var children *[]File
-	if all {
+	if embed {
 		children = lo.ToPtr(lo.FilterMap(f.Children(), func(c *asset.File, _ int) (File, bool) {
-			f := ToAssetFile(c, true)
+			f := NewAssetFile(c, true)
 			if f == nil {
 				return File{}, false
 			}
@@ -80,7 +80,7 @@ func ToAssetFile(f *asset.File, all bool) *File {
 	}
 }
 
-func ToPreviewType(pt *asset.PreviewType) *AssetPreviewType {
+func NewPreviewType(pt *asset.PreviewType) *AssetPreviewType {
 	if pt == nil {
 		return lo.ToPtr(Unknown)
 	}

@@ -33,11 +33,11 @@ func GetController(ctx context.Context) *Controller {
 
 func Echo(e *echo.Group) {
 	e.Use(middleware.CORS())
-	e.GET("/:project/:model", PublicApiItemList())
-	e.GET("/:project/:model/:item", PublicApiItemOrAsset())
+	e.GET("/:project/:model", itemListHandler())
+	e.GET("/:project/:model/:item", itemOrAssetHandler())
 }
 
-func PublicApiItemOrAsset() echo.HandlerFunc {
+func itemOrAssetHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())
@@ -59,7 +59,7 @@ func PublicApiItemOrAsset() echo.HandlerFunc {
 	}
 }
 
-func PublicApiItemList() echo.HandlerFunc {
+func itemListHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(ctx)
@@ -94,7 +94,7 @@ func PublicApiItemList() echo.HandlerFunc {
 	}
 }
 
-func PublicApiAsset() echo.HandlerFunc {
+func assetHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())

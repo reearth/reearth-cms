@@ -34,11 +34,11 @@ type ItemModelSchemaItemChange struct {
 	Changes []FieldChange `json:"changes"`
 }
 
-func NewItemModelSchema(i item.ItemModelSchema, assets *AssetContext) ItemModelSchema {
+func NewItemModelSchema(i item.ItemModelSchema) ItemModelSchema {
 	return ItemModelSchema{
-		Item: NewItem(i.Item, append(i.GroupSchemas, i.Schema), assets),
+		Item: NewItem(i.Item, nil, nil),
 		ReferencedItems: lo.Map(i.ReferencedItems, func(itm *version.Value[*item.Item], _ int) *VersionedItem {
-			return lo.ToPtr(NewVersionedItem(itm, nil, nil, nil, nil, nil, nil))
+			return lo.ToPtr(NewVersionedItem(itm, nil, nil))
 		}),
 		Model:   NewModel(i.Model, time.Time{}),
 		Schema:  NewSchema(i.Schema),

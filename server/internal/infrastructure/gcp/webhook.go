@@ -21,7 +21,7 @@ type webhookData struct {
 }
 
 func marshalWebhookData(w *task.WebhookPayload, urlResolver asset.URLResolver) ([]byte, error) {
-	ed, err := integrationapi.NewEventWith(w.Event, w.Override, "", urlResolver)
+	ed, err := integrationapi.NewEventWith(w.Event, w.Override, urlResolver)
 	if err != nil {
 		return nil, err
 	}
