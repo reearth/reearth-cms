@@ -28,6 +28,7 @@ type Props = {
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
   onChange?: (value?: string) => void;
+  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const ReferenceFormItem: React.FC<Props> = ({
@@ -47,6 +48,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   onSearchTerm,
   onLinkItemTableReload,
   onLinkItemTableChange,
+  onCheckItemReference,
 }) => {
   const { workspaceId, projectId } = useParams();
 
@@ -97,23 +99,27 @@ const ReferenceFormItem: React.FC<Props> = ({
       <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
         <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
       </StyledButton>
-      {!!onSearchTerm && !!onLinkItemTableReload && !!onLinkItemTableChange && (
-        <LinkItemModal
-          linkItemModalTitle={linkItemModalTitle}
-          linkItemModalTotalCount={linkItemModalTotalCount}
-          linkItemModalPage={linkItemModalPage}
-          correspondingFieldId={correspondingFieldId}
-          linkItemModalPageSize={linkItemModalPageSize}
-          onSearchTerm={onSearchTerm}
-          onLinkItemTableReload={onLinkItemTableReload}
-          onLinkItemTableChange={onLinkItemTableChange}
-          linkedItemsModalList={linkedItemsModalList}
-          visible={visible}
-          onLinkItemModalCancel={handleLinkItemModalCancel}
-          linkedItem={value}
-          onChange={onChange}
-        />
-      )}
+      {!!onSearchTerm &&
+        !!onLinkItemTableReload &&
+        !!onLinkItemTableChange &&
+        !!onCheckItemReference && (
+          <LinkItemModal
+            linkItemModalTitle={linkItemModalTitle}
+            linkItemModalTotalCount={linkItemModalTotalCount}
+            linkItemModalPage={linkItemModalPage}
+            correspondingFieldId={correspondingFieldId}
+            linkItemModalPageSize={linkItemModalPageSize}
+            onSearchTerm={onSearchTerm}
+            onLinkItemTableReload={onLinkItemTableReload}
+            onLinkItemTableChange={onLinkItemTableChange}
+            linkedItemsModalList={linkedItemsModalList}
+            visible={visible}
+            onLinkItemModalCancel={handleLinkItemModalCancel}
+            linkedItem={value}
+            onChange={onChange}
+            onCheckItemReference={onCheckItemReference}
+          />
+        )}
     </>
   );
 };

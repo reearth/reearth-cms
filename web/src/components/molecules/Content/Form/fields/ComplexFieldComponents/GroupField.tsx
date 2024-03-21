@@ -53,6 +53,7 @@ interface GroupFieldProps {
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 }
 
 const GroupField: React.FC<GroupFieldProps> = ({
@@ -92,6 +93,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
   setUploadModalVisibility,
   onGetAsset,
   onGroupGet,
+  onCheckItemReference,
 }) => {
   return (
     <Form.Item
@@ -136,6 +138,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           setUploadModalVisibility={setUploadModalVisibility}
           onGetAsset={onGetAsset}
           onGroupGet={onGroupGet}
+          onCheckItemReference={onCheckItemReference}
         />
       ) : (
         <GroupItem
@@ -174,6 +177,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
           setUploadModalVisibility={setUploadModalVisibility}
           onGetAsset={onGetAsset}
           onGroupGet={onGroupGet}
+          onCheckItemReference={onCheckItemReference}
         />
       )}
     </Form.Item>

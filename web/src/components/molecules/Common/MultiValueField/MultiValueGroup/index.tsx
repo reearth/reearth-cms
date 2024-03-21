@@ -65,6 +65,7 @@ type Props = {
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
@@ -108,6 +109,7 @@ const MultiValueGroup: React.FC<Props> = ({
   setUploadModalVisibility,
   onGetAsset,
   onGroupGet,
+  onCheckItemReference,
 }) => {
   const t = useT();
 
@@ -225,6 +227,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 disableMoveDown={key === value.length - 1}
                 onGetAsset={onGetAsset}
                 onGroupGet={onGroupGet}
+                onCheckItemReference={onCheckItemReference}
               />
             </FieldWrapper>
           );

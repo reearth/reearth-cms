@@ -57,6 +57,7 @@ const ContentDetails: React.FC = () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleGroupGet,
+    handleCheckItemReference,
   } = useHooks();
 
   const {
@@ -172,6 +173,7 @@ const ContentDetails: React.FC = () => {
       workspaceUserMembers={workspaceUserMembers}
       onGetAsset={handleGetAsset}
       onGroupGet={handleGroupGet}
+      onCheckItemReference={handleCheckItemReference}
     />
   );
 };

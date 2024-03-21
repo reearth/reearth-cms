@@ -67,6 +67,7 @@ type Props = {
   disableMoveDown?: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const GroupItem: React.FC<Props> = ({
@@ -112,6 +113,7 @@ const GroupItem: React.FC<Props> = ({
   disableMoveDown,
   onGetAsset,
   onGroupGet,
+  onCheckItemReference,
 }) => {
   const { Panel } = Collapse;
 
@@ -236,6 +238,7 @@ const GroupItem: React.FC<Props> = ({
                     onSearchTerm={onSearchTerm}
                     onLinkItemTableReload={onLinkItemTableReload}
                     onLinkItemTableChange={onLinkItemTableChange}
+                    onCheckItemReference={onCheckItemReference}
                   />
                 </StyledFormItemWrapper>
               );
