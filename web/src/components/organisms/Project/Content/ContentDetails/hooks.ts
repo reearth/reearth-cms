@@ -16,7 +16,7 @@ import {
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { Role, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
@@ -165,13 +165,15 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const myRole: Role = useMemo(
-    () => currentWorkspace?.members?.find(m => m.userId === me?.id)?.role,
+  const myRole = useMemo(
+    () =>
+      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
+        ?.role,
     [currentWorkspace?.members, me?.id],
   );
 
   const showPublishAction = useMemo(
-    () => !currentProject?.requestRoles?.includes(myRole),
+    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
     [currentProject?.requestRoles, myRole],
   );
 
@@ -423,7 +425,7 @@ export default () => {
     return (
       currentWorkspace?.members
         ?.map<UserMember | undefined>(member =>
-          member.__typename === "WorkspaceUserMember" && member.user
+          "userId" in member
             ? {
                 userId: member.userId,
                 user: member.user,
