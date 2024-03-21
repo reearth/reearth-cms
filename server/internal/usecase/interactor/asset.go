@@ -54,18 +54,18 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter inte
 	})
 }
 
-func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, error) {
+func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, []*asset.File, error) {
 	_, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	files, err := i.repos.AssetFile.FindByID(ctx, aid)
+	file, files, err := i.repos.AssetFile.FindByID(ctx, aid)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return files, nil
+	return file, files, nil
 }
 
 func (i *Asset) GetURL(a *asset.Asset) string {
@@ -223,7 +223,7 @@ func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *us
 				return nil, interfaces.ErrOperationDenied
 			}
 
-			f, err := i.repos.AssetFile.FindByID(ctx, aId)
+			f, _, err := i.repos.AssetFile.FindByID(ctx, aId)
 			if err != nil {
 				return nil, err
 			}
@@ -432,7 +432,7 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 				return nil, fmt.Errorf("failed to find a project: %v", err)
 			}
 
-			srcfile, err := i.repos.AssetFile.FindByID(ctx, aid)
+			srcfile, _, err := i.repos.AssetFile.FindByID(ctx, aid)
 			if err != nil {
 				return nil, fmt.Errorf("failed to find an asset file: %v", err)
 			}

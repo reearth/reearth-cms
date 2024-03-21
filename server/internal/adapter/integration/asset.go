@@ -156,7 +156,7 @@ func (s *Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (A
 		return AssetGet400Response{}, err
 	}
 
-	f, err := uc.Asset.FindFileByID(ctx, request.AssetId, op)
+	f, _, err := uc.Asset.FindFileByID(ctx, request.AssetId, op)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return AssetGet400Response{}, err
 	}

@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
 )
 
 func (r *Resolver) Query() QueryResolver {
@@ -244,10 +246,12 @@ func (r *queryResolver) AssetFile(ctx context.Context, assetId gqlmodel.ID) (*gq
 	if err != nil {
 		return nil, err
 	}
-	f, err := usecases(ctx).Asset.FindFileByID(ctx, id, getOperator(ctx))
+	f, ff, err := usecases(ctx).Asset.FindFileByID(ctx, id, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
+	p := lo.Map(ff, func(f *asset.File, _ int) string { return f.Path() })
+	f.SetFilePaths(p)
 	return gqlmodel.ToAssetFile(f), nil
 }
 

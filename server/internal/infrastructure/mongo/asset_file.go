@@ -41,7 +41,7 @@ func (r *AssetFile) Filtered(f repo.ProjectFilter) repo.Asset {
 	}
 }
 
-func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, error) {
+func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, []*asset.File, error) {
 	c := &mongodoc.AssetAndFileConsumer{}
 	if err := r.client.FindOne(ctx, bson.M{
 		"id": id.String(),
@@ -50,12 +50,13 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 		"file":      1,
 		"flatfiles": 1,
 	})); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	f := c.Result[0].File.Model()
 	if f == nil {
-		return nil, rerror.ErrNotFound
+		return nil, nil, rerror.ErrNotFound
 	}
+	var mm []*asset.File
 	if c.Result[0].FlatFiles {
 		var afc mongodoc.AssetFilesConsumer
 		if err := r.assetFilesClient.Find(ctx, bson.M{
@@ -63,11 +64,13 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 		}, &afc, options.Find().SetSort(bson.D{
 			{Key: "page", Value: 1},
 		})); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		f = asset.FoldFiles(afc.Result().Model(), f)
+		mm = afc.Result().Model()
+		// do something before folding
+		f = asset.FoldFiles(mm, f)
 	}
-	return f, nil
+	return f, mm, nil
 }
 
 func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) error {

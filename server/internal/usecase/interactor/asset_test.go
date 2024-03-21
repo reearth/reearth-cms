@@ -328,7 +328,7 @@ func TestAsset_FindFileByID(t *testing.T) {
 
 			assetUC := NewAsset(db, nil)
 
-			got, err := assetUC.FindFileByID(ctx, tc.args.id, tc.args.operator)
+			got, _, err := assetUC.FindFileByID(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -1247,7 +1247,7 @@ func TestAsset_UpdateFiles(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 
 			if tc.wantErr != nil {
-				gotf, err := db.AssetFile.FindByID(ctx, tc.assetID)
+				gotf, _, err := db.AssetFile.FindByID(ctx, tc.assetID)
 				assert.NoError(t, err)
 				assert.Equal(t, tc.wantFile, gotf)
 			}
