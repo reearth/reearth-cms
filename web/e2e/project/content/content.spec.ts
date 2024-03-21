@@ -18,7 +18,6 @@ test.afterEach(async ({ page }) => {
 test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
@@ -55,14 +54,8 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
 });
 
 test("Publishing and Unpublishing item has succeeded", async ({ page }) => {
-  await page
-    .locator("li")
-    .filter({ hasText: "TextHeading and titles, one-" })
-    .locator("div")
-    .first()
-    .click();
+  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
@@ -97,14 +90,8 @@ test("Publishing and Unpublishing item has succeeded", async ({ page }) => {
 });
 
 test("Comment CRUD on Content page has succeeded", async ({ page }) => {
-  await page
-    .locator("li")
-    .filter({ hasText: "TextHeading and titles, one-" })
-    .locator("div")
-    .first()
-    .click();
+  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
@@ -123,7 +110,6 @@ test("Comment CRUD on Content page has succeeded", async ({ page }) => {
 test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
