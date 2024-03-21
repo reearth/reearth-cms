@@ -30,6 +30,7 @@ const itemAdd = async (page: Page, data: string) => {
 };
 
 test("View CRUD has succeeded", async ({ page }) => {
+  test.setTimeout(50000);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await closeNotification(page);

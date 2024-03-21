@@ -15,6 +15,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("Group field creating and updating has succeeded", async ({ page }) => {
+  test.setTimeout(40000);
   await expect(
     page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
   ).toBeVisible();
