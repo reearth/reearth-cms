@@ -79,6 +79,11 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByPlaceholder("Enter the value").fill("text");
   await page.getByRole("button", { name: "Confirm" }).click();
 
+  await page.getByRole("main").getByLabel("setting").locator("svg").click();
+  await expect(page.getByRole("cell", { name: "Status" })).toBeVisible();
+  await page.locator("div:nth-child(3) > .ant-tree-checkbox").click();
+  await expect(page.getByRole("cell", { name: "Status" })).not.toBeVisible();
+
   await page.getByRole("button", { name: "Save as new view" }).click();
   await page.getByLabel("View Name").click();
   await page.getByLabel("View Name").fill("view2");
@@ -102,13 +107,19 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.getByRole("button", { name: "text close" })).not.toBeVisible();
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("sample2");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample1");
+  await expect(page.getByRole("cell", { name: "Status" })).toBeVisible();
+  await page.getByRole("main").getByLabel("setting").locator("svg").click();
+  await expect(page.locator("div:nth-child(3) > .ant-tree-checkbox")).toHaveClass(
+    /ant-tree-checkbox-checked/,
+  );
+  await page.getByRole("main").getByLabel("setting").locator("svg").click();
 
   await page.getByText("text", { exact: true }).first().click();
   await page.getByText("text", { exact: true }).first().click();
   await page.getByRole("button", { name: "plus Filter" }).click();
   await page.getByRole("menuitem", { name: "text" }).click();
   await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
-  await page.getByText("is").first().click();
+  await page.getByText("is", { exact: true }).first().click();
   await page.getByText("end with", { exact: true }).click();
   await page.getByPlaceholder("Enter the value").click();
   await page.getByPlaceholder("Enter the value").fill("1");
@@ -126,6 +137,12 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
+  await expect(page.getByRole("cell", { name: "Status" })).not.toBeVisible();
+  await page.getByRole("main").getByLabel("setting").locator("svg").click();
+  await expect(page.locator("div:nth-child(3) > .ant-tree-checkbox")).not.toHaveClass(
+    /ant-tree-checkbox-checked/,
+  );
+  await page.getByRole("main").getByLabel("setting").locator("svg").click();
 
   await page.getByText("new view1").click();
   await expect(
