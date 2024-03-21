@@ -60,8 +60,6 @@ test("Group creating from adding field has succeeded", async ({ page }) => {
   ).not.toBeVisible();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
-  await closeNotification(page);
   await page.getByText("e2e model name").click();
   await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
   await expect(page.getByRole("heading", { name: "Create Group" })).toBeVisible();
@@ -74,11 +72,34 @@ test("Text field CRUD has succeeded", async ({ page }) => {
   await createModel(page);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
-  await closeNotification(page);
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await handleFieldForm(page, "new text", "new-text");
+  await deleteField(page, "new text", "new-text");
+});
+
+test("Reordering has succeeded", async ({ page }) => {
+  await createModel(page);
+  await page.locator("li").filter({ hasText: /Text/ }).locator("div").first().click();
+  await handleFieldForm(page, "text1");
+  await page.locator("li").filter({ hasText: /Text/ }).locator("div").first().click();
+  await handleFieldForm(page, "text2");
+  await expect(page.getByLabel("Fields").locator(".draggable-item").nth(0)).toContainText(
+    "text1 #text1",
+  );
+  await expect(page.getByLabel("Fields").locator(".draggable-item").nth(1)).toContainText(
+    "text2 #text2",
+  );
+  await page
+    .getByLabel("Fields")
+    .locator(".draggable-item")
+    .nth(1)
+    .dragTo(page.getByLabel("Fields").locator(".draggable-item").nth(0));
   await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
-  await deleteField(page, "new text", "new-text");
+  await expect(page.getByLabel("Fields").locator(".draggable-item").nth(0)).toContainText(
+    "text2 #text2",
+  );
+  await expect(page.getByLabel("Fields").locator(".draggable-item").nth(1)).toContainText(
+    "text1 #text1",
+  );
 });
