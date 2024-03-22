@@ -45,8 +45,6 @@ export type AssetItem = {
 export type AssetFile = {
   children?: AssetFile[];
   filePaths?: string[];
-  contentType?: string;
   name: string;
   path: string;
-  size: number;
 };

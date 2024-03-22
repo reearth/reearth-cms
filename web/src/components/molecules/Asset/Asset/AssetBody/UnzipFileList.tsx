@@ -67,6 +67,7 @@ const UnzipFileList: React.FC<Props> = ({
 
     const root: AssetFile = {
       ...assetFile,
+      path: "/",
       children: [],
     };
 
@@ -79,9 +80,8 @@ const UnzipFileList: React.FC<Props> = ({
         if (!existingNode) {
           const newNode: AssetFile = {
             name: part,
-            path: `${currentNode.path}${part}/`,
+            path: `${currentNode.path}${part}${/\.[^.]+$/.test(part) ? "" : "/"}`,
             children: [],
-            size: 0,
           };
 
           currentNode.children?.push(newNode);
