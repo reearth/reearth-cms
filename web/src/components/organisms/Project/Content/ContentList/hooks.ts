@@ -133,8 +133,6 @@ export default () => {
       const { data } = await getItem({ variables: { id } });
       const item = fromGraphQLItem(data?.node as GQLItem);
       if (item?.metadata.id) {
-        console.log(item.metadata.version);
-
         metadataVersion.set(item.metadata.id, item.metadata.version);
       }
     },
