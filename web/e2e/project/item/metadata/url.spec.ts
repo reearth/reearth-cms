@@ -141,6 +141,7 @@ test("Url metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://default1.com");
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
+  await page.waitForTimeout(100);
   await expect(page.getByRole("tooltip").getByRole("link").nth(0)).toContainText(
     "http://default2.com",
   );
