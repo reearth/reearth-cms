@@ -123,14 +123,9 @@ func ToArchiveExtractionStatus(s *asset.ArchiveExtractionStatus) *ArchiveExtract
 	return &s2
 }
 
-func ToAssetFile(a *asset.File, f []*asset.File) *AssetFile {
+func ToAssetFile(a *asset.File) *AssetFile {
 	if a == nil {
 		return nil
-	}
-
-	var p []string
-	if len(f) > 0 {
-		p = lo.Map(f, func(af *asset.File, _ int) string { return af.Path() })
 	}
 
 	return &AssetFile{
@@ -138,8 +133,7 @@ func ToAssetFile(a *asset.File, f []*asset.File) *AssetFile {
 		Size:        int64(a.Size()),
 		ContentType: lo.ToPtr(a.ContentType()),
 		Path:        a.Path(),
-		Children:    lo.Map(a.Children(), func(c *asset.File, _ int) *AssetFile { return ToAssetFile(c, nil) }),
-		FilePaths:   p,
+		Children:    lo.Map(a.Children(), func(c *asset.File, _ int) *AssetFile { return ToAssetFile(c) }),
 	}
 }
 

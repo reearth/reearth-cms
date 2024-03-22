@@ -54,7 +54,7 @@ func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter inte
 	})
 }
 
-func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, []*asset.File, error) {
+func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, []string, error) {
 	_, err := i.repos.Asset.FindByID(ctx, aid)
 	if err != nil {
 		return nil, nil, err
@@ -64,8 +64,9 @@ func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Ope
 	if err != nil {
 		return nil, nil, err
 	}
+	p := lo.Map(files, func(f *asset.File, _ int) string { return f.Path() })
 
-	return file, files, nil
+	return file, p, nil
 }
 
 func (i *Asset) GetURL(a *asset.Asset) string {
