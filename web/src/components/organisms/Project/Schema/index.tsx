@@ -38,15 +38,13 @@ const ProjectSchema: React.FC = () => {
   } = useAssetHooks(false);
 
   const {
-    isModel,
+    data,
     models,
     groups,
-    group,
     isMeta,
     setIsMeta,
     fieldModalShown,
     selectedField,
-    currentModel,
     selectedType,
     collapsed,
     fieldCreationLoading,
@@ -63,25 +61,18 @@ const ProjectSchema: React.FC = () => {
     handleFieldUpdate,
     handleFieldOrder,
     handleFieldDelete,
+    handleKeyCheck,
+    handleModalOpen,
+    handleModalClose,
+    handleDeletionModalOpen,
+    handleDeletionModalClose,
+    handleSchemaCreate,
+    handleSchemaUpdate,
+    handleSchemaDelete,
     groupModalShown,
     groupDeletionModalShown,
-    handleGroupModalOpen,
-    handleGroupModalClose,
-    handleGroupDeletionModalOpen,
-    handleGroupDeletionModalClose,
-    handleGroupDelete,
-    handleGroupCreate,
-    handleGroupUpdate,
-    handleGroupKeyCheck,
     modelModalShown,
     modelDeletionModalShown,
-    handleModelModalOpen,
-    handleModelDeletionModalOpen,
-    handleModelModalClose,
-    handleModelDeletionModalClose,
-    handleModelDelete,
-    handleModelUpdate,
-    handleModelKeyCheck,
   } = useHooks();
 
   return (
@@ -89,17 +80,13 @@ const ProjectSchema: React.FC = () => {
       <SchemaMolecule
         collapsed={collapsed}
         selectedSchemaType={selectedSchemaType}
-        model={currentModel}
-        group={group}
-        onModelModalOpen={handleModelModalOpen}
-        onModelDeletionModalOpen={handleModelDeletionModalOpen}
-        onGroupModalOpen={handleGroupModalOpen}
-        onGroupDeletionModalOpen={handleGroupDeletionModalOpen}
+        data={data}
+        onModalOpen={handleModalOpen}
+        onDeletionModalOpen={handleDeletionModalOpen}
         modelsMenu={
           <ModelsMenu
             title={t("Schema")}
             collapsed={collapsed}
-            groupId={group?.id}
             selectedSchemaType={selectedSchemaType}
             onModelSelect={handleModelSelect}
             onGroupSelect={handleGroupSelect}
@@ -114,20 +101,20 @@ const ProjectSchema: React.FC = () => {
         onFieldDelete={handleFieldDelete}
       />
       <FormModal
-        data={isModel ? currentModel : group}
-        open={isModel ? modelModalShown : groupModalShown}
-        onKeyCheck={isModel ? handleModelKeyCheck : handleGroupKeyCheck}
-        onClose={isModel ? handleModelModalClose : handleGroupModalClose}
-        onCreate={isModel ? undefined : handleGroupCreate}
-        onUpdate={isModel ? handleModelUpdate : handleGroupUpdate}
-        isModel={isModel}
+        data={data}
+        open={modelModalShown || groupModalShown}
+        onKeyCheck={handleKeyCheck}
+        onClose={handleModalClose}
+        onCreate={handleSchemaCreate}
+        onUpdate={handleSchemaUpdate}
+        isModel={modelModalShown}
       />
       <DeletionModal
-        open={isModel ? modelDeletionModalShown : groupDeletionModalShown}
-        data={isModel ? currentModel : group}
-        onDelete={isModel ? handleModelDelete : handleGroupDelete}
-        onClose={isModel ? handleModelDeletionModalClose : handleGroupDeletionModalClose}
-        isModel={isModel}
+        data={data}
+        open={modelDeletionModalShown || groupDeletionModalShown}
+        onDelete={handleSchemaDelete}
+        onClose={handleDeletionModalClose}
+        isModel={modelDeletionModalShown}
       />
       {selectedType && selectedType === "Reference" && (
         <FieldCreationModalWithSteps

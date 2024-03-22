@@ -22,6 +22,7 @@ import (
 
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		ctx := c.Request().Context()
 		var input rhttp.NotifyInput
 		var err error
 
@@ -34,19 +35,20 @@ func NotifyHandler() echo.HandlerFunc {
 		}
 
 		if err != nil {
-			log.Errorf("failed to parse request body: %s", err.Error())
+			log.Errorfc(ctx, "failed to parse request body: %s", err.Error())
 			return err
 		}
 
-		ctx := c.Request().Context()
+		log.Infofc(ctx, "notified and updating files begin: assetID=%s type=%s status=%s", input.AssetID, input.Type, input.Status)
 
-		log.Infof("notified and updating files begin: assetID=%s type=%s status=%s", input.AssetID, input.Type, input.Status)
 		assetUC := adapter.Usecases(ctx).Asset
 		controller := rhttp.NewTaskController(assetUC)
+
 		if err := controller.Notify(ctx, input); err != nil {
-			log.Errorf("failed to update files: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
+			log.Errorf("failed to update files: assetID=%s, type=%s, status=%s, err=%v", input.AssetID, input.Type, input.Status, err)
 			return err
 		}
+
 		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
 		return c.JSON(http.StatusOK, "OK")
 	}

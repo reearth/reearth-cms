@@ -16,7 +16,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
-export type Props = {
+type Props = {
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
@@ -40,7 +40,6 @@ export type Props = {
   commentsPanel?: JSX.Element;
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
-  groups?: Group[];
   workspaceUserMembers: UserMember[];
   totalCount: number;
   page: number;
@@ -102,6 +101,7 @@ export type Props = {
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
@@ -129,7 +129,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalShown,
   addItemToRequestModalShown,
   workspaceUserMembers,
-  groups,
   totalCount,
   page,
   pageSize,
@@ -173,6 +172,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onAssetTableChange,
   onGetAsset,
+  onGroupGet,
 }) => {
   return (
     <ComplexInnerContents
@@ -192,7 +192,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         ) : (
           <ContentForm
             item={item}
-            groups={groups}
             linkItemModalTitle={linkItemModalTitle}
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}
@@ -254,6 +253,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onAddItemToRequestModalClose={onAddItemToRequestModalClose}
             workspaceUserMembers={workspaceUserMembers}
             onGetAsset={onGetAsset}
+            onGroupGet={onGroupGet}
           />
         )
       }
