@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -23,7 +24,7 @@ func NewAssetFile() *AssetFile {
 	}
 }
 
-func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, []*asset.File, error) {
+func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, []string, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -38,7 +39,8 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, [
 		f = asset.FoldFiles(fs, f)
 	}
 	res, err := rerror.ErrIfNil(f, rerror.ErrNotFound)
-	return res, fs, err
+	paths := lo.Map(fs, func(f *asset.File, _ int) string { return f.Path() })
+	return res, paths, err
 }
 
 func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) error {

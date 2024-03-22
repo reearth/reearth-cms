@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -41,7 +42,7 @@ func (r *AssetFile) Filtered(f repo.ProjectFilter) repo.Asset {
 	}
 }
 
-func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, []*asset.File, error) {
+func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, []string, error) {
 	c := &mongodoc.AssetAndFileConsumer{}
 	if err := r.client.FindOne(ctx, bson.M{
 		"id": id.String(),
@@ -56,7 +57,7 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, [
 	if f == nil {
 		return nil, nil, rerror.ErrNotFound
 	}
-	var mm []*asset.File
+	var paths []string
 	if c.Result[0].FlatFiles {
 		var afc mongodoc.AssetFilesConsumer
 		if err := r.assetFilesClient.Find(ctx, bson.M{
@@ -66,11 +67,11 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, [
 		})); err != nil {
 			return nil, nil, err
 		}
-		mm = afc.Result().Model()
-		// do something before folding
-		f = asset.FoldFiles(mm, f)
+		files := afc.Result().Model()
+		paths = lo.Map(files, func(f *asset.File, _ int) string { return f.Path() })
+		f = asset.FoldFiles(files, f)
 	}
-	return f, mm, nil
+	return f, paths, nil
 }
 
 func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) error {

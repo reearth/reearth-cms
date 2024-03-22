@@ -60,13 +60,12 @@ func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Ope
 		return nil, nil, err
 	}
 
-	file, files, err := i.repos.AssetFile.FindByID(ctx, aid)
+	file, paths, err := i.repos.AssetFile.FindByID(ctx, aid)
 	if err != nil {
 		return nil, nil, err
 	}
-	p := lo.Map(files, func(f *asset.File, _ int) string { return f.Path() })
 
-	return file, p, nil
+	return file, paths, nil
 }
 
 func (i *Asset) GetURL(a *asset.Asset) string {
