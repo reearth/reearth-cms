@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useCallback, useMemo, useState, useRef } from "react";
+import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -16,7 +16,7 @@ import {
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { Role, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
@@ -34,7 +34,7 @@ import {
   useUpdateItemMutation,
   useUpdateRequestMutation,
   useSearchItemLazyQuery,
-  useGetGroupsQuery,
+  useGetGroupLazyQuery,
   FieldType as GQLFieldType,
   StringOperator,
   ItemFieldInput,
@@ -75,7 +75,6 @@ export default () => {
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
   const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
 
-  const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const titleId = useRef("");
   const t = useT();
 
@@ -166,13 +165,15 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const myRole: Role = useMemo(
-    () => currentWorkspace?.members?.find(m => m.userId === me?.id)?.role,
+  const myRole = useMemo(
+    () =>
+      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
+        ?.role,
     [currentWorkspace?.members, me?.id],
   );
 
   const showPublishAction = useMemo(
-    () => !currentProject?.requestRoles?.includes(myRole),
+    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
     [currentProject?.requestRoles, myRole],
   );
 
@@ -181,16 +182,21 @@ export default () => {
     [data?.node],
   );
 
-  const { data: groupData } = useGetGroupsQuery({
-    variables: { projectId: projectId ?? "" },
-    skip: !projectId,
+  const [getGroup] = useGetGroupLazyQuery({
+    fetchPolicy: "cache-and-network",
   });
 
-  const groups = useMemo(() => {
-    return groupData?.groups
-      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
-      .filter((group): group is Group => !!group);
-  }, [groupData?.groups]);
+  const handleGroupGet = useCallback(
+    async (id: string) => {
+      const res = await getGroup({
+        variables: {
+          id,
+        },
+      });
+      return fromGraphQLGroup(res.data?.node as GQLGroup);
+    },
+    [getGroup],
+  );
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
@@ -337,52 +343,56 @@ export default () => {
     [dateConvert],
   );
 
-  const initialFormValues: { [key: string]: any } = useMemo(() => {
-    const initialValues: { [key: string]: any } = {};
+  const [initialFormValues, setInitialFormValues] = useState<{ [key: string]: any }>({});
 
-    const updateInitialValues = (value: any, id: string, itemGroupId: string) => {
-      initialValues[id] = {
-        ...initialValues[id],
-        ...{ [itemGroupId]: value },
-      };
-    };
-
-    const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
-      group?.schema?.fields?.forEach(field => {
-        updateInitialValues(valueGet(field), field.id, itemGroupId);
-      });
-    };
-
-    if (currentItem) {
-      currentItem?.fields?.forEach(field => {
-        if (field.itemGroupId) {
-          initialValues[field.schemaFieldId] = {
-            ...initialValues[field.schemaFieldId],
-            ...{ [field.itemGroupId]: updateValueConvert(field) },
+  useEffect(() => {
+    const handleInitialValuesSet = async () => {
+      const initialValues: { [key: string]: any } = {};
+      const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
+        group?.schema?.fields?.forEach(field => {
+          initialValues[field.id] = {
+            ...initialValues[field.id],
+            ...{ [itemGroupId]: valueGet(field) },
           };
-        } else {
-          initialValues[field.schemaFieldId] = updateValueConvert(field);
-        }
-      });
-    } else {
-      currentModel?.schema.fields.forEach(field => {
-        if (field.type === "Group") {
-          if (field.multiple) {
-            initialValues[field.id] = [];
-          } else {
-            const id = newID();
-            initialValues[field.id] = id;
-            const group = groups?.find(group => group.id === field.typeProperty?.groupId);
-            if (group) groupInitialValuesUpdate(group, id);
-          }
-        } else {
-          initialValues[field.id] = valueGet(field);
-        }
-      });
-    }
+        });
+      };
 
-    return initialValues;
-  }, [currentItem, currentModel?.schema.fields, groups, updateValueConvert, valueGet]);
+      if (currentItem) {
+        currentItem?.fields?.forEach(field => {
+          if (field.itemGroupId) {
+            initialValues[field.schemaFieldId] = {
+              ...initialValues[field.schemaFieldId],
+              ...{ [field.itemGroupId]: updateValueConvert(field) },
+            };
+          } else {
+            initialValues[field.schemaFieldId] = updateValueConvert(field);
+          }
+        });
+      } else if (currentModel) {
+        await Promise.all(
+          currentModel.schema.fields.map(async field => {
+            if (field.type === "Group") {
+              if (field.multiple) {
+                initialValues[field.id] = [];
+              } else {
+                const id = newID();
+                initialValues[field.id] = id;
+                if (field.typeProperty?.groupId) {
+                  const group = await handleGroupGet(field.typeProperty.groupId);
+                  if (group) groupInitialValuesUpdate(group, id);
+                }
+              }
+            } else {
+              initialValues[field.id] = valueGet(field);
+            }
+          }),
+        );
+      }
+
+      setInitialFormValues(initialValues);
+    };
+    handleInitialValuesSet();
+  }, [currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
 
   const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
@@ -415,7 +425,7 @@ export default () => {
     return (
       currentWorkspace?.members
         ?.map<UserMember | undefined>(member =>
-          member.__typename === "WorkspaceUserMember" && member.user
+          "userId" in member
             ? {
                 userId: member.userId,
                 user: member.user,
@@ -519,7 +529,6 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
-    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
     linkItemModalTitle: model?.name ?? "",
@@ -552,5 +561,6 @@ export default () => {
     handleModalOpen,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleGroupGet,
   };
 };

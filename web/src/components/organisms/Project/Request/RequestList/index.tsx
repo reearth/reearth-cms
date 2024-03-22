@@ -21,7 +21,6 @@ const RequestList: React.FC = () => {
     handleSearchTerm,
     handleNavigateToRequest,
     totalCount,
-    searchTerm,
     reviewedByMe,
     createdByMe,
     requestState,
@@ -57,7 +56,6 @@ const RequestList: React.FC = () => {
       setSelection={setSelection}
       onEdit={handleNavigateToRequest}
       totalCount={totalCount}
-      searchTerm={searchTerm}
       reviewedByMe={reviewedByMe}
       createdByMe={createdByMe}
       requestState={requestState}
