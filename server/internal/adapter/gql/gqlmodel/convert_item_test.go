@@ -28,6 +28,7 @@ func TestToItem(t *testing.T) {
 	sf1 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
 	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
+	sp := schema.NewPackage(s, nil, nil, nil)
 	i := item.New().
 		ID(iid).
 		Schema(sid).
@@ -79,7 +80,7 @@ func TestToItem(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			got := ToItem(tc.input, s, nil)
+			got := ToItem(tc.input, sp)
 			assert.Equal(tt, tc.want, got)
 		})
 	}
@@ -131,6 +132,7 @@ func TestToVersionedItem(t *testing.T) {
 	sf1 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	sf := []*schema.Field{sf1}
 	s := schema.New().ID(sid).Fields(sf).Workspace(accountdomain.NewWorkspaceID()).Project(pId).MustBuild()
+	sp := schema.NewPackage(s, nil, nil, nil)
 	fs := []*item.Field{item.NewField(sf1.ID(), value.TypeBool.Value(true).AsMultiple(), nil)}
 	i := item.New().ID(iid).Schema(sid).Model(id.NewModelID()).Project(pId).Fields(fs).Thread(id.NewThreadID()).MustBuild()
 	vx, vy := version.New(), version.New()
@@ -147,7 +149,7 @@ func TestToVersionedItem(t *testing.T) {
 				Version: vv.Version().String(),
 				Parents: []string{vy.String()},
 				Refs:    []string{ref},
-				Value:   ToItem(&vv, s, nil),
+				Value:   ToItem(&vv, sp),
 			},
 		},
 		{
@@ -156,7 +158,7 @@ func TestToVersionedItem(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := ToVersionedItem(tc.args, s, nil)
+			got := ToVersionedItem(tc.args, sp)
 			assert.Equal(t, tc.want, got)
 		})
 	}
