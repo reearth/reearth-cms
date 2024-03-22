@@ -465,8 +465,6 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 					GuessContentType().
 					Build(), true
 			})
-			filePaths := lo.Map(assetFiles, func(f *asset.File, _ int) string { return f.Path() })
-			srcfile.SetFilePaths(filePaths)
 
 			if err := i.repos.AssetFile.SaveFlat(ctx, a.ID(), srcfile, assetFiles); err != nil {
 				return nil, fmt.Errorf("failed to save asset files: %v", err)

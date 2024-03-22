@@ -4888,7 +4888,6 @@ schema {
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
-
 type AssetItem {
   itemId: ID!
   modelId: ID!

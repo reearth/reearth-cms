@@ -38,7 +38,6 @@ type AssetFileDocument struct {
 	ContentType string
 	Path        string
 	Children    []*AssetFileDocument
-	FilePaths   []string
 }
 
 type AssetConsumer = mongox.SliceFuncConsumer[*AssetDocument, *asset.Asset]
@@ -150,7 +149,6 @@ func NewFile(f *asset.File) *AssetFileDocument {
 		ContentType: f.ContentType(),
 		Path:        f.Path(),
 		Children:    c,
-		FilePaths:   f.FilePaths(),
 	}
 }
 
@@ -173,7 +171,6 @@ func (f *AssetFileDocument) Model() *asset.File {
 		ContentType(f.ContentType).
 		Path(f.Path).
 		Children(c).
-		FilePaths(f.FilePaths).
 		Build()
 
 	return af
