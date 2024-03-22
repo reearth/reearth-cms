@@ -244,13 +244,13 @@ func (r *queryResolver) AssetFile(ctx context.Context, assetId gqlmodel.ID) (*gq
 	if err != nil {
 		return nil, err
 	}
-	f, p, err := usecases(ctx).Asset.FindFileByID(ctx, id, getOperator(ctx))
+	f, paths, err := usecases(ctx).Asset.FindFileByID(ctx, id, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
-	res := gqlmodel.ToAssetFile(f)
-	res.FilePaths = p
-	return res, nil
+	af := gqlmodel.ToAssetFile(f)
+	af.FilePaths = paths
+	return af, nil
 }
 
 func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error) {

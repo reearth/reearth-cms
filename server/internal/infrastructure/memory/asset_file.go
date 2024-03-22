@@ -35,12 +35,16 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, [
 	fs := r.files.Find(func(key asset.ID, value []*asset.File) bool {
 		return key == id
 	})
+	var paths []string
 	if len(fs) > 0 {
 		f = asset.FoldFiles(fs, f)
+		paths = lo.Map(fs, func(f *asset.File, _ int) string { return f.Path() })
 	}
-	res, err := rerror.ErrIfNil(f, rerror.ErrNotFound)
-	paths := lo.Map(fs, func(f *asset.File, _ int) string { return f.Path() })
-	return res, paths, err
+	af, err := rerror.ErrIfNil(f, rerror.ErrNotFound)
+	if err != nil {
+		return nil, nil, err
+	}
+	return af, paths, nil
 }
 
 func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) error {
