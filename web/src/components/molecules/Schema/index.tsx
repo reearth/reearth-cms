@@ -14,16 +14,13 @@ import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldL
 import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
+  data?: Model | Group;
   collapsed?: boolean;
-  model?: Model;
-  group?: Group;
-  onModelModalOpen: () => void;
-  onModelDeletionModalOpen: () => void;
-  onGroupModalOpen: () => void;
-  onGroupDeletionModalOpen: () => void;
+  onModalOpen: () => void;
+  onDeletionModalOpen: () => void;
   modelsMenu?: JSX.Element;
-  selectedSchemaType?: SelectedSchemaType;
+  selectedSchemaType: SelectedSchemaType;
   setIsMeta?: (isMeta: boolean) => void;
   onCollapse?: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void> | void;
@@ -36,13 +33,10 @@ export type Tab = "fields" | "meta-data";
 export type SelectedSchemaType = "model" | "group";
 
 const Schema: React.FC<Props> = ({
+  data,
   collapsed,
-  model,
-  group,
-  onModelModalOpen,
-  onModelDeletionModalOpen,
-  onGroupModalOpen,
-  onGroupDeletionModalOpen,
+  onModalOpen,
+  onDeletionModalOpen,
   modelsMenu,
   selectedSchemaType,
   setIsMeta,
@@ -55,41 +49,32 @@ const Schema: React.FC<Props> = ({
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
 
-  const handleEdit = useCallback(() => {
-    selectedSchemaType === "model" ? onModelModalOpen() : onGroupModalOpen();
-  }, [onModelModalOpen, onGroupModalOpen, selectedSchemaType]);
-
-  const handleDelete = useCallback(() => {
-    selectedSchemaType === "model" ? onModelDeletionModalOpen() : onGroupDeletionModalOpen();
-  }, [onGroupDeletionModalOpen, onModelDeletionModalOpen, selectedSchemaType]);
-
   const dropdownItems = useMemo(
     () => [
       {
         key: "edit",
         label: t("Edit"),
         icon: <StyledIcon icon="edit" />,
-        onClick: handleEdit,
+        onClick: onModalOpen,
       },
       {
         key: "delete",
         label: t("Delete"),
         icon: <StyledIcon icon="delete" />,
-        onClick: handleDelete,
+        onClick: onDeletionModalOpen,
         danger: true,
       },
     ],
-    [handleDelete, handleEdit, t],
+    [onDeletionModalOpen, onModalOpen, t],
   );
 
   const DropdownMenu = useCallback(
-    () =>
-      model || group ? (
-        <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
-          <Button type="text" icon={<Icon icon="more" size={20} />} />
-        </Dropdown>
-      ) : null,
-    [dropdownItems, group, model],
+    () => (
+      <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
+        <Button type="text" icon={<Icon icon="more" size={20} />} />
+      </Dropdown>
+    ),
+    [dropdownItems],
   );
 
   const items: TabsProps["items"] = [
@@ -99,7 +84,7 @@ const Schema: React.FC<Props> = ({
       children: (
         <div>
           <ModelFieldList
-            fields={model?.schema.fields}
+            fields={data?.schema.fields}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -114,7 +99,7 @@ const Schema: React.FC<Props> = ({
         <div>
           <ModelFieldList
             isMeta={true}
-            fields={model?.metadataSchema?.fields}
+            fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -132,19 +117,6 @@ const Schema: React.FC<Props> = ({
     [selectedSchemaType, setIsMeta],
   );
 
-  const title = useMemo(
-    () => (selectedSchemaType === "model" ? model?.name : group?.name),
-    [group?.name, model?.name, selectedSchemaType],
-  );
-
-  const subTitle = useMemo(() => {
-    if (selectedSchemaType === "model") {
-      return model?.key ? `#${model.key}` : null;
-    } else {
-      return group?.key ? `#${group.key}` : null;
-    }
-  }, [group?.key, model?.key, selectedSchemaType]);
-
   return (
     <ComplexInnerContents
       left={
@@ -159,19 +131,27 @@ const Schema: React.FC<Props> = ({
       }
       center={
         <Content>
-          <PageHeader title={title} subTitle={subTitle} extra={[<DropdownMenu key="more" />]} />
-          {selectedSchemaType === "model" && (
-            <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
-          )}
-          {selectedSchemaType === "group" && (
-            <GroupFieldsWrapper>
-              <ModelFieldList
-                fields={group?.schema?.fields}
-                handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
-                onFieldReorder={onFieldReorder}
-                onFieldDelete={onFieldDelete}
+          {data && (
+            <>
+              <PageHeader
+                title={data.name}
+                subTitle={`#${data.key}`}
+                extra={[<DropdownMenu key="more" />]}
               />
-            </GroupFieldsWrapper>
+              {selectedSchemaType === "model" && (
+                <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
+              )}
+              {selectedSchemaType === "group" && (
+                <GroupFieldsWrapper>
+                  <ModelFieldList
+                    fields={data?.schema?.fields}
+                    handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
+                    onFieldReorder={onFieldReorder}
+                    onFieldDelete={onFieldDelete}
+                  />
+                </GroupFieldsWrapper>
+              )}
+            </>
           )}
         </Content>
       }

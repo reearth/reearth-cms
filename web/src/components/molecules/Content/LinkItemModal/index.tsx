@@ -5,17 +5,16 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, {
-  ProColumns,
-  ListToolBarProps,
-  OptionConfig,
-} from "@reearth-cms/components/atoms/ProTable";
+import { ProColumns, ListToolBarProps, OptionConfig } from "@reearth-cms/components/atoms/ProTable";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import { FormItem } from "../types";
 
 import useHooks from "./hooks";
+
+type StretchColumn = ProColumns<FormItem> & { minWidth: number };
 
 type Props = {
   onChange?: (value: string) => void;
@@ -96,11 +95,15 @@ const LinkItemModal: React.FC<Props> = ({
     [confirm, correspondingFieldId, handleCheckItemReference, onChange, onLinkItemModalCancel, t],
   );
 
-  const columns: ProColumns<FormItem>[] = useMemo(
+  const columns: StretchColumn[] = useMemo(
     () => [
       {
         title: "",
-        width: 40,
+        hideInSetting: true,
+        fixed: "left",
+        align: "center",
+        width: 48,
+        minWidth: 48,
         render: (_, item) => {
           const link =
             (item.id === linkedItem && hoveredAssetId !== item.id) ||
@@ -121,24 +124,32 @@ const LinkItemModal: React.FC<Props> = ({
         dataIndex: "id",
         key: "id",
         ellipsis: true,
+        width: 210,
+        minWidth: 210,
       },
       {
         title: t("Title"),
         dataIndex: "title",
         key: "title",
         ellipsis: true,
+        width: 230,
+        minWidth: 230,
       },
       {
         title: t("Created By"),
         dataIndex: "createdBy",
         key: "createdBy",
         ellipsis: true,
+        width: 100,
+        minWidth: 100,
       },
       {
         title: t("Created At"),
         dataIndex: "createdAt",
         key: "createdAt",
         ellipsis: true,
+        width: 130,
+        minWidth: 130,
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
     ],
@@ -152,11 +163,7 @@ const LinkItemModal: React.FC<Props> = ({
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {
-            if (value) {
-              onSearchTerm(value);
-            } else {
-              onSearchTerm();
-            }
+            onSearchTerm(value);
           }}
           value={value}
           onChange={handleInput}
@@ -167,7 +174,7 @@ const LinkItemModal: React.FC<Props> = ({
   );
 
   return (
-    <Modal
+    <StyledModal
       open={visible}
       title={linkItemModalTitle}
       centered
@@ -179,26 +186,25 @@ const LinkItemModal: React.FC<Props> = ({
         position: "relative",
         padding: "12px",
       }}>
-      <StyledProTable
+      <ResizableProTable
         dataSource={linkedItemsModalList}
         columns={columns}
         search={false}
-        rowKey="id"
         options={options}
         toolbar={toolbar}
         pagination={pagination}
         onChange={pagination => {
           onLinkItemTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}
-        scroll={{ x: "max-content", y: 330 }}
+        heightOffset={0}
       />
-    </Modal>
+    </StyledModal>
   );
 };
 
 export default LinkItemModal;
 
-const StyledProTable = styled(ProTable)`
+const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {

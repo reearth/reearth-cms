@@ -4,15 +4,18 @@ import { useMemo } from "react";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
+
+type StretchColumn = ProColumns<Request> & { minWidth: number };
 
 type Props = {
   itemIds: string[];
@@ -55,10 +58,15 @@ const LinkItemRequestModal: React.FC<Props> = ({
     onChange,
   );
 
-  const columns: ProColumns<Request>[] = useMemo(
+  const columns: StretchColumn[] = useMemo(
     () => [
       {
         title: "",
+        hideInSetting: true,
+        fixed: "left",
+        align: "center",
+        width: 32,
+        minWidth: 32,
         render: (_, request) => {
           return (
             <Radio.Group
@@ -70,17 +78,22 @@ const LinkItemRequestModal: React.FC<Props> = ({
             </Radio.Group>
           );
         },
-        width: 32,
       },
       {
         title: t("Title"),
         dataIndex: "title",
         key: "title",
+        ellipsis: true,
+        width: 200,
+        minWidth: 200,
       },
       {
         title: t("State"),
         dataIndex: "requestState",
         key: "requestState",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
         render: (_, request) => {
           let color = "";
           switch (request.state) {
@@ -104,6 +117,9 @@ const LinkItemRequestModal: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy.name",
         key: "createdBy",
+        ellipsis: true,
+        width: 100,
+        minWidth: 100,
         render: (_, request) => {
           return request.createdBy?.name;
         },
@@ -112,6 +128,9 @@ const LinkItemRequestModal: React.FC<Props> = ({
         title: t("Reviewers"),
         dataIndex: "reviewers.name",
         key: "reviewers",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
         render: (_, request) => (
           <Space>
             <div>
@@ -129,20 +148,27 @@ const LinkItemRequestModal: React.FC<Props> = ({
         title: t("Created At"),
         dataIndex: "createdAt",
         key: "createdAt",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
     ],
     [selectedRequestId, setSelectedRequestId, t],
   );
 
-  const options = {
-    reload: onRequestTableReload,
-  };
+  const options = useMemo(
+    () => ({
+      reload: onRequestTableReload,
+    }),
+    [onRequestTableReload],
+  );
 
   const toolbar = {
     search: (
       <Input.Search
-        placeholder={t("Please enter")}
+        allowClear
+        placeholder={t("input search text")}
         onSearch={onRequestSearchTerm}
         key={+resetFlag.current}
       />
@@ -150,7 +176,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
   };
 
   return (
-    <Modal
+    <StyledModal
       open={visible}
       title={t("Add to Request")}
       centered
@@ -165,11 +191,10 @@ const LinkItemRequestModal: React.FC<Props> = ({
       afterClose={() => {
         resetFlag.current = !resetFlag.current;
       }}>
-      <StyledProTable
+      <ResizableProTable
         dataSource={requestList}
         columns={columns}
         search={false}
-        rowKey="id"
         pagination={pagination}
         loading={requestModalLoading}
         onChange={pagination => {
@@ -177,9 +202,9 @@ const LinkItemRequestModal: React.FC<Props> = ({
         }}
         options={options}
         toolbar={toolbar}
-        scroll={{ x: "max-content", y: 330 }}
+        heightOffset={0}
       />
-    </Modal>
+    </StyledModal>
   );
 };
 
@@ -197,7 +222,7 @@ const StyledUserAvatar = styled(UserAvatar)`
   }
 `;
 
-const StyledProTable = styled(ProTable)`
+const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {

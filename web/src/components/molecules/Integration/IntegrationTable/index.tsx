@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
-import { Key } from "react";
+import { Key, useMemo, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Input from "@reearth-cms/components/atoms/Input";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import ProTable, {
   ListToolBarProps,
@@ -14,7 +15,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   integrationMembers?: IntegrationMember[];
   selection: {
     selectedRowKeys: Key[];
@@ -37,70 +38,89 @@ const IntegrationTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: ProColumns<IntegrationMember>[] = [
-    {
-      title: t("Name"),
-      dataIndex: ["integration", "name"],
-      key: "name",
-      filters: [],
-    },
-    {
-      title: t("Role"),
-      dataIndex: "integrationRole",
-      key: "role",
-    },
-    {
-      title: t("Creator"),
-      dataIndex: ["integration", "developer", "name"],
-      key: "creator",
-    },
-    {
-      key: "action",
-      render: (_, integrationMember) => (
-        <StyledIcon
-          onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
-          icon="settings"
+  const columns: ProColumns<IntegrationMember>[] = useMemo(
+    () => [
+      {
+        title: t("Name"),
+        dataIndex: ["integration", "name"],
+        key: "name",
+        filters: [],
+      },
+      {
+        title: t("Role"),
+        dataIndex: "integrationRole",
+        key: "role",
+      },
+      {
+        title: t("Creator"),
+        dataIndex: ["integration", "developer", "name"],
+        key: "creator",
+      },
+      {
+        key: "action",
+        render: (_, integrationMember) => (
+          <StyledIcon
+            onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
+            icon="settings"
+          />
+        ),
+      },
+    ],
+    [onIntegrationSettingsModalOpen, t],
+  );
+
+  const toolbar: ListToolBarProps = useMemo(
+    () => ({
+      search: (
+        <Input.Search
+          allowClear
+          placeholder={t("input search text")}
+          onSearch={(value: string) => {
+            onSearchTerm(value);
+          }}
         />
       ),
-    },
-  ];
+    }),
+    [onSearchTerm, t],
+  );
 
-  const handleToolbarEvents: ListToolBarProps | undefined = {
-    search: {
-      onSearch: (value: string) => {
-        onSearchTerm(value);
+  const rowSelection: TableRowSelection = useMemo(
+    () => ({
+      selectedRowKeys: selection.selectedRowKeys,
+      onChange: (selectedRowKeys: Key[]) => {
+        setSelection({
+          ...selection,
+          selectedRowKeys: selectedRowKeys,
+        });
       },
+    }),
+    [selection, setSelection],
+  );
+
+  const AlertOptions = useCallback(
+    (props: any) => {
+      return (
+        <Space size={16}>
+          <DeselectButton onClick={props.onCleanSelected}>
+            <Icon icon="clear" /> {t("Deselect")}
+          </DeselectButton>
+          <DeleteButton onClick={() => onIntegrationRemove?.(props.selectedRowKeys)}>
+            <Icon icon="delete" /> {t("Remove")}
+          </DeleteButton>
+        </Space>
+      );
     },
-  };
+    [onIntegrationRemove, t],
+  );
 
-  const rowSelection: TableRowSelection = {
-    selectedRowKeys: selection.selectedRowKeys,
-    onChange: (selectedRowKeys: Key[]) => {
-      setSelection({
-        ...selection,
-        selectedRowKeys: selectedRowKeys,
-      });
-    },
-  };
-
-  const AlertOptions = (props: any) => {
-    return (
-      <Space size={16}>
-        <DeselectButton onClick={props.onCleanSelected}>
-          <Icon icon="clear" /> {t("Deselect")}
-        </DeselectButton>
-        <DeleteButton onClick={() => onIntegrationRemove?.(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Remove")}
-        </DeleteButton>
-      </Space>
-    );
-  };
-
-  const options = {
-    fullScreen: true,
-    reload: false,
-    setting: true,
-  };
+  const options = useMemo(
+    () => ({
+      fullScreen: true,
+      reload: false,
+      setting: true,
+    }),
+    [],
+  );
 
   return (
     <Wrapper>
@@ -137,7 +157,7 @@ const IntegrationTable: React.FC<Props> = ({
           tableAlertOptionRender={AlertOptions}
           search={false}
           rowKey="id"
-          toolbar={handleToolbarEvents}
+          toolbar={toolbar}
           rowSelection={rowSelection}
           pagination={false}
         />

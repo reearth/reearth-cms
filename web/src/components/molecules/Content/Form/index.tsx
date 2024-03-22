@@ -38,9 +38,8 @@ import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldCom
 import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
-export interface Props {
+interface Props {
   item?: Item;
-  groups?: Group[];
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
@@ -119,11 +118,11 @@ export interface Props {
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 }
 
 const ContentForm: React.FC<Props> = ({
   item,
-  groups,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -185,6 +184,7 @@ const ContentForm: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onGetAsset,
+  onGroupGet,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -328,16 +328,18 @@ const ContentForm: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     try {
       const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
-      const groupIdsInCurrentModel = new Set();
-      model?.schema.fields?.forEach(field => {
-        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty?.groupId);
-      });
       const groupFields = new Map<string, Field>();
-      groups
-        ?.filter(group => groupIdsInCurrentModel.has(group.id))
-        .forEach(group => {
-          group?.schema.fields?.forEach(field => groupFields.set(field.id, field));
-        });
+      if (model) {
+        await Promise.all(
+          model.schema.fields.map(async field => {
+            if (field.typeProperty?.groupId) {
+              const group = await onGroupGet(field.typeProperty.groupId);
+              group?.schema.fields?.forEach(field => groupFields.set(field.id, field));
+            }
+          }),
+        );
+      }
+
       const values = await form.validateFields();
       const fields: ItemField[] = [];
       for (const [key, value] of Object.entries(values)) {
@@ -394,19 +396,7 @@ const ContentForm: React.FC<Props> = ({
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [
-    model?.schema.fields,
-    model?.schema.id,
-    model?.metadataSchema?.fields,
-    model?.metadataSchema?.id,
-    groups,
-    form,
-    metaForm,
-    itemId,
-    inputValueGet,
-    onItemUpdate,
-    onItemCreate,
-  ]);
+  }, [model, form, metaForm, itemId, onGroupGet, inputValueGet, onItemUpdate, onItemCreate]);
 
   const handleMetaUpdate = useCallback(async () => {
     if (!itemId || !item?.metadata?.id) return;
@@ -573,7 +563,6 @@ const ContentForm: React.FC<Props> = ({
                   <GroupField
                     field={field}
                     form={form}
-                    groups={groups}
                     linkedItemsModalList={linkedItemsModalList}
                     linkItemModalTitle={linkItemModalTitle}
                     formItemsData={formItemsData}
@@ -607,6 +596,7 @@ const ContentForm: React.FC<Props> = ({
                     setFileList={setFileList}
                     setUploadModalVisibility={setUploadModalVisibility}
                     onGetAsset={onGetAsset}
+                    onGroupGet={onGroupGet}
                   />
                 </StyledFormItemWrapper>
               );

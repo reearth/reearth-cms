@@ -30,12 +30,12 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await page.getByText("Request", { exact: true }).click();
   await expect(page.getByText(requestTitle, { exact: true })).toBeVisible();
   await expect(page.getByText("WAITING")).toBeVisible();
-  await page.getByPlaceholder("Please enter").click();
-  await page.getByPlaceholder("Please enter").fill("no request");
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("no request");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByText(requestTitle, { exact: true })).not.toBeVisible();
   await expect(page.getByText("WAITING")).not.toBeVisible();
-  await page.getByPlaceholder("Please enter").fill("");
+  await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByText(requestTitle, { exact: true })).toBeVisible();
   await expect(page.getByText("WAITING")).toBeVisible();
