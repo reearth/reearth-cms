@@ -33,7 +33,6 @@ test("View CRUD has succeeded", async ({ page }) => {
   test.slow();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await closeNotification(page);
   await page.getByText("Content").click();
   await itemAdd(page, "text1");
   await itemAdd(page, "text2");
