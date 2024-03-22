@@ -23,9 +23,9 @@ func NewAssetFile() *AssetFile {
 	}
 }
 
-func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, error) {
+func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, []*asset.File, error) {
 	if r.err != nil {
-		return nil, r.err
+		return nil, nil, r.err
 	}
 
 	f := r.data.Find(func(key asset.ID, value *asset.File) bool {
@@ -37,7 +37,8 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 	if len(fs) > 0 {
 		f = asset.FoldFiles(fs, f)
 	}
-	return rerror.ErrIfNil(f, rerror.ErrNotFound)
+	res, err := rerror.ErrIfNil(f, rerror.ErrNotFound)
+	return res, fs, err
 }
 
 func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) error {
