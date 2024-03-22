@@ -79,7 +79,7 @@ func TestAssetFileRepo_FindByID(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			got, err := r.FindByID(ctx, tc.arg)
+			got, _, err := r.FindByID(ctx, tc.arg)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

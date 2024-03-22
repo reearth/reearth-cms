@@ -209,7 +209,7 @@ func TestConvertAsset_ToAssetFile(t *testing.T) {
 		Size:        int64(1000),
 		ContentType: lo.ToPtr("image/jpg"),
 		Path:        "/",
-		Children:    lo.Map(c, func(a *asset.File, _ int) *AssetFile { return ToAssetFile(a) }),
+		Children:    lo.Map(c, func(a *asset.File, _ int) *AssetFile { return ToAssetFile(a, nil) }),
 	}
 
 	var f2 *asset.File = nil
@@ -237,7 +237,7 @@ func TestConvertAsset_ToAssetFile(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := ToAssetFile(tc.arg)
+			got := ToAssetFile(tc.arg, nil)
 			assert.Equal(t, tc.want, got)
 		})
 	}
