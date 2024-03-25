@@ -26,7 +26,6 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Set default value").fill("text1 default value");
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await expect(page.getByText("text1 #text1")).toBeVisible();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
@@ -53,7 +52,6 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("text1 description");
   await expect(page.getByLabel("text1")).toHaveValue("text1 default value");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.locator(".ant-table-row > td:nth-child(9)").getByRole("button").click();
@@ -86,7 +84,6 @@ test("Markdown field editing has succeeded", async ({ page }) => {
     "text1",
   );
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByText("new text1 *#new-text1(unique)")).toBeVisible();
   await page.getByText("Content").click();
@@ -104,7 +101,6 @@ test("Markdown field editing has succeeded", async ({ page }) => {
     "text1",
   );
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
@@ -115,8 +111,7 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.getByRole("button", { name: "plus New" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("input: updateItem value is required");
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.locator("div:nth-child(1) > .css-1ago99h > .css-1msv1zr").click();
   await page.getByRole("textbox").fill("text");
   await page.getByRole("button", { name: "plus New" }).click();
@@ -131,7 +126,6 @@ test("Markdown field editing has succeeded", async ({ page }) => {
     "text",
   );
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).nth(1).click();

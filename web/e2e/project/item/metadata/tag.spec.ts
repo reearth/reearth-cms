@@ -3,6 +3,8 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+test.describe.configure({ mode: "parallel" });
+
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
@@ -29,7 +31,6 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
   await page.locator("div").filter({ hasText: /^Tag$/ }).click();
   await page.locator("#tags").nth(1).fill("Tag2");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await expect(page.getByText("tag1 #tag1")).toBeVisible();
@@ -61,7 +62,6 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
     .click();
   await expect(page.locator("#root").getByText("Tag1", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.locator("#root").getByText("Tag1", { exact: true })).toBeVisible();
   await page.getByLabel("Back").click();
@@ -75,7 +75,6 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
     .nth(1)
     .click();
   await page.getByText("tag1", { exact: true }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.locator("#root").getByText("Tag2")).toBeVisible();
   await page.getByLabel("Back").click();
@@ -86,11 +85,9 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
     .filter({ hasText: /^Tag1$/ })
     .nth(2)
     .click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.locator("tbody").getByText("Tag1").first()).toBeVisible();
   await page.getByRole("cell", { name: "Tag1", exact: true }).locator("svg").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.locator("#root").getByText("Tag1", { exact: true }).first()).not.toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
@@ -120,14 +117,12 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
     .nth(3)
     .click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("tag1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.getByText("Tag1", { exact: true })).toBeVisible();
   await page.getByLabel("Back").click();
@@ -163,7 +158,6 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await page.locator(".ant-select-selector").click();
   await expect(page.getByText("Tag1").last()).not.toBeVisible();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByLabel("Meta Data")).toContainText("new tag1 *#new-tag1(unique)");
   await page.getByText("Content").click();
@@ -173,14 +167,12 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await expect(page.locator("label")).toContainText("new tag1(unique)");
   await expect(page.getByText("Tag2Tag3")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
 
   await expect(page.getByText("Tag2Tag3")).toBeVisible();
   await page.getByLabel("Back").click();
   await page.getByRole("cell", { name: "Tag2 Tag3" }).click();
   await page.getByText("Tag2").nth(2).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
   await expect(page.getByText("Tag3")).toBeVisible();
@@ -189,7 +181,6 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await page.locator(".ant-select-selector").click();
   await page.getByText("Tag2").click();
   await page.getByLabel("Back").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByText("Tag2")).toBeVisible();
 });

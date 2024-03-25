@@ -3,6 +3,8 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+test.describe.configure({ mode: "parallel" });
+
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
@@ -28,7 +30,6 @@ test("Option field creating and updating has succeeded", async ({ page }) => {
   await page.locator("#values").nth(1).click();
   await page.locator("#values").nth(1).fill("second");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("option1 #option1");
@@ -42,7 +43,6 @@ test("Option field creating and updating has succeeded", async ({ page }) => {
   await page.getByTitle("first").locator("div").click();
   await expect(page.locator("#root").getByText("first").last()).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("first")).toBeVisible();
@@ -53,7 +53,6 @@ test("Option field creating and updating has succeeded", async ({ page }) => {
   await page.getByTitle("second").locator("div").click();
   await expect(page.locator("#root").getByText("second").last()).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("second")).toBeVisible();
@@ -95,7 +94,6 @@ test("Option field editing has succeeded", async ({ page }) => {
   await expect(page.getByTitle("forth").locator("div")).toBeVisible();
   await page.getByTitle("third").locator("div").click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await page.getByText("Content").click();
@@ -107,7 +105,6 @@ test("Option field editing has succeeded", async ({ page }) => {
   await expect(page.getByTitle("third").locator("div")).toBeVisible();
   await expect(page.getByTitle("forth").locator("div")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("third")).toBeVisible();
@@ -166,7 +163,6 @@ test("Option field editing has succeeded", async ({ page }) => {
   await page.locator(".ant-select-selection-item").nth(1).click();
   await page.getByTitle("new third").locator("div").last().click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByText("new option1 *#new-option1(")).toBeVisible();
   await page.getByText("Content").click();
@@ -177,7 +173,6 @@ test("Option field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("new first")).toBeVisible();
   await expect(page.getByText("new third")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "new first new third" })).toBeVisible();

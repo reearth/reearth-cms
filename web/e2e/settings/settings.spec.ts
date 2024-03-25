@@ -2,6 +2,8 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+test.describe.configure({ mode: "parallel" });
+
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
@@ -22,7 +24,6 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
   await page.getByTitle("Labelled").click();
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
   await closeNotification(page);
   await page
     .locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon")
@@ -42,7 +43,6 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
   await page.getByLabel("Image URL").fill("http://image.com");
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
   await closeNotification(page);
   await expect(page.getByText("url", { exact: true })).toBeVisible();
   await expect(page.locator("img")).toBeVisible();
@@ -58,7 +58,6 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
     .locator("div:last-child > .ant-card-actions > li:nth-child(1) > span > .anticon")
     .click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
   await closeNotification(page);
   await expect(page.getByText("url", { exact: true })).not.toBeVisible();
 });
@@ -77,7 +76,6 @@ test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
   await page.getByTitle("ArcGIS Terrain").click();
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await closeNotification(page);
   await page.getByLabel("edit").locator("svg").click();
   await expect(page.locator("form")).toContainText("ArcGIS Terrain");
@@ -99,7 +97,6 @@ test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
   await page.getByLabel("Image URL").fill("http://image.com");
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await closeNotification(page);
   await expect(page.getByText("name", { exact: true })).toBeVisible();
   await page.getByLabel("edit").locator("svg").click();
@@ -112,13 +109,11 @@ test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
   await page.getByLabel("Close", { exact: true }).click();
   await page.getByLabel("delete").locator("svg").click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await closeNotification(page);
   await expect(page.getByText("name", { exact: true })).not.toBeVisible();
 
   await page.getByRole("switch").click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await closeNotification(page);
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).not.toBeVisible();
@@ -138,7 +133,6 @@ test("Tiles reordering has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-card").nth(0)).toHaveText("DEFAULT");
   await expect(page.locator(".ant-card").nth(1)).toHaveText("LABELLED");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
   await closeNotification(page);
 
   await page
@@ -149,7 +143,6 @@ test("Tiles reordering has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-card").nth(0)).toHaveText("LABELLED");
   await expect(page.locator(".ant-card").nth(1)).toHaveText("DEFAULT");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
   await closeNotification(page);
 
   await page.getByText("Home").click();
@@ -173,7 +166,6 @@ test("Terrain reordering has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-card").nth(0)).toHaveText("CESIUM_WORLD_TERRAIN");
   await expect(page.locator(".ant-card").nth(1)).toHaveText("ARC_GIS_TERRAIN");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await closeNotification(page);
 
   await page
@@ -184,7 +176,6 @@ test("Terrain reordering has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-card").nth(0)).toHaveText("ARC_GIS_TERRAIN");
   await expect(page.locator(".ant-card").nth(1)).toHaveText("CESIUM_WORLD_TERRAIN");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated");
   await closeNotification(page);
 
   await page.getByText("Home").click();

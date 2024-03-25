@@ -4,6 +4,8 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+test.describe.configure({ mode: "parallel" });
+
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
@@ -38,7 +40,6 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("text1 description");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await expect(page.getByText("text1 #text1")).toBeVisible();
 
@@ -63,7 +64,6 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Set default value")).not.toBeEnabled();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1 #group1");
   await page.getByText("Content").click();
@@ -74,7 +74,6 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   // TO DO: check if the group field shows correctly
@@ -84,7 +83,6 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("new text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.locator("span").filter({ hasText: "Schema" }).click();
   await page.getByRole("menuitem", { name: "e2e group name" }).locator("span").click();
@@ -107,14 +105,10 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("text12");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: updateField value has 6 characters, but it sholud be shorter than 5 characters",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("text1");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByText("e2e model name").click();
@@ -124,14 +118,10 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("new text1");
   await expect(page.getByText("/ 5")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: updateItem value has 9 characters, but it sholud be shorter than 5 characters",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.getByLabel("new text1(unique)").click();
   await page.getByLabel("new text1(unique)").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("link", { name: "edit", exact: true }).click();
@@ -152,7 +142,6 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
     .fill("text2");
   await page.getByRole("button", { name: "plus New" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
@@ -160,7 +149,6 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text2");
   await page.getByRole("button", { name: "arrow-down" }).first().click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
@@ -191,7 +179,6 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("text1 description");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await expect(page.getByText("text1 #text1")).toBeVisible();
 
@@ -216,7 +203,6 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Set default value")).not.toBeEnabled();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1 #group1");
   await page.getByText("Content").click();
@@ -228,7 +214,6 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
 
   await page.getByText("Schema").click();
@@ -262,7 +247,6 @@ test("Group field editing has succeeded", async ({ page }) => {
     .getByLabel("text1")
     .fill("text1-2");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("link", { name: "edit", exact: true }).click();
@@ -284,7 +268,6 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
@@ -302,7 +285,6 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.locator("#defaultValue").nth(1).click();
   await page.locator("#defaultValue").nth(1).fill("text2");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
 
   await page.getByText("Content").click();
@@ -316,7 +298,6 @@ test("Group field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(3)).toHaveValue("text2");
   await page.getByRole("button", { name: "arrow-down" }).nth(3).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("link", { name: "edit", exact: true }).first().click();

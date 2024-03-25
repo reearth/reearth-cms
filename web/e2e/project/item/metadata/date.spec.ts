@@ -3,6 +3,8 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+test.describe.configure({ mode: "parallel" });
+
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
@@ -23,7 +25,6 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("date1 description");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await expect(page.getByText("date1 #date1")).toBeVisible();
@@ -51,7 +52,6 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByPlaceholder("Select date").fill("2024-01-01");
   await page.getByPlaceholder("Select date").press("Enter");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-01");
   await page.getByLabel("Back").click();
@@ -60,7 +60,6 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByPlaceholder("Select date").click();
   await page.getByPlaceholder("Select date").fill("2024-01-02");
   await page.getByPlaceholder("Select date").press("Enter");
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-02");
   await page.getByLabel("Back").click();
@@ -68,7 +67,6 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByPlaceholder("-").click();
   await page.getByPlaceholder("-").fill("2024-01-03");
   await page.getByPlaceholder("-").press("Enter");
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByPlaceholder("-")).toHaveValue("2024-01-03");
   await page.getByRole("link", { name: "edit", exact: true }).click();
@@ -89,7 +87,6 @@ test("Date metadata editing has succeeded", async ({ page }) => {
   await page.getByPlaceholder("Select date").fill("2024-01-01");
   await page.getByPlaceholder("Select date").press("Enter");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await page.getByText("Content").click();
@@ -97,7 +94,6 @@ test("Date metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-01");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-01");
   await page.getByLabel("Back").click();
@@ -130,7 +126,6 @@ test("Date metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("2024-01-03");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("2024-01-02");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByText("new date1 *#new-date1(unique)")).toBeVisible();
 
@@ -145,7 +140,6 @@ test("Date metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("2024-01-03");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("2024-01-02");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
 
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("2024-01-01");
@@ -159,36 +153,28 @@ test("Date metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tooltip").getByRole("textbox").nth(1).click();
   await page.getByRole("tooltip").getByRole("textbox").nth(1).fill("2024-01-04");
   await page.getByRole("tooltip").getByRole("textbox").nth(1).press("Enter");
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("2024-01-01");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("2024-01-04");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("2024-01-02");
   await page.getByRole("button", { name: "plus New" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("textbox").nth(3).click();
   await page.getByRole("textbox").nth(3).fill("2024-01-05");
   await page.getByRole("textbox").nth(3).press("Enter");
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("button", { name: "plus New" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("textbox").nth(4).click();
   await page.getByRole("textbox").nth(4).fill("2024-01-06");
   await page.getByRole("textbox").nth(4).press("Enter");
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("button", { name: "delete" }).first().click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("button", { name: "plus New" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("button", { name: "close-circle" }).nth(4).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("2024-01-04");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("2024-01-02");

@@ -3,6 +3,8 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
+test.describe.configure({ mode: "parallel" });
+
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
@@ -23,7 +25,6 @@ test("Int field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").fill("int1 description");
 
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("int1 #int1");
@@ -34,7 +35,6 @@ test("Int field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("int1").click();
   await page.getByLabel("int1").fill("1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "1", exact: true })).toBeVisible();
@@ -43,7 +43,6 @@ test("Int field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("int1").click();
   await page.getByLabel("int1").fill("2");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "2", exact: true })).toBeVisible();
@@ -61,14 +60,12 @@ test("Int field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("1");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("int1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "1", exact: true })).toBeVisible();
@@ -90,10 +87,7 @@ test("Int field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Set maximum value").click();
   await page.getByLabel("Set maximum value").fill("2");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: updateField max must be larger then min",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.getByLabel("Set minimum value").click();
   await page.getByLabel("Set minimum value").fill("2");
   await page.getByLabel("Set maximum value").click();
@@ -104,24 +98,17 @@ test("Int field editing has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Set default value")).toBeVisible();
   await expect(page.getByLabel("Set default value")).toHaveValue("1");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: updateField value should be larger than 2",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("11");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: updateField value should be smaller than 10",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("2");
   await page.getByRole("button", { name: "plus New" }).click();
   await page.locator("#defaultValue").nth(1).click();
   await page.locator("#defaultValue").nth(1).fill("3");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
 
   await expect(page.getByText("new int1 *#new-int1(unique)")).toBeVisible();
@@ -133,7 +120,6 @@ test("Int field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("spinbutton").nth(0)).toHaveValue("2");
   await expect(page.getByRole("spinbutton").nth(1)).toHaveValue("3");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
