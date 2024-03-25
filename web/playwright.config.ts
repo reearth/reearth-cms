@@ -9,6 +9,7 @@ const config: PlaywrightTestConfig = {
     baseURL: process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:3000/",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    locale: "en-US",
   },
   testDir: "e2e",
   globalSetup: "./e2e/utils/setup.ts",
