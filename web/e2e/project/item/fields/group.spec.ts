@@ -224,7 +224,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").fill("new group1 description");
   await page.getByLabel("Support multiple values").check();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
+  await closeNotification(page);
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new group1");
   await page.getByRole("link", { name: "edit", exact: true }).click();

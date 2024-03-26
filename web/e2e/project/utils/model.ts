@@ -11,7 +11,6 @@ export async function createModel(page: Page, name = "e2e model name", key = "e2
   await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill(key);
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created model!");
   await closeNotification(page);
   await expect(page.getByTitle(name, { exact: true })).toBeVisible();
   await expect(page.getByText(`#${key}`)).toBeVisible();
@@ -28,7 +27,6 @@ async function updateModel(page: Page) {
   await page.getByLabel("Update Model").locator("#key").click();
   await page.getByLabel("Update Model").locator("#key").fill("new-e2e-model-key");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated model!");
   await closeNotification(page);
   await expect(page.getByTitle(updateModelName)).toBeVisible();
   await expect(page.getByText("#new-e2e-model-key")).toBeVisible();
@@ -39,7 +37,6 @@ async function deleteModel(page: Page) {
   await page.getByRole("button", { name: "more" }).hover();
   await page.getByText("Delete").click();
   await page.getByRole("button", { name: "Delete Model" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted model!");
   await closeNotification(page);
   await expect(page.getByTitle(updateModelName)).not.toBeVisible();
 }

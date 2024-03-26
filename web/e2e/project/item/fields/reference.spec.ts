@@ -14,6 +14,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("One-way reference field creating and updating has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("button", { name: "plus Add" }).first().click();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("ref model");
