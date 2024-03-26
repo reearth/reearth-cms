@@ -8,13 +8,15 @@ import (
 
 func TestFile_FileType(t *testing.T) {
 	c := NewFile().Build()
-	f := NewFile().Name("aaa.txt").Path("/aaa.txt").Size(10).GuessContentType().Children([]*File{c}).Build()
+	fl := []*File{NewFile().Build()}
+	f := NewFile().Name("aaa.txt").Path("/aaa.txt").Size(10).GuessContentType().Files(fl).Children([]*File{c}).Build()
 
 	assert.Equal(t, "aaa.txt", f.Name())
 	assert.Equal(t, uint64(10), f.Size())
 	assert.Equal(t, "text/plain; charset=utf-8", f.ContentType())
 	assert.Equal(t, "/aaa.txt", f.Path())
 	assert.Equal(t, []*File{c}, f.Children())
+	assert.Equal(t, fl, f.GetFiles())
 
 	f.SetName("bbb")
 	assert.Equal(t, "bbb", f.Name())

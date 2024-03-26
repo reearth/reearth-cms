@@ -36,7 +36,7 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 	})
 	if len(fs) > 0 {
 		f = asset.FoldFiles(fs, f)
-		f.SetFilePaths(fs)
+		f.SetFiles(fs)
 	}
 	return rerror.ErrIfNil(f, rerror.ErrNotFound)
 }

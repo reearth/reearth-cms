@@ -14,7 +14,7 @@ type File struct {
 	contentType string
 	path        string
 	children    []*File
-	filePaths   []*File
+	files       []*File
 }
 
 func (f *File) Name() string {
@@ -56,12 +56,16 @@ func (f *File) Children() []*File {
 	return slices.Clone(f.children)
 }
 
-func (f *File) FilePaths() []*File {
-	return slices.Clone(f.filePaths)
+func (f *File) GetFiles() []*File {
+	return slices.Clone(f.files)
 }
 
-func (f *File) SetFilePaths(s []*File) {
-	f.filePaths = slices.Clone(s)
+func (f *File) SetFiles(s []*File) {
+	f.files = slices.Clone(s)
+}
+
+func (f *File) FilePaths() []string {
+	return lo.Map(f.files, func(f *File, _ int) string { return f.path })
 }
 
 func (f *File) IsDir() bool {
