@@ -1,8 +1,6 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test.describe.configure({ mode: "parallel" });
-
 test("Workspace CRUD has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Create a Workspace" }).click();

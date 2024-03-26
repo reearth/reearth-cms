@@ -14,6 +14,7 @@ const config: PlaywrightTestConfig = {
   testDir: "e2e",
   globalSetup: "./e2e/utils/setup.ts",
   reporter: process.env.CI ? "github" : "list",
+  fullyParallel: true,
 };
 
 export default config;

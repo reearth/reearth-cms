@@ -2,8 +2,6 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test.describe.configure({ mode: "parallel" });
-
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);

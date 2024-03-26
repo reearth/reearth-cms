@@ -15,8 +15,6 @@ async function deleteField(page: Page, name: string, key = name) {
   await expect(page.getByText(`${name} #${key}`)).not.toBeVisible();
 }
 
-test.describe.configure({ mode: "parallel" });
-
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);

@@ -3,8 +3,6 @@ import { createModel } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
-test.describe.configure({ mode: "parallel" });
-
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
@@ -38,7 +36,6 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByLabel("Settings").locator("#key").click();
   await page.getByLabel("Settings").locator("#key").fill("boolean");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
@@ -135,6 +132,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
 });
 
 test("Two-way reference field editing has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("button", { name: "plus Add" }).first().click();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("ref model");

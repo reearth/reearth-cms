@@ -9,8 +9,6 @@ import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 
 const requestTitle = "title";
 
-test.describe.configure({ mode: "parallel" });
-
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const username = await page.locator("a").nth(1).locator("div").nth(2).locator("p").innerText();
