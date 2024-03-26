@@ -12,9 +12,9 @@ import { FormItem } from "../../types";
 
 type Props = {
   linkedItemsModalList?: FormItem[];
-  className?: string;
   value?: string;
   disabled?: boolean;
+  loading?: boolean;
   correspondingFieldId: string;
   modelId?: string;
   titleFieldId?: string | null;
@@ -34,8 +34,8 @@ const ReferenceFormItem: React.FC<Props> = ({
   linkedItemsModalList,
   value,
   disabled,
+  loading,
   correspondingFieldId,
-  onChange,
   modelId,
   titleFieldId,
   formItemsData,
@@ -47,6 +47,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   onSearchTerm,
   onLinkItemTableReload,
   onLinkItemTableChange,
+  onChange,
 }) => {
   const { workspaceId, projectId } = useParams();
 
@@ -99,18 +100,19 @@ const ReferenceFormItem: React.FC<Props> = ({
       </StyledButton>
       {!!onSearchTerm && !!onLinkItemTableReload && !!onLinkItemTableChange && (
         <LinkItemModal
+          visible={visible}
+          loading={!!loading}
+          correspondingFieldId={correspondingFieldId}
+          linkedItemsModalList={linkedItemsModalList}
+          linkedItem={value}
           linkItemModalTitle={linkItemModalTitle}
           linkItemModalTotalCount={linkItemModalTotalCount}
           linkItemModalPage={linkItemModalPage}
-          correspondingFieldId={correspondingFieldId}
           linkItemModalPageSize={linkItemModalPageSize}
           onSearchTerm={onSearchTerm}
           onLinkItemTableReload={onLinkItemTableReload}
           onLinkItemTableChange={onLinkItemTableChange}
-          linkedItemsModalList={linkedItemsModalList}
-          visible={visible}
           onLinkItemModalCancel={handleLinkItemModalCancel}
-          linkedItem={value}
           onChange={onChange}
         />
       )}

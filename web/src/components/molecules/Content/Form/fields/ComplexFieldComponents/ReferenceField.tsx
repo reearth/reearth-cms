@@ -7,6 +7,7 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 interface ReferenceFieldProps {
   field: Field;
   itemGroupId?: string;
+  loading: boolean;
   linkedItemsModalList?: FormItem[];
   formItemsData: FormItem[];
   linkItemModalTitle: string;
@@ -22,6 +23,7 @@ interface ReferenceFieldProps {
 const ReferenceField: React.FC<ReferenceFieldProps> = ({
   field,
   itemGroupId,
+  loading,
   linkedItemsModalList,
   formItemsData,
   linkItemModalTitle,
@@ -40,6 +42,7 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       <ReferenceFormItem
         key={field.id}
+        loading={loading}
         correspondingFieldId={field.id}
         formItemsData={formItemsData}
         modelId={field.typeProperty?.modelId}
