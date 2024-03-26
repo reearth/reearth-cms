@@ -89,7 +89,11 @@ export default () => {
     fetchPolicy: "cache-and-network",
     onCompleted: data => setReferenceModel(fromGraphQLModel(data?.node as GQLModel)),
   });
-  const { data: itemsData, refetch } = useSearchItemQuery({
+  const {
+    data: itemsData,
+    loading: loadingReference,
+    refetch,
+  } = useSearchItemQuery({
     fetchPolicy: "cache-and-network",
     variables: {
       searchItemInput: {
@@ -516,6 +520,7 @@ export default () => {
   );
 
   return {
+    loadingReference,
     linkedItemsModalList,
     showPublishAction,
     requests,
