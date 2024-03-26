@@ -248,9 +248,7 @@ func (r *queryResolver) AssetFile(ctx context.Context, assetId gqlmodel.ID) (*gq
 	if err != nil {
 		return nil, err
 	}
-	af := gqlmodel.ToAssetFile(f)
-	af.FilePaths = f.FilePaths()
-	return af, nil
+	return gqlmodel.ToAssetFile(f), nil
 }
 
 func (r *queryResolver) Models(ctx context.Context, projectID gqlmodel.ID, p *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error) {

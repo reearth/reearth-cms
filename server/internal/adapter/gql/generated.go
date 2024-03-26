@@ -107,7 +107,6 @@ type ComplexityRoot struct {
 	}
 
 	AssetFile struct {
-		Children    func(childComplexity int) int
 		ContentType func(childComplexity int) int
 		FilePaths   func(childComplexity int) int
 		Name        func(childComplexity int) int
@@ -1206,13 +1205,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AssetEdge.Node(childComplexity), true
-
-	case "AssetFile.children":
-		if e.complexity.AssetFile.Children == nil {
-			break
-		}
-
-		return e.complexity.AssetFile.Children(childComplexity), true
 
 	case "AssetFile.contentType":
 		if e.complexity.AssetFile.ContentType == nil {
@@ -4888,7 +4880,6 @@ schema {
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
-
 type AssetItem {
   itemId: ID!
   modelId: ID!
@@ -4899,7 +4890,6 @@ type AssetFile {
   size: FileSize!
   contentType: String
   path: String!
-  children: [AssetFile!]
   filePaths: [String!]
 }
 
@@ -9248,61 +9238,6 @@ func (ec *executionContext) fieldContext_AssetFile_path(ctx context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AssetFile_children(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AssetFile) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AssetFile_children(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Children, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*gqlmodel.AssetFile)
-	fc.Result = res
-	return ec.marshalOAssetFile2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFileᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AssetFile_children(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AssetFile",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_AssetFile_name(ctx, field)
-			case "size":
-				return ec.fieldContext_AssetFile_size(ctx, field)
-			case "contentType":
-				return ec.fieldContext_AssetFile_contentType(ctx, field)
-			case "path":
-				return ec.fieldContext_AssetFile_path(ctx, field)
-			case "children":
-				return ec.fieldContext_AssetFile_children(ctx, field)
-			case "filePaths":
-				return ec.fieldContext_AssetFile_filePaths(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AssetFile", field.Name)
 		},
 	}
 	return fc, nil
@@ -21971,8 +21906,6 @@ func (ec *executionContext) fieldContext_Query_assetFile(ctx context.Context, fi
 				return ec.fieldContext_AssetFile_contentType(ctx, field)
 			case "path":
 				return ec.fieldContext_AssetFile_path(ctx, field)
-			case "children":
-				return ec.fieldContext_AssetFile_children(ctx, field)
 			case "filePaths":
 				return ec.fieldContext_AssetFile_filePaths(ctx, field)
 			}
@@ -38340,8 +38273,6 @@ func (ec *executionContext) _AssetFile(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "children":
-			out.Values[i] = ec._AssetFile_children(ctx, field, obj)
 		case "filePaths":
 			out.Values[i] = ec._AssetFile_filePaths(ctx, field, obj)
 		default:
@@ -48504,53 +48435,6 @@ func (ec *executionContext) marshalOAsset2ᚖgithubᚗcomᚋreearthᚋreearthᚑ
 		return graphql.Null
 	}
 	return ec._Asset(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOAssetFile2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFileᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.AssetFile) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAssetFile2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetFile(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalOAssetItem2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐAssetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.AssetItem) graphql.Marshaler {

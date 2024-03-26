@@ -16,7 +16,6 @@ type Asset implements Node {
   fileName: String!
   archiveExtractionStatus: ArchiveExtractionStatus
 }
-
 type AssetItem {
   itemId: ID!
   modelId: ID!
@@ -27,7 +26,6 @@ type AssetFile {
   size: FileSize!
   contentType: String
   path: String!
-  children: [AssetFile!]
   filePaths: [String!]
 }
 
