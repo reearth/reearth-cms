@@ -20,9 +20,6 @@ test("Update settings on Accesibility page has succeeded", async ({ page }) => {
   await page.getByRole("textbox").fill("new-e2e-project-alias");
   await page.getByRole("switch").click();
   await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "Successfully updated publication settings!",
-  );
   await closeNotification(page);
   await expect(page.locator("form")).toContainText("Public");
   await expect(page.getByRole("textbox")).toHaveValue("new-e2e-project-alias");

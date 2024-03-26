@@ -19,15 +19,14 @@ test.afterEach(async ({ page }) => {
   await deleteWorkspace(page);
 });
 
-const itemAdd = async (page: Page, data: string) => {
+async function itemAdd(page: Page, data: string) {
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill(data);
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
-};
+}
 
 test("View CRUD has succeeded", async ({ page }) => {
   test.slow();
@@ -42,7 +41,6 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByLabel("View Name").click();
   await page.getByLabel("View Name").fill("view1");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created view!");
   await closeNotification(page);
   await expect(page.getByText("view1")).toBeVisible();
   await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "true");
@@ -52,16 +50,12 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByLabel("View Name").click();
   await page.getByLabel("View Name").fill("new view1");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully renamed view!");
   await closeNotification(page);
   await expect(page.getByText("new view1")).toBeVisible();
   await page.getByLabel("more").locator("svg").click();
   await page.getByText("Remove View").click();
   await page.getByRole("button", { name: "Remove" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: deleteView model should have at least one view",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
 
   await page.getByText("text", { exact: true }).click();
   await expect(
@@ -88,7 +82,6 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByLabel("View Name").click();
   await page.getByLabel("View Name").fill("view2");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created view!");
   await closeNotification(page);
   await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "false");
   await expect(page.getByRole("tab").nth(1)).toHaveAttribute("aria-selected", "true");
@@ -127,7 +120,6 @@ test("View CRUD has succeeded", async ({ page }) => {
 
   await page.getByRole("tab", { name: "new view1 more" }).locator("svg").click();
   await page.getByText("Update View").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated view!");
   await closeNotification(page);
 
   await page.getByText("view2").click();
@@ -155,7 +147,6 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "new view1 more" }).locator("svg").click();
   await page.getByText("Remove View").click();
   await page.getByRole("button", { name: "Remove" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted view!");
   await closeNotification(page);
   await expect(page.getByText("new view1")).not.toBeVisible();
   await expect(page.getByText("view2")).toBeVisible();

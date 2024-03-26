@@ -23,7 +23,6 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "text", exact: true })).toBeVisible();
@@ -40,15 +39,11 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("new text");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "new text" })).toBeVisible();
   await page.getByLabel("", { exact: true }).check();
   await page.getByText("Delete").click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "One or more items were successfully deleted!",
-  );
   await closeNotification(page);
   await expect(page.getByRole("cell", { name: "new text" })).not.toBeVisible();
 });
@@ -61,28 +56,23 @@ test("Publishing and Unpublishing item has succeeded", async ({ page }) => {
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByRole("button", { name: "Publish" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully published items!");
   await closeNotification(page);
   await expect(page.getByText("PUBLIC")).toBeVisible();
   await page.getByLabel("Back").click();
   await expect(page.getByText("PUBLIC")).toBeVisible();
   await page.getByLabel("", { exact: true }).check();
   await page.getByText("Unpublish").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully unpublished items!");
   await closeNotification(page);
   await expect(page.getByText("DRAFT")).toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await expect(page.getByText("DRAFT")).toBeVisible();
   await page.getByRole("button", { name: "Publish" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully published items!");
   await closeNotification(page);
   await expect(page.getByText("PUBLIC")).toBeVisible();
   await page.getByRole("button", { name: "ellipsis" }).click();
   await page.getByText("Unpublish").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully unpublished items!");
   await closeNotification(page);
   await expect(page.getByText("DRAFT")).toBeVisible();
   await page.getByLabel("Back").click();
@@ -97,7 +87,6 @@ test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
 
   await page.getByLabel("Back").click();
@@ -115,7 +104,6 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("message").click();
   await expect(page.getByText("CommentsComment")).toBeVisible();
