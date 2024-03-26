@@ -11,6 +11,7 @@ import {
   ItemStatus,
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   RequestUpdatePayload,
   RequestState,
@@ -29,15 +30,16 @@ import {
   useCreateItemMutation,
   useCreateRequestMutation,
   useGetItemQuery,
-  useGetModelQuery,
+  useGetModelLazyQuery,
   useGetMeQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
-  useSearchItemLazyQuery,
+  useSearchItemQuery,
   useGetGroupLazyQuery,
   FieldType as GQLFieldType,
   StringOperator,
   ItemFieldInput,
+  useIsItemReferencedLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
@@ -66,14 +68,14 @@ export default () => {
   const location = useLocation();
   const { data: userData } = useGetMeQuery();
 
-  const { itemId, modelId } = useParams();
+  const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
-  const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
+  const [referenceModel, setReferenceModel] = useState<Model>();
 
   const titleId = useRef("");
   const t = useT();
@@ -84,19 +86,22 @@ export default () => {
     skip: !itemId,
   });
 
-  const { data: modelData } = useGetModelQuery({
+  const [getModel] = useGetModelLazyQuery({
     fetchPolicy: "cache-and-network",
-    variables: { id: referenceModelId ?? "" },
-    skip: !referenceModelId,
+    onCompleted: data => setReferenceModel(fromGraphQLModel(data?.node as GQLModel)),
   });
-  const model = useMemo(() => fromGraphQLModel(modelData?.node as GQLModel), [modelData?.node]);
-  const [searchItem, { data: itemsData, refetch }] = useSearchItemLazyQuery({
+  const {
+    data: itemsData,
+    loading: loadingReference,
+    refetch,
+  } = useSearchItemQuery({
     fetchPolicy: "cache-and-network",
     variables: {
       searchItemInput: {
         query: {
           project: currentProject?.id ?? "",
-          model: referenceModelId ?? "",
+          model: referenceModel?.id ?? "",
+          schema: referenceModel?.schema.id,
         },
         pagination: {
           first: linkItemModalPageSize,
@@ -120,6 +125,7 @@ export default () => {
             : undefined,
       },
     },
+    skip: !referenceModel,
   });
 
   const handleSearchTerm = useCallback((term?: string) => {
@@ -505,15 +511,31 @@ export default () => {
 
   const handleReferenceModelUpdate = useCallback(
     (modelId: string, titleFieldId: string) => {
-      setReferenceModelId(modelId);
+      getModel({
+        variables: { id: modelId },
+      });
       titleId.current = titleFieldId;
       handleSearchTerm();
-      searchItem();
     },
-    [handleSearchTerm, searchItem],
+    [getModel, handleSearchTerm],
+  );
+
+  const [checkIfItemIsReferenced] = useIsItemReferencedLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleCheckItemReference = useCallback(
+    async (value: string, correspondingFieldId: string) => {
+      const res = await checkIfItemIsReferenced({
+        variables: { itemId: value ?? "", correspondingFieldId },
+      });
+      return res.data?.isItemReferenced ?? false;
+    },
+    [checkIfItemIsReferenced],
   );
 
   return {
+    loadingReference,
     linkedItemsModalList,
     showPublishAction,
     requests,
@@ -531,7 +553,7 @@ export default () => {
     requestModalShown,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTitle: model?.name ?? "",
+    linkItemModalTitle: referenceModel?.name ?? "",
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
@@ -562,5 +584,6 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleGroupGet,
+    handleCheckItemReference,
   };
 };
