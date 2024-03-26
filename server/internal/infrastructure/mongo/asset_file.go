@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -42,7 +41,7 @@ func (r *AssetFile) Filtered(f repo.ProjectFilter) repo.Asset {
 	}
 }
 
-func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, []string, error) {
+func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, error) {
 	c := &mongodoc.AssetAndFileConsumer{}
 	if err := r.client.FindOne(ctx, bson.M{
 		"id": id.String(),
@@ -51,13 +50,12 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, [
 		"file":      1,
 		"flatfiles": 1,
 	})); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	f := c.Result[0].File.Model()
 	if f == nil {
-		return nil, nil, rerror.ErrNotFound
+		return nil, rerror.ErrNotFound
 	}
-	var paths []string
 	if c.Result[0].FlatFiles {
 		var afc mongodoc.AssetFilesConsumer
 		if err := r.assetFilesClient.Find(ctx, bson.M{
@@ -65,13 +63,13 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, [
 		}, &afc, options.Find().SetSort(bson.D{
 			{Key: "page", Value: 1},
 		})); err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		files := afc.Result().Model()
-		paths = lo.Map(files, func(f *asset.File, _ int) string { return f.Path() })
+		f.SetFilePaths(files)
 		f = asset.FoldFiles(files, f)
 	}
-	return f, paths, nil
+	return f, nil
 }
 
 func (r *AssetFile) Save(ctx context.Context, id id.AssetID, file *asset.File) error {

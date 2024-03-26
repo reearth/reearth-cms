@@ -14,6 +14,7 @@ type File struct {
 	contentType string
 	path        string
 	children    []*File
+	filePaths   []*File
 }
 
 func (f *File) Name() string {
@@ -53,6 +54,14 @@ func (f *File) Children() []*File {
 		return nil
 	}
 	return slices.Clone(f.children)
+}
+
+func (f *File) FilePaths() []*File {
+	return slices.Clone(f.filePaths)
+}
+
+func (f *File) SetFilePaths(s []*File) {
+	f.filePaths = slices.Clone(s)
 }
 
 func (f *File) IsDir() bool {

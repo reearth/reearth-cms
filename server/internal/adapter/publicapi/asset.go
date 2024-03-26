@@ -27,7 +27,7 @@ func (c *Controller) GetAsset(ctx context.Context, prj, i string) (Asset, error)
 		return Asset{}, err
 	}
 
-	f, _, err := c.usecases.Asset.FindFileByID(ctx, iid, nil)
+	f, err := c.usecases.Asset.FindFileByID(ctx, iid, nil)
 	if err != nil {
 		return Asset{}, err
 	}
