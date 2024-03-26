@@ -120,6 +120,7 @@ interface Props {
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 }
 
 const ContentForm: React.FC<Props> = ({
@@ -187,6 +188,7 @@ const ContentForm: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onGetAsset,
   onGroupGet,
+  onCheckItemReference,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -557,6 +559,7 @@ const ContentForm: React.FC<Props> = ({
                     onSearchTerm={onSearchTerm}
                     onLinkItemTableReload={onLinkItemTableReload}
                     onLinkItemTableChange={onLinkItemTableChange}
+                    onCheckItemReference={onCheckItemReference}
                   />
                 </StyledFormItemWrapper>
               );
@@ -601,6 +604,7 @@ const ContentForm: React.FC<Props> = ({
                     setUploadModalVisibility={setUploadModalVisibility}
                     onGetAsset={onGetAsset}
                     onGroupGet={onGroupGet}
+                    onCheckItemReference={onCheckItemReference}
                   />
                 </StyledFormItemWrapper>
               );

@@ -39,6 +39,7 @@ import {
   FieldType as GQLFieldType,
   StringOperator,
   ItemFieldInput,
+  useIsItemReferencedLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
@@ -519,6 +520,20 @@ export default () => {
     [getModel, handleSearchTerm],
   );
 
+  const [checkIfItemIsReferenced] = useIsItemReferencedLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleCheckItemReference = useCallback(
+    async (value: string, correspondingFieldId: string) => {
+      const res = await checkIfItemIsReferenced({
+        variables: { itemId: value ?? "", correspondingFieldId },
+      });
+      return res.data?.isItemReferenced ?? false;
+    },
+    [checkIfItemIsReferenced],
+  );
+
   return {
     loadingReference,
     linkedItemsModalList,
@@ -569,5 +584,6 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleGroupGet,
+    handleCheckItemReference,
   };
 };

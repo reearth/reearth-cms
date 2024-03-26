@@ -18,6 +18,7 @@ interface ReferenceFieldProps {
   onSearchTerm: (term?: string) => void;
   onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 }
 
 const ReferenceField: React.FC<ReferenceFieldProps> = ({
@@ -34,6 +35,7 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
   onSearchTerm,
   onLinkItemTableReload,
   onLinkItemTableChange,
+  onCheckItemReference,
 }) => {
   return (
     <Form.Item
@@ -56,6 +58,7 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
         onSearchTerm={onSearchTerm}
         onLinkItemTableReload={onLinkItemTableReload}
         onLinkItemTableChange={onLinkItemTableChange}
+        onCheckItemReference={onCheckItemReference}
       />
     </Form.Item>
   );

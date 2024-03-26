@@ -31,6 +31,7 @@ type Props = {
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
   onChange?: (value: string) => void;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const LinkItemModal: React.FC<Props> = ({
@@ -48,11 +49,12 @@ const LinkItemModal: React.FC<Props> = ({
   onLinkItemTableChange,
   onLinkItemModalCancel,
   onChange,
+  onCheckItemReference,
 }) => {
   const [hoveredAssetId, setHoveredItemId] = useState<string>();
   const t = useT();
   const { confirm } = Modal;
-  const { value, pagination, handleInput, handleCheckItemReference } = useHooks(
+  const { value, pagination, handleInput } = useHooks(
     linkItemModalTotalCount,
     linkItemModalPage,
     linkItemModalPageSize,
@@ -74,8 +76,7 @@ const LinkItemModal: React.FC<Props> = ({
         return;
       }
 
-      const response = await handleCheckItemReference(item.id, correspondingFieldId);
-      const isReferenced = response?.data?.isItemReferenced;
+      const isReferenced = await onCheckItemReference(item.id, correspondingFieldId);
 
       if (isReferenced) {
         confirm({
@@ -94,7 +95,7 @@ const LinkItemModal: React.FC<Props> = ({
         onLinkItemModalCancel();
       }
     },
-    [confirm, correspondingFieldId, handleCheckItemReference, onChange, onLinkItemModalCancel, t],
+    [confirm, correspondingFieldId, onChange, onCheckItemReference, onLinkItemModalCancel, t],
   );
 
   const columns: StretchColumn[] = useMemo(
