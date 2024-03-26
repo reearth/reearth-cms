@@ -27,6 +27,7 @@ type Props = {
   parentField: Field;
   form?: FormInstance<any>;
   fields?: Field[];
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
@@ -74,6 +75,7 @@ const MultiValueGroup: React.FC<Props> = ({
   fields,
   value = [],
   onChange,
+  loadingReference,
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
@@ -186,6 +188,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 order={key}
                 value={valueItem}
                 parentField={parentField}
+                loadingReference={loadingReference}
                 linkedItemsModalList={linkedItemsModalList}
                 linkItemModalTitle={linkItemModalTitle}
                 onSearchTerm={onSearchTerm}
