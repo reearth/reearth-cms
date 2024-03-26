@@ -105,18 +105,19 @@ const ReferenceFormItem: React.FC<Props> = ({
         !!onLinkItemTableChange &&
         !!onCheckItemReference && (
           <LinkItemModal
+            visible={visible}
+            loading={!!loading}
+            correspondingFieldId={correspondingFieldId}
+            linkedItemsModalList={linkedItemsModalList}
+            linkedItem={value}
             linkItemModalTitle={linkItemModalTitle}
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}
-            correspondingFieldId={correspondingFieldId}
             linkItemModalPageSize={linkItemModalPageSize}
             onSearchTerm={onSearchTerm}
             onLinkItemTableReload={onLinkItemTableReload}
             onLinkItemTableChange={onLinkItemTableChange}
-            linkedItemsModalList={linkedItemsModalList}
-            visible={visible}
             onLinkItemModalCancel={handleLinkItemModalCancel}
-            linkedItem={value}
             onChange={onChange}
             onCheckItemReference={onCheckItemReference}
           />
