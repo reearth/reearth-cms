@@ -17,11 +17,11 @@ import useHooks from "./hooks";
 type StretchColumn = ProColumns<FormItem> & { minWidth: number };
 
 type Props = {
-  onChange?: (value: string) => void;
-  linkedItemsModalList?: FormItem[];
   visible?: boolean;
-  linkedItem?: string;
+  loading: boolean;
   correspondingFieldId: string;
+  linkedItemsModalList?: FormItem[];
+  linkedItem?: string;
   linkItemModalTitle?: string;
   linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
@@ -30,11 +30,13 @@ type Props = {
   onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onLinkItemModalCancel: () => void;
+  onChange?: (value: string) => void;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const LinkItemModal: React.FC<Props> = ({
   visible,
+  loading,
   correspondingFieldId,
   linkedItemsModalList,
   linkedItem,
@@ -194,6 +196,7 @@ const LinkItemModal: React.FC<Props> = ({
         options={options}
         toolbar={toolbar}
         pagination={pagination}
+        loading={loading}
         onChange={pagination => {
           onLinkItemTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}

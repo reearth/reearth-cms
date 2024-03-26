@@ -15,6 +15,7 @@ import {
 interface GroupFieldProps {
   field: Field;
   form?: FormInstance<any>;
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
@@ -59,6 +60,7 @@ interface GroupFieldProps {
 const GroupField: React.FC<GroupFieldProps> = ({
   field,
   form,
+  loadingReference,
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
@@ -104,6 +106,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
         <MultiValueGroup
           parentField={field}
           form={form}
+          loadingReference={loadingReference}
           linkedItemsModalList={linkedItemsModalList}
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}
@@ -143,6 +146,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
       ) : (
         <GroupItem
           parentField={field}
+          loadingReference={loadingReference}
           linkedItemsModalList={linkedItemsModalList}
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}

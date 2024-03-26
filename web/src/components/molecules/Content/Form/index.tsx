@@ -40,6 +40,7 @@ import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 interface Props {
   item?: Item;
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
@@ -124,6 +125,7 @@ interface Props {
 
 const ContentForm: React.FC<Props> = ({
   item,
+  loadingReference,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -546,6 +548,7 @@ const ContentForm: React.FC<Props> = ({
                 <StyledFormItemWrapper key={field.id}>
                   <ReferenceField
                     field={field}
+                    loading={loadingReference}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
                     linkItemModalTitle={linkItemModalTitle}
@@ -566,6 +569,7 @@ const ContentForm: React.FC<Props> = ({
                   <GroupField
                     field={field}
                     form={form}
+                    loadingReference={loadingReference}
                     linkedItemsModalList={linkedItemsModalList}
                     linkItemModalTitle={linkItemModalTitle}
                     formItemsData={formItemsData}

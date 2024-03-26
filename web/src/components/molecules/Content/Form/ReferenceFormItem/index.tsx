@@ -12,9 +12,9 @@ import { FormItem } from "../../types";
 
 type Props = {
   linkedItemsModalList?: FormItem[];
-  className?: string;
   value?: string;
   disabled?: boolean;
+  loading?: boolean;
   correspondingFieldId: string;
   modelId?: string;
   titleFieldId?: string | null;
@@ -35,8 +35,8 @@ const ReferenceFormItem: React.FC<Props> = ({
   linkedItemsModalList,
   value,
   disabled,
+  loading,
   correspondingFieldId,
-  onChange,
   modelId,
   titleFieldId,
   formItemsData,
@@ -49,6 +49,7 @@ const ReferenceFormItem: React.FC<Props> = ({
   onLinkItemTableReload,
   onLinkItemTableChange,
   onCheckItemReference,
+  onChange,
 }) => {
   const { workspaceId, projectId } = useParams();
 

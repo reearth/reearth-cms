@@ -10,6 +10,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    loadingReference,
     linkedItemsModalList,
     showPublishAction,
     requests,
@@ -95,6 +96,7 @@ const ContentDetails: React.FC = () => {
       onLinkItemTableReload={handleLinkItemTableReload}
       onLinkItemTableChange={handleLinkItemTableChange}
       onReferenceModelUpdate={handleReferenceModelUpdate}
+      loadingReference={loadingReference}
       linkedItemsModalList={linkedItemsModalList}
       showPublishAction={showPublishAction}
       requests={requests}

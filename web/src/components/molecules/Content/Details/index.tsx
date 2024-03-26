@@ -17,6 +17,7 @@ import {
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 type Props = {
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
@@ -106,6 +107,7 @@ type Props = {
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  loadingReference,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -201,6 +203,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onReferenceModelUpdate={onReferenceModelUpdate}
             onSearchTerm={onSearchTerm}
             onLinkItemTableChange={onLinkItemTableChange}
+            loadingReference={loadingReference}
             linkedItemsModalList={linkedItemsModalList}
             showPublishAction={showPublishAction}
             requests={requests}

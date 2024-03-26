@@ -24,6 +24,7 @@ type Props = {
   onChange?: (value: string) => void;
   order?: number;
   parentField: Field;
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
@@ -74,6 +75,7 @@ const GroupItem: React.FC<Props> = ({
   value,
   order,
   parentField,
+  loadingReference,
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
@@ -228,6 +230,7 @@ const GroupItem: React.FC<Props> = ({
                   <ReferenceField
                     field={field}
                     itemGroupId={itemGroupId}
+                    loading={loadingReference}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
                     linkItemModalTitle={linkItemModalTitle}
