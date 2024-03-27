@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
+import dayjs from "dayjs";
 import { SetStateAction } from "jotai";
-import moment from "moment";
 import { Dispatch } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -121,7 +121,7 @@ const DropdownRender: React.FC<Props> = ({
                 placeholder="Select the date"
                 showToday={false}
                 defaultValue={
-                  defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
+                  defaultValue && defaultValue.value !== "" ? dayjs(defaultValue.value) : undefined
                 }
                 key={defaultValue?.value}
               />
