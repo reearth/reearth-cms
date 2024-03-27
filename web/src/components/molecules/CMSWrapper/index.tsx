@@ -63,12 +63,10 @@ const CMSSidebar = styled(Sider)`
     display: flex;
     align-items: center;
   }
-  .ant-layout-sider-children > .css-0 {
-    background-color: #fff;
+  .ant-layout-sider-children {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100%;
   }
   .ant-menu-inline {
     border-right: 1px solid white;
