@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Key } from "rc-table/lib/interface";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
@@ -29,76 +29,75 @@ const UnzipFileList: React.FC<Props> = ({
 
   const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0"]);
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
-  const [treeData, setTreeData] = useState<FileNode[]>([]);
 
   const getTreeData = useCallback(
-    (assetFile?: AssetFile, parentKey?: string): FileNode[] =>
-      assetFile?.children?.map((file: AssetFile, index: number) => {
+    (file: AssetFile, parentKey?: string): FileNode[] =>
+      file.children?.map((child: AssetFile, index: number) => {
         let children: FileNode[] = [];
         const key = parentKey ? `${parentKey}-${index}` : `${index}`;
 
-        if (file.children && file.children.length > 0) {
-          children = getTreeData(file, key);
+        if (child.children && child.children.length > 0) {
+          children = getTreeData(child, key);
         }
 
         return {
           title: (
             <>
-              {file.name}
+              {child.name}
               <CopyIcon
                 selected={selectedKeys[0] === key}
                 icon="copy"
                 onClick={() => {
-                  navigator.clipboard.writeText(assetBaseUrl + file.path);
+                  navigator.clipboard.writeText(assetBaseUrl + child.path);
                 }}
               />
             </>
           ),
           key: key,
           children: children,
-          file: file,
+          file: child,
         };
       }) || [],
     [selectedKeys, assetBaseUrl],
   );
 
-  const constructFileTree = useCallback((assetFile?: AssetFile): AssetFile | undefined => {
-    if (!assetFile?.filePaths) return;
+  const constructFileTree = useCallback(
+    (assetFile?: AssetFile): FileNode[] => {
+      if (!assetFile?.filePaths) return [];
 
-    const root: AssetFile = {
-      ...assetFile,
-      path: "/",
-      children: [],
-    };
+      const root: AssetFile = {
+        ...assetFile,
+        path: "/",
+        children: [],
+      };
 
-    for (const filepath of assetFile.filePaths) {
-      const parts = filepath.split("/");
-      let currentNode = root;
+      for (const filepath of assetFile.filePaths) {
+        const parts = filepath.split("/");
+        let currentNode = root;
 
-      for (const part of parts.slice(1)) {
-        const existingNode = currentNode.children?.find(node => node.name === part);
-        if (!existingNode) {
-          const newNode: AssetFile = {
-            name: part,
-            path: `${currentNode.path}${part}${/\.[^.]+$/.test(part) ? "" : "/"}`,
-            children: [],
-          };
+        for (const part of parts.slice(1)) {
+          const existingNode = currentNode.children?.find(node => node.name === part);
+          if (!existingNode) {
+            const newNode: AssetFile = {
+              name: part,
+              path: `${currentNode.path}${part}${/\.[^.]+$/.test(part) ? "" : "/"}`,
+              children: [],
+            };
 
-          currentNode.children?.push(newNode);
-          currentNode = newNode;
-        } else {
-          currentNode = existingNode;
+            currentNode.children?.push(newNode);
+            currentNode = newNode;
+          } else {
+            currentNode = existingNode;
+          }
         }
       }
-    }
 
-    return root;
-  }, []);
+      return getTreeData(root);
+    },
+    [getTreeData],
+  );
 
-  useEffect(() => {
-    const assetFile = constructFileTree(file);
-    setTreeData(getTreeData(assetFile));
-  }, [constructFileTree, file, getTreeData]);
+  const treeData: FileNode[] = useMemo(() => constructFileTree(file), [constructFileTree, file]);
 
   const previewFile = useCallback(
     (file: AssetFile) => {
