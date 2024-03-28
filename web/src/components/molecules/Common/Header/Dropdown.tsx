@@ -41,6 +41,7 @@ const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
     background-color: #141414 !important;
     width: 190px;
+    padding: 4px 0;
   }
   .ant-dropdown-menu-item-divider {
     background-color: #303030;

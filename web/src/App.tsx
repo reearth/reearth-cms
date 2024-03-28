@@ -1,4 +1,4 @@
-import { StyleProvider } from "@ant-design/cssinjs";
+import { ConfigProvider } from "antd";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
@@ -96,9 +96,9 @@ function App() {
     <AuthProvider>
       <GqlProvider>
         <I18nProvider>
-          <StyleProvider>
+          <ConfigProvider theme={{ token: { colorPrimary: "#1890ff", colorLink: "#1890ff" } }}>
             <RouterProvider router={router} />
-          </StyleProvider>
+          </ConfigProvider>
         </I18nProvider>
       </GqlProvider>
     </AuthProvider>

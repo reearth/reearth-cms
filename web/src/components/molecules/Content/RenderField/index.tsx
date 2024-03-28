@@ -114,7 +114,7 @@ const StyledSelect = styled(Select)`
   }
   .ant-select-selection-overflow {
     flex-wrap: nowrap;
-    overflow-x: hidden;
+    overflow: hidden;
   }
   .ant-select-selection-placeholder {
     color: inherit;
