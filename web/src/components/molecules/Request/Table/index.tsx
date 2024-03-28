@@ -74,8 +74,9 @@ const RequestListTable: React.FC<Props> = ({
     () => [
       {
         title: "",
+        hideInSetting: true,
         render: (_, request) => (
-          <Button type="link" icon={<Icon icon="edit" />} onClick={() => onEdit(request.id)} />
+          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
         ),
         width: 48,
         minWidth: 48,
@@ -83,6 +84,7 @@ const RequestListTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
         key: "commentsCount",
         render: (_, request) => {

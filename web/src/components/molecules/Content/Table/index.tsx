@@ -133,6 +133,8 @@ const ContentTable: React.FC<Props> = ({
 
     return [
       {
+        title: "",
+        hideInSetting: true,
         render: (_, contentField) => (
           <Link to={`details/${contentField.id}`}>
             <Icon icon="edit" />
@@ -148,6 +150,7 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
         key: "commentsCount",

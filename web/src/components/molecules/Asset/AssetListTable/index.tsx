@@ -77,6 +77,7 @@ const AssetListTable: React.FC<Props> = ({
     () => [
       {
         title: "",
+        hideInSetting: true,
         render: (_, asset) => (
           <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
         ),
@@ -88,6 +89,7 @@ const AssetListTable: React.FC<Props> = ({
         title: () => <Icon icon="message" />,
         dataIndex: "commentsCount",
         key: "commentsCount",
+        hideInSetting: true,
         render: (_, asset) => {
           return (
             <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
