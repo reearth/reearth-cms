@@ -48,7 +48,7 @@ func TestFileBuilder_Build(t *testing.T) {
 	assert.Equal(t, uint64(1000), f.Size())
 	assert.Equal(t, "image/jpeg", f.ContentType())
 	assert.Equal(t, c, f.Children())
-	assert.Equal(t, fl, f.Files())
+	assert.Equal(t, fl, f.FlattenChildren())
 
 	// ContentType should be blank
 	f2 := NewFile().Name("aaa").Path("/aaa.jpg").Size(1000).Files(fl).Children(c).Build()
@@ -57,5 +57,5 @@ func TestFileBuilder_Build(t *testing.T) {
 	assert.Equal(t, uint64(1000), f2.Size())
 	assert.Zero(t, f2.ContentType())
 	assert.Equal(t, c, f2.Children())
-	assert.Equal(t, fl, f2.Files())
+	assert.Equal(t, fl, f2.FlattenChildren())
 }

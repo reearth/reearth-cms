@@ -16,7 +16,7 @@ func TestFile_FileType(t *testing.T) {
 	assert.Equal(t, "text/plain; charset=utf-8", f.ContentType())
 	assert.Equal(t, "/aaa.txt", f.Path())
 	assert.Equal(t, []*File{c}, f.Children())
-	assert.Equal(t, fl, f.GetFiles())
+	assert.Equal(t, fl, f.Files())
 
 	f.SetName("bbb")
 	assert.Equal(t, "bbb", f.Name())
@@ -67,7 +67,7 @@ func TestFile_Files(t *testing.T) {
 		{
 			path: "aaa/b.txt",
 		},
-	}, f.Files())
+	}, f.FlattenChildren())
 }
 
 func Test_FoldFiles(t *testing.T) {

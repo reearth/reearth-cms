@@ -56,7 +56,7 @@ func (f *File) Children() []*File {
 	return slices.Clone(f.children)
 }
 
-func (f *File) GetFiles() []*File {
+func (f *File) Files() []*File {
 	return slices.Clone(f.files)
 }
 
@@ -98,13 +98,15 @@ func (f *File) Clone() *File {
 	}
 }
 
-func (f *File) Files() (res []*File) {
+// FlattenChildren recursively collects all children of the File object into a flat slice.
+// It returns a slice of File objects containing all children in a flattened structure.
+func (f *File) FlattenChildren() (res []*File) {
 	if f == nil {
 		return nil
 	}
 	if len(f.children) > 0 {
 		for _, c := range f.children {
-			res = append(res, c.Files()...)
+			res = append(res, c.FlattenChildren()...)
 		}
 	} else {
 		res = append(res, f)
