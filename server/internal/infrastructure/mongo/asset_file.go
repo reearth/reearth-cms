@@ -68,7 +68,7 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 		files := afc.Result().Model()
 		// f = asset.FoldFiles(files, f)
 		f.SetFiles(files)
-	} else {
+	} else if len(f.Children()) > 0 {
 		f.SetFiles(f.FlattenChildren())
 	}
 	return f, nil
