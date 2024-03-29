@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Key } from "rc-table/lib/interface";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
@@ -29,6 +29,7 @@ const UnzipFileList: React.FC<Props> = ({
 
   const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0"]);
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
+  const [treeData, setTreeData] = useState<FileNode[]>([]);
 
   const getTreeData = useCallback(
     (file: AssetFile, parentKey?: string): FileNode[] =>
@@ -97,7 +98,9 @@ const UnzipFileList: React.FC<Props> = ({
     [getTreeData],
   );
 
-  const treeData: FileNode[] = useMemo(() => constructFileTree(file), [constructFileTree, file]);
+  useEffect(() => {
+    setTreeData(constructFileTree(file));
+  }, [constructFileTree, file, getTreeData]);
 
   const previewFile = useCallback(
     (file: AssetFile) => {
