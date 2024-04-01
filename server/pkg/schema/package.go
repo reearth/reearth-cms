@@ -62,21 +62,7 @@ func (p *Package) ReferencedSchema(fieldID id.FieldID) *Schema {
 }
 
 func (p *Package) Field(fieldID id.FieldID) *Field {
-	f := p.schema.Field(fieldID)
-	if f != nil {
-		return f
-	}
-	f = p.metaSchema.Field(fieldID)
-	if f != nil {
-		return f
-	}
-	for _, s := range p.groupSchemas {
-		f = s.Field(fieldID)
-		if f != nil {
-			return f
-		}
-	}
-	return nil
+	return p.FieldByIDOrKey(&fieldID, nil)
 }
 
 func (p *Package) FieldByIDOrKey(fID *id.FieldID, k *id.Key) *Field {

@@ -13,7 +13,7 @@ func TestToAssetFile(t *testing.T) {
 	f2 := asset.NewFile().Name("a").Path("/a").Size(10).Children([]*asset.File{f3}).Build()
 	f1 := asset.NewFile().Name("").Path("/").Size(11).Children([]*asset.File{f2}).Build()
 
-	a := ToAssetFile(f1, true)
+	a := NewAssetFile(f1, true)
 	e := &File{
 		Name:        lo.ToPtr(""),
 		Path:        lo.ToPtr("/"),
@@ -38,7 +38,7 @@ func TestToAssetFile(t *testing.T) {
 	}
 	assert.Equal(t, e, a)
 
-	a = ToAssetFile(f1, false)
+	a = NewAssetFile(f1, false)
 	e = &File{
 		Name:        lo.ToPtr(""),
 		Path:        lo.ToPtr("/"),

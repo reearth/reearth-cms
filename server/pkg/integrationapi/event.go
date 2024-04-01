@@ -38,16 +38,12 @@ type Project struct {
 	Alias string `json:"alias"`
 }
 
-func NewEvent(e *event.Event[any], v string, urlResolver asset.URLResolver) (Event, error) {
-	return NewEventWith(e, nil, v, urlResolver)
-}
-
-func NewEventWith(e *event.Event[any], override any, v string, urlResolver asset.URLResolver) (Event, error) {
+func NewEventWith(e *event.Event[any], override any, urlResolver asset.URLResolver) (Event, error) {
 	if override == nil {
 		override = e.Object()
 	}
 
-	d, err := New(override, v, urlResolver)
+	d, err := New(override, urlResolver)
 	if err != nil {
 		return Event{}, err
 	}

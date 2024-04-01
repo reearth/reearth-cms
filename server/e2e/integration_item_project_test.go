@@ -154,11 +154,17 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 	r.Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 	r.Value("fields").IsEqual([]any{
-		map[string]string{
+		map[string]any{
 			"id":    fId1.String(),
 			"type":  "text",
 			"value": "test value",
 			"key":   sfKey1.String(),
+		},
+		map[string]any{
+			"id":    fId2.String(),
+			"type":  "asset",
+			"value": nil,
+			"key":   sfKey2.String(),
 		},
 	})
 	r.Value("modelId").IsEqual(mId1.String())
@@ -180,11 +186,17 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 		Object().
 		Value("fields").
 		IsEqual([]any{
-			map[string]string{
+			map[string]any{
 				"id":    fId1.String(),
 				"type":  "text",
 				"value": "test value 2",
 				"key":   sfKey1.String(),
+			},
+			map[string]any{
+				"id":    fId2.String(),
+				"type":  "asset",
+				"value": nil,
+				"key":   sfKey2.String(),
 			},
 		})
 }
