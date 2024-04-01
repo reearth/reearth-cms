@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -34,7 +35,8 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 		return ItemFilter400Response{}, err
 	}
 
-	cc, err := integrationapi.NewCC(ctx, items, shouldEmbedAsset(request.Params.Asset))
+	a, af := shouldEmbedAsset(request.Params.Asset)
+	cc, err := integrationapi.NewCC(items, a, af, loaders(ctx))
 	if err != nil {
 		return ItemFilter500Response{}, err
 	}
@@ -88,7 +90,8 @@ func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWi
 		return ItemFilterWithProject400Response{}, err
 	}
 
-	cc, err := integrationapi.NewCC(ctx, items, shouldEmbedAsset(request.Params.Asset))
+	a, af := shouldEmbedAsset(request.Params.Asset)
+	cc, err := integrationapi.NewCC(items, a, af, loaders(ctx))
 	if err != nil {
 		return ItemFilterWithProject500Response{}, err
 	}
@@ -219,7 +222,8 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 		}
 	}
 
-	cc, err := integrationapi.NewCC(ctx, item.VersionedList{i}, shouldEmbedAsset(request.Body.Asset))
+	a, af := shouldEmbedAsset(request.Body.Asset)
+	cc, err := integrationapi.NewCC(item.VersionedList{i}, a, af, loaders(ctx))
 	if err != nil {
 		return ItemUpdate500Response{}, err
 	}
@@ -260,7 +264,8 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 		return ItemGet400Response{}, err
 	}
 
-	cc, err := integrationapi.NewCC(ctx, item.VersionedList{i}, shouldEmbedAsset(request.Params.Asset))
+	a, af := shouldEmbedAsset(request.Params.Asset)
+	cc, err := integrationapi.NewCC(item.VersionedList{i}, a, af, loaders(ctx))
 	if err != nil {
 		return ItemGet500Response{}, err
 	}
@@ -303,7 +308,7 @@ func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, f
 		return nil, err
 	}
 
-	cc, err := integrationapi.NewCC(ctx, item.VersionedList{i}, true)
+	cc, err := integrationapi.NewCC(item.VersionedList{i}, true, false, loaders(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -311,7 +316,22 @@ func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, f
 	return lo.ToPtr(integrationapi.NewVersionedItem(i, sp, cc)), nil
 }
 
-func shouldEmbedAsset(p *integrationapi.AssetParam) bool {
-	ae := p != nil && (*p == integrationapi.All || *p == integrationapi.True)
-	return ae
+func shouldEmbedAsset(p *integrationapi.AssetParam) (bool, bool) {
+	a := p != nil && (*p == integrationapi.All || *p == integrationapi.True)
+	af := p != nil && (*p == integrationapi.All)
+	return a, af
+}
+
+func loaders(ctx context.Context) integrationapi.Loaders {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+	return integrationapi.Loaders{
+		Asset: func(ids []id.AssetID) (asset.List, error) {
+			return uc.Asset.FindByIDs(ctx, ids, op)
+		},
+		AssetURL: uc.Asset.GetURL,
+		Item: func(ids []id.ItemID) (item.VersionedList, error) {
+			return uc.Item.FindByIDs(ctx, ids, op)
+		},
+	}
 }

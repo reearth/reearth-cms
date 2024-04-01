@@ -1,9 +1,6 @@
 package integrationapi
 
 import (
-	"context"
-
-	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -13,22 +10,29 @@ import (
 )
 
 type ConvertContext struct {
-	ctx      context.Context
 	aMap     asset.Map
 	aFiles   map[asset.ID]*asset.File
 	aBaseURL func(a *asset.Asset) string
 	aEmbed   bool
-	rItems   item.VersionedList
-	mItems   item.VersionedList
+	afEmbed  bool
+
+	loaders Loaders
+	rItems  item.VersionedList
+	mItems  item.VersionedList
 }
 
-func NewCC(ctx context.Context, il item.VersionedList, embedAsset bool) (*ConvertContext, error) {
-	uc := adapter.Usecases(ctx)
+type Loaders struct {
+	Asset    func([]id.AssetID) (asset.List, error)
+	AssetURL func(*asset.Asset) string
+	Item     func([]id.ItemID) (item.VersionedList, error)
+}
+
+func NewCC(il item.VersionedList, embedAssets, embedAssetsFiles bool, l Loaders) (*ConvertContext, error) {
 	cc := &ConvertContext{
-		ctx:      ctx,
 		aFiles:   make(map[asset.ID]*asset.File),
-		aBaseURL: uc.Asset.GetURL,
-		aEmbed:   embedAsset,
+		aBaseURL: l.AssetURL,
+		aEmbed:   embedAssets,
+		loaders:  l,
 	}
 	if il == nil {
 		return cc, nil
@@ -39,7 +43,7 @@ func NewCC(ctx context.Context, il item.VersionedList, embedAsset bool) (*Conver
 	if err := cc.loadMetaItems(il); err != nil {
 		return nil, err
 	}
-	if embedAsset {
+	if embedAssets {
 		if err := cc.loadAssets(il); err != nil {
 			return nil, err
 		}
@@ -48,14 +52,11 @@ func NewCC(ctx context.Context, il item.VersionedList, embedAsset bool) (*Conver
 }
 
 func (c *ConvertContext) loadAssets(il item.VersionedList) error {
-	op := adapter.Operator(c.ctx)
-	uc := adapter.Usecases(c.ctx)
-
 	assetsIDs := lo.Uniq(lo.FlatMap(il, func(v item.Versioned, _ int) []id.AssetID {
 		return v.Value().AssetIDs()
 	}))
 
-	res, err := uc.Asset.FindByIDs(c.ctx, assetsIDs, op)
+	res, err := c.loaders.Asset(assetsIDs)
 	if err != nil {
 		return err
 	}
@@ -65,9 +66,6 @@ func (c *ConvertContext) loadAssets(il item.VersionedList) error {
 }
 
 func (c *ConvertContext) loadReferencedItems(il item.VersionedList) error {
-	op := adapter.Operator(c.ctx)
-	uc := adapter.Usecases(c.ctx)
-
 	if il == nil {
 		return nil
 	}
@@ -81,7 +79,7 @@ func (c *ConvertContext) loadReferencedItems(il item.VersionedList) error {
 		})
 	})
 
-	refItems, err := uc.Item.FindByIDs(c.ctx, refIDs, op)
+	refItems, err := c.loaders.Item(refIDs)
 	if err != nil {
 		return err
 	}
@@ -90,14 +88,11 @@ func (c *ConvertContext) loadReferencedItems(il item.VersionedList) error {
 }
 
 func (c *ConvertContext) loadMetaItems(il item.VersionedList) error {
-	op := adapter.Operator(c.ctx)
-	uc := adapter.Usecases(c.ctx)
-
 	miIDs := util.Map(il, func(itm item.Versioned) id.ItemID {
 		return lo.FromPtr(itm.Value().MetadataItem())
 	})
 
-	mi, err := uc.Item.FindByIDs(c.ctx, miIDs, op)
+	mi, err := c.loaders.Item(miIDs)
 	if err != nil {
 		return err
 	}
