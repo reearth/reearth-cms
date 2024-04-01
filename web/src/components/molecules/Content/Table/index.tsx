@@ -382,12 +382,15 @@ const ContentTable: React.FC<Props> = ({
   }, []);
 
   const handleOptionsOpenChange = useCallback((open: boolean) => {
-    setControlMenuOpen(false);
-    setOptionsOpen(open);
+    if (!open) {
+      setOptionsOpen(false);
+    }
   }, []);
 
   const handleConditionMenuOpenChange = useCallback((open: boolean) => {
-    setConditionMenuOpen(open);
+    if (!open) {
+      setConditionMenuOpen(false);
+    }
   }, []);
 
   const close = useCallback(() => {
@@ -425,7 +428,7 @@ const ContentTable: React.FC<Props> = ({
           setSelectedFilter(filter);
           handleOptionsOpenChange(false);
           if (isFromMenu) {
-            handleConditionMenuOpenChange(true);
+            setConditionMenuOpen(true);
             isFilterOpen.current = false;
           } else {
             isFilterOpen.current = true;
@@ -457,22 +460,18 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [
-      contentTableColumns,
-      currentWorkspace?.members,
-      handleConditionMenuOpenChange,
-      handleOptionsOpenChange,
-    ],
+    [contentTableColumns, currentWorkspace?.members, handleOptionsOpenChange],
   );
 
   const toolBarItemClick = useCallback(
-    (isFilterMode: boolean) => {
+    ({ key }: { key: string }) => {
       setInputValue("");
       setItems(getOptions(true));
-      isFilter.current = isFilterMode;
-      handleOptionsOpenChange(true);
+      isFilter.current = key === "filter";
+      setControlMenuOpen(false);
+      setOptionsOpen(true);
     },
-    [getOptions, handleOptionsOpenChange],
+    [getOptions],
   );
 
   const handleChange = useCallback(
@@ -596,31 +595,17 @@ const ContentTable: React.FC<Props> = ({
   const toolBarItems: MenuProps["items"] = useMemo(
     () => [
       {
-        label: (
-          <span
-            onClick={() => {
-              toolBarItemClick(true);
-            }}>
-            {t("Add Filter")}
-          </span>
-        ),
+        label: t("Add Filter"),
         key: "filter",
         icon: <Icon icon="filter" />,
       },
       {
-        label: (
-          <span
-            onClick={() => {
-              toolBarItemClick(false);
-            }}>
-            {t("Add Sort")}
-          </span>
-        ),
+        label: t("Add Sort"),
         key: "sort",
         icon: <Icon icon="sortAscending" />,
       },
     ],
-    [t, toolBarItemClick],
+    [t],
   );
 
   const toolBarRender = useCallback(() => {
@@ -628,7 +613,7 @@ const ContentTable: React.FC<Props> = ({
       <Dropdown
         {...sharedProps}
         placement="bottom"
-        trigger={["contextMenu"]}
+        trigger={["click"]}
         open={optionsOpen}
         onOpenChange={handleOptionsOpenChange}
         key="control">
@@ -644,16 +629,17 @@ const ContentTable: React.FC<Props> = ({
                 currentView={currentView}
                 setCurrentView={setCurrentView}
                 onFilterChange={onFilterChange}
+                key={Math.random()}
               />
             )
           }
-          trigger={["contextMenu"]}
+          trigger={["click"]}
           placement="bottom"
           arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
-            menu={{ items: toolBarItems }}
+            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
             placement="bottom"
             trigger={["click"]}
             arrow={false}
@@ -683,6 +669,7 @@ const ContentTable: React.FC<Props> = ({
     setCurrentView,
     sharedProps,
     t,
+    toolBarItemClick,
     toolBarItems,
   ]);
 
