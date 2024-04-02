@@ -37,15 +37,14 @@ const UnzipFileList: React.FC<Props> = ({
     (file?: AssetFile): FileNode[] => {
       if (!file?.filePaths) return [];
 
-      const filePaths = file.filePaths;
       const root: FileNode = {
-        key: "",
+        key: "0",
         name: file.name,
         path: "/",
         children: [],
       };
 
-      filePaths.forEach((filepath, i) => {
+      file.filePaths.forEach((filepath, i) => {
         const parts = filepath.split("/");
         let currentNode = root;
 
