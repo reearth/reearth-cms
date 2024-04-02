@@ -29,7 +29,6 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("asset1 description");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("asset1 #asset1");
@@ -44,14 +43,12 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await page.getByPlaceholder("Please input a valid URL").click();
   await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_1);
   await page.getByRole("button", { name: "Upload and Link" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
   await closeNotification(page);
 
   await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
   await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("tileset.json")).toBeVisible();
@@ -62,14 +59,12 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await page.getByPlaceholder("Please input a valid URL").click();
   await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_2);
   await page.getByRole("button", { name: "Upload and Link" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
   await closeNotification(page);
   await expect(page.getByRole("button", { name: `folder ${uploadFileName_2}` })).toBeVisible();
   await expect(page.getByRole("button", { name: uploadFileName_2, exact: true })).toBeVisible();
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "Cancel" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText("lowpolycar.gltf")).toBeVisible();
@@ -90,7 +85,6 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await page.getByPlaceholder("Please input a valid URL").click();
   await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_1);
   await page.getByRole("button", { name: "Upload and Link" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
   await closeNotification(page);
   await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
   await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
@@ -108,7 +102,6 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("button", { name: `folder ${uploadFileName_1}` })).toBeVisible();
   await expect(page.getByRole("button", { name: uploadFileName_1, exact: true })).toBeVisible();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("asset1");
@@ -118,7 +111,6 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("asset1", { exact: true })).toBeVisible();
   await expect(page.getByText("asset1 description")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText(uploadFileName_1)).toBeVisible();
@@ -146,7 +138,6 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await page.getByPlaceholder("Please input a valid URL").click();
   await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_2);
   await page.getByRole("button", { name: "Upload and Link" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully added asset!");
   await closeNotification(page);
   await expect(page.getByRole("button", { name: `folder ${uploadFileName_2}` })).toBeVisible();
   await expect(page.getByRole("button", { name: uploadFileName_2, exact: true })).toBeVisible();
@@ -154,7 +145,6 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await expect(page.locator(".css-7g0azd").nth(0)).toContainText(uploadFileName_2);
   await expect(page.locator(".css-7g0azd").nth(1)).toContainText(uploadFileName_1);
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText(
     "new asset1 *#new-asset1(unique)Title",
@@ -168,13 +158,9 @@ test("Asset field editing has succeeded", async ({ page }) => {
   await expect(page.locator(".css-7g0azd").nth(1)).toContainText(uploadFileName_1);
   await page.getByRole("button", { name: "plus New" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: createItem internal system error",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.getByRole("button", { name: "delete" }).nth(2).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
