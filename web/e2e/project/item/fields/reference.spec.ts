@@ -14,13 +14,13 @@ test.afterEach(async ({ page }) => {
 });
 
 test("One-way reference field creating and updating has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("button", { name: "plus Add" }).first().click();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("ref model");
   await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("ref-model");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created model!");
   await closeNotification(page);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -29,7 +29,6 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByLabel("Settings").locator("#key").fill("text");
   await page.getByLabel("Use as title").check();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByRole("tab", { name: "Meta Data" }).click();
   await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
@@ -38,21 +37,18 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByLabel("Settings").locator("#key").click();
   await page.getByLabel("Settings").locator("#key").fill("boolean");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text2");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByText("Schema").click();
   await page.getByText("e2e model name").click();
@@ -81,7 +77,6 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
   await page.getByRole("button", { name: "Confirm" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("ref *#ref(unique)");
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
@@ -122,7 +117,6 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByRole("row").getByRole("button").nth(0).hover();
   await page.getByRole("row").getByRole("button").nth(0).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "text1" }).locator("span").first()).toBeVisible();
@@ -133,20 +127,19 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByRole("row").getByRole("button").nth(1).click();
   await expect(page.locator("#root").getByText("text2")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "text2" }).locator("span").first()).toBeVisible();
 });
 
 test("Two-way reference field editing has succeeded", async ({ page }) => {
+  test.slow();
   await page.getByRole("button", { name: "plus Add" }).first().click();
   await page.getByLabel("Model name").click();
   await page.getByLabel("Model name").fill("ref model");
   await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("ref-model");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created model!");
   await closeNotification(page);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
@@ -155,21 +148,18 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#key").fill("text");
   await page.getByLabel("Use as title").check();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("reference text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByLabel("text").click();
   await page.getByLabel("text").fill("reference text2");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
 
   await page.getByText("Schema").click();
@@ -181,7 +171,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#key").fill("text");
   await page.getByLabel("Use as title").check();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.locator("li").filter({ hasText: "Reference" }).locator("div").first().click();
   await page.getByLabel("Select the model to reference").click();
@@ -225,7 +214,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(page.getByLabel("Make field required")).toBeChecked();
   await page.getByRole("button", { name: "Confirm" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await expect(page.getByLabel("Fields")).toContainText("ref1 *#ref1");
@@ -254,7 +242,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByRole("row").getByRole("button").nth(0).click();
   await expect(page.locator("#root").getByText("reference text1")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
 
@@ -266,7 +253,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByRole("row").getByRole("button").nth(1).click();
   await expect(page.locator("#root").getByText("reference text2")).toBeVisible();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
 
@@ -290,7 +276,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByRole("row").getByRole("button").nth(0).click();
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(

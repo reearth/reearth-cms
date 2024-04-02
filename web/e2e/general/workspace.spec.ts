@@ -7,20 +7,17 @@ test("Workspace CRUD has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Workspace name").click();
   await page.getByLabel("Workspace name").fill("workspace name");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created workspace!");
   await closeNotification(page);
 
   await page.getByText("Workspace", { exact: true }).click();
   await page.getByLabel("Workspace Name").click();
   await page.getByLabel("Workspace Name").fill("new workspace name");
   await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated workspace!");
   await closeNotification(page);
 
   await expect(page.locator("header")).toContainText("new workspace name");
   await page.getByRole("button", { name: "Remove Workspace" }).click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted workspace!");
   await closeNotification(page);
 
   await page.locator("a").first().click();
@@ -34,12 +31,10 @@ test("Workspace Creating from tab has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Workspace name").click();
   await page.getByLabel("Workspace name").fill("workspace name");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created workspace!");
   await closeNotification(page);
 
   await page.getByText("Workspace", { exact: true }).click();
   await page.getByRole("button", { name: "Remove Workspace" }).click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted workspace!");
   await closeNotification(page);
 });

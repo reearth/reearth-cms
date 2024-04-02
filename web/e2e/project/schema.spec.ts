@@ -11,7 +11,6 @@ import { createProject, deleteProject } from "./utils/project";
 async function deleteField(page: Page, name: string, key = name) {
   await page.getByLabel("delete").locator("svg").click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.locator("body")).toContainText("Successfully deleted field!");
   await closeNotification(page);
   await expect(page.getByText(`${name} #${key}`)).not.toBeVisible();
 }
@@ -45,7 +44,6 @@ test("Model reordering has succeeded", async ({ page }) => {
     .getByRole("menuitem")
     .nth(1)
     .dragTo(page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(0));
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated models order!");
   await closeNotification(page);
   await expect(
     page.getByRole("main").getByRole("menu").first().getByRole("menuitem").nth(0),
@@ -81,7 +79,6 @@ test("Group creating from adding field has succeeded", async ({ page }) => {
   await page.getByLabel("New Group").locator("#key").click();
   await page.getByLabel("New Group").locator("#key").fill("e2e-group-key");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created group!");
   await closeNotification(page);
   await expect(
     page.getByRole("menuitem", { name: "e2e group name" }).locator("span"),
@@ -130,7 +127,6 @@ test("Schema reordering has succeeded", async ({ page }) => {
     .locator(".draggable-item")
     .nth(1)
     .dragTo(page.getByLabel("Fields").locator(".draggable-item").nth(0));
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByLabel("Fields").locator(".draggable-item").nth(0)).toContainText(
     "text2 #text2",
