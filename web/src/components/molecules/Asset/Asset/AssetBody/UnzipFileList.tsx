@@ -16,7 +16,9 @@ type Props = {
 };
 
 type FileNode = DataNode & {
-  file: AssetFile;
+  name: string;
+  path: string;
+  children: FileNode[];
 };
 
 const UnzipFileList: React.FC<Props> = ({
@@ -27,61 +29,47 @@ const UnzipFileList: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0"]);
+  const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0-0"]);
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
   const [treeData, setTreeData] = useState<FileNode[]>([]);
 
   const getTreeData = useCallback(
-    (file: AssetFile, parentKey?: string): FileNode[] =>
-      file.children?.map((child: AssetFile, index: number) => {
-        let children: FileNode[] = [];
-        const key = parentKey ? `${parentKey}-${index}` : `${index}`;
-
-        if (child.children && child.children.length > 0) {
-          children = getTreeData(child, key);
-        }
-
-        return {
-          title: (
-            <>
-              {child.name}
-              <CopyIcon
-                selected={selectedKeys[0] === key}
-                icon="copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(assetBaseUrl + child.path);
-                }}
-              />
-            </>
-          ),
-          key: key,
-          children: children,
-          file: child,
-        };
-      }) || [],
-    [selectedKeys, assetBaseUrl],
-  );
-
-  const constructFileTree = useCallback(
     (file?: AssetFile): FileNode[] => {
       if (!file?.filePaths) return [];
 
-      const root: AssetFile = {
-        ...file,
+      const filePaths = file.filePaths;
+      const root: FileNode = {
+        key: "",
+        name: file.name,
         path: "/",
         children: [],
       };
 
-      for (const filepath of file.filePaths) {
+      filePaths.forEach((filepath, i) => {
         const parts = filepath.split("/");
         let currentNode = root;
 
-        for (const part of parts.slice(1)) {
-          const existingNode = currentNode.children?.find(node => node.name === part);
+        parts.slice(1).forEach((part, j) => {
+          const existingNode = currentNode.children?.find((node: FileNode) => node.name === part);
           if (!existingNode) {
-            const newNode: AssetFile = {
+            const key = `${i}-${j}`;
+            const path = `${currentNode.path}${part}${/\.[^.]+$/.test(part) ? "" : "/"}`;
+            const newNode: FileNode = {
+              key: key,
+              title: (
+                <>
+                  {part}
+                  <CopyIcon
+                    selected={selectedKeys[0] === key}
+                    icon="copy"
+                    onClick={() => {
+                      navigator.clipboard.writeText(assetBaseUrl + path);
+                    }}
+                  />
+                </>
+              ),
               name: part,
-              path: `${currentNode.path}${part}${/\.[^.]+$/.test(part) ? "" : "/"}`,
+              path: path,
               children: [],
             };
 
@@ -90,35 +78,35 @@ const UnzipFileList: React.FC<Props> = ({
           } else {
             currentNode = existingNode;
           }
-        }
-      }
+        });
+      });
 
-      return getTreeData(root);
+      return root.children;
     },
-    [getTreeData],
+    [assetBaseUrl, selectedKeys],
   );
 
   useEffect(() => {
-    setTreeData(constructFileTree(file));
-  }, [file, constructFileTree]);
+    setTreeData(getTreeData(file));
+  }, [file, getTreeData]);
 
   const previewFile = useCallback(
-    (file: AssetFile) => {
-      setAssetUrl(assetBaseUrl + file.path);
+    (path: string) => {
+      setAssetUrl(assetBaseUrl + path);
     },
     [assetBaseUrl, setAssetUrl],
   );
 
-  const onSelect: TreeProps<FileNode>["onSelect"] = useCallback(
-    (keys: Key[], { node: { file } }: { node: FileNode }) => {
+  const handleSelect: TreeProps<FileNode>["onSelect"] = useCallback(
+    (keys: Key[], { node: { path } }: { node: FileNode }) => {
       if (!keys[0] || keys[0] === selectedKeys[0]) return;
-      previewFile(file);
+      previewFile(path);
       setSelectedKeys(keys);
     },
     [previewFile, selectedKeys],
   );
 
-  const onExpand: TreeProps["onExpand"] = (keys: Key[]) => {
+  const handleExpand: TreeProps["onExpand"] = (keys: Key[]) => {
     setExpandedKeys([...keys]);
   };
 
@@ -140,8 +128,8 @@ const UnzipFileList: React.FC<Props> = ({
           switcherIcon={<Icon icon="caretDown" />}
           expandedKeys={[...expandedKeys]}
           selectedKeys={[...selectedKeys]}
-          onSelect={onSelect}
-          onExpand={onExpand}
+          onSelect={handleSelect}
+          onExpand={handleExpand}
           treeData={treeData}
           multiple={false}
           showLine
