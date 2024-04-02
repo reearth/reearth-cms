@@ -27,9 +27,7 @@ export const renderField = (
       <StyledSelect
         mode={field.multiple ? "multiple" : undefined}
         defaultValue={filteredTags.map(({ name }) => name)}
-        tagRender={props => {
-          return <>{props.label}</>;
-        }}
+        tagRender={props => <>{props.label}</>}
         suffixIcon={null}
         allowClear={field.multiple ? false : true}
         onChange={(_, option) => {
