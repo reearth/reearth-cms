@@ -5,34 +5,10 @@ import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
-export type PreviewType =
-  | "GEO"
-  | "GEO_3D_TILES"
-  | "GEO_MVT"
-  | "IMAGE"
-  | "IMAGE_SVG"
-  | "MODEL_3D"
-  | "UNKNOWN";
-
-export type AssetFile = {
-  filePaths?: string[];
-  contentType?: string;
-  name: string;
-  path: string;
-  size: number;
-};
-
-export type Asset = {
+type Asset = {
   id: string;
   fileName: string;
   url: string;
-};
-
-export type Comment = {
-  id: string;
-  author: { id?: string; name: string; type: "User" | "Integration" | null };
-  content: string;
-  createdAt: string;
 };
 
 type DownloadButtonProps = {
