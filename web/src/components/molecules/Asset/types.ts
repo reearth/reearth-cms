@@ -43,7 +43,6 @@ export type AssetItem = {
 };
 
 export type AssetFile = {
-  children?: AssetFile[];
   filePaths?: string[];
   name: string;
   path: string;
