@@ -22,7 +22,6 @@ test.afterEach(async ({ reearth, page }) => {
     await page.getByLabel(/Account Name|アカウント名/).fill(originalUsername);
     await page.getByLabel(/Your Email|メールアドレス/).fill(originalEmail);
     await page.locator("form").getByRole("button").first().click();
-    await expect(page.getByRole("alert").last()).toContainText("Successfully updated user!");
     await closeNotification(page);
   }
 });
@@ -36,7 +35,6 @@ test("Name and email updating has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Your Email").click();
   await page.getByLabel("Your Email").fill("test@test.com");
   await page.locator("form").getByRole("button").first().click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated user!");
   await closeNotification(page);
 
   await page.getByLabel("Account Name").click();
@@ -44,7 +42,6 @@ test("Name and email updating has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Your Email").click();
   await page.getByLabel("Your Email").fill(originalEmail);
   await page.locator("form").getByRole("button").first().click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated user!");
   await closeNotification(page);
   await expect(page.locator("header")).toContainText(originalUsername);
 });

@@ -22,7 +22,6 @@ test("Boolean field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("boolean1 description");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText(
@@ -34,14 +33,12 @@ test("Boolean field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("boolean1 description");
 
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await page.getByLabel("boolean1").click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
@@ -58,14 +55,12 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await page.getByLabel("Set default value").click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("boolean1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
@@ -105,7 +100,6 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "false");
   await page.getByRole("button", { name: "arrow-up" }).nth(2).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x3" }).click();

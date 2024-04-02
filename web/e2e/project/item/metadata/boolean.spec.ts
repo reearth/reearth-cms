@@ -23,7 +23,6 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("boolean1 description");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await expect(page.getByText("boolean1 #boolean1")).toBeVisible();
@@ -48,19 +47,16 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await expect(page.locator("label")).toContainText("boolean1");
   await expect(page.getByRole("main")).toContainText("boolean1 description");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.getByLabel("boolean1")).not.toHaveAttribute("aria-checked");
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
   await page.getByLabel("boolean1").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "true");
   await page.getByLabel("Back").click();
   await page.getByRole("switch", { name: "check" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
@@ -79,14 +75,12 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await page.getByLabel("Set default value").click();
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
 
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("boolean1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "true");
   await page.getByLabel("Back").click();
@@ -114,7 +108,6 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "true");
 
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByLabel("Meta Data")).toContainText("new boolean1 #new-boolean1");
   await page.getByText("Content").click();
@@ -127,7 +120,6 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
 
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "true");
@@ -139,26 +131,20 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
   await expect(page.getByRole("switch", { name: "check" }).nth(2)).toBeVisible();
   await page.getByRole("switch", { name: "check" }).nth(1).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "plus New" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("switch").nth(2).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("button", { name: "plus New" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("switch").nth(4).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("button", { name: "delete" }).first().click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x4" }).click();

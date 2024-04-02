@@ -24,7 +24,6 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
   await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("model-key");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created model!");
   await closeNotification(page);
   await expect(page.getByTitle("model name")).toBeVisible();
   await expect(page.getByText("#model-key")).toBeVisible();
@@ -39,14 +38,12 @@ test("Model CRUD on Overview page has succeeded", async ({ page }) => {
   await page.getByLabel("Model key").click();
   await page.getByLabel("Model key").fill("new-model-key");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated model!");
   await closeNotification(page);
   await expect(page.locator("#root")).toContainText("new model name");
   await expect(page.locator("#root")).toContainText("new model description");
   await page.getByRole("list").locator("a").click();
   await page.getByText("Delete").click();
   await page.getByRole("button", { name: "Delete Model" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted model!");
   await closeNotification(page);
   await expect(page.locator("#root")).not.toContainText("new model name");
 });

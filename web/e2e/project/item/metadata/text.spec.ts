@@ -25,7 +25,6 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").click();
   await page.getByLabel("Settings").locator("#description").fill("text1 description");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await expect(page.getByText("text1 #text1")).toBeVisible();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
@@ -51,7 +50,6 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.getByLabel("text1")).toHaveValue("text1");
   await page.getByLabel("Back").click();
@@ -60,14 +58,12 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("new text1");
   await page.getByLabel("Back").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByPlaceholder("-")).toHaveValue("new text1");
 
   await page.getByPlaceholder("-").click();
   await page.getByPlaceholder("-").fill("text1");
   await page.locator(".ant-table-body").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByPlaceholder("-")).toHaveValue("text1");
   await page.getByRole("link", { name: "edit", exact: true }).click();
@@ -88,13 +84,11 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("text1 default value");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created field!");
   await closeNotification(page);
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("text1");
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.getByLabel("text1")).toHaveValue("text1 default value");
   await page.getByLabel("Back").click();
@@ -121,17 +115,13 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await page.locator("#defaultValue").nth(1).click();
   await page.locator("#defaultValue").nth(1).fill("text2");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: updateField value has 19 characters, but it sholud be shorter than 5 characters",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.locator("#defaultValue").nth(0).click();
   await page.locator("#defaultValue").nth(0).fill("text1");
   await page.getByRole("button", { name: "arrow-down" }).first().click();
   await expect(page.locator("#defaultValue").nth(0)).toHaveValue("text2");
   await expect(page.locator("#defaultValue").nth(1)).toHaveValue("text1");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated field!");
   await closeNotification(page);
   await expect(page.getByLabel("Meta Data")).toContainText("new text1 *#new-text1(unique)");
   await page.getByText("Content").click();
@@ -144,7 +134,6 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text1");
 
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created Item!");
   await closeNotification(page);
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text1");
@@ -155,15 +144,11 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await page.getByPlaceholder("-").nth(1).click();
   await page.getByPlaceholder("-").nth(1).fill("new text2");
   await page.getByRole("tooltip").getByText("new text1").click();
-  await expect(page.getByRole("alert").last()).toContainText(
-    "input: updateItem value has 9 characters, but it sholud be shorter than 5 characters",
-  );
-  await closeNotification(page);
+  await closeNotification(page, false);
   await page.getByRole("button", { name: "x2" }).click();
   await page.getByPlaceholder("-").nth(1).click();
   await page.getByPlaceholder("-").nth(1).fill("text3");
   await page.getByRole("tooltip").getByText("new text1").click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("text3");
@@ -179,18 +164,14 @@ test("Text metadata editing has succeeded", async ({ page }) => {
     .getByRole("textbox")
     .fill("text2");
   await page.getByRole("button", { name: "arrow-down" }).first().click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByRole("button", { name: "arrow-down" }).nth(1).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("text1");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("text3");
   await page.getByRole("button", { name: "delete" }).first().click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated Item!");
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
