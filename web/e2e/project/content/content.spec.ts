@@ -92,7 +92,7 @@ test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
 
   await page.getByRole("button", { name: "0" }).click();
-  await expect(page.getByText("CommentsNo comments.Comment")).toBeVisible();
+  await expect(page.getByText("CommentsNo comments.0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });
 
@@ -106,6 +106,6 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await page.getByLabel("message").click();
-  await expect(page.getByText("CommentsComment")).toBeVisible();
+  await expect(page.getByText("Comments0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });
