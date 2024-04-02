@@ -65,7 +65,7 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
             ]
           : []
       }
-      author={<a> {comment.author.name}</a>}
+      author={comment.author.name}
       avatar={
         comment.author.type === "Integration" ? (
           <Badge count={<StyledIcon icon="api" size={8} color="#BFBFBF" />} offset={[0, 24]}>
@@ -102,17 +102,19 @@ const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onComm
         </>
       }
       datetime={
-        comment.createdAt && (
-          <Tooltip title={dateTimeFormat(comment.createdAt)}>
-            <span>{fromNow}</span>
-          </Tooltip>
-        )
+        <Tooltip title={dateTimeFormat(comment.createdAt)}>
+          <span>{fromNow}</span>
+        </Tooltip>
       }
     />
   );
 };
 
 const StyledComment = styled(AntDComment)`
+  .ant-comment-content-author {
+    margin-right: 48px;
+    overflow-wrap: anywhere;
+  }
   .ant-comment-actions {
     position: absolute;
     top: 0;
