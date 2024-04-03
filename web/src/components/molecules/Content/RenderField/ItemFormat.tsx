@@ -69,7 +69,7 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
           placeholder="-"
           defaultValue={item ? dayjs(item) : undefined}
           suffixIcon={undefined}
-          onChange={(date: any) => {
+          onChange={date => {
             update(date ? transformDayjsToString(date) : "", index);
           }}
         />
