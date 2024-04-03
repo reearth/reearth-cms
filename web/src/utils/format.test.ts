@@ -1,7 +1,10 @@
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { test, expect } from "vitest";
 
 import { dateTimeFormat, bytesFormat, transformDayjsToString } from "./format";
+
+dayjs.extend(utc);
 
 test("dateTimeFormat function returns formatted date in local timezone", () => {
   const date = new Date("2022-01-01T12:00:00");
