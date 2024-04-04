@@ -64,7 +64,7 @@ const UploadModal: React.FC<Props> = ({
           minHeight: "50vh",
           position: "relative",
           paddingBottom: "80px",
-        }
+        },
       }}>
       <div>
         <h2>{t("Asset Uploader")}</h2>
@@ -94,12 +94,12 @@ const UploadModal: React.FC<Props> = ({
 };
 
 const StyledModal = styled(Modal)`
-.ant-upload-span {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
+  .ant-upload-span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
 `;
 
 const Footer = styled.div`
