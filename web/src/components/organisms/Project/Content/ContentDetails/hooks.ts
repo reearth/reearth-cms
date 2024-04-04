@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -308,9 +308,9 @@ export default () => {
 
   const dateConvert = useCallback((value?: ItemValue) => {
     if (Array.isArray(value)) {
-      return (value as string[]).map(valueItem => (valueItem ? moment(valueItem) : ""));
+      return (value as string[]).map(valueItem => (valueItem ? dayjs(valueItem) : ""));
     } else {
-      return value ? moment(value as string) : "";
+      return value ? dayjs(value as string) : "";
     }
   }, []);
 

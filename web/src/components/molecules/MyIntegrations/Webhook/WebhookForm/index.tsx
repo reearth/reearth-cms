@@ -13,7 +13,7 @@ import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-export type Props = {
+type Props = {
   onBack?: () => void;
   webhookInitialValues?: any;
   onWebhookCreate: (data: {
@@ -142,7 +142,7 @@ const WebhookForm: React.FC<Props> = ({
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
             <Form.Item name="trigger">
-              <Checkbox.Group>
+              <StyledCheckboxGroup>
                 <CheckboxLabel>{t("Item")}</CheckboxLabel>
                 <Row>
                   {itemOptions.map((item, index) => (
@@ -159,7 +159,7 @@ const WebhookForm: React.FC<Props> = ({
                     </Col>
                   ))}
                 </Row>
-              </Checkbox.Group>
+              </StyledCheckboxGroup>
             </Form.Item>
           </Col>
         </Row>
@@ -167,6 +167,10 @@ const WebhookForm: React.FC<Props> = ({
     </>
   );
 };
+
+const StyledCheckboxGroup = styled(Checkbox.Group)`
+  display: block;
+`;
 
 const CheckboxLabel = styled.p`
   margin-top: 24px;

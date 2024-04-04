@@ -13,6 +13,7 @@ export async function createRequest(page: Page, reviewerName: string, title: str
   await page.locator(".ant-select-selection-overflow").click();
 
   await page.getByTitle(reviewerName).locator("div").click();
+  await page.locator(".ant-select-selection-overflow").click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 }
