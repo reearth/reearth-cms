@@ -184,10 +184,12 @@ const LinkItemModal: React.FC<Props> = ({
       width="70vw"
       footer={null}
       onCancel={onLinkItemModalCancel}
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          padding: "12px",
+        },
       }}>
       <ResizableProTable
         dataSource={linkedItemsModalList}

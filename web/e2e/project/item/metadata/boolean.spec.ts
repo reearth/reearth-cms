@@ -48,7 +48,7 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await expect(page.getByRole("main")).toContainText("boolean1 description");
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByLabel("boolean1")).not.toHaveAttribute("aria-checked");
+  await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "false");
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
   await page.getByRole("link", { name: "edit", exact: true }).click();
@@ -127,10 +127,10 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "true");
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x3" }).click();
-  await expect(page.getByRole("switch", { name: "check" }).nth(1)).toBeVisible();
-  await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
-  await expect(page.getByRole("switch", { name: "check" }).nth(2)).toBeVisible();
-  await page.getByRole("switch", { name: "check" }).nth(1).click();
+  await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "false");
+  await expect(page.getByRole("switch").nth(3)).toHaveAttribute("aria-checked", "true");
+  await page.getByRole("switch").nth(1).click();
   await closeNotification(page);
   await page.getByRole("link", { name: "edit", exact: true }).first().click();
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
@@ -148,8 +148,8 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x4" }).click();
-  await expect(page.getByRole("switch", { name: "close" }).first()).toBeVisible();
-  await expect(page.getByRole("switch", { name: "close" }).nth(1)).toBeVisible();
-  await expect(page.getByRole("switch", { name: "close" }).nth(2)).toBeVisible();
-  await expect(page.getByRole("tooltip").getByRole("switch", { name: "check" })).toBeVisible();
+  await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
+  await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "false");
+  await expect(page.getByRole("switch").nth(3)).toHaveAttribute("aria-checked", "false");
+  await expect(page.getByRole("switch").nth(4)).toHaveAttribute("aria-checked", "true");
 });

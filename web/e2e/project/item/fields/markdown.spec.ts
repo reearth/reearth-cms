@@ -25,7 +25,6 @@ test("Markdown field editing has succeeded", async ({ page }) => {
   await page.locator(".css-1msv1zr").click();
   await page.getByLabel("Set default value").fill("text1 default value");
   await page.getByRole("button", { name: "OK" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByText("text1 #text1")).toBeVisible();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();

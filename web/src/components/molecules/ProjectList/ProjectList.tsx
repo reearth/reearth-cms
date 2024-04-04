@@ -31,12 +31,12 @@ const ProjectList: React.FC<Props> = ({
       ) : projects.length === 0 ? (
         <EmptyListWrapper>
           <Title>{t("No Projects Yet")}</Title>
-          <Suggestion>
-            {t("Create a new project")}{" "}
+          <Wrapper>
+            <Suggestion>{t("Create a new project")}</Suggestion>
             <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
               {t("New Project")}
             </Button>
-          </Suggestion>
+          </Wrapper>
           <Suggestion>
             {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
           </Suggestion>
@@ -76,6 +76,12 @@ const EmptyListWrapper = styled.div`
   justify-content: center;
   align-items: center;
   margin-top: 64px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
 `;
 
 const Suggestion = styled.p`

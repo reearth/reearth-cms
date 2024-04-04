@@ -13,6 +13,11 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await page.getByText("My Integrations").click();
 
   await page.locator("div").filter({ hasText: "Create new integration" }).nth(4).click();
+  await page
+    .locator("div")
+    .filter({ hasText: /^Create new integration$/ })
+    .nth(1)
+    .click();
   await page.getByLabel("Integration Name").click();
   await page.getByLabel("Integration Name").fill("e2e integration name");
   await page.getByLabel("Description").click();

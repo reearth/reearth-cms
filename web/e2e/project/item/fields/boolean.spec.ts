@@ -89,6 +89,7 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
   await expect(page.getByText("new boolean1 #new-")).toBeVisible();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new boolean1");
@@ -103,7 +104,8 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x3" }).click();
-  await expect(
-    page.getByRole("tooltip", { name: "new boolean1 close close check" }).locator("div").nth(1),
-  ).toBeVisible();
+  await expect(page.getByRole("tooltip")).toContainText("new boolean1");
+  await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
+  await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "false");
+  await expect(page.getByRole("switch").nth(3)).toHaveAttribute("aria-checked", "true");
 });

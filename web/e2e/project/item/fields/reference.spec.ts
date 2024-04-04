@@ -88,7 +88,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await expect(
     page.locator("label").filter({ hasText: "Two-way reference" }).locator("span").first(),
   ).not.toBeEnabled();
-  await page.getByLabel("Close", { exact: true }).click();
+  await page.getByLabel("Close", { exact: true }).first().click();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("ref");
   await page.getByRole("button", { name: "plus New Item" }).click();
@@ -226,7 +226,7 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await expect(
     page.locator("label").filter({ hasText: "Two-way reference" }).locator("span").first(),
   ).not.toBeEnabled();
-  await page.getByLabel("Close", { exact: true }).click();
+  await page.getByLabel("Close", { exact: true }).first().click();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("ref1");
   await page.getByRole("button", { name: "plus New Item" }).click();

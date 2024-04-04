@@ -61,7 +61,7 @@ const WorkspaceMenu: React.FC<Props> = ({
     {
       label: t("Workspace"),
       key: "workspaceSettings",
-      icon: <Icon icon="workspaceSettings" />,
+      icon: <Icon size={"1em"} icon="workspaceSettings" />,
       show: "notPersonal" as MenuShowType,
     },
     {

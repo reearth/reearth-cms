@@ -1,7 +1,10 @@
-import moment from "moment";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { test, expect } from "vitest";
 
-import { dateTimeFormat, bytesFormat, transformMomentToString } from "./format";
+import { dateTimeFormat, bytesFormat, transformDayjsToString } from "./format";
+
+dayjs.extend(utc);
 
 test("dateTimeFormat function returns formatted date in local timezone", () => {
   const date = new Date("2022-01-01T12:00:00");
@@ -20,19 +23,19 @@ test("bytesFormat function returns formatted string for bytes", () => {
 });
 
 test("transformMomentToString function returns formatted string for moment objects", () => {
-  const momentObject = moment("2022-01-01T12:00:00");
-  expect(transformMomentToString(momentObject)).toContain("2022-01-01T12:00:00");
+  const momentObject = dayjs("2022-01-01T12:00:00");
+  expect(transformDayjsToString(momentObject)).toContain("2022-01-01T12:00:00");
 });
 
 test("transformMomentToString function returns formatted string for array of moment objects", () => {
   const date1 = "2022-01-01T12:00:00";
   const date2 = "2022-01-02T12:00:00";
-  const result = transformMomentToString([moment(date1), moment(date2)]);
-  expect(transformMomentToString(result[0])).toContain(date1);
-  expect(transformMomentToString(result[1])).toContain(date2);
+  const result = transformDayjsToString([dayjs(date1), dayjs(date2)]);
+  expect(transformDayjsToString(result[0])).toContain(date1);
+  expect(transformDayjsToString(result[1])).toContain(date2);
 });
 
 test("transformMomentToString function returns original value for non-moment objects", () => {
   const value = "2022-01-01T12:00:00";
-  expect(transformMomentToString(value)).toBe(value);
+  expect(transformDayjsToString(value)).toBe(value);
 });

@@ -183,10 +183,12 @@ const LinkItemRequestModal: React.FC<Props> = ({
       onOk={submit}
       onCancel={onLinkItemRequestModalCancel}
       width="70vw"
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px 12px 0",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          padding: "12px 12px 0",
+        },
       }}
       afterClose={() => {
         resetFlag.current = !resetFlag.current;

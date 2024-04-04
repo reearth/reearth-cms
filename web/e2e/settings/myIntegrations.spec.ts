@@ -4,7 +4,11 @@ import { expect, test } from "@reearth-cms/e2e/utils";
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
-  await page.locator("div").filter({ hasText: "Create new integration" }).nth(4).click();
+  await page
+    .locator("div")
+    .filter({ hasText: /^Create new integration$/ })
+    .nth(1)
+    .click();
 
   await page.getByLabel("Integration Name").click();
   await page.getByLabel("Integration Name").fill("name");
@@ -91,6 +95,7 @@ test("Webhook CRUD has succeeded", async ({ page }) => {
   await page.getByLabel("Secret").click();
   await page.getByLabel("Secret").fill("secret");
   await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
   await page.getByLabel("delete").locator("svg").click();
   await closeNotification(page);
 

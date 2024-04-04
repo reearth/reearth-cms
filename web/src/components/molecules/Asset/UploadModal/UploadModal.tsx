@@ -52,17 +52,19 @@ const UploadModal: React.FC<Props> = ({
   );
 
   return (
-    <Modal
+    <StyledModal
       centered
       open={visible}
       onCancel={onCancel}
       footer={null}
       width="50vw"
       afterClose={onUploadModalClose}
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        paddingBottom: "80px",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          paddingBottom: "80px",
+        },
       }}>
       <div>
         <h2>{t("Asset Uploader")}</h2>
@@ -87,9 +89,18 @@ const UploadModal: React.FC<Props> = ({
           {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
         </Button>
       </Footer>
-    </Modal>
+    </StyledModal>
   );
 };
+
+const StyledModal = styled(Modal)`
+  .ant-upload-span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+`;
 
 const Footer = styled.div`
   position: absolute;

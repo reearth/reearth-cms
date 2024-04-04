@@ -1,6 +1,5 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 
-import { TablePaginationConfig } from "@reearth-cms/components/atoms/ProTable";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 
 export default (
@@ -15,7 +14,7 @@ export default (
   const resetFlag = useRef(false);
   const [selectedRequestId, setSelectedRequestId] = useState<string>();
 
-  const pagination: TablePaginationConfig = useMemo(
+  const pagination = useMemo(
     () => ({
       showSizeChanger: true,
       current: requestModalPage,

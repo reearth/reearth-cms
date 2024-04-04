@@ -1,7 +1,5 @@
 import { useState, useEffect, ChangeEvent, useCallback, useMemo } from "react";
 
-import { TablePaginationConfig } from "@reearth-cms/components/atoms/ProTable";
-
 export default (
   linkItemModalTotalCount?: number,
   linkItemModalPage?: number,
@@ -10,7 +8,7 @@ export default (
 ) => {
   const [value, setValue] = useState("");
 
-  const pagination: TablePaginationConfig = useMemo(
+  const pagination = useMemo(
     () => ({
       showSizeChanger: true,
       current: linkItemModalPage,

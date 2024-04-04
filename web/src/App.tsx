@@ -1,3 +1,6 @@
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
 import {
   Route,
   RouterProvider,
@@ -29,6 +32,9 @@ import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
+
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
 
 const router = createBrowserRouter(
   createRoutesFromElements(

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -166,9 +166,9 @@ const MultiValueGroup: React.FC<Props> = ({
           break;
         case "Date":
           if (Array.isArray(defaultValue)) {
-            setValue(defaultValue.map(valueItem => (valueItem ? moment(valueItem as string) : "")));
+            setValue(defaultValue.map(valueItem => (valueItem ? dayjs(valueItem as string) : "")));
           } else if (defaultValue) {
-            setValue(moment(defaultValue as string));
+            setValue(dayjs(defaultValue as string));
           } else {
             form?.setFieldValue([field.id, itemGroupId], "");
           }

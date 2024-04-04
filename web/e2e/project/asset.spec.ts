@@ -73,12 +73,12 @@ test("Donwloading asset has succeeded", async ({ page }) => {
 test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByRole("cell", { name: "edit" }).locator("svg").click();
   await page.getByLabel("message").click();
-  await expect(page.getByText("CommentsComment")).toBeVisible();
+  await expect(page.getByText("Comments0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });
 
 test("Comment CRUD on Asset page has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "0" }).click();
-  await expect(page.getByText("CommentsNo comments.Comment")).toBeVisible();
+  await expect(page.getByText("CommentsNo comments.0 / 1000Comment")).toBeVisible();
   await crudComment(page);
 });

@@ -37,7 +37,9 @@ const CardWrapper = styled.div`
 `;
 
 const Cover = styled.div`
-  display: flex;
+  && {
+    display: flex;
+  }
   justify-content: center;
   align-items: center;
   font-weight: 500;

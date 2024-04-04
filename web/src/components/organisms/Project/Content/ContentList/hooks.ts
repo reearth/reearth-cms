@@ -109,7 +109,7 @@ export default () => {
           : undefined,
       },
     },
-    skip: !currentModel?.id,
+    skip: !currentProject?.id || !currentModel?.id,
   });
 
   const handleItemsReload = useCallback(() => {

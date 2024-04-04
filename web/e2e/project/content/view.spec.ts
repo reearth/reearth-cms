@@ -59,7 +59,7 @@ test("View CRUD has succeeded", async ({ page }) => {
 
   await page.getByText("text", { exact: true }).click();
   await expect(
-    page.getByRole("cell", { name: "text caret-up caret-down" }).locator(".anticon-caret-up"),
+    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
   ).toHaveClass(/active/);
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("sample1");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample2");
@@ -74,9 +74,9 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Confirm" }).click();
 
   await page.getByRole("main").getByLabel("setting").locator("svg").click();
-  await expect(page.getByRole("cell", { name: "Status" })).toBeVisible();
-  await page.locator("div:nth-child(3) > .ant-tree-checkbox").click();
-  await expect(page.getByRole("cell", { name: "Status" })).not.toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Status" })).toBeVisible();
+  await page.locator(".ant-tree-checkbox").first().click();
+  await expect(page.getByRole("columnheader", { name: "Status" })).not.toBeVisible();
 
   await page.getByRole("button", { name: "Save as new view" }).click();
   await page.getByLabel("View Name").click();
@@ -86,7 +86,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "false");
   await expect(page.getByRole("tab").nth(1)).toHaveAttribute("aria-selected", "true");
   await expect(
-    page.getByRole("cell", { name: "text caret-up caret-down" }).locator(".anticon-caret-up"),
+    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
   ).toHaveClass(/active/);
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
@@ -95,16 +95,14 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("tab").nth(1)).toHaveAttribute("aria-selected", "false");
   await expect(
-    page.getByRole("cell", { name: "text caret-up caret-down" }).locator(".anticon-caret-up"),
+    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
   ).not.toHaveClass(/active/);
   await expect(page.getByRole("button", { name: "text close" })).not.toBeVisible();
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("sample2");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample1");
-  await expect(page.getByRole("cell", { name: "Status" })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Status" })).toBeVisible();
   await page.getByRole("main").getByLabel("setting").locator("svg").click();
-  await expect(page.locator("div:nth-child(3) > .ant-tree-checkbox")).toHaveClass(
-    /ant-tree-checkbox-checked/,
-  );
+  await expect(page.locator(".ant-tree-checkbox").first()).toHaveClass(/ant-tree-checkbox-checked/);
   await page.getByRole("main").getByLabel("setting").locator("svg").click();
 
   await page.getByText("text", { exact: true }).first().click();
@@ -124,21 +122,21 @@ test("View CRUD has succeeded", async ({ page }) => {
 
   await page.getByText("view2").click();
   await expect(
-    page.getByRole("cell", { name: "text caret-up caret-down" }).locator(".anticon-caret-up"),
+    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
   ).toHaveClass(/active/);
   await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
-  await expect(page.getByRole("cell", { name: "Status" })).not.toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Status" })).not.toBeVisible();
   await page.getByRole("main").getByLabel("setting").locator("svg").click();
-  await expect(page.locator("div:nth-child(3) > .ant-tree-checkbox")).not.toHaveClass(
+  await expect(page.locator(".ant-tree-checkbox").first()).not.toHaveClass(
     /ant-tree-checkbox-checked/,
   );
   await page.getByRole("main").getByLabel("setting").locator("svg").click();
 
   await page.getByText("new view1").click();
   await expect(
-    page.getByRole("cell", { name: "text caret-up caret-down" }).locator(".anticon-caret-down"),
+    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-down"),
   ).toHaveClass(/active/);
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample1");
@@ -152,7 +150,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.getByText("view2")).toBeVisible();
   await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "true");
   await expect(
-    page.getByRole("cell", { name: "text caret-up caret-down" }).locator(".anticon-caret-up"),
+    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
   ).toHaveClass(/active/);
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
