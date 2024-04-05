@@ -18,11 +18,7 @@ import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
-import {
-  TableRowSelection,
-  TablePaginationConfig,
-  ListToolBarProps,
-} from "@reearth-cms/components/atoms/ProTable";
+import { TableRowSelection, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -137,6 +133,8 @@ const ContentTable: React.FC<Props> = ({
 
     return [
       {
+        title: "",
+        hideInSetting: true,
         render: (_, contentField) => (
           <Link to={`details/${contentField.id}`}>
             <Icon icon="edit" />
@@ -152,6 +150,7 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
         key: "commentsCount",
@@ -383,12 +382,15 @@ const ContentTable: React.FC<Props> = ({
   }, []);
 
   const handleOptionsOpenChange = useCallback((open: boolean) => {
-    setControlMenuOpen(false);
-    setOptionsOpen(open);
+    if (!open) {
+      setOptionsOpen(false);
+    }
   }, []);
 
   const handleConditionMenuOpenChange = useCallback((open: boolean) => {
-    setConditionMenuOpen(open);
+    if (!open) {
+      setConditionMenuOpen(false);
+    }
   }, []);
 
   const close = useCallback(() => {
@@ -426,7 +428,7 @@ const ContentTable: React.FC<Props> = ({
           setSelectedFilter(filter);
           handleOptionsOpenChange(false);
           if (isFromMenu) {
-            handleConditionMenuOpenChange(true);
+            setConditionMenuOpen(true);
             isFilterOpen.current = false;
           } else {
             isFilterOpen.current = true;
@@ -458,22 +460,18 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [
-      contentTableColumns,
-      currentWorkspace?.members,
-      handleConditionMenuOpenChange,
-      handleOptionsOpenChange,
-    ],
+    [contentTableColumns, currentWorkspace?.members, handleOptionsOpenChange],
   );
 
   const toolBarItemClick = useCallback(
-    (isFilterMode: boolean) => {
+    ({ key }: { key: string }) => {
       setInputValue("");
       setItems(getOptions(true));
-      isFilter.current = isFilterMode;
-      handleOptionsOpenChange(true);
+      isFilter.current = key === "filter";
+      setControlMenuOpen(false);
+      setOptionsOpen(true);
     },
-    [getOptions, handleOptionsOpenChange],
+    [getOptions],
   );
 
   const handleChange = useCallback(
@@ -574,7 +572,7 @@ const ContentTable: React.FC<Props> = ({
     ],
   );
 
-  const pagination: TablePaginationConfig = useMemo(
+  const pagination = useMemo(
     () => ({
       showSizeChanger: true,
       current: page,
@@ -597,31 +595,17 @@ const ContentTable: React.FC<Props> = ({
   const toolBarItems: MenuProps["items"] = useMemo(
     () => [
       {
-        label: (
-          <span
-            onClick={() => {
-              toolBarItemClick(true);
-            }}>
-            {t("Add Filter")}
-          </span>
-        ),
+        label: t("Add Filter"),
         key: "filter",
         icon: <Icon icon="filter" />,
       },
       {
-        label: (
-          <span
-            onClick={() => {
-              toolBarItemClick(false);
-            }}>
-            {t("Add Sort")}
-          </span>
-        ),
+        label: t("Add Sort"),
         key: "sort",
         icon: <Icon icon="sortAscending" />,
       },
     ],
-    [t, toolBarItemClick],
+    [t],
   );
 
   const toolBarRender = useCallback(() => {
@@ -629,7 +613,7 @@ const ContentTable: React.FC<Props> = ({
       <Dropdown
         {...sharedProps}
         placement="bottom"
-        trigger={["contextMenu"]}
+        trigger={["click"]}
         open={optionsOpen}
         onOpenChange={handleOptionsOpenChange}
         key="control">
@@ -645,16 +629,17 @@ const ContentTable: React.FC<Props> = ({
                 currentView={currentView}
                 setCurrentView={setCurrentView}
                 onFilterChange={onFilterChange}
+                key={Math.random()}
               />
             )
           }
-          trigger={["contextMenu"]}
+          trigger={["click"]}
           placement="bottom"
           arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
-            menu={{ items: toolBarItems }}
+            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
             placement="bottom"
             trigger={["click"]}
             arrow={false}
@@ -684,6 +669,7 @@ const ContentTable: React.FC<Props> = ({
     setCurrentView,
     sharedProps,
     t,
+    toolBarItemClick,
     toolBarItems,
   ]);
 

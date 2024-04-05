@@ -4,7 +4,7 @@ import * as ReactDOM from "react-dom/client";
 import App from "./App";
 import loadConfig from "./config";
 
-import "antd/dist/antd.css";
+import "antd/dist/reset.css";
 import "./index.css";
 
 (async function () {

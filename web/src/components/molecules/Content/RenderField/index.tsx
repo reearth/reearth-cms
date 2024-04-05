@@ -27,10 +27,8 @@ export const renderField = (
       <StyledSelect
         mode={field.multiple ? "multiple" : undefined}
         defaultValue={filteredTags.map(({ name }) => name)}
-        tagRender={props => {
-          return <>{props.label}</>;
-        }}
-        showArrow={false}
+        tagRender={props => <>{props.label}</>}
+        suffixIcon={null}
         allowClear={field.multiple ? false : true}
         onChange={(_, option) => {
           const value: string | string[] | undefined = Array.isArray(option)
@@ -114,7 +112,7 @@ const StyledSelect = styled(Select)`
   }
   .ant-select-selection-overflow {
     flex-wrap: nowrap;
-    overflow-x: hidden;
+    overflow: hidden;
   }
   .ant-select-selection-placeholder {
     color: inherit;

@@ -155,6 +155,7 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Update Tag").getByText("Tag2Tag3")).toBeVisible();
   await page.locator(".ant-select-selector").click();
   await expect(page.getByText("Tag1").last()).not.toBeVisible();
+  await page.locator(".ant-select-selector").click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByLabel("Meta Data")).toContainText("new tag1 *#new-tag1(unique)");

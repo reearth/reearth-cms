@@ -158,6 +158,7 @@ const FieldModal: React.FC<Props> = ({
         form={form}
         layout="vertical"
         initialValues={initialValues}
+        requiredMark="optional"
         onValuesChange={() => {
           setTimeout(() => {
             form
@@ -201,7 +202,7 @@ const FieldModal: React.FC<Props> = ({
               ]}>
               <Input />
             </Form.Item>
-            <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+            <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />
             </Form.Item>
             {selectedType === "Select" && (

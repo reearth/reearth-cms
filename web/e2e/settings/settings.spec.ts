@@ -51,7 +51,7 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Name")).toHaveValue("url");
   await expect(page.getByLabel("URL", { exact: true })).toHaveValue("http://url.com");
   await expect(page.getByLabel("Image URL")).toHaveValue("http://image.com");
-  await page.getByLabel("Close", { exact: true }).click();
+  await page.getByLabel("Close", { exact: true }).first().click();
   await page
     .locator("div:last-child > .ant-card-actions > li:nth-child(1) > span > .anticon")
     .click();
@@ -104,7 +104,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Terrain Cesium Ion access")).toHaveValue("token");
   await expect(page.getByLabel("Terrain URL")).toHaveValue("http://terrain.com");
   await expect(page.getByLabel("Image URL")).toHaveValue("http://image.com");
-  await page.getByLabel("Close", { exact: true }).click();
+  await page.getByLabel("Close", { exact: true }).first().click();
   await page.getByLabel("delete").locator("svg").click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
