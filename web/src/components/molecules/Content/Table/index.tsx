@@ -41,9 +41,9 @@ import {
   ItemSort,
   FieldType,
   Column,
-  AndConditionInput,
+  ConditionInput,
+  CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -61,8 +61,8 @@ type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  currentView: CurrentViewType;
-  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  currentView: CurrentView;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -72,7 +72,7 @@ type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onFilterChange: (filter?: AndConditionInput) => void;
+  onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
@@ -315,18 +315,19 @@ const ContentTable: React.FC<Props> = ({
         return prev;
       });
       defaultFilterValues.current.splice(index, 1);
-      const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
+      const currentFilters =
+        currentView.filter && currentView.filter.and ? [...currentView.filter.and.conditions] : [];
       currentFilters.splice(index, 1);
-      onFilterChange(currentFilters.length > 0 ? { conditions: currentFilters } : undefined);
+      onFilterChange(currentFilters.length > 0 ? currentFilters : undefined);
     },
     [currentView.filter, onFilterChange],
   );
 
   useEffect(() => {
-    if (currentView.filter && contentTableColumns) {
+    if (currentView.filter && currentView.filter.and && contentTableColumns) {
       const newFilters: DropdownFilterType[] = [];
       const newDefaultValues = [];
-      for (const c of currentView.filter.conditions) {
+      for (const c of currentView.filter.and.conditions) {
         const condition = Object.values(c)[0];
         if (!condition || !("operator" in condition)) break;
         const { operator, fieldId } = condition;

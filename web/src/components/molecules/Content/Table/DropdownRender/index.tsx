@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
-import { SetStateAction } from "jotai";
 import moment from "moment";
-import { Dispatch } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
@@ -16,8 +15,7 @@ import {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -31,9 +29,9 @@ type Props = {
   open: boolean;
   isFilter: boolean;
   index: number;
-  currentView?: CurrentViewType;
-  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>;
-  onFilterChange?: (filter?: AndConditionInput) => void;
+  currentView: CurrentView;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
+  onFilterChange: (filter?: ConditionInput[]) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -66,10 +64,10 @@ const DropdownRender: React.FC<Props> = ({
     open,
     isFilter,
     index,
-    defaultValue,
     currentView,
     setCurrentView,
     onFilterChange,
+    defaultValue,
   );
   return (
     <StyledForm form={form} name="basic" autoComplete="off" colon={false}>
