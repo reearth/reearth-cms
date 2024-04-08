@@ -112,7 +112,7 @@ export default () => {
         filter: toGraphConditionInput(currentView.filter),
       },
     },
-    skip: !currentModel?.id || viewLoading,
+    skip: !currentProject?.id || !currentModel?.id || viewLoading,
   });
 
   const handleItemsReload = useCallback(() => {

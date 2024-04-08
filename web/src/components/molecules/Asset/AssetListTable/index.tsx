@@ -12,7 +12,6 @@ import {
   ProColumns,
   OptionConfig,
   TableRowSelection,
-  TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -78,6 +77,7 @@ const AssetListTable: React.FC<Props> = ({
     () => [
       {
         title: "",
+        hideInSetting: true,
         render: (_, asset) => (
           <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
         ),
@@ -89,6 +89,7 @@ const AssetListTable: React.FC<Props> = ({
         title: () => <Icon icon="message" />,
         dataIndex: "commentsCount",
         key: "commentsCount",
+        hideInSetting: true,
         render: (_, asset) => {
           return (
             <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
@@ -222,7 +223,7 @@ const AssetListTable: React.FC<Props> = ({
     [onAssetsReload],
   );
 
-  const pagination: TablePaginationConfig = useMemo(
+  const pagination = useMemo(
     () => ({
       showSizeChanger: true,
       current: page,

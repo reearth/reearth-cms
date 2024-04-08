@@ -40,7 +40,7 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
   await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
 
-  await page.getByRole("button", { name: "edit" }).click();
+  await page.getByLabel("edit").locator("svg").click();
   await page.getByRole("button", { name: "Assign to" }).click();
   await page.getByLabel("close-circle").locator("svg").click();
   await page.locator(".ant-select-selection-overflow").click();
@@ -50,7 +50,7 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await page.getByRole("button", { name: "Approve" }).click();
   await closeNotification(page);
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).not.toBeVisible();
-  await page.getByRole("cell", { name: "State filter" }).getByRole("button").click();
+  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
   await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
@@ -61,18 +61,18 @@ test("Request closing and reopening has succeeded", async ({ page }) => {
   await page.getByText("Request", { exact: true }).click();
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
   await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
-  await page.getByRole("button", { name: "edit" }).click();
+  await page.getByLabel("edit").locator("svg").click();
 
   await page.getByRole("button", { name: "Close" }).click();
   await closeNotification(page);
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).not.toBeVisible();
   await expect(page.locator("tbody").getByText("WAITING")).not.toBeVisible();
 
-  await page.getByRole("cell", { name: "State filter" }).getByRole("button").click();
+  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
   await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.locator("tbody").getByText("CLOSED")).toBeVisible();
-  await page.getByRole("button", { name: "edit" }).click();
+  await page.getByLabel("edit").locator("svg").click();
   await expect(page.getByText("CLOSED", { exact: true })).toBeVisible();
   await expect(page.getByText("Closed", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Reopen" }).click();
@@ -83,11 +83,11 @@ test("Request closing and reopening has succeeded", async ({ page }) => {
   await page.getByLabel("", { exact: true }).check();
   await page.getByText("Close").click();
   await closeNotification(page);
-  await page.getByRole("cell", { name: "State filter" }).getByRole("button").click();
+  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
   await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
   await page.getByRole("button", { name: "OK" }).click();
   await expect(page.locator("tbody").getByText("CLOSED")).toBeVisible();
-  await page.getByRole("button", { name: "edit" }).click();
+  await page.getByLabel("edit").locator("svg").click();
   await expect(page.getByText("CLOSED", { exact: true })).toBeVisible();
 });
 
@@ -95,7 +95,7 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.getByText("Request", { exact: true }).click();
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
   await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
-  await page.getByRole("button", { name: "edit" }).click();
+  await page.getByLabel("edit").locator("svg").click();
 
   await page.locator("#content").click();
   await page.locator("#content").fill("comment");
@@ -116,7 +116,7 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
 test("Comment CRUD on Request page has succeeded", async ({ page }) => {
   await page.getByText("Request", { exact: true }).click();
   await page.getByRole("button", { name: "0" }).click();
-  await expect(page.getByText("CommentsNo comments.Comment")).toBeVisible();
+  await expect(page.getByText("CommentsNo comments.0 / 1000Comment")).toBeVisible();
 
   await crudComment(page);
 });
@@ -132,7 +132,7 @@ test("Creating a new request and adding to request has succeeded", async ({ page
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await page.getByText("Request", { exact: true }).click();
-  await page.getByRole("button", { name: "edit" }).click();
+  await page.getByLabel("edit").locator("svg").click();
   await expect(page.getByRole("button", { name: "right e2e model name" }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "right e2e model name" }).nth(1)).toBeVisible();
 });

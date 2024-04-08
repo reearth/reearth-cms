@@ -28,7 +28,11 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
       ]}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
-        <StyledMultipleSelect onChange={onMetaUpdate} mode="multiple" showArrow allowClear>
+        <StyledMultipleSelect
+          onChange={onMetaUpdate}
+          mode="multiple"
+          tagRender={props => <>{props.label}</>}
+          allowClear>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
@@ -36,7 +40,7 @@ const TagField: React.FC<TagFieldProps> = ({ field, onMetaUpdate }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select onChange={onMetaUpdate} showArrow allowClear>
+        <Select onChange={onMetaUpdate} allowClear>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
