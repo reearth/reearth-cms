@@ -10,6 +10,9 @@ const Header: React.FC<Props> = props => {
 const StyledPageHeader = styled(PageHeader)`
   background-color: #fff;
   padding: 16px 24px;
+  .ant-page-header-heading {
+    flex-wrap: inherit;
+  }
 `;
 
 export default Header;
