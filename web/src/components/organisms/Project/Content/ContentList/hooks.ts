@@ -45,6 +45,13 @@ import { useT } from "@reearth-cms/i18n";
 
 import { fileName } from "./utils";
 
+const defaultViewSort: ItemSort = {
+  direction: "DESC",
+  field: {
+    type: "MODIFICATION_DATE",
+  },
+};
+
 export default () => {
   const {
     currentModel,
@@ -108,7 +115,7 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: toGraphItemSort(currentView.sort),
+        sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
         filter: toGraphConditionInput(currentView.filter),
       },
     },
