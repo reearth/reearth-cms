@@ -93,7 +93,6 @@ export default FilterDropdown;
 const StyledButton = styled(Button)`
   color: rgba(0, 0, 0, 0.45);
   background-color: #f8f8f8;
-  margin: 0 5px;
 `;
 
 const StyledIcon = styled(Icon)`

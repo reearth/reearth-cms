@@ -828,16 +828,17 @@ const StyledBadge = styled(Badge)`
 
 const StyledSearchContainer = styled.div`
   display: flex;
+  gap: 10px;
 `;
 
 const StyledSearchInput = styled(Input.Search)`
   min-width: 200px;
+  max-width: 230px;
 `;
 
 const StyledFilterSpace = styled(Space)`
-  max-width: 750px;
+  gap: 16px;
   overflow-x: auto;
-  margin-top: 0;
 `;
 
 const StyledFilterButton = styled(Button)`
@@ -853,6 +854,8 @@ const StyledFilterWrapper = styled.div`
     justify-self: start;
     text-align: start;
   }
+  overflow: auto;
+  gap: 16px;
   .ant-pro-form-light-filter-item {
     margin: 0;
   }
