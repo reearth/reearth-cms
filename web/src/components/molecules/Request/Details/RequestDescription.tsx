@@ -14,6 +14,7 @@ import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
 
@@ -81,7 +82,7 @@ export const RequestDescription: React.FC<Props> = ({
 
   return (
     <StyledAntDComment
-      author={<a>{currentRequest.createdBy?.name}</a>}
+      author={currentRequest.createdBy?.name}
       avatar={<UserAvatar username={currentRequest.createdBy?.name} />}
       content={
         <>
@@ -130,7 +131,7 @@ export const RequestDescription: React.FC<Props> = ({
       }
       datetime={
         currentRequest.createdAt && (
-          <Tooltip title={currentRequest.createdAt.toString()}>
+          <Tooltip title={dateTimeFormat(currentRequest.createdAt)}>
             <span>{fromNow}</span>
           </Tooltip>
         )
@@ -148,6 +149,7 @@ const StyledAntDComment = styled(AntDComment)`
       font-weight: 400;
       font-size: 14px;
       color: #00000073;
+      overflow: hidden;
     }
   }
   .ant-comment-inner {
