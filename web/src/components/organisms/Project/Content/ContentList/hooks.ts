@@ -92,8 +92,12 @@ export default () => {
     if (viewLoading) return;
     const viewList = viewData?.view?.map(view => fromGraphQLView(view as GQLView));
     if (viewList?.length) {
-      if (prevModelIdRef.current === modelId && viewList.length > viewsRef.current.length) {
-        setCurrentView(viewList[viewList.length - 1]);
+      if (prevModelIdRef.current === modelId) {
+        if (viewList.length > viewsRef.current.length) {
+          setCurrentView(viewList[viewList.length - 1]);
+        } else {
+          setCurrentView(prev => viewList.find(view => view.id === prev.id) ?? viewList[0]);
+        }
       } else {
         setCurrentView(viewList[0]);
       }
