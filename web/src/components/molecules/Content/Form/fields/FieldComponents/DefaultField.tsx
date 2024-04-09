@@ -25,7 +25,7 @@ const DefaultField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, onMetaU
         },
       ]}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
+      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
         <MultiValueField
           onBlur={onMetaUpdate}
