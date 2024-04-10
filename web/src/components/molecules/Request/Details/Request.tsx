@@ -186,6 +186,7 @@ const BodyWrapper = styled.div`
 
 const ThreadWrapper = styled.div`
   flex: 1;
+  overflow: hidden;
 `;
 
 export default RequestMolecule;

@@ -11,6 +11,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { TextArea } = Input;
 
@@ -55,7 +56,7 @@ const ThreadCommentMolecule: React.FC<Props> = ({
 
   return (
     <StyledAntDComment
-      author={<a>{comment.author.name}</a>}
+      author={comment.author.name}
       actions={
         me?.id === comment.author.id
           ? [
@@ -93,7 +94,7 @@ const ThreadCommentMolecule: React.FC<Props> = ({
       }
       datetime={
         comment.createdAt && (
-          <Tooltip title={comment.createdAt}>
+          <Tooltip title={dateTimeFormat(comment.createdAt)}>
             <span>{fromNow}</span>
           </Tooltip>
         )
@@ -114,6 +115,13 @@ const StyledAntDComment = styled(AntDComment)`
     top: 12px;
     right: 24px;
     margin: 0;
+  }
+
+  .ant-comment-content-author {
+    padding-right: 48px;
+    .ant-comment-content-author-name {
+      overflow: hidden;
+    }
   }
 `;
 

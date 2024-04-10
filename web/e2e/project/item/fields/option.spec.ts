@@ -30,7 +30,7 @@ test("Option field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("option1 #option1");
+  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("option1#option1");
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("option1");

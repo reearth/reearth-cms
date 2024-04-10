@@ -25,7 +25,7 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
-  await expect(page.getByText("boolean1 #boolean1")).toBeVisible();
+  await expect(page.getByText("boolean1#boolean1")).toBeVisible();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await expect(page.getByLabel("Display name")).toBeVisible();
   await expect(page.getByLabel("Display name")).toHaveValue("boolean1");
@@ -109,7 +109,7 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
 
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByLabel("Meta Data")).toContainText("new boolean1 #new-boolean1");
+  await expect(page.getByLabel("Meta Data")).toContainText("new boolean1#new-boolean1");
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new boolean1");
   await expect(page.getByRole("switch", { name: "check" })).toBeVisible();

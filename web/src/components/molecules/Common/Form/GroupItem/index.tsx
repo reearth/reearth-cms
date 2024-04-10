@@ -176,7 +176,7 @@ const GroupItem: React.FC<Props> = ({
             </>
           )
         }>
-        <FormItemsWrapper>
+        <div>
           {fields?.map((field: Field) => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[
@@ -253,7 +253,7 @@ const GroupItem: React.FC<Props> = ({
               );
             }
           })}
-        </FormItemsWrapper>
+        </div>
       </Panel>
     </StyledCollapse>
   );
@@ -271,13 +271,6 @@ const IconWrapper = styled.span<{ disabled?: boolean }>`
 const StyledFormItemWrapper = styled.div`
   width: 468px;
   word-wrap: break-word;
-`;
-
-const FormItemsWrapper = styled.div`
-  width: 50%;
-  @media (max-width: 1200px) {
-    width: 100%;
-  }
 `;
 
 export default GroupItem;

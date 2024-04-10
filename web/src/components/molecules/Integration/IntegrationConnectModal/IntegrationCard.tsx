@@ -34,6 +34,9 @@ const CardTitle = styled.h5`
   line-height: 24px;
   margin: 0;
   padding-left: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export default IntegrationCard;

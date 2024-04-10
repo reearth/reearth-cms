@@ -25,7 +25,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
-  await expect(page.getByText("checkbox1 #checkbox1")).toBeVisible();
+  await expect(page.getByText("checkbox1#checkbox1")).toBeVisible();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await expect(page.getByLabel("Display name")).toBeVisible();
   await expect(page.getByLabel("Display name")).toHaveValue("checkbox1");
@@ -111,7 +111,7 @@ test("Checkbox metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
-  await expect(page.getByLabel("Meta Data")).toContainText("new checkbox1 #new-checkbox1");
+  await expect(page.getByLabel("Meta Data")).toContainText("new checkbox1#new-checkbox1");
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new checkbox1");
   await expect(page.getByLabel("", { exact: true }).nth(1)).toBeChecked();

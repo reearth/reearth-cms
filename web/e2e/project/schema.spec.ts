@@ -117,10 +117,10 @@ test("Schema reordering has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: /Text/ }).locator("div").first().click();
   await handleFieldForm(page, "text2");
   await expect(page.getByLabel("Fields").locator(".draggable-item").nth(0)).toContainText(
-    "text1 #text1",
+    "text1#text1",
   );
   await expect(page.getByLabel("Fields").locator(".draggable-item").nth(1)).toContainText(
-    "text2 #text2",
+    "text2#text2",
   );
   await page
     .getByLabel("Fields")
@@ -129,9 +129,9 @@ test("Schema reordering has succeeded", async ({ page }) => {
     .dragTo(page.getByLabel("Fields").locator(".draggable-item").nth(0));
   await closeNotification(page);
   await expect(page.getByLabel("Fields").locator(".draggable-item").nth(0)).toContainText(
-    "text2 #text2",
+    "text2#text2",
   );
   await expect(page.getByLabel("Fields").locator(".draggable-item").nth(1)).toContainText(
-    "text1 #text1",
+    "text1#text1",
   );
 });

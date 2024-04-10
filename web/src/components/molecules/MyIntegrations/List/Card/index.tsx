@@ -59,6 +59,7 @@ const CardTitle = styled.h5`
 `;
 
 const CardSubTitle = styled.h6`
+  width: 100%;
   margin: 0;
   font-weight: 400;
   font-size: 12px;
@@ -67,9 +68,6 @@ const CardSubTitle = styled.h6`
   height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
 `;
 
 export default MyIntegrationCard;

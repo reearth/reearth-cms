@@ -127,7 +127,8 @@ const ModelFieldList: React.FC<Props> = ({
                 }
                 title={
                   <ItemTitle>
-                    {(item as Field).title} {(item as Field).required ? " *" : ""}
+                    <ItemTitleHeading>{(item as Field).title}</ItemTitleHeading>
+                    {(item as Field).required ? " *" : ""}
                     <ItemKey>#{(item as Field).key}</ItemKey>
                     {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
                     {(item as Field).isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
@@ -191,9 +192,6 @@ const FieldStyledList = styled(List)`
         margin: 0;
       }
       align-items: center;
-      .ant-list-item-meta-avatar {
-        min-width: 130px;
-      }
     }
   }
 
@@ -205,12 +203,23 @@ const FieldStyledList = styled(List)`
 const ItemTitle = styled.p`
   color: rgba(0, 0, 0, 0.85);
   margin: 0;
+  display: flex;
+  justify-content: center;
+`;
+
+const ItemTitleHeading = styled.span`
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const ItemKey = styled.span`
   margin-left: 4px;
   color: rgba(0, 0, 0, 0.45);
   font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const ItemUnique = styled.span`

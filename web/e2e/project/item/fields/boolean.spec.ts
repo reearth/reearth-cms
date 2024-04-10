@@ -24,9 +24,7 @@ test("Boolean field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText(
-    "boolean1 #boolean1",
-  );
+  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("boolean1#boolean1");
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("boolean1");
@@ -90,7 +88,7 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByText("new boolean1 #new-")).toBeVisible();
+  await expect(page.getByText("new boolean1#new-boolean1Title")).toBeVisible();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new boolean1");
   await expect(page.getByRole("switch", { name: "check" })).toBeVisible();

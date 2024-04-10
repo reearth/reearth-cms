@@ -39,7 +39,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").fill("text1 description");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByText("text1 #text1")).toBeVisible();
+  await expect(page.getByText("text1#text1")).toBeVisible();
 
   await page.getByText("e2e model name").click();
   await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
@@ -63,7 +63,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Set default value")).not.toBeEnabled();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1 #group1");
+  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1#group1");
   await page.getByText("Content").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label").first()).toContainText("group1");
@@ -179,7 +179,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Settings").locator("#description").fill("text1 description");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByText("text1 #text1")).toBeVisible();
+  await expect(page.getByText("text1#text1")).toBeVisible();
 
   await page.getByText("e2e model name").click();
   await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
@@ -203,7 +203,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Set default value")).not.toBeEnabled();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1 #group1");
+  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1#group1");
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("group1");
   await page.getByRole("button", { name: "plus New Item" }).click();
