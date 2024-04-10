@@ -19,6 +19,7 @@ const ContentList: React.FC = () => {
     selection,
     loading,
     totalCount,
+    views,
     currentView,
     searchTerm,
     page,
@@ -43,6 +44,7 @@ const ContentList: React.FC = () => {
     collapseModelMenu,
     handleModelSelect,
     handleViewChange,
+    handleViewSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
@@ -78,8 +80,9 @@ const ContentList: React.FC = () => {
       }
       viewsMenu={
         <ViewsMenu
+          views={views}
           currentView={currentView}
-          setCurrentView={setCurrentView}
+          onViewSelect={handleViewSelect}
           onViewChange={handleViewChange}
         />
       }

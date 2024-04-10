@@ -1,4 +1,5 @@
-import { AndCondition } from "@reearth-cms/components/molecules/View/types";
+import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
+import { AndCondition as GQLAndCondition } from "@reearth-cms/gql/graphql-client-api";
 
 export function fileName(url: string | undefined): string {
   if (!url) return "";
@@ -11,7 +12,7 @@ export function fileName(url: string | undefined): string {
   return files.length ? files[files.length - 1] : "";
 }
 
-export function filterConvert(filter: AndCondition) {
+export function filterConvert(filter: GQLAndCondition): AndConditionInput | undefined {
   if (!filter || filter?.conditions?.length === 0) return;
 
   const convertedFilter: { conditions: any[] } = { conditions: [] };

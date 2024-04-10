@@ -4,27 +4,27 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { modalStateType } from "@reearth-cms/components/organisms/Project/Content/ViewsMenu/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-export interface FormValues {
+interface FormValues {
   viewId?: string;
   name: string;
 }
 
-export interface Props {
-  view?: View;
-  open?: boolean;
+interface Props {
+  currentView: CurrentView;
+  open: boolean;
   modalState: modalStateType;
-  submitting?: boolean;
+  submitting: boolean;
   onClose: () => void;
-  onCreate?: (values: FormValues) => Promise<void> | void;
-  OnUpdate?: (values: FormValues) => Promise<void> | void;
+  onCreate: (values: FormValues) => Promise<void>;
+  OnUpdate: (values: FormValues) => Promise<void>;
 }
 
 const ViewFormModal: React.FC<Props> = ({
-  view,
+  currentView,
   open,
   modalState,
   submitting,
@@ -38,24 +38,24 @@ const ViewFormModal: React.FC<Props> = ({
 
   useEffect(() => {
     if (open) {
-      if (view && modalState === "rename") {
-        form.setFieldsValue(view);
+      if (currentView && modalState === "rename") {
+        form.setFieldsValue(currentView);
       } else {
         form.resetFields();
       }
     }
-  }, [form, view, open, modalState]);
+  }, [form, currentView, open, modalState]);
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
     if (modalState === "create") {
-      await onCreate?.(values);
+      await onCreate(values);
     } else {
-      await OnUpdate?.({ viewId: view?.id, ...values });
+      await OnUpdate({ viewId: currentView.id, ...values });
     }
     onClose();
     form.resetFields();
-  }, [form, modalState, onClose, onCreate, OnUpdate, view?.id]);
+  }, [form, modalState, onClose, onCreate, OnUpdate, currentView.id]);
 
   const handleClose = useCallback(() => {
     form.resetFields();

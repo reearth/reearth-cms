@@ -135,4 +135,13 @@ const StyledProTable = styled(ProTable)<{
     overflow: auto !important;
     height: calc(100% - 47px);
   }
+  .ant-pro-table-list-toolbar-left {
+    max-width: calc(100% - 150px);
+    .ant-pro-table-list-toolbar-search {
+      width: 100%;
+    }
+  }
+  .ant-pro-table-list-toolbar-right {
+    flex: inherit;
+  }
 `;

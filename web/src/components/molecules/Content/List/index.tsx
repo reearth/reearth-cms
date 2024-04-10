@@ -11,8 +11,11 @@ import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { ItemSort, AndConditionInput } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import {
+  ItemSort,
+  ConditionInput,
+  CurrentView,
+} from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -29,7 +32,7 @@ type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  currentView: CurrentViewType;
+  currentView: CurrentView;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -37,10 +40,10 @@ type Props = {
   requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
-  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onFilterChange: (filter?: AndConditionInput) => void;
+  onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onUnpublish: (itemIds: string[]) => Promise<void>;
   onItemSelect: (itemId: string) => void;

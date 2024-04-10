@@ -1,21 +1,19 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { View } from "@reearth-cms/components/molecules/View/types";
+import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import ViewsMenuItem from "@reearth-cms/components/molecules/View/viewMenuItem";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+interface Props {
   views: View[];
-  onViewRenameModalOpen?: (view: View) => void;
+  onViewRenameModalOpen: (view: View) => void;
   onDelete: (viewId: string) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
-  selectedView?: View;
-  setSelectedView: (view?: View) => void;
+  currentView: CurrentView;
   onViewCreateModalOpen: () => void;
-  onViewChange: () => void;
+  onViewSelect: (key: string) => void;
 }
 
 const ViewsMenuMolecule: React.FC<Props> = ({
@@ -24,13 +22,12 @@ const ViewsMenuMolecule: React.FC<Props> = ({
   onViewCreateModalOpen,
   onUpdate,
   onDelete,
-  selectedView,
-  setSelectedView,
-  onViewChange,
+  currentView,
+  onViewSelect,
 }) => {
   const t = useT();
 
-  const menuItems = views?.map(view => {
+  const menuItems = views.map(view => {
     return {
       label: (
         <ViewsMenuItem
@@ -45,18 +42,6 @@ const ViewsMenuMolecule: React.FC<Props> = ({
     };
   });
 
-  const handleSelectView = useCallback(
-    (key: string) => {
-      views.forEach(view => {
-        if (view.id === key) {
-          setSelectedView(view);
-        }
-      });
-      onViewChange();
-    },
-    [setSelectedView, views, onViewChange],
-  );
-
   return (
     <Wrapper>
       <StyledTabs
@@ -65,12 +50,11 @@ const ViewsMenuMolecule: React.FC<Props> = ({
             {t("Save as new view")}
           </NewViewButton>
         }
-        defaultActiveKey="1"
-        activeKey={selectedView?.id}
+        activeKey={currentView.id}
         tabPosition="top"
         items={menuItems}
         popupClassName="hide-icon-button"
-        onChange={handleSelectView}
+        onChange={onViewSelect}
         moreIcon={<Button>All Views</Button>}
       />
     </Wrapper>
