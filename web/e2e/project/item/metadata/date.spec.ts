@@ -25,7 +25,7 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
-  await expect(page.getByText("date1 #date1")).toBeVisible();
+  await expect(page.getByText("date1#date1")).toBeVisible();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await expect(page.getByLabel("Display name")).toBeVisible();
   await expect(page.getByLabel("Display name")).toHaveValue("date1");

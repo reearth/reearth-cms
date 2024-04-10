@@ -82,7 +82,7 @@ const RequestItemForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   return (
     <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
-      <FormItemsWrapper>
+      <div>
         {schema?.fields.map((field: any) =>
           field.type === "TextArea" ? (
             <Form.Item
@@ -296,7 +296,7 @@ const RequestItemForm: React.FC<Props> = ({
             </Form.Item>
           ),
         )}
-      </FormItemsWrapper>
+      </div>
     </StyledForm>
   );
 };
@@ -312,12 +312,5 @@ const StyledForm = styled(Form)`
   label {
     width: 100%;
     display: flex;
-  }
-`;
-
-const FormItemsWrapper = styled.div`
-  width: 50%;
-  @media (max-width: 1200px) {
-    width: 100%;
   }
 `;
