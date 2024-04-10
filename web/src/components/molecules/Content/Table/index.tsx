@@ -518,7 +518,7 @@ const ContentTable: React.FC<Props> = ({
     () => ({
       search: (
         <StyledSearchContainer>
-          <StyledSearchInput
+          <Input.Search
             allowClear
             placeholder={t("input search text")}
             onSearch={(value: string) => {
@@ -829,11 +829,6 @@ const StyledBadge = styled(Badge)`
 const StyledSearchContainer = styled.div`
   display: flex;
   gap: 10px;
-`;
-
-const StyledSearchInput = styled(Input.Search)`
-  min-width: 200px;
-  max-width: 230px;
 `;
 
 const StyledFilterSpace = styled(Space)`
