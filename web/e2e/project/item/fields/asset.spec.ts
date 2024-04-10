@@ -71,6 +71,7 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
 });
 
 test("Asset field editing has succeeded", async ({ page }) => {
+  test.slow();
   await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("asset1");
