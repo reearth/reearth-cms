@@ -18,12 +18,10 @@ const FieldTitle: React.FC<Props> = ({ title, isUnique, isTitle }) => {
         {title}
         {isUnique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}
       </Wrapper>
-      {isTitle ? (
+      {isTitle && (
         <TagWrapper>
           <ItemTitleTag>{t("Title")}</ItemTitleTag>
         </TagWrapper>
-      ) : (
-        ""
       )}
     </Title>
   );
