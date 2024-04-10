@@ -41,7 +41,3 @@ code {
 .ant-input-textarea-show-count::after {
     display: none;
 }
-
-.ant-modal .ant-modal-close-x {
-    justify-content: flex-start;
-}
