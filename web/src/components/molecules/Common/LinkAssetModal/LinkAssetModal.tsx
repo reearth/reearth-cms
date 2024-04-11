@@ -5,7 +5,11 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { ProColumns, ListToolBarProps, OptionConfig } from "@reearth-cms/components/atoms/ProTable";
+import {
+  StretchColumn,
+  ListToolBarProps,
+  OptionConfig,
+} from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
@@ -18,8 +22,6 @@ import {
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
-
-type StretchColumn = ProColumns<Asset> & { minWidth: number };
 
 type Props = {
   visible: boolean;
@@ -122,7 +124,7 @@ const LinkAssetModal: React.FC<Props> = ({
     [onChange, onLinkAssetModalCancel, onSelect],
   );
 
-  const columns: StretchColumn[] = useMemo(
+  const columns: StretchColumn<Asset>[] = useMemo(
     () => [
       {
         title: "",
