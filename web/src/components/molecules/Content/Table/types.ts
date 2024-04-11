@@ -1,4 +1,4 @@
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, TypeProperty } from "@reearth-cms/components/molecules/Schema/types";
 import {
@@ -42,7 +42,7 @@ export type Operator =
   | StringOperator
   | MultipleOperator;
 
-export type ExtendedColumns = ProColumns<ContentTableField> & {
+export type ExtendedColumns = StretchColumn<ContentTableField> & {
   type?: FieldType | "Person";
   fieldType?: string;
   sortOrder?: "descend" | "ascend" | null;

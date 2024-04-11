@@ -9,7 +9,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import {
   ListToolBarProps,
-  ProColumns,
+  StretchColumn,
   OptionConfig,
   TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
@@ -27,8 +27,6 @@ import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import { compressedFileFormats } from "../../Common/Asset";
-
-type StretchColumn = ProColumns<Asset> & { minWidth: number };
 
 type Props = {
   assetList: Asset[];
@@ -73,7 +71,7 @@ const AssetListTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: StretchColumn[] = useMemo(
+  const columns: StretchColumn<Asset>[] = useMemo(
     () => [
       {
         title: "",

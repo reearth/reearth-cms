@@ -8,7 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import {
   ListToolBarProps,
-  ProColumns,
+  StretchColumn,
   OptionConfig,
   TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
@@ -18,8 +18,6 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-
-type StretchColumn = ProColumns<Request> & { minWidth: number };
 
 type Props = {
   requests: Request[];
@@ -70,7 +68,7 @@ const RequestListTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: StretchColumn[] = useMemo(
+  const columns: StretchColumn<Request>[] = useMemo(
     () => [
       {
         title: "",

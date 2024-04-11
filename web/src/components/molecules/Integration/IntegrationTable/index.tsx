@@ -6,12 +6,13 @@ import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import ProTable, {
+import {
   ListToolBarProps,
-  ProColumns,
   TableRowSelection,
+  StretchColumn,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -38,23 +39,29 @@ const IntegrationTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: ProColumns<IntegrationMember>[] = useMemo(
+  const columns: StretchColumn<IntegrationMember>[] = useMemo(
     () => [
       {
         title: t("Name"),
         dataIndex: ["integration", "name"],
         key: "name",
         filters: [],
+        width: 250,
+        minWidth: 100,
       },
       {
         title: t("Role"),
         dataIndex: "integrationRole",
         key: "role",
+        width: 100,
+        minWidth: 100,
       },
       {
         title: t("Creator"),
         dataIndex: ["integration", "developer", "name"],
         key: "creator",
+        width: 250,
+        minWidth: 100,
       },
       {
         key: "action",
@@ -64,6 +71,8 @@ const IntegrationTable: React.FC<Props> = ({
             icon="settings"
           />
         ),
+        width: 48,
+        minWidth: 48,
       },
     ],
     [onIntegrationSettingsModalOpen, t],
@@ -150,16 +159,17 @@ const IntegrationTable: React.FC<Props> = ({
             </Suggestion>
           </EmptyTableWrapper>
         )}>
-        <ProTable
-          options={options}
+        <ResizableProTable
           dataSource={integrationMembers}
           columns={columns}
           tableAlertOptionRender={AlertOptions}
           search={false}
           rowKey="id"
+          options={options}
+          pagination={false}
           toolbar={toolbar}
           rowSelection={rowSelection}
-          pagination={false}
+          heightOffset={72}
         />
       </ConfigProvider>
     </Wrapper>
@@ -167,8 +177,7 @@ const IntegrationTable: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
-  min-height: 100%;
-  background-color: #fff;
+  height: 100%;
 `;
 
 const EmptyTableWrapper = styled.div`

@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
+import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -14,8 +14,6 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
-
-type StretchColumn = ProColumns<Request> & { minWidth: number };
 
 type Props = {
   itemIds: string[];
@@ -58,7 +56,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
     onChange,
   );
 
-  const columns: StretchColumn[] = useMemo(
+  const columns: StretchColumn<Request>[] = useMemo(
     () => [
       {
         title: "",

@@ -5,9 +5,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import { ProColumns } from "@reearth-cms/components/atoms/ProTable";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
+import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -25,7 +25,7 @@ type Props = {
   model?: Model;
   contentTableFields?: ContentTableField[];
   itemsDataLoading: boolean;
-  contentTableColumns?: ProColumns<ContentTableField>[];
+  contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
   selectedItem: Item | undefined;
   selection: {

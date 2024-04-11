@@ -140,6 +140,10 @@ const StyledProTable = styled(ProTable)<{
     .ant-pro-table-list-toolbar-search {
       width: 100%;
     }
+    .ant-input-group-wrapper {
+      min-width: 200px;
+      max-width: 230px;
+    }
   }
   .ant-pro-table-list-toolbar-right {
     flex: inherit;
