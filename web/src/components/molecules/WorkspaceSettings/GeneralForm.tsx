@@ -6,18 +6,22 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   workspaceName?: string;
-  onWorkspaceUpdate: (name?: string | undefined) => Promise<void>;
+  onWorkspaceUpdate: (name: string) => Promise<void>;
+};
+
+type FormType = {
+  name: string;
 };
 
 const WorkspaceGeneralForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
   const t = useT();
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
-    await onWorkspaceUpdate?.(values.name);
+    await onWorkspaceUpdate(values.name);
   }, [form, onWorkspaceUpdate]);
 
   return (

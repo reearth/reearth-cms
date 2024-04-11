@@ -7,11 +7,11 @@ import IntegrationCard from "@reearth-cms/components/molecules/Integration/Integ
 import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   integrations?: Integration[];
-  open?: boolean;
+  open: boolean;
   onClose: () => void;
-  onSubmit: (integration?: Integration) => Promise<void> | void;
+  onSubmit: (integration?: Integration) => Promise<void>;
 };
 
 const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose, onSubmit }) => {
@@ -42,10 +42,10 @@ const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose,
       <ModalContent>
         {integrations?.map(integration => (
           <IntegrationCard
-            onClick={() => handleIntegrationSelect(integration)}
             key={integration.id}
             integration={integration}
             integrationSelected={integration.id === selectedIntegration?.id}
+            onClick={() => handleIntegrationSelect(integration)}
           />
         ))}
       </ModalContent>

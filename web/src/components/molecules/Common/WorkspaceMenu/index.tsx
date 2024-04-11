@@ -7,9 +7,9 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   inlineCollapsed: boolean;
-  isPersonalWorkspace?: boolean;
+  isPersonalWorkspace: boolean;
   defaultSelectedKey?: string;
-  onNavigate?: (info: MenuInfo) => void;
+  onNavigate: (info: MenuInfo) => void;
 };
 
 type MenuShowType = "personal" | "notPersonal" | "both";
@@ -80,7 +80,7 @@ const WorkspaceMenu: React.FC<Props> = ({
   const onClick = useCallback(
     (info: MenuInfo) => {
       changeSelected([info.key]);
-      onNavigate?.(info);
+      onNavigate(info);
     },
     [onNavigate],
   );

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { User } from "@reearth-cms/components/molecules/Member/types";
+import { User, RoleUnion } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -18,13 +18,11 @@ import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
 
-export type RoleUnion = "READER" | "WRITER" | "MAINTAINER" | "OWNER";
-
 export default () => {
   const [currentWorkspace, setWorkspace] = useWorkspace();
   const [roleModalShown, setRoleModalShown] = useState(false);
   const [MemberAddModalShown, setMemberAddModalShown] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<UserMember | undefined>(undefined);
+  const [selectedMember, setSelectedMember] = useState<UserMember>();
   const [searchTerm, setSearchTerm] = useState<string>();
   const [owner, setOwner] = useState(false);
   const t = useT();
@@ -78,7 +76,9 @@ export default () => {
   }, [searchUserData?.searchUser, data?.me?.id]);
 
   const handleUserSearch = useCallback(
-    (nameOrEmail: string) => nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
+    (nameOrEmail: string) => {
+      nameOrEmail && searchUserQuery({ variables: { nameOrEmail } });
+    },
     [searchUserQuery],
   );
 

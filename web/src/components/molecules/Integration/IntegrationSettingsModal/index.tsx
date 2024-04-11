@@ -7,26 +7,26 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type FormValues = {
+type FormValues = {
   role: Role;
 };
 
-export type Props = {
+type Props = {
   selectedIntegrationMember?: IntegrationMember;
-  open?: boolean;
-  onClose?: () => void;
-  onSubmit?: (role: Role) => Promise<void> | void;
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (role: Role) => Promise<void>;
 };
 
 const IntegrationSettingsModal: React.FC<Props> = ({
+  selectedIntegrationMember,
   open,
   onClose,
   onSubmit,
-  selectedIntegrationMember,
 }) => {
   const t = useT();
   const { Option } = Select;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
 
   useEffect(() => {
     form.setFieldsValue({
@@ -37,8 +37,8 @@ const IntegrationSettingsModal: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      await onSubmit?.(values.role);
-      onClose?.();
+      await onSubmit(values.role);
+      onClose();
       form.resetFields();
     } catch (info) {
       console.log("Validate Failed:", info);
@@ -49,9 +49,9 @@ const IntegrationSettingsModal: React.FC<Props> = ({
     <Modal
       title={t("Integration Setting") + "  " + selectedIntegrationMember?.integration?.name}
       open={open}
-      onCancel={() => onClose?.()}
+      onCancel={onClose}
       footer={[
-        <Button key="back" onClick={() => onClose?.()}>
+        <Button key="back" onClick={onClose}>
           {t("Cancel")}
         </Button>,
         <Button key="submit" type="primary" onClick={handleSubmit}>

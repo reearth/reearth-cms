@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
+import { FormValues as WorkspaceFormValues } from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
@@ -68,7 +70,7 @@ export default () => {
   );
 
   const handleProjectCreate = useCallback(
-    async (data: { name: string; alias: string; description: string }) => {
+    async (data: ProjectFormValues) => {
       if (!workspaceId) return;
       const project = await createNewProject({
         variables: {
@@ -106,7 +108,7 @@ export default () => {
     refetchQueries: ["GetMe"],
   });
   const handleWorkspaceCreate = useCallback(
-    async (data: { name: string }) => {
+    async (data: WorkspaceFormValues) => {
       const results = await createWorkspaceMutation({
         variables: { name: data.name },
       });

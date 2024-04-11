@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
 
 import ProjectCreationModal, {
-  FormValues,
+  FormValues as ProjectFormValues,
 } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
-import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
+import WorkspaceCreationModal, {
+  FormValues as WorkspaceFormValues,
+} from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import ProjectList from "@reearth-cms/components/molecules/ProjectList/ProjectList";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
@@ -12,17 +14,17 @@ import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/Workspa
 type Props = {
   coverImageUrl?: string;
   projects?: Project[];
-  projectModal?: boolean;
-  workspaceModal?: boolean;
-  loadingProjects?: boolean;
+  projectModal: boolean;
+  workspaceModal: boolean;
+  loadingProjects: boolean;
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
   onProjectNavigation: (project: Project) => void;
   onWorkspaceModalClose: () => void;
   onWorkspaceModalOpen: () => void;
-  onWorkspaceCreate: (data: { name: string }) => Promise<void>;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  onWorkspaceCreate: (data: WorkspaceFormValues) => Promise<void>;
+  onClose: () => void;
+  onSubmit: (values: ProjectFormValues) => Promise<void>;
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({

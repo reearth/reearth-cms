@@ -12,10 +12,10 @@ export interface FormValues {
   description: string;
 }
 
-export type Props = {
-  open?: boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
 };
 
 const initialValues: FormValues = {
@@ -26,14 +26,14 @@ const initialValues: FormValues = {
 
 const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
       .then(async values => {
-        await onSubmit?.(values);
-        onClose?.(true);
+        await onSubmit(values);
+        onClose();
         form.resetFields();
       })
       .catch(info => {
@@ -41,11 +41,8 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
       });
   }, [form, onClose, onSubmit]);
 
-  const handleClose = useCallback(() => {
-    onClose?.(true);
-  }, [onClose]);
   return (
-    <Modal open={open} onCancel={handleClose} onOk={handleSubmit}>
+    <Modal open={open} onCancel={onClose} onOk={handleSubmit}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"

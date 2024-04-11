@@ -16,7 +16,7 @@ import {
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   workspaceSettings: WorkspaceSettings;
   hasPrivilege: boolean;
   onWorkspaceSettingsUpdate: (
@@ -169,10 +169,10 @@ const Settings: React.FC<Props> = ({
         <FormModal
           open={open}
           onClose={onClose}
-          isTile={isTileRef.current}
           tiles={tiles}
           terrains={terrains}
           setSettings={setSettings}
+          isTile={isTileRef.current}
           index={indexRef.current}
         />
       </ContentSection>

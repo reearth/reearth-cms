@@ -4,9 +4,9 @@ import DangerZone from "@reearth-cms/components/molecules/WorkspaceSettings/Dang
 import WorkspaceGeneralForm from "@reearth-cms/components/molecules/WorkspaceSettings/GeneralForm";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   workspaceName?: string;
-  onWorkspaceUpdate: (name?: string | undefined) => Promise<void>;
+  onWorkspaceUpdate: (name: string) => Promise<void>;
   onWorkspaceDelete: () => Promise<void>;
 };
 
