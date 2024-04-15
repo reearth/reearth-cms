@@ -95,7 +95,7 @@ const MemberTable: React.FC<Props> = ({
             {t("Change Role?")}
           </Button>
         )}
-        {member.role !== "OWNER" && (
+        {member.userId !== me?.id && (
           <StyledButton type="link" onClick={() => handleMemberDelete(member)} disabled={!owner}>
             {t("Remove")}
           </StyledButton>
