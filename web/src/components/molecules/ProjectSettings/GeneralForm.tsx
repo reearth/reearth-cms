@@ -9,9 +9,9 @@ import { useT } from "@reearth-cms/i18n";
 
 import { Project } from "../Workspace/types";
 
-export type Props = {
-  project?: Project;
-  onProjectUpdate: (name?: string | undefined, description?: string | undefined) => Promise<void>;
+type Props = {
+  project: Project;
+  onProjectUpdate: (name?: string, description?: string) => Promise<void>;
 };
 
 const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate }) => {
