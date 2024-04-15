@@ -289,21 +289,58 @@ export default () => {
   );
 
   const handleMetaItemUpdate = useCallback(
-    async ({ metaItemId, metaFields }: { metaItemId: string; metaFields: ItemField[] }) => {
-      const item = await updateItem({
-        variables: {
-          itemId: metaItemId,
-          fields: metaFields as ItemFieldInput[],
-          version: currentItem?.metadata?.version ?? "",
-        },
-      });
-      if (item.errors || !item.data?.updateItem) {
+    async ({ metaItemId, metaFields }: { metaItemId?: string; metaFields: ItemField[] }) => {
+      if (metaItemId) {
+        const item = await updateItem({
+          variables: {
+            itemId: metaItemId,
+            fields: metaFields as ItemFieldInput[],
+            version: currentItem?.metadata?.version ?? "",
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+      } else if (
+        currentItem &&
+        currentItem.fields &&
+        currentModel?.id &&
+        currentModel.metadataSchema.id
+      ) {
+        const metaItem = await createItem({
+          variables: {
+            modelId: currentModel.id,
+            schemaId: currentModel.metadataSchema.id,
+            fields: metaFields as ItemFieldInput[],
+          },
+        });
+        if (metaItem.errors || !metaItem.data?.createItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+        const item = await updateItem({
+          variables: {
+            itemId: currentItem.id,
+            fields: currentItem.fields.map(field => ({
+              ...field,
+              value: field.value ?? "",
+            })) as ItemFieldInput[],
+            metadataId: metaItem?.data.createItem.item.id,
+            version: currentItem.version,
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+      } else {
         Notification.error({ message: t("Failed to update item.") });
         return;
       }
       Notification.success({ message: t("Successfully updated Item!") });
     },
-    [updateItem, currentItem?.metadata?.version, t],
+    [createItem, currentItem, currentModel?.id, currentModel?.metadataSchema.id, t, updateItem],
   );
 
   const dateConvert = useCallback((value?: ItemValue) => {
