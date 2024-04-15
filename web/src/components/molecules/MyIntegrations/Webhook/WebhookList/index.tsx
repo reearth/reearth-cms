@@ -7,7 +7,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
-export type Props = {
+type Props = {
   webhooks?: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {

@@ -34,3 +34,11 @@ export type WebhookTrigger = {
   onAssetDecompress?: boolean | null;
   onAssetDelete?: boolean | null;
 };
+
+export type WebhookValues = {
+  id: string;
+  name: string;
+  url: string;
+  active: boolean;
+  trigger: string[];
+};

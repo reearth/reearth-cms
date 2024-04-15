@@ -6,12 +6,13 @@ import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrati
 import {
   Integration,
   WebhookTrigger,
+  WebhookValues,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 
 type Props = {
   integration: Integration;
-  webhookInitialValues?: any;
+  webhookInitialValues?: WebhookValues;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
   onIntegrationDelete: () => Promise<void>;
   onWebhookCreate: (data: {

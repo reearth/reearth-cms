@@ -30,11 +30,11 @@ export default ({ integrationId }: Params) => {
   }, [integrations, integrationId]);
 
   const webhookInitialValues = useMemo(() => {
-    if (!selectedIntegration?.config.webhooks || !webhookId) return {};
+    if (!selectedIntegration?.config.webhooks || !webhookId) return;
     const selectedWebhook = selectedIntegration.config.webhooks.find(
       webhook => webhook.id === webhookId,
     );
-    if (!selectedWebhook) return {};
+    if (!selectedWebhook) return;
     const trigger: string[] = [];
     Object.entries(selectedWebhook?.trigger).forEach(([key, value]) => value && trigger.push(key));
     return { ...selectedWebhook, trigger };
