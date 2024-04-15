@@ -84,7 +84,7 @@ export default (isItemsRequired: boolean) => {
     skip: !projectId,
   };
 
-  const [getAssets, { data, refetch, loading, networkStatus }] = isItemsRequired
+  const [getAssets, { data, refetch, loading }] = isItemsRequired
     ? useGetAssetsItemsLazyQuery(params)
     : useGetAssetsLazyQuery(params);
 
@@ -99,8 +99,6 @@ export default (isItemsRequired: boolean) => {
         .filter(asset => !!asset) as Asset[]) ?? [],
     [data?.assets.nodes],
   );
-
-  const isRefetching = networkStatus === 3;
 
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
@@ -310,7 +308,6 @@ export default (isItemsRequired: boolean) => {
     selection,
     fileList,
     uploading,
-    isLoading: loading ?? isRefetching,
     uploadModalVisibility,
     loading,
     uploadUrl,
