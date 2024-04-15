@@ -62,8 +62,8 @@ export default (
     if (selectedType === "Tag") {
       const defaultValue = form.getFieldValue("defaultValue");
       if (Array.isArray(defaultValue)) {
-        const filteredVelue = defaultValue.filter(
-          value => selectedTags?.some(tag => tag.name === value),
+        const filteredVelue = defaultValue.filter(value =>
+          selectedTags?.some(tag => tag.name === value),
         );
         form.setFieldValue("defaultValue", filteredVelue);
       } else if (!selectedTags?.some(tag => tag.name === defaultValue)) {
