@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -13,19 +13,19 @@ import {
 } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
-  AndConditionInput,
-  Column,
-  FieldType,
+  ConditionInput,
   ItemSort,
-  SortDirection,
+  View,
+  CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
 import {
   fromGraphQLItem,
   fromGraphQLComment,
 } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  toGraphAndConditionInput,
+  fromGraphQLView,
   toGraphItemSort,
+  toGraphConditionInput,
 } from "@reearth-cms/components/organisms/DataConverters/table";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
@@ -38,19 +38,14 @@ import {
   useUpdateItemMutation,
   useCreateItemMutation,
   SchemaFieldType,
+  View as GQLView,
+  useGetViewsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
 import { fileName } from "./utils";
 
-export type CurrentViewType = {
-  id?: string;
-  sort?: ItemSort;
-  filter?: AndConditionInput;
-  columns?: Column[];
-};
-
-const defaultViewSort: { direction: SortDirection; field: { type: FieldType } } = {
+const defaultViewSort: ItemSort = {
   direction: "DESC",
   field: {
     type: "MODIFICATION_DATE",
@@ -83,9 +78,35 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(100);
-  const [currentView, setCurrentView] = useState<CurrentViewType>({
-    columns: [],
+  const [currentView, setCurrentView] = useState<CurrentView>({});
+
+  const viewsRef = useRef<View[]>([]);
+  const prevModelIdRef = useRef<string>();
+
+  const { data: viewData, loading: viewLoading } = useGetViewsQuery({
+    variables: { modelId: modelId ?? "" },
+    skip: !modelId,
   });
+
+  useEffect(() => {
+    if (viewLoading) return;
+    const viewList = viewData?.view?.map(view => fromGraphQLView(view as GQLView));
+    if (viewList?.length) {
+      if (prevModelIdRef.current === modelId) {
+        if (viewList.length > viewsRef.current.length) {
+          setCurrentView(viewList[viewList.length - 1]);
+        } else {
+          setCurrentView(prev => viewList.find(view => view.id === prev.id) ?? viewList[0]);
+        }
+      } else {
+        setCurrentView(viewList[0]);
+      }
+    } else {
+      setCurrentView({});
+    }
+    prevModelIdRef.current = modelId;
+    viewsRef.current = viewList ?? [];
+  }, [modelId, setCurrentView, viewData?.view, viewLoading]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -98,18 +119,12 @@ export default () => {
           q: searchTerm,
         },
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        //if there is no sort in the current view, show data in the default view sort
-        sort: currentView.sort
-          ? toGraphItemSort(currentView.sort)
-          : toGraphItemSort(defaultViewSort),
-        filter: currentView.filter
-          ? {
-              and: toGraphAndConditionInput(currentView.filter),
-            }
-          : undefined,
+        sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
+        filter: toGraphConditionInput(currentView.filter),
       },
     },
-    skip: !currentProject?.id || !currentModel?.id,
+    notifyOnNetworkStatusChange: true,
+    skip: !currentProject?.id || !currentModel?.id || viewLoading,
   });
 
   const handleItemsReload = useCallback(() => {
@@ -382,6 +397,18 @@ export default () => {
     setPage(1);
   }, []);
 
+  const handleViewSelect = useCallback(
+    (key: string) => {
+      viewsRef.current.forEach(view => {
+        if (view.id === key) {
+          setCurrentView(view);
+        }
+      });
+      handleViewChange();
+    },
+    [viewsRef, handleViewChange],
+  );
+
   const handleNavigateToItemForm = useCallback(() => {
     navigate(
       `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details`,
@@ -452,10 +479,10 @@ export default () => {
     setPage(1);
   }, []);
 
-  const handleFilterChange = useCallback((filter?: AndConditionInput) => {
+  const handleFilterChange = useCallback((filter?: ConditionInput[]) => {
     setCurrentView(prev => ({
       ...prev,
-      filter,
+      filter: filter ? { and: { conditions: filter } } : undefined,
     }));
     setPage(1);
   }, []);
@@ -479,6 +506,7 @@ export default () => {
     selectedItem,
     selection,
     totalCount: data?.searchItem.totalCount ?? 0,
+    views: viewsRef.current,
     currentView,
     searchTerm,
     page,
@@ -503,6 +531,7 @@ export default () => {
     collapseModelMenu,
     handleModelSelect,
     handleViewChange,
+    handleViewSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,

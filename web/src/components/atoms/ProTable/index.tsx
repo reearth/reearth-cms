@@ -20,6 +20,8 @@ const Table: React.FC<Props> = props => {
   );
 };
 
+export type StretchColumn<T> = ProColumns<T> & { minWidth: number };
+
 export default Table;
 export type {
   ProTableProps,
