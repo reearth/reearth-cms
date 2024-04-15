@@ -278,7 +278,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         {numSteps === 2 && <StyledStep title={t("Corresponding field")} />}
       </Steps>
       {currentStep === 0 && (
-        <Form form={modelForm}>
+        <Form form={modelForm} layout="vertical">
           <StyledFormItem
             name="model"
             label={t("Select the model to reference")}

@@ -5,7 +5,11 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import { ProColumns, ListToolBarProps, OptionConfig } from "@reearth-cms/components/atoms/ProTable";
+import {
+  StretchColumn,
+  ListToolBarProps,
+  OptionConfig,
+} from "@reearth-cms/components/atoms/ProTable";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -13,8 +17,6 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { FormItem } from "../types";
 
 import useHooks from "./hooks";
-
-type StretchColumn = ProColumns<FormItem> & { minWidth: number };
 
 type Props = {
   visible?: boolean;
@@ -98,7 +100,7 @@ const LinkItemModal: React.FC<Props> = ({
     [confirm, correspondingFieldId, onChange, onCheckItemReference, onLinkItemModalCancel, t],
   );
 
-  const columns: StretchColumn[] = useMemo(
+  const columns: StretchColumn<FormItem>[] = useMemo(
     () => [
       {
         title: "",
