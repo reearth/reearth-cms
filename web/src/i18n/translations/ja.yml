@@ -100,6 +100,7 @@ Schema: スキーマ
 Content: コンテンツ
 Request: リクエスト
 Settings: 設定
+OK: ''
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください。
 Member: メンバー
@@ -358,7 +359,6 @@ Add new Terrain option: 新しい地形を追加
 New View: 新しいビュー
 Update View: ビューを更新します
 Submitting: 送信
-OK: ''
 View Name: ビュー名
 This is the title of the view: ビューのタイトル
 Please input the view name!: ビュー名を入力してください！

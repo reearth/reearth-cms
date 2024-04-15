@@ -100,7 +100,6 @@ export type AssetEdge = {
 
 export type AssetFile = {
   __typename?: 'AssetFile';
-  children?: Maybe<Array<AssetFile>>;
   contentType?: Maybe<Scalars['String']>;
   filePaths?: Maybe<Array<Scalars['String']>>;
   name: Scalars['String'];
