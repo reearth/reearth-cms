@@ -552,7 +552,7 @@ const ContentTable: React.FC<Props> = ({
                 setItems(defaultItems);
               }}>
               <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
-                Filter
+                {t("Filter")}
               </StyledFilterButton>
             </Dropdown>
           </StyledFilterWrapper>
