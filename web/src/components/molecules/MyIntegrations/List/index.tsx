@@ -6,7 +6,7 @@ import IntegrationCreationAction from "@reearth-cms/components/molecules/MyInteg
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   integrations?: Integration[];
   onIntegrationModalOpen: () => void;
   onIntegrationNavigate: (integration: Integration) => void;
