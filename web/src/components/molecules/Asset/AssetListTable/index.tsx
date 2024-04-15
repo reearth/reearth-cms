@@ -31,7 +31,7 @@ import { compressedFileFormats } from "../../Common/Asset";
 type Props = {
   assetList: Asset[];
   loading: boolean;
-  selectedAsset: Asset | undefined;
+  selectedAsset?: Asset;
   totalCount: number;
   page: number;
   pageSize: number;
