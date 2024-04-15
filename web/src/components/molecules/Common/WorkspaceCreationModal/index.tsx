@@ -23,10 +23,10 @@ const initialValues: FormValues = {
 const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
   const [form] = Form.useForm();
-  const [loading, isLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleOk = useCallback(() => {
-    isLoading(true);
+    setLoading(true);
     form
       .validateFields()
       .then(async values => {
@@ -38,7 +38,7 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
         console.log("Validate Failed:", info);
       })
       .finally(() => {
-        isLoading(false);
+        setLoading(false);
       });
   }, [form, onClose, onSubmit]);
 
