@@ -123,6 +123,7 @@ export default () => {
         filter: toGraphConditionInput(currentView.filter),
       },
     },
+    notifyOnNetworkStatusChange: true,
     skip: !currentProject?.id || !currentModel?.id || viewLoading,
   });
 
