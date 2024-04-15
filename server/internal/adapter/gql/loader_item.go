@@ -3,9 +3,10 @@ package gql
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/reearth/reearthx/log"
 	"go.opencensus.io/trace"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
@@ -52,11 +53,20 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 		return nil, []error{err}
 	}
 
-	return lo.Map(res, func(m item.Versioned, i int) *gqlmodel.Item {
-		s, _ := lo.Find(ss, func(s *schema.Schema) bool {
-			return s.ID() == sIds[m.Value().ID()]
+	return lo.Map(iIds, func(iId item.ID, _ int) *gqlmodel.Item {
+		i, ok := lo.Find(res, func(v item.Versioned) bool {
+			return v.Value().ID() == iId
 		})
-		return gqlmodel.ToItem(m, s, gs)
+		if !ok {
+			return nil
+		}
+		s, ok := lo.Find(ss, func(s *schema.Schema) bool {
+			return s.ID() == i.Value().Schema()
+		})
+		if !ok {
+			return nil
+		}
+		return gqlmodel.ToItem(i, s, gs)
 	}), nil
 }
 
