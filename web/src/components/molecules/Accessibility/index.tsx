@@ -28,11 +28,11 @@ type Props = {
   aliasState?: string;
   assetState?: boolean;
   isSaveDisabled: boolean;
-  handlePublicUpdate: () => void;
+  handlePublicUpdate: () => Promise<void>;
   handleAliasChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
-  handleSetScope?: (projectScope: PublicScope) => void;
+  handleSetScope: (projectScope: PublicScope) => void;
 };
 
 const Accessibility: React.FC<Props> = ({
