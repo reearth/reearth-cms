@@ -114,5 +114,7 @@ func (i itemResolver) ReferencedItems(ctx context.Context, obj *gqlmodel.Item) (
 	if len(err) > 0 && err[0] != nil {
 		return nil, err[0]
 	}
-	return refItems, nil
+	return lo.Filter(refItems, func(item *gqlmodel.Item, _ int) bool {
+		return item != nil
+	}), nil
 }
