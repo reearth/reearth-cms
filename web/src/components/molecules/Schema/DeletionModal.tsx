@@ -8,11 +8,11 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   open: boolean;
   data?: Model | Group;
   onClose: () => void;
-  onDelete: (modelId?: string) => Promise<void> | void;
+  onDelete: (modelId?: string) => Promise<void>;
   isModel: boolean;
 };
 
