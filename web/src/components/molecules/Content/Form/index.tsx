@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
 
@@ -32,15 +32,15 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { transformMomentToString } from "@reearth-cms/utils/format";
+import { transformDayjsToString } from "@reearth-cms/utils/format";
 
 import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldComponents";
 import { DefaultField } from "./fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
-export interface Props {
+interface Props {
   item?: Item;
-  groups?: Group[];
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
@@ -93,10 +93,11 @@ export interface Props {
     metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onMetaItemUpdate: (data: { metaItemId: string; metaFields: ItemField[] }) => Promise<void>;
+  onMetaItemUpdate: (data: { metaItemId?: string; metaFields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -118,11 +119,13 @@ export interface Props {
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 }
 
 const ContentForm: React.FC<Props> = ({
   item,
-  groups,
+  loadingReference,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -172,6 +175,7 @@ const ContentForm: React.FC<Props> = ({
   onItemUpdate,
   onMetaItemUpdate,
   onBack,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -183,6 +187,8 @@ const ContentForm: React.FC<Props> = ({
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
   onGetAsset,
+  onGroupGet,
+  onCheckItemReference,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -202,7 +208,7 @@ const ContentForm: React.FC<Props> = ({
         initialFormValues[key] &&
         typeof value === "object" &&
         !Array.isArray(value) &&
-        !moment.isMoment(value) &&
+        !dayjs.isDayjs(value) &&
         value !== null
       );
     },
@@ -249,7 +255,7 @@ const ContentForm: React.FC<Props> = ({
         <Space>
           <Button
             onClick={() => {
-              Notification.close(key);
+              Notification.destroy();
               blocker.reset?.();
             }}>
             {t("Cancel")}
@@ -257,7 +263,7 @@ const ContentForm: React.FC<Props> = ({
           <Button
             type="primary"
             onClick={() => {
-              Notification.close(key);
+              Notification.destroy();
               blocker.proceed?.();
             }}>
             {t("Leave")}
@@ -314,28 +320,30 @@ const ContentForm: React.FC<Props> = ({
   const inputValueGet = useCallback((value: ItemValue, multiple: boolean) => {
     if (multiple) {
       if (Array.isArray(value)) {
-        return value.map(v => (moment.isMoment(v) ? transformMomentToString(v) : v));
+        return value.map(v => (dayjs.isDayjs(v) ? transformDayjsToString(v) : v));
       } else {
         return [];
       }
     } else {
-      return moment.isMoment(value) ? transformMomentToString(value) : value ?? "";
+      return dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "";
     }
   }, []);
 
   const handleSubmit = useCallback(async () => {
     try {
       const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
-      const groupIdsInCurrentModel = new Set();
-      model?.schema.fields?.forEach(field => {
-        if (field.type === "Group") groupIdsInCurrentModel.add(field.typeProperty?.groupId);
-      });
       const groupFields = new Map<string, Field>();
-      groups
-        ?.filter(group => groupIdsInCurrentModel.has(group.id))
-        .forEach(group => {
-          group?.schema.fields?.forEach(field => groupFields.set(field.id, field));
-        });
+      if (model) {
+        await Promise.all(
+          model.schema.fields.map(async field => {
+            if (field.typeProperty?.groupId) {
+              const group = await onGroupGet(field.typeProperty.groupId);
+              group?.schema.fields?.forEach(field => groupFields.set(field.id, field));
+            }
+          }),
+        );
+      }
+
       const values = await form.validateFields();
       const fields: ItemField[] = [];
       for (const [key, value] of Object.entries(values)) {
@@ -367,7 +375,7 @@ const ContentForm: React.FC<Props> = ({
         const type = model?.metadataSchema?.fields?.find(field => field.id === key)?.type;
         if (type) {
           metaFields.push({
-            value: moment.isMoment(value) ? transformMomentToString(value) : value ?? "",
+            value: dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "",
             schemaFieldId: key,
             type,
           });
@@ -392,34 +400,22 @@ const ContentForm: React.FC<Props> = ({
     } catch (info) {
       console.log("Validate Failed:", info);
     }
-  }, [
-    model?.schema.fields,
-    model?.schema.id,
-    model?.metadataSchema?.fields,
-    model?.metadataSchema?.id,
-    groups,
-    form,
-    metaForm,
-    itemId,
-    inputValueGet,
-    onItemUpdate,
-    onItemCreate,
-  ]);
+  }, [model, form, metaForm, itemId, onGroupGet, inputValueGet, onItemUpdate, onItemCreate]);
 
   const handleMetaUpdate = useCallback(async () => {
-    if (!itemId || !item?.metadata?.id) return;
+    if (!itemId) return;
     try {
       const metaValues = await metaForm.validateFields();
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
       for (const [key, value] of Object.entries(metaValues)) {
         metaFields.push({
-          value: (moment.isMoment(value) ? transformMomentToString(value) : value ?? "") as string,
+          value: (dayjs.isDayjs(value) ? transformDayjsToString(value) : value ?? "") as string,
           schemaFieldId: key,
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
       }
-      await onMetaItemUpdate?.({
-        metaItemId: item.metadata.id,
+      await onMetaItemUpdate({
+        metaItemId: item?.metadata?.id,
         metaFields,
       });
     } catch (info) {
@@ -538,6 +534,7 @@ const ContentForm: React.FC<Props> = ({
                     setUploadType={setUploadType}
                     onAssetsCreate={onAssetsCreate}
                     onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsGet={onAssetsGet}
                     onAssetsReload={onAssetsReload}
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}
@@ -551,6 +548,7 @@ const ContentForm: React.FC<Props> = ({
                 <StyledFormItemWrapper key={field.id}>
                   <ReferenceField
                     field={field}
+                    loading={loadingReference}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
                     linkItemModalTitle={linkItemModalTitle}
@@ -561,6 +559,7 @@ const ContentForm: React.FC<Props> = ({
                     onSearchTerm={onSearchTerm}
                     onLinkItemTableReload={onLinkItemTableReload}
                     onLinkItemTableChange={onLinkItemTableChange}
+                    onCheckItemReference={onCheckItemReference}
                   />
                 </StyledFormItemWrapper>
               );
@@ -570,7 +569,7 @@ const ContentForm: React.FC<Props> = ({
                   <GroupField
                     field={field}
                     form={form}
-                    groups={groups}
+                    loadingReference={loadingReference}
                     linkedItemsModalList={linkedItemsModalList}
                     linkItemModalTitle={linkItemModalTitle}
                     formItemsData={formItemsData}
@@ -598,11 +597,14 @@ const ContentForm: React.FC<Props> = ({
                     setUploadType={setUploadType}
                     onAssetsCreate={onAssetsCreate}
                     onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsGet={onAssetsGet}
                     onAssetsReload={onAssetsReload}
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}
                     setUploadModalVisibility={setUploadModalVisibility}
                     onGetAsset={onGetAsset}
+                    onGroupGet={onGroupGet}
+                    onCheckItemReference={onCheckItemReference}
                   />
                 </StyledFormItemWrapper>
               );

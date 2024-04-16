@@ -27,3 +27,17 @@ code {
         visibility: hidden;
    } 
 }
+  
+.ant-layout-sider-children { 
+    background-color: #fff;
+}
+
+.ant-layout-sider-trigger {
+    background-color: #fff;
+    color: #002140;
+    height: auto;
+}
+
+.ant-input-textarea-show-count::after {
+    display: none;
+}

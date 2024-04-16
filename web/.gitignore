@@ -25,6 +25,8 @@ dist-ssr
 
 /storybook-static
 /coverage
+/reearth-config.json
+.env*
 
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend

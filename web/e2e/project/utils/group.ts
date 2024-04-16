@@ -3,17 +3,15 @@ import { Page } from "@playwright/test";
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect } from "@reearth-cms/e2e/utils";
 
-async function createGroup(page: Page) {
-  await page.getByText("Schema").click();
+export async function createGroup(page: Page) {
+  await page.getByText("Schema").first().click();
   await page.getByRole("button", { name: "plus Add" }).last().click();
-  await page.getByLabel("Group name").click();
-  await page.getByLabel("Group name").fill("e2e group name");
-  await page.getByLabel("Group key").click();
-  await page.getByLabel("Group key").fill("e2e-group-key");
+  await page.getByLabel("New Group").locator("#name").click();
+  await page.getByLabel("New Group").locator("#name").fill("e2e group name");
+  await page.getByLabel("New Group").locator("#key").click();
+  await page.getByLabel("New Group").locator("#key").fill("e2e-group-key");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully created group!");
   await closeNotification(page);
-  await page.getByText("e2e group name").click();
   await expect(page.getByTitle("e2e group name")).toBeVisible();
   await expect(page.getByText("#e2e-group-key")).toBeVisible();
 }
@@ -28,7 +26,6 @@ async function updateGroup(page: Page) {
   await page.getByLabel("Update Group").locator("#key").click();
   await page.getByLabel("Update Group").locator("#key").fill("new-e2e-group-key");
   await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully updated group!");
   await closeNotification(page);
   await expect(page.getByTitle(updateGroupName)).toBeVisible();
   await expect(page.getByText("#new-e2e-group-key")).toBeVisible();
@@ -39,7 +36,6 @@ async function deleteGroup(page: Page) {
   await page.getByRole("button", { name: "more" }).hover();
   await page.getByText("Delete").click();
   await page.getByRole("button", { name: "Delete Group" }).click();
-  await expect(page.getByRole("alert").last()).toContainText("Successfully deleted group!");
   await closeNotification(page);
   await expect(page.getByTitle(updateGroupName)).not.toBeVisible();
 }

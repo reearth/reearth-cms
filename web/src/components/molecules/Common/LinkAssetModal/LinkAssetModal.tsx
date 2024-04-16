@@ -1,20 +1,20 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, {
-  ProColumns,
+import {
+  StretchColumn,
   ListToolBarProps,
   OptionConfig,
-  TablePaginationConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import {
   AssetSortType,
@@ -24,10 +24,8 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-  // modal props
   visible: boolean;
   onLinkAssetModalCancel: () => void;
-  // table props
   linkedAsset?: ItemAsset;
   assetList: Asset[];
   fileList: UploadFile<File>[];
@@ -86,33 +84,36 @@ const LinkAssetModal: React.FC<Props> = ({
   const [hoveredAssetId, setHoveredAssetId] = useState<string>();
   const resetFlag = useRef(false);
 
-  const options: OptionConfig = {
-    search: true,
-    reload: onAssetsReload,
-  };
+  const options: OptionConfig = useMemo(
+    () => ({
+      search: true,
+      reload: onAssetsReload,
+    }),
+    [onAssetsReload],
+  );
 
-  const handleToolbarEvents: ListToolBarProps | undefined = {
+  const toolbar: ListToolBarProps = {
     search: (
       <Input.Search
-        placeholder={t("Please enter")}
+        allowClear
+        placeholder={t("input search text")}
         onSearch={(value: string) => {
-          if (value) {
-            onSearchTerm(value);
-          } else {
-            onSearchTerm();
-          }
+          onSearchTerm(value);
         }}
         key={+resetFlag.current}
       />
     ),
   };
 
-  const pagination: TablePaginationConfig = {
-    showSizeChanger: true,
-    current: page,
-    total: totalCount,
-    pageSize: pageSize,
-  };
+  const pagination = useMemo(
+    () => ({
+      showSizeChanger: true,
+      current: page,
+      total: totalCount,
+      pageSize: pageSize,
+    }),
+    [page, pageSize, totalCount],
+  );
 
   const onLinkClick = useCallback(
     (isLink: boolean, asset: Asset) => {
@@ -123,58 +124,78 @@ const LinkAssetModal: React.FC<Props> = ({
     [onChange, onLinkAssetModalCancel, onSelect],
   );
 
-  const columns: ProColumns<Asset>[] = [
-    {
-      title: "",
-      render: (_, asset) => {
-        const isLink =
-          (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
-          (asset.id !== linkedAsset?.id && hoveredAssetId === asset.id);
-        return (
-          <Button
-            type="link"
-            onMouseEnter={() => setHoveredAssetId(asset.id)}
-            onMouseLeave={() => setHoveredAssetId(undefined)}
-            icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
-            onClick={() => onLinkClick(isLink, asset)}
-          />
-        );
+  const columns: StretchColumn<Asset>[] = useMemo(
+    () => [
+      {
+        title: "",
+        hideInSetting: true,
+        fixed: "left",
+        align: "center",
+        width: 48,
+        minWidth: 48,
+        render: (_, asset) => {
+          const isLink =
+            (asset.id === linkedAsset?.id && hoveredAssetId !== asset.id) ||
+            (asset.id !== linkedAsset?.id && hoveredAssetId === asset.id);
+          return (
+            <Button
+              type="link"
+              onMouseEnter={() => setHoveredAssetId(asset.id)}
+              onMouseLeave={() => setHoveredAssetId(undefined)}
+              icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
+              onClick={() => onLinkClick(isLink, asset)}
+            />
+          );
+        },
       },
-    },
-    {
-      title: t("File"),
-      dataIndex: "fileName",
-      key: "fileName",
-    },
-    {
-      title: t("Size"),
-      dataIndex: "size",
-      key: "size",
-      render: (_text, record) => bytesFormat(record.size),
-      width: 130,
-    },
-    {
-      title: t("Preview Type"),
-      dataIndex: "previewType",
-      key: "previewType",
-      width: 130,
-    },
-    {
-      title: t("Created At"),
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (_text, record) => dateTimeFormat(record.createdAt),
-    },
-    {
-      title: t("Created By"),
-      dataIndex: "createdBy",
-      key: "createdBy",
-      width: 130,
-    },
-  ];
+      {
+        title: t("File"),
+        dataIndex: "fileName",
+        key: "fileName",
+        ellipsis: true,
+        width: 170,
+        minWidth: 170,
+      },
+      {
+        title: t("Size"),
+        dataIndex: "size",
+        key: "size",
+        render: (_text, record) => bytesFormat(record.size),
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
+      },
+      {
+        title: t("Preview Type"),
+        dataIndex: "previewType",
+        key: "previewType",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
+      },
+      {
+        title: t("Created At"),
+        dataIndex: "createdAt",
+        key: "createdAt",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
+        render: (_text, record) => dateTimeFormat(record.createdAt),
+      },
+      {
+        title: t("Created By"),
+        dataIndex: "createdBy",
+        key: "createdBy",
+        ellipsis: true,
+        width: 100,
+        minWidth: 100,
+      },
+    ],
+    [hoveredAssetId, linkedAsset?.id, onLinkClick, t],
+  );
 
   return (
-    <Modal
+    <StyledModal
       title={t("Link Asset")}
       centered
       open={visible}
@@ -202,19 +223,20 @@ const LinkAssetModal: React.FC<Props> = ({
         />,
       ]}
       width="70vw"
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          padding: "12px",
+        },
       }}>
-      <StyledProTable
+      <ResizableProTable
         dataSource={assetList}
         columns={columns}
         search={false}
-        rowKey="id"
         options={options}
         pagination={pagination}
-        toolbar={handleToolbarEvents}
+        toolbar={toolbar}
         loading={loading}
         onChange={(pagination, _, sorter: any) => {
           onAssetTableChange(
@@ -225,15 +247,15 @@ const LinkAssetModal: React.FC<Props> = ({
               : undefined,
           );
         }}
-        scroll={{ x: "max-content", y: 330 }}
+        heightOffset={0}
       />
-    </Modal>
+    </StyledModal>
   );
 };
 
 export default LinkAssetModal;
 
-const StyledProTable = styled(ProTable)`
+const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {

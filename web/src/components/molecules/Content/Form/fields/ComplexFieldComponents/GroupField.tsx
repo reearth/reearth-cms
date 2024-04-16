@@ -15,7 +15,7 @@ import {
 interface GroupFieldProps {
   field: Field;
   form?: FormInstance<any>;
-  groups?: Group[];
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
@@ -47,17 +47,20 @@ interface GroupFieldProps {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 }
 
 const GroupField: React.FC<GroupFieldProps> = ({
   field,
   form,
-  groups,
+  loadingReference,
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
@@ -85,11 +88,14 @@ const GroupField: React.FC<GroupFieldProps> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
   onGetAsset,
+  onGroupGet,
+  onCheckItemReference,
 }) => {
   return (
     <Form.Item
@@ -100,7 +106,7 @@ const GroupField: React.FC<GroupFieldProps> = ({
         <MultiValueGroup
           parentField={field}
           form={form}
-          groups={groups}
+          loadingReference={loadingReference}
           linkedItemsModalList={linkedItemsModalList}
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}
@@ -128,15 +134,19 @@ const GroupField: React.FC<GroupFieldProps> = ({
           setUploadType={setUploadType}
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
           onGetAsset={onGetAsset}
+          onGroupGet={onGroupGet}
+          onCheckItemReference={onCheckItemReference}
         />
       ) : (
         <GroupItem
           parentField={field}
+          loadingReference={loadingReference}
           linkedItemsModalList={linkedItemsModalList}
           linkItemModalTitle={linkItemModalTitle}
           onSearchTerm={onSearchTerm}
@@ -164,11 +174,14 @@ const GroupField: React.FC<GroupFieldProps> = ({
           setUploadType={setUploadType}
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
           onAssetSearchTerm={onAssetSearchTerm}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
           onGetAsset={onGetAsset}
+          onGroupGet={onGroupGet}
+          onCheckItemReference={onCheckItemReference}
         />
       )}
     </Form.Item>

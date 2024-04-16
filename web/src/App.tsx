@@ -1,3 +1,6 @@
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
 import {
   Route,
   RouterProvider,
@@ -30,11 +33,16 @@ import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<RootPage />} />
+      <Route index element={<RootPage />} />
+      <Route path="auth/*" element={<RootPage />} />
       <Route path="workspace" element={<CMSPageWrapper />}>
+        <Route index element={<Workspace />} />
         <Route path=":workspaceId" element={<Workspace />} />
         <Route path=":workspaceId/account" element={<AccountSettings />} />
         <Route path=":workspaceId/members" element={<Members />} />

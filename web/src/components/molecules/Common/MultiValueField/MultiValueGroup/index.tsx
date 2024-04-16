@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import moment from "moment";
-import { useCallback, useEffect, useMemo } from "react";
+import dayjs from "dayjs";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
@@ -26,8 +26,8 @@ type Props = {
   onChange?: (value: string[]) => void;
   parentField: Field;
   form?: FormInstance<any>;
-  groups?: Group[];
   fields?: Field[];
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
@@ -59,21 +59,24 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
   className,
   parentField,
-  groups,
   form,
   fields,
   value = [],
   onChange,
+  loadingReference,
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
@@ -101,11 +104,14 @@ const MultiValueGroup: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
   onGetAsset,
+  onGroupGet,
+  onCheckItemReference,
 }) => {
   const t = useT();
 
@@ -124,12 +130,7 @@ const MultiValueGroup: React.FC<Props> = ({
     [onChange, value],
   );
 
-  const group = useMemo<Group | undefined>(
-    () => groups?.find(g => g.id === parentField.typeProperty?.groupId),
-    [groups, parentField.typeProperty?.groupId],
-  );
-
-  const handleAdd = useCallback(() => {
+  const handleAdd = useCallback(async () => {
     const currentValues = value || [];
     const itemGroupId = newID();
 
@@ -141,6 +142,8 @@ const MultiValueGroup: React.FC<Props> = ({
 
     // set default value
     const newValues = { ...form?.getFieldsValue() };
+    if (!parentField.typeProperty?.groupId) return;
+    const group = await onGroupGet(parentField.typeProperty.groupId);
     group?.schema.fields.forEach((field: Field) => {
       const defaultValue = field.typeProperty?.defaultValue;
       const setValue = (value: any) => {
@@ -163,9 +166,9 @@ const MultiValueGroup: React.FC<Props> = ({
           break;
         case "Date":
           if (Array.isArray(defaultValue)) {
-            setValue(defaultValue.map(valueItem => (valueItem ? moment(valueItem as string) : "")));
+            setValue(defaultValue.map(valueItem => (valueItem ? dayjs(valueItem as string) : "")));
           } else if (defaultValue) {
-            setValue(moment(defaultValue as string));
+            setValue(dayjs(defaultValue as string));
           } else {
             form?.setFieldValue([field.id, itemGroupId], "");
           }
@@ -175,7 +178,7 @@ const MultiValueGroup: React.FC<Props> = ({
           break;
       }
     });
-  }, [form, group?.schema.fields, onChange, value]);
+  }, [form, onChange, onGroupGet, parentField.typeProperty?.groupId, value]);
 
   return (
     <div className={className}>
@@ -187,6 +190,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 order={key}
                 value={valueItem}
                 parentField={parentField}
+                loadingReference={loadingReference}
                 linkedItemsModalList={linkedItemsModalList}
                 linkItemModalTitle={linkItemModalTitle}
                 onSearchTerm={onSearchTerm}
@@ -214,6 +218,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 setUploadType={setUploadType}
                 onAssetsCreate={onAssetsCreate}
                 onAssetCreateFromUrl={onAssetCreateFromUrl}
+                onAssetsGet={onAssetsGet}
                 onAssetsReload={onAssetsReload}
                 onAssetSearchTerm={onAssetSearchTerm}
                 setFileList={setFileList}
@@ -224,6 +229,8 @@ const MultiValueGroup: React.FC<Props> = ({
                 disableMoveUp={key === 0}
                 disableMoveDown={key === value.length - 1}
                 onGetAsset={onGetAsset}
+                onGroupGet={onGroupGet}
+                onCheckItemReference={onCheckItemReference}
               />
             </FieldWrapper>
           );

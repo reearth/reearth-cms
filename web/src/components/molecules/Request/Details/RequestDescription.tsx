@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useMemo } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
@@ -14,6 +14,7 @@ import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
 
@@ -41,6 +42,7 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -66,6 +68,7 @@ export const RequestDescription: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -73,13 +76,13 @@ export const RequestDescription: React.FC<Props> = ({
   onGetAsset,
 }) => {
   const fromNow = useMemo(
-    () => moment(currentRequest.createdAt?.toString()).fromNow(),
+    () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
   );
 
   return (
     <StyledAntDComment
-      author={<a>{currentRequest.createdBy?.name}</a>}
+      author={currentRequest.createdBy?.name}
       avatar={<UserAvatar username={currentRequest.createdBy?.name} />}
       content={
         <>
@@ -113,6 +116,7 @@ export const RequestDescription: React.FC<Props> = ({
                       setUploadType={setUploadType}
                       onAssetsCreate={onAssetsCreate}
                       onAssetCreateFromUrl={onAssetCreateFromUrl}
+                      onAssetsGet={onAssetsGet}
                       onAssetsReload={onAssetsReload}
                       onAssetSearchTerm={onAssetSearchTerm}
                       setFileList={setFileList}
@@ -127,7 +131,7 @@ export const RequestDescription: React.FC<Props> = ({
       }
       datetime={
         currentRequest.createdAt && (
-          <Tooltip title={currentRequest.createdAt.toString()}>
+          <Tooltip title={dateTimeFormat(currentRequest.createdAt)}>
             <span>{fromNow}</span>
           </Tooltip>
         )
@@ -145,6 +149,7 @@ const StyledAntDComment = styled(AntDComment)`
       font-weight: 400;
       font-size: 14px;
       color: #00000073;
+      overflow: hidden;
     }
   }
   .ant-comment-inner {

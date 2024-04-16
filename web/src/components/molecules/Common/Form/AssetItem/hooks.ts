@@ -12,6 +12,7 @@ export default (
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>,
   setUploadModalVisibility: (visible: boolean) => void,
+  onAssetsGet: () => void,
   onChange?: (value: string) => void,
 ) => {
   const [currentWorkspace] = useWorkspace();
@@ -19,7 +20,8 @@ export default (
   const [visible, setVisible] = useState(false);
   const handleClick = useCallback(() => {
     setVisible(true);
-  }, [setVisible]);
+    onAssetsGet();
+  }, [onAssetsGet]);
 
   const handleLinkAssetModalCancel = useCallback(() => {
     setVisible(false);

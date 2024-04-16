@@ -60,6 +60,7 @@ Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
 ID: ''
+input search text: 検索
 Deselect: 選択解除
 Delete: 削除
 Upload Asset: アセットをアップロード
@@ -85,7 +86,6 @@ Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
 Go to Editor: エディタへ移動
-Please enter: 入力してください
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
@@ -94,6 +94,7 @@ Please input the name of project!: プロジェクト名を入力してくださ
 Project alias: プロジェクトエイリアス
 Please input the alias of project!: プロジェクトのエイリアスを入力してください。
 Project description: プロジェクト概要
+Home: ホーム
 Overview: 概要
 Schema: スキーマ
 Content: コンテンツ
@@ -101,7 +102,6 @@ Request: リクエスト
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください。
-Home: ホーム
 Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
@@ -125,7 +125,6 @@ Updated By: 更新者
 Publish State: 公開状態
 This item has been referenced: このアイテムは参照されました
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
-input search text: 検索
 State: ステータス
 Reviewers: レビュワー
 New Item: 新規アイテム
@@ -159,6 +158,7 @@ is not empty: 空でない
 Ascending: 昇順
 Descending: 降順
 Confirm: 確認
+Filter: フィルター
 Add Filter: 絞り込む
 Add Sort: 並び替える
 Control: 操作
