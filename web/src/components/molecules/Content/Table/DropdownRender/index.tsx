@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
-import { SetStateAction } from "jotai";
-import moment from "moment";
-import { Dispatch } from "react";
+import dayjs from "dayjs";
+import { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
@@ -16,8 +15,7 @@ import {
   DefaultFilterValueType,
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
-import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -31,9 +29,9 @@ type Props = {
   open: boolean;
   isFilter: boolean;
   index: number;
-  currentView?: CurrentViewType;
-  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>;
-  onFilterChange?: (filter?: AndConditionInput) => void;
+  currentView: CurrentView;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
+  onFilterChange: (filter?: ConditionInput[]) => void;
 };
 
 const DropdownRender: React.FC<Props> = ({
@@ -66,10 +64,10 @@ const DropdownRender: React.FC<Props> = ({
     open,
     isFilter,
     index,
-    defaultValue,
     currentView,
     setCurrentView,
     onFilterChange,
+    defaultValue,
   );
   return (
     <StyledForm form={form} name="basic" autoComplete="off" colon={false}>
@@ -80,7 +78,6 @@ const DropdownRender: React.FC<Props> = ({
             options={options}
             onSelect={onFilterSelect}
             defaultValue={defaultValue?.operator ?? options[0].value}
-            key={defaultValue?.operator}
           />
         </StyledFormItem>
         {isFilter && isShowInputField && (
@@ -93,8 +90,7 @@ const DropdownRender: React.FC<Props> = ({
               <Select
                 placeholder="Select the value"
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value?.toString()}
-                key={defaultValue?.value}>
+                defaultValue={defaultValue?.value?.toString()}>
                 {valueOptions.map(option => (
                   <Option key={option.value} value={option.value} label={option.label}>
                     {filter.type === "Tag" ? (
@@ -112,25 +108,22 @@ const DropdownRender: React.FC<Props> = ({
                 defaultValue={defaultValue?.value}
                 style={{ width: "100%" }}
                 placeholder="Enter the value"
-                key={defaultValue?.value}
               />
             ) : filter.type === "Date" ? (
               <DatePicker
                 onChange={onDateChange}
                 style={{ width: "100%" }}
                 placeholder="Select the date"
-                showToday={false}
+                showNow={false}
                 defaultValue={
-                  defaultValue && defaultValue.value !== "" ? moment(defaultValue.value) : undefined
+                  defaultValue && defaultValue.value !== "" ? dayjs(defaultValue.value) : undefined
                 }
-                key={defaultValue?.value}
               />
             ) : (
               <Input
                 onChange={onInputChange}
                 defaultValue={defaultValue?.value}
                 placeholder="Enter the value"
-                key={defaultValue?.value}
               />
             )}
           </StyledFormItem>

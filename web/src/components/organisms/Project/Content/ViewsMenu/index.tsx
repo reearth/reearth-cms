@@ -1,37 +1,31 @@
-import React, { Dispatch, SetStateAction } from "react";
-import { useParams } from "react-router-dom";
+import React from "react";
 
+import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import ViewFormModal from "@reearth-cms/components/molecules/View/ViewFormModal";
 import ViewsMenuMolecule from "@reearth-cms/components/molecules/View/viewsMenu";
 
-import { CurrentViewType } from "../ContentList/hooks";
-
 import useHooks from "./hooks";
 
-export type Props = {
-  currentView: CurrentViewType;
-  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+type Props = {
+  views: View[];
+  currentView: CurrentView;
+  onViewSelect: (key: string) => void;
   onViewChange: () => void;
 };
 
-const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView, onViewChange }) => {
-  const { modelId } = useParams();
-
+const ViewsMenu: React.FC<Props> = ({ views, currentView, onViewSelect, onViewChange }) => {
   const {
-    views,
     modalState,
     handleViewRenameModalOpen,
     handleViewCreateModalOpen,
-    selectedView,
-    setSelectedView,
     viewModalShown,
     submitting,
     handleViewModalReset,
     handleViewCreate,
-    handleViewRename,
     handleViewUpdate,
+    handleViewRename,
     handleViewDelete,
-  } = useHooks({ modelId, currentView, setCurrentView, onViewChange });
+  } = useHooks({ currentView, onViewChange });
 
   return (
     <>
@@ -39,15 +33,14 @@ const ViewsMenu: React.FC<Props> = ({ currentView, setCurrentView, onViewChange 
         views={views}
         onViewRenameModalOpen={handleViewRenameModalOpen}
         onViewCreateModalOpen={handleViewCreateModalOpen}
-        selectedView={selectedView}
-        setSelectedView={setSelectedView}
+        currentView={currentView}
         onDelete={handleViewDelete}
         onUpdate={handleViewUpdate}
-        onViewChange={onViewChange}
+        onViewSelect={onViewSelect}
       />
       <ViewFormModal
         modalState={modalState}
-        view={selectedView}
+        currentView={currentView}
         open={viewModalShown}
         submitting={submitting}
         onClose={handleViewModalReset}

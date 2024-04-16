@@ -58,9 +58,7 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
 		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true),
 	))
-	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false),
-	))
+
 	usecaseMiddleware := UsecaseMiddleware(cfg.Repos, cfg.Gateways, cfg.AcRepos, cfg.AcGateways, interactor.ContainerConfig{
 		SignupSecret:    cfg.Config.SignupSecret,
 		AuthSrvUIDomain: cfg.Config.Host_Web,
@@ -77,8 +75,7 @@ func initEcho(cfg *ServerConfig) *echo.Echo {
 	)
 	api.POST(
 		"/notify", NotifyHandler(),
-		m2mJWTMiddleware,
-		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
+		M2MAuthMiddleware(cfg.Config),
 		usecaseMiddleware,
 	)
 	api.POST("/signup", Signup(), usecaseMiddleware)

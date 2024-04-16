@@ -4,9 +4,11 @@ export type View = {
   modelId: string;
   projectId: string;
   sort?: ItemSort;
-  filter?: Condition;
+  filter?: ConditionInput;
   columns?: Column[];
 };
+
+export type CurrentView = Partial<View>;
 
 export type Column = {
   field: FieldSelector;
@@ -152,7 +154,7 @@ export type StringFieldCondition = {
 
 export type NumberFieldCondition = {
   fieldId: FieldSelector;
-  operator: StringOperator;
+  operator: NumberOperator;
   value: boolean;
 };
 

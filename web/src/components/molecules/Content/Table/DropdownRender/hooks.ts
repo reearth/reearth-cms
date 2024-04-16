@@ -1,4 +1,4 @@
-import { Moment } from "moment";
+import { Dayjs } from "dayjs";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
 import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
@@ -19,9 +19,9 @@ import {
   StringOperator,
   SortDirection,
   FieldType,
-  AndConditionInput,
+  CurrentView,
+  FieldSelector,
 } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 export default (
@@ -30,10 +30,10 @@ export default (
   open: boolean,
   isFilter: boolean,
   index: number,
+  currentView: CurrentView,
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>,
+  onFilterChange: (filter?: ConditionInput[]) => void,
   defaultValue?: DefaultFilterValueType,
-  currentView?: CurrentViewType,
-  setCurrentView?: Dispatch<SetStateAction<CurrentViewType>>,
-  onFilterChange?: (filter?: AndConditionInput) => void,
 ) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -220,7 +220,9 @@ export default (
     } else if (filter.type === "Person") {
       if (filter?.members?.length) {
         for (const member of Object.values(filter.members)) {
-          options.push({ value: member.user?.name, label: member.user?.name });
+          if ("user" in member) {
+            options.push({ value: member.user?.name, label: member.user?.name });
+          }
         }
       }
     } else if (filter.type === "Bool" || filter.type === "Checkbox") {
@@ -266,30 +268,24 @@ export default (
     close();
     if (isFilter) {
       const operatorType = filterOption.current.operatorType;
-      let value: string | boolean | number | Date = filterValue.current ?? "";
       const type =
         typeof filter.dataIndex === "string"
-          ? filter.id
+          ? "ID"
           : filter.dataIndex[0] === "fields"
             ? "FIELD"
             : "META_FIELD";
-      const operatorValue = filterOption.current.value;
-      const currentFilters = currentView?.filter?.conditions
-        ? [...currentView.filter.conditions]
-        : [];
+      const operatorValue = filterOption.current.value as Operator;
+      const currentFilters =
+        currentView.filter && currentView.filter.and ? [...currentView.filter.and.conditions] : [];
       const newFilter: {
-        [x: keyof ConditionInput | string]: {
-          fieldId: {
-            type: string;
-            id: string;
-          };
-          operator: Operator | SortDirection;
+        [key: string]: {
+          fieldId: FieldSelector;
+          operator: Operator;
           value?: string | boolean | number | Date;
         };
-      } = {
-        [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue },
-      };
+      } = { [operatorType]: { fieldId: { type, id: filter.id }, operator: operatorValue } };
 
+      let value: string | boolean | number | Date = filterValue.current ?? "";
       if (filter.type === "Bool" || filter.type === "Checkbox") {
         if (typeof value !== "boolean") {
           value = value === "true";
@@ -315,7 +311,7 @@ export default (
 
       currentFilters[index] = newFilter;
 
-      onFilterChange?.({ conditions: currentFilters.filter(Boolean) });
+      onFilterChange(currentFilters.filter(Boolean));
     } else {
       const direction: SortDirection = filterOption.current.value === "ASC" ? "ASC" : "DESC";
       let fieldId = "";
@@ -344,7 +340,7 @@ export default (
         },
         direction: direction,
       };
-      setCurrentView?.(prev => ({
+      setCurrentView(prev => ({
         ...prev,
         sort: sort,
       }));
@@ -396,8 +392,8 @@ export default (
   }, []);
 
   const onDateChange: DatePickerProps["onChange"] = useCallback(
-    (_date: Moment | null, dateString: string) => {
-      filterValue.current = dateString;
+    (_date: Dayjs | null, dateString: string | string[]) => {
+      if (typeof dateString === "string") filterValue.current = dateString;
     },
     [],
   );

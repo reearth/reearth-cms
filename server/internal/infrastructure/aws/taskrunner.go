@@ -22,8 +22,9 @@ type TaskRunner struct {
 }
 
 type TaskConfig struct {
-	TopicARN   string
-	WebhookARN string
+	TopicARN    string
+	WebhookARN  string
+	NotifyToken string
 }
 
 func NewTaskRunner(ctx context.Context, conf *TaskConfig) (gateway.TaskRunner, error) {

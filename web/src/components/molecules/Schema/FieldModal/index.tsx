@@ -63,6 +63,7 @@ export type Props = {
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
@@ -112,6 +113,7 @@ const FieldModal: React.FC<Props> = ({
   onAssetsCreate,
   onAssetCreateFromUrl,
   onAssetSearchTerm,
+  onAssetsGet,
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
@@ -156,6 +158,7 @@ const FieldModal: React.FC<Props> = ({
         form={form}
         layout="vertical"
         initialValues={initialValues}
+        requiredMark="optional"
         onValuesChange={() => {
           setTimeout(() => {
             form
@@ -199,7 +202,7 @@ const FieldModal: React.FC<Props> = ({
               ]}>
               <Input />
             </Form.Item>
-            <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+            <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />
             </Form.Item>
             {selectedType === "Select" && (
@@ -313,6 +316,7 @@ const FieldModal: React.FC<Props> = ({
               onAssetsCreate={onAssetsCreate}
               onAssetCreateFromUrl={onAssetCreateFromUrl}
               onAssetSearchTerm={onAssetSearchTerm}
+              onAssetsGet={onAssetsGet}
               onAssetsReload={onAssetsReload}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}

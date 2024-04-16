@@ -1,5 +1,5 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
@@ -10,7 +10,7 @@ import {
   FormValues,
   FormTypes,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { transformMomentToString } from "@reearth-cms/utils/format";
+import { transformDayjsToString } from "@reearth-cms/utils/format";
 
 export default (
   selectedType: FieldType,
@@ -77,9 +77,9 @@ export default (
     const selectDefaultValue = selectedField.typeProperty?.selectDefaultValue;
     if (selectedField.type === "Date") {
       if (Array.isArray(defaultValue)) {
-        return defaultValue.map(valueItem => moment(valueItem as string));
+        return defaultValue.map(valueItem => dayjs(valueItem as string));
       } else {
-        return defaultValue && moment(defaultValue as string);
+        return defaultValue && dayjs(defaultValue as string);
       }
     } else if (selectedField.type === "Tag") {
       if (Array.isArray(selectDefaultValue)) {
@@ -165,7 +165,7 @@ export default (
         };
       case "Date":
         return {
-          date: { defaultValue: transformMomentToString(values.defaultValue) ?? "" },
+          date: { defaultValue: transformDayjsToString(values.defaultValue) ?? "" },
         };
       case "Tag":
         return {

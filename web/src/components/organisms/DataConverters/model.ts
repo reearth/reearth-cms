@@ -15,7 +15,7 @@ export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
     schemaId: model.schemaId,
     schema: {
       id: model.schema?.id,
-      fields: model.schema?.fields.map(
+      fields: model.schema?.fields?.map(
         field =>
           ({
             id: field.id,
@@ -33,7 +33,7 @@ export const fromGraphQLModel = (model: Maybe<GQLModel>): Model | undefined => {
     },
     metadataSchema: {
       id: model.metadataSchema?.id,
-      fields: model.metadataSchema?.fields.map(
+      fields: model.metadataSchema?.fields?.map(
         field =>
           ({
             id: field.id,

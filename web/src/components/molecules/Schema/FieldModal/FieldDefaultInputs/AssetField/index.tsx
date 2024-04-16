@@ -34,6 +34,7 @@ type Props = {
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
@@ -58,6 +59,7 @@ const AssetField: React.FC<Props> = ({
   onAssetsCreate,
   onAssetCreateFromUrl,
   onAssetSearchTerm,
+  onAssetsGet,
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
@@ -86,6 +88,7 @@ const AssetField: React.FC<Props> = ({
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
           onAssetSearchTerm={onAssetSearchTerm}
+          onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
@@ -110,6 +113,7 @@ const AssetField: React.FC<Props> = ({
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
           onAssetSearchTerm={onAssetSearchTerm}
+          onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}

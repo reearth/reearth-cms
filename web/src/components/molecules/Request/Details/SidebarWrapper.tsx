@@ -98,10 +98,10 @@ const RequestSidebarWrapper: React.FC<Props> = ({
         <Badge color={badgeColor} text={currentRequest?.state} />
       </SidebarCard>
       <SidebarCard title={t("Created By")}>
-        <Space>
+        <StyledSpace>
           <UserAvatar username={currentRequest?.createdBy?.name} />
           {currentRequest?.createdBy?.name}
-        </Space>
+        </StyledSpace>
       </SidebarCard>
       <SidebarCard title={t("Reviewer")}>
         <ReviewerContainer>
@@ -147,6 +147,15 @@ const SideBarWrapper = styled.div`
   background-color: #fafafa;
   padding: 7px;
   width: 272px;
+`;
+
+const StyledSpace = styled(Space)`
+  width: 100%;
+  .ant-space-item:nth-child(2) {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 `;
 
 const ReviewerContainer = styled.div`
