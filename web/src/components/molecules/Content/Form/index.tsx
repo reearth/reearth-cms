@@ -93,7 +93,7 @@ interface Props {
     metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onMetaItemUpdate: (data: { metaItemId: string; metaFields: ItemField[] }) => Promise<void>;
+  onMetaItemUpdate: (data: { metaItemId?: string; metaFields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
@@ -403,7 +403,7 @@ const ContentForm: React.FC<Props> = ({
   }, [model, form, metaForm, itemId, onGroupGet, inputValueGet, onItemUpdate, onItemCreate]);
 
   const handleMetaUpdate = useCallback(async () => {
-    if (!itemId || !item?.metadata?.id) return;
+    if (!itemId) return;
     try {
       const metaValues = await metaForm.validateFields();
       const metaFields: { schemaFieldId: string; type: FieldType; value: string }[] = [];
@@ -414,8 +414,8 @@ const ContentForm: React.FC<Props> = ({
           type: model?.metadataSchema?.fields?.find(field => field.id === key)?.type as FieldType,
         });
       }
-      await onMetaItemUpdate?.({
-        metaItemId: item.metadata.id,
+      await onMetaItemUpdate({
+        metaItemId: item?.metadata?.id,
         metaFields,
       });
     } catch (info) {
