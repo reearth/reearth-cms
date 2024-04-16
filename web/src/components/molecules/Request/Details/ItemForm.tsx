@@ -14,6 +14,7 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
+import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
@@ -21,9 +22,11 @@ import {
 
 import ReferenceFormItem from "../../Content/Form/ReferenceFormItem";
 
-export interface Props {
-  initialFormValues: any;
-  schema?: any;
+interface Props {
+  schema?: Schema;
+  initialFormValues: {
+    [key: string]: any;
+  };
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -83,7 +86,7 @@ const RequestItemForm: React.FC<Props> = ({
   return (
     <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
       <div>
-        {schema?.fields.map((field: any) =>
+        {schema?.fields.map(field =>
           field.type === "TextArea" ? (
             <Form.Item
               key={field.id}
@@ -97,7 +100,7 @@ const RequestItemForm: React.FC<Props> = ({
                   disabled={true}
                   rows={3}
                   showCount
-                  maxLength={field.typeProperty.maxLength ?? false}
+                  maxLength={field.typeProperty?.maxLength}
                   FieldInput={TextArea}
                 />
               ) : (
@@ -105,7 +108,7 @@ const RequestItemForm: React.FC<Props> = ({
                   disabled={true}
                   rows={3}
                   showCount
-                  maxLength={field.typeProperty.maxLength ?? false}
+                  maxLength={field.typeProperty?.maxLength}
                 />
               )}
             </Form.Item>
@@ -120,11 +123,11 @@ const RequestItemForm: React.FC<Props> = ({
               {field.multiple ? (
                 <MultiValueField
                   disabled={true}
-                  maxLength={field.typeProperty.maxLength ?? false}
+                  maxLength={field.typeProperty?.maxLength}
                   FieldInput={MarkdownInput}
                 />
               ) : (
-                <MarkdownInput disabled={true} maxLength={field.typeProperty.maxLength ?? false} />
+                <MarkdownInput disabled={true} maxLength={field.typeProperty?.maxLength} />
               )}
             </Form.Item>
           ) : field.type === "Integer" ? (
@@ -139,16 +142,16 @@ const RequestItemForm: React.FC<Props> = ({
                 <MultiValueField
                   disabled={true}
                   type="number"
-                  min={field.typeProperty.min}
-                  max={field.typeProperty.max}
+                  min={field.typeProperty?.min}
+                  max={field.typeProperty?.max}
                   FieldInput={InputNumber}
                 />
               ) : (
                 <InputNumber
                   disabled={true}
                   type="number"
-                  min={field.typeProperty.min}
-                  max={field.typeProperty.max}
+                  min={field.typeProperty?.min}
+                  max={field.typeProperty?.max}
                 />
               )}
             </Form.Item>
@@ -224,7 +227,7 @@ const RequestItemForm: React.FC<Props> = ({
               <ReferenceFormItem
                 key={field.id}
                 correspondingFieldId={field.id}
-                modelId={field.typeProperty.modelId}
+                modelId={field.typeProperty?.modelId}
                 disabled
               />
             </Form.Item>
@@ -260,14 +263,14 @@ const RequestItemForm: React.FC<Props> = ({
                 <MultiValueField
                   disabled={true}
                   showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
+                  maxLength={field.typeProperty?.maxLength ?? 500}
                   FieldInput={Input}
                 />
               ) : (
                 <Input
                   disabled={true}
                   showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
+                  maxLength={field.typeProperty?.maxLength ?? 500}
                 />
               )}
             </Form.Item>
@@ -283,14 +286,14 @@ const RequestItemForm: React.FC<Props> = ({
                 <MultiValueField
                   disabled={true}
                   showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
+                  maxLength={field.typeProperty?.maxLength ?? 500}
                   FieldInput={Input}
                 />
               ) : (
                 <Input
                   disabled={true}
                   showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
+                  maxLength={field.typeProperty?.maxLength ?? 500}
                 />
               )}
             </Form.Item>

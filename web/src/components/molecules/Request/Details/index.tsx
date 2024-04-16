@@ -12,7 +12,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
-export type Props = {
+type Props = {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;

@@ -17,10 +17,9 @@ import {
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
 
-export type Props = {
+type Props = {
   me?: User;
   currentRequest: Request;
-  emptyText?: string;
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
@@ -55,7 +54,6 @@ export type Props = {
 const RequestThread: React.FC<Props> = ({
   me,
   currentRequest,
-  emptyText,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
@@ -122,13 +120,7 @@ const RequestThread: React.FC<Props> = ({
         </CommentsContainer>
         <StyledRequestStatus requestState={currentRequest.state} />
       </ThreadWrapper>
-
-      {!currentRequest.comments || currentRequest.comments.length === 0 ? (
-        <EmptyTextWrapper>{emptyText}</EmptyTextWrapper>
-      ) : null}
-
       <ThreadDivider />
-
       <AntDComment
         avatar={<UserAvatar username={me?.name} />}
         content={<RequestEditor onCommentCreate={onCommentCreate} />}
@@ -150,12 +142,6 @@ const ThreadWrapper = styled.div`
 
 const CommentsContainer = styled.div`
   overflow: auto;
-`;
-
-const EmptyTextWrapper = styled.div`
-  padding: 12px;
-  color: #00000073;
-  text-align: center;
 `;
 
 const ContentWrapper = styled.div`

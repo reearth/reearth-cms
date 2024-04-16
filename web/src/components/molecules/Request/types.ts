@@ -1,5 +1,6 @@
 import { Comment } from "@reearth-cms/components/molecules/Content/types";
 import { User } from "@reearth-cms/components/molecules/Member/types";
+import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
 
@@ -19,8 +20,10 @@ export type Request = {
   items: {
     id: string;
     modelName?: string;
-    schema?: any;
-    initialValues: any;
+    schema?: Schema;
+    initialValues: {
+      [key: string]: any;
+    };
   }[];
 };
 

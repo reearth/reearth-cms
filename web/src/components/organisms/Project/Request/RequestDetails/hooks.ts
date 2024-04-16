@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useDeleteRequestMutation,
@@ -84,7 +85,7 @@ export default () => {
         id: item.itemId,
         modelName: item?.item?.value.model.name,
         initialValues: initialValuesGet(item.item?.value.fields),
-        schema: item.item?.value.schema ? item.item?.value.schema : undefined,
+        schema: item.item?.value.schema ? (item.item?.value.schema as Schema) : undefined,
       })),
     };
   }, [rawRequest]);
