@@ -7,7 +7,7 @@ import { useT } from "@reearth-cms/i18n";
 type Props = {
   url: string;
   isModalVisible: boolean;
-  viewerType?: ViewerType;
+  viewerType: ViewerType;
   handleCodeSourceClick: () => void;
   handleRenderClick: () => void;
   handleFullScreen: () => void;
