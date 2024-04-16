@@ -11,7 +11,7 @@ import { useT } from "@reearth-cms/i18n";
 type Props = {
   selectedKey?: string;
   models?: Model[];
-  collapsed?: boolean;
+  collapsed: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
   onUpdateModelsOrder: (modelIds: string[]) => void;

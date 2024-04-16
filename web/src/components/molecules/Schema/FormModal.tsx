@@ -11,10 +11,10 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 type Props = {
   data?: Model | Group;
-  open?: boolean;
+  open: boolean;
   onClose: () => void;
-  onCreate?: (values: ModelFormValues) => Promise<void> | void;
-  onUpdate?: (values: ModelFormValues) => Promise<void> | void;
+  onCreate?: (values: ModelFormValues) => Promise<void>;
+  onUpdate?: (values: ModelFormValues) => Promise<void>;
   onKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   isModel: boolean;
 };

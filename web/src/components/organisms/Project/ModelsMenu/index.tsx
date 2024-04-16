@@ -10,7 +10,7 @@ import useHooks from "./hooks";
 
 interface Props {
   title: string;
-  collapsed?: boolean;
+  collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
   onModelSelect: (modelId: string) => void;
@@ -54,9 +54,9 @@ const ModelsMenu: React.FC<Props> = ({
           collapsed={collapsed}
           selectedKey={schemaId}
           models={models}
-          onModelSelect={onModelSelect}
-          onModalOpen={handleModelModalOpen}
           open={modelModalShown}
+          onModalOpen={handleModelModalOpen}
+          onModelSelect={onModelSelect}
           onModelKeyCheck={handleModelKeyCheck}
           onClose={handleModelModalClose}
           onCreate={handleModelCreate}
