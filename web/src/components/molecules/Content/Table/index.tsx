@@ -48,11 +48,10 @@ import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 type Props = {
-  className?: string;
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
-  selectedItem: Item | undefined;
+  selectedItem?: Item;
   selection: {
     selectedRowKeys: string[];
   };
@@ -783,23 +782,20 @@ const ContentTable: React.FC<Props> = ({
           heightOffset={102}
         />
       ) : null}
-      {selection && (
-        <LinkItemRequestModal
-          itemIds={selection.selectedRowKeys}
-          onChange={onAddItemToRequest}
-          onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
-          visible={addItemToRequestModalShown}
-          linkedRequest={undefined}
-          requestList={requests}
-          onRequestTableChange={onRequestTableChange}
-          requestModalLoading={requestModalLoading}
-          requestModalTotalCount={requestModalTotalCount}
-          requestModalPage={requestModalPage}
-          requestModalPageSize={requestModalPageSize}
-          onRequestSearchTerm={onRequestSearchTerm}
-          onRequestTableReload={onRequestTableReload}
-        />
-      )}
+      <LinkItemRequestModal
+        itemIds={selection.selectedRowKeys}
+        onChange={onAddItemToRequest}
+        onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
+        visible={addItemToRequestModalShown}
+        requestList={requests}
+        onRequestTableChange={onRequestTableChange}
+        requestModalLoading={requestModalLoading}
+        requestModalTotalCount={requestModalTotalCount}
+        requestModalPage={requestModalPage}
+        requestModalPageSize={requestModalPageSize}
+        onRequestSearchTerm={onRequestSearchTerm}
+        onRequestTableReload={onRequestTableReload}
+      />
     </>
   );
 };

@@ -650,7 +650,6 @@ const ContentForm: React.FC<Props> = ({
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
             visible={addItemToRequestModalShown}
-            linkedRequest={undefined}
             requestList={requests}
             onRequestTableChange={onRequestTableChange}
             requestModalLoading={requestModalLoading}
