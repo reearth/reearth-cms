@@ -28,22 +28,22 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 const { Step } = Steps;
 
-export type Props = {
-  selectedField?: Field | null;
-  open?: boolean;
-  selectedType: FieldType;
+type Props = {
   models?: Model[];
+  selectedType: FieldType;
+  selectedField: Field | null;
+  open: boolean;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
-  onUpdate?: (values: FormValues) => Promise<void> | void;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
+  onUpdate: (values: FormValues) => Promise<void>;
 };
 
 const FieldCreationModalWithSteps: React.FC<Props> = ({
-  selectedField,
-  open,
   models,
   selectedType,
+  selectedField,
+  open,
   handleFieldKeyUnique,
   onClose,
   onSubmit,
@@ -155,9 +155,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           nextStep();
         } else {
           if (selectedField) {
-            await onUpdate?.({ ...values, fieldId: selectedField.id });
+            await onUpdate({ ...values, fieldId: selectedField.id });
           } else {
-            await onSubmit?.(values);
+            await onSubmit(values);
           }
         }
       })
@@ -190,8 +190,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               },
             },
           };
-          await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
-          onClose?.(true);
+          await onUpdate({ ...field1FormValues, fieldId: selectedField.id });
+          onClose();
         })
         .catch(_ => {
           setActiveTab("settings");
@@ -210,8 +210,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             },
           };
 
-          await onSubmit?.(field1FormValues);
-          onClose?.(true);
+          await onSubmit(field1FormValues);
+          onClose();
         })
         .catch(_ => {
           setActiveTab("settings");
@@ -238,7 +238,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         ) : null
       }
       onCancel={() => {
-        onClose?.(true);
+        onClose();
         clearFormFields();
       }}
       afterClose={() => {

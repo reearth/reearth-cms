@@ -7,7 +7,7 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
-  multiple?: boolean;
+  multiple: boolean;
 };
 
 const URLField: React.FC<Props> = ({ multiple }) => {

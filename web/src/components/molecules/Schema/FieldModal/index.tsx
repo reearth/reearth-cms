@@ -32,16 +32,16 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
-export type Props = {
+type Props = {
   groups?: Group[];
-  open?: boolean;
-  isMeta: boolean;
-  fieldLoading: boolean;
   selectedType: FieldType;
-  selectedField?: Field | null;
+  isMeta: boolean;
+  open: boolean;
+  fieldLoading: boolean;
+  selectedField: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -62,7 +62,7 @@ export type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetSearchTerm: (term?: string) => void;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;

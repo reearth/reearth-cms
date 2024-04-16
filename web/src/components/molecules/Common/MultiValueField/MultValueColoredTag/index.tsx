@@ -25,13 +25,12 @@ export type TagColor =
   | "PURPLE";
 
 type Props = {
-  className?: string;
   value?: { id?: string; name: string; color: TagColor }[];
   onChange?: (value: { id?: string; name: string; color: TagColor }[]) => void;
 } & TextAreaProps &
   InputProps;
 
-const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange, ...props }) => {
+const MultiValueColoredTag: React.FC<Props> = ({ value = [], onChange, ...props }) => {
   const t = useT();
   const [lastColorIndex, setLastColorIndex] = useState(0);
   const [focusedTagIndex, setFocusedTagIndex] = useState<number | null>(null); // New State to hold the focused tag index
@@ -129,7 +128,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ className, value = [], onChange
   }, []);
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>
