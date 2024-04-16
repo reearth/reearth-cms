@@ -50,11 +50,11 @@ export default ({ currentView, onViewChange }: Params) => {
   });
 
   const handleViewCreate = useCallback(
-    async (data: { name: string }) => {
+    async (name: string) => {
       setSubmitting(true);
       const view = await createNewView({
         variables: {
-          name: data.name,
+          name,
           projectId: currentProject?.id ?? "",
           modelId: currentModel?.id ?? "",
           sort: toGraphItemSort(currentView.sort),
@@ -88,12 +88,11 @@ export default ({ currentView, onViewChange }: Params) => {
 
   const handleViewUpdate = useCallback(
     async (viewId: string, name: string) => {
-      if (!viewId) return;
       setSubmitting(true);
       const view = await updateNewView({
         variables: {
-          viewId: viewId,
-          name: name,
+          viewId,
+          name,
           sort: toGraphItemSort(currentView.sort),
           columns: toGraphColumnSelectionInput(currentView.columns),
           filter: toGraphConditionInput(currentView.filter),
@@ -110,13 +109,12 @@ export default ({ currentView, onViewChange }: Params) => {
   );
 
   const handleViewRename = useCallback(
-    async (data: { viewId?: string; name: string }) => {
-      if (!data.viewId) return;
+    async (viewId: string, name: string) => {
       setSubmitting(true);
       const view = await updateNewView({
         variables: {
-          viewId: data.viewId,
-          name: data.name,
+          viewId,
+          name,
           sort: toGraphItemSort(currentView?.sort),
           columns: toGraphColumnSelectionInput(currentView.columns),
           filter: toGraphConditionInput(currentView.filter),
@@ -137,8 +135,7 @@ export default ({ currentView, onViewChange }: Params) => {
   });
 
   const handleViewDelete = useCallback(
-    async (viewId?: string) => {
-      if (!viewId) return;
+    async (viewId: string) => {
       const res = await deleteView({ variables: { viewId } });
       if (res.errors || !res.data?.deleteView) {
         Notification.error({ message: t("Failed to delete view.") });
