@@ -113,24 +113,20 @@ export default () => {
   const [addUsersToWorkspaceMutation] = useAddUsersToWorkspaceMutation();
 
   const handleUsersAddToWorkspace = useCallback(
-    (users: MemberInput[]) =>
-      (async () => {
-        if (!workspaceId) return;
-        const result = await addUsersToWorkspaceMutation({
-          variables: { workspaceId, users: users as GQLMemberInput[] },
-          refetchQueries: ["GetWorkspaces"],
-        });
-        const workspace = result.data?.addUsersToWorkspace?.workspace;
-        if (result.errors || !workspace) {
-          Notification.error({ message: t("Failed to add one or more members.") });
-          return;
-        }
-        setWorkspace(fromGraphQLWorkspace(workspace as GQLWorkspace));
-
-        if (result.data) {
-          Notification.success({ message: t("Successfully added member(s) to the workspace!") });
-        }
-      })(),
+    async (users: MemberInput[]) => {
+      if (!workspaceId) return;
+      const result = await addUsersToWorkspaceMutation({
+        variables: { workspaceId, users: users as GQLMemberInput[] },
+        refetchQueries: ["GetWorkspaces"],
+      });
+      const workspace = result.data?.addUsersToWorkspace?.workspace;
+      if (result.errors || !workspace) {
+        Notification.error({ message: t("Failed to add one or more members.") });
+        return;
+      }
+      setWorkspace(fromGraphQLWorkspace(workspace as GQLWorkspace));
+      Notification.success({ message: t("Successfully added member(s) to the workspace!") });
+    },
     [workspaceId, addUsersToWorkspaceMutation, setWorkspace, t],
   );
 
@@ -138,31 +134,26 @@ export default () => {
 
   const handleMemberOfWorkspaceUpdate = useCallback(
     async (userId: string, role: RoleUnion) => {
-      if (workspaceId) {
-        const result = await updateMemberOfWorkspaceMutation({
-          variables: {
-            workspaceId,
-            userId,
-            role: {
-              READER: Role.Reader,
-              WRITER: Role.Writer,
-              MAINTAINER: Role.Maintainer,
-              OWNER: Role.Owner,
-            }[role],
-          },
-        });
-        const workspace = result.data?.updateUserOfWorkspace?.workspace;
-        if (result.errors || !workspace) {
-          Notification.error({ message: t("Failed to update member's role.") });
-          return;
-        }
-        if (workspace) {
-          setWorkspace(fromGraphQLWorkspace(workspace as GQLWorkspace));
-        }
-        if (result.data) {
-          Notification.success({ message: t("Successfully udpated member's role!") });
-        }
+      if (!workspaceId) return;
+      const result = await updateMemberOfWorkspaceMutation({
+        variables: {
+          workspaceId,
+          userId,
+          role: {
+            READER: Role.Reader,
+            WRITER: Role.Writer,
+            MAINTAINER: Role.Maintainer,
+            OWNER: Role.Owner,
+          }[role],
+        },
+      });
+      const workspace = result.data?.updateUserOfWorkspace?.workspace;
+      if (result.errors || !workspace) {
+        Notification.error({ message: t("Failed to update member's role.") });
+        return;
       }
+      setWorkspace(fromGraphQLWorkspace(workspace as GQLWorkspace));
+      Notification.success({ message: t("Successfully updated member's role!") });
     },
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );

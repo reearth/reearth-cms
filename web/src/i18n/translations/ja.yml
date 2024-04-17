@@ -473,7 +473,7 @@ One or more integrations were successfully deleted!: インテグレーション
 Failed to add one or more members.: メンバーの追加に失敗しました。
 Successfully added member(s) to the workspace!: メンバーの追加に成功しました。
 Failed to update member's role.: メンバーのロールの更新に失敗しました。
-Successfully udpated member's role!: メンバーのロールの更新に成功しました。
+Successfully updated member's role!: メンバーのロールの更新に成功しました。
 Failed to delete member from the workspace.: メンバーの削除に失敗しました。
 Successfully removed member from the workspace!: メンバーの削除に成功しました。
 Failed to update integration.: インテグレーションの更新に失敗しました。
