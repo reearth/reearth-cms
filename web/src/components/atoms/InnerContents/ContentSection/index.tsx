@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-export type Props = {
-  className?: string;
+type Props = {
   title?: string;
   danger?: boolean;
   headerActions?: ReactNode;

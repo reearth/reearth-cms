@@ -5,17 +5,15 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 
-export type Props = {
-  className?: string;
+type Props = {
   items: MenuProps["items"];
   name?: string;
-  personal?: boolean;
+  personal: boolean;
 };
 
-const Dropdown: React.FC<Props> = ({ className, items, name, personal }) => {
+const Dropdown: React.FC<Props> = ({ items, name, personal }) => {
   return (
     <StyledDropdown
-      className={className}
       menu={{ items }}
       trigger={["click"]}
       dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}>
