@@ -21,7 +21,7 @@ func NewIntegrationLoader(usecase interfaces.Integration) *IntegrationLoader {
 }
 
 func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Integration, []error) {
-	sIds, err := util.TryMap(ids, gqlmodel.ToID[id.Integration])
+	iIDs, err := util.TryMap(ids, gqlmodel.ToID[id.Integration])
 	if err != nil {
 		return nil, []error{err}
 	}
@@ -31,13 +31,19 @@ func (c *IntegrationLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gq
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, sIds, op)
+	res, err := c.usecase.FindByIDs(ctx, iIDs, op)
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return lo.Map(res, func(m *integration.Integration, _ int) *gqlmodel.Integration {
-		return gqlmodel.ToIntegration(m, op.AcOperator.User)
+	return lo.Map(iIDs, func(id integration.ID, _ int) *gqlmodel.Integration {
+		i, ok := lo.Find(res, func(i *integration.Integration) bool {
+			return i != nil && i.ID() == id
+		})
+		if !ok {
+			return nil
+		}
+		return gqlmodel.ToIntegration(i, op.AcOperator.User)
 	}), nil
 }
 

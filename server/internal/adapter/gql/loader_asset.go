@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type AssetLoader struct {
@@ -35,17 +36,23 @@ func (c *AssetLoader) FindByID(ctx context.Context, assetId gqlmodel.ID) (*gqlmo
 }
 
 func (c *AssetLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
-	ids2, err := util.TryMap(ids, gqlmodel.ToID[id.Asset])
+	aIDs, err := util.TryMap(ids, gqlmodel.ToID[id.Asset])
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, ids2, getOperator(ctx))
+	res, err := c.usecase.FindByIDs(ctx, aIDs, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return util.Map(res, func(a *asset.Asset) *gqlmodel.Asset {
+	return util.Map(aIDs, func(id asset.ID) *gqlmodel.Asset {
+		a, ok := lo.Find(res, func(a *asset.Asset) bool {
+			return a != nil && a.ID() == id
+		})
+		if !ok {
+			return nil
+		}
 		return gqlmodel.ToAsset(a, c.usecase.GetURL)
 	}), nil
 }

@@ -55,13 +55,13 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 
 	return lo.Map(iIds, func(iId item.ID, _ int) *gqlmodel.Item {
 		i, ok := lo.Find(res, func(v item.Versioned) bool {
-			return v.Value().ID() == iId
+			return v != nil && v.Value() != nil && v.Value().ID() == iId
 		})
 		if !ok {
 			return nil
 		}
 		s, ok := lo.Find(ss, func(s *schema.Schema) bool {
-			return s.ID() == i.Value().Schema()
+			return s != nil && s.ID() == i.Value().Schema()
 		})
 		if !ok {
 			return nil

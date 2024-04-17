@@ -7,6 +7,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/samber/lo"
 )
 
 type ItemStatusLoader struct {
@@ -24,20 +26,19 @@ type ItemStatusDataLoader interface {
 
 func (c *ItemStatusLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]gqlmodel.ItemStatus, []error) {
 	op := getOperator(ctx)
-	iIds, err := gqlmodel.ToIDs[id.Item](ids)
+	iIDs, err := gqlmodel.ToIDs[id.Item](ids)
 	if err != nil {
 		return nil, []error{err}
-	}
-	var res []gqlmodel.ItemStatus
-	statusMap, err := c.itemUsecase.ItemStatus(ctx, iIds, op)
-	if err != nil {
-		return nil, []error{err}
-	}
-	for _, iid := range iIds {
-		res = append(res, gqlmodel.ToItemStatus(statusMap[iid]))
 	}
 
-	return res, nil
+	statusMap, err := c.itemUsecase.ItemStatus(ctx, iIDs, op)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	return lo.Map(iIDs, func(id item.ID, _ int) gqlmodel.ItemStatus {
+		return gqlmodel.ToItemStatus(statusMap[id])
+	}), nil
 }
 
 func (c *ItemStatusLoader) DataLoader(ctx context.Context) ItemStatusDataLoader {

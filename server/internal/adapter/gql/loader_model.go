@@ -22,17 +22,23 @@ func NewModelLoader(usecase interfaces.Model) *ModelLoader {
 }
 
 func (c *ModelLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Model, []error) {
-	mIds, err := util.TryMap(ids, gqlmodel.ToID[id.Model])
+	mIDs, err := util.TryMap(ids, gqlmodel.ToID[id.Model])
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, mIds, getOperator(ctx))
+	res, err := c.usecase.FindByIDs(ctx, mIDs, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return lo.Map(res, func(m *model.Model, i int) *gqlmodel.Model {
+	return lo.Map(mIDs, func(id model.ID, i int) *gqlmodel.Model {
+		m, ok := lo.Find(res, func(m *model.Model) bool {
+			return m != nil && m.ID() == id
+		})
+		if !ok {
+			return nil
+		}
 		return gqlmodel.ToModel(m)
 	}), nil
 }

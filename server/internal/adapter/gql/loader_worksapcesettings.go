@@ -21,18 +21,24 @@ func NewWorkspaceSettingsLoader(usecase interfaces.WorkspaceSettings) *Workspace
 }
 
 func (c *WorkspaceSettingsLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.WorkspaceSettings, []error) {
-	wsids, err := util.TryMap(ids, gqlmodel.ToID[accountdomain.Workspace])
+	wsIDs, err := util.TryMap(ids, gqlmodel.ToID[accountdomain.Workspace])
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.Fetch(ctx, wsids, getOperator(ctx))
+	res, err := c.usecase.Fetch(ctx, wsIDs, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return lo.Map(res, func(w *workspacesettings.WorkspaceSettings, _ int) *gqlmodel.WorkspaceSettings {
-		return gqlmodel.ToWorkspaceSettings(w)
+	return lo.Map(wsIDs, func(id workspacesettings.ID, _ int) *gqlmodel.WorkspaceSettings {
+		ws, ok := lo.Find(res, func(ws *workspacesettings.WorkspaceSettings) bool {
+			return ws != nil && ws.ID() == id
+		})
+		if !ok {
+			return nil
+		}
+		return gqlmodel.ToWorkspaceSettings(ws)
 	}), nil
 }
 

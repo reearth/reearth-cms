@@ -21,20 +21,26 @@ func NewViewLoader(usecase interfaces.View) *ViewLoader {
 }
 
 func (c *ViewLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.View, []error) {
-	sIds, err := util.TryMap(ids, gqlmodel.ToID[id.View])
+	vIDs, err := util.TryMap(ids, gqlmodel.ToID[id.View])
 	if err != nil {
 		return nil, []error{err}
 	}
 
 	op := getOperator(ctx)
 
-	res, err := c.usecase.FindByIDs(ctx, sIds, op)
+	res, err := c.usecase.FindByIDs(ctx, vIDs, op)
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return lo.Map(res, func(m *view.View, _ int) *gqlmodel.View {
-		return gqlmodel.ToView(m)
+	return lo.Map(vIDs, func(id view.ID, _ int) *gqlmodel.View {
+		v, ok := lo.Find(res, func(v *view.View) bool {
+			return v != nil && v.ID() == id
+		})
+		if !ok {
+			return nil
+		}
+		return gqlmodel.ToView(v)
 	}), nil
 }
 
