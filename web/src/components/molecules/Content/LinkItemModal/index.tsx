@@ -19,7 +19,7 @@ import { FormItem } from "../types";
 import useHooks from "./hooks";
 
 type Props = {
-  visible?: boolean;
+  visible: boolean;
   loading: boolean;
   correspondingFieldId: string;
   linkedItemsModalList?: FormItem[];

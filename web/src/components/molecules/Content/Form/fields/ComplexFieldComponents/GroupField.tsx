@@ -14,7 +14,7 @@ import {
 
 interface GroupFieldProps {
   field: Field;
-  form?: FormInstance<any>;
+  form: FormInstance<any>;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;

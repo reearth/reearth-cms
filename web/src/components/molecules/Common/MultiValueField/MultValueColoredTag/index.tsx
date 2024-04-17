@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ChangeEvent, useCallback, useEffect, useState, useRef, useMemo } from "react";
+import { ChangeEvent, useCallback, useEffect, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
@@ -11,18 +11,21 @@ import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
 
-export type TagColor =
-  | "MAGENTA"
-  | "RED"
-  | "VOLCANO"
-  | "ORANGE"
-  | "GOLD"
-  | "LIME"
-  | "GREEN"
-  | "CYAN"
-  | "BLUE"
-  | "GEEKBLUE"
-  | "PURPLE";
+const colors = [
+  "MAGENTA",
+  "RED",
+  "VOLCANO",
+  "ORANGE",
+  "GOLD",
+  "LIME",
+  "GREEN",
+  "CYAN",
+  "BLUE",
+  "GEEKBLUE",
+  "PURPLE",
+] as const;
+
+type TagColor = (typeof colors)[number];
 
 type Props = {
   value?: { id?: string; name: string; color: TagColor }[];
@@ -35,23 +38,6 @@ const MultiValueColoredTag: React.FC<Props> = ({ value = [], onChange, ...props 
   const [lastColorIndex, setLastColorIndex] = useState(0);
   const [focusedTagIndex, setFocusedTagIndex] = useState<number | null>(null); // New State to hold the focused tag index
   const divRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  const colors: TagColor[] = useMemo(
-    () => [
-      "MAGENTA",
-      "RED",
-      "VOLCANO",
-      "ORANGE",
-      "GOLD",
-      "LIME",
-      "GREEN",
-      "CYAN",
-      "BLUE",
-      "GEEKBLUE",
-      "PURPLE",
-    ],
-    [],
-  );
 
   const handleColorChange = useCallback(
     (color: TagColor, key: number) => {
@@ -74,7 +60,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ value = [], onChange, ...props 
         ),
       }));
     },
-    [colors, handleColorChange, t],
+    [handleColorChange, t],
   );
 
   const handleNewTag = useCallback(() => {
@@ -82,7 +68,7 @@ const MultiValueColoredTag: React.FC<Props> = ({ value = [], onChange, ...props 
     const payload = !value ? [] : [...value];
     onChange?.([...payload, { color: newColor, name: "Tag" }]);
     setLastColorIndex((lastColorIndex + 1) % colors.length);
-  }, [colors, lastColorIndex, onChange, value]);
+  }, [lastColorIndex, onChange, value]);
 
   const handleInput = useCallback(
     (e: ChangeEvent<HTMLInputElement | undefined>, id: number) => {

@@ -9,7 +9,6 @@ import { useT } from "@reearth-cms/i18n";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  className?: string;
   checked?: boolean[];
   onChange?: (value: (string | number | boolean)[]) => void;
   FieldInput: React.FunctionComponent<any>;
@@ -17,7 +16,6 @@ type Props = {
 };
 
 const MultiValueBooleanField: React.FC<Props> = ({
-  className,
   checked = [],
   FieldInput,
   disabled,
@@ -49,7 +47,7 @@ const MultiValueBooleanField: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(checked) &&
         checked?.map((valueItem, key) => (
           <FieldWrapper key={key}>
