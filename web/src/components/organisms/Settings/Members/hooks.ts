@@ -139,7 +139,7 @@ export default () => {
   const handleMemberOfWorkspaceUpdate = useCallback(
     async (userId: string, role: RoleUnion) => {
       if (workspaceId) {
-        const results = await updateMemberOfWorkspaceMutation({
+        const result = await updateMemberOfWorkspaceMutation({
           variables: {
             workspaceId,
             userId,
@@ -151,13 +151,20 @@ export default () => {
             }[role],
           },
         });
-        const workspace = results.data?.updateUserOfWorkspace?.workspace;
+        const workspace = result.data?.updateUserOfWorkspace?.workspace;
+        if (result.errors || !workspace) {
+          Notification.error({ message: t("Failed to update member's role.") });
+          return;
+        }
         if (workspace) {
           setWorkspace(fromGraphQLWorkspace(workspace as GQLWorkspace));
         }
+        if (result.data) {
+          Notification.success({ message: t("Successfully udpated member's role!") });
+        }
       }
     },
-    [workspaceId, setWorkspace, updateMemberOfWorkspaceMutation],
+    [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
 
   const [removeMemberFromWorkspaceMutation] = useRemoveMemberFromWorkspaceMutation();
