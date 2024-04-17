@@ -4,8 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useDeleteRequestMutation,
   useApproveRequestMutation,
@@ -14,11 +14,10 @@ import {
   useUpdateCommentMutation,
   useDeleteCommentMutation,
   useGetRequestQuery,
+  Request as GQLRequest,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
-
-import { initialValuesGet } from "./utils";
 
 export default () => {
   const t = useT();
@@ -55,39 +54,8 @@ export default () => {
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const currentRequest: Request | undefined = useMemo(() => {
-    if (!rawRequest) return;
-    if (rawRequest.node?.__typename !== "Request") return;
-    const r = rawRequest.node;
-    return {
-      id: r.id,
-      threadId: r.thread?.id ?? "",
-      title: r.title,
-      description: r.description ?? "",
-      comments:
-        r.thread?.comments?.map(c => ({
-          id: c.id,
-          author: {
-            id: c.author?.id,
-            name: c.author?.name ?? "Anonymous",
-            type: c.author ? (c.author.__typename === "User" ? "User" : "Integration") : null,
-          },
-          content: c.content,
-          createdAt: c.createdAt.toString(),
-        })) ?? [],
-      createdAt: r.createdAt,
-      reviewers: r.reviewers,
-      state: r.state,
-      createdBy: r.createdBy ?? undefined,
-      updatedAt: r.updatedAt,
-      approvedAt: r.approvedAt ?? undefined,
-      closedAt: r.closedAt ?? undefined,
-      items: r.items.map(item => ({
-        id: item.itemId,
-        modelName: item?.item?.value.model.name,
-        initialValues: initialValuesGet(item.item?.value.fields),
-        schema: item.item?.value.schema ? (item.item?.value.schema as Schema) : undefined,
-      })),
-    };
+    if (!rawRequest?.node) return;
+    return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);
 
   const isCloseActionEnabled: boolean = useMemo(
