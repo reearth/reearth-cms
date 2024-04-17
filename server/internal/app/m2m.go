@@ -7,16 +7,22 @@ import (
 	"io"
 	"net/http"
 
+	compose "github.com/hallazzang/echo-compose"
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	rhttp "github.com/reearth/reearth-cms/server/internal/adapter/http"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearthx/account/accountusecase"
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
 	sns "github.com/robbiet480/go.sns"
+	"github.com/samber/lo"
 )
 
 func NotifyHandler() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		ctx := c.Request().Context()
 		var input rhttp.NotifyInput
 		var err error
 
@@ -29,22 +35,43 @@ func NotifyHandler() echo.HandlerFunc {
 		}
 
 		if err != nil {
-			log.Errorf("failed to parse request body: %s", err.Error())
+			log.Errorfc(ctx, "failed to parse request body: %s", err.Error())
 			return err
 		}
 
-		ctx := c.Request().Context()
+		log.Infofc(ctx, "notified and updating files begin: assetID=%s type=%s status=%s", input.AssetID, input.Type, input.Status)
 
-		log.Infof("notified and updating files begin: assetID=%s type=%s status=%s", input.AssetID, input.Type, input.Status)
 		assetUC := adapter.Usecases(ctx).Asset
 		controller := rhttp.NewTaskController(assetUC)
+
 		if err := controller.Notify(ctx, input); err != nil {
-			log.Errorf("failed to update files: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
+			log.Errorf("failed to update files: assetID=%s, type=%s, status=%s, err=%v", input.AssetID, input.Type, input.Status, err)
 			return err
 		}
+
 		log.Infof("successfully notified and files has been updated: assetID=%s, type=%s, status=%s", input.AssetID, input.Type, input.Status)
 		return c.JSON(http.StatusOK, "OK")
 	}
+}
+
+func handleSubscriptionConfirmation(c echo.Context) error {
+	var payload sns.Payload
+	if err := json.NewDecoder(c.Request().Body).Decode(&payload); err != nil {
+		log.Errorf("failed to decode request body: %s", err.Error())
+		return err
+	}
+
+	_, err := payload.Subscribe()
+	if err != nil {
+		log.Errorf("failed to subscribe confirmation: %s", err.Error())
+		return err
+	}
+
+	return c.JSON(http.StatusOK, "OK")
+}
+
+func isAWSSNSSubscriptionConfirmation(request *http.Request) bool {
+	return request.Header.Get("X-Amz-Sns-Message-Type") == "SubscriptionConfirmation"
 }
 
 func isAWS(r *http.Request) bool {
@@ -120,4 +147,73 @@ func (b pubsubBody) Data() ([]byte, error) {
 	}
 
 	return base64.StdEncoding.DecodeString(b.Message.Data)
+}
+
+func M2MAuthMiddleware(cfg *Config) echo.MiddlewareFunc {
+	var m2mAuthMiddleware echo.MiddlewareFunc
+	if cfg.AWSTask.NotifyToken != "" {
+		m2mAuthMiddleware = awsM2MAuthTokenMiddleware(cfg.AWSTask.NotifyToken)
+	} else {
+		m2mAuthMiddleware = echo.WrapMiddleware(lo.Must(
+			appx.AuthMiddleware(cfg.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false), // it shoud not be optional
+		))
+	}
+
+	return compose.Compose(
+		m2MGenerateOperatorMiddleware(cfg.AuthM2M.Email),
+		m2mAuthMiddleware,
+	)
+}
+
+func awsM2MAuthTokenMiddleware(token string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			t := c.QueryParam("token")
+			if t != token {
+				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
+			}
+
+			if isAWSSNSSubscriptionConfirmation(c.Request()) {
+				// Handle AWS SNS subscription confirmation
+				// This is used to handle requests for AWS SNS subscription confirmation and is only executed during initial setup
+				// https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.prepare.html
+				return handleSubscriptionConfirmation(c)
+			}
+
+			return next(c)
+		}
+	}
+}
+
+func m2MGenerateOperatorMiddleware(email string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			ctx := c.Request().Context()
+			if ai, ok := ctx.Value(adapter.ContextAuthInfo).(appx.AuthInfo); ok {
+				if ai.EmailVerified == nil || !*ai.EmailVerified || ai.Email != email {
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				}
+			}
+
+			op, err := generateMachineOperator()
+			if err != nil {
+				return err
+			}
+
+			ctx = adapter.AttachOperator(ctx, op)
+			c.SetRequest(c.Request().WithContext(ctx))
+
+			return next(c)
+		}
+	}
+}
+
+func generateMachineOperator() (*usecase.Operator, error) {
+	return &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User: nil,
+		},
+		Integration: nil,
+		Machine:     true,
+	}, nil
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, Key, useMemo } from "react";
+import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -6,13 +6,13 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  useGetAssetsQuery,
+  useGetAssetsLazyQuery,
   useCreateAssetMutation,
   useDeleteAssetMutation,
   Asset as GQLAsset,
   SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
-  useGetAssetsItemsQuery,
+  useGetAssetsItemsLazyQuery,
   useCreateAssetUploadMutation,
   useGetAssetLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -71,7 +71,7 @@ export default (isItemsRequired: boolean) => {
   );
 
   const params = {
-    fetchPolicy: "no-cache" as const,
+    fetchPolicy: "cache-and-network" as const,
     variables: {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
@@ -84,9 +84,13 @@ export default (isItemsRequired: boolean) => {
     skip: !projectId,
   };
 
-  const { data, refetch, loading, networkStatus } = isItemsRequired
-    ? useGetAssetsItemsQuery(params)
-    : useGetAssetsQuery(params);
+  const [getAssets, { data, refetch, loading }] = isItemsRequired
+    ? useGetAssetsItemsLazyQuery(params)
+    : useGetAssetsLazyQuery(params);
+
+  useEffect(() => {
+    isItemsRequired && getAssets();
+  }, [getAssets, isItemsRequired]);
 
   const assetList = useMemo(
     () =>
@@ -95,8 +99,6 @@ export default (isItemsRequired: boolean) => {
         .filter(asset => !!asset) as Asset[]) ?? [],
     [data?.assets.nodes],
   );
-
-  const isRefetching = networkStatus === 3;
 
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
@@ -244,6 +246,10 @@ export default (isItemsRequired: boolean) => {
     setPage(1);
   }, []);
 
+  const handleAssetsGet = useCallback(() => {
+    getAssets();
+  }, [getAssets]);
+
   const handleAssetsReload = useCallback(() => {
     refetch();
   }, [refetch]);
@@ -302,7 +308,6 @@ export default (isItemsRequired: boolean) => {
     selection,
     fileList,
     uploading,
-    isLoading: loading ?? isRefetching,
     uploadModalVisibility,
     loading,
     uploadUrl,
@@ -310,7 +315,6 @@ export default (isItemsRequired: boolean) => {
     selectedAsset,
     collapsed,
     totalCount: data?.assets.totalCount ?? 0,
-    searchTerm,
     page,
     pageSize,
     sort,
@@ -329,6 +333,7 @@ export default (isItemsRequired: boolean) => {
     handleAssetTableChange,
     handleAssetDelete,
     handleSearchTerm,
+    handleAssetsGet,
     handleAssetsReload,
     handleNavigateToAsset,
     handleGetAsset,

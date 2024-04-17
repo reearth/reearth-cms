@@ -128,6 +128,16 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     setField1FormValues(initialValues);
   }, [modelForm, field1Form, field2Form, initialValues, setCurrentStep]);
 
+  const prevStep = useCallback(() => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+    setActiveTab("settings");
+  }, [currentStep]);
+
+  const nextStep = useCallback(() => {
+    setCurrentStep(currentStep + 1);
+    setActiveTab("settings");
+  }, [currentStep]);
+
   const handleFirstField = useCallback(async () => {
     field1Form
       .validateFields()
@@ -141,8 +151,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           },
         };
         setField1FormValues(values);
-        if (currentStep < numSteps) setCurrentStep(currentStep + 1);
-        else {
+        if (currentStep < numSteps) {
+          nextStep();
+        } else {
           if (selectedField) {
             await onUpdate?.({ ...values, fieldId: selectedField.id });
           } else {
@@ -150,50 +161,61 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           }
         }
       })
-      .catch(info => {
-        console.log("Validate Failed:", info);
+      .catch(_ => {
+        setActiveTab("settings");
       });
-  }, [currentStep, numSteps, field1Form, selectedModel, selectedField, onSubmit, onUpdate]);
-
-  const prevStep = useCallback(() => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
-  }, [currentStep]);
-
-  const nextStep = useCallback(() => {
-    if (currentStep == 0) setCurrentStep(currentStep + 1);
-  }, [currentStep]);
+  }, [
+    field1Form,
+    selectedModel,
+    currentStep,
+    numSteps,
+    nextStep,
+    selectedField,
+    onUpdate,
+    onSubmit,
+  ]);
 
   const handleSecondField = useCallback(() => {
     if (selectedField) {
-      field2Form.validateFields().then(async fields2Values => {
-        field1FormValues.typeProperty = {
-          reference: {
-            modelId: selectedModel ?? "",
-            schemaId: schemaIdRef.current ?? "",
-            correspondingField: {
-              ...fields2Values,
-              fieldId: selectedField?.typeProperty?.correspondingField.id,
+      field2Form
+        .validateFields()
+        .then(async fields2Values => {
+          field1FormValues.typeProperty = {
+            reference: {
+              modelId: selectedModel ?? "",
+              schemaId: schemaIdRef.current ?? "",
+              correspondingField: {
+                ...fields2Values,
+                fieldId: selectedField?.typeProperty?.correspondingField.id,
+              },
             },
-          },
-        };
-        await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
-        onClose?.(true);
-      });
+          };
+          await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
+          onClose?.(true);
+        })
+        .catch(_ => {
+          setActiveTab("settings");
+        });
     } else {
-      field2Form.validateFields().then(async fields2Values => {
-        field1FormValues.typeProperty = {
-          reference: {
-            modelId: selectedModel ?? "",
-            schemaId: schemaIdRef.current ?? "",
-            correspondingField: {
-              ...fields2Values,
+      field2Form
+        .validateFields()
+        .then(async fields2Values => {
+          field1FormValues.typeProperty = {
+            reference: {
+              modelId: selectedModel ?? "",
+              schemaId: schemaIdRef.current ?? "",
+              correspondingField: {
+                ...fields2Values,
+              },
             },
-          },
-        };
+          };
 
-        await onSubmit?.(field1FormValues);
-        onClose?.(true);
-      });
+          await onSubmit?.(field1FormValues);
+          onClose?.(true);
+        })
+        .catch(_ => {
+          setActiveTab("settings");
+        });
     }
   }, [onClose, onSubmit, onUpdate, selectedField, field1FormValues, field2Form, selectedModel]);
 
@@ -256,7 +278,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         {numSteps === 2 && <StyledStep title={t("Corresponding field")} />}
       </Steps>
       {currentStep === 0 && (
-        <Form form={modelForm}>
+        <Form form={modelForm} layout="vertical">
           <StyledFormItem
             name="model"
             label={t("Select the model to reference")}
@@ -291,7 +313,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         </Form>
       )}
       {currentStep === 1 && (
-        <Form form={field1Form} layout="vertical" initialValues={initialValues}>
+        <Form
+          form={field1Form}
+          layout="vertical"
+          initialValues={initialValues}
+          requiredMark="optional">
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
               <Form.Item
@@ -326,7 +352,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 ]}>
                 <Input />
               </Form.Item>
-              <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+              <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
               </Form.Item>
               {selectedType === "Select" && (
@@ -383,7 +409,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         </Form>
       )}
       {currentStep === 2 && (
-        <Form form={field2Form} layout="vertical" initialValues={initialValues}>
+        <Form
+          form={field2Form}
+          layout="vertical"
+          initialValues={initialValues}
+          requiredMark="optional">
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
               <Form.Item
@@ -415,7 +445,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 ]}>
                 <Input />
               </Form.Item>
-              <Form.Item requiredMark="optional" name="description" label={t("Description")}>
+              <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
               </Form.Item>
               {selectedType === "Select" && (

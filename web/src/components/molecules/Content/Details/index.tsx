@@ -16,7 +16,8 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
-export type Props = {
+type Props = {
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
   requests: Request[];
@@ -40,7 +41,6 @@ export type Props = {
   commentsPanel?: JSX.Element;
   requestModalShown: boolean;
   addItemToRequestModalShown: boolean;
-  groups?: Group[];
   workspaceUserMembers: UserMember[];
   totalCount: number;
   page: number;
@@ -78,10 +78,11 @@ export type Props = {
     metaFields: ItemField[];
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onMetaItemUpdate: (data: { metaItemId: string; metaFields: ItemField[] }) => Promise<void>;
+  onMetaItemUpdate: (data: { metaItemId?: string; metaFields: ItemField[] }) => Promise<void>;
   onBack: (modelId?: string) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -101,9 +102,12 @@ export type Props = {
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  loadingReference,
   linkedItemsModalList,
   showPublishAction,
   requests,
@@ -128,7 +132,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   requestModalShown,
   addItemToRequestModalShown,
   workspaceUserMembers,
-  groups,
   totalCount,
   page,
   pageSize,
@@ -159,6 +162,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onBack,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -171,6 +175,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onAddItemToRequestModalOpen,
   onAssetTableChange,
   onGetAsset,
+  onGroupGet,
+  onCheckItemReference,
 }) => {
   return (
     <ComplexInnerContents
@@ -190,7 +196,6 @@ const ContentDetailsMolecule: React.FC<Props> = ({
         ) : (
           <ContentForm
             item={item}
-            groups={groups}
             linkItemModalTitle={linkItemModalTitle}
             linkItemModalTotalCount={linkItemModalTotalCount}
             linkItemModalPage={linkItemModalPage}
@@ -198,6 +203,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onReferenceModelUpdate={onReferenceModelUpdate}
             onSearchTerm={onSearchTerm}
             onLinkItemTableChange={onLinkItemTableChange}
+            loadingReference={loadingReference}
             linkedItemsModalList={linkedItemsModalList}
             showPublishAction={showPublishAction}
             requests={requests}
@@ -238,6 +244,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onMetaItemUpdate={onMetaItemUpdate}
             onAssetsCreate={onAssetsCreate}
             onAssetCreateFromUrl={onAssetCreateFromUrl}
+            onAssetsGet={onAssetsGet}
             onAssetsReload={onAssetsReload}
             onAssetSearchTerm={onAssetSearchTerm}
             setFileList={setFileList}
@@ -251,6 +258,8 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onAddItemToRequestModalClose={onAddItemToRequestModalClose}
             workspaceUserMembers={workspaceUserMembers}
             onGetAsset={onGetAsset}
+            onGroupGet={onGroupGet}
+            onCheckItemReference={onCheckItemReference}
           />
         )
       }

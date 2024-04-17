@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -22,8 +23,10 @@ const initialValues: FormValues = {
 const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = useCallback(() => {
+  const handleOk = useCallback(() => {
+    setLoading(true);
     form
       .validateFields()
       .then(async values => {
@@ -33,11 +36,29 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
       })
       .catch(info => {
         console.log("Validate Failed:", info);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [form, onClose, onSubmit]);
 
+  const handleCancel = useCallback(() => {
+    onClose?.(true);
+  }, [onClose]);
+
   return (
-    <Modal open={open} onCancel={() => onClose?.(true)} onOk={handleSubmit}>
+    <Modal
+      open={open}
+      onCancel={handleCancel}
+      onOk={handleOk}
+      footer={[
+        <Button key="cancel" onClick={handleCancel}>
+          {t("Cancel")}
+        </Button>,
+        <Button key="ok" type="primary" loading={loading} onClick={handleOk}>
+          {t("OK")}
+        </Button>,
+      ]}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         <Form.Item
           name="name"
