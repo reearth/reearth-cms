@@ -4,15 +4,15 @@ import AntDComment from "@reearth-cms/components/atoms/Comment";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
@@ -44,10 +44,12 @@ export type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const RequestThread: React.FC<Props> = ({
@@ -73,10 +75,12 @@ const RequestThread: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   return (
     <ContentWrapper>
@@ -100,10 +104,12 @@ const RequestThread: React.FC<Props> = ({
             setUploadType={setUploadType}
             onAssetsCreate={onAssetsCreate}
             onAssetCreateFromUrl={onAssetCreateFromUrl}
+            onAssetsGet={onAssetsGet}
             onAssetsReload={onAssetsReload}
             onAssetSearchTerm={onAssetSearchTerm}
             setFileList={setFileList}
             setUploadModalVisibility={setUploadModalVisibility}
+            onGetAsset={onGetAsset}
           />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList

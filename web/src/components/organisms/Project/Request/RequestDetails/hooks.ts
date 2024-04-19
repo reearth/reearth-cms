@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { getInitialFormValues } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   useDeleteRequestMutation,
   useApproveRequestMutation,
@@ -17,6 +17,8 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace } from "@reearth-cms/state";
 
+import { initialValuesGet } from "./utils";
+
 export default () => {
   const t = useT();
   const navigate = useNavigate();
@@ -28,6 +30,7 @@ export default () => {
   const { data: rawRequest, loading: requestLoading } = useGetRequestQuery({
     variables: { requestId: requestId ?? "" },
     skip: !requestId,
+    fetchPolicy: "cache-and-network",
   });
 
   const me: User | undefined = useMemo(() => {
@@ -42,7 +45,9 @@ export default () => {
   }, [userData]);
 
   const myRole = useMemo(
-    () => currentWorkspace?.members?.find(m => m.userId === me?.id)?.role,
+    () =>
+      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
+        ?.role,
     [currentWorkspace?.members, me?.id],
   );
 
@@ -78,7 +83,7 @@ export default () => {
       items: r.items.map(item => ({
         id: item.itemId,
         modelName: item?.item?.value.model.name,
-        initialValues: getInitialFormValues(item.item?.value.fields),
+        initialValues: initialValuesGet(item.item?.value.fields),
         schema: item.item?.value.schema ? item.item?.value.schema : undefined,
       })),
     };
@@ -164,9 +169,9 @@ export default () => {
     [createComment, currentRequest?.threadId, t],
   );
 
-  const handleNavigateToRequestsList = () => {
+  const handleNavigateToRequestsList = useCallback(() => {
     navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-  };
+  }, [currentWorkspace?.id, projectId, navigate]);
 
   const handleNavigateToItemEditForm = useCallback(
     (itemId: string, modelId?: string) => {

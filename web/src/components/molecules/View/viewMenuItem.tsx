@@ -6,9 +6,9 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   view: View;
-  onViewRenameModalOpen?: (view: View) => void;
+  onViewRenameModalOpen: (view: View) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   onDelete: (viewId: string) => void;
 };
@@ -21,13 +21,13 @@ const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate,
       label: t("Update View"),
       key: "update",
       icon: <Icon icon="reload" />,
-      onClick: () => onUpdate?.(view.id, view.name),
+      onClick: () => onUpdate(view.id, view.name),
     },
     {
       label: t("Rename"),
       key: "rename",
       icon: <Icon icon="edit" />,
-      onClick: () => onViewRenameModalOpen?.(view),
+      onClick: () => onViewRenameModalOpen(view),
     },
     {
       label: t("Remove View"),
@@ -39,14 +39,14 @@ const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate,
           title: t("Are you sure you want to delete this view?"),
           content: (
             <div>
-              <p style={{ marginBottom: 0 }}>
+              <StyledCautionText>
                 {t(
                   "Deleting the view is a permanent action. However, the contents will remain unaffected.",
                 )}
-              </p>
-              <p style={{ marginBottom: 0 }}>
+              </StyledCautionText>
+              <StyledCautionText>
                 {t("Please proceed with caution as this action cannot be undone.")}
-              </p>
+              </StyledCautionText>
             </div>
           ),
           icon: <Icon icon="exclamationCircle" />,
@@ -81,4 +81,8 @@ const Wrapper = styled.div`
 
 const StyledDropdown = styled(Dropdown)`
   margin-right: 0 !important;
+`;
+
+const StyledCautionText = styled.p`
+  margin-bottom: 0;
 `;

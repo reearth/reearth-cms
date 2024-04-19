@@ -1,5 +1,5 @@
-import moment from "moment";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import dayjs from "dayjs";
+import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -11,15 +11,17 @@ import {
   ItemStatus,
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   RequestUpdatePayload,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
-import { Member, Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLItem } from "@reearth-cms/components/organisms/DataConverters/content";
+import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
-import { convertItem } from "@reearth-cms/components/organisms/Project/Content/utils";
-import { convertModel } from "@reearth-cms/components/organisms/Project/ModelsMenu/convertModel";
 import {
   Item as GQLItem,
   Model as GQLModel,
@@ -28,20 +30,19 @@ import {
   useCreateItemMutation,
   useCreateRequestMutation,
   useGetItemQuery,
-  useGetModelQuery,
+  useGetModelLazyQuery,
   useGetMeQuery,
   useUpdateItemMutation,
   useUpdateRequestMutation,
   useSearchItemQuery,
-  useGetItemsByIdsQuery,
-  useGetGroupsQuery,
+  useGetGroupLazyQuery,
   FieldType as GQLFieldType,
   StringOperator,
   ItemFieldInput,
+  useIsItemReferencedLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
-import { fromGraphQLGroup } from "@reearth-cms/utils/values";
 
 export default () => {
   const {
@@ -57,6 +58,7 @@ export default () => {
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     loading,
     totalCount,
     page,
@@ -66,44 +68,40 @@ export default () => {
   const location = useLocation();
   const { data: userData } = useGetMeQuery();
 
-  const { itemId, modelId } = useParams();
+  const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useState(false);
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
   const [requestModalShown, setRequestModalShown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [linkItemModalPage, setLinkItemModalPage] = useState<number>(1);
   const [linkItemModalPageSize, setLinkItemModalPageSize] = useState<number>(10);
-  const [referenceModelId, setReferenceModelId] = useState<string | undefined>(modelId);
+  const [referenceModel, setReferenceModel] = useState<Model>();
 
-  const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const titleId = useRef("");
-
-  useEffect(() => {
-    setLinkItemModalPage(+linkItemModalPage);
-    setLinkItemModalPageSize(+linkItemModalPageSize);
-  }, [setLinkItemModalPage, setLinkItemModalPageSize, linkItemModalPage, linkItemModalPageSize]);
   const t = useT();
 
   const { data, loading: itemLoading } = useGetItemQuery({
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-and-network",
     variables: { id: itemId ?? "" },
     skip: !itemId,
   });
 
-  const { data: modelData } = useGetModelQuery({
-    fetchPolicy: "no-cache",
-    variables: { id: referenceModelId ?? "" },
-    skip: !referenceModelId,
+  const [getModel] = useGetModelLazyQuery({
+    fetchPolicy: "cache-and-network",
+    onCompleted: data => setReferenceModel(fromGraphQLModel(data?.node as GQLModel)),
   });
-  const model = useMemo(() => convertModel(modelData?.node as GQLModel), [modelData?.node]);
-  const { data: itemsData } = useSearchItemQuery({
-    fetchPolicy: "no-cache",
+  const {
+    data: itemsData,
+    loading: loadingReference,
+    refetch,
+  } = useSearchItemQuery({
+    fetchPolicy: "cache-and-network",
     variables: {
       searchItemInput: {
         query: {
           project: currentProject?.id ?? "",
-          model: model?.id ?? "",
-          schema: model?.schemaId,
+          model: referenceModel?.id ?? "",
+          schema: referenceModel?.schema.id,
         },
         pagination: {
           first: linkItemModalPageSize,
@@ -127,17 +125,17 @@ export default () => {
             : undefined,
       },
     },
-    skip: !model?.id,
+    skip: !referenceModel,
   });
 
-  const handleSearchTerm = useCallback(
-    (term?: string) => {
-      titleId.current = itemsData?.searchItem.nodes[0]?.fields[1]?.schemaFieldId ?? titleId.current;
-      setSearchTerm(term ?? "");
-      setLinkItemModalPage(1);
-    },
-    [itemsData?.searchItem.nodes],
-  );
+  const handleSearchTerm = useCallback((term?: string) => {
+    setSearchTerm(term ?? "");
+    setLinkItemModalPage(1);
+  }, []);
+
+  const handleLinkItemTableReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -173,54 +171,38 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const myRole: Role = useMemo(
-    () => currentWorkspace?.members?.find(m => m.userId === me?.id)?.role,
+  const myRole = useMemo(
+    () =>
+      currentWorkspace?.members?.find((m): m is UserMember => "userId" in m && m.userId === me?.id)
+        ?.role,
     [currentWorkspace?.members, me?.id],
   );
 
   const showPublishAction = useMemo(
-    () => !currentProject?.requestRoles?.includes(myRole),
+    () => (myRole ? !currentProject?.requestRoles?.includes(myRole) : true),
     [currentProject?.requestRoles, myRole],
   );
 
   const currentItem: Item | undefined = useMemo(
-    () => convertItem(data?.node as GQLItem),
+    () => fromGraphQLItem(data?.node as GQLItem),
     [data?.node],
   );
 
-  const formReferenceItemsIds = useMemo(
-    () =>
-      (currentItem?.fields
-        ?.filter(
-          field => field.type === "Reference" && field.value && typeof field.value === "string",
-        )
-        .map(field => field.value) as string[]) ?? [],
-    [currentItem?.fields],
-  );
+  const [getGroup] = useGetGroupLazyQuery({
+    fetchPolicy: "cache-and-network",
+  });
 
-  const { data: gqlFormItemsData } = useGetItemsByIdsQuery({
-    fetchPolicy: "no-cache",
-    variables: {
-      id: formReferenceItemsIds,
+  const handleGroupGet = useCallback(
+    async (id: string) => {
+      const res = await getGroup({
+        variables: {
+          id,
+        },
+      });
+      return fromGraphQLGroup(res.data?.node as GQLGroup);
     },
-    skip: formReferenceItemsIds.length === 0,
-  });
-
-  const formItemsData: FormItem[] | undefined = useMemo(
-    () => gqlFormItemsData?.nodes as FormItem[],
-    [gqlFormItemsData?.nodes],
+    [getGroup],
   );
-
-  const { data: groupData } = useGetGroupsQuery({
-    variables: { projectId: projectId ?? "" },
-    skip: !projectId,
-  });
-
-  const groups = useMemo(() => {
-    return groupData?.groups
-      ?.map<Group | undefined>(group => (group ? fromGraphQLGroup(group as GQLGroup) : undefined))
-      .filter((group): group is Group => !!group);
-  }, [groupData?.groups]);
 
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
@@ -285,7 +267,7 @@ export default () => {
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
-    refetchQueries: ["SearchItem", "GetItem"],
+    refetchQueries: ["GetItem"],
   });
 
   const handleItemUpdate = useCallback(
@@ -307,28 +289,65 @@ export default () => {
   );
 
   const handleMetaItemUpdate = useCallback(
-    async ({ metaItemId, metaFields }: { metaItemId: string; metaFields: ItemField[] }) => {
-      const item = await updateItem({
-        variables: {
-          itemId: metaItemId,
-          fields: metaFields as ItemFieldInput[],
-          version: currentItem?.metadata?.version ?? "",
-        },
-      });
-      if (item.errors || !item.data?.updateItem) {
+    async ({ metaItemId, metaFields }: { metaItemId?: string; metaFields: ItemField[] }) => {
+      if (metaItemId) {
+        const item = await updateItem({
+          variables: {
+            itemId: metaItemId,
+            fields: metaFields as ItemFieldInput[],
+            version: currentItem?.metadata?.version ?? "",
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+      } else if (
+        currentItem &&
+        currentItem.fields &&
+        currentModel?.id &&
+        currentModel.metadataSchema.id
+      ) {
+        const metaItem = await createItem({
+          variables: {
+            modelId: currentModel.id,
+            schemaId: currentModel.metadataSchema.id,
+            fields: metaFields as ItemFieldInput[],
+          },
+        });
+        if (metaItem.errors || !metaItem.data?.createItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+        const item = await updateItem({
+          variables: {
+            itemId: currentItem.id,
+            fields: currentItem.fields.map(field => ({
+              ...field,
+              value: field.value ?? "",
+            })) as ItemFieldInput[],
+            metadataId: metaItem?.data.createItem.item.id,
+            version: currentItem.version,
+          },
+        });
+        if (item.errors || !item.data?.updateItem) {
+          Notification.error({ message: t("Failed to update item.") });
+          return;
+        }
+      } else {
         Notification.error({ message: t("Failed to update item.") });
         return;
       }
       Notification.success({ message: t("Successfully updated Item!") });
     },
-    [updateItem, currentItem?.metadata?.version, t],
+    [createItem, currentItem, currentModel?.id, currentModel?.metadataSchema.id, t, updateItem],
   );
 
   const dateConvert = useCallback((value?: ItemValue) => {
     if (Array.isArray(value)) {
-      return (value as string[]).map(valueItem => (valueItem ? moment(valueItem) : ""));
+      return (value as string[]).map(valueItem => (valueItem ? dayjs(valueItem) : ""));
     } else {
-      return value ? moment(value as string) : "";
+      return value ? dayjs(value as string) : "";
     }
   }, []);
 
@@ -367,52 +386,56 @@ export default () => {
     [dateConvert],
   );
 
-  const initialFormValues: { [key: string]: any } = useMemo(() => {
-    const initialValues: { [key: string]: any } = {};
+  const [initialFormValues, setInitialFormValues] = useState<{ [key: string]: any }>({});
 
-    const updateInitialValues = (value: any, id: string, itemGroupId: string) => {
-      initialValues[id] = {
-        ...initialValues[id],
-        ...{ [itemGroupId]: value },
-      };
-    };
-
-    const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
-      group?.schema?.fields?.forEach(field => {
-        updateInitialValues(valueGet(field), field.id, itemGroupId);
-      });
-    };
-
-    if (currentItem) {
-      currentItem?.fields?.forEach(field => {
-        if (field.itemGroupId) {
-          initialValues[field.schemaFieldId] = {
-            ...initialValues[field.schemaFieldId],
-            ...{ [field.itemGroupId]: updateValueConvert(field) },
+  useEffect(() => {
+    const handleInitialValuesSet = async () => {
+      const initialValues: { [key: string]: any } = {};
+      const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
+        group?.schema?.fields?.forEach(field => {
+          initialValues[field.id] = {
+            ...initialValues[field.id],
+            ...{ [itemGroupId]: valueGet(field) },
           };
-        } else {
-          initialValues[field.schemaFieldId] = updateValueConvert(field);
-        }
-      });
-    } else {
-      currentModel?.schema.fields.forEach(field => {
-        if (field.type === "Group") {
-          if (field.multiple) {
-            initialValues[field.id] = [];
-          } else {
-            const id = newID();
-            initialValues[field.id] = id;
-            const group = groups?.find(group => group.id === field.typeProperty?.groupId);
-            if (group) groupInitialValuesUpdate(group, id);
-          }
-        } else {
-          initialValues[field.id] = valueGet(field);
-        }
-      });
-    }
+        });
+      };
 
-    return initialValues;
-  }, [currentItem, currentModel?.schema.fields, groups, updateValueConvert, valueGet]);
+      if (currentItem) {
+        currentItem?.fields?.forEach(field => {
+          if (field.itemGroupId) {
+            initialValues[field.schemaFieldId] = {
+              ...initialValues[field.schemaFieldId],
+              ...{ [field.itemGroupId]: updateValueConvert(field) },
+            };
+          } else {
+            initialValues[field.schemaFieldId] = updateValueConvert(field);
+          }
+        });
+      } else if (currentModel) {
+        await Promise.all(
+          currentModel.schema.fields.map(async field => {
+            if (field.type === "Group") {
+              if (field.multiple) {
+                initialValues[field.id] = [];
+              } else {
+                const id = newID();
+                initialValues[field.id] = id;
+                if (field.typeProperty?.groupId) {
+                  const group = await handleGroupGet(field.typeProperty.groupId);
+                  if (group) groupInitialValuesUpdate(group, id);
+                }
+              }
+            } else {
+              initialValues[field.id] = valueGet(field);
+            }
+          }),
+        );
+      }
+
+      setInitialFormValues(initialValues);
+    };
+    handleInitialValuesSet();
+  }, [currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
 
   const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
     const initialValues: { [key: string]: any } = {};
@@ -441,11 +464,11 @@ export default () => {
     return initialValues;
   }, [currentItem, currentModel, dateConvert, itemLoading]);
 
-  const workspaceUserMembers = useMemo((): Member[] => {
+  const workspaceUserMembers = useMemo((): UserMember[] => {
     return (
       currentWorkspace?.members
-        ?.map<Member | undefined>(member =>
-          member.__typename === "WorkspaceUserMember" && member.user
+        ?.map<UserMember | undefined>(member =>
+          "userId" in member
             ? {
                 userId: member.userId,
                 user: member.user,
@@ -454,13 +477,14 @@ export default () => {
             : undefined,
         )
         .filter(
-          (user): user is Member => !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
+          (user): user is UserMember =>
+            !!user && (user.role === "OWNER" || user.role === "MAINTAINER"),
         ) ?? []
     );
   }, [currentWorkspace]);
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetRequests"],
+    refetchQueries: ["GetModalRequests"],
   });
 
   const handleRequestCreate = useCallback(
@@ -522,11 +546,33 @@ export default () => {
 
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
-  const handleReferenceModelUpdate = useCallback((modelId?: string) => {
-    setReferenceModelId(modelId);
-  }, []);
+  const handleReferenceModelUpdate = useCallback(
+    (modelId: string, titleFieldId: string) => {
+      getModel({
+        variables: { id: modelId },
+      });
+      titleId.current = titleFieldId;
+      handleSearchTerm();
+    },
+    [getModel, handleSearchTerm],
+  );
+
+  const [checkIfItemIsReferenced] = useIsItemReferencedLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleCheckItemReference = useCallback(
+    async (value: string, correspondingFieldId: string) => {
+      const res = await checkIfItemIsReferenced({
+        variables: { itemId: value ?? "", correspondingFieldId },
+      });
+      return res.data?.isItemReferenced ?? false;
+    },
+    [checkIfItemIsReferenced],
+  );
 
   return {
+    loadingReference,
     linkedItemsModalList,
     showPublishAction,
     requests,
@@ -535,7 +581,6 @@ export default () => {
     requestCreationLoading,
     currentModel,
     currentItem,
-    formItemsData,
     initialFormValues,
     initialMetaFormValues,
     itemCreationLoading,
@@ -543,18 +588,19 @@ export default () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
-    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
-    linkItemModalTitle: model.name,
+    linkItemModalTitle: referenceModel?.name ?? "",
     linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
     linkItemModalPage,
     linkItemModalPageSize,
     handleReferenceModelUpdate,
     handleSearchTerm,
+    handleLinkItemTableReload,
     handleLinkItemTableChange,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,
@@ -574,5 +620,7 @@ export default () => {
     handleModalOpen,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleGroupGet,
+    handleCheckItemReference,
   };
 };

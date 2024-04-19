@@ -8,38 +8,30 @@ import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 
 import useHooks from "./hooks";
 
-export interface Props {
-  className?: string;
+interface Props {
   title: string;
   collapsed?: boolean;
-  groupId?: string;
-  selectedSchemaType?: SelectedSchemaType;
+  selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
 }
 
 const ModelsMenu: React.FC<Props> = ({
-  className,
   title,
   collapsed,
-  groupId,
   selectedSchemaType,
   displayGroups,
   onModelSelect,
   onGroupSelect,
 }) => {
-  const { modelId } = useParams();
+  const { modelId: schemaId } = useParams();
 
   const {
-    model,
     models,
-    group,
     groups,
     modelModalShown,
     groupModalShown,
-    isModelKeyAvailable,
-    isGroupKeyAvailable,
     handleModelModalOpen,
     handleModelModalClose,
     handleGroupModalOpen,
@@ -50,8 +42,7 @@ const ModelsMenu: React.FC<Props> = ({
     handleGroupKeyCheck,
     handleUpdateModelsOrder,
   } = useHooks({
-    modelId,
-    groupId,
+    modelId: selectedSchemaType === "model" ? schemaId : undefined,
   });
 
   return (
@@ -59,15 +50,12 @@ const ModelsMenu: React.FC<Props> = ({
       <ModelListHeader title={title} collapsed={collapsed} />
       <ModelListBody>
         <Models
-          className={className}
           title={title}
           collapsed={collapsed}
-          selectedKey={model?.id}
+          selectedKey={schemaId}
           models={models}
-          selectedSchemaType={selectedSchemaType}
           onModelSelect={onModelSelect}
           onModalOpen={handleModelModalOpen}
-          isKeyAvailable={isModelKeyAvailable}
           open={modelModalShown}
           onModelKeyCheck={handleModelKeyCheck}
           onClose={handleModelModalClose}
@@ -76,15 +64,12 @@ const ModelsMenu: React.FC<Props> = ({
         />
         {displayGroups && (
           <Groups
-            className={className}
             title={title}
             collapsed={collapsed}
-            selectedKey={group?.id}
+            selectedKey={schemaId}
             groups={groups}
-            selectedSchemaType={selectedSchemaType}
             onGroupSelect={onGroupSelect}
             onModalOpen={handleGroupModalOpen}
-            isKeyAvailable={isGroupKeyAvailable}
             open={groupModalShown}
             onGroupKeyCheck={handleGroupKeyCheck}
             onClose={handleGroupModalClose}

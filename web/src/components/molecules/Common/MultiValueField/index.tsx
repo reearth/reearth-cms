@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "dayjs";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -12,8 +12,8 @@ import { moveItemInArray } from "./moveItemArray";
 
 type Props = {
   className?: string;
-  value?: (string | number | Moment)[];
-  onChange?: (value: (string | number | Moment)[]) => void;
+  value?: (string | number | Dayjs)[];
+  onChange?: (value: (string | number | Dayjs)[]) => void;
   onBlur?: () => Promise<void>;
   FieldInput: React.FunctionComponent<any>;
 } & TextAreaProps &
@@ -33,7 +33,7 @@ const MultiValueField: React.FC<Props> = ({
       onChange?.(
         value?.map((valueItem, index) =>
           index === id
-            ? typeof e === "number" || moment.isMoment(e)
+            ? typeof e === "number" || dayjs.isDayjs(e)
               ? e
               : e?.target.value
             : valueItem,
@@ -45,7 +45,7 @@ const MultiValueField: React.FC<Props> = ({
 
   useEffect(() => {
     if (!value) onChange?.([]);
-    if (moment.isMoment(value)) onChange?.([value]);
+    if (dayjs.isDayjs(value)) onChange?.([value]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(
@@ -111,7 +111,7 @@ const MultiValueField: React.FC<Props> = ({
           type="primary"
           onClick={() => {
             const currentValues = value || [];
-            const defaultValue = props.type === "date" ? moment() : "";
+            const defaultValue = props.type === "date" ? dayjs() : "";
             if (Array.isArray(currentValues)) {
               onChange?.([...currentValues, defaultValue]);
             } else {

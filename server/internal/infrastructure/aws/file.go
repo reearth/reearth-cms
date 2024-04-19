@@ -8,12 +8,14 @@ import (
 	"io"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -89,7 +91,7 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 		for _, obj := range output.Contents {
 			fe := gateway.FileEntry{
 				Name: strings.TrimPrefix(lo.FromPtr(obj.Key), p),
-				Size: obj.Size,
+				Size: lo.FromPtr(obj.Size),
 			}
 			fileEntries = append(fileEntries, fe)
 		}
@@ -135,27 +137,123 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return getURL(f.baseURL.String(), a.UUID(), a.FileName())
 }
 
-func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentType string, expiresAt time.Time) (string, string, error) {
-	uuid := newUUID()
-	p := getS3ObjectPath(uuid, filename)
+func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
+	// https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpu-abort-incomplete-mpu-lifecycle-config.html
+	const maxPartSize = 5 * 1024 * 1024 * 1024
+	p := getS3ObjectPath(param.UUID, param.Filename)
 	if p == "" {
-		return "", "", gateway.ErrInvalidFile
+		return nil, gateway.ErrInvalidFile
+	}
+	contentType := param.ContentType()
+	if param.Cursor != "" {
+		cursor, err := parseUploadCursor(param.Cursor)
+		if err != nil {
+			return nil, fmt.Errorf("parse cursor(%s): %w", param.Cursor, err)
+		}
+		uploaded := maxPartSize * (cursor.Part - 1)
+		if completed := param.ContentLength <= uploaded; completed {
+			var mu types.CompletedMultipartUpload
+			var marker *string
+			for {
+				o, err := f.s3Client.ListParts(ctx, &s3.ListPartsInput{
+					Bucket:           aws.String(f.bucketName),
+					Key:              aws.String(p),
+					UploadId:         aws.String(cursor.UploadID),
+					PartNumberMarker: marker,
+				})
+				if err != nil {
+					return nil, fmt.Errorf("list parts: %w", err)
+				}
+				for _, part := range o.Parts {
+					mu.Parts = append(mu.Parts, types.CompletedPart{
+						ETag:       part.ETag,
+						PartNumber: part.PartNumber,
+					})
+				}
+				if o.IsTruncated == nil || !*o.IsTruncated {
+					break
+				}
+				marker = o.PartNumberMarker
+			}
+			if _, err := f.s3Client.CompleteMultipartUpload(ctx, &s3.CompleteMultipartUploadInput{
+				Bucket:          aws.String(f.bucketName),
+				Key:             aws.String(p),
+				UploadId:        aws.String(cursor.UploadID),
+				MultipartUpload: &mu,
+			}); err != nil {
+				return nil, fmt.Errorf("complete multipart uplaod: %w", err)
+			}
+			return &gateway.UploadAssetLink{}, nil
+		} else {
+			partSize := min(param.ContentLength-uploaded, maxPartSize)
+			presigned, err := s3.NewPresignClient(f.s3Client).PresignUploadPart(ctx, &s3.UploadPartInput{
+				Bucket:        aws.String(f.bucketName),
+				Key:           aws.String(p),
+				PartNumber:    aws.Int32(int32(cursor.Part)),
+				UploadId:      aws.String(cursor.UploadID),
+				ContentLength: aws.Int64(partSize),
+			}, func(options *s3.PresignOptions) {
+				options.Expires = expires
+			})
+			if err != nil {
+				return nil, fmt.Errorf("presign upload part: %w", err)
+			}
+			return &gateway.UploadAssetLink{
+				URL:           presigned.URL,
+				ContentLength: partSize,
+				Next:          cursor.Next().String(),
+			}, nil
+		}
 	}
 
-	presignClient := s3.NewPresignClient(f.s3Client)
-	uploadURL, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+	// PutObject can only be used for up to 5GB
+	// Conversely, multipart upload cannot be used for files smaller than 5MB
+	// Since PutObject reduces the number of interactions, use PutObject for files smaller than 5GB
+	if param.ContentLength <= maxPartSize {
+		presigned, err := s3.NewPresignClient(f.s3Client).PresignPutObject(ctx, &s3.PutObjectInput{
+			Bucket:        aws.String(f.bucketName),
+			CacheControl:  aws.String(f.cacheControl),
+			Key:           aws.String(p),
+			ContentType:   aws.String(contentType),
+			ContentLength: aws.Int64(param.ContentLength),
+		}, func(options *s3.PresignOptions) {
+			options.Expires = expires
+		})
+		if err != nil {
+			return nil, rerror.ErrInternalBy(err)
+		}
+		return &gateway.UploadAssetLink{
+			URL:           presigned.URL,
+			ContentType:   contentType,
+			ContentLength: param.ContentLength,
+		}, nil
+	}
+	r, err := f.s3Client.CreateMultipartUpload(ctx, &s3.CreateMultipartUploadInput{
 		Bucket:       aws.String(f.bucketName),
 		CacheControl: aws.String(f.cacheControl),
 		Key:          aws.String(p),
 		ContentType:  aws.String(contentType),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create multipart upload: %w", err)
+	}
+	presigned, err := s3.NewPresignClient(f.s3Client).PresignUploadPart(ctx, &s3.UploadPartInput{
+		Bucket:        aws.String(f.bucketName),
+		Key:           aws.String(p),
+		PartNumber:    aws.Int32(1),
+		UploadId:      r.UploadId,
+		ContentLength: aws.Int64(maxPartSize),
 	}, func(options *s3.PresignOptions) {
 		options.Expires = expires
 	})
 	if err != nil {
-		return "", "", rerror.ErrInternalBy(err)
+		return nil, fmt.Errorf("presign upload part: %w", err)
 	}
-
-	return uploadURL.URL, uuid, nil
+	return &gateway.UploadAssetLink{
+		URL:           presigned.URL,
+		ContentLength: maxPartSize,
+		Next:          uploadCursor{UploadID: lo.FromPtr(r.UploadId), Part: 2}.String(),
+	}, nil
 }
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
@@ -171,7 +269,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	file := &file.File{
 		Content:     nil,
 		Name:        u.FileName(),
-		Size:        obj.ContentLength,
+		Size:        lo.FromPtr(obj.ContentLength),
 		ContentType: lo.FromPtr(obj.ContentType),
 	}
 	return file, nil
@@ -223,7 +321,7 @@ func (f *fileRepo) upload(ctx context.Context, filename string, content io.Reade
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	return result.ContentLength, nil
+	return lo.FromPtr(result.ContentLength), nil
 }
 
 func (f *fileRepo) delete(ctx context.Context, filename string) error {
@@ -262,4 +360,32 @@ func isValidUUID(u string) bool {
 func getURL(host, uuid, fName string) string {
 	baseURL, _ := url.Parse(host)
 	return baseURL.JoinPath(s3AssetBasePath, uuid[:2], uuid[2:], fName).String()
+}
+
+type uploadCursor struct {
+	UploadID string
+	Part     int64 // 1-indexed
+}
+
+func (c uploadCursor) Next() uploadCursor {
+	return uploadCursor{UploadID: c.UploadID, Part: c.Part + 1}
+}
+
+func (c uploadCursor) String() string {
+	return strconv.FormatInt(c.Part, 10) + "_" + c.UploadID
+}
+
+func parseUploadCursor(c string) (*uploadCursor, error) {
+	partStr, uploadID, found := strings.Cut(c, "_")
+	if !found {
+		return nil, fmt.Errorf("separator not found")
+	}
+	part, err := strconv.ParseInt(partStr, 10, 32)
+	if err != nil {
+		return nil, fmt.Errorf("parse part: %w", err)
+	}
+	return &uploadCursor{
+		UploadID: uploadID,
+		Part:     part,
+	}, nil
 }

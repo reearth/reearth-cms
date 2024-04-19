@@ -5,15 +5,12 @@ import ReactDragListView from "react-drag-listview";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Model } from "@reearth-cms/components/molecules/Schema/types";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  className?: string;
+type Props = {
   selectedKey?: string;
   models?: Model[];
-  selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
@@ -21,10 +18,8 @@ export type Props = {
 };
 
 const ModelsList: React.FC<Props> = ({
-  className,
   selectedKey,
   models,
-  selectedSchemaType,
   collapsed,
   onModalOpen,
   onModelSelect,
@@ -32,9 +27,12 @@ const ModelsList: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const handleClick = (e: MenuInfo) => {
-    onModelSelect(e.key);
-  };
+  const handleClick = useCallback(
+    (e: MenuInfo) => {
+      onModelSelect(e.key);
+    },
+    [onModelSelect],
+  );
 
   const onDragEnd = useCallback(
     (fromIndex: number, toIndex: number) => {
@@ -48,12 +46,8 @@ const ModelsList: React.FC<Props> = ({
   );
 
   const selectedKeys = useMemo(() => {
-    return !selectedSchemaType
-      ? [selectedKey ?? ""]
-      : selectedSchemaType === "model" && selectedKey
-        ? [selectedKey]
-        : [];
-  }, [selectedKey, selectedSchemaType]);
+    return selectedKey ? [selectedKey] : [];
+  }, [selectedKey]);
 
   const items = useMemo(() => {
     return models
@@ -70,7 +64,7 @@ const ModelsList: React.FC<Props> = ({
   }, [collapsed, models]);
 
   return (
-    <SchemaStyledMenu className={className}>
+    <SchemaStyledMenu>
       {collapsed ? (
         <StyledIcon icon="caretRight" />
       ) : (
@@ -91,9 +85,7 @@ const ModelsList: React.FC<Props> = ({
           <StyledMenu
             selectedKeys={selectedKeys}
             mode={collapsed ? "vertical" : "inline"}
-            style={{
-              color: collapsed ? "#C4C4C4" : undefined,
-            }}
+            collapsed={collapsed}
             items={items}
             onClick={handleClick}
           />
@@ -146,7 +138,9 @@ const StyledIcon = styled(Icon)`
   padding: 12px 20px;
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
+  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+
   .ant-menu-item {
     display: flex;
     justify-content: center;

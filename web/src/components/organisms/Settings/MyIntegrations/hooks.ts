@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
@@ -65,11 +66,21 @@ export default () => {
 
   const handleIntegrationModalOpen = useCallback(() => setIntegrationModalShown(true), []);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const handleIntegrationNavigate = useCallback(
+    (integration: Integration) => {
+      navigate(`${location.pathname}/${integration.id}`);
+    },
+    [location.pathname, navigate],
+  );
+
   return {
     integrations,
     integrationModalShown,
     handleIntegrationCreate,
     handleIntegrationModalOpen,
     handleIntegrationModalClose,
+    handleIntegrationNavigate,
   };
 };

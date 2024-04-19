@@ -1,13 +1,13 @@
 import Form from "@reearth-cms/components/atoms/Form";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -34,9 +34,11 @@ type Props = {
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 const AssetField: React.FC<Props> = ({
   multiple,
@@ -57,9 +59,11 @@ const AssetField: React.FC<Props> = ({
   onAssetsCreate,
   onAssetCreateFromUrl,
   onAssetSearchTerm,
+  onAssetsGet,
   onAssetsReload,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const t = useT();
 
@@ -84,9 +88,11 @@ const AssetField: React.FC<Props> = ({
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
           onAssetSearchTerm={onAssetSearchTerm}
+          onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onGetAsset={onGetAsset}
         />
       ) : (
         <AssetItem
@@ -107,9 +113,11 @@ const AssetField: React.FC<Props> = ({
           onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
           onAssetSearchTerm={onAssetSearchTerm}
+          onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
+          onGetAsset={onGetAsset}
         />
       )}
     </Form.Item>

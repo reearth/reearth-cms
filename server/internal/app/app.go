@@ -1,9 +1,7 @@
 package app
 
 import (
-	"context"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -14,16 +12,16 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/adapter/publicapi"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interactor"
 	"github.com/reearth/reearthx/appx"
-	rlog "github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
-func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
+func initEcho(cfg *ServerConfig) *echo.Echo {
 	if cfg.Config == nil {
-		log.Fatalln("ServerConfig.Config is nil")
+		log.Fatalf("ServerConfig.Config is nil")
 	}
 
 	e := echo.New()
@@ -33,7 +31,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	e.HTTPErrorHandler = errorHandler(e.DefaultHTTPErrorHandler)
 
 	// basic middleware
-	logger := rlog.NewEcho()
+	logger := log.NewEcho()
 	e.Logger = logger
 	e.Use(
 		logger.AccessLogger(),
@@ -54,15 +52,13 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 		e.GET("/graphql", echo.WrapHandler(
 			playground.Handler("reearth-cms", "/api/graphql"),
 		))
-		log.Printf("gql: GraphQL Playground is available")
+		log.Infof("gql: GraphQL Playground is available")
 	}
 
 	internalJWTMiddleware := echo.WrapMiddleware(lo.Must(
 		appx.AuthMiddleware(cfg.Config.JWTProviders(), adapter.ContextAuthInfo, true),
 	))
-	m2mJWTMiddleware := echo.WrapMiddleware(lo.Must(
-		appx.AuthMiddleware(cfg.Config.AuthM2M.JWTProvider(), adapter.ContextAuthInfo, false),
-	))
+
 	usecaseMiddleware := UsecaseMiddleware(cfg.Repos, cfg.Gateways, cfg.AcRepos, cfg.AcGateways, interactor.ContainerConfig{
 		SignupSecret:    cfg.Config.SignupSecret,
 		AuthSrvUIDomain: cfg.Config.Host_Web,
@@ -79,8 +75,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	)
 	api.POST(
 		"/notify", NotifyHandler(),
-		m2mJWTMiddleware,
-		M2MAuthMiddleware(cfg.Config.AuthM2M.Email),
+		M2MAuthMiddleware(cfg.Config),
 		usecaseMiddleware,
 	)
 	api.POST("/signup", Signup(), usecaseMiddleware)
@@ -95,7 +90,7 @@ func initEcho(ctx context.Context, cfg *ServerConfig) *echo.Echo {
 	), integration.NewStrictHandler(integration.NewServer(), nil))
 
 	serveFiles(e, cfg.Gateways.File)
-	Web(e, cfg.Config.Web, cfg.Config.AuthForWeb(), cfg.Config.Web_Disabled, nil)
+	Web(e, cfg.Config.WebConfig(), cfg.Config.Web_Disabled, nil)
 	return e
 }
 

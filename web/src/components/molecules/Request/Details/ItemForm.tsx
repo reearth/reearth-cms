@@ -7,8 +7,8 @@ import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
 import Select from "@reearth-cms/components/atoms/Select";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
@@ -17,7 +17,7 @@ import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitl
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
 import ReferenceFormItem from "../../Content/Form/ReferenceFormItem";
 
@@ -44,11 +44,14 @@ export interface Props {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 }
+
 const RequestItemForm: React.FC<Props> = ({
   schema,
   initialFormValues,
@@ -68,16 +71,18 @@ const RequestItemForm: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
   return (
     <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
-      <FormItemsWrapper>
+      <div>
         {schema?.fields.map((field: any) =>
           field.type === "TextArea" ? (
             <Form.Item
@@ -174,10 +179,12 @@ const RequestItemForm: React.FC<Props> = ({
                   setUploadType={setUploadType}
                   onAssetsCreate={onAssetsCreate}
                   onAssetCreateFromUrl={onAssetCreateFromUrl}
+                  onAssetsGet={onAssetsGet}
                   onAssetsReload={onAssetsReload}
                   onAssetSearchTerm={onAssetSearchTerm}
                   setFileList={setFileList}
                   setUploadModalVisibility={setUploadModalVisibility}
+                  onGetAsset={onGetAsset}
                 />
               ) : (
                 <AssetItem
@@ -199,10 +206,12 @@ const RequestItemForm: React.FC<Props> = ({
                   setUploadType={setUploadType}
                   onAssetsCreate={onAssetsCreate}
                   onAssetCreateFromUrl={onAssetCreateFromUrl}
+                  onAssetsGet={onAssetsGet}
                   onAssetsReload={onAssetsReload}
                   onAssetSearchTerm={onAssetSearchTerm}
                   setFileList={setFileList}
                   setUploadModalVisibility={setUploadModalVisibility}
+                  onGetAsset={onGetAsset}
                 />
               )}
             </Form.Item>
@@ -287,7 +296,7 @@ const RequestItemForm: React.FC<Props> = ({
             </Form.Item>
           ),
         )}
-      </FormItemsWrapper>
+      </div>
     </StyledForm>
   );
 };
@@ -303,12 +312,5 @@ const StyledForm = styled(Form)`
   label {
     width: 100%;
     display: flex;
-  }
-`;
-
-const FormItemsWrapper = styled.div`
-  width: 50%;
-  @media (max-width: 1200px) {
-    width: 100%;
   }
 `;

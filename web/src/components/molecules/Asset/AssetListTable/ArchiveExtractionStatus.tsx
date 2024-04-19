@@ -1,5 +1,5 @@
 import Badge from "@reearth-cms/components/atoms/Badge";
-import { ArchiveExtractionStatus as ArchiveExtractionStatusType } from "@reearth-cms/components/molecules/Asset/asset.type";
+import { ArchiveExtractionStatus as ArchiveExtractionStatusType } from "@reearth-cms/components/molecules/Asset/types";
 
 import useHooks from "./hooks";
 

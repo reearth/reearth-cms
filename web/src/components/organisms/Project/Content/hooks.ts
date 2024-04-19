@@ -2,12 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { convertRequest } from "@reearth-cms/components/organisms/Project/Request/convertRequest";
+import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useUpdateRequestMutation,
   RequestState as GQLRequestState,
   Request as GQLRequest,
-  useGetModalRequestsQuery,
+  useGetModalRequestsLazyQuery,
   useUnpublishItemMutation,
   usePublishItemMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -30,8 +30,8 @@ export default () => {
     setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const { data, loading } = useGetModalRequestsQuery({
-    fetchPolicy: "no-cache",
+  const [getModalRequests, { data, refetch, loading }] = useGetModalRequestsLazyQuery({
+    fetchPolicy: "cache-and-network",
     variables: {
       projectId: currentProject?.id ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
@@ -39,14 +39,12 @@ export default () => {
       state: ["WAITING"] as GQLRequestState[],
       key: searchTerm,
     },
-    skip: !currentProject?.id,
   });
 
   const requests: Request[] = useMemo(
     () =>
       (data?.requests.nodes
-        .map(request => request as GQLRequest)
-        .map(convertRequest)
+        .map(request => fromGraphQLRequest(request as GQLRequest))
         .filter(request => !!request) as Request[]) ?? [],
     [data?.requests.nodes],
   );
@@ -127,7 +125,8 @@ export default () => {
     setPageSize(10);
     setSearchTerm("");
     setAddItemToRequestModalShown(true);
-  }, []);
+    getModalRequests();
+  }, [getModalRequests]);
 
   const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
     setPage(page);
@@ -139,6 +138,10 @@ export default () => {
     setPage(1);
   }, []);
 
+  const handleRequestTableReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   return {
     currentWorkspace,
     currentModel,
@@ -149,6 +152,7 @@ export default () => {
     handleUnpublish,
     handleRequestTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,

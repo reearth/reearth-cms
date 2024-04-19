@@ -1,23 +1,25 @@
 import styled from "@emotion/styled";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
 type Props = {
+  itemAssets?: ItemAsset[];
   assetList: Asset[];
   fileList: UploadFile[];
   value?: string;
@@ -39,15 +41,18 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onChange?: (value: string) => void;
   disabled?: boolean;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 const AssetItem: React.FC<Props> = ({
+  itemAssets,
   assetList,
   fileList,
   value,
@@ -65,17 +70,17 @@ const AssetItem: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
   onChange,
   disabled,
+  onGetAsset,
 }) => {
   const t = useT();
   const {
-    asset,
-    loading,
     visible,
     workspaceId,
     projectId,
@@ -90,9 +95,38 @@ const AssetItem: React.FC<Props> = ({
     onAssetsCreate,
     onAssetCreateFromUrl,
     setUploadModalVisibility,
+    onAssetsGet,
     onChange,
-    value,
   );
+  const [asset, setAsset] = useState<ItemAsset>();
+  const assetInfosRef = useRef<ItemAsset[]>(itemAssets ?? []);
+
+  const defaultValueGet = useCallback(async () => {
+    if (value) {
+      const fileName = await onGetAsset?.(value);
+      if (fileName) setAsset({ id: value, fileName });
+    } else {
+      setAsset(undefined);
+    }
+  }, [onGetAsset, value]);
+
+  useEffect(() => {
+    if (loadingAssets) return;
+    const assetInfo = assetInfosRef.current.find(itemAsset => itemAsset.id === value);
+    if (assetInfo) {
+      setAsset(assetInfo);
+    } else {
+      defaultValueGet();
+    }
+  }, [defaultValueGet, loadingAssets, value]);
+
+  const onSelect = useCallback((selectedAsset: ItemAsset) => {
+    if (selectedAsset) assetInfosRef.current.push(selectedAsset);
+  }, []);
+
+  const onUnlink = useCallback(() => {
+    onChange?.("");
+  }, [onChange]);
 
   const uploadProps: UploadProps = {
     name: "file",
@@ -124,7 +158,7 @@ const AssetItem: React.FC<Props> = ({
             <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
               <div>
                 <Icon icon="folder" size={24} />
-                <div style={{ marginTop: 8, overflow: "hidden" }}>{asset?.fileName ?? value}</div>
+                <AssetName>{asset?.fileName ?? value}</AssetName>
               </div>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
@@ -149,15 +183,15 @@ const AssetItem: React.FC<Props> = ({
             <AssetLink
               type="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
-              onClick={() => onChange?.("")}
+              onClick={onUnlink}
             />
           )}
         </>
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
           <div>
-            {loading ? <Icon icon="loading" size={24} /> : <Icon icon="linkSolid" size={14} />}
-            <div style={{ marginTop: 4 }}>{t("Asset")}</div>
+            <Icon icon="linkSolid" size={14} />
+            <AssetButtonTitle>{t("Asset")}</AssetButtonTitle>
           </div>
         </AssetButton>
       )}
@@ -180,6 +214,7 @@ const AssetItem: React.FC<Props> = ({
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}
         onChange={onChange}
+        onSelect={onSelect}
         onAssetsReload={onAssetsReload}
         onSearchTerm={onAssetSearchTerm}
         displayUploadModal={displayUploadModal}
@@ -236,6 +271,15 @@ const AssetLinkedName = styled(Button)<{ enabled?: boolean }>`
 const AssetDetailsWrapper = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const AssetName = styled.div`
+  margin-top: 8px;
+  overflow: hidden;
+`;
+
+const AssetButtonTitle = styled.div`
+  margin-top: 4px;
 `;
 
 export default AssetItem;

@@ -9,6 +9,7 @@ import react from "@vitejs/plugin-react";
 import { readEnv } from "read-env";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import cesium from "vite-plugin-cesium";
+import { configDefaults } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -38,6 +39,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
+    exclude: [...configDefaults.exclude, "e2e/**/*"],
     coverage: {
       all: true,
       include: ["src/**/*.ts", "src/**/*.tsx"],
@@ -68,8 +70,18 @@ function config(): Plugin {
   return {
     name: "reearth-config",
     async configureServer(server) {
+      const envs = loadEnv(
+        server.config.mode,
+        server.config.envDir ?? process.cwd(),
+        server.config.envPrefix,
+      );
+      const remoteReearthConfig = envs.REEARTH_WEB_CONFIG_URL
+        ? await (await fetch(envs.REEARTH_WEB_CONFIG_URL)).json()
+        : {};
       const configRes = JSON.stringify(
         {
+          ...remoteReearthConfig,
+          api: "http://localhost:8080/api",
           ...readEnv("REEARTH_CMS", {
             source: loadEnv(
               server.config.mode,

@@ -5,7 +5,9 @@ import {
   WorkspaceSettings,
   TileInput,
   TerrainInput,
+  UserMember,
 } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLWorkspaceSettings } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetWorkspaceSettingsQuery,
   useUpdateWorkspaceSettingsMutation,
@@ -15,8 +17,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
-
-import { convertWorkspaceSettings } from "./convertWorkspaceSettings";
 
 export default () => {
   const t = useT();
@@ -43,7 +43,7 @@ export default () => {
 
   const workspaceSettings: WorkspaceSettings = useMemo(() => {
     return data?.node
-      ? convertWorkspaceSettings(data.node as GQLWorkspaceSettings)
+      ? fromGraphQLWorkspaceSettings(data.node as GQLWorkspaceSettings)
       : defaultSettings;
   }, [data?.node, defaultSettings]);
 
@@ -98,7 +98,9 @@ export default () => {
 
   const { data: userData } = useGetMeQuery();
   const hasPrivilege: boolean = useMemo(() => {
-    const myRole = currentWorkspace?.members?.find(m => m.userId === userData?.me?.id)?.role;
+    const myRole = currentWorkspace?.members?.find(
+      (m): m is UserMember => "userId" in m && m.userId === userData?.me?.id,
+    )?.role;
     return myRole === "OWNER" || myRole === "MAINTAINER";
   }, [currentWorkspace?.members, userData?.me?.id]);
 

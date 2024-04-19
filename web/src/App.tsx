@@ -1,3 +1,6 @@
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
 import {
   Route,
   RouterProvider,
@@ -8,9 +11,9 @@ import {
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
-import Asset from "@reearth-cms/components/organisms/Asset/Asset";
-import AssetList from "@reearth-cms/components/organisms/Asset/AssetList";
 import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility";
+import Asset from "@reearth-cms/components/organisms/Project/Asset/Asset";
+import AssetList from "@reearth-cms/components/organisms/Project/Asset/AssetList";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
 import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
 import ProjectOverview from "@reearth-cms/components/organisms/Project/Overview";
@@ -30,11 +33,16 @@ import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<RootPage />} />
+      <Route index element={<RootPage />} />
+      <Route path="auth/*" element={<RootPage />} />
       <Route path="workspace" element={<CMSPageWrapper />}>
+        <Route index element={<Workspace />} />
         <Route path=":workspaceId" element={<Workspace />} />
         <Route path=":workspaceId/account" element={<AccountSettings />} />
         <Route path=":workspaceId/members" element={<Members />} />

@@ -7,7 +7,7 @@ import RequestListTable from "@reearth-cms/components/molecules/Request/Table";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+type Props = {
   commentsPanel?: JSX.Element;
   requests: Request[];
   loading: boolean;
@@ -29,7 +29,6 @@ export type Props = {
     reviewedByMe?: boolean,
   ) => void;
   totalCount: number;
-  searchTerm: string;
   reviewedByMe: boolean;
   createdByMe: boolean;
   requestState: RequestState[];
@@ -51,7 +50,6 @@ const RequestListMolecule: React.FC<Props> = ({
   onRequestDelete,
   onRequestTableChange,
   totalCount,
-  searchTerm,
   reviewedByMe,
   createdByMe,
   requestState,
@@ -78,7 +76,6 @@ const RequestListMolecule: React.FC<Props> = ({
             selectedRequest={selectedRequest}
             onRequestTableChange={onRequestTableChange}
             totalCount={totalCount}
-            searchTerm={searchTerm}
             reviewedByMe={reviewedByMe}
             createdByMe={createdByMe}
             requestState={requestState}

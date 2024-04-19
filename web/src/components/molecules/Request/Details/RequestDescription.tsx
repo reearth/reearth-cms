@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useMemo } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
@@ -7,13 +7,14 @@ import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
 
@@ -41,10 +42,12 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
 export const RequestDescription: React.FC<Props> = ({
@@ -65,19 +68,21 @@ export const RequestDescription: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
 }) => {
   const fromNow = useMemo(
-    () => moment(currentRequest.createdAt?.toString()).fromNow(),
+    () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
   );
 
   return (
     <StyledAntDComment
-      author={<a>{currentRequest.createdBy?.name}</a>}
+      author={currentRequest.createdBy?.name}
       avatar={<UserAvatar username={currentRequest.createdBy?.name} />}
       content={
         <>
@@ -111,10 +116,12 @@ export const RequestDescription: React.FC<Props> = ({
                       setUploadType={setUploadType}
                       onAssetsCreate={onAssetsCreate}
                       onAssetCreateFromUrl={onAssetCreateFromUrl}
+                      onAssetsGet={onAssetsGet}
                       onAssetsReload={onAssetsReload}
                       onAssetSearchTerm={onAssetSearchTerm}
                       setFileList={setFileList}
                       setUploadModalVisibility={setUploadModalVisibility}
+                      onGetAsset={onGetAsset}
                     />
                   </Panel>
                 ))}
@@ -124,7 +131,7 @@ export const RequestDescription: React.FC<Props> = ({
       }
       datetime={
         currentRequest.createdAt && (
-          <Tooltip title={currentRequest.createdAt.toString()}>
+          <Tooltip title={dateTimeFormat(currentRequest.createdAt)}>
             <span>{fromNow}</span>
           </Tooltip>
         )
@@ -142,6 +149,7 @@ const StyledAntDComment = styled(AntDComment)`
       font-weight: 400;
       font-size: 14px;
       color: #00000073;
+      overflow: hidden;
     }
   }
   .ant-comment-inner {

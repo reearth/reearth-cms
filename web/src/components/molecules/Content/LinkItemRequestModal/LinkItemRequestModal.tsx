@@ -1,17 +1,19 @@
 import styled from "@emotion/styled";
-import { useState, useRef } from "react";
+import { useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import ProTable, {
-  ProColumns,
-  TablePaginationConfig,
-} from "@reearth-cms/components/atoms/ProTable";
+import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import Radio from "@reearth-cms/components/atoms/Radio";
+import Space from "@reearth-cms/components/atoms/Space";
+import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+
+import useHooks from "./hooks";
 
 type Props = {
   itemIds: string[];
@@ -26,6 +28,7 @@ type Props = {
   requestList: Request[];
   onChange?: (value: Request, itemIds: string[]) => void;
   onRequestSearchTerm: (term: string) => void;
+  onRequestTableReload: () => void;
 };
 
 const LinkItemRequestModal: React.FC<Props> = ({
@@ -40,95 +43,130 @@ const LinkItemRequestModal: React.FC<Props> = ({
   requestModalPageSize,
   onChange,
   onRequestSearchTerm,
+  onRequestTableReload,
 }) => {
-  const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const t = useT();
+  const { pagination, submit, resetFlag, selectedRequestId, setSelectedRequestId } = useHooks(
+    itemIds,
+    onLinkItemRequestModalCancel,
+    requestList,
+    requestModalTotalCount,
+    requestModalPage,
+    requestModalPageSize,
+    onChange,
+  );
 
-  const pagination: TablePaginationConfig = {
-    showSizeChanger: true,
-    current: requestModalPage,
-    total: requestModalTotalCount,
-    pageSize: requestModalPageSize,
-  };
-
-  const submit = () => {
-    onChange?.(requestList.find(request => request.id === selectedRequestId) as Request, itemIds);
-    setSelectedRequestId(undefined);
-    onLinkItemRequestModalCancel();
-  };
-
-  const columns: ProColumns<Request>[] = [
-    {
-      title: "",
-      render: (_, request) => {
-        return (
-          <Radio.Group
-            onChange={() => {
-              setSelectedRequestId(request.id);
-            }}
-            value={selectedRequestId}>
-            <Radio value={request.id} />
-          </Radio.Group>
-        );
+  const columns: StretchColumn<Request>[] = useMemo(
+    () => [
+      {
+        title: "",
+        hideInSetting: true,
+        fixed: "left",
+        align: "center",
+        width: 32,
+        minWidth: 32,
+        render: (_, request) => {
+          return (
+            <Radio.Group
+              onChange={() => {
+                setSelectedRequestId(request.id);
+              }}
+              value={selectedRequestId}>
+              <Radio value={request.id} />
+            </Radio.Group>
+          );
+        },
       },
-      width: 32,
-    },
-    {
-      title: t("Title"),
-      dataIndex: "title",
-      key: "title",
-    },
-    {
-      title: t("State"),
-      dataIndex: "requestState",
-      key: "requestState",
-      render: (_, request) => {
-        let color = "";
-        switch (request.state) {
-          case "APPROVED":
-            color = "#52C41A";
-            break;
-          case "CLOSED":
-            color = "#F5222D";
-            break;
-          case "WAITING":
-            color = "#FA8C16";
-            break;
-          case "DRAFT":
-          default:
-            break;
-        }
-        return <Badge color={color} text={request.state} />;
+      {
+        title: t("Title"),
+        dataIndex: "title",
+        key: "title",
+        ellipsis: true,
+        width: 200,
+        minWidth: 200,
       },
-    },
-    {
-      title: t("Created By"),
-      dataIndex: "createdBy.name",
-      key: "createdBy",
-      render: (_, request) => {
-        return request.createdBy?.name;
+      {
+        title: t("State"),
+        dataIndex: "requestState",
+        key: "requestState",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
+        render: (_, request) => {
+          let color = "";
+          switch (request.state) {
+            case "APPROVED":
+              color = "#52C41A";
+              break;
+            case "CLOSED":
+              color = "#F5222D";
+              break;
+            case "WAITING":
+              color = "#FA8C16";
+              break;
+            case "DRAFT":
+            default:
+              break;
+          }
+          return <Badge color={color} text={request.state} />;
+        },
       },
-    },
-    {
-      title: t("Reviewers"),
-      dataIndex: "reviewers.name",
-      key: "reviewers",
-      render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
-    },
-    {
-      title: t("Created At"),
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (_text, record) => dateTimeFormat(record.createdAt),
-    },
-  ];
+      {
+        title: t("Created By"),
+        dataIndex: "createdBy.name",
+        key: "createdBy",
+        ellipsis: true,
+        width: 100,
+        minWidth: 100,
+        render: (_, request) => {
+          return request.createdBy?.name;
+        },
+      },
+      {
+        title: t("Reviewers"),
+        dataIndex: "reviewers.name",
+        key: "reviewers",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
+        render: (_, request) => (
+          <Space>
+            <div>
+              {request.reviewers
+                .filter((_, index) => index < 3)
+                .map(reviewer => (
+                  <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
+                ))}
+            </div>
+            {request.reviewers.map(reviewer => reviewer.name).join(", ")}
+          </Space>
+        ),
+      },
+      {
+        title: t("Created At"),
+        dataIndex: "createdAt",
+        key: "createdAt",
+        ellipsis: true,
+        width: 130,
+        minWidth: 130,
+        render: (_text, record) => dateTimeFormat(record.createdAt),
+      },
+    ],
+    [selectedRequestId, setSelectedRequestId, t],
+  );
 
-  const resetFlag = useRef(false);
+  const options = useMemo(
+    () => ({
+      reload: onRequestTableReload,
+    }),
+    [onRequestTableReload],
+  );
 
   const toolbar = {
     search: (
       <Input.Search
-        placeholder={t("Please enter")}
+        allowClear
+        placeholder={t("input search text")}
         onSearch={onRequestSearchTerm}
         key={+resetFlag.current}
       />
@@ -136,41 +174,55 @@ const LinkItemRequestModal: React.FC<Props> = ({
   };
 
   return (
-    <Modal
+    <StyledModal
       open={visible}
       title={t("Add to Request")}
       centered
       onOk={submit}
       onCancel={onLinkItemRequestModalCancel}
       width="70vw"
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        padding: "12px 12px 0",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          padding: "12px 12px 0",
+        },
       }}
       afterClose={() => {
         resetFlag.current = !resetFlag.current;
       }}>
-      <StyledProTable
+      <ResizableProTable
         dataSource={requestList}
         columns={columns}
         search={false}
-        rowKey="id"
         pagination={pagination}
         loading={requestModalLoading}
         onChange={pagination => {
           onRequestTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}
+        options={options}
         toolbar={toolbar}
-        scroll={{ x: "max-content", y: 330 }}
+        heightOffset={0}
       />
-    </Modal>
+    </StyledModal>
   );
 };
 
 export default LinkItemRequestModal;
 
-const StyledProTable = styled(ProTable)`
+const StyledUserAvatar = styled(UserAvatar)`
+  :nth-child(1) {
+    z-index: 2;
+  }
+  :nth-child(2) {
+    z-index: 1;
+  }
+  :nth-child(n + 2) {
+    margin-left: -18px;
+  }
+`;
+
+const StyledModal = styled(Modal)`
   .ant-pro-card-body {
     padding: 0;
     .ant-pro-table-list-toolbar {

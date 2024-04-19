@@ -4,15 +4,15 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
-import { Project as ProjectType } from "@reearth-cms/components/molecules/Workspace/types";
+import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+interface Props {
   className?: string;
-  projects?: ProjectType[];
+  projects?: Project[];
   loading?: boolean;
   onProjectModalOpen: () => void;
-  onProjectNavigation: (project: ProjectType) => void;
+  onProjectNavigation: (project: Project) => void;
 }
 
 const ProjectList: React.FC<Props> = ({
@@ -31,19 +31,19 @@ const ProjectList: React.FC<Props> = ({
       ) : projects.length === 0 ? (
         <EmptyListWrapper>
           <Title>{t("No Projects Yet")}</Title>
-          <Suggestion>
-            {t("Create a new project")}{" "}
+          <Wrapper>
+            <Suggestion>{t("Create a new project")}</Suggestion>
             <Button onClick={onProjectModalOpen} type="primary" icon={<Icon icon="plus" />}>
               {t("New Project")}
             </Button>
-          </Suggestion>
+          </Wrapper>
           <Suggestion>
             {t("Or read")} <a href="">{t("how to use Re:Earth CMS")}</a> {t("first")}
           </Suggestion>
         </EmptyListWrapper>
       ) : (
         <Content>
-          {projects.map((project: ProjectType) => (
+          {projects.map(project => (
             <ProjectCard
               key={project.id}
               project={project}
@@ -76,6 +76,12 @@ const EmptyListWrapper = styled.div`
   justify-content: center;
   align-items: center;
   margin-top: 64px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
 `;
 
 const Suggestion = styled.p`

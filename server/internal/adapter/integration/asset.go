@@ -68,6 +68,8 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 	op := adapter.Operator(ctx)
 
 	var f *file.File
+	var token string
+
 	skipDecompression := false
 	var err error
 	if request.MultipartBody != nil {
@@ -93,24 +95,24 @@ func (s *Server) AssetCreate(ctx context.Context, request AssetCreateRequestObje
 	}
 
 	if request.JSONBody != nil {
-		if request.JSONBody.Url == nil {
+		if request.JSONBody.Url == nil && request.JSONBody.Token == nil {
 			return AssetCreate400Response{}, ErrFileIsMissing
 		}
-		f, err = file.FromURL(*request.JSONBody.Url)
-		if err != nil {
-			return AssetCreate400Response{}, err
+		token = lo.FromPtr(request.JSONBody.Token)
+		if request.JSONBody.Url != nil {
+			f, err = file.FromURL(*request.JSONBody.Url)
+			if err != nil {
+				return AssetCreate400Response{}, err
+			}
 		}
-		skipDecompression = lo.FromPtrOr(request.JSONBody.SkipDecompression, false)
-	}
-
-	if f == nil {
-		return AssetCreate400Response{}, ErrFileIsMissing
+		skipDecompression = lo.FromPtr(request.JSONBody.SkipDecompression)
 	}
 
 	cp := interfaces.CreateAssetParam{
 		ProjectID:         request.ProjectId,
 		File:              f,
 		SkipDecompression: skipDecompression,
+		Token:             token,
 	}
 
 	a, af, err := uc.Asset.Create(ctx, cp, op)
@@ -162,4 +164,30 @@ func (s *Server) AssetGet(ctx context.Context, request AssetGetRequestObject) (A
 	aurl := uc.Asset.GetURL(a)
 	aa := integrationapi.NewAsset(a, f, aurl, true)
 	return AssetGet200JSONResponse(*aa), nil
+}
+
+func (s *Server) AssetUploadCreate(ctx context.Context, request AssetUploadCreateRequestObject) (AssetUploadCreateResponseObject, error) {
+	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
+	au, err := uc.Asset.CreateUpload(ctx, interfaces.CreateAssetUploadParam{
+		ProjectID:     request.ProjectId,
+		Filename:      lo.FromPtr(request.Body.Name),
+		ContentLength: int64(lo.FromPtr(request.Body.ContentLength)),
+		Cursor:        lo.FromPtr(request.Body.Cursor),
+	}, op)
+
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return AssetUploadCreate404Response{}, err
+		}
+		return AssetUploadCreate400Response{}, err
+	}
+
+	return AssetUploadCreate200JSONResponse{
+		Url:           &au.URL,
+		Token:         &au.UUID,
+		ContentType:   &au.ContentType,
+		ContentLength: lo.ToPtr(int(au.ContentLength)),
+		Next:          &au.Next,
+	}, nil
 }

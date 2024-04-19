@@ -25,6 +25,8 @@ dist-ssr
 
 /storybook-static
 /coverage
+/reearth-config.json
+.env*
 
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
@@ -47,3 +49,9 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

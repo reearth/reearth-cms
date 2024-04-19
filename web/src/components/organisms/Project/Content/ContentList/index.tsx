@@ -19,6 +19,7 @@ const ContentList: React.FC = () => {
     selection,
     loading,
     totalCount,
+    views,
     currentView,
     searchTerm,
     page,
@@ -43,12 +44,14 @@ const ContentList: React.FC = () => {
     collapseModelMenu,
     handleModelSelect,
     handleViewChange,
+    handleViewSelect,
     handleNavigateToItemForm,
     handleNavigateToItemEditForm,
     handleItemsReload,
     handleItemDelete,
     handleContentTableChange,
     handleRequestSearchTerm,
+    handleRequestTableReload,
   } = useHooks();
 
   return (
@@ -64,6 +67,7 @@ const ContentList: React.FC = () => {
           }
           comments={selectedItem?.comments}
           threadId={selectedItem?.threadId}
+          refetchQueries={["SearchItem"]}
         />
       }
       modelsMenu={
@@ -71,12 +75,14 @@ const ContentList: React.FC = () => {
           title={t("Content")}
           collapsed={collapsedModelMenu}
           onModelSelect={handleModelSelect}
+          selectedSchemaType="model"
         />
       }
       viewsMenu={
         <ViewsMenu
+          views={views}
           currentView={currentView}
-          setCurrentView={setCurrentView}
+          onViewSelect={handleViewSelect}
           onViewChange={handleViewChange}
         />
       }
@@ -115,6 +121,7 @@ const ContentList: React.FC = () => {
       onAddItemToRequest={handleAddItemToRequest}
       addItemToRequestModalShown={addItemToRequestModalShown}
       onRequestSearchTerm={handleRequestSearchTerm}
+      onRequestTableReload={handleRequestTableReload}
     />
   );
 };

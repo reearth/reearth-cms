@@ -6,11 +6,11 @@ import {
   IntegrationMember,
   Role,
 } from "@reearth-cms/components/molecules/Integration/types";
+import { fromGraphQLIntegration } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
   Role as GQLRole,
-  Integration as GQLIntegration,
   useUpdateIntegrationOfWorkspaceMutation,
   useRemoveIntegrationFromWorkspaceMutation,
 } from "@reearth-cms/gql/graphql-client-api";
@@ -30,23 +30,9 @@ export default (workspaceId?: string) => {
   const workspaces = useMemo(() => data?.me?.workspaces, [data?.me?.workspaces]);
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
 
-  const fromIntegration = (integration: GQLIntegration) => ({
-    id: integration.id,
-    name: integration.name,
-    description: integration.description,
-    logoUrl: integration.logoUrl,
-    developerId: integration.developerId,
-    developer: integration.developer,
-    iType: integration.iType,
-    config: {
-      token: integration.config?.token,
-      webhooks: integration.config?.webhooks,
-    },
-  });
-
   const integrations = useMemo(() => {
     return data?.me?.integrations
-      ?.map<Integration | undefined>(integration => fromIntegration(integration))
+      ?.map<Integration | undefined>(integration => fromGraphQLIntegration(integration))
       .filter((integration): integration is Integration => !!integration);
   }, [data?.me?.integrations]);
 
@@ -57,7 +43,7 @@ export default (workspaceId?: string) => {
           ? {
               id: member.integration.id,
               active: member.active,
-              integration: fromIntegration(member.integration),
+              integration: fromGraphQLIntegration(member.integration),
               integrationRole: member.integrationRole,
               invitedById: member.invitedById,
             }
@@ -65,7 +51,7 @@ export default (workspaceId?: string) => {
       )
       .filter(
         (integrationMember): integrationMember is IntegrationMember =>
-          !!integrationMember &&
+          !!integrationMember?.integration &&
           integrationMember.integration.name.toLowerCase().includes(searchTerm ?? ""),
       );
   }, [workspace, searchTerm]);
@@ -117,7 +103,7 @@ export default (workspaceId?: string) => {
       if (!workspaceId || !selectedIntegrationMember) return;
       const integration = await updateIntegrationToWorkspaceMutation({
         variables: {
-          integrationId: selectedIntegrationMember?.integration.id,
+          integrationId: selectedIntegrationMember?.integration?.id || "",
           workspaceId,
           role: role as GQLRole,
         },

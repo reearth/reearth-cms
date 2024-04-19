@@ -1,10 +1,8 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { convertAsset } from "@reearth-cms/components/organisms/Asset/convertAsset";
-import { useGetAssetQuery, Asset as GQLAsset } from "@reearth-cms/gql/graphql-client-api";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import { useProject, useWorkspace } from "@reearth-cms/state";
 
 export default (
@@ -14,15 +12,16 @@ export default (
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>,
   setUploadModalVisibility: (visible: boolean) => void,
+  onAssetsGet: () => void,
   onChange?: (value: string) => void,
-  value?: string,
 ) => {
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
   const [visible, setVisible] = useState(false);
   const handleClick = useCallback(() => {
     setVisible(true);
-  }, [setVisible]);
+    onAssetsGet();
+  }, [onAssetsGet]);
 
   const handleLinkAssetModalCancel = useCallback(() => {
     setVisible(false);
@@ -46,24 +45,8 @@ export default (
     if (asset) onChange?.(asset.id);
   }, [handleAssetUpload, onChange]);
 
-  const { data: rawAsset, loading } = useGetAssetQuery({
-    variables: {
-      assetId: value ?? "",
-    },
-    fetchPolicy: "network-only",
-    skip: !value,
-  });
-
-  const asset: Asset | undefined = useMemo(() => {
-    return rawAsset?.node?.__typename === "Asset"
-      ? convertAsset(rawAsset.node as GQLAsset)
-      : undefined;
-  }, [rawAsset]);
-
   return {
     visible,
-    asset,
-    loading,
     workspaceId: currentWorkspace?.id,
     projectId: currentProject?.id,
     handleClick,

@@ -12,6 +12,22 @@ export const GET_ITEMS = gql`
         createdAt
         updatedAt
         status
+        referencedItems {
+          id
+          title
+          schemaId
+          createdBy {
+            ... on Integration {
+              name
+            }
+            ... on User {
+              name
+            }
+          }
+          status
+          createdAt
+          updatedAt
+        }
         createdBy {
           ... on Integration {
             name
@@ -57,10 +73,27 @@ export const GET_ITEM_NODE = gql`
         createdAt
         updatedAt
         status
+        referencedItems {
+          id
+          title
+          schemaId
+          createdBy {
+            ... on Integration {
+              name
+            }
+            ... on User {
+              name
+            }
+          }
+          status
+          createdAt
+          updatedAt
+        }
         version
         assets {
           id
           url
+          fileName
         }
         createdBy {
           ... on Integration {
@@ -107,21 +140,6 @@ export const IS_ITEM_REFERENCED = gql`
   }
 `;
 
-export const GET_ITEMS_BY_IDS = gql`
-  query GetItemsByIds($id: [ID!]!) {
-    nodes(id: $id, type: Item) {
-      ... on Item {
-        id
-        title
-        schemaId
-        createdAt
-        updatedAt
-        status
-      }
-    }
-  }
-`;
-
 export const SEARCH_ITEM = gql`
   query SearchItem($searchItemInput: SearchItemInput!) {
     searchItem(input: $searchItemInput) {
@@ -132,6 +150,22 @@ export const SEARCH_ITEM = gql`
         createdAt
         updatedAt
         status
+        referencedItems {
+          id
+          title
+          schemaId
+          createdBy {
+            ... on Integration {
+              name
+            }
+            ... on User {
+              name
+            }
+          }
+          status
+          createdAt
+          updatedAt
+        }
         version
         assets {
           id
@@ -201,6 +235,22 @@ export const CREATE_ITEM = gql`
           schemaFieldId
           itemGroupId
         }
+        referencedItems {
+          id
+          title
+          schemaId
+          createdBy {
+            ... on Integration {
+              name
+            }
+            ... on User {
+              name
+            }
+          }
+          status
+          createdAt
+          updatedAt
+        }
       }
     }
   }
@@ -233,6 +283,22 @@ export const UPDATE_ITEM = gql`
           schemaFieldId
           itemGroupId
         }
+        referencedItems {
+          id
+          title
+          schemaId
+          createdBy {
+            ... on Integration {
+              name
+            }
+            ... on User {
+              name
+            }
+          }
+          status
+          createdAt
+          updatedAt
+        }
       }
     }
   }
@@ -243,6 +309,22 @@ export const UNPUBLISH_ITEM = gql`
     unpublishItem(input: { itemIds: $itemIds }) {
       items {
         id
+        referencedItems {
+          id
+          title
+          schemaId
+          createdBy {
+            ... on Integration {
+              name
+            }
+            ... on User {
+              name
+            }
+          }
+          status
+          createdAt
+          updatedAt
+        }
       }
     }
   }
@@ -253,6 +335,22 @@ export const PUBLISH_ITEM = gql`
     publishItem(input: { itemIds: $itemIds }) {
       items {
         id
+        referencedItems {
+          id
+          title
+          schemaId
+          createdBy {
+            ... on Integration {
+              name
+            }
+            ... on User {
+              name
+            }
+          }
+          status
+          createdAt
+          updatedAt
+        }
       }
     }
   }

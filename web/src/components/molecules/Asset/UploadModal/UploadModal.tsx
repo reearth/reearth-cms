@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -42,22 +43,28 @@ const UploadModal: React.FC<Props> = ({
   onCancel,
 }) => {
   const t = useT();
-  const handleTabChange = (key: string) => {
-    setUploadType(key as UploadType);
-  };
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      setUploadType(key as UploadType);
+    },
+    [setUploadType],
+  );
 
   return (
-    <Modal
+    <StyledModal
       centered
       open={visible}
       onCancel={onCancel}
       footer={null}
       width="50vw"
       afterClose={onUploadModalClose}
-      bodyStyle={{
-        minHeight: "50vh",
-        position: "relative",
-        paddingBottom: "80px",
+      styles={{
+        body: {
+          minHeight: "50vh",
+          position: "relative",
+          paddingBottom: "80px",
+        },
       }}>
       <div>
         <h2>{t("Asset Uploader")}</h2>
@@ -69,8 +76,6 @@ const UploadModal: React.FC<Props> = ({
         <TabPane tab={t("URL")} key="url">
           <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
         </TabPane>
-        {/* TODO: uncomment this once upload asset from google drive is implemented */}
-        {/* <TabPane tab={t("Google Drive")} key="3" /> */}
       </Tabs>
       <Footer>
         <CancelButton type="default" disabled={uploading} onClick={onCancel}>
@@ -79,14 +84,23 @@ const UploadModal: React.FC<Props> = ({
         <Button
           type="primary"
           onClick={onUpload}
-          disabled={fileList?.length === 0 && !uploadUrl}
+          disabled={fileList?.length === 0 && !uploadUrl.url}
           loading={uploading}>
           {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
         </Button>
       </Footer>
-    </Modal>
+    </StyledModal>
   );
 };
+
+const StyledModal = styled(Modal)`
+  .ant-upload-span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+`;
 
 const Footer = styled.div`
   position: absolute;

@@ -12,8 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -29,11 +27,11 @@ func NewSchema(r *repo.Container, g *gateway.Container) interfaces.Schema {
 	}
 }
 
-func (i Schema) FindByID(ctx context.Context, id id.SchemaID, operator *usecase.Operator) (*schema.Schema, error) {
+func (i Schema) FindByID(ctx context.Context, id id.SchemaID, _ *usecase.Operator) (*schema.Schema, error) {
 	return i.repos.Schema.FindByID(ctx, id)
 }
 
-func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, operator *usecase.Operator) (schema.List, error) {
+func (i Schema) FindByIDs(ctx context.Context, ids []id.SchemaID, _ *usecase.Operator) (schema.List, error) {
 	return i.repos.Schema.FindByIDs(ctx, ids)
 }
 
@@ -56,48 +54,41 @@ func (i Schema) FindByModel(ctx context.Context, mID id.ModelID, _ *usecase.Oper
 		return nil, nil
 	}
 
-	gIds := lo.Map(s.FieldsByType(value.TypeGroup), func(f *schema.Field, _ int) id.GroupID {
-		var gID id.GroupID
-		f.TypeProperty().Match(schema.TypePropertyMatch{
-			Group: func(f *schema.FieldGroup) {
-				gID = f.Group()
-			},
-		})
-		return gID
-	})
-
-	groups, err := i.repos.Group.FindByIDs(ctx, gIds)
+	groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
 	if err != nil {
 		return nil, err
 	}
 
-	gsl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs())
+	sl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
 	if err != nil {
 		return nil, err
 	}
-	gm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-		return g.ID(), gsl.Schema(lo.ToPtr(g.Schema()))
+	gsm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+		return g.ID(), sl.Schema(lo.ToPtr(g.Schema()))
+	})
+	rs := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
+		return sl.Schema(&s)
 	})
 
-	return schema.NewPackage(s, sList.Schema(m.Metadata()), gm), nil
+	return schema.NewPackage(s, sList.Schema(m.Metadata()), gsm, rs), nil
 }
 
-func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
-		s1, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, op *usecase.Operator) (*schema.Field, error) {
+	return Run1(ctx, op, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
+		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 		if err != nil {
 			return nil, err
 		}
 
-		if !operator.IsMaintainingProject(s1.Project()) {
+		if !op.IsMaintainingProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		if param.Key == "" || s1.HasFieldByKey(param.Key) {
+		if param.Key == "" || s.HasFieldByKey(param.Key) {
 			return nil, schema.ErrInvalidKey
 		}
 
-		f1, err := schema.NewField(param.TypeProperty).
+		f, err := schema.NewField(param.TypeProperty).
 			NewID().
 			Unique(param.Unique).
 			Multiple(param.Multiple).
@@ -112,7 +103,7 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 		}
 
 		if param.Type == value.TypeReference {
-			err = i.createCorrespondingField(ctx, s1, f1, param, operator)
+			err = i.createCorrespondingField(ctx, s, f, param)
 			if err != nil {
 				return nil, err
 			}
@@ -131,84 +122,79 @@ func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldPar
 			}
 		}
 
-		s1.AddField(f1)
+		s.AddField(f)
 
-		if err := setTitleField(&param.IsTitle, s1, f1.ID().Ref()); err != nil {
+		if err := setTitleField(&param.IsTitle, s, f.ID().Ref()); err != nil {
 			return nil, err
 		}
 
-		if err := i.repos.Schema.Save(ctx, s1); err != nil {
+		if err := i.repos.Schema.Save(ctx, s); err != nil {
 			return nil, err
 		}
 
-		return f1, nil
+		return f, nil
 	})
 }
 
-func (i Schema) createCorrespondingField(ctx context.Context, s1 *schema.Schema, f1 *schema.Field, param interfaces.CreateFieldParam, operator *usecase.Operator) error {
-	fr, _ := schema.FieldReferenceFromTypeProperty(f1.TypeProperty())
-	// check if reference direction is two way
-	if fr.CorrespondingField() != nil {
-		mid2 := fr.Model()
-		var s2 *schema.Schema
-		// check self reference
-		if param.ModelID != nil && mid2 == *param.ModelID {
-			s2 = s1
-		} else {
-			m2, err := i.repos.Model.FindByID(ctx, mid2)
-			if err != nil {
-				return err
-			}
-			s2, err = i.repos.Schema.FindByID(ctx, m2.Schema())
-			if err != nil {
-				return err
-			}
+func (i Schema) createCorrespondingField(ctx context.Context, s *schema.Schema, f *schema.Field, param interfaces.CreateFieldParam) error {
+	rInput, _ := schema.FieldReferenceFromTypeProperty(param.TypeProperty)
+	// if the corresponding field is not passed it's not two-way
+	if rInput.CorrespondingField() == nil {
+		return nil
+	}
 
-			if !operator.IsMaintainingProject(s2.Project()) {
-				return interfaces.ErrOperationDenied
-			}
-		}
-
-		fr.SetCorrespondingSchema(s2.ID().Ref())
-		fields, err := schema.GetCorrespondingFields(s1, s2, *param.ModelID, f1, fr)
+	rs := s
+	if s.ID() != rInput.Schema() {
+		s, err := i.repos.Schema.FindByID(ctx, rInput.Schema())
 		if err != nil {
 			return err
 		}
-
-		fields.Schema2.AddField(fields.Field2)
-
-		if err := i.repos.Schema.Save(ctx, fields.Schema2); err != nil {
-			return err
-		}
+		rs = s
 	}
+
+	if rs.HasFieldByKey(rInput.CorrespondingField().Key) {
+		return interfaces.ErrReferencedFiledKeyExists
+	}
+
+	cf, err := schema.CreateCorrespondingField(s.ID(), *param.ModelID, f, *rInput.CorrespondingField())
+	if err != nil {
+		return err
+	}
+
+	rs.AddField(cf)
+
+	if err := i.repos.Schema.Save(ctx, rs); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldParam, operator *usecase.Operator) (*schema.Field, error) {
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
-		s1, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
+func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldParam, op *usecase.Operator) (*schema.Field, error) {
+	return Run1(ctx, op, i.repos, Usecase().Transaction(), func(ctx context.Context) (*schema.Field, error) {
+		s, err := i.repos.Schema.FindByID(ctx, param.SchemaID)
 		if err != nil {
 			return nil, err
 		}
 
-		if !operator.IsMaintainingProject(s1.Project()) {
+		if !op.IsMaintainingProject(s.Project()) {
 			return nil, interfaces.ErrOperationDenied
 		}
 
-		f1 := s1.Field(param.FieldID)
-		if f1 == nil {
+		f := s.Field(param.FieldID)
+		if f == nil {
 			return nil, interfaces.ErrFieldNotFound
 		}
 
 		// check if type is reference
-		if f1.Type() == value.TypeReference {
-			err := i.updateCorrespondingField(ctx, s1, f1, param, operator)
+		if f.Type() == value.TypeReference {
+			err := i.updateCorrespondingField(ctx, s, f, param)
 			if err != nil {
 				return nil, err
 			}
 		}
 
-		if f1.Type() == value.TypeGroup {
+		if f.Type() == value.TypeGroup {
 			var g *schema.FieldGroup
 			param.TypeProperty.Match(schema.TypePropertyMatch{
 				Group: func(f *schema.FieldGroup) {
@@ -221,19 +207,19 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 			}
 		}
 
-		if err := updateField(param, f1); err != nil {
+		if err := updateField(param, f); err != nil {
 			return nil, err
 		}
 
-		if err := setTitleField(param.IsTitle, s1, f1.ID().Ref()); err != nil {
+		if err := setTitleField(param.IsTitle, s, f.ID().Ref()); err != nil {
 			return nil, err
 		}
 
-		if err := i.repos.Schema.Save(ctx, s1); err != nil {
+		if err := i.repos.Schema.Save(ctx, s); err != nil {
 			return nil, err
 		}
 
-		return f1, nil
+		return f, nil
 	})
 }
 
@@ -257,88 +243,52 @@ func setTitleField(isTitle *bool, s *schema.Schema, fid *id.FieldID) error {
 	return nil
 }
 
-func (i Schema) updateCorrespondingField(ctx context.Context, s1 *schema.Schema, f1 *schema.Field, param interfaces.UpdateFieldParam, operator *usecase.Operator) error {
-	oldFr, _ := schema.FieldReferenceFromTypeProperty(f1.TypeProperty())
+func (i Schema) updateCorrespondingField(ctx context.Context, s *schema.Schema, f *schema.Field, param interfaces.UpdateFieldParam) error {
+	oldFr, _ := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
 	newFr, _ := schema.FieldReferenceFromTypeProperty(param.TypeProperty)
-	// check if reference direction is two way
-	if newFr.CorrespondingField() != nil {
-		mid2 := oldFr.Model()
-		m2, err := i.repos.Model.FindByID(ctx, mid2)
+
+	// check if reference direction is changed
+	if (oldFr.CorrespondingFieldID() == nil) != (newFr.CorrespondingField() == nil) {
+		return interfaces.ErrReferenceDirectionChanged
+	}
+
+	// if it's not two-way reference no need to update
+	if newFr.CorrespondingField() == nil {
+		return nil
+	}
+
+	if oldFr.Model() != newFr.Model() || oldFr.Schema() != newFr.Schema() {
+		return interfaces.ErrReferenceModelChanged
+	}
+
+	rs := s
+	if s.ID() != newFr.Schema() {
+		s, err := i.repos.Schema.FindByID(ctx, newFr.Schema())
 		if err != nil {
 			return err
 		}
-		var s2 *schema.Schema
-		// check self reference
-		if param.ModelID != nil && mid2 == *param.ModelID {
-			s2 = s1
-		} else {
-			s2, err = i.repos.Schema.FindByID(ctx, m2.Schema())
-			if err != nil {
-				return err
-			}
-		}
-
-		if !operator.IsMaintainingProject(s2.Project()) {
-			return interfaces.ErrOperationDenied
-		}
-
-		// check if modelId is different
-		if oldFr.Model() == newFr.Model() {
-			// if modelId is same, update f2
-			cf1 := newFr.CorrespondingField()
-			f2 := s2.Field(*cf1.FieldID)
-			if f2 == nil {
-				return interfaces.ErrFieldNotFound
-			}
-			if err := updateField(interfaces.UpdateFieldParam{
-				ModelID:     mid2.Ref(),
-				SchemaID:    m2.Schema(),
-				FieldID:     *cf1.FieldID,
-				Name:        cf1.Title,
-				Description: cf1.Description,
-				Key:         cf1.Key,
-				Required:    cf1.Required,
-			}, f2); err != nil {
-				return err
-			}
-			if err := i.repos.Schema.Save(ctx, s2); err != nil {
-				return err
-			}
-		} else {
-			// delete the old corresponding field
-			s2.RemoveField(*oldFr.CorrespondingFieldID())
-			if err := i.repos.Schema.Save(ctx, s2); err != nil {
-				return err
-			}
-			// create the new corresponding field
-			mid3 := newFr.Model()
-			m3, err := i.repos.Model.FindByID(ctx, mid3)
-			if err != nil {
-				return err
-			}
-			s3, err := i.repos.Schema.FindByID(ctx, m3.Schema())
-			if err != nil {
-				return err
-			}
-
-			if !operator.IsMaintainingProject(s3.Project()) {
-				return interfaces.ErrOperationDenied
-			}
-
-			fields, err := schema.GetCorrespondingFields(s1, s3, *param.ModelID, f1, newFr)
-			if err != nil {
-				return err
-			}
-			if err != nil {
-				return err
-			}
-
-			fields.Schema2.AddField(fields.Field2)
-			if err := i.repos.Schema.Save(ctx, fields.Schema2); err != nil {
-				return err
-			}
-		}
+		rs = s
 	}
+
+	rf := rs.Field(*oldFr.CorrespondingFieldID())
+	if rf == nil {
+		return interfaces.ErrFieldNotFound
+	}
+	if err := updateField(interfaces.UpdateFieldParam{
+		ModelID:     newFr.Model().Ref(),
+		SchemaID:    newFr.Schema(),
+		FieldID:     *oldFr.CorrespondingFieldID(),
+		Name:        &newFr.CorrespondingField().Title,
+		Description: &newFr.CorrespondingField().Description,
+		Key:         &newFr.CorrespondingField().Key,
+		Required:    &newFr.CorrespondingField().Required,
+	}, rf); err != nil {
+		return err
+	}
+	if err := i.repos.Schema.Save(ctx, rs); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -359,7 +309,7 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 				return interfaces.ErrFieldNotFound
 			}
 			if f.Type() == value.TypeReference {
-				err := i.deleteCorrespondingField(ctx, s, f, operator)
+				err := i.deleteCorrespondingField(ctx, s, f)
 				if err != nil {
 					return err
 				}
@@ -370,34 +320,26 @@ func (i Schema) DeleteField(ctx context.Context, schemaId id.SchemaID, fieldID i
 		})
 }
 
-func (i Schema) deleteCorrespondingField(ctx context.Context, s *schema.Schema, f *schema.Field, operator *usecase.Operator) error {
+func (i Schema) deleteCorrespondingField(ctx context.Context, s *schema.Schema, f *schema.Field) error {
 	fr, _ := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
-	cfid := fr.CorrespondingFieldID()
+	if fr.CorrespondingFieldID() == nil {
+		return nil
+	}
 
-	// check if reference direction is two way
-	if cfid != nil {
-		ms, err := i.repos.Model.FindByIDs(ctx, []id.ModelID{fr.Model()})
-		if err != nil || len(ms) != 1 {
-			if err == nil {
-				return rerror.NewE(i18n.T("not found"))
-			}
-			return err
-		}
-		m := ms[0]
-
-		s2, err := i.repos.Schema.FindByID(ctx, m.Schema())
+	rs := s
+	if s.ID() != fr.Schema() {
+		s, err := i.repos.Schema.FindByID(ctx, fr.Schema())
 		if err != nil {
 			return err
 		}
-		// check self reference
-		if s2.ID() == s.ID() {
-			s2 = s
-		}
-		s2.RemoveField(*cfid)
-		if err := i.repos.Schema.Save(ctx, s2); err != nil {
-			return err
-		}
+		rs = s
 	}
+
+	rs.RemoveField(*fr.CorrespondingFieldID())
+	if err := i.repos.Schema.Save(ctx, rs); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -478,7 +420,7 @@ func updateField(param interfaces.UpdateFieldParam, f *schema.Field) error {
 	return nil
 }
 
-func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.SchemaIDList, operator *usecase.Operator) (schemas schema.List, groupSchemas schema.List, err error) {
+func (i Schema) GetSchemasAndGroupSchemasByIDs(ctx context.Context, list id.SchemaIDList, _ *usecase.Operator) (schemas schema.List, groupSchemas schema.List, err error) {
 	schemas, err = i.repos.Schema.FindByIDs(ctx, list)
 	if err != nil {
 		return

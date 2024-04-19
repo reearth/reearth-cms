@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
+import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { PublicScope } from "@reearth-cms/components/molecules/Accessibility";
-import { Role } from "@reearth-cms/components/molecules/Workspace/types";
+import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
+import {
+  fromGraphQLMember,
+  fromGraphQLWorkspace,
+} from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useCreateWorkspaceMutation,
   useGetMeQuery,
   useGetProjectQuery,
   ProjectPublicationScope,
+  WorkspaceMember,
+  Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useProject, useUserId, useWorkspaceId } from "@reearth-cms/state";
@@ -32,8 +38,6 @@ export default () => {
 
   const [, secondaryRoute, subRoute] = useMemo(() => splitPathname(pathname), [pathname]);
 
-  const selectedKey = useMemo(() => subRoute ?? "home", [subRoute]);
-
   const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
 
   setCurrentUserId(data?.me?.id);
@@ -42,16 +46,29 @@ export default () => {
     setCollapsed(collapse);
   }, []);
 
-  const workspaces = data?.me?.workspaces;
-  const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
-  const personalWorkspace = workspaces?.find(
-    workspace => workspace.id === data?.me?.myWorkspace.id,
+  const workspaces = data?.me?.workspaces?.map(workspace =>
+    fromGraphQLWorkspace(workspace as GQLWorkspace),
   );
-  const personal = workspaceId === data?.me?.myWorkspace.id;
+  const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
+  const personalWorkspace = useMemo(() => {
+    const foundWorkspace = workspaces?.find(
+      workspace => workspace.id === data?.me?.myWorkspace?.id,
+    );
+    return foundWorkspace
+      ? {
+          id: foundWorkspace.id,
+          name: foundWorkspace.name,
+          members: foundWorkspace.members?.map(member =>
+            fromGraphQLMember(member as WorkspaceMember),
+          ),
+        }
+      : undefined;
+  }, [data?.me?.myWorkspace?.id, workspaces]);
+  const personal = workspaceId === data?.me?.myWorkspace?.id;
 
   useEffect(() => {
     if (currentWorkspace || workspaceId || !data) return;
-    setCurrentWorkspace(data.me?.myWorkspace);
+    setCurrentWorkspace(data.me?.myWorkspace ?? undefined);
     setCurrentWorkspaceId(data.me?.myWorkspace?.id);
     navigate(`/workspace/${data.me?.myWorkspace?.id}`);
   }, [data, navigate, setCurrentWorkspace, setCurrentWorkspaceId, currentWorkspace, workspaceId]);
@@ -75,7 +92,9 @@ export default () => {
       });
       if (results.data?.createWorkspace) {
         Notification.success({ message: t("Successfully created workspace!") });
-        setCurrentWorkspace(results.data.createWorkspace.workspace);
+        setCurrentWorkspace(
+          fromGraphQLWorkspace(results.data.createWorkspace.workspace as GQLWorkspace),
+        );
         navigate(`/workspace/${results.data.createWorkspace.workspace.id}`);
       }
       refetch();
@@ -109,13 +128,48 @@ export default () => {
           scope: convertScope(project.publication?.scope),
           alias: project.alias,
           assetPublic: project.publication?.assetPublic,
-          requestRoles: project.requestRoles as Role[],
+          requestRoles: project.requestRoles ?? undefined,
         });
       }
     } else {
       setCurrentProject(undefined);
     }
   }, [projectId, projectData?.node, setCurrentProject]);
+
+  const handleProjectMenuNavigate = useCallback(
+    (info: MenuInfo) => {
+      if (info.key === "home") {
+        navigate(`/workspace/${workspaceId}`);
+      } else if (info.key === "overview") {
+        navigate(`/workspace/${workspaceId}/project/${projectId}`);
+      } else {
+        navigate(`/workspace/${workspaceId}/project/${projectId}/${info.key}`);
+      }
+    },
+    [navigate, workspaceId, projectId],
+  );
+
+  const handleWorkspaceMenuNavigate = useCallback(
+    (info: MenuInfo) => {
+      if (info.key === "home") {
+        navigate(`/workspace/${workspaceId}`);
+      } else {
+        navigate(`/workspace/${workspaceId}/${info.key}`);
+      }
+    },
+    [navigate, workspaceId],
+  );
+
+  const handleWorkspaceNavigation = useCallback(
+    (id: number) => {
+      navigate(`/workspace/${id}`);
+    },
+    [navigate],
+  );
+
+  const handleHomeNavigation = useCallback(() => {
+    navigate(`/workspace/${currentWorkspace?.id}`);
+  }, [currentWorkspace?.id, navigate]);
 
   return {
     username,
@@ -124,14 +178,18 @@ export default () => {
     currentWorkspace,
     workspaceModalShown,
     currentProject,
-    selectedKey,
+    selectedKey: subRoute,
     secondaryRoute,
     collapsed,
     handleCollapse,
+    handleProjectMenuNavigate,
+    handleWorkspaceMenuNavigate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleNavigateToSettings,
+    handleWorkspaceNavigation,
+    handleHomeNavigation,
     logoUrl,
   };
 };

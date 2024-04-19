@@ -1,6 +1,6 @@
 import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/Details";
-import useAssetHooks from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
@@ -10,6 +10,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    loadingReference,
     linkedItemsModalList,
     showPublishAction,
     requests,
@@ -17,7 +18,6 @@ const ContentDetails: React.FC = () => {
     itemLoading,
     currentModel,
     currentItem,
-    formItemsData,
     initialFormValues,
     initialMetaFormValues,
     itemCreationLoading,
@@ -26,7 +26,6 @@ const ContentDetails: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
-    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
     linkItemModalTitle,
@@ -35,8 +34,10 @@ const ContentDetails: React.FC = () => {
     linkItemModalPageSize,
     handleReferenceModelUpdate,
     handleSearchTerm,
+    handleLinkItemTableReload,
     handleLinkItemTableChange,
     handleRequestTableChange,
+    handleRequestTableReload,
     handleRequestSearchTerm,
     requestModalLoading,
     requestModalTotalCount,
@@ -56,6 +57,8 @@ const ContentDetails: React.FC = () => {
     handleModalOpen,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleGroupGet,
+    handleCheckItemReference,
   } = useHooks();
 
   const {
@@ -73,30 +76,34 @@ const ContentDetails: React.FC = () => {
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
+    handleAssetsGet,
     handleAssetsReload,
     handleSearchTerm: handleAssetSearchTerm,
     totalCount,
     page,
     pageSize,
     handleAssetTableChange,
-  } = useAssetHooks();
+    handleGetAsset,
+  } = useAssetHooks(false);
 
   return (
     <ContentDetailsMolecule
-      formItemsData={formItemsData}
       linkItemModalTitle={linkItemModalTitle}
       linkItemModalTotalCount={linkItemModalTotalCount}
       linkItemModalPage={linkItemModalPage}
       linkItemModalPageSize={linkItemModalPageSize}
       onSearchTerm={handleSearchTerm}
+      onLinkItemTableReload={handleLinkItemTableReload}
       onLinkItemTableChange={handleLinkItemTableChange}
       onReferenceModelUpdate={handleReferenceModelUpdate}
+      loadingReference={loadingReference}
       linkedItemsModalList={linkedItemsModalList}
       showPublishAction={showPublishAction}
       requests={requests}
       requestCreationLoading={requestCreationLoading}
       onRequestTableChange={handleRequestTableChange}
       onRequestSearchTerm={handleRequestSearchTerm}
+      onRequestTableReload={handleRequestTableReload}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
@@ -110,6 +117,7 @@ const ContentDetails: React.FC = () => {
             threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}
             onCollapse={collapseCommentsPanel}
+            refetchQueries={["GetItem"]}
           />
         ) : undefined
       }
@@ -117,7 +125,6 @@ const ContentDetails: React.FC = () => {
       itemId={itemId}
       itemLoading={itemLoading}
       model={currentModel}
-      groups={groups}
       initialFormValues={initialFormValues}
       initialMetaFormValues={initialMetaFormValues}
       loading={itemCreationLoading || itemUpdatingLoading}
@@ -131,6 +138,7 @@ const ContentDetails: React.FC = () => {
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
           displayGroups={false}
+          selectedSchemaType="model"
         />
       }
       onChange={handleAddItemToRequest}
@@ -152,6 +160,7 @@ const ContentDetails: React.FC = () => {
       setUploadType={setUploadType}
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
+      onAssetsGet={handleAssetsGet}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleAssetSearchTerm}
       setFileList={setFileList}
@@ -164,6 +173,9 @@ const ContentDetails: React.FC = () => {
       onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
       workspaceUserMembers={workspaceUserMembers}
+      onGetAsset={handleGetAsset}
+      onGroupGet={handleGroupGet}
+      onCheckItemReference={handleCheckItemReference}
     />
   );
 };

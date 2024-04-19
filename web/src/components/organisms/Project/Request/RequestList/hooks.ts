@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import { convertComment } from "@reearth-cms/components/organisms/Project/Content/utils";
+import { fromGraphQLComment } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useGetRequestsQuery,
   useDeleteRequestMutation,
@@ -55,6 +55,7 @@ export default () => {
       reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,
       createdBy: createdByMe && userData?.me?.id ? userData?.me?.id : undefined,
     },
+    notifyOnNetworkStatusChange: true,
     skip: !projectId,
   });
 
@@ -75,7 +76,7 @@ export default () => {
           description: r.description ?? "",
           state: r.state,
           threadId: r.threadId,
-          comments: r.thread?.comments.map(c => convertComment(c as GQLComment)) ?? [],
+          comments: r.thread?.comments.map(c => fromGraphQLComment(c as GQLComment)) ?? [],
           reviewers: r.reviewers,
           createdBy: r.createdBy ?? undefined,
           createdAt: r.createdAt,
@@ -131,17 +132,6 @@ export default () => {
     [requests, selectedRequestId],
   );
 
-  // const selectRequest = useCallback(
-  //   (requestId: string) => {
-  //     if (selectedRequests.includes(requestId)) {
-  //       selectRequests(selectedRequests.filter(id => id !== requestId));
-  //     } else {
-  //       selectRequests([...selectedRequests, requestId]);
-  //     }
-  //   },
-  //   [selectedRequests, selectRequests],
-  // );
-
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term ?? "");
     setPage(1);
@@ -171,7 +161,6 @@ export default () => {
     collapseCommentsPanel,
     selectedRequests,
     selectedRequest,
-    // selectRequest,
     selection,
     handleNavigateToRequest,
     setSelection,
@@ -179,7 +168,6 @@ export default () => {
     handleRequestsReload,
     handleRequestDelete,
     handleSearchTerm,
-    searchTerm,
     reviewedByMe,
     createdByMe,
     requestState,

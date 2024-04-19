@@ -108,11 +108,11 @@ type AssetEdge struct {
 }
 
 type AssetFile struct {
-	Name        string       `json:"name"`
-	Size        int64        `json:"size"`
-	ContentType *string      `json:"contentType,omitempty"`
-	Path        string       `json:"path"`
-	Children    []*AssetFile `json:"children,omitempty"`
+	Name        string   `json:"name"`
+	Size        int64    `json:"size"`
+	ContentType *string  `json:"contentType,omitempty"`
+	Path        string   `json:"path"`
+	FilePaths   []string `json:"filePaths,omitempty"`
 }
 
 type AssetItem struct {
@@ -208,11 +208,11 @@ type ConditionInput struct {
 }
 
 type CorrespondingFieldInput struct {
-	FieldID     *ID     `json:"fieldId,omitempty"`
-	Title       *string `json:"title,omitempty"`
-	Key         *string `json:"key,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Required    *bool   `json:"required,omitempty"`
+	FieldID     *ID    `json:"fieldId,omitempty"`
+	Title       string `json:"title"`
+	Key         string `json:"key"`
+	Description string `json:"description"`
+	Required    bool   `json:"required"`
 }
 
 type CreateAssetInput struct {
@@ -228,14 +228,18 @@ type CreateAssetPayload struct {
 }
 
 type CreateAssetUploadInput struct {
-	ProjectID ID     `json:"projectId"`
-	Filename  string `json:"filename"`
+	ProjectID     ID      `json:"projectId"`
+	Filename      *string `json:"filename,omitempty"`
+	ContentLength *int    `json:"contentLength,omitempty"`
+	Cursor        *string `json:"cursor,omitempty"`
 }
 
 type CreateAssetUploadPayload struct {
-	URL         string `json:"url"`
-	Token       string `json:"token"`
-	ContentType string `json:"contentType"`
+	Token         string  `json:"token"`
+	URL           string  `json:"url"`
+	ContentType   *string `json:"contentType,omitempty"`
+	ContentLength int     `json:"contentLength"`
+	Next          *string `json:"next,omitempty"`
 }
 
 type CreateFieldInput struct {
@@ -533,6 +537,7 @@ type Item struct {
 	Thread                 *Thread      `json:"thread"`
 	Fields                 []*ItemField `json:"fields"`
 	Assets                 []*Asset     `json:"assets"`
+	ReferencedItems        []*Item      `json:"referencedItems,omitempty"`
 	CreatedAt              time.Time    `json:"createdAt"`
 	UpdatedAt              time.Time    `json:"updatedAt"`
 	UpdatedBy              Operator     `json:"updatedBy,omitempty"`
@@ -603,10 +608,11 @@ type Me struct {
 	Email         string         `json:"email"`
 	Lang          language.Tag   `json:"lang"`
 	Theme         Theme          `json:"theme"`
+	Host          *string        `json:"host,omitempty"`
 	MyWorkspaceID ID             `json:"myWorkspaceId"`
 	Auths         []string       `json:"auths"`
 	Workspaces    []*Workspace   `json:"workspaces"`
-	MyWorkspace   *Workspace     `json:"myWorkspace"`
+	MyWorkspace   *Workspace     `json:"myWorkspace,omitempty"`
 	Integrations  []*Integration `json:"integrations"`
 }
 
@@ -667,6 +673,9 @@ type MultipleFieldConditionInput struct {
 	FieldID  *FieldSelectorInput `json:"fieldId"`
 	Operator MultipleOperator    `json:"operator"`
 	Value    []interface{}       `json:"value"`
+}
+
+type Mutation struct {
 }
 
 type NullableFieldCondition struct {
@@ -787,6 +796,9 @@ type PublishModelInput struct {
 type PublishModelPayload struct {
 	ModelID ID   `json:"modelId"`
 	Status  bool `json:"status"`
+}
+
+type Query struct {
 }
 
 type RemoveIntegrationFromWorkspaceInput struct {
@@ -980,19 +992,19 @@ type SchemaFieldMarkdown struct {
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReference struct {
-	ModelID               ID           `json:"modelId"`
-	CorrespondingSchemaID *ID          `json:"correspondingSchemaId,omitempty"`
-	CorrespondingSchema   *Schema      `json:"correspondingSchema,omitempty"`
-	CorrespondingFieldID  *ID          `json:"correspondingFieldId,omitempty"`
-	CorrespondingField    *SchemaField `json:"correspondingField,omitempty"`
+	ModelID              ID           `json:"modelId"`
+	SchemaID             ID           `json:"schemaId"`
+	Schema               *Schema      `json:"schema"`
+	CorrespondingFieldID *ID          `json:"correspondingFieldId,omitempty"`
+	CorrespondingField   *SchemaField `json:"correspondingField,omitempty"`
 }
 
 func (SchemaFieldReference) IsSchemaFieldTypeProperty() {}
 
 type SchemaFieldReferenceInput struct {
-	ModelID               ID                       `json:"modelId"`
-	CorrespondingSchemaID *ID                      `json:"correspondingSchemaId,omitempty"`
-	CorrespondingField    *CorrespondingFieldInput `json:"correspondingField,omitempty"`
+	ModelID            ID                       `json:"modelId"`
+	SchemaID           ID                       `json:"schemaId"`
+	CorrespondingField *CorrespondingFieldInput `json:"correspondingField,omitempty"`
 }
 
 type SchemaFieldRichText struct {
@@ -1353,9 +1365,10 @@ type URLResourcePropsInput struct {
 }
 
 type User struct {
-	ID    ID     `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID    ID      `json:"id"`
+	Name  string  `json:"name"`
+	Email string  `json:"email"`
+	Host  *string `json:"host,omitempty"`
 }
 
 func (User) IsOperator() {}
@@ -1455,9 +1468,10 @@ func (WorkspaceSettings) IsNode()        {}
 func (this WorkspaceSettings) GetID() ID { return this.ID }
 
 type WorkspaceUserMember struct {
-	UserID ID    `json:"userId"`
-	Role   Role  `json:"role"`
-	User   *User `json:"user,omitempty"`
+	UserID ID      `json:"userId"`
+	Role   Role    `json:"role"`
+	Host   *string `json:"host,omitempty"`
+	User   *User   `json:"user,omitempty"`
 }
 
 func (WorkspaceUserMember) IsWorkspaceMember() {}

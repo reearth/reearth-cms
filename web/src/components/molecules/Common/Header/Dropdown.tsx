@@ -40,7 +40,9 @@ const StyledDropdown = styled(DropdownAtom)`
 const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
     background-color: #141414 !important;
-    width: 190px;
+    min-width: 190px;
+    max-width: 205px;
+    padding: 4px 0;
   }
   .ant-dropdown-menu-item-divider {
     background-color: #303030;
@@ -48,7 +50,7 @@ const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu-item-group-title,
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
-    color: #fff;
+    color: #fff !important;
   }
   .ant-dropdown-menu-item-group-title {
     font-weight: 400;
@@ -56,6 +58,10 @@ const StyledDropdownMenu = styled.div`
     line-height: 22px;
     user-select: none;
     color: #dbdbdb;
+  }
+  .ant-dropdown-menu-item-group-list {
+    max-height: 50vh;
+    overflow: hidden auto;
   }
   .ant-dropdown-menu-item-active {
     background-color: #1d1d1d;

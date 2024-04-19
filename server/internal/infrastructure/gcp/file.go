@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"path"
 	"strings"
-	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -137,28 +136,34 @@ func (f *fileRepo) GetURL(a *asset.Asset) string {
 	return getURL(f.base, a.UUID(), a.FileName())
 }
 
-func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, filename, contentType string, expiresAt time.Time) (string, string, error) {
-	uuid := newUUID()
+func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
+	uuid := param.UUID
+	contentType := param.ContentType()
 
-	p := getGCSObjectPath(uuid, filename)
+	p := getGCSObjectPath(uuid, param.Filename)
 	if p == "" {
-		return "", "", gateway.ErrInvalidFile
+		return nil, gateway.ErrInvalidFile
 	}
 	bucket, err := f.bucket(ctx)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	opt := &storage.SignedURLOptions{
 		Method:      http.MethodPut,
-		Expires:     expiresAt,
+		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {
 		log.Warnf("gcs: failed to issue signed url: %v", err)
-		return "", "", gateway.ErrUnsupportedOperation
+		return nil, gateway.ErrUnsupportedOperation
 	}
-	return uploadURL, uuid, nil
+	return &gateway.UploadAssetLink{
+		URL:           uploadURL,
+		ContentType:   contentType,
+		ContentLength: param.ContentLength,
+		Next:          "",
+	}, nil
 }
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
@@ -169,7 +174,7 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 	}
 	attrs, err := bucket.Object(p).Attrs(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("attrs(object=%s): %w", p, err)
 	}
 	return &file.File{
 		Content:     nil,

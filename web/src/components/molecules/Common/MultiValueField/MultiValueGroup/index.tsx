@@ -1,19 +1,19 @@
 import styled from "@emotion/styled";
-import moment from "moment";
-import { useCallback, useEffect, useMemo } from "react";
+import dayjs from "dayjs";
+import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset } from "@reearth-cms/components/molecules/Asset/asset.type";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { FormItem } from "@reearth-cms/components/molecules/Content/types";
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
-} from "@reearth-cms/components/organisms/Asset/AssetList/hooks";
+} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
@@ -26,10 +26,12 @@ type Props = {
   onChange?: (value: string[]) => void;
   parentField: Field;
   form?: FormInstance<any>;
-  groups?: Group[];
   fields?: Field[];
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
+  linkItemModalTitle: string;
   formItemsData: FormItem[];
+  itemAssets?: ItemAsset[];
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -43,7 +45,9 @@ type Props = {
   linkItemModalTotalCount: number;
   linkItemModalPage: number;
   linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId?: string) => void;
+  onSearchTerm: (term?: string) => void;
+  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
+  onLinkItemTableReload: () => void;
   onLinkItemTableChange: (page: number, pageSize: number) => void;
   onAssetTableChange: (
     page: number,
@@ -55,22 +59,28 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
   className,
   parentField,
-  groups,
   form,
   fields,
   value = [],
   onChange,
+  loadingReference,
   linkedItemsModalList,
+  linkItemModalTitle,
   formItemsData,
+  itemAssets,
   assetList,
   fileList,
   loadingAssets,
@@ -84,7 +94,9 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  onSearchTerm,
   onReferenceModelUpdate,
+  onLinkItemTableReload,
   onLinkItemTableChange,
   onAssetTableChange,
   onUploadModalCancel,
@@ -92,10 +104,14 @@ const MultiValueGroup: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
   setUploadModalVisibility,
+  onGetAsset,
+  onGroupGet,
+  onCheckItemReference,
 }) => {
   const t = useT();
 
@@ -114,12 +130,7 @@ const MultiValueGroup: React.FC<Props> = ({
     [onChange, value],
   );
 
-  const group = useMemo<Group | undefined>(
-    () => groups?.find(g => g.id === parentField.typeProperty?.groupId),
-    [groups, parentField.typeProperty?.groupId],
-  );
-
-  const handleAdd = useCallback(() => {
+  const handleAdd = useCallback(async () => {
     const currentValues = value || [];
     const itemGroupId = newID();
 
@@ -131,6 +142,8 @@ const MultiValueGroup: React.FC<Props> = ({
 
     // set default value
     const newValues = { ...form?.getFieldsValue() };
+    if (!parentField.typeProperty?.groupId) return;
+    const group = await onGroupGet(parentField.typeProperty.groupId);
     group?.schema.fields.forEach((field: Field) => {
       const defaultValue = field.typeProperty?.defaultValue;
       const setValue = (value: any) => {
@@ -153,9 +166,9 @@ const MultiValueGroup: React.FC<Props> = ({
           break;
         case "Date":
           if (Array.isArray(defaultValue)) {
-            setValue(defaultValue.map(valueItem => (valueItem ? moment(valueItem as string) : "")));
+            setValue(defaultValue.map(valueItem => (valueItem ? dayjs(valueItem as string) : "")));
           } else if (defaultValue) {
-            setValue(moment(defaultValue as string));
+            setValue(dayjs(defaultValue as string));
           } else {
             form?.setFieldValue([field.id, itemGroupId], "");
           }
@@ -165,7 +178,7 @@ const MultiValueGroup: React.FC<Props> = ({
           break;
       }
     });
-  }, [form, group?.schema.fields, onChange, value]);
+  }, [form, onChange, onGroupGet, parentField.typeProperty?.groupId, value]);
 
   return (
     <div className={className}>
@@ -177,8 +190,12 @@ const MultiValueGroup: React.FC<Props> = ({
                 order={key}
                 value={valueItem}
                 parentField={parentField}
+                loadingReference={loadingReference}
                 linkedItemsModalList={linkedItemsModalList}
+                linkItemModalTitle={linkItemModalTitle}
+                onSearchTerm={onSearchTerm}
                 formItemsData={formItemsData}
+                itemAssets={itemAssets}
                 assetList={assetList}
                 fileList={fileList}
                 loadingAssets={loadingAssets}
@@ -193,6 +210,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 linkItemModalPage={linkItemModalPage}
                 linkItemModalPageSize={linkItemModalPageSize}
                 onReferenceModelUpdate={onReferenceModelUpdate}
+                onLinkItemTableReload={onLinkItemTableReload}
                 onLinkItemTableChange={onLinkItemTableChange}
                 onAssetTableChange={onAssetTableChange}
                 onUploadModalCancel={onUploadModalCancel}
@@ -200,6 +218,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 setUploadType={setUploadType}
                 onAssetsCreate={onAssetsCreate}
                 onAssetCreateFromUrl={onAssetCreateFromUrl}
+                onAssetsGet={onAssetsGet}
                 onAssetsReload={onAssetsReload}
                 onAssetSearchTerm={onAssetSearchTerm}
                 setFileList={setFileList}
@@ -209,6 +228,9 @@ const MultiValueGroup: React.FC<Props> = ({
                 onDelete={() => handleInputDelete(key)}
                 disableMoveUp={key === 0}
                 disableMoveDown={key === value.length - 1}
+                onGetAsset={onGetAsset}
+                onGroupGet={onGroupGet}
+                onCheckItemReference={onCheckItemReference}
               />
             </FieldWrapper>
           );
