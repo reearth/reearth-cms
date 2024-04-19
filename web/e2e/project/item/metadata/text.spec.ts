@@ -163,14 +163,18 @@ test("Text metadata editing has succeeded", async ({ page }) => {
     .filter({ hasText: /^0 \/ 5$/ })
     .getByRole("textbox")
     .fill("text2");
+  await page.getByText("new text1 description").click();
+  await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "arrow-down" }).first().click();
   await closeNotification(page);
-  await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "arrow-down" }).nth(1).click();
   await closeNotification(page);
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("text1");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("text2");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("text3");
+  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
   await page.getByLabel("Back").click();

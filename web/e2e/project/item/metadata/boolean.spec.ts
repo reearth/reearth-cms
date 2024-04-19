@@ -138,12 +138,16 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByRole("switch").nth(2).click();
   await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByRole("switch").nth(4).click();
   await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
   await page.getByLabel("Back").click();

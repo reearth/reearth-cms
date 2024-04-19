@@ -78,6 +78,7 @@ const DropdownRender: React.FC<Props> = ({
             options={options}
             onSelect={onFilterSelect}
             defaultValue={defaultValue?.operator ?? options[0].value}
+            getPopupContainer={trigger => trigger.parentNode}
           />
         </StyledFormItem>
         {isFilter && isShowInputField && (

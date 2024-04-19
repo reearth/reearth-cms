@@ -50,8 +50,8 @@ export default (
     if (selectedType === "Select") {
       const defaultValue = form.getFieldValue("defaultValue");
       if (Array.isArray(defaultValue)) {
-        const filteredVelue = defaultValue.filter(value => selectedValues?.includes(value));
-        form.setFieldValue("defaultValue", filteredVelue);
+        const filteredValue = defaultValue.filter(value => selectedValues?.includes(value));
+        form.setFieldValue("defaultValue", filteredValue);
       } else if (!selectedValues?.includes(defaultValue)) {
         form.setFieldValue("defaultValue", undefined);
       }
@@ -62,10 +62,10 @@ export default (
     if (selectedType === "Tag") {
       const defaultValue = form.getFieldValue("defaultValue");
       if (Array.isArray(defaultValue)) {
-        const filteredVelue = defaultValue.filter(
-          value => selectedTags?.some(tag => tag.name === value),
+        const filteredValue = defaultValue.filter(value =>
+          selectedTags?.some(tag => tag.name === value),
         );
-        form.setFieldValue("defaultValue", filteredVelue);
+        form.setFieldValue("defaultValue", filteredValue);
       } else if (!selectedTags?.some(tag => tag.name === defaultValue)) {
         form.setFieldValue("defaultValue", undefined);
       }
