@@ -87,7 +87,7 @@
     "@ant-design/pro-layout": "7.19.2",
     "@ant-design/pro-table": "3.15.3",
     "@apollo/client": "3.9.11",
-    "@auth0/auth0-react": "1.12.1",
+    "@auth0/auth0-react": "2.2.4",
     "@emotion/react": "11.11.4",
     "@emotion/styled": "11.11.5",
     "antd": "5.16.2",
