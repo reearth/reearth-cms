@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -66,10 +65,8 @@ func (r *AssetFile) FindByID(ctx context.Context, id id.AssetID) (*asset.File, e
 		})); err != nil {
 			return nil, err
 		}
-		files := lo.Filter(afc.Result().Model(), func(af *asset.File, _ int) bool {
-			return af.Path() != f.Path()
-		})
-		// f = asset.FoldFiles(afc.Result().Model(), f)
+		files := afc.Result().Model()
+		// f = asset.FoldFiles(files, f)
 		f.SetFiles(files)
 	} else if len(f.Children()) > 0 {
 		f.SetFiles(f.FlattenChildren())
