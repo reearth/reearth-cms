@@ -30,9 +30,11 @@ export const useAuth0Auth = (): AuthHook => {
     logout: () => {
       logOutFromTenant();
       return logout({
-        returnTo: error
-          ? `${window.location.origin}?${errorKey}=${encodeURIComponent(error?.message)}`
-          : window.location.origin,
+        logoutParams: {
+          returnTo: error
+            ? `${window.location.origin}?${errorKey}=${encodeURIComponent(error?.message)}`
+            : window.location.origin,
+        },
       });
     },
   };
