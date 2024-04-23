@@ -146,12 +146,16 @@ test("Checkbox metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByLabel("", { exact: true }).nth(2)).toBeChecked();
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByLabel("", { exact: true }).nth(2).uncheck();
   await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByLabel("", { exact: true }).nth(4).click();
   await closeNotification(page);
+  await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
   await expect(page.getByLabel("", { exact: true }).nth(0)).toBeChecked();
