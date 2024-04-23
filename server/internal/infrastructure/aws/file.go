@@ -48,8 +48,7 @@ func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string) (gat
 		baseURL = fmt.Sprintf("https://%s.s3.amazonaws.com/", bucketName)
 	}
 
-	var err error
-	u, _ = url.Parse(baseURL)
+	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}

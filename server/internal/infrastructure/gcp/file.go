@@ -42,8 +42,7 @@ func NewFile(bucketName, base, cacheControl string) (gateway.File, error) {
 		base = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
 	}
 
-	var err error
-	u, _ = url.Parse(base)
+	u, err := url.Parse(base)
 	if err != nil {
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}

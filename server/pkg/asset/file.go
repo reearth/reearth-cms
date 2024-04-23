@@ -61,7 +61,9 @@ func (f *File) Files() []*File {
 }
 
 func (f *File) SetFiles(s []*File) {
-	f.files = slices.Clone(s)
+	f.files = lo.Filter(s, func(af *File, _ int) bool {
+		return af.Path() != f.Path()
+	})
 }
 
 func (f *File) FilePaths() []string {
