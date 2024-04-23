@@ -33,7 +33,7 @@ const defaultTile = new ProviderViewModel({
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.AERIAL,
-    }) as any;
+    });
   },
 });
 
@@ -44,7 +44,7 @@ const labelled = new ProviderViewModel({
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.AERIAL_WITH_LABELS,
-    }) as any;
+    });
   },
 });
 
@@ -55,7 +55,7 @@ const roadMap = new ProviderViewModel({
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.ROAD,
-    }) as any;
+    });
   },
 });
 
@@ -92,7 +92,7 @@ const earthAtNight = new ProviderViewModel({
   iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
   tooltip: "",
   creationFunction: () => {
-    return IonImageryProvider.fromAssetId(3812, {}) as any;
+    return IonImageryProvider.fromAssetId(3812, { accessToken });
   },
 });
 
