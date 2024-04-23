@@ -27,6 +27,7 @@ dist-ssr
 /coverage
 /reearth-config.json
 .env*
+!.env.example
 
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
