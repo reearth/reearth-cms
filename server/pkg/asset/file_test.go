@@ -70,6 +70,19 @@ func TestFile_Files(t *testing.T) {
 	}, f.FlattenChildren())
 }
 
+func TestFile_SetFiles(t *testing.T) {
+	root := NewFile().Build()
+	files := []*File{NewFile().Path("aaa/a/a.txt").Build(), NewFile().Path("aaa/b.txt").Build()}
+	root.SetFiles(files)
+	assert.Equal(t, files, root.files)
+
+	root2 := NewFile().Path("aaa.zip").Build()
+	files2 := []*File{NewFile().Path("aaa.zip").Build(), NewFile().Path("aaa/a/a.txt").Build(), NewFile().Path("aaa/b.txt").Build()}
+	expected := []*File{NewFile().Path("aaa/a/a.txt").Build(), NewFile().Path("aaa/b.txt").Build()}
+	root2.SetFiles(files2)
+	assert.Equal(t, expected, root2.files)
+}
+
 func Test_FoldFiles(t *testing.T) {
 	assert.Equal(t,
 		&File{
