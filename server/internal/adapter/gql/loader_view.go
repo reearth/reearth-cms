@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -61,48 +60,4 @@ func (c *ViewLoader) FindByModel(ctx context.Context, modelID gqlmodel.ID) ([]*g
 		integrations = append(integrations, gqlmodel.ToView(i))
 	}
 	return integrations, nil
-}
-
-// data loaders
-
-type ViewDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.View, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.View, []error)
-}
-
-func (c *ViewLoader) DataLoader(ctx context.Context) ViewDataLoader {
-	return gqldataloader.NewViewLoader(gqldataloader.ViewLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.View, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *ViewLoader) OrdinaryDataLoader(ctx context.Context) ViewDataLoader {
-	return &ordinaryViewLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.View, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryViewLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.View, []error)
-}
-
-func (l *ordinaryViewLoader) Load(key gqlmodel.ID) (*gqlmodel.View, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryViewLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.View, []error) {
-	return l.fetch(keys)
 }

@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -83,43 +82,4 @@ func (c *RequestLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID
 		PageInfo:   gqlmodel.ToPageInfo(pi),
 		TotalCount: int(pi.TotalCount),
 	}, nil
-}
-
-type RequestDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Request, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Request, []error)
-}
-
-func (c *RequestLoader) DataLoader(ctx context.Context) RequestDataLoader {
-	return gqldataloader.NewRequestLoader(gqldataloader.RequestLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Request, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *RequestLoader) OrdinaryDataLoader(ctx context.Context) RequestDataLoader {
-	return &ordinaryRequestLoader{ctx: ctx, c: c}
-}
-
-type ordinaryRequestLoader struct {
-	ctx context.Context
-	c   *RequestLoader
-}
-
-func (l *ordinaryRequestLoader) Load(key gqlmodel.ID) (*gqlmodel.Request, error) {
-	res, errs := l.c.Fetch(l.ctx, []gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryRequestLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Request, []error) {
-	return l.c.Fetch(l.ctx, keys)
 }

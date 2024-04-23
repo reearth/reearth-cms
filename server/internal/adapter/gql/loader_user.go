@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -49,48 +48,4 @@ func (c *UserLoader) SearchUser(ctx context.Context, nameOrEmail string) (*gqlmo
 	}
 
 	return gqlmodel.SimpleToUser(res), nil
-}
-
-// data loader
-
-type UserDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.User, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.User, []error)
-}
-
-func (c *UserLoader) DataLoader(ctx context.Context) UserDataLoader {
-	return gqldataloader.NewUserLoader(gqldataloader.UserLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.User, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *UserLoader) OrdinaryDataLoader(ctx context.Context) UserDataLoader {
-	return &ordinaryUserLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.User, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryUserLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.User, []error)
-}
-
-func (l *ordinaryUserLoader) Load(key gqlmodel.ID) (*gqlmodel.User, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryUserLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.User, []error) {
-	return l.fetch(keys)
 }

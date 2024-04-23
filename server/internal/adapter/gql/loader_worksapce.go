@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -57,48 +56,4 @@ func (c *WorkspaceLoader) FindByUser(ctx context.Context, uid gqlmodel.ID) ([]*g
 		workspaces = append(workspaces, gqlmodel.ToWorkspace(t))
 	}
 	return workspaces, nil
-}
-
-// data loader
-
-type WorkspaceDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Workspace, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Workspace, []error)
-}
-
-func (c *WorkspaceLoader) DataLoader(ctx context.Context) WorkspaceDataLoader {
-	return gqldataloader.NewWorkspaceLoader(gqldataloader.WorkspaceLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Workspace, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *WorkspaceLoader) OrdinaryDataLoader(ctx context.Context) WorkspaceDataLoader {
-	return &ordinaryWorkspaceLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Workspace, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryWorkspaceLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.Workspace, []error)
-}
-
-func (l *ordinaryWorkspaceLoader) Load(key gqlmodel.ID) (*gqlmodel.Workspace, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryWorkspaceLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Workspace, []error) {
-	return l.fetch(keys)
 }

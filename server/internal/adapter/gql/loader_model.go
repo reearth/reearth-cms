@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -85,48 +84,4 @@ func (c *ModelLoader) CheckKey(ctx context.Context, projectID gqlmodel.ID, key s
 	}
 
 	return &gqlmodel.KeyAvailability{Key: key, Available: ok}, nil
-}
-
-// data loaders
-
-type ModelDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Model, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Model, []error)
-}
-
-func (c *ModelLoader) DataLoader(ctx context.Context) ModelDataLoader {
-	return gqldataloader.NewModelLoader(gqldataloader.ModelLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Model, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *ModelLoader) OrdinaryDataLoader(ctx context.Context) ModelDataLoader {
-	return &ordinaryModelLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Model, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryModelLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.Model, []error)
-}
-
-func (l *ordinaryModelLoader) Load(key gqlmodel.ID) (*gqlmodel.Model, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryModelLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Model, []error) {
-	return l.fetch(keys)
 }
