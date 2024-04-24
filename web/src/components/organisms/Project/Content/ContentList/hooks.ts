@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
@@ -75,7 +75,9 @@ export default () => {
 
   const navigate = useNavigate();
   const { modelId } = useParams();
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const location: { state?: { searchTerm?: string; currentView: CurrentView } | null } =
+    useLocation();
+  const [searchTerm, setSearchTerm] = useState<string>(location.state?.searchTerm ?? "");
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(100);
   const [currentView, setCurrentView] = useState<CurrentView>({});
@@ -99,14 +101,14 @@ export default () => {
           setCurrentView(prev => viewList.find(view => view.id === prev.id) ?? viewList[0]);
         }
       } else {
-        setCurrentView(viewList[0]);
+        setCurrentView(location.state?.currentView ?? viewList[0]);
       }
     } else {
       setCurrentView({});
     }
     prevModelIdRef.current = modelId;
     viewsRef.current = viewList ?? [];
-  }, [modelId, setCurrentView, viewData?.view, viewLoading]);
+  }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 
   const { data, refetch, loading } = useSearchItemQuery({
     fetchPolicy: "no-cache",
@@ -419,10 +421,10 @@ export default () => {
     (itemId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${itemId}`,
-        { state: location.search },
+        { state: { searchTerm, currentView } },
       );
     },
-    [currentWorkspace?.id, currentProject?.id, currentModel?.id, navigate],
+    [navigate, currentWorkspace?.id, currentProject?.id, currentModel?.id, searchTerm, currentView],
   );
 
   const [deleteItemMutation] = useDeleteItemMutation();
