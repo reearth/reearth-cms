@@ -3,10 +3,10 @@ import { expect, test } from "vitest";
 
 import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 
-import { getTreeData } from "./getTreeData";
+import { generateAssetTreeData } from "./generateAssetTreeData";
 
 test("returns empty array if filePaths property is not provided", () => {
-  const result = getTreeData({ name: "", path: "/" }, [], "http://example.com");
+  const result = generateAssetTreeData({ name: "", path: "/" }, [], "http://example.com");
   expect(result).toEqual([]);
 });
 
@@ -23,7 +23,7 @@ test("returns correct file tree data", () => {
   };
   const selectedKeys: Key[] = [];
   const assetBaseUrl = "http://example.com";
-  const result = getTreeData(file, selectedKeys, assetBaseUrl);
+  const result = generateAssetTreeData(file, selectedKeys, assetBaseUrl);
 
   // /folder1/
   expect(result[0].key).toEqual("0-0");

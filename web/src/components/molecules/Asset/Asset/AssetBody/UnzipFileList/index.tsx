@@ -8,7 +8,7 @@ import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 
-import { getTreeData } from "./getTreeData";
+import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
 
 type Props = {
@@ -31,7 +31,7 @@ const UnzipFileList: React.FC<Props> = ({
   const [treeData, setTreeData] = useState<FileNode[]>([]);
 
   useEffect(() => {
-    const data = getTreeData(file, selectedKeys, assetBaseUrl);
+    const data = generateAssetTreeData(file, selectedKeys, assetBaseUrl);
     setTreeData(data);
   }, [assetBaseUrl, file, selectedKeys]);
 

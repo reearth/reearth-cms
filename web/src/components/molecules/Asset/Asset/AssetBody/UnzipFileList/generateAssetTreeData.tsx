@@ -6,7 +6,7 @@ import { AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 
 import { FileNode } from "./types";
 
-export const getTreeData = (
+export const generateAssetTreeData = (
   file: AssetFile,
   selectedKeys: Key[],
   assetBaseUrl: string,
