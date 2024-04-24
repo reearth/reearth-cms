@@ -4,21 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
-import Tree, { DataNode, TreeProps } from "@reearth-cms/components/atoms/Tree";
+import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
+
+import { generateAssetTreeData } from "./generateAssetTreeData";
+import { FileNode } from "./types";
 
 type Props = {
   file: AssetFile;
   assetBaseUrl: string;
   archiveExtractionStatus: ArchiveExtractionStatus;
   setAssetUrl: (url: string) => void;
-};
-
-type FileNode = DataNode & {
-  name: string;
-  path: string;
-  children: FileNode[];
 };
 
 const UnzipFileList: React.FC<Props> = ({
@@ -33,61 +30,10 @@ const UnzipFileList: React.FC<Props> = ({
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
   const [treeData, setTreeData] = useState<FileNode[]>([]);
 
-  const getTreeData = useCallback(
-    (file?: AssetFile): FileNode[] => {
-      if (!file?.filePaths) return [];
-
-      const root: FileNode = {
-        key: "0",
-        name: file.name,
-        path: "/",
-        children: [],
-      };
-
-      file.filePaths.forEach((filepath, i) => {
-        const parts = filepath.split("/");
-        let currentNode = root;
-
-        parts.slice(1).forEach((part, j) => {
-          const existingNode = currentNode.children?.find((node: FileNode) => node.name === part);
-          if (!existingNode) {
-            const key = `${i}-${j}`;
-            const path = `${currentNode.path}${part}${/\.[^.]+$/.test(part) ? "" : "/"}`;
-            const newNode: FileNode = {
-              key: key,
-              title: (
-                <>
-                  {part}
-                  <CopyIcon
-                    selected={selectedKeys[0] === key}
-                    icon="copy"
-                    onClick={() => {
-                      navigator.clipboard.writeText(assetBaseUrl + path);
-                    }}
-                  />
-                </>
-              ),
-              name: part,
-              path: path,
-              children: [],
-            };
-
-            currentNode.children?.push(newNode);
-            currentNode = newNode;
-          } else {
-            currentNode = existingNode;
-          }
-        });
-      });
-
-      return root.children;
-    },
-    [assetBaseUrl, selectedKeys],
-  );
-
   useEffect(() => {
-    setTreeData(getTreeData(file));
-  }, [file, getTreeData]);
+    const data = generateAssetTreeData(file, selectedKeys, assetBaseUrl);
+    setTreeData(data);
+  }, [assetBaseUrl, file, selectedKeys]);
 
   const previewFile = useCallback(
     (path: string) => {
@@ -161,14 +107,6 @@ const ExtractionFailedWrapper = styled.div`
 
 const ExtractionFailedIcon = styled(Icon)`
   margin-bottom: 28px;
-`;
-
-const CopyIcon = styled(Icon)<{ selected?: boolean }>`
-  margin-left: 16px;
-  visibility: ${({ selected }) => (selected ? "visible" : "hidden")};
-  &:active {
-    color: #096dd9;
-  }
 `;
 
 const ExtractionFailedText = styled.p`
