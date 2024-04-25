@@ -54,7 +54,7 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-01");
   await page.getByLabel("Back").click();
   await expect(page.getByPlaceholder("-")).toHaveValue("2024-01-01");
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByPlaceholder("Select date").click();
   await page.getByPlaceholder("Select date").fill("2024-01-02");
   await page.getByPlaceholder("Select date").press("Enter");
@@ -67,7 +67,7 @@ test("Date metadata creating and updating has succeeded", async ({ page }) => {
   await page.getByPlaceholder("-").press("Enter");
   await closeNotification(page);
   await expect(page.getByPlaceholder("-")).toHaveValue("2024-01-03");
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByPlaceholder("Select date")).toHaveValue("2024-01-03");
 });
 
@@ -152,7 +152,7 @@ test("Date metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tooltip").getByRole("textbox").nth(1).fill("2024-01-04");
   await page.getByRole("tooltip").getByRole("textbox").nth(1).press("Enter");
   await closeNotification(page);
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("2024-01-01");
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("2024-01-04");
   await expect(page.getByRole("textbox").nth(2)).toHaveValue("2024-01-02");

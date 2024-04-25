@@ -37,7 +37,7 @@ test("Date field creating and updating has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.locator("tbody")).toContainText("2024-01-01");
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByRole("button", { name: "close-circle" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
