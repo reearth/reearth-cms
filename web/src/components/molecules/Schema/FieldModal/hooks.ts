@@ -190,6 +190,26 @@ export default (
     }
   }, []);
 
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (selectedField) return;
+      const prevName = e.currentTarget.attributes[4].value.replaceAll(" ", "-");
+      const currentAlias = form.getFieldValue("key");
+      if (!currentAlias || currentAlias === prevName) {
+        const currentName = e.currentTarget.value.replaceAll(" ", "-");
+        form.setFieldValue("key", currentName);
+      }
+    },
+    [selectedField, form],
+  );
+
+  const handleKeyChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      form.setFieldValue("key", e.currentTarget.value.replaceAll(" ", "-"));
+    },
+    [form],
+  );
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -239,6 +259,8 @@ export default (
     multipleValue,
     handleMultipleChange,
     handleTabChange,
+    handleNameChange,
+    handleKeyChange,
     handleSubmit,
     handleModalReset,
     handleModalCancel,
