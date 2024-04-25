@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -653,10 +654,12 @@ func (i Item) getItemCorrespondingItems(ctx context.Context, s schema.Schema, it
 	oldRefId, _ := oldF.Value().First().ValueReference()
 	if !oldRefId.IsEmpty() {
 		oldRefItm, err := i.repos.Item.FindByID(ctx, oldRefId, nil)
-		if err != nil {
+		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 			return nil, err
 		}
-		ci = append(ci, oldRefItm.Value())
+		if err == nil {
+			ci = append(ci, oldRefItm.Value())
+		}
 	}
 
 	// if the is no change in reference item then there is no more corresponding item

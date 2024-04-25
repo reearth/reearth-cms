@@ -1,11 +1,12 @@
 package e2e
 
 import (
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
@@ -446,6 +447,59 @@ func TestClearItemValues(t *testing.T) {
 		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 	}, fields2)
 
+}
+
+func TestOneWayReferenceFields(t *testing.T) {
+	e, _ := StartGQLServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
+
+	m1Id, _ := createModel(e, pId, "test1", "test1", "test-1")
+
+	m1fids := createFieldOfEachType(t, e, m1Id)
+
+	s1Id, _, _ := getModel(e, m1Id)
+
+	m2Id, _ := createModel(e, pId, "test2", "test2", "test-2")
+
+	m2fids := createFieldOfEachType(t, e, m2Id)
+
+	s2Id, _, _ := getModel(e, m2Id)
+
+	m2refFId, _ := createField(e, m2Id, "ref", "ref", "ref",
+		false, false, false, false, "Reference",
+		map[string]any{
+			"reference": map[string]any{
+				"modelId":            m1Id,
+				"schemaId":           s1Id,
+				"correspondingField": nil,
+			},
+		})
+
+	m1i1id, _ := createItem(e, m1Id, s1Id, nil, []map[string]any{
+		{"schemaFieldId": m1fids.textFId, "value": "test1", "type": "Text"},
+	})
+
+	m2i1id, _ := createItem(e, m2Id, s2Id, nil, []map[string]any{
+		{"schemaFieldId": m2fids.textFId, "value": "test1", "type": "Text"},
+		{"schemaFieldId": m2refFId, "value": m1i1id, "type": "Reference"},
+	})
+
+	m2i1ver, _ /*res*/ := getItem(e, m2i1id)
+	// test skipped cause of: "Filters are not (yet) implemented" error
+	// res.Path(fmt.Sprintf("$.data.node.fields[?(@.schemaFieldId == '%s')].value", m1i1id)).Array().IsEqual([]string{m1i1id})
+
+	deleteItem(e, m1i1id)
+
+	updateItem(e, m2i1id, m2i1ver, []map[string]any{
+		{"schemaFieldId": m2fids.textFId, "value": "test edited", "type": "Text"},
+	})
+
+	_, _ /*res*/ = getItem(e, m2i1id)
+	// test skipped cause of: "Filters are not (yet) implemented" error
+	// res.Path(fmt.Sprintf("$.data.node.fields[?(@.schemaFieldId == '%s')].value", m2fids.textFId)).Array().IsEqual([]any{"test edited"})
+
+	deleteItem(e, m2i1id)
 }
 
 func TestTwoWayReferenceFields(t *testing.T) {
