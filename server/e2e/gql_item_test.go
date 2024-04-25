@@ -485,8 +485,7 @@ func TestOneWayReferenceFields(t *testing.T) {
 		{"schemaFieldId": m2refFId, "value": m1i1id, "type": "Reference"},
 	})
 
-	m2i1ver, res := getItem(e, m2i1id)
-	res = res
+	m2i1ver, _ /*res*/ := getItem(e, m2i1id)
 	// test skipped cause of: "Filters are not (yet) implemented" error
 	// res.Path(fmt.Sprintf("$.data.node.fields[?(@.schemaFieldId == '%s')].value", m1i1id)).Array().IsEqual([]string{m1i1id})
 
@@ -496,7 +495,8 @@ func TestOneWayReferenceFields(t *testing.T) {
 		{"schemaFieldId": m2fids.textFId, "value": "test edited", "type": "Text"},
 	})
 
-	_, res = getItem(e, m2i1id)
+	_, _ /*res*/ = getItem(e, m2i1id)
+	// test skipped cause of: "Filters are not (yet) implemented" error
 	// res.Path(fmt.Sprintf("$.data.node.fields[?(@.schemaFieldId == '%s')].value", m2fids.textFId)).Array().IsEqual([]any{"test edited"})
 
 	deleteItem(e, m2i1id)
