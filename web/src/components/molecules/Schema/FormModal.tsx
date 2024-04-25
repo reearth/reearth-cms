@@ -159,19 +159,18 @@ const FormModal: React.FC<Props> = ({
           label={keyLabel}
           extra={keyExtra}
           rules={[
-            {
-              message: t("Key is not valid"),
-              required: true,
-              validator: async (_, value) => {
-                if (!validateKey(value)) return Promise.reject();
-                const isKeyAvailable = await onKeyCheck(value, data?.key);
-                if (isKeyAvailable) {
-                  return Promise.resolve();
-                } else {
-                  return Promise.reject();
+            ({ getFieldValue }) => ({
+              async validator() {
+                const value = getFieldValue("key");
+                if (value && validateKey(value)) {
+                  const isKeyAvailable = await onKeyCheck(value, data?.key);
+                  if (isKeyAvailable) {
+                    return Promise.resolve();
+                  }
                 }
+                return Promise.reject(new Error(t("Key is not valid")));
               },
-            },
+            }),
           ]}>
           <Input onChange={handleKeyChange} />
         </Form.Item>
