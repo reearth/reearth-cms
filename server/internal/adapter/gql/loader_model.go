@@ -3,7 +3,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -22,17 +21,23 @@ func NewModelLoader(usecase interfaces.Model) *ModelLoader {
 }
 
 func (c *ModelLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Model, []error) {
-	mIds, err := util.TryMap(ids, gqlmodel.ToID[id.Model])
+	mIDs, err := util.TryMap(ids, gqlmodel.ToID[id.Model])
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, mIds, getOperator(ctx))
+	res, err := c.usecase.FindByIDs(ctx, mIDs, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return lo.Map(res, func(m *model.Model, i int) *gqlmodel.Model {
+	return lo.Map(mIDs, func(id model.ID, i int) *gqlmodel.Model {
+		m, ok := lo.Find(res, func(m *model.Model) bool {
+			return m != nil && m.ID() == id
+		})
+		if !ok {
+			return nil
+		}
 		return gqlmodel.ToModel(m)
 	}), nil
 }
@@ -79,48 +84,4 @@ func (c *ModelLoader) CheckKey(ctx context.Context, projectID gqlmodel.ID, key s
 	}
 
 	return &gqlmodel.KeyAvailability{Key: key, Available: ok}, nil
-}
-
-// data loaders
-
-type ModelDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Model, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Model, []error)
-}
-
-func (c *ModelLoader) DataLoader(ctx context.Context) ModelDataLoader {
-	return gqldataloader.NewModelLoader(gqldataloader.ModelLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Model, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *ModelLoader) OrdinaryDataLoader(ctx context.Context) ModelDataLoader {
-	return &ordinaryModelLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Model, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryModelLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.Model, []error)
-}
-
-func (l *ordinaryModelLoader) Load(key gqlmodel.ID) (*gqlmodel.Model, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryModelLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Model, []error) {
-	return l.fetch(keys)
 }

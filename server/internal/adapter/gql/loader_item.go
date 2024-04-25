@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearthx/log"
 	"go.opencensus.io/trace"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -55,13 +54,13 @@ func (c *ItemLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.
 
 	return lo.Map(iIds, func(iId item.ID, _ int) *gqlmodel.Item {
 		i, ok := lo.Find(res, func(v item.Versioned) bool {
-			return v.Value().ID() == iId
+			return v != nil && v.Value() != nil && v.Value().ID() == iId
 		})
 		if !ok {
 			return nil
 		}
 		s, ok := lo.Find(ss, func(s *schema.Schema) bool {
-			return s.ID() == i.Value().Schema()
+			return s != nil && s.ID() == i.Value().Schema()
 		})
 		if !ok {
 			return nil
@@ -218,48 +217,4 @@ func (c *ItemLoader) IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, c
 	}
 
 	return c.usecase.IsItemReferenced(ctx, iid, fid, op)
-}
-
-// data loader
-
-type ItemDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Item, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Item, []error)
-}
-
-func (c *ItemLoader) DataLoader(ctx context.Context) ItemDataLoader {
-	return gqldataloader.NewItemLoader(gqldataloader.ItemLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Item, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *ItemLoader) OrdinaryDataLoader(ctx context.Context) ItemDataLoader {
-	return &ordinaryItemLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Item, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryItemLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.Item, []error)
-}
-
-func (l *ordinaryItemLoader) Load(key gqlmodel.ID) (*gqlmodel.Item, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryItemLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Item, []error) {
-	return l.fetch(keys)
 }

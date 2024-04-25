@@ -3,13 +3,13 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type AssetLoader struct {
@@ -35,17 +35,23 @@ func (c *AssetLoader) FindByID(ctx context.Context, assetId gqlmodel.ID) (*gqlmo
 }
 
 func (c *AssetLoader) FindByIDs(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
-	ids2, err := util.TryMap(ids, gqlmodel.ToID[id.Asset])
+	aIDs, err := util.TryMap(ids, gqlmodel.ToID[id.Asset])
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	res, err := c.usecase.FindByIDs(ctx, ids2, getOperator(ctx))
+	res, err := c.usecase.FindByIDs(ctx, aIDs, getOperator(ctx))
 	if err != nil {
 		return nil, []error{err}
 	}
 
-	return util.Map(res, func(a *asset.Asset) *gqlmodel.Asset {
+	return util.Map(aIDs, func(id asset.ID) *gqlmodel.Asset {
+		a, ok := lo.Find(res, func(a *asset.Asset) bool {
+			return a != nil && a.ID() == id
+		})
+		if !ok {
+			return nil
+		}
 		return gqlmodel.ToAsset(a, c.usecase.GetURL)
 	}), nil
 }
@@ -84,43 +90,4 @@ func (c *AssetLoader) FindByProject(ctx context.Context, projectId gqlmodel.ID, 
 		PageInfo:   gqlmodel.ToPageInfo(pi),
 		TotalCount: int(pi.TotalCount),
 	}, nil
-}
-
-type AssetDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Asset, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Asset, []error)
-}
-
-func (c *AssetLoader) DataLoader(ctx context.Context) AssetDataLoader {
-	return gqldataloader.NewAssetLoader(gqldataloader.AssetLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
-			return c.FindByIDs(ctx, keys)
-		},
-	})
-}
-
-func (c *AssetLoader) OrdinaryDataLoader(ctx context.Context) AssetDataLoader {
-	return &ordinaryAssetLoader{ctx: ctx, c: c}
-}
-
-type ordinaryAssetLoader struct {
-	ctx context.Context
-	c   *AssetLoader
-}
-
-func (l *ordinaryAssetLoader) Load(key gqlmodel.ID) (*gqlmodel.Asset, error) {
-	res, errs := l.c.FindByIDs(l.ctx, []gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryAssetLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Asset, []error) {
-	return l.c.FindByIDs(l.ctx, keys)
 }

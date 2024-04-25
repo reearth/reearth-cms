@@ -2,9 +2,9 @@ package gql
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/pkg/model"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqldataloader"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/group"
@@ -32,8 +32,14 @@ func (c *GroupLoader) Fetch(ctx context.Context, ids []gqlmodel.ID) ([]*gqlmodel
 		return nil, []error{err}
 	}
 
-	return lo.Map(res, func(m *group.Group, i int) *gqlmodel.Group {
-		return gqlmodel.ToGroup(m)
+	return lo.Map(gIds, func(id group.ID, i int) *gqlmodel.Group {
+		g, ok := lo.Find(res, func(g *group.Group) bool {
+			return g != nil && g.ID() == id
+		})
+		if !ok {
+			return nil
+		}
+		return gqlmodel.ToGroup(g)
 	}), nil
 }
 
@@ -97,48 +103,4 @@ func (c *GroupLoader) CheckKey(ctx context.Context, projectID gqlmodel.ID, key s
 	}
 
 	return &gqlmodel.KeyAvailability{Key: key, Available: ok}, nil
-}
-
-// data loaders
-
-type GroupDataLoader interface {
-	Load(gqlmodel.ID) (*gqlmodel.Group, error)
-	LoadAll([]gqlmodel.ID) ([]*gqlmodel.Group, []error)
-}
-
-func (c *GroupLoader) DataLoader(ctx context.Context) GroupDataLoader {
-	return gqldataloader.NewGroupLoader(gqldataloader.GroupLoaderConfig{
-		Wait:     dataLoaderWait,
-		MaxBatch: dataLoaderMaxBatch,
-		Fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Group, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	})
-}
-
-func (c *GroupLoader) OrdinaryDataLoader(ctx context.Context) GroupDataLoader {
-	return &ordinaryGroupLoader{
-		fetch: func(keys []gqlmodel.ID) ([]*gqlmodel.Group, []error) {
-			return c.Fetch(ctx, keys)
-		},
-	}
-}
-
-type ordinaryGroupLoader struct {
-	fetch func(keys []gqlmodel.ID) ([]*gqlmodel.Group, []error)
-}
-
-func (l *ordinaryGroupLoader) Load(key gqlmodel.ID) (*gqlmodel.Group, error) {
-	res, errs := l.fetch([]gqlmodel.ID{key})
-	if len(errs) > 0 {
-		return nil, errs[0]
-	}
-	if len(res) > 0 {
-		return res[0], nil
-	}
-	return nil, nil
-}
-
-func (l *ordinaryGroupLoader) LoadAll(keys []gqlmodel.ID) ([]*gqlmodel.Group, []error) {
-	return l.fetch(keys)
 }
