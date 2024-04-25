@@ -4,6 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
 
 export interface FormValues {
@@ -30,19 +31,14 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const prevName = e.currentTarget.attributes[4].value.replaceAll(" ", "-");
-      const currentAlias = form.getFieldValue("alias");
-      if (!currentAlias || currentAlias === prevName) {
-        const currentName = e.currentTarget.value.replaceAll(" ", "-");
-        form.setFieldValue("alias", currentName);
-      }
+      keyAutoFill(e, { form, key: "alias" });
     },
     [form],
   );
 
   const handleAliasChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      form.setFieldValue("alias", e.currentTarget.value.replaceAll(" ", "-"));
+      keyReplace(e, { form, key: "alias" });
     },
     [form],
   );

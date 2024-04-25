@@ -13,6 +13,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
@@ -222,19 +223,14 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, fieldForm: FormInstance) => {
       if (selectedField) return;
-      const prevName = e.currentTarget.attributes[4].value.replaceAll(" ", "-");
-      const currentAlias = fieldForm.getFieldValue("key");
-      if (!currentAlias || currentAlias === prevName) {
-        const currentName = e.currentTarget.value.replaceAll(" ", "-");
-        fieldForm.setFieldValue("key", currentName);
-      }
+      keyAutoFill(e, { form: fieldForm, key: "key" });
     },
     [selectedField],
   );
 
   const handleKeyChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, fieldForm: FormInstance) => {
-      fieldForm.setFieldValue("key", e.currentTarget.value.replaceAll(" ", "-"));
+      keyReplace(e, { form: fieldForm, key: "key" });
     },
     [],
   );

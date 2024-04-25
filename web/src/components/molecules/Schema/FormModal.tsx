@@ -4,6 +4,7 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -51,19 +52,14 @@ const FormModal: React.FC<Props> = ({
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (data) return;
-      const prevName = e.currentTarget.attributes[4].value.replaceAll(" ", "-");
-      const currentAlias = form.getFieldValue("key");
-      if (!currentAlias || currentAlias === prevName) {
-        const currentName = e.currentTarget.value.replaceAll(" ", "-");
-        form.setFieldValue("key", currentName);
-      }
+      keyAutoFill(e, { form, key: "key" });
     },
     [data, form],
   );
 
   const handleKeyChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      form.setFieldValue("key", e.currentTarget.value.replaceAll(" ", "-"));
+      keyReplace(e, { form, key: "key" });
     },
     [form],
   );

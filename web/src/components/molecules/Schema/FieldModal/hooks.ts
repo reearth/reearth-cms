@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import {
   Field,
   FieldModalTabs,
@@ -193,19 +194,14 @@ export default (
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (selectedField) return;
-      const prevName = e.currentTarget.attributes[4].value.replaceAll(" ", "-");
-      const currentAlias = form.getFieldValue("key");
-      if (!currentAlias || currentAlias === prevName) {
-        const currentName = e.currentTarget.value.replaceAll(" ", "-");
-        form.setFieldValue("key", currentName);
-      }
+      keyAutoFill(e, { form, key: "key" });
     },
     [selectedField, form],
   );
 
   const handleKeyChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      form.setFieldValue("key", e.currentTarget.value.replaceAll(" ", "-"));
+      keyReplace(e, { form, key: "key" });
     },
     [form],
   );
