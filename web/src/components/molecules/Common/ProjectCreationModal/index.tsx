@@ -28,6 +28,25 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
   const [form] = Form.useForm();
 
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const prevName = e.currentTarget.attributes[4].value.replaceAll(" ", "-");
+      const currentAlias = form.getFieldValue("alias");
+      if (!currentAlias || currentAlias === prevName) {
+        const currentName = e.currentTarget.value.replaceAll(" ", "-");
+        form.setFieldValue("alias", currentName);
+      }
+    },
+    [form],
+  );
+
+  const handleAliasChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      form.setFieldValue("alias", e.currentTarget.value.replaceAll(" ", "-"));
+    },
+    [form],
+  );
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -51,13 +70,13 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
           name="name"
           label={t("Project name")}
           rules={[{ required: true, message: t("Please input the name of project!") }]}>
-          <Input />
+          <Input onChange={handleNameChange} />
         </Form.Item>
         <Form.Item
-          name={"alias"}
+          name="alias"
           label={t("Project alias")}
           rules={[{ required: true, message: t("Please input the alias of project!") }]}>
-          <Input />
+          <Input onChange={handleAliasChange} />
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>
           <TextArea rows={4} />
