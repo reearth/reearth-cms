@@ -48,6 +48,26 @@ const FormModal: React.FC<Props> = ({
     }
   }, [form, data, open]);
 
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (data) return;
+      const prevName = e.currentTarget.attributes[4].value.replaceAll(" ", "-");
+      const currentAlias = form.getFieldValue("key");
+      if (!currentAlias || currentAlias === prevName) {
+        const currentName = e.currentTarget.value.replaceAll(" ", "-");
+        form.setFieldValue("key", currentName);
+      }
+    },
+    [data, form],
+  );
+
+  const handleKeyChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      form.setFieldValue("key", e.currentTarget.value.replaceAll(" ", "-"));
+    },
+    [form],
+  );
+
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
     await onKeyCheck(values.key, data?.key);
@@ -133,7 +153,7 @@ const FormModal: React.FC<Props> = ({
               message: nameMessage,
             },
           ]}>
-          <Input />
+          <Input onChange={handleNameChange} />
         </Form.Item>
         <Form.Item name="description" label={descriptionLabel}>
           <TextArea rows={4} />
@@ -157,7 +177,7 @@ const FormModal: React.FC<Props> = ({
               },
             },
           ]}>
-          <Input />
+          <Input onChange={handleKeyChange} />
         </Form.Item>
       </Form>
     </Modal>
