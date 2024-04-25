@@ -79,7 +79,7 @@ export default () => {
     useLocation();
   const [searchTerm, setSearchTerm] = useState<string>(location.state?.searchTerm ?? "");
   const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(100);
+  const [pageSize, setPageSize] = useState<number>(20);
   const [currentView, setCurrentView] = useState<CurrentView>({});
 
   const viewsRef = useRef<View[]>([]);
