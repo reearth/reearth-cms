@@ -10,4 +10,5 @@ type TaskConfig struct {
 	DecompressorTopic       string `default:"decompress"`
 	DecompressorGzipExt     string `default:"gml"`
 	DecompressorMachineType string `default:"E2_HIGHCPU_8"`
+	DecompressorDiskSideGb  int64  `default:"2000"`
 }

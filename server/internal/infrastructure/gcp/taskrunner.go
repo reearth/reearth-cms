@@ -15,6 +15,8 @@ import (
 	"google.golang.org/api/cloudbuild/v1"
 )
 
+var defaultDiskSizeGb int64 = 2000 // 2TB
+
 type TaskRunner struct {
 	conf   *TaskConfig
 	pubsub *pubsub.Client
@@ -91,8 +93,15 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 	region := t.conf.GCPRegion
 
 	machineType := ""
-	if v := t.conf.DecompressorMachineType; v != "default" {
+	if v := t.conf.DecompressorMachineType; v != "" && v != "default" {
 		machineType = v
+	}
+
+	var diskSizeGb int64
+	if v := t.conf.DecompressorDiskSideGb; v > 0 {
+		diskSizeGb = v
+	} else {
+		diskSizeGb = defaultDiskSizeGb
 	}
 
 	build := &cloudbuild.Build{
@@ -111,6 +120,7 @@ func (t *TaskRunner) runCloudBuild(ctx context.Context, p task.Payload) error {
 		},
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
+			DiskSizeGb:  diskSizeGb,
 		},
 	}
 
