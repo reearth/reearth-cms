@@ -16,6 +16,7 @@ const Workspace: React.FC = () => {
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
+    handleProjectAliasCheck,
     coverImageUrl,
   } = useHooks();
 
@@ -34,6 +35,7 @@ const Workspace: React.FC = () => {
       onWorkspaceCreate={handleWorkspaceCreate}
       onClose={handleProjectModalClose}
       onSubmit={handleProjectCreate}
+      onProjectAliasCheck={handleProjectAliasCheck}
     />
   );
 };
