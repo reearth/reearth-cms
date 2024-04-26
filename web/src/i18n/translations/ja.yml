@@ -92,7 +92,7 @@ Tag: タグ
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
-Please input the alias of project!: プロジェクトのエイリアスを入力してください。
+Project alias is not valid: 無効なプロジェクトのエイリアスです
 Project description: プロジェクト概要
 Home: ホーム
 Overview: 概要
