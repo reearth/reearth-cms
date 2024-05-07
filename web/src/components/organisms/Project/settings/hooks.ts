@@ -54,12 +54,13 @@ export default ({ projectId }: Params) => {
   });
 
   const handleProjectUpdate = useCallback(
-    async (name?: string, description?: string) => {
+    async (name?: string, alias?: string, description?: string) => {
       if (!projectId || !name) return;
       const result = await updateProjectMutation({
         variables: {
           projectId,
           name,
+          alias,
           description,
           requestRoles: project?.requestRoles as GQLRole[],
         },

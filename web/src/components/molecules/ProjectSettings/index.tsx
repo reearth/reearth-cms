@@ -9,7 +9,7 @@ import { Project, Role } from "../Workspace/types";
 
 export type Props = {
   project?: Project;
-  onProjectUpdate: (name?: string | undefined, description?: string | undefined) => Promise<void>;
+  onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
   onProjectDelete: () => Promise<void>;
 };
