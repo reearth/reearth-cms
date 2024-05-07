@@ -23,6 +23,7 @@ type Props = {
   onWorkspaceCreate: (data: { name: string }) => Promise<void>;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({
@@ -39,6 +40,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   onWorkspaceCreate,
   onClose,
   onSubmit,
+  onProjectAliasCheck,
 }) => {
   return (
     <Wrapper>
@@ -55,7 +57,12 @@ const WorkspaceWrapper: React.FC<Props> = ({
           onProjectModalOpen={onProjectModalOpen}
           onProjectNavigation={onProjectNavigation}
         />
-        <ProjectCreationModal open={projectModal} onClose={onClose} onSubmit={onSubmit} />
+        <ProjectCreationModal
+          open={projectModal}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          onProjectAliasCheck={onProjectAliasCheck}
+        />
       </Content>
       <WorkspaceCreationModal
         open={workspaceModal}
