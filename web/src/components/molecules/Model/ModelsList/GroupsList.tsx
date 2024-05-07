@@ -28,6 +28,24 @@ const GroupsList: React.FC<Props> = ({
     return selectedKey ? [selectedKey] : [];
   }, [selectedKey]);
 
+  const scrollToSelected = useCallback(
+    (node: HTMLElement | null) => node?.scrollIntoView({ block: "nearest" }),
+    [],
+  );
+
+  const items = useMemo(
+    () =>
+      groups?.map(group => ({
+        label: (
+          <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
+            {collapsed ? <Icon icon="dot" /> : group.name}
+          </div>
+        ),
+        key: group.id,
+      })),
+    [collapsed, groups, scrollToSelected, selectedKey],
+  );
+
   const handleClick = useCallback(
     (e: MenuInfo) => {
       onGroupSelect?.(e.key);
@@ -54,10 +72,7 @@ const GroupsList: React.FC<Props> = ({
           selectedKeys={selectedKeys}
           mode={collapsed ? "vertical" : "inline"}
           collapsed={collapsed}
-          items={groups?.map(group => ({
-            label: collapsed ? <Icon icon="dot" /> : group.name,
-            key: group.id,
-          }))}
+          items={items}
           onClick={handleClick}
         />
       </MenuWrapper>
