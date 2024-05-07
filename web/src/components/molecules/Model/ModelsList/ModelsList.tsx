@@ -6,14 +6,11 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  className?: string;
+type Props = {
   selectedKey?: string;
   models?: Model[];
-  selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
@@ -21,10 +18,8 @@ export type Props = {
 };
 
 const ModelsList: React.FC<Props> = ({
-  className,
   selectedKey,
   models,
-  selectedSchemaType,
   collapsed,
   onModalOpen,
   onModelSelect,
@@ -51,29 +46,36 @@ const ModelsList: React.FC<Props> = ({
   );
 
   const selectedKeys = useMemo(() => {
-    return !selectedSchemaType
-      ? [selectedKey ?? ""]
-      : selectedSchemaType === "model" && selectedKey
-        ? [selectedKey]
-        : [];
-  }, [selectedKey, selectedSchemaType]);
+    return selectedKey ? [selectedKey] : [];
+  }, [selectedKey]);
 
-  const items = useMemo(() => {
-    return models
-      ?.sort((a, b) => {
-        if (a.order !== undefined && b.order !== undefined) {
-          return a.order - b.order;
-        }
-        return 0;
-      })
-      .map(model => ({
-        label: collapsed ? <Icon icon="dot" /> : model.name,
-        key: model.id,
-      }));
-  }, [collapsed, models]);
+  const scrollToSelected = useCallback(
+    (node: HTMLElement | null) => node?.scrollIntoView({ block: "nearest" }),
+    [],
+  );
+
+  const items = useMemo(
+    () =>
+      models
+        ?.sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          return 0;
+        })
+        .map(model => ({
+          label: (
+            <div ref={model.id === selectedKey ? scrollToSelected : undefined}>
+              {collapsed ? <Icon icon="dot" /> : model.name}
+            </div>
+          ),
+          key: model.id,
+        })),
+    [collapsed, models, scrollToSelected, selectedKey],
+  );
 
   return (
-    <SchemaStyledMenu className={className}>
+    <SchemaStyledMenu>
       {collapsed ? (
         <StyledIcon icon="caretRight" />
       ) : (

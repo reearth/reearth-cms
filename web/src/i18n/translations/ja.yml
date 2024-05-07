@@ -60,6 +60,7 @@ Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
 ID: ''
+input search text: 検索
 Deselect: 選択解除
 Delete: 削除
 Upload Asset: アセットをアップロード
@@ -85,23 +86,23 @@ Create Workspace: ワークスペースを作成
 Logout: ログアウト
 Re:Earth CMS: Re:Earth CMS
 Go to Editor: エディタへ移動
-Please enter: 入力してください
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
-Please input the alias of project!: プロジェクトのエイリアスを入力してください。
+Project alias is not valid: 無効なプロジェクトのエイリアスです
 Project description: プロジェクト概要
+Home: ホーム
 Overview: 概要
 Schema: スキーマ
 Content: コンテンツ
 Request: リクエスト
 Settings: 設定
+OK: ''
 Workspace name: ワークスペース名
 Please input the title of the current workspace!: こののワークスペース名を入力してください。
-Home: ホーム
 Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
@@ -125,7 +126,6 @@ Updated By: 更新者
 Publish State: 公開状態
 This item has been referenced: このアイテムは参照されました
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
-input search text: 検索
 State: ステータス
 Reviewers: レビュワー
 New Item: 新規アイテム
@@ -159,6 +159,7 @@ is not empty: 空でない
 Ascending: 昇順
 Descending: 降順
 Confirm: 確認
+Filter: フィルター
 Add Filter: 絞り込む
 Add Sort: 並び替える
 Control: 操作
@@ -358,7 +359,6 @@ Add new Terrain option: 新しい地形を追加
 New View: 新しいビュー
 Update View: ビューを更新します
 Submitting: 送信
-OK: ''
 View Name: ビュー名
 This is the title of the view: ビューのタイトル
 Please input the view name!: ビュー名を入力してください！
@@ -472,6 +472,8 @@ Failed to delete one or more intagrations.: インテグレーションの削除
 One or more integrations were successfully deleted!: インテグレーションの削除に成功しました。
 Failed to add one or more members.: メンバーの追加に失敗しました。
 Successfully added member(s) to the workspace!: メンバーの追加に成功しました。
+Failed to update member's role.: メンバーのロールの更新に失敗しました。
+Successfully updated member's role!: メンバーのロールの更新に成功しました。
 Failed to delete member from the workspace.: メンバーの削除に失敗しました。
 Successfully removed member from the workspace!: メンバーの削除に成功しました。
 Failed to update integration.: インテグレーションの更新に失敗しました。

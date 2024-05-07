@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
@@ -11,6 +11,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { TextArea } = Input;
 
@@ -49,13 +50,13 @@ const ThreadCommentMolecule: React.FC<Props> = ({
   }, [value, comment.id, onCommentUpdate]);
 
   const fromNow = useMemo(
-    () => moment(comment.createdAt?.toString()).fromNow(),
+    () => dayjs(comment.createdAt?.toString()).fromNow(),
     [comment.createdAt],
   );
 
   return (
     <StyledAntDComment
-      author={<a>{comment.author.name}</a>}
+      author={comment.author.name}
       actions={
         me?.id === comment.author.id
           ? [
@@ -86,14 +87,14 @@ const ThreadCommentMolecule: React.FC<Props> = ({
       content={
         <>
           <Form.Item hidden={!showEditor}>
-            <TextArea onChange={handleChange} value={value} rows={4} maxLength={1000} showCount />
+            <TextArea onChange={handleChange} value={value} rows={4} maxLength={1000} />
           </Form.Item>
           <div hidden={showEditor}>{comment.content}</div>
         </>
       }
       datetime={
         comment.createdAt && (
-          <Tooltip title={comment.createdAt}>
+          <Tooltip title={dateTimeFormat(comment.createdAt)}>
             <span>{fromNow}</span>
           </Tooltip>
         )
@@ -114,6 +115,13 @@ const StyledAntDComment = styled(AntDComment)`
     top: 12px;
     right: 24px;
     margin: 0;
+  }
+
+  .ant-comment-content-author {
+    padding-right: 48px;
+    .ant-comment-content-author-name {
+      overflow: hidden;
+    }
   }
 `;
 

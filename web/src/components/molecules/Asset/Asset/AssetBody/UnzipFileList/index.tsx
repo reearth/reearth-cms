@@ -4,19 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Spin from "@reearth-cms/components/atoms/Spin";
-import Tree, { DataNode, TreeProps } from "@reearth-cms/components/atoms/Tree";
+import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
+
+import { generateAssetTreeData } from "./generateAssetTreeData";
+import { FileNode } from "./types";
 
 type Props = {
   file: AssetFile;
   assetBaseUrl: string;
   archiveExtractionStatus: ArchiveExtractionStatus;
   setAssetUrl: (url: string) => void;
-};
-
-type FileNode = DataNode & {
-  file: AssetFile;
 };
 
 const UnzipFileList: React.FC<Props> = ({
@@ -27,62 +26,32 @@ const UnzipFileList: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0"]);
+  const [expandedKeys, setExpandedKeys] = useState<FileNode["key"][]>(["0-0"]);
   const [selectedKeys, setSelectedKeys] = useState<FileNode["key"][]>([]);
   const [treeData, setTreeData] = useState<FileNode[]>([]);
 
-  const getTreeData = useCallback(
-    (assetFile: AssetFile, parentKey?: string): FileNode[] =>
-      assetFile?.children?.map((file: AssetFile, index: number) => {
-        let children: FileNode[] = [];
-        const key = parentKey ? parentKey + "-" + index.toString() : index.toString();
-
-        if (file.children && file.children.length > 0) {
-          children = getTreeData(file, key);
-        }
-
-        return {
-          title: (
-            <>
-              {file.name}
-              <CopyIcon
-                selected={selectedKeys[0] === key}
-                icon="copy"
-                onClick={() => {
-                  navigator.clipboard.writeText(assetBaseUrl + file.path);
-                }}
-              />
-            </>
-          ),
-          key: key,
-          children: children,
-          file: file,
-        };
-      }) || [],
-    [selectedKeys, assetBaseUrl],
-  );
-
   useEffect(() => {
-    setTreeData(getTreeData(file));
-  }, [file, getTreeData]);
+    const data = generateAssetTreeData(file, selectedKeys, assetBaseUrl);
+    setTreeData(data);
+  }, [assetBaseUrl, file, selectedKeys]);
 
   const previewFile = useCallback(
-    (file: AssetFile) => {
-      setAssetUrl(assetBaseUrl + file.path);
+    (path: string) => {
+      setAssetUrl(assetBaseUrl + path);
     },
     [assetBaseUrl, setAssetUrl],
   );
 
-  const onSelect: TreeProps<FileNode>["onSelect"] = useCallback(
-    (keys: Key[], { node: { file } }: { node: FileNode }) => {
+  const handleSelect: TreeProps<FileNode>["onSelect"] = useCallback(
+    (keys: Key[], { node: { path } }: { node: FileNode }) => {
       if (!keys[0] || keys[0] === selectedKeys[0]) return;
-      previewFile(file);
+      previewFile(path);
       setSelectedKeys(keys);
     },
     [previewFile, selectedKeys],
   );
 
-  const onExpand: TreeProps["onExpand"] = (keys: Key[]) => {
+  const handleExpand: TreeProps["onExpand"] = (keys: Key[]) => {
     setExpandedKeys([...keys]);
   };
 
@@ -104,8 +73,8 @@ const UnzipFileList: React.FC<Props> = ({
           switcherIcon={<Icon icon="caretDown" />}
           expandedKeys={[...expandedKeys]}
           selectedKeys={[...selectedKeys]}
-          onSelect={onSelect}
-          onExpand={onExpand}
+          onSelect={handleSelect}
+          onExpand={handleExpand}
           treeData={treeData}
           multiple={false}
           showLine
@@ -138,14 +107,6 @@ const ExtractionFailedWrapper = styled.div`
 
 const ExtractionFailedIcon = styled(Icon)`
   margin-bottom: 28px;
-`;
-
-const CopyIcon = styled(Icon)<{ selected?: boolean }>`
-  margin-left: 16px;
-  visibility: ${({ selected }) => (selected ? "visible" : "hidden")};
-  &:active {
-    color: #096dd9;
-  }
 `;
 
 const ExtractionFailedText = styled.p`

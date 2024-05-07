@@ -47,7 +47,8 @@ func (i itemResolver) Model(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.
 }
 
 func (i itemResolver) Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemStatus, error) {
-	return dataloaders(ctx).ItemStatus.Load(obj.ID)
+	res, err := dataloaders(ctx).ItemStatus.Load(obj.ID)
+	return *res, err
 }
 
 func (i itemResolver) Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Asset, error) {
@@ -114,5 +115,7 @@ func (i itemResolver) ReferencedItems(ctx context.Context, obj *gqlmodel.Item) (
 	if len(err) > 0 && err[0] != nil {
 		return nil, err[0]
 	}
-	return refItems, nil
+	return lo.Filter(refItems, func(item *gqlmodel.Item, _ int) bool {
+		return item != nil
+	}), nil
 }

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, MouseEvent } from "react";
+import { useCallback, useMemo, MouseEvent, useState, useEffect } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,19 +13,18 @@ import {
 import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
-
-import useHooks from "./hooks";
 
 type Props = {
   value?: string;
   onChange?: (value: string) => void;
   order?: number;
   parentField: Field;
+  loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   linkItemModalTitle: string;
   formItemsData: FormItem[];
@@ -57,6 +56,7 @@ type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet: () => void;
   onAssetsReload: () => void;
   onAssetSearchTerm: (term?: string | undefined) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -67,12 +67,15 @@ type Props = {
   disableMoveUp?: boolean;
   disableMoveDown?: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const GroupItem: React.FC<Props> = ({
   value,
   order,
   parentField,
+  loadingReference,
   linkedItemsModalList,
   linkItemModalTitle,
   formItemsData,
@@ -100,6 +103,7 @@ const GroupItem: React.FC<Props> = ({
   setUploadType,
   onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsGet,
   onAssetsReload,
   onAssetSearchTerm,
   setFileList,
@@ -110,11 +114,22 @@ const GroupItem: React.FC<Props> = ({
   disableMoveUp,
   disableMoveDown,
   onGetAsset,
+  onGroupGet,
+  onCheckItemReference,
 }) => {
   const { Panel } = Collapse;
-  const { group } = useHooks(parentField?.typeProperty?.groupId);
 
-  const fields = useMemo(() => group?.schema.fields, [group?.schema.fields]);
+  const [fields, setFields] = useState<Field[]>();
+
+  useEffect(() => {
+    const handleFieldsSet = async (id: string) => {
+      const group = await onGroupGet(id);
+      setFields(group?.schema.fields);
+    };
+
+    if (parentField?.typeProperty?.groupId) handleFieldsSet(parentField.typeProperty.groupId);
+  }, [onGroupGet, parentField?.typeProperty?.groupId]);
+
   const itemGroupId = useMemo(() => value ?? "", [value]);
 
   const handleMoveUp = useCallback(
@@ -161,7 +176,7 @@ const GroupItem: React.FC<Props> = ({
             </>
           )
         }>
-        <FormItemsWrapper>
+        <div>
           {fields?.map((field: Field) => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[
@@ -200,6 +215,7 @@ const GroupItem: React.FC<Props> = ({
                     setUploadType={setUploadType}
                     onAssetsCreate={onAssetsCreate}
                     onAssetCreateFromUrl={onAssetCreateFromUrl}
+                    onAssetsGet={onAssetsGet}
                     onAssetsReload={onAssetsReload}
                     onAssetSearchTerm={onAssetSearchTerm}
                     setFileList={setFileList}
@@ -214,6 +230,7 @@ const GroupItem: React.FC<Props> = ({
                   <ReferenceField
                     field={field}
                     itemGroupId={itemGroupId}
+                    loading={loadingReference}
                     linkedItemsModalList={linkedItemsModalList}
                     formItemsData={formItemsData}
                     linkItemModalTitle={linkItemModalTitle}
@@ -224,6 +241,7 @@ const GroupItem: React.FC<Props> = ({
                     onSearchTerm={onSearchTerm}
                     onLinkItemTableReload={onLinkItemTableReload}
                     onLinkItemTableChange={onLinkItemTableChange}
+                    onCheckItemReference={onCheckItemReference}
                   />
                 </StyledFormItemWrapper>
               );
@@ -235,7 +253,7 @@ const GroupItem: React.FC<Props> = ({
               );
             }
           })}
-        </FormItemsWrapper>
+        </div>
       </Panel>
     </StyledCollapse>
   );
@@ -253,13 +271,6 @@ const IconWrapper = styled.span<{ disabled?: boolean }>`
 const StyledFormItemWrapper = styled.div`
   width: 468px;
   word-wrap: break-word;
-`;
-
-const FormItemsWrapper = styled.div`
-  width: 50%;
-  @media (max-width: 1200px) {
-    width: 100%;
-  }
 `;
 
 export default GroupItem;

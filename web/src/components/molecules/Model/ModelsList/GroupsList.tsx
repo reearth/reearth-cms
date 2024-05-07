@@ -4,25 +4,20 @@ import { useCallback, useMemo } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  className?: string;
+type Props = {
   selectedKey?: string;
   groups?: Group[];
-  selectedSchemaType?: SelectedSchemaType;
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
 };
 
 const GroupsList: React.FC<Props> = ({
-  className,
   selectedKey,
   groups,
-  selectedSchemaType,
   collapsed,
   onModalOpen,
   onGroupSelect,
@@ -30,8 +25,26 @@ const GroupsList: React.FC<Props> = ({
   const t = useT();
 
   const selectedKeys = useMemo(() => {
-    return selectedSchemaType && selectedSchemaType === "group" && selectedKey ? [selectedKey] : [];
-  }, [selectedKey, selectedSchemaType]);
+    return selectedKey ? [selectedKey] : [];
+  }, [selectedKey]);
+
+  const scrollToSelected = useCallback(
+    (node: HTMLElement | null) => node?.scrollIntoView({ block: "nearest" }),
+    [],
+  );
+
+  const items = useMemo(
+    () =>
+      groups?.map(group => ({
+        label: (
+          <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
+            {collapsed ? <Icon icon="dot" /> : group.name}
+          </div>
+        ),
+        key: group.id,
+      })),
+    [collapsed, groups, scrollToSelected, selectedKey],
+  );
 
   const handleClick = useCallback(
     (e: MenuInfo) => {
@@ -41,7 +54,7 @@ const GroupsList: React.FC<Props> = ({
   );
 
   return (
-    <SchemaStyledMenu className={className}>
+    <SchemaStyledMenu>
       {collapsed ? (
         <StyledIcon icon="caretRight" />
       ) : (
@@ -59,10 +72,7 @@ const GroupsList: React.FC<Props> = ({
           selectedKeys={selectedKeys}
           mode={collapsed ? "vertical" : "inline"}
           collapsed={collapsed}
-          items={groups?.map(group => ({
-            label: collapsed ? <Icon icon="dot" /> : group.name,
-            key: group.id,
-          }))}
+          items={items}
           onClick={handleClick}
         />
       </MenuWrapper>

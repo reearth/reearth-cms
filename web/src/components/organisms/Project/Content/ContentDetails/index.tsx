@@ -10,6 +10,7 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
+    loadingReference,
     linkedItemsModalList,
     showPublishAction,
     requests,
@@ -25,7 +26,6 @@ const ContentDetails: React.FC = () => {
     collapsedModelMenu,
     collapsedCommentsPanel,
     requestModalShown,
-    groups,
     addItemToRequestModalShown,
     workspaceUserMembers,
     linkItemModalTitle,
@@ -57,6 +57,8 @@ const ContentDetails: React.FC = () => {
     handleModalOpen,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handleGroupGet,
+    handleCheckItemReference,
   } = useHooks();
 
   const {
@@ -74,6 +76,7 @@ const ContentDetails: React.FC = () => {
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
+    handleAssetsGet,
     handleAssetsReload,
     handleSearchTerm: handleAssetSearchTerm,
     totalCount,
@@ -93,6 +96,7 @@ const ContentDetails: React.FC = () => {
       onLinkItemTableReload={handleLinkItemTableReload}
       onLinkItemTableChange={handleLinkItemTableChange}
       onReferenceModelUpdate={handleReferenceModelUpdate}
+      loadingReference={loadingReference}
       linkedItemsModalList={linkedItemsModalList}
       showPublishAction={showPublishAction}
       requests={requests}
@@ -121,7 +125,6 @@ const ContentDetails: React.FC = () => {
       itemId={itemId}
       itemLoading={itemLoading}
       model={currentModel}
-      groups={groups}
       initialFormValues={initialFormValues}
       initialMetaFormValues={initialMetaFormValues}
       loading={itemCreationLoading || itemUpdatingLoading}
@@ -135,6 +138,7 @@ const ContentDetails: React.FC = () => {
           title={t("Content")}
           onModelSelect={handleNavigateToModel}
           displayGroups={false}
+          selectedSchemaType="model"
         />
       }
       onChange={handleAddItemToRequest}
@@ -156,6 +160,7 @@ const ContentDetails: React.FC = () => {
       setUploadType={setUploadType}
       onAssetsCreate={handleAssetsCreate}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
+      onAssetsGet={handleAssetsGet}
       onAssetsReload={handleAssetsReload}
       onAssetSearchTerm={handleAssetSearchTerm}
       setFileList={setFileList}
@@ -169,6 +174,8 @@ const ContentDetails: React.FC = () => {
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
       workspaceUserMembers={workspaceUserMembers}
       onGetAsset={handleGetAsset}
+      onGroupGet={handleGroupGet}
+      onCheckItemReference={handleCheckItemReference}
     />
   );
 };

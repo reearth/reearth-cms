@@ -18,11 +18,7 @@ import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
-import {
-  TableRowSelection,
-  TablePaginationConfig,
-  ListToolBarProps,
-} from "@reearth-cms/components/atoms/ProTable";
+import { TableRowSelection, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -41,9 +37,9 @@ import {
   ItemSort,
   FieldType,
   Column,
-  AndConditionInput,
+  ConditionInput,
+  CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
-import { CurrentViewType } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -61,8 +57,8 @@ type Props = {
     selectedRowKeys: string[];
   };
   totalCount: number;
-  currentView: CurrentViewType;
-  setCurrentView: Dispatch<SetStateAction<CurrentViewType>>;
+  currentView: CurrentView;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   searchTerm: string;
   page: number;
   pageSize: number;
@@ -72,7 +68,7 @@ type Props = {
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
   onSearchTerm: (term?: string) => void;
-  onFilterChange: (filter?: AndConditionInput) => void;
+  onFilterChange: (filter?: ConditionInput[]) => void;
   onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
   onItemSelect: (itemId: string) => void;
   setSelection: (input: { selectedRowKeys: string[] }) => void;
@@ -137,6 +133,8 @@ const ContentTable: React.FC<Props> = ({
 
     return [
       {
+        title: "",
+        hideInSetting: true,
         render: (_, contentField) => (
           <Link to={`details/${contentField.id}`}>
             <Icon icon="edit" />
@@ -152,6 +150,7 @@ const ContentTable: React.FC<Props> = ({
       },
       {
         title: () => <Icon icon="message" />,
+        hideInSetting: true,
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
         key: "commentsCount",
@@ -269,34 +268,40 @@ const ContentTable: React.FC<Props> = ({
     return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : [...actionsColumns];
   }, [actionsColumns, contentTableColumns]);
 
-  const rowSelection: TableRowSelection = {
-    selectedRowKeys: selection.selectedRowKeys,
-    onChange: (selectedRowKeys: Key[]) => {
-      setSelection({
-        ...selection,
-        selectedRowKeys: selectedRowKeys as string[],
-      });
-    },
-  };
+  const rowSelection: TableRowSelection = useMemo(
+    () => ({
+      selectedRowKeys: selection.selectedRowKeys,
+      onChange: (selectedRowKeys: Key[]) => {
+        setSelection({
+          ...selection,
+          selectedRowKeys: selectedRowKeys as string[],
+        });
+      },
+    }),
+    [selection, setSelection],
+  );
 
-  const AlertOptions = (props: any) => {
-    return (
-      <Space size={16}>
-        <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
-          <Icon icon="plus" /> {t("Add to Request")}
-        </PrimaryButton>
-        <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
-          <Icon icon="eyeInvisible" /> {t("Unpublish")}
-        </PrimaryButton>
-        <PrimaryButton onClick={props.onCleanSelected}>
-          <Icon icon="clear" /> {t("Deselect")}
-        </PrimaryButton>
-        <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Delete")}
-        </DeleteButton>
-      </Space>
-    );
-  };
+  const AlertOptions = useCallback(
+    (props: any) => {
+      return (
+        <Space size={16}>
+          <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
+            <Icon icon="plus" /> {t("Add to Request")}
+          </PrimaryButton>
+          <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
+            <Icon icon="eyeInvisible" /> {t("Unpublish")}
+          </PrimaryButton>
+          <PrimaryButton onClick={props.onCleanSelected}>
+            <Icon icon="clear" /> {t("Deselect")}
+          </PrimaryButton>
+          <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
+            <Icon icon="delete" /> {t("Delete")}
+          </DeleteButton>
+        </Space>
+      );
+    },
+    [onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t],
+  );
 
   const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
 
@@ -309,18 +314,19 @@ const ContentTable: React.FC<Props> = ({
         return prev;
       });
       defaultFilterValues.current.splice(index, 1);
-      const currentFilters = currentView.filter ? [...currentView.filter.conditions] : [];
+      const currentFilters =
+        currentView.filter && currentView.filter.and ? [...currentView.filter.and.conditions] : [];
       currentFilters.splice(index, 1);
-      onFilterChange(currentFilters.length > 0 ? { conditions: currentFilters } : undefined);
+      onFilterChange(currentFilters.length > 0 ? currentFilters : undefined);
     },
     [currentView.filter, onFilterChange],
   );
 
   useEffect(() => {
-    if (currentView.filter && contentTableColumns) {
+    if (currentView.filter && currentView.filter.and && contentTableColumns) {
       const newFilters: DropdownFilterType[] = [];
       const newDefaultValues = [];
-      for (const c of currentView.filter.conditions) {
+      for (const c of currentView.filter.and.conditions) {
         const condition = Object.values(c)[0];
         if (!condition || !("operator" in condition)) break;
         const { operator, fieldId } = condition;
@@ -376,20 +382,16 @@ const ContentTable: React.FC<Props> = ({
     setControlMenuOpen(open);
   }, []);
 
-  const toolBarItemClick = (isFilterMode: boolean) => {
-    setInputValue("");
-    setItems(getOptions(true));
-    isFilter.current = isFilterMode;
-    handleOptionsOpenChange(true);
-  };
-
   const handleOptionsOpenChange = useCallback((open: boolean) => {
-    setControlMenuOpen(false);
-    setOptionsOpen(open);
+    if (!open) {
+      setOptionsOpen(false);
+    }
   }, []);
 
   const handleConditionMenuOpenChange = useCallback((open: boolean) => {
-    setConditionMenuOpen(open);
+    if (!open) {
+      setConditionMenuOpen(false);
+    }
   }, []);
 
   const close = useCallback(() => {
@@ -427,7 +429,7 @@ const ContentTable: React.FC<Props> = ({
           setSelectedFilter(filter);
           handleOptionsOpenChange(false);
           if (isFromMenu) {
-            handleConditionMenuOpenChange(true);
+            setConditionMenuOpen(true);
             isFilterOpen.current = false;
           } else {
             isFilterOpen.current = true;
@@ -459,12 +461,18 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [
-      contentTableColumns,
-      currentWorkspace?.members,
-      handleConditionMenuOpenChange,
-      handleOptionsOpenChange,
-    ],
+    [contentTableColumns, currentWorkspace?.members, handleOptionsOpenChange],
+  );
+
+  const toolBarItemClick = useCallback(
+    ({ key }: { key: string }) => {
+      setInputValue("");
+      setItems(getOptions(true));
+      isFilter.current = key === "filter";
+      setControlMenuOpen(false);
+      setOptionsOpen(true);
+    },
+    [getOptions],
   );
 
   const handleChange = useCallback(
@@ -486,118 +494,127 @@ const ContentTable: React.FC<Props> = ({
   const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
   const [inputValue, setInputValue] = useState("");
 
-  const sharedProps = {
-    menu: { items },
-    dropdownRender: (menu: React.ReactNode): React.ReactNode => (
-      <Wrapper>
-        <InputWrapper>
-          <Input
-            value={inputValue}
-            placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
-            onChange={handleChange}
-          />
-        </InputWrapper>
-        {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
-      </Wrapper>
-    ),
-    arrow: false,
-  };
+  const sharedProps = useMemo(
+    () => ({
+      menu: { items },
+      dropdownRender: (menu: React.ReactNode): React.ReactNode => (
+        <Wrapper>
+          <InputWrapper>
+            <Input
+              value={inputValue}
+              placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
+              onChange={handleChange}
+            />
+          </InputWrapper>
+          {React.cloneElement(menu as React.ReactElement, { style: menuStyle })}
+        </Wrapper>
+      ),
+      arrow: false,
+    }),
+    [handleChange, inputValue, items],
+  );
 
-  const handleToolbarEvents: ListToolBarProps = {
-    search: (
-      <StyledSearchContainer>
-        <StyledSearchInput
-          placeholder={t("Please enter")}
-          onSearch={(value: string) => {
-            if (value) {
+  const handleToolbarEvents: ListToolBarProps = useMemo(
+    () => ({
+      search: (
+        <StyledSearchContainer>
+          <Input.Search
+            allowClear
+            placeholder={t("input search text")}
+            onSearch={(value: string) => {
               onSearchTerm(value);
-            } else {
-              onSearchTerm();
-            }
-          }}
-          key={`${modelKey}${currentView.id}`}
-        />
-        <StyledFilterWrapper>
-          <StyledFilterSpace size={[0, 8]}>
-            {filters.map((filter, index) => (
-              <FilterDropdown
-                key={index}
-                filter={filter}
-                defaultValue={defaultFilterValues.current[index]}
-                index={index}
-                filterRemove={filterRemove}
-                isFilterOpen={isFilterOpen.current}
-                currentView={currentView}
-                setCurrentView={setCurrentView}
-                onFilterChange={onFilterChange}
-              />
-            ))}
-          </StyledFilterSpace>
-          <Dropdown
-            {...sharedProps}
-            placement="bottomLeft"
-            trigger={["click"]}
-            onOpenChange={() => {
-              isFilter.current = true;
-              setInputValue("");
-              setItems(defaultItems);
-            }}>
-            <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
-              Filter
-            </StyledFilterButton>
-          </Dropdown>
-        </StyledFilterWrapper>
-      </StyledSearchContainer>
-    ),
-  };
-
-  const pagination: TablePaginationConfig = {
-    showSizeChanger: true,
-    current: page,
-    total: totalCount,
-    pageSize: pageSize,
-  };
-
-  const options = {
-    search: true,
-    fullScreen: true,
-    reload: onItemsReload,
-    setting: true,
-  };
-
-  const toolBarItems: MenuProps["items"] = [
-    {
-      label: (
-        <span
-          onClick={() => {
-            toolBarItemClick(true);
-          }}>
-          {t("Add Filter")}
-        </span>
+            }}
+            key={`${modelKey}${currentView.id}`}
+          />
+          <StyledFilterWrapper>
+            <StyledFilterSpace size={[0, 8]}>
+              {filters.map((filter, index) => (
+                <FilterDropdown
+                  key={index}
+                  filter={filter}
+                  defaultValue={defaultFilterValues.current[index]}
+                  index={index}
+                  filterRemove={filterRemove}
+                  isFilterOpen={isFilterOpen.current}
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  onFilterChange={onFilterChange}
+                />
+              ))}
+            </StyledFilterSpace>
+            <Dropdown
+              {...sharedProps}
+              placement="bottomLeft"
+              trigger={["click"]}
+              onOpenChange={() => {
+                isFilter.current = true;
+                setInputValue("");
+                setItems(defaultItems);
+              }}>
+              <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
+                {t("Filter")}
+              </StyledFilterButton>
+            </Dropdown>
+          </StyledFilterWrapper>
+        </StyledSearchContainer>
       ),
-      key: "filter",
-      icon: <Icon icon="filter" />,
-    },
-    {
-      label: (
-        <span
-          onClick={() => {
-            toolBarItemClick(false);
-          }}>
-          {t("Add Sort")}
-        </span>
-      ),
-      key: "sort",
-      icon: <Icon icon="sortAscending" />,
-    },
-  ];
+    }),
+    [
+      currentView,
+      defaultItems,
+      filterRemove,
+      filters,
+      modelKey,
+      onFilterChange,
+      onSearchTerm,
+      setCurrentView,
+      sharedProps,
+      t,
+    ],
+  );
 
-  const toolBarRender = () => {
+  const pagination = useMemo(
+    () => ({
+      showSizeChanger: true,
+      current: page,
+      total: totalCount,
+      pageSize: pageSize,
+    }),
+    [page, pageSize, totalCount],
+  );
+
+  const options = useMemo(
+    () => ({
+      search: true,
+      fullScreen: true,
+      reload: onItemsReload,
+      setting: true,
+    }),
+    [onItemsReload],
+  );
+
+  const toolBarItems: MenuProps["items"] = useMemo(
+    () => [
+      {
+        label: t("Add Filter"),
+        key: "filter",
+        icon: <Icon icon="filter" />,
+      },
+      {
+        label: t("Add Sort"),
+        key: "sort",
+        icon: <Icon icon="sortAscending" />,
+      },
+    ],
+    [t],
+  );
+
+  const toolBarRender = useCallback(() => {
     return [
       <Dropdown
         {...sharedProps}
         placement="bottom"
-        trigger={["contextMenu"]}
+        trigger={["click"]}
         open={optionsOpen}
         onOpenChange={handleOptionsOpenChange}
         key="control">
@@ -613,16 +630,17 @@ const ContentTable: React.FC<Props> = ({
                 currentView={currentView}
                 setCurrentView={setCurrentView}
                 onFilterChange={onFilterChange}
+                key={Math.random()}
               />
             )
           }
-          trigger={["contextMenu"]}
+          trigger={["click"]}
           placement="bottom"
           arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
           <Dropdown
-            menu={{ items: toolBarItems }}
+            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
             placement="bottom"
             trigger={["click"]}
             arrow={false}
@@ -637,7 +655,24 @@ const ContentTable: React.FC<Props> = ({
         </Dropdown>
       </Dropdown>,
     ];
-  };
+  }, [
+    close,
+    conditionMenuOpen,
+    controlMenuOpen,
+    currentView,
+    filters.length,
+    handleConditionMenuOpenChange,
+    handleControlMenuOpenChange,
+    handleOptionsOpenChange,
+    onFilterChange,
+    optionsOpen,
+    selectedFilter,
+    setCurrentView,
+    sharedProps,
+    t,
+    toolBarItemClick,
+    toolBarItems,
+  ]);
 
   const settingOptions = useMemo(() => {
     const cols: Record<string, ColumnsState> = {};
@@ -793,16 +828,12 @@ const StyledBadge = styled(Badge)`
 
 const StyledSearchContainer = styled.div`
   display: flex;
-`;
-
-const StyledSearchInput = styled(Input.Search)`
-  min-width: 200px;
+  gap: 10px;
 `;
 
 const StyledFilterSpace = styled(Space)`
-  max-width: 750px;
+  gap: 16px;
   overflow-x: auto;
-  margin-top: 0;
 `;
 
 const StyledFilterButton = styled(Button)`
@@ -818,6 +849,8 @@ const StyledFilterWrapper = styled.div`
     justify-self: start;
     text-align: start;
   }
+  overflow: auto;
+  gap: 16px;
   .ant-pro-form-light-filter-item {
     margin: 0;
   }

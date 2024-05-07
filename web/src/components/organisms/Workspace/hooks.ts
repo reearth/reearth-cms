@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetProjectsQuery,
   useCreateProjectMutation,
   useCreateWorkspaceMutation,
+  Workspace as GQLWorkspace,
+  useCheckProjectAliasLazyQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -110,7 +113,9 @@ export default () => {
       });
       if (results.data?.createWorkspace) {
         Notification.success({ message: t("Successfully created workspace!") });
-        setCurrentWorkspace(results.data.createWorkspace.workspace);
+        setCurrentWorkspace(
+          fromGraphQLWorkspace(results.data.createWorkspace.workspace as GQLWorkspace),
+        );
         navigate(`/workspace/${results.data.createWorkspace.workspace.id}`);
       }
       refetch();
@@ -123,6 +128,20 @@ export default () => {
   }, []);
 
   const handleWorkspaceModalOpen = useCallback(() => setWorkspaceModalShown(true), []);
+
+  const [CheckProjectAlias] = useCheckProjectAliasLazyQuery({
+    fetchPolicy: "no-cache",
+  });
+
+  const handleProjectAliasCheck = useCallback(
+    async (alias: string) => {
+      if (!alias) return false;
+
+      const response = await CheckProjectAlias({ variables: { alias } });
+      return response.data ? response.data.checkProjectAlias.available : false;
+    },
+    [CheckProjectAlias],
+  );
 
   return {
     projects,
@@ -137,6 +156,7 @@ export default () => {
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
+    handleProjectAliasCheck,
     coverImageUrl,
   };
 };

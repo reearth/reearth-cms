@@ -8,13 +8,15 @@ import (
 
 func TestFile_FileType(t *testing.T) {
 	c := NewFile().Build()
-	f := NewFile().Name("aaa.txt").Path("/aaa.txt").Size(10).GuessContentType().Children([]*File{c}).Build()
+	fl := []*File{NewFile().Build()}
+	f := NewFile().Name("aaa.txt").Path("/aaa.txt").Size(10).GuessContentType().Files(fl).Children([]*File{c}).Build()
 
 	assert.Equal(t, "aaa.txt", f.Name())
 	assert.Equal(t, uint64(10), f.Size())
 	assert.Equal(t, "text/plain; charset=utf-8", f.ContentType())
 	assert.Equal(t, "/aaa.txt", f.Path())
 	assert.Equal(t, []*File{c}, f.Children())
+	assert.Equal(t, fl, f.Files())
 
 	f.SetName("bbb")
 	assert.Equal(t, "bbb", f.Name())
@@ -65,7 +67,20 @@ func TestFile_Files(t *testing.T) {
 		{
 			path: "aaa/b.txt",
 		},
-	}, f.Files())
+	}, f.FlattenChildren())
+}
+
+func TestFile_SetFiles(t *testing.T) {
+	root := NewFile().Build()
+	files := []*File{NewFile().Path("aaa/a/a.txt").Build(), NewFile().Path("aaa/b.txt").Build()}
+	root.SetFiles(files)
+	assert.Equal(t, files, root.files)
+
+	root2 := NewFile().Path("aaa.zip").Build()
+	files2 := []*File{NewFile().Path("aaa.zip").Build(), NewFile().Path("aaa/a/a.txt").Build(), NewFile().Path("aaa/b.txt").Build()}
+	expected := []*File{NewFile().Path("aaa/a/a.txt").Build(), NewFile().Path("aaa/b.txt").Build()}
+	root2.SetFiles(files2)
+	assert.Equal(t, expected, root2.files)
 }
 
 func Test_FoldFiles(t *testing.T) {

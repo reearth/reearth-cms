@@ -1,5 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 
+import { logOutFromTenant } from "@reearth-cms/config";
+
 import AuthHook from "./AuthHook";
 
 export const errorKey = "reeartherror";
@@ -21,12 +23,19 @@ export const useAuth0Auth = (): AuthHook => {
     isLoading,
     error: error?.message ?? null,
     getAccessToken: () => getAccessTokenSilently(),
-    login: () => loginWithRedirect(),
-    logout: () =>
-      logout({
-        returnTo: error
-          ? `${window.location.origin}?${errorKey}=${encodeURIComponent(error?.message)}`
-          : window.location.origin,
-      }),
+    login: () => {
+      logOutFromTenant();
+      return loginWithRedirect();
+    },
+    logout: () => {
+      logOutFromTenant();
+      return logout({
+        logoutParams: {
+          returnTo: error
+            ? `${window.location.origin}?${errorKey}=${encodeURIComponent(error?.message)}`
+            : window.location.origin,
+        },
+      });
+    },
   };
 };

@@ -55,6 +55,7 @@ export default () => {
       reviewer: reviewedByMe && userData?.me?.id ? userData?.me?.id : undefined,
       createdBy: createdByMe && userData?.me?.id ? userData?.me?.id : undefined,
     },
+    notifyOnNetworkStatusChange: true,
     skip: !projectId,
   });
 
@@ -167,7 +168,6 @@ export default () => {
     handleRequestsReload,
     handleRequestDelete,
     handleSearchTerm,
-    searchTerm,
     reviewedByMe,
     createdByMe,
     requestState,
