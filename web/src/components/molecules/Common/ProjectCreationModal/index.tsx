@@ -22,6 +22,12 @@ export type Props = {
 
 const MINIMUM_LENGTH = 4;
 
+const initialValues: FormValues = {
+  name: "",
+  alias: "",
+  description: "",
+};
+
 const ProjectCreationModal: React.FC<Props> = ({
   open,
   onClose,
@@ -69,7 +75,11 @@ const ProjectCreationModal: React.FC<Props> = ({
       onCancel={handleClose}
       onOk={handleSubmit}
       okButtonProps={{ disabled: buttonDisabled }}>
-      <Form form={form} layout="vertical" onValuesChange={handleFormValues}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={handleFormValues}>
         <Form.Item
           name="name"
           label={t("Project name")}
