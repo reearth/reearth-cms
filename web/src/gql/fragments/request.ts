@@ -68,6 +68,9 @@ export const requestFragment = gql`
                 ... on SchemaFieldURL {
                   defaultValue
                 }
+                ... on SchemaFieldReference {
+                  modelId
+                }
               }
             }
           }

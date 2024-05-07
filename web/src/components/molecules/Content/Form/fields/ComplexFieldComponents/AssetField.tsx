@@ -27,6 +27,7 @@ interface AssetFieldProps {
   totalCount: number;
   page: number;
   pageSize: number;
+  disabled?: boolean;
   onAssetTableChange: (
     page: number,
     pageSize: number,
@@ -59,6 +60,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
   totalCount,
   page,
   pageSize,
+  disabled,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -98,6 +100,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           totalCount={totalCount}
           page={page}
           pageSize={pageSize}
+          disabled={disabled}
           onAssetTableChange={onAssetTableChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}
@@ -125,6 +128,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           totalCount={totalCount}
           page={page}
           pageSize={pageSize}
+          disabled={disabled}
           onAssetTableChange={onAssetTableChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}

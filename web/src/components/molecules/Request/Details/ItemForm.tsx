@@ -1,29 +1,25 @@
 import styled from "@emotion/styled";
 
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
-import InputNumber from "@reearth-cms/components/atoms/InputNumber";
-import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
-import Select from "@reearth-cms/components/atoms/Select";
-import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
-import AssetItem from "@reearth-cms/components/molecules/Common/Form/AssetItem";
-import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
-import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueAsset";
-import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
-import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitle";
+import {
+  AssetField,
+  // GroupField,
+  ReferenceField,
+} from "@reearth-cms/components/molecules/Content/Form/fields/ComplexFieldComponents";
+import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fields/FieldComponents";
+import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
+import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
-import ReferenceFormItem from "../../Content/Form/ReferenceFormItem";
-
-export interface Props {
+interface Props {
   initialFormValues: any;
-  schema?: any;
+  schema?: Schema;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -78,90 +74,16 @@ const RequestItemForm: React.FC<Props> = ({
   setUploadModalVisibility,
   onGetAsset,
 }) => {
-  const { Option } = Select;
   const [form] = Form.useForm();
   return (
     <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
       <div>
-        {schema?.fields.map((field: any) =>
-          field.type === "TextArea" ? (
-            <Form.Item
-              key={field.id}
-              extra={field.description}
-              name={field.id}
-              label={
-                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-              }>
-              {field.multiple ? (
-                <MultiValueField
-                  disabled={true}
-                  rows={3}
-                  showCount
-                  maxLength={field.typeProperty.maxLength ?? false}
-                  FieldInput={TextArea}
-                />
-              ) : (
-                <TextArea
-                  disabled={true}
-                  rows={3}
-                  showCount
-                  maxLength={field.typeProperty.maxLength ?? false}
-                />
-              )}
-            </Form.Item>
-          ) : field.type === "MarkdownText" ? (
-            <Form.Item
-              key={field.id}
-              extra={field.description}
-              name={field.id}
-              label={
-                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-              }>
-              {field.multiple ? (
-                <MultiValueField
-                  disabled={true}
-                  maxLength={field.typeProperty.maxLength ?? false}
-                  FieldInput={MarkdownInput}
-                />
-              ) : (
-                <MarkdownInput disabled={true} maxLength={field.typeProperty.maxLength ?? false} />
-              )}
-            </Form.Item>
-          ) : field.type === "Integer" ? (
-            <Form.Item
-              key={field.id}
-              extra={field.description}
-              name={field.id}
-              label={
-                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-              }>
-              {field.multiple ? (
-                <MultiValueField
-                  disabled={true}
-                  type="number"
-                  min={field.typeProperty.min}
-                  max={field.typeProperty.max}
-                  FieldInput={InputNumber}
-                />
-              ) : (
-                <InputNumber
-                  disabled={true}
-                  type="number"
-                  min={field.typeProperty.min}
-                  max={field.typeProperty.max}
-                />
-              )}
-            </Form.Item>
-          ) : field.type === "Asset" ? (
-            <Form.Item
-              key={field.id}
-              extra={field.description}
-              name={field.id}
-              label={
-                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-              }>
-              {field.multiple ? (
-                <MultiValueAsset
+        {schema?.fields.map(field => {
+          if (field.type === "Asset") {
+            return (
+              <div key={field.id}>
+                <AssetField
+                  field={field}
                   disabled={true}
                   assetList={assetList}
                   fileList={fileList}
@@ -186,116 +108,44 @@ const RequestItemForm: React.FC<Props> = ({
                   setUploadModalVisibility={setUploadModalVisibility}
                   onGetAsset={onGetAsset}
                 />
-              ) : (
-                <AssetItem
-                  key={field.id}
-                  disabled={true}
-                  assetList={assetList}
-                  fileList={fileList}
-                  loadingAssets={loadingAssets}
-                  uploading={uploading}
-                  uploadModalVisibility={uploadModalVisibility}
-                  uploadUrl={uploadUrl}
-                  uploadType={uploadType}
-                  totalCount={totalCount}
-                  page={page}
-                  pageSize={pageSize}
-                  onAssetTableChange={onAssetTableChange}
-                  onUploadModalCancel={onUploadModalCancel}
-                  setUploadUrl={setUploadUrl}
-                  setUploadType={setUploadType}
-                  onAssetsCreate={onAssetsCreate}
-                  onAssetCreateFromUrl={onAssetCreateFromUrl}
-                  onAssetsGet={onAssetsGet}
-                  onAssetsReload={onAssetsReload}
-                  onAssetSearchTerm={onAssetSearchTerm}
-                  setFileList={setFileList}
-                  setUploadModalVisibility={setUploadModalVisibility}
-                  onGetAsset={onGetAsset}
-                />
-              )}
-            </Form.Item>
-          ) : field.type === "Reference" ? (
-            <Form.Item
-              key={field.id}
-              extra={field.description}
-              name={field.id}
-              label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
-              <ReferenceFormItem
-                key={field.id}
-                correspondingFieldId={field.id}
-                modelId={field.typeProperty.modelId}
-                disabled
-              />
-            </Form.Item>
-          ) : field.type === "Select" ? (
-            <Form.Item
-              key={field.id}
-              extra={field.description}
-              name={field.id}
-              label={
-                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-              }>
-              {field.multiple ? (
-                <MultiValueSelect disabled={true} selectedValues={field.typeProperty?.values} />
-              ) : (
-                <Select disabled={true} allowClear>
-                  {field.typeProperty?.values?.map((value: string) => (
-                    <Option key={value} value={value}>
-                      {value}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            </Form.Item>
-          ) : field.type === "URL" ? (
-            <Form.Item
-              key={field.id}
-              extra={field.description}
-              name={field.id}
-              label={
-                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-              }>
-              {field.multiple ? (
-                <MultiValueField
-                  disabled={true}
-                  showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
-                  FieldInput={Input}
-                />
-              ) : (
-                <Input
-                  disabled={true}
-                  showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
-                />
-              )}
-            </Form.Item>
-          ) : (
-            <Form.Item
-              key={field.id}
-              extra={field.description}
-              name={field.id}
-              label={
-                <FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />
-              }>
-              {field.multiple ? (
-                <MultiValueField
-                  disabled={true}
-                  showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
-                  FieldInput={Input}
-                />
-              ) : (
-                <Input
-                  disabled={true}
-                  showCount={true}
-                  maxLength={field.typeProperty.maxLength ?? 500}
-                />
-              )}
-            </Form.Item>
-          ),
-        )}
+              </div>
+            );
+          } else if (field.type === "Reference") {
+            return (
+              <div key={field.id}>
+                <ReferenceField field={field} disabled />
+              </div>
+            );
+          } else if (field.type === "Group") {
+            return (
+              <div key={field.id}>
+                {/* <GroupField
+                    field={field}
+                    onGroupGet={onGroupGet}
+                  /> */}
+              </div>
+            );
+          } else {
+            const FieldComponent =
+              FIELD_TYPE_COMPONENT_MAP[
+                field.type as
+                  | "Select"
+                  | "Date"
+                  | "Tag"
+                  | "Bool"
+                  | "Checkbox"
+                  | "URL"
+                  | "TextArea"
+                  | "MarkdownText"
+                  | "Integer"
+              ] || DefaultField;
+            return (
+              <div key={field.id}>
+                <FieldComponent field={field} disabled />
+              </div>
+            );
+          }
+        })}
       </div>
     </StyledForm>
   );

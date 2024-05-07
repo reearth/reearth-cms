@@ -9,9 +9,10 @@ import FieldTitle from "../../FieldTitle";
 interface DefaultFieldProps {
   field: Field;
   itemGroupId?: string;
+  disabled?: boolean;
 }
 
-const IntegerField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
+const IntegerField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
 
   return (
@@ -31,9 +32,15 @@ const IntegerField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
           min={field.typeProperty?.min}
           max={field.typeProperty?.max}
           FieldInput={InputNumber}
+          disabled={disabled}
         />
       ) : (
-        <InputNumber type="number" min={field.typeProperty?.min} max={field.typeProperty?.max} />
+        <InputNumber
+          type="number"
+          min={field.typeProperty?.min}
+          max={field.typeProperty?.max}
+          disabled={disabled}
+        />
       )}
     </Form.Item>
   );

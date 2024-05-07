@@ -172,14 +172,14 @@ const AssetItem: React.FC<Props> = ({
             </Tooltip>
           </AssetDetailsWrapper>
           <Space />
-          {asset && (
+          {asset && !disabled && (
             <Link
               to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
               target="_blank">
               <AssetLink type="link" icon={<Icon icon="arrowSquareOut" size={20} />} />
             </Link>
           )}
-          {value && (
+          {value && !disabled && (
             <AssetLink
               type="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
