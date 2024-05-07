@@ -86,10 +86,10 @@ const ReferenceFormItem: React.FC<Props> = ({
             workspaceId={workspaceId}
             projectId={projectId}
             modelId={modelId}
+            disabled={disabled}
           />
           {!disabled && (
             <Button
-              disabled={disabled}
               type="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
               onClick={() => {

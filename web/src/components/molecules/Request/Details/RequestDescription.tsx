@@ -5,15 +5,8 @@ import { useMemo } from "react";
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
@@ -22,59 +15,10 @@ const { Panel } = Collapse;
 
 type Props = {
   currentRequest: Request;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
 };
 
-export const RequestDescription: React.FC<Props> = ({
-  currentRequest,
-  assetList,
-  fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetsGet,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
-  onGetAsset,
-}) => {
+export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset }) => {
   const fromNow = useMemo(
     () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
@@ -100,27 +44,7 @@ export const RequestDescription: React.FC<Props> = ({
                       key={index}
                       schema={item.schema}
                       initialFormValues={item.initialValues}
-                      assetList={assetList}
-                      fileList={fileList}
-                      loadingAssets={loadingAssets}
-                      uploading={uploading}
-                      uploadModalVisibility={uploadModalVisibility}
-                      uploadUrl={uploadUrl}
-                      uploadType={uploadType}
-                      totalCount={totalCount}
-                      page={page}
-                      pageSize={pageSize}
-                      onAssetTableChange={onAssetTableChange}
-                      onUploadModalCancel={onUploadModalCancel}
-                      setUploadUrl={setUploadUrl}
-                      setUploadType={setUploadType}
-                      onAssetsCreate={onAssetsCreate}
-                      onAssetCreateFromUrl={onAssetCreateFromUrl}
-                      onAssetsGet={onAssetsGet}
-                      onAssetsReload={onAssetsReload}
-                      onAssetSearchTerm={onAssetSearchTerm}
-                      setFileList={setFileList}
-                      setUploadModalVisibility={setUploadModalVisibility}
+                      referencedItems={item.referencedItems}
                       onGetAsset={onGetAsset}
                     />
                   </Panel>

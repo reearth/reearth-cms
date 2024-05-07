@@ -25,6 +25,22 @@ export const requestFragment = gql`
             type
             value
           }
+          referencedItems {
+            id
+            title
+            schemaId
+            createdBy {
+              ... on Integration {
+                name
+              }
+              ... on User {
+                name
+              }
+            }
+            status
+            createdAt
+            updatedAt
+          }
           schema {
             id
             fields {
