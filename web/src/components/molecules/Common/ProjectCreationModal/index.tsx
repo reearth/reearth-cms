@@ -47,7 +47,8 @@ const ProjectCreationModal: React.FC<Props> = ({
 
   const handleClose = useCallback(() => {
     onClose?.(true);
-  }, [onClose]);
+    form.resetFields();
+  }, [form, onClose]);
 
   const handleFormValues = useCallback(() => {
     form
