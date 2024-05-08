@@ -207,13 +207,19 @@ export default () => {
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
       navigate(
-        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}${
-          location.state ?? ""
-        }`,
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
       );
     },
-    [navigate, currentWorkspace?.id, currentProject?.id, location.state],
+    [navigate, currentWorkspace?.id, currentProject?.id],
   );
+
+  const handleBack = useCallback(() => {
+    navigate(
+      `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}`,
+      { state: location.state },
+    );
+  }, [currentModel?.id, currentProject?.id, currentWorkspace?.id, location.state, navigate]);
+
   const [createItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["SearchItem", "GetRequests"],
   });
@@ -600,6 +606,7 @@ export default () => {
     handleItemUpdate,
     handleMetaItemUpdate,
     handleNavigateToModel,
+    handleBack,
     handleRequestCreate,
     handleRequestUpdate,
     handleModalClose,
