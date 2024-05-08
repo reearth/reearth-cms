@@ -7,6 +7,7 @@ import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
@@ -16,9 +17,10 @@ const { Panel } = Collapse;
 type Props = {
   currentRequest: Request;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
-export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset }) => {
+export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset, onGroupGet }) => {
   const fromNow = useMemo(
     () => dayjs(currentRequest.createdAt?.toString()).fromNow(),
     [currentRequest.createdAt],
@@ -46,6 +48,7 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
                       initialFormValues={item.initialValues}
                       referencedItems={item.referencedItems}
                       onGetAsset={onGetAsset}
+                      onGroupGet={onGroupGet}
                     />
                   </Panel>
                 ))}

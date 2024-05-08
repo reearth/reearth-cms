@@ -4,8 +4,15 @@ import { ItemField } from "@reearth-cms/gql/graphql-client-api";
 export const initialValuesGet = (fields?: ItemField[]): { [key: string]: any } => {
   const initialValues: { [key: string]: any } = {};
   fields?.forEach(field => {
-    initialValues[field.schemaFieldId] =
-      field.type === "Date" ? dateConvert(field.value) : field.value;
+    if (field.itemGroupId) {
+      initialValues[field.schemaFieldId] = {
+        ...initialValues[field.schemaFieldId],
+        ...{ [field.itemGroupId]: field.type === "Date" ? dateConvert(field.value) : field.value },
+      };
+    } else {
+      initialValues[field.schemaFieldId] =
+        field.type === "Date" ? dateConvert(field.value) : field.value;
+    }
   });
   return initialValues;
 };

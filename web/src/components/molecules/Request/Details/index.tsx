@@ -3,6 +3,7 @@ import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestMolecule from "@reearth-cms/components/molecules/Request/Details/Request";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 export type Props = {
@@ -20,6 +21,7 @@ export type Props = {
   onBack: () => void;
   loading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const RequestDetailsMolecule: React.FC<Props> = ({
@@ -37,6 +39,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   onBack,
   loading,
   onGetAsset,
+  onGroupGet,
 }) => {
   return loading ? (
     <Loading spinnerSize="large" minHeight="100vh" />
@@ -55,6 +58,7 @@ const RequestDetailsMolecule: React.FC<Props> = ({
       onCommentDelete={onCommentDelete}
       onBack={onBack}
       onGetAsset={onGetAsset}
+      onGroupGet={onGroupGet}
     />
   ) : (
     <NotFound />

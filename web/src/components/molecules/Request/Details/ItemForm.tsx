@@ -3,19 +3,20 @@ import styled from "@emotion/styled";
 import Form from "@reearth-cms/components/atoms/Form";
 import {
   AssetField,
-  // GroupField,
+  GroupField,
   ReferenceField,
 } from "@reearth-cms/components/molecules/Content/Form/fields/ComplexFieldComponents";
 import { DefaultField } from "@reearth-cms/components/molecules/Content/Form/fields/FieldComponents";
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
-import { Schema } from "@reearth-cms/components/molecules/Schema/types";
+import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 interface Props {
   schema?: Schema;
   initialFormValues: any;
   referencedItems?: FormItem[];
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 }
 
 const RequestItemForm: React.FC<Props> = ({
@@ -23,6 +24,7 @@ const RequestItemForm: React.FC<Props> = ({
   initialFormValues,
   referencedItems,
   onGetAsset,
+  onGroupGet,
 }) => {
   const [form] = Form.useForm();
   return (
@@ -44,10 +46,13 @@ const RequestItemForm: React.FC<Props> = ({
           } else if (field.type === "Group") {
             return (
               <div key={field.id}>
-                {/* <GroupField
-                    field={field}
-                    onGroupGet={onGroupGet}
-                  /> */}
+                <GroupField
+                  field={field}
+                  disabled
+                  onGetAsset={onGetAsset}
+                  formItemsData={referencedItems}
+                  onGroupGet={onGroupGet}
+                />
               </div>
             );
           } else {

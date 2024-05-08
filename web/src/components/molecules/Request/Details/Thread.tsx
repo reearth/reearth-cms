@@ -6,6 +6,7 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
@@ -18,6 +19,7 @@ export type Props = {
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const RequestThread: React.FC<Props> = ({
@@ -28,12 +30,17 @@ const RequestThread: React.FC<Props> = ({
   onCommentUpdate,
   onCommentDelete,
   onGetAsset,
+  onGroupGet,
 }) => {
   return (
     <ContentWrapper>
       <ThreadWrapper>
         <CommentsContainer>
-          <RequestDescription currentRequest={currentRequest} onGetAsset={onGetAsset} />
+          <RequestDescription
+            currentRequest={currentRequest}
+            onGetAsset={onGetAsset}
+            onGroupGet={onGroupGet}
+          />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList
               me={me}

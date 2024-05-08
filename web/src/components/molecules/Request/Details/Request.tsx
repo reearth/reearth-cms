@@ -5,6 +5,7 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import RequestThread from "@reearth-cms/components/molecules/Request/Details/Thread";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -24,6 +25,7 @@ type Props = {
   onCommentDelete: (commentId: string) => Promise<void>;
   onBack: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const RequestMolecule: React.FC<Props> = ({
@@ -40,6 +42,7 @@ const RequestMolecule: React.FC<Props> = ({
   onRequestDelete,
   onBack,
   onGetAsset,
+  onGroupGet,
 }) => {
   const t = useT();
 
@@ -86,6 +89,7 @@ const RequestMolecule: React.FC<Props> = ({
             onCommentUpdate={onCommentUpdate}
             onCommentDelete={onCommentDelete}
             onGetAsset={onGetAsset}
+            onGroupGet={onGroupGet}
           />
         </ThreadWrapper>
         <RequestSidebarWrapper

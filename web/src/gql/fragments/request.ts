@@ -24,6 +24,7 @@ export const requestFragment = gql`
             schemaFieldId
             type
             value
+            itemGroupId
           }
           referencedItems {
             id
@@ -86,6 +87,9 @@ export const requestFragment = gql`
                 }
                 ... on SchemaFieldReference {
                   modelId
+                }
+                ... on SchemaFieldGroup {
+                  groupId
                 }
               }
             }

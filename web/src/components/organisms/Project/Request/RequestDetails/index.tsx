@@ -21,7 +21,7 @@ const RequestDetails: React.FC = () => {
 
   const { handleGetAsset } = useAssetHooks(false);
 
-  const { workspaceUserMembers, handleRequestUpdate } = useContentHooks();
+  const { workspaceUserMembers, handleRequestUpdate, handleGroupGet } = useContentHooks();
 
   return (
     <RequestDetailsMolecule
@@ -39,6 +39,7 @@ const RequestDetails: React.FC = () => {
       onBack={handleNavigateToRequestsList}
       loading={loadingRequest}
       onGetAsset={handleGetAsset}
+      onGroupGet={handleGroupGet}
     />
   );
 };
