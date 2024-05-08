@@ -51,7 +51,7 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "false");
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("boolean1").click();
   await closeNotification(page);
   await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "true");
@@ -59,7 +59,7 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   await page.getByRole("switch", { name: "check" }).click();
   await closeNotification(page);
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByLabel("boolean1")).toHaveAttribute("aria-checked", "false");
 });
 
@@ -132,7 +132,7 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(3)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("switch").nth(1).click();
   await closeNotification(page);
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "true");

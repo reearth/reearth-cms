@@ -45,7 +45,7 @@ test("Option field creating and updating has succeeded", async ({ page }) => {
   await page.getByLabel("Back").click();
   await expect(page.getByText("first")).toBeVisible();
 
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("close-circle").locator("svg").click();
   await page.getByLabel("option1").click();
   await page.getByTitle("second").locator("div").click();

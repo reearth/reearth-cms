@@ -52,6 +52,7 @@ const ContentDetails: React.FC = () => {
     handleItemUpdate,
     handleMetaItemUpdate,
     handleNavigateToModel,
+    handleBack,
     handleRequestCreate,
     handleModalClose,
     handleModalOpen,
@@ -131,7 +132,7 @@ const ContentDetails: React.FC = () => {
       onItemCreate={handleItemCreate}
       onItemUpdate={handleItemUpdate}
       onMetaItemUpdate={handleMetaItemUpdate}
-      onBack={handleNavigateToModel}
+      onBack={handleBack}
       modelsMenu={
         <ModelsMenu
           collapsed={collapsedModelMenu}

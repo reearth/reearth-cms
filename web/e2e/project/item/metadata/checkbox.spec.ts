@@ -51,16 +51,17 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
   await expect(page.getByLabel("checkbox1")).not.toBeChecked();
   await page.getByLabel("Back").click();
   await expect(page.getByLabel("", { exact: true }).nth(1)).not.toBeChecked();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("checkbox1").check();
   await closeNotification(page);
   await expect(page.getByLabel("checkbox1")).toBeChecked();
   await page.getByLabel("Back").click();
   await expect(page.getByLabel("", { exact: true }).nth(1)).toBeChecked();
+  await page.waitForTimeout(100);
   await page.getByLabel("", { exact: true }).nth(1).uncheck();
   await closeNotification(page);
   await expect(page.getByLabel("", { exact: true }).nth(1)).not.toBeChecked();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByLabel("checkbox1")).not.toBeChecked();
 });
 
@@ -140,7 +141,7 @@ test("Checkbox metadata editing has succeeded", async ({ page }) => {
   ).toBeChecked();
   await page.getByRole("tooltip", { name: "new checkbox1" }).getByLabel("").nth(1).check();
   await closeNotification(page);
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByLabel("", { exact: true }).nth(0)).toBeChecked();
   await expect(page.getByLabel("", { exact: true }).nth(1)).toBeChecked();
   await expect(page.getByLabel("", { exact: true }).nth(2)).toBeChecked();

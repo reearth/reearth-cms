@@ -33,7 +33,7 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByRole("cell", { name: "text", exact: true })).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("text").click();
 
   await page.getByLabel("text").click();
@@ -66,7 +66,7 @@ test("Publishing and Unpublishing item has succeeded", async ({ page }) => {
   await page.getByText("Unpublish").click();
   await closeNotification(page);
   await expect(page.getByText("DRAFT")).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByText("DRAFT")).toBeVisible();
   await page.getByRole("button", { name: "Publish" }).click();
   await closeNotification(page);
