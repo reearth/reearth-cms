@@ -30,7 +30,7 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
   }, [props.disabled]);
 
   return (
-    <MarkdownWrapper className={className} disabled={props.disabled}>
+    <MarkdownWrapper className={className}>
       <TextArea
         {...props}
         onChange={e => onChange?.(e)}
@@ -50,13 +50,12 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
 
 export default MarkdownInput;
 
-const MarkdownWrapper = styled.div<{ disabled?: boolean }>`
+const MarkdownWrapper = styled.div`
   width: 100%;
-  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 `;
 
 const StyledMD = styled.div<{ disabled?: boolean }>`
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   border: 1px solid #d9d9d9;
   padding: 4px 11px;
   overflow: auto;
