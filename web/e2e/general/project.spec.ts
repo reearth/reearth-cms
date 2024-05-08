@@ -19,10 +19,6 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Project description").click();
   await page.getByLabel("Project description").fill("project description");
   await page.getByRole("button", { name: "OK" }).click();
-  await closeNotification(page, false);
-  await page.getByLabel("Project alias").click();
-  await page.getByLabel("Project alias").fill("project-alias");
-  await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
 
   await expect(page.getByText("project name", { exact: true })).toBeVisible();

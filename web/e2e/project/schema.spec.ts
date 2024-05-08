@@ -85,16 +85,12 @@ test("Group creating from adding field has succeeded", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("e2e group name#e2e-group-key")).toBeVisible();
   await expect(page.getByText("FieldsMeta Data")).not.toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).not.toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).not.toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).not.toBeVisible();
+  await expect(page.locator("li").getByText("Group", { exact: true })).not.toBeVisible();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await page.getByText("e2e model name").click();
-  await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
+  await page.locator("li").getByText("Group", { exact: true }).click();
   await expect(page.getByRole("heading", { name: "Create Group" })).toBeVisible();
   await page.getByLabel("Select Group").click();
   await expect(page.getByText("e2e group name #e2e-group-key")).toBeVisible();

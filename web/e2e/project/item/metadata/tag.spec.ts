@@ -85,6 +85,7 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
     .click();
   await closeNotification(page);
   await expect(page.locator("tbody").getByText("Tag1").first()).toBeVisible();
+  await page.waitForTimeout(100);
   await page.getByRole("cell", { name: "Tag1", exact: true }).locator("svg").click();
   await closeNotification(page);
   await expect(page.locator("#root").getByText("Tag1", { exact: true }).first()).not.toBeVisible();

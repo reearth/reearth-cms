@@ -7,8 +7,6 @@ export async function createProject(page: Page) {
   await page.getByRole("button", { name: "plus New Project" }).first().click();
   await page.getByRole("dialog").locator("#name").click();
   await page.getByRole("dialog").locator("#name").fill(id);
-  await page.getByLabel("Project alias").click();
-  await page.getByLabel("Project alias").fill(id);
   await page.getByLabel("Project description").click();
   await page.getByLabel("Project description").fill("e2e project description");
   await page.getByRole("button", { name: "OK" }).click();

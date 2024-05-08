@@ -4,6 +4,7 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
 import { validateKey } from "@reearth-cms/utils/regex";
 
@@ -35,6 +36,20 @@ const ProjectCreationModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm<FormValues>();
   const [buttonDisabled, setButtonDisabled] = useState(true);
+
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      keyAutoFill(e, { form, key: "alias" });
+    },
+    [form],
+  );
+
+  const handleAliasChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      keyReplace(e, { form, key: "alias" });
+    },
+    [form],
+  );
 
   const handleSubmit = useCallback(() => {
     form
@@ -82,10 +97,10 @@ const ProjectCreationModal: React.FC<Props> = ({
           name="name"
           label={t("Project name")}
           rules={[{ required: true, message: t("Please input the name of project!") }]}>
-          <Input />
+          <Input onChange={handleNameChange} />
         </Form.Item>
         <Form.Item
-          name={"alias"}
+          name="alias"
           label={t("Project alias")}
           rules={[
             {
@@ -100,7 +115,7 @@ const ProjectCreationModal: React.FC<Props> = ({
               },
             },
           ]}>
-          <Input />
+          <Input onChange={handleAliasChange} />
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>
           <TextArea rows={4} />

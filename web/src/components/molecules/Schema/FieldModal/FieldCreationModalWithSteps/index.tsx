@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -13,6 +13,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldValidationProps from "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs";
@@ -219,6 +220,21 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     }
   }, [onClose, onSubmit, onUpdate, selectedField, field1FormValues, field2Form, selectedModel]);
 
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, fieldForm: FormInstance) => {
+      if (selectedField) return;
+      keyAutoFill(e, { form: fieldForm, key: "key" });
+    },
+    [selectedField],
+  );
+
+  const handleKeyChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, fieldForm: FormInstance) => {
+      keyReplace(e, { form: fieldForm, key: "key" });
+    },
+    [],
+  );
+
   return (
     <StyledModal
       title={
@@ -324,7 +340,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 name="title"
                 label={t("Display name")}
                 rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-                <Input />
+                <Input
+                  onChange={e => {
+                    handleNameChange(e, field1Form);
+                  }}
+                />
               </Form.Item>
               <Form.Item
                 name="key"
@@ -350,7 +370,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     },
                   },
                 ]}>
-                <Input />
+                <Input
+                  onChange={e => {
+                    handleKeyChange(e, field1Form);
+                  }}
+                />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
@@ -420,7 +444,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 name="title"
                 label={t("Display name")}
                 rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-                <Input />
+                <Input
+                  onChange={e => {
+                    handleNameChange(e, field2Form);
+                  }}
+                />
               </Form.Item>
               <Form.Item
                 name="key"
@@ -443,7 +471,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     },
                   },
                 ]}>
-                <Input />
+                <Input
+                  onChange={e => {
+                    handleKeyChange(e, field2Form);
+                  }}
+                />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
                 <TextArea rows={3} showCount maxLength={1000} />
