@@ -11,7 +11,6 @@ const Accessibility: React.FC = () => {
     assetState,
     isSaveDisabled,
     handlePublicUpdate,
-    handleAliasChange,
     handleUpdatedAssetState,
     handleUpdatedModels,
     handleSetScope,
@@ -26,7 +25,6 @@ const Accessibility: React.FC = () => {
       assetState={assetState}
       isSaveDisabled={isSaveDisabled}
       handlePublicUpdate={handlePublicUpdate}
-      handleAliasChange={handleAliasChange}
       handleUpdatedAssetState={handleUpdatedAssetState}
       handleUpdatedModels={handleUpdatedModels}
       handleSetScope={handleSetScope}

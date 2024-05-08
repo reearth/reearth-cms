@@ -20,8 +20,6 @@ export type Props = {
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
-const MINIMUM_LENGTH = 4;
-
 const initialValues: FormValues = {
   name: "",
   alias: "",
@@ -93,9 +91,8 @@ const ProjectCreationModal: React.FC<Props> = ({
             {
               message: t("Project alias is not valid"),
               required: true,
-              min: MINIMUM_LENGTH,
               validator: async (_, value) => {
-                if (!validateKey(value) || value.length <= MINIMUM_LENGTH) {
+                if (!validateKey(value) || value.length <= 4) {
                   return Promise.reject();
                 }
                 const isProjectAliasAvailable = await onProjectAliasCheck(value);
