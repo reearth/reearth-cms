@@ -131,6 +131,8 @@ const FieldModal: React.FC<Props> = ({
     multipleValue,
     handleMultipleChange,
     handleTabChange,
+    handleNameChange,
+    handleKeyChange,
     handleSubmit,
     handleModalReset,
     handleModalCancel,
@@ -179,7 +181,7 @@ const FieldModal: React.FC<Props> = ({
               name="title"
               label={t("Display name")}
               rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-              <Input />
+              <Input onChange={handleNameChange} />
             </Form.Item>
             <Form.Item
               name="key"
@@ -200,7 +202,7 @@ const FieldModal: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input />
+              <Input onChange={handleKeyChange} />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />

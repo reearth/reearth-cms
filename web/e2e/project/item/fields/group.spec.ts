@@ -16,20 +16,12 @@ test.afterEach(async ({ page }) => {
 
 test("Group field creating and updating has succeeded", async ({ page }) => {
   test.slow();
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeVisible();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeVisible();
 
   await createGroup(page);
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).not.toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).not.toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).not.toBeVisible();
+  await expect(page.locator("li").getByText("Group", { exact: true })).not.toBeVisible();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text1");
@@ -42,7 +34,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByText("text1#text1")).toBeVisible();
 
   await page.getByText("e2e model name").click();
-  await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
+  await page.locator("li").getByText("Group", { exact: true }).click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("group1");
   await page.getByLabel("Settings").locator("#key").click();
@@ -156,20 +148,12 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
 
 test("Group field editing has succeeded", async ({ page }) => {
   test.slow();
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeVisible();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeVisible();
 
   await createGroup(page);
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).not.toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).not.toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).not.toBeVisible();
+  await expect(page.locator("li").getByText("Group", { exact: true })).not.toBeVisible();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text1");
@@ -182,7 +166,7 @@ test("Group field editing has succeeded", async ({ page }) => {
   await expect(page.getByText("text1#text1")).toBeVisible();
 
   await page.getByText("e2e model name").click();
-  await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
+  await page.locator("li").getByText("Group", { exact: true }).click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("group1");
   await page.getByLabel("Settings").locator("#key").click();
