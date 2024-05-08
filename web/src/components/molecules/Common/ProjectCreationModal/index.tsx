@@ -1,10 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 export interface FormValues {
   name: string;
@@ -16,6 +17,7 @@ export type Props = {
   open?: boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const initialValues: FormValues = {
@@ -24,9 +26,15 @@ const initialValues: FormValues = {
   description: "",
 };
 
-const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const ProjectCreationModal: React.FC<Props> = ({
+  open,
+  onClose,
+  onSubmit,
+  onProjectAliasCheck,
+}) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   const handleSubmit = useCallback(() => {
     form
@@ -43,10 +51,33 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
 
   const handleClose = useCallback(() => {
     onClose?.(true);
-  }, [onClose]);
+    form.resetFields();
+  }, [form, onClose]);
+
+  const handleFormValues = useCallback(() => {
+    form
+      .validateFields()
+      .then(() => {
+        setButtonDisabled(false);
+      })
+      .catch(fieldsError => {
+        setButtonDisabled(
+          fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
+        );
+      });
+  }, [form]);
+
   return (
-    <Modal open={open} onCancel={handleClose} onOk={handleSubmit}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+    <Modal
+      open={open}
+      onCancel={handleClose}
+      onOk={handleSubmit}
+      okButtonProps={{ disabled: buttonDisabled }}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={handleFormValues}>
         <Form.Item
           name="name"
           label={t("Project name")}
@@ -56,7 +87,19 @@ const ProjectCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
         <Form.Item
           name={"alias"}
           label={t("Project alias")}
-          rules={[{ required: true, message: t("Please input the alias of project!") }]}>
+          rules={[
+            {
+              message: t("Project alias is not valid"),
+              required: true,
+              validator: async (_, value) => {
+                if (!validateKey(value) || value.length <= 4) {
+                  return Promise.reject();
+                }
+                const isProjectAliasAvailable = await onProjectAliasCheck(value);
+                return isProjectAliasAvailable ? Promise.resolve() : Promise.reject();
+              },
+            },
+          ]}>
           <Input />
         </Form.Item>
         <Form.Item name="description" label={t("Project description")}>
