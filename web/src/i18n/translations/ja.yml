@@ -92,7 +92,7 @@ Tag: タグ
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
-Please input the alias of project!: プロジェクトのエイリアスを入力してください。
+Project alias is not valid: 無効なプロジェクトのエイリアスです
 Project description: プロジェクト概要
 Home: ホーム
 Overview: 概要
@@ -232,6 +232,7 @@ Edit: 編集
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Delete Project: プロジェクトを削除
 Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。
+Alias: エイリアス
 Write something here to describe this record.: このレコードの説明を入力してください。
 Project Settings: プロジェクト設定
 Need request: リクエストの要否

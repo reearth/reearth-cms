@@ -9,9 +9,10 @@ import { Project, Role } from "../Workspace/types";
 
 export type Props = {
   project?: Project;
-  onProjectUpdate: (name?: string | undefined, description?: string | undefined) => Promise<void>;
+  onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
   onProjectDelete: () => Promise<void>;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
 const ProjectSettings: React.FC<Props> = ({
@@ -19,13 +20,18 @@ const ProjectSettings: React.FC<Props> = ({
   onProjectDelete,
   onProjectUpdate,
   onProjectRequestRolesUpdate,
+  onProjectAliasCheck,
 }) => {
   const t = useT();
 
   return (
     <InnerContent title={`${t("Project Settings")} / ${project?.name}`}>
       <ContentSection title={t("General")}>
-        <ProjectGeneralForm project={project} onProjectUpdate={onProjectUpdate} />
+        <ProjectGeneralForm
+          project={project}
+          onProjectUpdate={onProjectUpdate}
+          onProjectAliasCheck={onProjectAliasCheck}
+        />
       </ContentSection>
       <ContentSection title={t("Request")}>
         <ProjectRequestOptions
