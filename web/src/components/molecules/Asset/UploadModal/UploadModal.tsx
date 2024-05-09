@@ -15,17 +15,17 @@ const { TabPane } = Tabs;
 
 type Props = {
   alsoLink?: boolean;
-  visible: boolean;
+  visible?: boolean;
   uploadProps: UploadProps;
-  fileList: UploadFile<File>[];
-  uploading: boolean;
+  fileList?: UploadFile<File>[];
+  uploading?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
+  uploadType?: UploadType;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
+  setUploadType?: (type: UploadType) => void;
   onUploadModalClose?: () => void;
   onUpload: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
 };
 
 const UploadModal: React.FC<Props> = ({
@@ -46,7 +46,7 @@ const UploadModal: React.FC<Props> = ({
 
   const handleTabChange = useCallback(
     (key: string) => {
-      setUploadType(key as UploadType);
+      setUploadType?.(key as UploadType);
     },
     [setUploadType],
   );

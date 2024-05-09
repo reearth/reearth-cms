@@ -9,9 +9,10 @@ import FieldTitle from "../../FieldTitle";
 interface DefaultFieldProps {
   field: Field;
   itemGroupId?: string;
+  disabled?: boolean;
 }
 
-const SelectField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
+const SelectField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const { Option } = Select;
   const t = useT();
 
@@ -27,9 +28,9 @@ const SelectField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
         },
       ]}>
       {field.multiple ? (
-        <MultiValueSelect selectedValues={field.typeProperty?.values} />
+        <MultiValueSelect selectedValues={field.typeProperty?.values} disabled={disabled} />
       ) : (
-        <Select allowClear>
+        <Select allowClear disabled={disabled}>
           {field.typeProperty?.values?.map((value: string) => (
             <Option key={value} value={value}>
               {value}

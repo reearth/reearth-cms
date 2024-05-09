@@ -1,4 +1,4 @@
-import { Comment } from "@reearth-cms/components/molecules/Content/types";
+import { Comment, FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { User } from "@reearth-cms/components/molecules/Member/types";
 
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
@@ -21,6 +21,7 @@ export type Request = {
     modelName?: string;
     schema?: any;
     initialValues: any;
+    referencedItems: FormItem[];
   }[];
 };
 

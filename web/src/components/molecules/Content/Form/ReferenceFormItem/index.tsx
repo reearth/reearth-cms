@@ -86,20 +86,24 @@ const ReferenceFormItem: React.FC<Props> = ({
             workspaceId={workspaceId}
             projectId={projectId}
             modelId={modelId}
-          />
-          <Button
             disabled={disabled}
-            type="link"
-            icon={<Icon icon={"unlinkSolid"} size={16} />}
-            onClick={() => {
-              onChange?.();
-            }}
           />
+          {!disabled && (
+            <Button
+              type="link"
+              icon={<Icon icon={"unlinkSolid"} size={16} />}
+              onClick={() => {
+                onChange?.();
+              }}
+            />
+          )}
         </ReferenceItemWrapper>
       )}
-      <StyledButton onClick={handleClick} type="primary" disabled={disabled}>
-        <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
-      </StyledButton>
+      {!disabled && (
+        <StyledButton onClick={handleClick} type="primary">
+          <Icon icon="arrowUpRight" size={14} /> {t("Refer to item")}
+        </StyledButton>
+      )}
       {!!onSearchTerm &&
         !!onLinkItemTableReload &&
         !!onLinkItemTableChange &&
