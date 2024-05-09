@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import {
   Field,
   FieldModalTabs,
@@ -50,8 +51,8 @@ export default (
     if (selectedType === "Select") {
       const defaultValue = form.getFieldValue("defaultValue");
       if (Array.isArray(defaultValue)) {
-        const filteredVelue = defaultValue.filter(value => selectedValues?.includes(value));
-        form.setFieldValue("defaultValue", filteredVelue);
+        const filteredValue = defaultValue.filter(value => selectedValues?.includes(value));
+        form.setFieldValue("defaultValue", filteredValue);
       } else if (!selectedValues?.includes(defaultValue)) {
         form.setFieldValue("defaultValue", undefined);
       }
@@ -62,10 +63,10 @@ export default (
     if (selectedType === "Tag") {
       const defaultValue = form.getFieldValue("defaultValue");
       if (Array.isArray(defaultValue)) {
-        const filteredVelue = defaultValue.filter(
-          value => selectedTags?.some(tag => tag.name === value),
+        const filteredValue = defaultValue.filter(value =>
+          selectedTags?.some(tag => tag.name === value),
         );
-        form.setFieldValue("defaultValue", filteredVelue);
+        form.setFieldValue("defaultValue", filteredValue);
       } else if (!selectedTags?.some(tag => tag.name === defaultValue)) {
         form.setFieldValue("defaultValue", undefined);
       }
@@ -190,6 +191,21 @@ export default (
     }
   }, []);
 
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (selectedField) return;
+      keyAutoFill(e, { form, key: "key" });
+    },
+    [selectedField, form],
+  );
+
+  const handleKeyChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      keyReplace(e, { form, key: "key" });
+    },
+    [form],
+  );
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -239,6 +255,8 @@ export default (
     multipleValue,
     handleMultipleChange,
     handleTabChange,
+    handleNameChange,
+    handleKeyChange,
     handleSubmit,
     handleModalReset,
     handleModalCancel,

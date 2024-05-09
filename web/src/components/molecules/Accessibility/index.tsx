@@ -1,8 +1,9 @@
 import styled from "@emotion/styled";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import Input from "@reearth-cms/components/atoms/Input";
@@ -28,8 +29,7 @@ type Props = {
   aliasState?: string;
   assetState?: boolean;
   isSaveDisabled: boolean;
-  handlePublicUpdate: () => Promise<void>;
-  handleAliasChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handlePublicUpdate: () => void;
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
   handleSetScope: (projectScope: PublicScope) => void;
@@ -43,7 +43,6 @@ const Accessibility: React.FC<Props> = ({
   assetState,
   isSaveDisabled,
   handlePublicUpdate,
-  handleAliasChange,
   handleUpdatedAssetState,
   handleUpdatedModels,
   handleSetScope,
@@ -130,6 +129,10 @@ const Accessibility: React.FC<Props> = ({
     { id: 2, name: t("Public"), value: "public" },
   ];
 
+  const handleCopy = useCallback(() => {
+    if (aliasState) navigator.clipboard.writeText(aliasState);
+  }, [aliasState]);
+
   return (
     <InnerContent title={t("Accessibility")} flexChildren>
       <ContentSection title="">
@@ -149,7 +152,11 @@ const Accessibility: React.FC<Props> = ({
               </Select>
             </Form.Item>
             <Form.Item label={t("Project Alias")}>
-              <Input value={aliasState} onChange={handleAliasChange} />
+              <Input
+                value={aliasState}
+                suffix={<Icon icon="copy" onClick={handleCopy} />}
+                disabled
+              />
             </Form.Item>
           </ItemsWrapper>
           <TableWrapper>

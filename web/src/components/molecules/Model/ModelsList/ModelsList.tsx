@@ -49,19 +49,30 @@ const ModelsList: React.FC<Props> = ({
     return selectedKey ? [selectedKey] : [];
   }, [selectedKey]);
 
-  const items = useMemo(() => {
-    return models
-      ?.sort((a, b) => {
-        if (a.order !== undefined && b.order !== undefined) {
-          return a.order - b.order;
-        }
-        return 0;
-      })
-      .map(model => ({
-        label: collapsed ? <Icon icon="dot" /> : model.name,
-        key: model.id,
-      }));
-  }, [collapsed, models]);
+  const scrollToSelected = useCallback(
+    (node: HTMLElement | null) => node?.scrollIntoView({ block: "nearest" }),
+    [],
+  );
+
+  const items = useMemo(
+    () =>
+      models
+        ?.sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          return 0;
+        })
+        .map(model => ({
+          label: (
+            <div ref={model.id === selectedKey ? scrollToSelected : undefined}>
+              {collapsed ? <Icon icon="dot" /> : model.name}
+            </div>
+          ),
+          key: model.id,
+        })),
+    [collapsed, models, scrollToSelected, selectedKey],
+  );
 
   return (
     <SchemaStyledMenu>

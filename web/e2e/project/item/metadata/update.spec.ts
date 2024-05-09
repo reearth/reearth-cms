@@ -28,12 +28,12 @@ test.afterEach(async ({ page }) => {
 test("Updating metadata added later from table has succeeded", async ({ page }) => {
   await page.getByRole("switch").click();
   await closeNotification(page);
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByLabel("boolean")).toHaveAttribute("aria-checked", "true");
 });
 
 test("Updating metadata added later from edit page has succeeded", async ({ page }) => {
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("boolean").click();
   await closeNotification(page);
   await page.getByLabel("Back").click();

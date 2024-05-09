@@ -94,7 +94,7 @@ interface Props {
   }) => Promise<void>;
   onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
   onMetaItemUpdate: (data: { metaItemId?: string; metaFields: ItemField[] }) => Promise<void>;
-  onBack: (modelId?: string) => void;
+  onBack: () => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsGet: () => void;
@@ -306,10 +306,6 @@ const ContentForm: React.FC<Props> = ({
     metaForm.setFieldsValue(initialMetaFormValues);
   }, [metaForm, initialMetaFormValues]);
 
-  const handleBack = useCallback(() => {
-    onBack(model?.id);
-  }, [onBack, model]);
-
   const unpublishedItems = useMemo(
     () => formItemsData?.filter(item => item.status !== "PUBLIC") ?? [],
     [formItemsData],
@@ -466,7 +462,7 @@ const ContentForm: React.FC<Props> = ({
         onValuesChange={handleValuesChange}>
         <PageHeader
           title={model?.name}
-          onBack={handleBack}
+          onBack={onBack}
           extra={
             <>
               <Button htmlType="submit" onClick={handleSubmit} loading={loading}>

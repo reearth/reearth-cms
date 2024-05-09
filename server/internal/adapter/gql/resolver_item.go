@@ -47,7 +47,8 @@ func (i itemResolver) Model(ctx context.Context, obj *gqlmodel.Item) (*gqlmodel.
 }
 
 func (i itemResolver) Status(ctx context.Context, obj *gqlmodel.Item) (gqlmodel.ItemStatus, error) {
-	return dataloaders(ctx).ItemStatus.Load(obj.ID)
+	res, err := dataloaders(ctx).ItemStatus.Load(obj.ID)
+	return *res, err
 }
 
 func (i itemResolver) Assets(ctx context.Context, obj *gqlmodel.Item) ([]*gqlmodel.Asset, error) {

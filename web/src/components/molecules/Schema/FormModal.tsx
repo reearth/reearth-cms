@@ -4,6 +4,7 @@ import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -47,6 +48,21 @@ const FormModal: React.FC<Props> = ({
       }
     }
   }, [form, data, open]);
+
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (data) return;
+      keyAutoFill(e, { form, key: "key" });
+    },
+    [data, form],
+  );
+
+  const handleKeyChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      keyReplace(e, { form, key: "key" });
+    },
+    [form],
+  );
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
@@ -133,7 +149,7 @@ const FormModal: React.FC<Props> = ({
               message: nameMessage,
             },
           ]}>
-          <Input />
+          <Input onChange={handleNameChange} />
         </Form.Item>
         <Form.Item name="description" label={descriptionLabel}>
           <TextArea rows={4} />
@@ -143,21 +159,20 @@ const FormModal: React.FC<Props> = ({
           label={keyLabel}
           extra={keyExtra}
           rules={[
-            {
-              message: t("Key is not valid"),
-              required: true,
-              validator: async (_, value) => {
-                if (!validateKey(value)) return Promise.reject();
-                const isKeyAvailable = await onKeyCheck(value, data?.key);
-                if (isKeyAvailable) {
-                  return Promise.resolve();
-                } else {
-                  return Promise.reject();
+            ({ getFieldValue }) => ({
+              async validator() {
+                const value = getFieldValue("key");
+                if (value && validateKey(value)) {
+                  const isKeyAvailable = await onKeyCheck(value, data?.key);
+                  if (isKeyAvailable) {
+                    return Promise.resolve();
+                  }
                 }
+                return Promise.reject(new Error(t("Key is not valid")));
               },
-            },
+            }),
           ]}>
-          <Input />
+          <Input onChange={handleKeyChange} />
         </Form.Item>
       </Form>
     </Modal>

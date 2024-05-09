@@ -10,7 +10,6 @@ import React, {
   Dispatch,
   SetStateAction,
 } from "react";
-import { Link } from "react-router-dom";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -98,6 +97,7 @@ const ContentTable: React.FC<Props> = ({
   requests,
   addItemToRequestModalShown,
   setCurrentView,
+  searchTerm,
   onRequestTableChange,
   requestModalLoading,
   requestModalTotalCount,
@@ -112,6 +112,7 @@ const ContentTable: React.FC<Props> = ({
   onContentTableChange,
   onItemSelect,
   setSelection,
+  onItemEdit,
   onItemDelete,
   onItemsReload,
   modelKey,
@@ -135,9 +136,7 @@ const ContentTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, contentField) => (
-          <Link to={`details/${contentField.id}`}>
-            <Icon icon="edit" />
-          </Link>
+          <Icon icon="edit" color={"#1890ff"} onClick={() => onItemEdit(contentField.id)} />
         ),
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
@@ -261,7 +260,14 @@ const ContentTable: React.FC<Props> = ({
         ellipsis: true,
       },
     ];
-  }, [t, currentView.sort, selectedItem?.id, onItemSelect]);
+  }, [
+    t,
+    currentView.sort?.field.type,
+    currentView.sort?.direction,
+    onItemEdit,
+    selectedItem?.id,
+    onItemSelect,
+  ]);
 
   const tableColumns = useMemo(() => {
     return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : [...actionsColumns];
@@ -523,6 +529,7 @@ const ContentTable: React.FC<Props> = ({
             onSearch={(value: string) => {
               onSearchTerm(value);
             }}
+            defaultValue={searchTerm}
             key={`${modelKey}${currentView.id}`}
           />
           <StyledFilterWrapper>
@@ -566,6 +573,7 @@ const ContentTable: React.FC<Props> = ({
       modelKey,
       onFilterChange,
       onSearchTerm,
+      searchTerm,
       setCurrentView,
       sharedProps,
       t,
