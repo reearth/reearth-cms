@@ -7,8 +7,8 @@ export const keyAutoFill = (
   const { form, key } = formData;
   const prevName = e.currentTarget.attributes[4].value.replaceAll(" ", "-");
   const currentAlias = form.getFieldValue(key);
-  if (!currentAlias || currentAlias === prevName) {
-    const currentName = e.currentTarget.value.replaceAll(" ", "-");
+  if (!currentAlias || currentAlias.toLowerCase() === prevName.toLowerCase()) {
+    const currentName = e.currentTarget.value.replaceAll(" ", "-").toLowerCase();
     form.setFieldValue(key, currentName);
   }
 };
