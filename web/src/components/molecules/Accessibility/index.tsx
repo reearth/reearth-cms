@@ -29,7 +29,7 @@ type Props = {
   aliasState?: string;
   assetState?: boolean;
   isSaveDisabled: boolean;
-  handlePublicUpdate: () => void;
+  handlePublicUpdate: () => Promise<void>;
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
   handleSetScope: (projectScope: PublicScope) => void;

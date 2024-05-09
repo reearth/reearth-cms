@@ -16,8 +16,8 @@ export interface FormValues {
 
 type Props = {
   open: boolean;
-  onClose: (refetch?: boolean) => void;
-  onSubmit: (values: FormValues) => Promise<void> | void;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
 };
 
@@ -65,7 +65,7 @@ const ProjectCreationModal: React.FC<Props> = ({
   }, [form, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
-    onClose?.(true);
+    onClose();
     form.resetFields();
   }, [form, onClose]);
 
