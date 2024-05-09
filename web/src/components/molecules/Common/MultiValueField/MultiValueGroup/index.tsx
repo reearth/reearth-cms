@@ -27,46 +27,47 @@ type Props = {
   parentField: Field;
   form?: FormInstance<any>;
   fields?: Field[];
-  loadingReference: boolean;
+  loadingReference?: boolean;
   linkedItemsModalList?: FormItem[];
-  linkItemModalTitle: string;
-  formItemsData: FormItem[];
+  linkItemModalTitle?: string;
+  formItemsData?: FormItem[];
   itemAssets?: ItemAsset[];
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  linkItemModalTotalCount: number;
-  linkItemModalPage: number;
-  linkItemModalPageSize: number;
-  onSearchTerm: (term?: string) => void;
-  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
-  onLinkItemTableReload: () => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
-  onAssetTableChange: (
+  assetList?: Asset[];
+  fileList?: UploadFile[];
+  loadingAssets?: boolean;
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
+  uploadUrl?: { url: string; autoUnzip: boolean };
+  uploadType?: UploadType;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
+  linkItemModalTotalCount?: number;
+  linkItemModalPage?: number;
+  linkItemModalPageSize?: number;
+  disabled?: boolean;
+  onSearchTerm?: (term?: string) => void;
+  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
+  onLinkItemTableReload?: () => void;
+  onLinkItemTableChange?: (page: number, pageSize: number) => void;
+  onAssetTableChange?: (
     page: number,
     pageSize: number,
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  onUploadModalCancel?: () => void;
+  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadType?: (type: UploadType) => void;
+  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet?: () => void;
+  onAssetsReload?: () => void;
+  onAssetSearchTerm?: (term?: string | undefined) => void;
+  setFileList?: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility?: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
 };
 
 const MultiValueGroup: React.FC<Props> = ({
@@ -94,6 +95,7 @@ const MultiValueGroup: React.FC<Props> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  disabled,
   onSearchTerm,
   onReferenceModelUpdate,
   onLinkItemTableReload,
@@ -209,6 +211,7 @@ const MultiValueGroup: React.FC<Props> = ({
                 linkItemModalTotalCount={linkItemModalTotalCount}
                 linkItemModalPage={linkItemModalPage}
                 linkItemModalPageSize={linkItemModalPageSize}
+                disabled={disabled}
                 onReferenceModelUpdate={onReferenceModelUpdate}
                 onLinkItemTableReload={onLinkItemTableReload}
                 onLinkItemTableChange={onLinkItemTableChange}
@@ -235,11 +238,11 @@ const MultiValueGroup: React.FC<Props> = ({
             </FieldWrapper>
           );
         })}
-      {
+      {!disabled && (
         <Button icon={<Icon icon="plus" />} type="primary" onClick={handleAdd}>
           {t("New")}
         </Button>
-      }
+      )}
     </div>
   );
 };

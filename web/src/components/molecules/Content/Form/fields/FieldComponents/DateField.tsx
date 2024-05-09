@@ -12,9 +12,10 @@ interface DateFieldProps {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => void;
+  disabled?: boolean;
 }
 
-const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
+const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
   const t = useT();
 
   return (
@@ -29,9 +30,14 @@ const DateField: React.FC<DateFieldProps> = ({ field, itemGroupId, onMetaUpdate 
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueField onChange={onMetaUpdate} type="date" FieldInput={StyledDatePicker} />
+        <MultiValueField
+          onChange={onMetaUpdate}
+          type="date"
+          FieldInput={StyledDatePicker}
+          disabled={disabled}
+        />
       ) : (
-        <StyledDatePicker onChange={onMetaUpdate} />
+        <StyledDatePicker onChange={onMetaUpdate} disabled={disabled} />
       )}
     </Form.Item>
   );

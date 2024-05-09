@@ -72,6 +72,7 @@ const MultiValueBooleanField: React.FC<Props> = ({
             <FieldInput
               onChange={(e: boolean | CheckboxChangeEvent) => handleInput(e, key)}
               checked={valueItem}
+              disabled={disabled}
             />
 
             <FlexSpace />
