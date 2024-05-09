@@ -9,9 +9,10 @@ import FieldTitle from "../../FieldTitle";
 interface DefaultFieldProps {
   field: Field;
   itemGroupId?: string;
+  disabled?: boolean;
 }
 
-const MarkdownField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
+const MarkdownField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, disabled }) => {
   const t = useT();
 
   return (
@@ -26,9 +27,13 @@ const MarkdownField: React.FC<DefaultFieldProps> = ({ field, itemGroupId }) => {
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueField maxLength={field.typeProperty?.maxLength} FieldInput={MarkdownInput} />
+        <MultiValueField
+          maxLength={field.typeProperty?.maxLength}
+          FieldInput={MarkdownInput}
+          disabled={disabled}
+        />
       ) : (
-        <MarkdownInput maxLength={field.typeProperty?.maxLength} />
+        <MarkdownInput maxLength={field.typeProperty?.maxLength} disabled={disabled} />
       )}
     </Form.Item>
   );

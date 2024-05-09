@@ -10,9 +10,15 @@ interface DefaultFieldProps {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => Promise<void>;
+  disabled?: boolean;
 }
 
-const DefaultField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
+const DefaultField: React.FC<DefaultFieldProps> = ({
+  field,
+  itemGroupId,
+  onMetaUpdate,
+  disabled,
+}) => {
   const t = useT();
 
   return (
@@ -32,12 +38,14 @@ const DefaultField: React.FC<DefaultFieldProps> = ({ field, itemGroupId, onMetaU
           showCount={true}
           maxLength={field.typeProperty?.maxLength ?? 500}
           FieldInput={Input}
+          disabled={disabled}
         />
       ) : (
         <Input
           onBlur={onMetaUpdate}
           showCount={true}
           maxLength={field.typeProperty?.maxLength ?? 500}
+          disabled={disabled}
         />
       )}
     </Form.Item>

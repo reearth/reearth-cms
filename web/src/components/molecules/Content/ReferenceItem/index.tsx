@@ -15,6 +15,7 @@ type Props = {
   status?: ItemStatus;
   workspaceId?: string;
   projectId?: string;
+  disabled?: boolean;
 };
 
 const ReferenceItem: React.FC<Props> = ({
@@ -24,6 +25,7 @@ const ReferenceItem: React.FC<Props> = ({
   status,
   projectId,
   workspaceId,
+  disabled,
 }) => {
   const stateColors = { DRAFT: "#BFBFBF", PUBLIC: "#52C41A", REVIEW: "#FA8C16" };
   const itemStatus: StateType[] = useMemo(() => status?.split("_") as StateType[], [status]);
@@ -39,7 +41,7 @@ const ReferenceItem: React.FC<Props> = ({
   return (
     <StyledReferenceItem>
       <Tooltip title={title}>
-        <StlyedReferenceTitle>{title}</StlyedReferenceTitle>
+        <StlyedReferenceTitle disabled={disabled}>{title}</StlyedReferenceTitle>
         {linkTo ? (
           <Link to={linkTo} target="_blank">
             <ReferenceItemName>{value}</ReferenceItemName>
@@ -57,8 +59,9 @@ const ReferenceItem: React.FC<Props> = ({
   );
 };
 
-const StlyedReferenceTitle = styled.div`
+const StlyedReferenceTitle = styled.div<{ disabled?: boolean }>`
   margin-bottom: 4px;
+  ${({ disabled }) => disabled && "color: rgba(0, 0, 0, 0.25);"}
 `;
 
 const StyledReferenceItem = styled.div`

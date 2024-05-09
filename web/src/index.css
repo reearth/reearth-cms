@@ -41,3 +41,8 @@ code {
 .ant-input-textarea-show-count::after {
     display: none;
 }
+
+.ant-input-outlined.ant-input-disabled textarea[disabled] {
+    color: inherit;
+    cursor: inherit;
+}

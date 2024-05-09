@@ -20,13 +20,14 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
   }, []);
 
   const handleClick = useCallback(() => {
+    if (props.disabled) return;
     setShowMD(false);
     if (textareaRef.current) {
       setTimeout(() => {
         textareaRef.current?.focus();
       });
     }
-  }, []);
+  }, [props.disabled]);
 
   return (
     <MarkdownWrapper className={className}>
@@ -54,7 +55,7 @@ const MarkdownWrapper = styled.div`
 `;
 
 const StyledMD = styled.div<{ disabled?: boolean }>`
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   border: 1px solid #d9d9d9;
   padding: 4px 11px;
   overflow: auto;
@@ -72,5 +73,4 @@ const StyledMD = styled.div<{ disabled?: boolean }>`
   * {
     color: ${({ disabled }) => (disabled ? "rgba(0, 0, 0, 0.25)" : "#000")};
   }
-  ${({ disabled }) => disabled && "pointer-events: none;"}
 `;

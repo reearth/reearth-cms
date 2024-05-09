@@ -9,9 +9,10 @@ interface BoolFieldProps {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => void;
+  disabled?: boolean;
 }
 
-const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
+const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
   return (
     <Form.Item
       extra={field.description}
@@ -19,9 +20,9 @@ const BoolField: React.FC<BoolFieldProps> = ({ field, itemGroupId, onMetaUpdate 
       valuePropName="checked"
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
       {field.multiple ? (
-        <MultiValueBooleanField onChange={onMetaUpdate} FieldInput={Switch} />
+        <MultiValueBooleanField onChange={onMetaUpdate} FieldInput={Switch} disabled={disabled} />
       ) : (
-        <Switch onChange={onMetaUpdate} />
+        <Switch onChange={onMetaUpdate} disabled={disabled} />
       )}
     </Form.Item>
   );

@@ -1,18 +1,12 @@
 import styled from "@emotion/styled";
 
 import AntDComment from "@reearth-cms/components/atoms/Comment";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
 import { RequestCommentList } from "@reearth-cms/components/molecules/Request/Details/CommentList";
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { Group } from "@reearth-cms/components/molecules/Schema/types";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
@@ -24,32 +18,8 @@ export type Props = {
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
 };
 
 const RequestThread: React.FC<Props> = ({
@@ -59,28 +29,8 @@ const RequestThread: React.FC<Props> = ({
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
-  assetList,
-  fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetsGet,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
   onGetAsset,
+  onGroupGet,
 }) => {
   return (
     <ContentWrapper>
@@ -88,28 +38,8 @@ const RequestThread: React.FC<Props> = ({
         <CommentsContainer>
           <RequestDescription
             currentRequest={currentRequest}
-            assetList={assetList}
-            fileList={fileList}
-            loadingAssets={loadingAssets}
-            uploading={uploading}
-            uploadModalVisibility={uploadModalVisibility}
-            uploadUrl={uploadUrl}
-            uploadType={uploadType}
-            totalCount={totalCount}
-            page={page}
-            pageSize={pageSize}
-            onAssetTableChange={onAssetTableChange}
-            onUploadModalCancel={onUploadModalCancel}
-            setUploadUrl={setUploadUrl}
-            setUploadType={setUploadType}
-            onAssetsCreate={onAssetsCreate}
-            onAssetCreateFromUrl={onAssetCreateFromUrl}
-            onAssetsGet={onAssetsGet}
-            onAssetsReload={onAssetsReload}
-            onAssetSearchTerm={onAssetSearchTerm}
-            setFileList={setFileList}
-            setUploadModalVisibility={setUploadModalVisibility}
             onGetAsset={onGetAsset}
+            onGroupGet={onGroupGet}
           />
           {currentRequest.comments && currentRequest.comments?.length > 0 && (
             <RequestCommentList

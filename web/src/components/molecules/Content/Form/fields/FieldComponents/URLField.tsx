@@ -12,9 +12,10 @@ interface URLFieldProps {
   field: Field;
   itemGroupId?: string;
   onMetaUpdate?: () => Promise<void>;
+  disabled?: boolean;
 }
 
-const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate }) => {
+const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate, disabled }) => {
   const { t } = useTranslation();
 
   return (
@@ -49,12 +50,14 @@ const URLField: React.FC<URLFieldProps> = ({ field, itemGroupId, onMetaUpdate })
           maxLength={field.typeProperty?.maxLength ?? 500}
           FieldInput={Input}
           onBlur={onMetaUpdate}
+          disabled={disabled}
         />
       ) : (
         <Input
           showCount={true}
           maxLength={field.typeProperty?.maxLength ?? 500}
           onBlur={onMetaUpdate}
+          disabled={disabled}
         />
       )}
     </Form.Item>

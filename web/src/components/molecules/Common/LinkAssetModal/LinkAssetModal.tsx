@@ -27,30 +27,30 @@ type Props = {
   visible: boolean;
   onLinkAssetModalCancel: () => void;
   linkedAsset?: ItemAsset;
-  assetList: Asset[];
-  fileList: UploadFile<File>[];
-  loading: boolean;
-  uploading: boolean;
+  assetList?: Asset[];
+  fileList?: UploadFile<File>[];
+  loading?: boolean;
+  uploading?: boolean;
   uploadProps: UploadProps;
-  uploadModalVisibility: boolean;
+  uploadModalVisibility?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
+  uploadType?: UploadType;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
+  onAssetTableChange?: (
     page: number,
     pageSize: number,
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
+  setUploadType?: (type: UploadType) => void;
   onChange?: (value: string) => void;
   onSelect: (selectedAsset: ItemAsset) => void;
-  onAssetsReload: () => void;
-  onSearchTerm: (term?: string) => void;
+  onAssetsReload?: () => void;
+  onSearchTerm?: (term?: string) => void;
   displayUploadModal: () => void;
-  onUploadModalCancel: () => void;
+  onUploadModalCancel?: () => void;
   onUploadAndLink: () => void;
 };
 
@@ -98,7 +98,7 @@ const LinkAssetModal: React.FC<Props> = ({
         allowClear
         placeholder={t("input search text")}
         onSearch={(value: string) => {
-          onSearchTerm(value);
+          onSearchTerm?.(value);
         }}
         key={+resetFlag.current}
       />
@@ -201,7 +201,7 @@ const LinkAssetModal: React.FC<Props> = ({
       open={visible}
       onCancel={onLinkAssetModalCancel}
       afterClose={() => {
-        onSearchTerm();
+        onSearchTerm?.();
         resetFlag.current = !resetFlag.current;
       }}
       footer={[
@@ -239,7 +239,7 @@ const LinkAssetModal: React.FC<Props> = ({
         toolbar={toolbar}
         loading={loading}
         onChange={(pagination, _, sorter: any) => {
-          onAssetTableChange(
+          onAssetTableChange?.(
             pagination.current ?? 1,
             pagination.pageSize ?? 10,
             sorter?.order
