@@ -91,7 +91,8 @@ const DropdownRender: React.FC<Props> = ({
               <Select
                 placeholder="Select the value"
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value?.toString()}>
+                defaultValue={defaultValue?.value?.toString()}
+                getPopupContainer={trigger => trigger.parentNode}>
                 {valueOptions.map(option => (
                   <Option key={option.value} value={option.value} label={option.label}>
                     {filter.type === "Tag" ? (
