@@ -18,6 +18,7 @@ const RequestList: React.FC = () => {
     handleRequestSelect,
     handleRequestsReload,
     handleRequestDelete,
+    searchTerm,
     handleSearchTerm,
     handleNavigateToRequest,
     totalCount,
@@ -51,6 +52,7 @@ const RequestList: React.FC = () => {
       onRequestsReload={handleRequestsReload}
       onRequestDelete={handleRequestDelete}
       selectedRequest={selectedRequest}
+      searchTerm={searchTerm}
       onSearchTerm={handleSearchTerm}
       selection={selection}
       setSelection={setSelection}

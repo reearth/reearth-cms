@@ -1,5 +1,5 @@
 import { Key, useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -20,6 +20,13 @@ export default () => {
   const t = useT();
 
   const navigate = useNavigate();
+  const location: {
+    state?: {
+      searchTerm?: string;
+      page: number;
+      pageSize: number;
+    } | null;
+  } = useLocation();
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
@@ -28,9 +35,9 @@ export default () => {
     selectedRowKeys: [],
   });
   const [selectedRequestId, setselectedRequestId] = useState<string>();
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(location.state?.page ?? 1);
+  const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
+  const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm ?? "");
 
   const [requestState, setRequestState] = useState<RequestState[]>(["WAITING"]);
   const [createdByMe, setCreatedByMe] = useState(false);
@@ -102,9 +109,11 @@ export default () => {
   const handleNavigateToRequest = useCallback(
     (requestId: string) => {
       if (!projectId || !currentWorkspace?.id || !requestId) return;
-      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${requestId}`);
+      navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${requestId}`, {
+        state: { searchTerm, page, pageSize },
+      });
     },
-    [currentWorkspace?.id, navigate, projectId],
+    [currentWorkspace?.id, navigate, page, pageSize, projectId, searchTerm],
   );
 
   const [deleteRequestMutation] = useDeleteRequestMutation();
@@ -167,6 +176,7 @@ export default () => {
     handleRequestSelect,
     handleRequestsReload,
     handleRequestDelete,
+    searchTerm,
     handleSearchTerm,
     reviewedByMe,
     createdByMe,
