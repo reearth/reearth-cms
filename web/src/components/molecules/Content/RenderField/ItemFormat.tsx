@@ -74,7 +74,7 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
           }}
         />
       ) : (
-        dateTimeFormat(item)
+        dateTimeFormat(item, "YYYY-MM-DD")
       );
     case "Bool":
       return update ? (
