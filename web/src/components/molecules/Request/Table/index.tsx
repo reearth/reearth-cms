@@ -25,6 +25,7 @@ type Props = {
   selectedRequest: Request | undefined;
   onRequestSelect: (assetId: string) => void;
   onEdit: (requestId: string) => void;
+  searchTerm: string;
   onSearchTerm: (term?: string) => void;
   selection: {
     selectedRowKeys: Key[];
@@ -53,6 +54,7 @@ const RequestListTable: React.FC<Props> = ({
   selectedRequest,
   onRequestSelect,
   onEdit,
+  searchTerm,
   onSearchTerm,
   selection,
   setSelection,
@@ -254,10 +256,11 @@ const RequestListTable: React.FC<Props> = ({
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
+          defaultValue={searchTerm}
         />
       ),
     }),
-    [onSearchTerm, t],
+    [onSearchTerm, searchTerm, t],
   );
 
   const AlertOptions = useCallback(

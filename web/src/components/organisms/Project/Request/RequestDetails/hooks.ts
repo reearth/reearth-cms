@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
@@ -25,6 +25,7 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const { requestId } = useParams();
+  const location = useLocation();
 
   const { data: userData } = useGetMeQuery();
   const { data: rawRequest, loading: requestLoading } = useGetRequestQuery({
@@ -139,8 +140,10 @@ export default () => {
   );
 
   const handleNavigateToRequestsList = useCallback(() => {
-    navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`);
-  }, [currentWorkspace?.id, projectId, navigate]);
+    navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request`, {
+      state: location.state,
+    });
+  }, [navigate, currentWorkspace?.id, projectId, location.state]);
 
   const handleNavigateToItemEditForm = useCallback(
     (itemId: string, modelId?: string) => {

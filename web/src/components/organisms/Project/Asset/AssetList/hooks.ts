@@ -1,5 +1,5 @@
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -29,6 +29,13 @@ export default (isItemsRequired: boolean) => {
 
   const { workspaceId, projectId } = useParams();
   const navigate = useNavigate();
+  const location: {
+    state?: {
+      searchTerm?: string;
+      page: number;
+      pageSize: number;
+    } | null;
+  } = useLocation();
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
@@ -41,9 +48,9 @@ export default (isItemsRequired: boolean) => {
   const [uploadType, setUploadType] = useState<UploadType>("local");
   const [uploading, setUploading] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(location.state?.page ?? 1);
+  const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
+  const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm ?? "");
 
   const [createAssetMutation] = useCreateAssetMutation();
   const [createAssetUploadMutation] = useCreateAssetUploadMutation();
@@ -255,7 +262,9 @@ export default (isItemsRequired: boolean) => {
   }, [refetch]);
 
   const handleNavigateToAsset = (assetId: string) => {
-    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${assetId}`);
+    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${assetId}`, {
+      state: { searchTerm, page, pageSize },
+    });
   };
 
   const handleAssetSelect = useCallback(
@@ -318,6 +327,7 @@ export default (isItemsRequired: boolean) => {
     page,
     pageSize,
     sort,
+    searchTerm,
     handleToggleCommentMenu,
     handleAssetItemSelect,
     handleAssetSelect,

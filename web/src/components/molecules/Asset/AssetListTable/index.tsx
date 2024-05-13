@@ -35,6 +35,7 @@ type Props = {
   totalCount: number;
   page: number;
   pageSize: number;
+  searchTerm: string;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onEdit: (assetId: string) => void;
@@ -60,6 +61,7 @@ const AssetListTable: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  searchTerm,
   onAssetItemSelect,
   onAssetSelect,
   onEdit,
@@ -253,10 +255,11 @@ const AssetListTable: React.FC<Props> = ({
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
+          defaultValue={searchTerm}
         />
       ),
     }),
-    [onSearchTerm, t],
+    [onSearchTerm, searchTerm, t],
   );
 
   const AlertOptions = useCallback(

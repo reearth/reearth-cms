@@ -1,6 +1,6 @@
 import { Ion } from "cesium";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { viewerRef } from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset";
@@ -37,6 +37,7 @@ export default (assetId?: string) => {
   const t = useT();
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
+  const location = useLocation();
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>("IMAGE");
   const [decompressing, setDecompressing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -200,6 +201,16 @@ export default (assetId?: string) => {
     Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
   }, []);
 
+  const handleSave = useCallback(async () => {
+    if (assetId) {
+      await handleAssetUpdate(assetId, selectedPreviewType);
+    }
+  }, [assetId, handleAssetUpdate, selectedPreviewType]);
+
+  const handleBack = useCallback(() => {
+    navigate(`/workspace/${workspaceId}/project/${projectId}/asset/`, { state: location.state });
+  }, [location.state, navigate, projectId, workspaceId]);
+
   return {
     asset,
     assetFileExt,
@@ -213,9 +224,10 @@ export default (assetId?: string) => {
     handleAssetItemSelect,
     handleAssetDecompress,
     handleToggleCommentMenu,
-    handleAssetUpdate,
     handleTypeChange,
     handleModalCancel,
     handleFullScreen,
+    handleSave,
+    handleBack,
   };
 };

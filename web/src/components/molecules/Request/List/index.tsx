@@ -14,6 +14,7 @@ type Props = {
   selectedRequest: Request | undefined;
   onRequestSelect: (assetId: string) => void;
   onEdit: (requestId: string) => void;
+  searchTerm: string;
   onSearchTerm: (term?: string) => void;
   selection: {
     selectedRowKeys: Key[];
@@ -43,6 +44,7 @@ const RequestListMolecule: React.FC<Props> = ({
   selectedRequest,
   onRequestSelect,
   onEdit,
+  searchTerm,
   onSearchTerm,
   selection,
   setSelection,
@@ -67,6 +69,7 @@ const RequestListMolecule: React.FC<Props> = ({
             requests={requests}
             selection={selection}
             loading={loading}
+            searchTerm={searchTerm}
             onSearchTerm={onSearchTerm}
             onEdit={onEdit}
             onRequestDelete={onRequestDelete}

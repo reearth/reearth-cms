@@ -75,11 +75,17 @@ export default () => {
 
   const navigate = useNavigate();
   const { modelId } = useParams();
-  const location: { state?: { searchTerm?: string; currentView: CurrentView } | null } =
-    useLocation();
+  const location: {
+    state?: {
+      searchTerm?: string;
+      currentView: CurrentView;
+      page: number;
+      pageSize: number;
+    } | null;
+  } = useLocation();
   const [searchTerm, setSearchTerm] = useState<string>(location.state?.searchTerm ?? "");
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(20);
+  const [page, setPage] = useState<number>(location.state?.page ?? 1);
+  const [pageSize, setPageSize] = useState<number>(location.state?.pageSize ?? 20);
   const [currentView, setCurrentView] = useState<CurrentView>({});
 
   const viewsRef = useRef<View[]>([]);
@@ -421,10 +427,19 @@ export default () => {
     (itemId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${itemId}`,
-        { state: { searchTerm, currentView } },
+        { state: { searchTerm, currentView, page, pageSize } },
       );
     },
-    [navigate, currentWorkspace?.id, currentProject?.id, currentModel?.id, searchTerm, currentView],
+    [
+      navigate,
+      currentWorkspace?.id,
+      currentProject?.id,
+      currentModel?.id,
+      searchTerm,
+      currentView,
+      page,
+      pageSize,
+    ],
   );
 
   const [deleteItemMutation] = useDeleteItemMutation();
