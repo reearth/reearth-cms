@@ -82,4 +82,3 @@ func (r *mutationResolver) UpdateGroupsOrder(ctx context.Context, input gqlmodel
 		}),
 	}, nil
 }
-
