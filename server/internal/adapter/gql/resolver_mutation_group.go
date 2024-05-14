@@ -2,9 +2,12 @@ package gql
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/samber/lo"
 )
 
 func (r *mutationResolver) CreateGroup(ctx context.Context, input gqlmodel.CreateGroupInput) (*gqlmodel.GroupPayload, error) {
@@ -63,3 +66,20 @@ func (r *mutationResolver) DeleteGroup(ctx context.Context, input gqlmodel.Delet
 		GroupID: input.GroupID,
 	}, nil
 }
+
+func (r *mutationResolver) UpdateGroupsOrder(ctx context.Context, input gqlmodel.UpdateGroupsOrderInput) (*gqlmodel.GroupsPayload, error) {
+	mIds, err := gqlmodel.ToIDs[id.Group](input.GroupIds)
+	if err != nil {
+		return nil, err
+	}
+	groups, err := usecases(ctx).Group.UpdateOrder(ctx, mIds, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	return &gqlmodel.GroupsPayload{
+		Groups: lo.Map(groups, func(mod *group.Group, _ int) *gqlmodel.Group {
+			return gqlmodel.ToGroup(mod)
+		}),
+	}, nil
+}
+

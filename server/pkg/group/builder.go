@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearthx/rerror"
@@ -71,5 +72,10 @@ func (b *Builder) Description(description string) *Builder {
 
 func (b *Builder) Key(key key.Key) *Builder {
 	b.group.key = key
+	return b
+}
+
+func (b *Builder) Order(o int) *Builder {
+	b.group.order = o
 	return b
 }

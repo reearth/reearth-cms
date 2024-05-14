@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"errors"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -241,4 +242,29 @@ func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.
 
 	}
 	return
+}
+
+func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *usecase.Operator) (group.List, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ group.List, err error) {
+			if len(ids) == 0 {
+				return nil, nil
+			}
+			groups, err := i.repos.Group.FindByIDs(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			if len(groups) != len(ids) {
+				return nil, rerror.ErrNotFound
+			}
+
+			if !operator.IsMaintainingProject(groups.Projects()...) {
+				return nil, interfaces.ErrOperationDenied
+			}
+			ordered := groups.OrderByIDs(ids)
+			if err := i.repos.Group.SaveAll(ctx, ordered); err != nil {
+				return nil, err
+			}
+			return ordered, nil
+		})
 }
