@@ -1,12 +1,15 @@
 import styled from "@emotion/styled";
+import { Cartesian3, Viewer as CesiumViewer, Cartographic, Math } from "cesium";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
+import { CesiumComponentRef, CesiumMovementEvent, Viewer } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Marker from "@reearth-cms/components/atoms/Icon/Icons/marker.svg";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
@@ -455,6 +458,52 @@ const ContentForm: React.FC<Props> = ({
     setPublishModalOpen(false);
   }, [setPublishModalOpen]);
 
+  const viewer = useRef<CesiumComponentRef<CesiumViewer>>(null);
+  const positionsRef = useRef<number[][]>([]);
+
+  const handleClick = useCallback((_movement: CesiumMovementEvent, type = "point") => {
+    if (_movement.position && viewer.current?.cesiumElement) {
+      const ellipsoid = viewer.current.cesiumElement.scene.globe.ellipsoid;
+      const cartesian = viewer.current.cesiumElement.camera.pickEllipsoid(
+        _movement.position,
+        ellipsoid,
+      );
+      if (cartesian) {
+        if (type === "point") {
+          viewer.current.cesiumElement.entities.add({
+            position: cartesian,
+            billboard: {
+              image: Marker,
+              width: 30,
+              height: 30,
+            },
+          });
+        } else {
+          const cartographic = Cartographic.fromCartesian(cartesian);
+          const lon = Math.toDegrees(cartographic.longitude);
+          const lat = Math.toDegrees(cartographic.latitude);
+          positionsRef.current?.push([lon, lat]);
+          if (type === "polyline") {
+            viewer.current.cesiumElement.entities.add({
+              position: cartesian,
+              polyline: {
+                positions: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
+              },
+            });
+          } else {
+            viewer.current.cesiumElement.entities.add({
+              position: cartesian,
+              polygon: {
+                hierarchy: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
+                extrudedHeight: 50000,
+              },
+            });
+          }
+        }
+      }
+    }
+  }, []);
+
   return (
     <>
       <StyledForm
@@ -493,6 +542,23 @@ const ContentForm: React.FC<Props> = ({
           }
         />
         <FormItemsWrapper>
+          <Viewer
+            navigationHelpButton={false}
+            homeButton={false}
+            projectionPicker={false}
+            sceneModePicker={false}
+            baseLayerPicker={true}
+            fullscreenButton={false}
+            vrButton={false}
+            selectionIndicator={false}
+            timeline={false}
+            animation={false}
+            geocoder={false}
+            shouldAnimate={true}
+            onClick={movement => handleClick(movement, "polyline")}
+            infoBox={false}
+            ref={viewer}
+          />
           {model?.schema.fields.map(field => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[
