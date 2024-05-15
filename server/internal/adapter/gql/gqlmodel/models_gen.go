@@ -1323,6 +1323,10 @@ type UpdateViewInput struct {
 	Columns []*ColumnSelectionInput `json:"columns,omitempty"`
 }
 
+type UpdateViewsOrderInput struct {
+	ViewIds []ID `json:"viewIds"`
+}
+
 type UpdateWebhookInput struct {
 	IntegrationID ID                   `json:"integrationId"`
 	WebhookID     ID                   `json:"webhookId"`
@@ -1391,6 +1395,7 @@ type View struct {
 	Sort      *ItemSort `json:"sort,omitempty"`
 	Filter    Condition `json:"filter,omitempty"`
 	Columns   []*Column `json:"columns,omitempty"`
+	Order     *int      `json:"order,omitempty"`
 }
 
 func (View) IsNode()        {}
@@ -1398,6 +1403,10 @@ func (this View) GetID() ID { return this.ID }
 
 type ViewPayload struct {
 	View *View `json:"view"`
+}
+
+type ViewsPayload struct {
+	Views []*View `json:"views"`
 }
 
 type Webhook struct {

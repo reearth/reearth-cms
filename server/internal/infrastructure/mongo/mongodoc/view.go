@@ -20,6 +20,7 @@ type ViewDocument struct {
 	Sort      *SortDocument
 	Filter    *FilterDocument
 	Columns   []ColumnDocument
+	Order     int
 	UpdatedAt time.Time
 }
 
@@ -75,6 +76,20 @@ func NewSort(i *view.Sort) *SortDocument {
 		Field:     NewFieldSelector(i.Field),
 		Direction: string(i.Direction),
 	}
+}
+
+func NewViews(views view.List) ([]*ViewDocument, []string) {
+	res := make([]*ViewDocument, 0, len(views))
+	ids := make([]string, 0, len(views))
+	for _, d := range views {
+		if d == nil {
+			continue
+		}
+		r, rid := NewView(d)
+		res = append(res, r)
+		ids = append(ids, rid)
+	}
+	return res, ids
 }
 
 func (d *SortDocument) Model() *view.Sort {

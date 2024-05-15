@@ -107,6 +107,31 @@ func (i View) Update(ctx context.Context, ID view.ID, param interfaces.UpdateVie
 		})
 }
 
+func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecase.Operator) (view.List, error) {
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (_ view.List, err error) {
+			if len(ids) == 0 {
+				return nil, nil
+			}
+			views, err := i.repos.View.FindByIDs(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			if len(views) != len(ids) {
+				return nil, rerror.ErrNotFound
+			}
+
+			if !operator.IsMaintainingProject(views.Projects()...) {
+				return nil, interfaces.ErrOperationDenied
+			}
+			ordered := views.OrderByIDs(ids)
+			if err := i.repos.View.SaveAll(ctx, ordered); err != nil {
+				return nil, err
+			}
+			return ordered, nil
+		})
+}
+
 func (i View) Delete(ctx context.Context, ID view.ID, op *usecase.Operator) error {
 	return Run0(ctx, op, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
