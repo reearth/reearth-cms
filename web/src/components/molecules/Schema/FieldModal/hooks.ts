@@ -245,6 +245,17 @@ export default (
     [selectedType],
   );
 
+  const isTitleDisabled = useMemo(
+    () =>
+      isMeta ||
+      selectedType === "Group" ||
+      selectedType === "Geometry" ||
+      selectedType === "Point" ||
+      selectedType === "Polyline" ||
+      selectedType === "Polygon",
+    [isMeta, selectedType],
+  );
+
   return {
     form,
     buttonDisabled,
@@ -262,5 +273,6 @@ export default (
     handleModalCancel,
     isRequiredDisabled,
     isUniqueDisabled,
+    isTitleDisabled,
   };
 };

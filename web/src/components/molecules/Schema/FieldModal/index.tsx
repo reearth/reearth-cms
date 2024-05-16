@@ -138,6 +138,7 @@ const FieldModal: React.FC<Props> = ({
     handleModalCancel,
     isRequiredDisabled,
     isUniqueDisabled,
+    isTitleDisabled,
   } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit);
 
   return (
@@ -274,7 +275,7 @@ const FieldModal: React.FC<Props> = ({
             </Form.Item>
             <Form.Item
               name="isTitle"
-              hidden={isMeta || selectedType === "Group"}
+              hidden={isTitleDisabled}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>
