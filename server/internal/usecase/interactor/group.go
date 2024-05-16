@@ -85,6 +85,8 @@ func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, op
 				mb = mb.Description(*param.Description)
 			}
 
+			// don't forget to handle order
+
 			g, err = mb.Build()
 			if err != nil {
 				return nil, err
@@ -247,6 +249,8 @@ func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.
 func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *usecase.Operator) (group.List, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ group.List, err error) {
+			// check if all groups are in the same project
+			// instead of  find by ids use find by project
 			if len(ids) == 0 {
 				return nil, nil
 			}
