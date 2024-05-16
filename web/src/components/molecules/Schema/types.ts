@@ -37,7 +37,11 @@ export type FieldType =
   | "Reference"
   | "Checkbox"
   | "URL"
-  | "Group";
+  | "Group"
+  | "Geometry"
+  | "Point"
+  | "Polyline"
+  | "Polygon";
 
 type Tag = { id: string; name: string; color: string };
 

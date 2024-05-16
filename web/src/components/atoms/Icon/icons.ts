@@ -60,6 +60,7 @@ import ColorPalette from "./Icons/colorPalette.svg";
 import Control from "./Icons/control.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
+import Geometry from "./Icons/geometry.svg";
 import Group from "./Icons/group.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
@@ -69,8 +70,11 @@ import UnlinkSolid from "./Icons/linkSlashSolid.svg";
 import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
 import MarkDown from "./Icons/markDown.svg";
+import Marker from "./Icons/marker.svg";
 import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
+import Polygon from "./Icons/polygon.svg";
+import Polyline from "./Icons/polyline.svg";
 import Tag from "./Icons/tag.svg";
 import TerminalWindow from "./Icons/terminalWindow.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
@@ -155,4 +159,8 @@ export default {
   sortAscending: SortAscendingOutlined,
   filter: FilterOutlined,
   workspaceSettings: WorkspaceSettings,
+  geometry: Geometry,
+  marker: Marker,
+  polyline: Polyline,
+  polygon: Polygon,
 };

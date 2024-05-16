@@ -88,4 +88,28 @@ export const fieldTypes: {
     description: i18next.t("Customize a group of fields"),
     color: "#36CFC9",
   },
+  Geometry: {
+    icon: "geometry",
+    title: i18next.t("Geometry"),
+    description: i18next.t("Create multiple types of features on map"),
+    color: "#73D13D",
+  },
+  Point: {
+    icon: "marker",
+    title: i18next.t("Point"),
+    description: i18next.t("Create point on map"),
+    color: "#73D13D",
+  },
+  Polyline: {
+    icon: "polyline",
+    title: i18next.t("Polyline"),
+    description: i18next.t("Create polyline on map"),
+    color: "#73D13D",
+  },
+  Polygon: {
+    icon: "polygon",
+    title: i18next.t("Polygon"),
+    description: i18next.t("Create polygon on map"),
+    color: "#73D13D",
+  },
 };
