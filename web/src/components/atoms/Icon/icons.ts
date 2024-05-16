@@ -51,6 +51,7 @@ import {
   FilterOutlined,
 } from "@ant-design/icons";
 
+import AdvancedFilter from "./Icons/advancedFilter.svg";
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
 import ArrowUpRight from "./Icons/arrowUpRight.svg";
 import Asset from "./Icons/asset.svg";
@@ -155,4 +156,5 @@ export default {
   sortAscending: SortAscendingOutlined,
   filter: FilterOutlined,
   workspaceSettings: WorkspaceSettings,
+  advancedFilter: AdvancedFilter,
 };

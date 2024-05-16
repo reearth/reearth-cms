@@ -1,5 +1,6 @@
 import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
+import { ItemType } from "antd/lib/menu/hooks/useItems";
 import React, {
   Key,
   useMemo,
@@ -14,7 +15,7 @@ import React, {
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
-import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { TableRowSelection, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
@@ -44,6 +45,7 @@ import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import DropdownRender from "./DropdownRender";
+import AdvancedFilter from "./DropdownRender/AdvancedFilter";
 import FilterDropdown from "./filterDropdown";
 
 type Props = {
@@ -405,7 +407,7 @@ const ContentTable: React.FC<Props> = ({
   }, []);
 
   const getOptions = useCallback(
-    (isFromMenu: boolean): MenuProps["items"] => {
+    (isFromMenu: boolean): (ItemType & { type: string; label: string })[] => {
       const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
         const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
         const members = currentWorkspace?.members;
@@ -461,6 +463,7 @@ const ContentTable: React.FC<Props> = ({
           .map(column => ({
             key: column.key,
             label: column.title,
+            type: column.type,
             onClick: () => {
               optionClick(isFilter.current, column);
             },
@@ -472,11 +475,16 @@ const ContentTable: React.FC<Props> = ({
 
   const toolBarItemClick = useCallback(
     ({ key }: { key: string }) => {
-      setInputValue("");
-      setItems(getOptions(true));
-      isFilter.current = key === "filter";
-      setControlMenuOpen(false);
-      setOptionsOpen(true);
+      if (key === "advancedFilter") {
+        setItems(getOptions(false));
+        setConditionMenuOpen(true);
+      } else {
+        setInputValue("");
+        setItems(getOptions(true));
+        isFilter.current = key === "filter";
+        setControlMenuOpen(false);
+        setOptionsOpen(true);
+      }
     },
     [getOptions],
   );
@@ -496,8 +504,7 @@ const ContentTable: React.FC<Props> = ({
   );
 
   const isFilterOpen = useRef(false);
-  const defaultItems = getOptions(false);
-  const [items, setItems] = useState<MenuProps["items"]>(defaultItems);
+  const [items, setItems] = useState<(ItemType & { type: string; label: string })[]>();
   const [inputValue, setInputValue] = useState("");
 
   const sharedProps = useMemo(
@@ -556,7 +563,7 @@ const ContentTable: React.FC<Props> = ({
               onOpenChange={() => {
                 isFilter.current = true;
                 setInputValue("");
-                setItems(defaultItems);
+                setItems(getOptions(false));
               }}>
               <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
                 {t("Filter")}
@@ -568,9 +575,9 @@ const ContentTable: React.FC<Props> = ({
     }),
     [
       currentView,
-      defaultItems,
       filterRemove,
       filters,
+      getOptions,
       modelKey,
       onFilterChange,
       onSearchTerm,
@@ -601,7 +608,7 @@ const ContentTable: React.FC<Props> = ({
     [onItemsReload],
   );
 
-  const toolBarItems: MenuProps["items"] = useMemo(
+  const toolBarItems: ItemType[] = useMemo(
     () => [
       {
         label: t("Add Filter"),
@@ -612,6 +619,11 @@ const ContentTable: React.FC<Props> = ({
         label: t("Add Sort"),
         key: "sort",
         icon: <Icon icon="sortAscending" />,
+      },
+      {
+        label: t("Advanced Filter"),
+        key: "advancedFilter",
+        icon: <Icon icon="advancedFilter" />,
       },
     ],
     [t],
@@ -628,7 +640,7 @@ const ContentTable: React.FC<Props> = ({
         key="control">
         <Dropdown
           dropdownRender={() =>
-            selectedFilter && (
+            selectedFilter ? (
               <DropdownRender
                 filter={selectedFilter}
                 close={close}
@@ -640,6 +652,8 @@ const ContentTable: React.FC<Props> = ({
                 onFilterChange={onFilterChange}
                 key={Math.random()}
               />
+            ) : (
+              <AdvancedFilter items={items} />
             )
           }
           trigger={["click"]}
@@ -672,6 +686,7 @@ const ContentTable: React.FC<Props> = ({
     handleConditionMenuOpenChange,
     handleControlMenuOpenChange,
     handleOptionsOpenChange,
+    items,
     onFilterChange,
     optionsOpen,
     selectedFilter,
