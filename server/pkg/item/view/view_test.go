@@ -17,6 +17,7 @@ func TestView(t *testing.T) {
 		project:   NewProjectID(), // Assuming NewProjectID() gives a unique ProjectID
 		user:      NewUserID(),    // Assuming NewUserID() gives a unique UserID
 		updatedAt: time.Now(),
+		order:     1,
 	}
 
 	// Test ID()
@@ -39,6 +40,9 @@ func TestView(t *testing.T) {
 
 	// Test UpdatedAt()
 	assert.Equal(t, v.updatedAt, v.UpdatedAt())
+	
+	// Test Order()
+	assert.Equal(t, v.order, v.Order())
 
 	// Create new settings for Setters
 	newCondition := Condition{} // assuming Condition struct or type exists
@@ -52,6 +56,7 @@ func TestView(t *testing.T) {
 	v.SetFilter(&newCondition) // Assuming newCondition has been set
 	v.SetColumns(&columns)     // Assuming newFields has been set
 	v.SetUpdatedAt(updateTime) // Assuming updateTime has been set
+	v.SetOrder(2)
 
 	// Test that updated fields are set correctly
 	assert.Equal(t, "updatedName", v.Name())
@@ -59,6 +64,7 @@ func TestView(t *testing.T) {
 	assert.Equal(t, &newCondition, v.Filter())
 	assert.Equal(t, &columns, v.Columns())
 	assert.Equal(t, updateTime, v.UpdatedAt())
+	assert.Equal(t, 2, v.Order())
 
 	// Test Clone Function
 	cloned := v.Clone()
