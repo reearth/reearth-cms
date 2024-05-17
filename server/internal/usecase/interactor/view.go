@@ -55,7 +55,7 @@ func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *
 				return nil, rerror.ErrNotFound
 			}
 
-			v, err := view.
+			vb := view.
 				New().
 				NewID().
 				Project(param.Project).
@@ -65,9 +65,17 @@ func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *
 				Sort(param.Sort).
 				Filter(param.Filter).
 				Columns(param.Columns).
-				User(*op.Operator().User()).
-				Build()
+				User(*op.Operator().User())
 
+			views, err := i.repos.View.FindByModel(ctx, param.Model)
+			if err != nil {
+				return nil, err
+			}
+			if len(views) > 0 {
+				vb = vb.Order(len(views))
+			}
+
+			v, err := vb.Build()
 			if err != nil {
 				return nil, err
 			}
@@ -113,7 +121,18 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 			if len(ids) == 0 {
 				return nil, nil
 			}
-			views, err := i.repos.View.FindByIDs(ctx, ids)
+			v, err := i.repos.View.FindByIDs(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			if !v.AreViewsInTheSameModel() {
+				return nil, rerror.ErrNotFound
+			}
+			if !operator.IsMaintainingProject(v[0].Project()) {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			views, err := i.repos.View.FindByModel(ctx, v[0].Model())
 			if err != nil {
 				return nil, err
 			}
@@ -121,9 +140,6 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 				return nil, rerror.ErrNotFound
 			}
 
-			if !operator.IsMaintainingProject(views.Projects()...) {
-				return nil, interfaces.ErrOperationDenied
-			}
 			ordered := views.OrderByIDs(ids)
 			if err := i.repos.View.SaveAll(ctx, ordered); err != nil {
 				return nil, err
