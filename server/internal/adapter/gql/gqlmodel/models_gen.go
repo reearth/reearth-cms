@@ -1395,7 +1395,7 @@ type View struct {
 	Sort      *ItemSort `json:"sort,omitempty"`
 	Filter    Condition `json:"filter,omitempty"`
 	Columns   []*Column `json:"columns,omitempty"`
-	Order     *int      `json:"order,omitempty"`
+	Order     int       `json:"order"`
 }
 
 func (View) IsNode()        {}

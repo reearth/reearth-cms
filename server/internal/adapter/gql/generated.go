@@ -5936,7 +5936,7 @@ input TimeFieldConditionInput {
   sort: ItemSort
   filter: Condition
   columns: [Column!]
-  order: Int
+  order: Int!
 }
 
 type Column {
@@ -29331,11 +29331,14 @@ func (ec *executionContext) _View_order(ctx context.Context, field graphql.Colle
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_View_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -44933,6 +44936,9 @@ func (ec *executionContext) _View(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._View_columns(ctx, field, obj)
 		case "order":
 			out.Values[i] = ec._View_order(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -6,7 +6,7 @@ type View implements Node {
   sort: ItemSort
   filter: Condition
   columns: [Column!]
-  order: Int
+  order: Int!
 }
 
 type Column {
