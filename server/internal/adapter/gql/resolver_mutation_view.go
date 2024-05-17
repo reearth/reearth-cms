@@ -66,11 +66,11 @@ func (r *mutationResolver) UpdateView(ctx context.Context, input gqlmodel.Update
 }
 
 func (r *mutationResolver) UpdateViewsOrder(ctx context.Context, input gqlmodel.UpdateViewsOrderInput) (*gqlmodel.ViewsPayload, error) {
-	mIds, err := gqlmodel.ToIDs[id.View](input.ViewIds)
+	vIds, err := gqlmodel.ToIDs[id.View](input.ViewIds)
 	if err != nil {
 		return nil, err
 	}
-	views, err := usecases(ctx).View.UpdateOrder(ctx, mIds, getOperator(ctx))
+	views, err := usecases(ctx).View.UpdateOrder(ctx, vIds, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
