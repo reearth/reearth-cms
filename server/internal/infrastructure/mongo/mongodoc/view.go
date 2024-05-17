@@ -81,11 +81,11 @@ func NewSort(i *view.Sort) *SortDocument {
 func NewViews(views view.List) ([]*ViewDocument, []string) {
 	res := make([]*ViewDocument, 0, len(views))
 	ids := make([]string, 0, len(views))
-	for _, d := range views {
-		if d == nil {
+	for _, v := range views {
+		if v == nil {
 			continue
 		}
-		r, rid := NewView(d)
+		r, rid := NewView(v)
 		res = append(res, r)
 		ids = append(ids, rid)
 	}

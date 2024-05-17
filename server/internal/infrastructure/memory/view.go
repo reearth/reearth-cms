@@ -100,8 +100,8 @@ func (r *View) SaveAll(ctx context.Context, views view.List) error {
 		return repo.ErrOperationDenied
 	}
 	inp := map[id.ViewID]*view.View{}
-	for _, m := range views {
-		inp[m.ID()] = m
+	for _, v := range views {
+		inp[v.ID()] = v
 	}
 	r.data.StoreAll(inp)
 	return nil
