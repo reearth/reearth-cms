@@ -22,6 +22,20 @@ func (l List) Projects() id.ProjectIDList {
 	})
 }
 
+func (l List) AreGroupsInTheSameProject() bool {
+	if len(l) == 0 {
+        return true
+    }
+
+	firstProjectID := l[0].Project().String()
+	for _, g := range l[1:] {
+		if g.Project().String() != firstProjectID {
+			return false
+		}
+	}
+	return true
+}
+
 func (l List) Clone() List {
 	return util.Map(l, func(g *Group) *Group { return g.Clone() })
 }

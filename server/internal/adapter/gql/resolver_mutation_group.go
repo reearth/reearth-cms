@@ -51,6 +51,22 @@ func (r *mutationResolver) UpdateGroup(ctx context.Context, input gqlmodel.Updat
 	}, nil
 }
 
+func (r *mutationResolver) UpdateGroupsOrder(ctx context.Context, input gqlmodel.UpdateGroupsOrderInput) (*gqlmodel.GroupsPayload, error) {
+	gIds, err := gqlmodel.ToIDs[id.Group](input.GroupIds)
+	if err != nil {
+		return nil, err
+	}
+	groups, err := usecases(ctx).Group.UpdateOrder(ctx, gIds, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	return &gqlmodel.GroupsPayload{
+		Groups: lo.Map(groups, func(mod *group.Group, _ int) *gqlmodel.Group {
+			return gqlmodel.ToGroup(mod)
+		}),
+	}, nil
+}
+
 func (r *mutationResolver) DeleteGroup(ctx context.Context, input gqlmodel.DeleteGroupInput) (*gqlmodel.DeleteGroupPayload, error) {
 	gid, err := gqlmodel.ToID[id.Group](input.GroupID)
 	if err != nil {
@@ -64,21 +80,5 @@ func (r *mutationResolver) DeleteGroup(ctx context.Context, input gqlmodel.Delet
 
 	return &gqlmodel.DeleteGroupPayload{
 		GroupID: input.GroupID,
-	}, nil
-}
-
-func (r *mutationResolver) UpdateGroupsOrder(ctx context.Context, input gqlmodel.UpdateGroupsOrderInput) (*gqlmodel.GroupsPayload, error) {
-	mIds, err := gqlmodel.ToIDs[id.Group](input.GroupIds)
-	if err != nil {
-		return nil, err
-	}
-	groups, err := usecases(ctx).Group.UpdateOrder(ctx, mIds, getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-	return &gqlmodel.GroupsPayload{
-		Groups: lo.Map(groups, func(mod *group.Group, _ int) *gqlmodel.Group {
-			return gqlmodel.ToGroup(mod)
-		}),
 	}, nil
 }

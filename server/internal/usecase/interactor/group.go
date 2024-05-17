@@ -85,7 +85,13 @@ func (i Group) Create(ctx context.Context, param interfaces.CreateGroupParam, op
 				mb = mb.Description(*param.Description)
 			}
 
-			// don't forget to handle order
+			groups, err := i.repos.Group.FindByProject(ctx, param.ProjectId)
+			if err != nil {
+				return nil, err
+			}
+			if len(groups) > 0 {
+				mb = mb.Order(len(groups))
+			}
 
 			g, err = mb.Build()
 			if err != nil {
@@ -249,12 +255,21 @@ func (i Group) getModelsByGroup(ctx context.Context, g *group.Group) (res model.
 func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *usecase.Operator) (group.List, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ group.List, err error) {
-			// check if all groups are in the same project
-			// instead of  find by ids use find by project
 			if len(ids) == 0 {
 				return nil, nil
 			}
-			groups, err := i.repos.Group.FindByIDs(ctx, ids)
+			g, err := i.repos.Group.FindByIDs(ctx, ids)
+			if err != nil {
+				return nil, err
+			}
+			if !g.AreGroupsInTheSameProject() {
+				return nil, rerror.ErrNotFound
+			}
+			pid := g[0].Project()
+			if !operator.IsMaintainingProject(pid) {
+				return nil, interfaces.ErrOperationDenied
+			}
+			groups, err := i.repos.Group.FindByProject(ctx, pid)
 			if err != nil {
 				return nil, err
 			}
@@ -262,9 +277,6 @@ func (i Group) UpdateOrder(ctx context.Context, ids id.GroupIDList, operator *us
 				return nil, rerror.ErrNotFound
 			}
 
-			if !operator.IsMaintainingProject(groups.Projects()...) {
-				return nil, interfaces.ErrOperationDenied
-			}
 			ordered := groups.OrderByIDs(ids)
 			if err := i.repos.Group.SaveAll(ctx, ordered); err != nil {
 				return nil, err
