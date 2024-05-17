@@ -480,7 +480,7 @@ type Group struct {
 	Schema      *Schema        `json:"schema"`
 	Project     *Project       `json:"project"`
 	Fields      []*SchemaField `json:"fields"`
-	Order       *int           `json:"order,omitempty"`
+	Order       int            `json:"order"`
 }
 
 func (Group) IsNode()        {}

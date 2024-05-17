@@ -8,7 +8,7 @@ type Group implements Node {
     schema: Schema!
     project: Project!
     fields: [SchemaField!]!
-    order: Int
+    order: Int!
 }
 
 # inputs

@@ -3,8 +3,6 @@ package gqlmodel
 import (
 	"testing"
 
-	"github.com/samber/lo"
-
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -40,7 +38,7 @@ func TestToGroup(t *testing.T) {
 				Key:         k.String(),
 				Project:     nil,
 				Schema:      nil,
-				Order:       lo.ToPtr(1),
+				Order:       1,
 			},
 		},
 	}
