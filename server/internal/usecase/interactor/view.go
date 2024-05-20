@@ -126,7 +126,7 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 				return nil, err
 			}
 			if !v.AreViewsInTheSameModel() {
-				return nil, rerror.ErrNotFound
+				return nil, interfaces.ErrViewsAreNotInTheSameModel
 			}
 			if !operator.IsMaintainingProject(v[0].Project()) {
 				return nil, interfaces.ErrOperationDenied
@@ -137,7 +137,7 @@ func (i View) UpdateOrder(ctx context.Context, ids view.IDList, operator *usecas
 				return nil, err
 			}
 			if len(views) != len(ids) {
-				return nil, rerror.ErrNotFound
+				return nil, interfaces.ErrViewsLengthMismatch
 			}
 
 			ordered := views.OrderByIDs(ids)
