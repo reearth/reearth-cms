@@ -38,9 +38,9 @@ const MyIntegrationForm: React.FC<Props> = ({
 
   const handleRegenerateToken = useCallback(() => {
     Modal.confirm({
-      title: t("Re-generate Integration Token?"),
+      title: t("Regenerate The Integration Token?"),
       content: t(
-        "If you re-generate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
+        "If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
       ),
       okText: t("Reset"),
       onOk() {
@@ -70,7 +70,7 @@ const MyIntegrationForm: React.FC<Props> = ({
           <Form.Item label={t("Integration Token")}>
             <StyledTokenInput value={integration.config.token} contentEditable={false} />
             <StyledRegenerateTokenButton type="primary" onClick={handleRegenerateToken}>
-              {t("Re-generate")}
+              {t("Regenerate")}
             </StyledRegenerateTokenButton>
           </Form.Item>
           <Form.Item>

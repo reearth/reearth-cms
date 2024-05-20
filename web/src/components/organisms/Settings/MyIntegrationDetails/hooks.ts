@@ -90,9 +90,13 @@ export default ({ integrationId }: Params) => {
       },
     });
     if (result.errors) {
-      Notification.error({ message: t("Failed to regenerate integration token.") });
+      Notification.error({
+        message: t("The attempt to regenerate the integration token has failed."),
+      });
     } else {
-      Notification.success({ message: t("Integration token has been successfully regenerated!") });
+      Notification.success({
+        message: t("The integration token has been successfully regenerated!"),
+      });
     }
   }, [integrationId, regenerateTokenMutation, t]);
 
