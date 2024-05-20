@@ -8,6 +8,7 @@ type Group implements Node {
     schema: Schema!
     project: Project!
     fields: [SchemaField!]!
+    order: Int!
 }
 
 # inputs
@@ -25,6 +26,10 @@ input UpdateGroupInput {
     key: String
 }
 
+input UpdateGroupsOrderInput {
+  groupIds: [ID!]!
+}
+
 input DeleteGroupInput {
     groupId: ID!
 }
@@ -34,11 +39,14 @@ type GroupPayload {
     group: Group!
 }
 
+type GroupsPayload {
+  groups: [Group!]!
+}
+
 type DeleteGroupPayload {
     groupId: ID!
 }
 
-# extend type Query {}
 extend type Query {
     groups(projectId: ID, modelID: ID): [Group]!
     modelsByGroup(groupId: ID!):[Model]!
@@ -48,5 +56,6 @@ extend type Query {
 extend type Mutation {
     createGroup(input: CreateGroupInput!): GroupPayload
     updateGroup(input: UpdateGroupInput!): GroupPayload
+    updateGroupsOrder(input: UpdateGroupsOrderInput!): GroupsPayload
     deleteGroup(input: DeleteGroupInput!): DeleteGroupPayload
 }
