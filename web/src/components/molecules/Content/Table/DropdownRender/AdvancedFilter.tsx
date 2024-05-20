@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { useState, useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -8,13 +9,34 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
+import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = { items?: (ItemType & { type: string; label: string })[] };
+import filterOptionsGet from "./filterOptionsGet";
+
+type Props = {
+  items?: (ItemType & { column: ExtendedColumns; members?: Member[] })[];
+};
 
 const AdvancedFilter: React.FC<Props> = ({ items }: Props) => {
   const t = useT();
-  const options = items?.map(item => ({ value: item.type, label: item.label }));
+  const [isShowInputField, setIsShowInputField] = useState(true);
+  const [selectedColumn, setSelectedColumn] = useState<ExtendedColumns>();
+  const options = items?.map(item => ({
+    column: item.column,
+    value:
+      typeof item.column.title === "string"
+        ? item.column.title
+        : (item.column.title as any).props.children[0],
+    label: item.column.title,
+  }));
+
+  const filterOptions = filterOptionsGet(true, selectedColumn);
+
+  const onColumnSelect = useCallback((_: any, option: { column: ExtendedColumns }) => {
+    setSelectedColumn(option.column);
+  }, []);
 
   return (
     <StyledForm name="basic" autoComplete="off" colon={false}>
@@ -24,27 +46,30 @@ const AdvancedFilter: React.FC<Props> = ({ items }: Props) => {
           {(fields, { add }) => (
             <>
               <Space style={{ display: "flex" }}>
-                <CustomFormItem name={"column"}>
+                <CustomFormItem>
                   <Select
                     style={{ width: 170 }}
                     options={options}
+                    onSelect={onColumnSelect}
                     getPopupContainer={trigger => trigger.parentNode}
                   />
                 </CustomFormItem>
-                <CustomFormItem name={"condition"}>
+                <CustomFormItem>
                   <Select
                     style={{ width: 170 }}
-                    options={options}
+                    options={filterOptions}
                     getPopupContainer={trigger => trigger.parentNode}
                   />
                 </CustomFormItem>
-                <CustomFormItem name={"value"}>
-                  <Input placeholder="Value" />
-                </CustomFormItem>
+                {isShowInputField && (
+                  <CustomFormItem>
+                    <Input placeholder="Value" />
+                  </CustomFormItem>
+                )}
               </Space>
               {fields.map(({ key, name, ...restField }) => (
-                <>
-                  <CustomFormItem {...restField} name={"logic"}>
+                <div key={key}>
+                  <CustomFormItem>
                     <Select
                       style={{ width: 150 }}
                       options={[
@@ -55,7 +80,7 @@ const AdvancedFilter: React.FC<Props> = ({ items }: Props) => {
                       getPopupContainer={trigger => trigger.parentNode}
                     />
                   </CustomFormItem>
-                  <Space key={key} style={{ display: "flex" }}>
+                  <Space style={{ display: "flex" }}>
                     <CustomFormItem {...restField} name={[name, "column"]}>
                       <Select
                         style={{ width: 170 }}
@@ -74,7 +99,7 @@ const AdvancedFilter: React.FC<Props> = ({ items }: Props) => {
                       <Input placeholder="Value" />
                     </CustomFormItem>
                   </Space>
-                </>
+                </div>
               ))}
               <Form.Item>
                 <Button type="primary" icon={<Icon icon="plus" />} onClick={() => add()}>

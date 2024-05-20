@@ -40,6 +40,7 @@ import {
   ConditionInput,
   CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
+import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -407,7 +408,9 @@ const ContentTable: React.FC<Props> = ({
   }, []);
 
   const getOptions = useCallback(
-    (isFromMenu: boolean): (ItemType & { type: string; label: string })[] => {
+    (
+      isFromMenu: boolean,
+    ): (ItemType & { label: string; column: ExtendedColumns; members?: Member[] })[] => {
       const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
         const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
         const members = currentWorkspace?.members;
@@ -463,7 +466,8 @@ const ContentTable: React.FC<Props> = ({
           .map(column => ({
             key: column.key,
             label: column.title,
-            type: column.type,
+            column: column,
+            members: currentWorkspace?.members,
             onClick: () => {
               optionClick(isFilter.current, column);
             },
@@ -504,7 +508,8 @@ const ContentTable: React.FC<Props> = ({
   );
 
   const isFilterOpen = useRef(false);
-  const [items, setItems] = useState<(ItemType & { type: string; label: string })[]>();
+  const [items, setItems] =
+    useState<(ItemType & { label: string; column: ExtendedColumns; members?: Member[] })[]>();
   const [inputValue, setInputValue] = useState("");
 
   const sharedProps = useMemo(
