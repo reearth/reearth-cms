@@ -480,6 +480,7 @@ type Group struct {
 	Schema      *Schema        `json:"schema"`
 	Project     *Project       `json:"project"`
 	Fields      []*SchemaField `json:"fields"`
+	Order       int            `json:"order"`
 }
 
 func (Group) IsNode()        {}
@@ -487,6 +488,10 @@ func (this Group) GetID() ID { return this.ID }
 
 type GroupPayload struct {
 	Group *Group `json:"group"`
+}
+
+type GroupsPayload struct {
+	Groups []*Group `json:"groups"`
 }
 
 type Integration struct {
@@ -1234,6 +1239,10 @@ type UpdateGroupInput struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Key         *string `json:"key,omitempty"`
+}
+
+type UpdateGroupsOrderInput struct {
+	GroupIds []ID `json:"groupIds"`
 }
 
 type UpdateIntegrationInput struct {
