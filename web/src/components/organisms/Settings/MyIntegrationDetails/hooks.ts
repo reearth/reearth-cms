@@ -10,6 +10,7 @@ import {
   useUpdateWebhookMutation,
   useDeleteWebhookMutation,
   useDeleteIntegrationMutation,
+  useRegenerateTokenMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -76,6 +77,24 @@ export default ({ integrationId }: Params) => {
       navigate(`/workspace/${currentWorkspace?.id}/myIntegrations`);
     }
   }, [currentWorkspace, integrationId, deleteIntegrationMutation, navigate, t]);
+
+  const [regenerateTokenMutation] = useRegenerateTokenMutation({
+    refetchQueries: ["GetMe"],
+  });
+
+  const handleRegenerateToken = useCallback(async () => {
+    if (!integrationId) return;
+    const result = await regenerateTokenMutation({
+      variables: {
+        integrationId,
+      },
+    });
+    if (result.errors) {
+      Notification.error({ message: t("Failed to regenerate integration token.") });
+    } else {
+      Notification.success({ message: t("Integration token has been successfully regenerated!") });
+    }
+  }, [integrationId, regenerateTokenMutation, t]);
 
   const [createNewWebhook] = useCreateWebhookMutation({
     refetchQueries: ["GetMe"],
@@ -178,6 +197,7 @@ export default ({ integrationId }: Params) => {
     webhookInitialValues,
     handleIntegrationUpdate,
     handleIntegrationDelete,
+    handleRegenerateToken,
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
