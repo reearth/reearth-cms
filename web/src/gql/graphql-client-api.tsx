@@ -523,6 +523,7 @@ export type Group = Node & {
   id: Scalars['ID']['output'];
   key: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
   project: Project;
   projectId: Scalars['ID']['output'];
   schema: Schema;
@@ -532,6 +533,11 @@ export type Group = Node & {
 export type GroupPayload = {
   __typename?: 'GroupPayload';
   group: Group;
+};
+
+export type GroupsPayload = {
+  __typename?: 'GroupsPayload';
+  groups: Array<Group>;
 };
 
 export type Integration = Node & {
@@ -788,6 +794,7 @@ export type Mutation = {
   updateField?: Maybe<FieldPayload>;
   updateFields?: Maybe<FieldsPayload>;
   updateGroup?: Maybe<GroupPayload>;
+  updateGroupsOrder?: Maybe<GroupsPayload>;
   updateIntegration?: Maybe<IntegrationPayload>;
   updateIntegrationOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateItem?: Maybe<ItemPayload>;
@@ -798,6 +805,7 @@ export type Mutation = {
   updateRequest?: Maybe<RequestPayload>;
   updateUserOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateView?: Maybe<ViewPayload>;
+  updateViewsOrder?: Maybe<ViewsPayload>;
   updateWebhook?: Maybe<WebhookPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
   updateWorkspaceSettings?: Maybe<UpdateWorkspaceSettingsPayload>;
@@ -1014,6 +1022,11 @@ export type MutationUpdateGroupArgs = {
 };
 
 
+export type MutationUpdateGroupsOrderArgs = {
+  input: UpdateGroupsOrderInput;
+};
+
+
 export type MutationUpdateIntegrationArgs = {
   input: UpdateIntegrationInput;
 };
@@ -1061,6 +1074,11 @@ export type MutationUpdateUserOfWorkspaceArgs = {
 
 export type MutationUpdateViewArgs = {
   input: UpdateViewInput;
+};
+
+
+export type MutationUpdateViewsOrderArgs = {
+  input: UpdateViewsOrderInput;
 };
 
 
@@ -1900,6 +1918,10 @@ export type UpdateGroupInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateGroupsOrderInput = {
+  groupIds: Array<Scalars['ID']['input']>;
+};
+
 export type UpdateIntegrationInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   integrationId: Scalars['ID']['input'];
@@ -1989,6 +2011,10 @@ export type UpdateViewInput = {
   viewId: Scalars['ID']['input'];
 };
 
+export type UpdateViewsOrderInput = {
+  viewIds: Array<Scalars['ID']['input']>;
+};
+
 export type UpdateWebhookInput = {
   active?: InputMaybe<Scalars['Boolean']['input']>;
   integrationId: Scalars['ID']['input'];
@@ -2056,6 +2082,7 @@ export type View = Node & {
   id: Scalars['ID']['output'];
   modelId: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
   projectId: Scalars['ID']['output'];
   sort?: Maybe<ItemSort>;
 };
@@ -2063,6 +2090,11 @@ export type View = Node & {
 export type ViewPayload = {
   __typename?: 'ViewPayload';
   view: View;
+};
+
+export type ViewsPayload = {
+  __typename?: 'ViewsPayload';
+  views: Array<View>;
 };
 
 export type Webhook = {
@@ -2701,7 +2733,7 @@ export type GetViewsQueryVariables = Exact<{
 }>;
 
 
-export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'Column', visible: boolean, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', basicOperator: BasicOperator, basicValue: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition', boolOperator: BoolOperator, boolValue: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'MultipleFieldCondition', multipleOperator: MultipleOperator, multipleValue: Array<any>, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NullableFieldCondition', nullableOperator: NullableOperator, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NumberFieldCondition', numberOperator: NumberOperator, numberValue: number, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition', stringOperator: StringOperator, stringValue: string, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'TimeFieldCondition', timeOperator: TimeOperator, timeValue: Date, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
+export type GetViewsQuery = { __typename: 'Query', view: Array<{ __typename: 'View', id: string, name: string, modelId: string, projectId: string, order: number, sort?: { __typename?: 'ItemSort', direction?: SortDirection | null, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | null, columns?: Array<{ __typename?: 'Column', visible: boolean, field: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> | null, filter?: { __typename?: 'AndCondition', conditions: Array<{ __typename: 'AndCondition' } | { __typename: 'BasicFieldCondition', basicOperator: BasicOperator, basicValue: any, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'BoolFieldCondition', boolOperator: BoolOperator, boolValue: boolean, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'MultipleFieldCondition', multipleOperator: MultipleOperator, multipleValue: Array<any>, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NullableFieldCondition', nullableOperator: NullableOperator, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'NumberFieldCondition', numberOperator: NumberOperator, numberValue: number, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'OrCondition' } | { __typename: 'StringFieldCondition', stringOperator: StringOperator, stringValue: string, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } } | { __typename: 'TimeFieldCondition', timeOperator: TimeOperator, timeValue: Date, fieldId: { __typename?: 'FieldSelector', type: FieldType, id?: string | null } }> } | { __typename?: 'BasicFieldCondition' } | { __typename?: 'BoolFieldCondition' } | { __typename?: 'MultipleFieldCondition' } | { __typename?: 'NullableFieldCondition' } | { __typename?: 'NumberFieldCondition' } | { __typename?: 'OrCondition' } | { __typename?: 'StringFieldCondition' } | { __typename?: 'TimeFieldCondition' } | null }> };
 
 export type CreateViewMutationVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -2732,6 +2764,13 @@ export type DeleteViewMutationVariables = Exact<{
 
 
 export type DeleteViewMutation = { __typename?: 'Mutation', deleteView?: { __typename?: 'DeleteViewPayload', viewId: string } | null };
+
+export type UpdateViewsOrderMutationVariables = Exact<{
+  viewIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+}>;
+
+
+export type UpdateViewsOrderMutation = { __typename?: 'Mutation', updateViewsOrder?: { __typename?: 'ViewsPayload', views: Array<{ __typename?: 'View', id: string }> } | null };
 
 export type CreateWebhookMutationVariables = Exact<{
   integrationId: Scalars['ID']['input'];
@@ -6272,6 +6311,7 @@ export const GetViewsDocument = gql`
     name
     modelId
     projectId
+    order
     sort {
       field {
         type
@@ -6677,6 +6717,41 @@ export function useDeleteViewMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeleteViewMutationHookResult = ReturnType<typeof useDeleteViewMutation>;
 export type DeleteViewMutationResult = Apollo.MutationResult<DeleteViewMutation>;
 export type DeleteViewMutationOptions = Apollo.BaseMutationOptions<DeleteViewMutation, DeleteViewMutationVariables>;
+export const UpdateViewsOrderDocument = gql`
+    mutation UpdateViewsOrder($viewIds: [ID!]!) {
+  updateViewsOrder(input: {viewIds: $viewIds}) {
+    views {
+      id
+    }
+  }
+}
+    `;
+export type UpdateViewsOrderMutationFn = Apollo.MutationFunction<UpdateViewsOrderMutation, UpdateViewsOrderMutationVariables>;
+
+/**
+ * __useUpdateViewsOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateViewsOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateViewsOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateViewsOrderMutation, { data, loading, error }] = useUpdateViewsOrderMutation({
+ *   variables: {
+ *      viewIds: // value for 'viewIds'
+ *   },
+ * });
+ */
+export function useUpdateViewsOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateViewsOrderMutation, UpdateViewsOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateViewsOrderMutation, UpdateViewsOrderMutationVariables>(UpdateViewsOrderDocument, options);
+      }
+export type UpdateViewsOrderMutationHookResult = ReturnType<typeof useUpdateViewsOrderMutation>;
+export type UpdateViewsOrderMutationResult = Apollo.MutationResult<UpdateViewsOrderMutation>;
+export type UpdateViewsOrderMutationOptions = Apollo.BaseMutationOptions<UpdateViewsOrderMutation, UpdateViewsOrderMutationVariables>;
 export const CreateWebhookDocument = gql`
     mutation CreateWebhook($integrationId: ID!, $name: String!, $url: URL!, $active: Boolean!, $trigger: WebhookTriggerInput!, $secret: String!) {
   createWebhook(

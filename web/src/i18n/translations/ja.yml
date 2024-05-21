@@ -428,6 +428,8 @@ Failed to rename view.: ビューの名前変更に失敗しました。
 Successfully renamed view!: ビューの名前変更に成功しました!
 Failed to delete view.: ビューの削除に失敗しました。
 Successfully deleted view!: ビューの削除に成功しました!
+Failed to update views order.: ビューの順序更新に失敗しました。
+Successfully updated views order!: ビューの順序変更に成功しました!
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to update models order.: モデルの順序更新に失敗しました。
