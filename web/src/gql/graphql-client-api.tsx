@@ -805,6 +805,7 @@ export type Mutation = {
   updateRequest?: Maybe<RequestPayload>;
   updateUserOfWorkspace?: Maybe<UpdateMemberOfWorkspacePayload>;
   updateView?: Maybe<ViewPayload>;
+  updateViewsOrder?: Maybe<ViewsPayload>;
   updateWebhook?: Maybe<WebhookPayload>;
   updateWorkspace?: Maybe<UpdateWorkspacePayload>;
   updateWorkspaceSettings?: Maybe<UpdateWorkspaceSettingsPayload>;
@@ -1073,6 +1074,11 @@ export type MutationUpdateUserOfWorkspaceArgs = {
 
 export type MutationUpdateViewArgs = {
   input: UpdateViewInput;
+};
+
+
+export type MutationUpdateViewsOrderArgs = {
+  input: UpdateViewsOrderInput;
 };
 
 
@@ -2005,6 +2011,10 @@ export type UpdateViewInput = {
   viewId: Scalars['ID']['input'];
 };
 
+export type UpdateViewsOrderInput = {
+  viewIds: Array<Scalars['ID']['input']>;
+};
+
 export type UpdateWebhookInput = {
   active?: InputMaybe<Scalars['Boolean']['input']>;
   integrationId: Scalars['ID']['input'];
@@ -2072,6 +2082,7 @@ export type View = Node & {
   id: Scalars['ID']['output'];
   modelId: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
   projectId: Scalars['ID']['output'];
   sort?: Maybe<ItemSort>;
 };
@@ -2079,6 +2090,11 @@ export type View = Node & {
 export type ViewPayload = {
   __typename?: 'ViewPayload';
   view: View;
+};
+
+export type ViewsPayload = {
+  __typename?: 'ViewsPayload';
+  views: Array<View>;
 };
 
 export type Webhook = {
@@ -4215,9 +4231,7 @@ export const UpdateGroupsOrderDocument = gql`
     mutation UpdateGroupsOrder($groupIds: [ID!]!) {
   updateGroupsOrder(input: {groupIds: $groupIds}) {
     groups {
-      ... on Group {
-        id
-      }
+      id
     }
   }
 }

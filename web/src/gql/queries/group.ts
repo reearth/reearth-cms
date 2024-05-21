@@ -126,9 +126,7 @@ export const UPDATE_GROUPS_ORDER = gql`
   mutation UpdateGroupsOrder($groupIds: [ID!]!) {
     updateGroupsOrder(input: { groupIds: $groupIds }) {
       groups {
-        ... on Group {
-          id
-        }
+        id
       }
     }
   }
