@@ -18,6 +18,7 @@ func ToView(i *view.View) *View {
 		Filter:    ToFilter(i.Filter()),
 		Sort:      ToSort(i.Sort()),
 		Columns:   ToFieldSelectorList(i.Columns()),
+		Order:     i.Order(),
 	}
 }
 

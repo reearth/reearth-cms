@@ -1,10 +1,11 @@
 package group
 
 import (
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/key"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestNew(t *testing.T) {
@@ -53,6 +54,7 @@ func TestBuilder_Build(t *testing.T) {
 					name:        "m1",
 					description: "m1 desc",
 					key:         key.New("T123456"),
+					order:       1,
 				},
 				k: key.New("T123456"),
 			},
@@ -63,6 +65,7 @@ func TestBuilder_Build(t *testing.T) {
 				name:        "m1",
 				description: "m1 desc",
 				key:         key.New("T123456"),
+				order:       1,
 			},
 			wantErr: nil,
 		},
@@ -76,6 +79,7 @@ func TestBuilder_Build(t *testing.T) {
 					name:        "m1",
 					description: "m1 desc",
 					key:         key.New("T123456"),
+					order:       1,
 				},
 				k: key.New("T123456"),
 			},
@@ -86,6 +90,7 @@ func TestBuilder_Build(t *testing.T) {
 				name:        "m1",
 				description: "m1 desc",
 				key:         key.New("T123456"),
+				order:       1,
 			},
 			wantErr: nil,
 		},
@@ -98,6 +103,7 @@ func TestBuilder_Build(t *testing.T) {
 					name:        "m1",
 					description: "m1 desc",
 					key:         key.New("T123456"),
+					order:       1,
 				},
 				k: key.New("T123456"),
 			},
@@ -113,6 +119,7 @@ func TestBuilder_Build(t *testing.T) {
 					name:        "m1",
 					description: "m1 desc",
 					key:         key.New("T123456"),
+					order:       1,
 				},
 				k: key.New("T123456"),
 			},
@@ -162,6 +169,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					name:        "m1",
 					description: "m1 desc",
 					key:         key.New("T123456"),
+					order:       1,
 				},
 				k: key.New("T123456"),
 			},
@@ -172,6 +180,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				name:        "m1",
 				description: "m1 desc",
 				key:         key.New("T123456"),
+				order:       1,
 			},
 			wantErr: nil,
 		},
@@ -185,6 +194,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					name:        "m1",
 					description: "m1 desc",
 					key:         key.New("T123456"),
+					order:       1,
 				},
 				k: key.New("T123456"),
 			},
@@ -195,6 +205,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 				name:        "m1",
 				description: "m1 desc",
 				key:         key.New("T123456"),
+				order:       1,
 			},
 			wantErr: nil,
 		},
@@ -208,6 +219,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					name:        "m1",
 					description: "m1 desc",
 					key:         key.New("T123456"),
+					order:       1,
 				},
 				k: key.New("T123456"),
 			},
@@ -223,6 +235,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 					name:        "m1",
 					description: "m1 desc",
 					key:         key.New("T123456"),
+					order:       1,
 				},
 				k: key.New("T123456"),
 			},

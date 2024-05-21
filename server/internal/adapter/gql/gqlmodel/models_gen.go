@@ -480,6 +480,7 @@ type Group struct {
 	Schema      *Schema        `json:"schema"`
 	Project     *Project       `json:"project"`
 	Fields      []*SchemaField `json:"fields"`
+	Order       int            `json:"order"`
 }
 
 func (Group) IsNode()        {}
@@ -487,6 +488,10 @@ func (this Group) GetID() ID { return this.ID }
 
 type GroupPayload struct {
 	Group *Group `json:"group"`
+}
+
+type GroupsPayload struct {
+	Groups []*Group `json:"groups"`
 }
 
 type Integration struct {
@@ -1240,6 +1245,10 @@ type UpdateGroupInput struct {
 	Key         *string `json:"key,omitempty"`
 }
 
+type UpdateGroupsOrderInput struct {
+	GroupIds []ID `json:"groupIds"`
+}
+
 type UpdateIntegrationInput struct {
 	IntegrationID ID       `json:"integrationId"`
 	Name          *string  `json:"name,omitempty"`
@@ -1327,6 +1336,10 @@ type UpdateViewInput struct {
 	Columns []*ColumnSelectionInput `json:"columns,omitempty"`
 }
 
+type UpdateViewsOrderInput struct {
+	ViewIds []ID `json:"viewIds"`
+}
+
 type UpdateWebhookInput struct {
 	IntegrationID ID                   `json:"integrationId"`
 	WebhookID     ID                   `json:"webhookId"`
@@ -1395,6 +1408,7 @@ type View struct {
 	Sort      *ItemSort `json:"sort,omitempty"`
 	Filter    Condition `json:"filter,omitempty"`
 	Columns   []*Column `json:"columns,omitempty"`
+	Order     int       `json:"order"`
 }
 
 func (View) IsNode()        {}
@@ -1402,6 +1416,10 @@ func (this View) GetID() ID { return this.ID }
 
 type ViewPayload struct {
 	View *View `json:"view"`
+}
+
+type ViewsPayload struct {
+	Views []*View `json:"views"`
 }
 
 type Webhook struct {

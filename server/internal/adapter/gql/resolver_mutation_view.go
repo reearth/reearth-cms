@@ -65,6 +65,22 @@ func (r *mutationResolver) UpdateView(ctx context.Context, input gqlmodel.Update
 	return &gqlmodel.ViewPayload{View: gqlmodel.ToView(res)}, nil
 }
 
+func (r *mutationResolver) UpdateViewsOrder(ctx context.Context, input gqlmodel.UpdateViewsOrderInput) (*gqlmodel.ViewsPayload, error) {
+	vIds, err := gqlmodel.ToIDs[id.View](input.ViewIds)
+	if err != nil {
+		return nil, err
+	}
+	views, err := usecases(ctx).View.UpdateOrder(ctx, vIds, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+	return &gqlmodel.ViewsPayload{
+		Views: lo.Map(views, func(mod *view.View, _ int) *gqlmodel.View {
+			return gqlmodel.ToView(mod)
+		}),
+	}, nil
+}
+
 func (r *mutationResolver) DeleteView(ctx context.Context, input gqlmodel.DeleteViewInput) (*gqlmodel.DeleteViewPayload, error) {
 	vID, err := gqlmodel.ToID[id.View](input.ViewID)
 	if err != nil {

@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -34,6 +35,7 @@ type Group interface {
 	FindByKey(context.Context, id.ProjectID, string, *usecase.Operator) (*group.Group, error)
 	Create(context.Context, CreateGroupParam, *usecase.Operator) (*group.Group, error)
 	Update(context.Context, UpdateGroupParam, *usecase.Operator) (*group.Group, error)
+	UpdateOrder(context.Context, id.GroupIDList, *usecase.Operator) (group.List, error)
 	CheckKey(context.Context, id.ProjectID, string) (bool, error)
 	FindModelsByGroup(context.Context, id.GroupID, *usecase.Operator) (model.List, error)
 	Delete(context.Context, id.GroupID, *usecase.Operator) error

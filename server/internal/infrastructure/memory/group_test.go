@@ -2,6 +2,8 @@ package memory
 
 import (
 	"context"
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -9,7 +11,6 @@ import (
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGroupRepo_Filtered(t *testing.T) {
@@ -232,12 +233,9 @@ func TestGroupRepo_FindByIDs(t *testing.T) {
 			t.Parallel()
 
 			r := NewGroup()
-
 			ctx := context.Background()
-			for _, a := range tc.seeds {
-				err := r.Save(ctx, a.Clone())
-				assert.NoError(t, err)
-			}
+			err := r.SaveAll(ctx, tc.seeds)
+			assert.NoError(t, err)
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)
