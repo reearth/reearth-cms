@@ -352,6 +352,7 @@ func NewView(i *view.View) (*ViewDocument, string) {
 		Sort:      NewSort(i.Sort()),
 		Filter:    NewFilter(i.Filter()),
 		Columns:   columns,
+		Order:     i.Order(),
 		UpdatedAt: i.UpdatedAt(),
 	}, iId
 }
@@ -394,6 +395,7 @@ func (d *ViewDocument) Model() (*view.View, error) {
 		Filter(d.Filter.Model()).
 		Columns((*view.ColumnList)(&columns)).
 		User(uID).
+		Order(d.Order).
 		UpdatedAt(d.UpdatedAt).
 		Build()
 }
