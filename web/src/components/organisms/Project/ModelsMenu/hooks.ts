@@ -13,6 +13,7 @@ import {
   useCreateModelMutation,
   useUpdateModelsOrderMutation,
   useCreateGroupMutation,
+  useUpdateGroupsOrderMutation,
   useCheckModelKeyAvailabilityLazyQuery,
   useCheckGroupKeyAvailabilityLazyQuery,
   Model as GQLModel,
@@ -186,6 +187,26 @@ export default ({ modelId }: Params) => {
     [currentWorkspace?.id, projectId, createNewGroup, navigate, t],
   );
 
+  const [updateGroupsOrder] = useUpdateGroupsOrderMutation({
+    refetchQueries: ["GetGroups"],
+  });
+
+  const handleUpdateGroupsOrder = useCallback(
+    async (groupIds: string[]) => {
+      const group = await updateGroupsOrder({
+        variables: {
+          groupIds,
+        },
+      });
+      if (group.errors) {
+        Notification.error({ message: t("Failed to update groups order.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated groups order!") });
+    },
+    [updateGroupsOrder, t],
+  );
+
   return {
     models,
     groups,
@@ -200,5 +221,6 @@ export default ({ modelId }: Params) => {
     handleGroupCreate,
     handleGroupKeyCheck,
     handleUpdateModelsOrder,
+    handleUpdateGroupsOrder,
   };
 };

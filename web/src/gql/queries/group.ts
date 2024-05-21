@@ -6,6 +6,7 @@ export const GET_GROUPS = gql`
       id
       name
       key
+      order
     }
   }
 `;
@@ -117,6 +118,16 @@ export const MODELS_BY_GROUP = gql`
   query ModelsByGroup($groupId: ID!) {
     modelsByGroup(groupId: $groupId) {
       name
+    }
+  }
+`;
+
+export const UPDATE_GROUPS_ORDER = gql`
+  mutation UpdateGroupsOrder($groupIds: [ID!]!) {
+    updateGroupsOrder(input: { groupIds: $groupIds }) {
+      groups {
+        id
+      }
     }
   }
 `;

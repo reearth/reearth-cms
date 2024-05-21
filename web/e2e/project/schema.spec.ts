@@ -4,7 +4,7 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { handleFieldForm } from "./utils/field";
-import { crudGroup } from "./utils/group";
+import { createGroup, crudGroup } from "./utils/group";
 import { createModel, crudModel } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 
@@ -95,6 +95,41 @@ test("Group creating from adding field has succeeded", async ({ page }) => {
   await page.getByLabel("Select Group").click();
   await expect(page.getByText("e2e group name #e2e-group-key")).toBeVisible();
   await page.getByRole("button", { name: "Cancel" }).click();
+});
+
+test("Group reordering has succeeded", async ({ page }) => {
+  await createGroup(page, "group1", "group1");
+  await createGroup(page, "group2", "group2");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(0),
+  ).toContainText("group1");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(1),
+  ).toContainText("group2");
+  await page
+    .getByRole("main")
+    .getByRole("menu")
+    .last()
+    .getByRole("menuitem")
+    .nth(1)
+    .dragTo(page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(0));
+  await closeNotification(page);
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(0),
+  ).toContainText("group2");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(1),
+  ).toContainText("group1");
+  await createGroup(page, "group3", "group3");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(0),
+  ).toContainText("group2");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(1),
+  ).toContainText("group1");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(2),
+  ).toContainText("group3");
 });
 
 test("Text field CRUD has succeeded", async ({ page }) => {

@@ -11,6 +11,7 @@ export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
     name: group.name,
     description: group.description,
     key: group.key,
+    order: group.order,
     schema: {
       id: group.schema?.id,
       fields: group.schema?.fields.map(

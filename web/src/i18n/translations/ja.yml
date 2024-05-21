@@ -434,6 +434,8 @@ Failed to update models order.: モデルの順序更新に失敗しました。
 Successfully updated models order!: モデルの順序変更に成功しました!
 Failed to create group.: グループの作成に失敗しました。
 Successfully created group!: グループの作成に成功しました！
+Failed to update groups order.: グループの順序更新に失敗しました。
+Successfully updated groups order!: グループの順序変更に成功しました!
 Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。

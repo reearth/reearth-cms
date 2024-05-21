@@ -13,6 +13,7 @@ type Props = {
   onClose: () => void;
   onCreate: (data: { name: string; description: string; key: string }) => Promise<void>;
   onGroupSelect?: (groupId: string) => void;
+  onUpdateGroupsOrder: (groupIds: string[]) => void;
 };
 
 const Groups: React.FC<Props> = ({
@@ -25,6 +26,7 @@ const Groups: React.FC<Props> = ({
   onClose,
   onCreate,
   onGroupSelect,
+  onUpdateGroupsOrder,
 }) => {
   return (
     <>
@@ -34,6 +36,7 @@ const Groups: React.FC<Props> = ({
         collapsed={collapsed}
         onGroupSelect={onGroupSelect}
         onModalOpen={onModalOpen}
+        onUpdateGroupsOrder={onUpdateGroupsOrder}
       />
       <FormModal
         open={open}

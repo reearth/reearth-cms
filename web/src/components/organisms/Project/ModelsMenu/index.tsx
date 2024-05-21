@@ -41,6 +41,7 @@ const ModelsMenu: React.FC<Props> = ({
     handleModelKeyCheck,
     handleGroupKeyCheck,
     handleUpdateModelsOrder,
+    handleUpdateGroupsOrder,
   } = useHooks({
     modelId: selectedSchemaType === "model" ? schemaId : undefined,
   });
@@ -74,6 +75,7 @@ const ModelsMenu: React.FC<Props> = ({
             onGroupKeyCheck={handleGroupKeyCheck}
             onClose={handleGroupModalClose}
             onCreate={handleGroupCreate}
+            onUpdateGroupsOrder={handleUpdateGroupsOrder}
           />
         )}
       </ModelListBody>
