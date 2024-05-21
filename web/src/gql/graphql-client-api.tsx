@@ -2352,7 +2352,7 @@ export type GetGroupsQueryVariables = Exact<{
 }>;
 
 
-export type GetGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: string, name: string, key: string } | null> };
+export type GetGroupsQuery = { __typename?: 'Query', groups: Array<{ __typename?: 'Group', id: string, name: string, key: string, order: number } | null> };
 
 export type GetGroupQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2402,6 +2402,13 @@ export type ModelsByGroupQueryVariables = Exact<{
 
 
 export type ModelsByGroupQuery = { __typename?: 'Query', modelsByGroup: Array<{ __typename?: 'Model', name: string } | null> };
+
+export type UpdateGroupsOrderMutationVariables = Exact<{
+  groupIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+}>;
+
+
+export type UpdateGroupsOrderMutation = { __typename?: 'Mutation', updateGroupsOrder?: { __typename?: 'GroupsPayload', groups: Array<{ __typename?: 'Group', id: string }> } | null };
 
 export type CreateIntegrationMutationVariables = Exact<{
   name: Scalars['String']['input'];
@@ -3899,6 +3906,7 @@ export const GetGroupsDocument = gql`
     id
     name
     key
+    order
   }
 }
     `;
@@ -4226,6 +4234,41 @@ export type ModelsByGroupQueryHookResult = ReturnType<typeof useModelsByGroupQue
 export type ModelsByGroupLazyQueryHookResult = ReturnType<typeof useModelsByGroupLazyQuery>;
 export type ModelsByGroupSuspenseQueryHookResult = ReturnType<typeof useModelsByGroupSuspenseQuery>;
 export type ModelsByGroupQueryResult = Apollo.QueryResult<ModelsByGroupQuery, ModelsByGroupQueryVariables>;
+export const UpdateGroupsOrderDocument = gql`
+    mutation UpdateGroupsOrder($groupIds: [ID!]!) {
+  updateGroupsOrder(input: {groupIds: $groupIds}) {
+    groups {
+      id
+    }
+  }
+}
+    `;
+export type UpdateGroupsOrderMutationFn = Apollo.MutationFunction<UpdateGroupsOrderMutation, UpdateGroupsOrderMutationVariables>;
+
+/**
+ * __useUpdateGroupsOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateGroupsOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGroupsOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGroupsOrderMutation, { data, loading, error }] = useUpdateGroupsOrderMutation({
+ *   variables: {
+ *      groupIds: // value for 'groupIds'
+ *   },
+ * });
+ */
+export function useUpdateGroupsOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGroupsOrderMutation, UpdateGroupsOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGroupsOrderMutation, UpdateGroupsOrderMutationVariables>(UpdateGroupsOrderDocument, options);
+      }
+export type UpdateGroupsOrderMutationHookResult = ReturnType<typeof useUpdateGroupsOrderMutation>;
+export type UpdateGroupsOrderMutationResult = Apollo.MutationResult<UpdateGroupsOrderMutation>;
+export type UpdateGroupsOrderMutationOptions = Apollo.BaseMutationOptions<UpdateGroupsOrderMutation, UpdateGroupsOrderMutationVariables>;
 export const CreateIntegrationDocument = gql`
     mutation CreateIntegration($name: String!, $description: String, $logoUrl: URL!, $type: IntegrationType!) {
   createIntegration(

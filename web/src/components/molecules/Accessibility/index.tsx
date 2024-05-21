@@ -155,7 +155,7 @@ const Accessibility: React.FC<Props> = ({
               <Input
                 value={aliasState}
                 suffix={<Icon icon="copy" onClick={handleCopy} />}
-                disabled
+                contentEditable={false}
               />
             </Form.Item>
           </ItemsWrapper>
