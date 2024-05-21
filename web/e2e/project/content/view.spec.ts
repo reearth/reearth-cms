@@ -155,3 +155,41 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
 });
+
+test("Group reordering has succeeded", async ({ page }) => {
+  await page.getByText("Content").click();
+
+  await page.getByRole("button", { name: "Save as new view" }).click();
+  await page.getByLabel("View Name").click();
+  await page.getByLabel("View Name").fill("view1");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+
+  await page.getByRole("button", { name: "Save as new view" }).click();
+  await page.getByLabel("View Name").click();
+  await page.getByLabel("View Name").fill("view2");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+
+  await expect(page.getByRole("tablist").getByRole("tab").nth(0)).toContainText("view1");
+  await expect(page.getByRole("tablist").getByRole("tab").nth(1)).toContainText("view2");
+  await page
+    .getByRole("tablist")
+    .getByRole("tab")
+    .nth(0)
+    .dragTo(page.getByRole("tablist").getByRole("tab").nth(1));
+  await closeNotification(page);
+
+  await expect(page.getByRole("tablist").getByRole("tab").nth(0)).toContainText("view2");
+  await expect(page.getByRole("tablist").getByRole("tab").nth(1)).toContainText("view1");
+
+  await page.getByRole("button", { name: "Save as new view" }).click();
+  await page.getByLabel("View Name").click();
+  await page.getByLabel("View Name").fill("view3");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+
+  await expect(page.getByRole("tablist").getByRole("tab").nth(0)).toContainText("view2");
+  await expect(page.getByRole("tablist").getByRole("tab").nth(1)).toContainText("view1");
+  await expect(page.getByRole("tablist").getByRole("tab").nth(2)).toContainText("view3");
+});
