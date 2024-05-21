@@ -88,6 +88,25 @@ func (r *View) Save(_ context.Context, i *view.View) error {
 	return nil
 }
 
+func (r *View) SaveAll(ctx context.Context, views view.List) error {
+	if r.err != nil {
+		return r.err
+	}
+	if len(views) == 0 {
+		return nil
+	}
+
+	if !r.f.CanWrite(views.Projects()...) {
+		return repo.ErrOperationDenied
+	}
+	inp := map[id.ViewID]*view.View{}
+	for _, v := range views {
+		inp[v.ID()] = v
+	}
+	r.data.StoreAll(inp)
+	return nil
+}
+
 func (r *View) Remove(_ context.Context, iId id.ViewID) error {
 	if r.err != nil {
 		return r.err
