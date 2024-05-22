@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { useCallback, useMemo } from "react";
+import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -13,6 +14,7 @@ type Props = {
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
+  onUpdateGroupsOrder: (groupIds: string[]) => void;
 };
 
 const GroupsList: React.FC<Props> = ({
@@ -21,6 +23,7 @@ const GroupsList: React.FC<Props> = ({
   collapsed,
   onModalOpen,
   onGroupSelect,
+  onUpdateGroupsOrder,
 }) => {
   const t = useT();
 
@@ -35,14 +38,16 @@ const GroupsList: React.FC<Props> = ({
 
   const items = useMemo(
     () =>
-      groups?.map(group => ({
-        label: (
-          <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
-            {collapsed ? <Icon icon="dot" /> : group.name}
-          </div>
-        ),
-        key: group.id,
-      })),
+      groups
+        ?.sort((a, b) => a.order - b.order)
+        .map(group => ({
+          label: (
+            <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
+              {collapsed ? <Icon icon="dot" /> : group.name}
+            </div>
+          ),
+          key: group.id,
+        })),
     [collapsed, groups, scrollToSelected, selectedKey],
   );
 
@@ -51,6 +56,17 @@ const GroupsList: React.FC<Props> = ({
       onGroupSelect?.(e.key);
     },
     [onGroupSelect],
+  );
+
+  const onDragEnd = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0 || !groups) return;
+      const [removed] = groups.splice(fromIndex, 1);
+      groups.splice(toIndex, 0, removed);
+      const groupIds = groups.map(group => group.id);
+      onUpdateGroupsOrder(groupIds);
+    },
+    [groups, onUpdateGroupsOrder],
   );
 
   return (
@@ -68,13 +84,18 @@ const GroupsList: React.FC<Props> = ({
         </Header>
       )}
       <MenuWrapper>
-        <StyledMenu
-          selectedKeys={selectedKeys}
-          mode={collapsed ? "vertical" : "inline"}
-          collapsed={collapsed}
-          items={items}
-          onClick={handleClick}
-        />
+        <ReactDragListView
+          nodeSelector=".ant-menu-item"
+          lineClassName="dragLine"
+          onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
+          <StyledMenu
+            selectedKeys={selectedKeys}
+            mode={collapsed ? "vertical" : "inline"}
+            collapsed={collapsed}
+            items={items}
+            onClick={handleClick}
+          />
+        </ReactDragListView>
       </MenuWrapper>
     </SchemaStyledMenu>
   );

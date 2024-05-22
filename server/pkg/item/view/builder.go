@@ -69,6 +69,11 @@ func (b *Buildr) Columns(columns *ColumnList) *Buildr {
 	return b
 }
 
+func (b *Buildr) Order(order int) *Buildr {
+	b.v.order = order
+	return b
+}
+
 func (b *Buildr) User(user UserID) *Buildr {
 	b.v.user = user
 	return b
