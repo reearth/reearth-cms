@@ -488,7 +488,7 @@ Successfully updated integration!: インテグレーションの更新に成功
 Failed to delete integration.: インテグレーションの削除に失敗しました。
 Successfully deleted integration!: インテグレーションの削除に成功しました。
 The attempt to regenerate the integration token has failed.: インテグレーショントークンの再生成に失敗しました。
-The integration token has been successfully regenerated!: インテグレーショントークンが正常に再生成されました！
+The integration token has been successfully regenerated!: インテグレーショントークンの再生成に成功しました！
 Failed to create webhook.: Webhookの作成に失敗しました。
 Successfully created webhook!: Webhookの作成に成功しました。
 Failed to delete webhook.: Webhookの削除に失敗しました。
