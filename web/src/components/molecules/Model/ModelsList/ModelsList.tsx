@@ -14,7 +14,7 @@ type Props = {
   collapsed?: boolean;
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
-  onUpdateModelsOrder: (modelIds: string[]) => void;
+  onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
 };
 
 const ModelsList: React.FC<Props> = ({

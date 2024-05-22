@@ -20,6 +20,7 @@ export const fromGraphQLView = (view: GQLView): View => ({
   name: view.name,
   modelId: view.modelId,
   projectId: view.projectId,
+  order: view.order,
   sort: view.sort
     ? {
         field: {
