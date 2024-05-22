@@ -14,6 +14,7 @@ type Props = {
   webhookInitialValues?: any;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
   onIntegrationDelete: () => Promise<void>;
+  onRegenerateToken: () => Promise<void>;
   onWebhookCreate: (data: {
     name: string;
     url: string;
@@ -38,6 +39,7 @@ const MyIntegrationContent: React.FC<Props> = ({
   integration,
   webhookInitialValues,
   onIntegrationUpdate,
+  onRegenerateToken,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
@@ -56,6 +58,7 @@ const MyIntegrationContent: React.FC<Props> = ({
             integration={integration}
             onIntegrationUpdate={onIntegrationUpdate}
             onIntegrationDelete={onIntegrationDelete}
+            onRegenerateToken={onRegenerateToken}
           />
         </TabPane>
         <TabPane tab="Webhook" key="webhooks">
