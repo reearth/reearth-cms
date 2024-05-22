@@ -18,7 +18,7 @@ interface Props {
   currentView: CurrentView;
   onViewCreateModalOpen: () => void;
   onViewSelect: (key: string) => void;
-  onUpdateViewsOrder: (viewIds: string[]) => void;
+  onUpdateViewsOrder: (viewIds: string[]) => Promise<void>;
 }
 
 const ViewsMenuMolecule: React.FC<Props> = ({

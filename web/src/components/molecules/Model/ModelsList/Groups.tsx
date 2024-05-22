@@ -13,7 +13,7 @@ type Props = {
   onClose: () => void;
   onCreate: (data: { name: string; description: string; key: string }) => Promise<void>;
   onGroupSelect?: (groupId: string) => void;
-  onUpdateGroupsOrder: (groupIds: string[]) => void;
+  onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
 };
 
 const Groups: React.FC<Props> = ({
