@@ -156,7 +156,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
 });
 
-test("Group reordering has succeeded", async ({ page }) => {
+test("View reordering has succeeded", async ({ page }) => {
   await page.getByText("Content").click();
 
   await page.getByRole("button", { name: "Save as new view" }).click();
