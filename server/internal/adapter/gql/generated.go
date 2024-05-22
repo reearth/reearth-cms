@@ -444,6 +444,7 @@ type ComplexityRoot struct {
 		DeleteWorkspace                func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
 		PublishItem                    func(childComplexity int, input gqlmodel.PublishItemInput) int
 		PublishModel                   func(childComplexity int, input gqlmodel.PublishModelInput) int
+		RegenerateToken                func(childComplexity int, input gqlmodel.RegenerateTokenInput) int
 		RemoveIntegrationFromWorkspace func(childComplexity int, input gqlmodel.RemoveIntegrationFromWorkspaceInput) int
 		RemoveMyAuth                   func(childComplexity int, input gqlmodel.RemoveMyAuthInput) int
 		RemoveUserFromWorkspace        func(childComplexity int, input gqlmodel.RemoveUserFromWorkspaceInput) int
@@ -935,6 +936,7 @@ type MutationResolver interface {
 	CreateIntegration(ctx context.Context, input gqlmodel.CreateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	UpdateIntegration(ctx context.Context, input gqlmodel.UpdateIntegrationInput) (*gqlmodel.IntegrationPayload, error)
 	DeleteIntegration(ctx context.Context, input gqlmodel.DeleteIntegrationInput) (*gqlmodel.DeleteIntegrationPayload, error)
+	RegenerateToken(ctx context.Context, input gqlmodel.RegenerateTokenInput) (*gqlmodel.IntegrationPayload, error)
 	CreateWebhook(ctx context.Context, input gqlmodel.CreateWebhookInput) (*gqlmodel.WebhookPayload, error)
 	UpdateWebhook(ctx context.Context, input gqlmodel.UpdateWebhookInput) (*gqlmodel.WebhookPayload, error)
 	DeleteWebhook(ctx context.Context, input gqlmodel.DeleteWebhookInput) (*gqlmodel.DeleteWebhookPayload, error)
@@ -2735,6 +2737,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.PublishModel(childComplexity, args["input"].(gqlmodel.PublishModelInput)), true
+
+	case "Mutation.regenerateToken":
+		if e.complexity.Mutation.RegenerateToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_regenerateToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegenerateToken(childComplexity, args["input"].(gqlmodel.RegenerateTokenInput)), true
 
 	case "Mutation.removeIntegrationFromWorkspace":
 		if e.complexity.Mutation.RemoveIntegrationFromWorkspace == nil {
@@ -4681,6 +4695,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputPublishItemInput,
 		ec.unmarshalInputPublishModelInput,
+		ec.unmarshalInputRegenerateTokenInput,
 		ec.unmarshalInputRemoveIntegrationFromWorkspaceInput,
 		ec.unmarshalInputRemoveMyAuthInput,
 		ec.unmarshalInputRemoveUserFromWorkspaceInput,
@@ -5489,6 +5504,10 @@ input DeleteIntegrationInput {
   integrationId: ID!
 }
 
+input RegenerateTokenInput {
+  integrationId: ID!
+}
+
 # Payload
 type IntegrationPayload {
   integration: Integration!
@@ -5504,6 +5523,7 @@ extend type Mutation {
   createIntegration(input: CreateIntegrationInput!): IntegrationPayload
   updateIntegration(input: UpdateIntegrationInput!): IntegrationPayload
   deleteIntegration(input: DeleteIntegrationInput!): DeleteIntegrationPayload
+  regenerateToken(input: RegenerateTokenInput!): IntegrationPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/integration_webhook.graphql", Input: `type WebhookTrigger {
@@ -7185,6 +7205,21 @@ func (ec *executionContext) field_Mutation_publishModel_args(ctx context.Context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_regenerateToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.RegenerateTokenInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNRegenerateTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateTokenInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -18137,6 +18172,62 @@ func (ec *executionContext) fieldContext_Mutation_deleteIntegration(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteIntegration_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_regenerateToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_regenerateToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RegenerateToken(rctx, fc.Args["input"].(gqlmodel.RegenerateTokenInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.IntegrationPayload)
+	fc.Result = res
+	return ec.marshalOIntegrationPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIntegrationPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_regenerateToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "integration":
+				return ec.fieldContext_IntegrationPayload_integration(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type IntegrationPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_regenerateToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -35498,6 +35589,33 @@ func (ec *executionContext) unmarshalInputPublishModelInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegenerateTokenInput(ctx context.Context, obj interface{}) (gqlmodel.RegenerateTokenInput, error) {
+	var it gqlmodel.RegenerateTokenInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"integrationId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "integrationId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IntegrationID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRemoveIntegrationFromWorkspaceInput(ctx context.Context, obj interface{}) (gqlmodel.RemoveIntegrationFromWorkspaceInput, error) {
 	var it gqlmodel.RemoveIntegrationFromWorkspaceInput
 	asMap := map[string]interface{}{}
@@ -41830,6 +41948,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteIntegration(ctx, field)
 			})
+		case "regenerateToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_regenerateToken(ctx, field)
+			})
 		case "createWebhook":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createWebhook(ctx, field)
@@ -47708,6 +47830,11 @@ func (ec *executionContext) unmarshalNPublishItemInput2githubᚗcomᚋreearthᚋ
 
 func (ec *executionContext) unmarshalNPublishModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐPublishModelInput(ctx context.Context, v interface{}) (gqlmodel.PublishModelInput, error) {
 	res, err := ec.unmarshalInputPublishModelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRegenerateTokenInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐRegenerateTokenInput(ctx context.Context, v interface{}) (gqlmodel.RegenerateTokenInput, error) {
+	res, err := ec.unmarshalInputRegenerateTokenInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
