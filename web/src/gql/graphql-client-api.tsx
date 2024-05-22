@@ -785,6 +785,7 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   publishItem?: Maybe<PublishItemPayload>;
   publishModel?: Maybe<PublishModelPayload>;
+  regenerateToken?: Maybe<IntegrationPayload>;
   removeIntegrationFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
   removeMyAuth?: Maybe<UpdateMePayload>;
   removeUserFromWorkspace?: Maybe<RemoveMemberFromWorkspacePayload>;
@@ -974,6 +975,11 @@ export type MutationPublishItemArgs = {
 
 export type MutationPublishModelArgs = {
   input: PublishModelInput;
+};
+
+
+export type MutationRegenerateTokenArgs = {
+  input: RegenerateTokenInput;
 };
 
 
@@ -1395,6 +1401,10 @@ export type QueryVersionsByItemArgs = {
 
 export type QueryViewArgs = {
   modelId: Scalars['ID']['input'];
+};
+
+export type RegenerateTokenInput = {
+  integrationId: Scalars['ID']['input'];
 };
 
 export type RemoveIntegrationFromWorkspaceInput = {
@@ -2436,6 +2446,13 @@ export type DeleteIntegrationMutationVariables = Exact<{
 
 
 export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration?: { __typename?: 'DeleteIntegrationPayload', integrationId: string } | null };
+
+export type RegenerateTokenMutationVariables = Exact<{
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type RegenerateTokenMutation = { __typename?: 'Mutation', regenerateToken?: { __typename?: 'IntegrationPayload', integration: { __typename?: 'Integration', id: string, name: string, description?: string | null, logoUrl: string, iType: IntegrationType } } | null };
 
 export type GetItemsQueryVariables = Exact<{
   query: ItemQueryInput;
@@ -4390,6 +4407,45 @@ export function useDeleteIntegrationMutation(baseOptions?: Apollo.MutationHookOp
 export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteIntegrationMutation>;
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
 export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
+export const RegenerateTokenDocument = gql`
+    mutation regenerateToken($integrationId: ID!) {
+  regenerateToken(input: {integrationId: $integrationId}) {
+    integration {
+      id
+      name
+      description
+      logoUrl
+      iType
+    }
+  }
+}
+    `;
+export type RegenerateTokenMutationFn = Apollo.MutationFunction<RegenerateTokenMutation, RegenerateTokenMutationVariables>;
+
+/**
+ * __useRegenerateTokenMutation__
+ *
+ * To run a mutation, you first call `useRegenerateTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegenerateTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [regenerateTokenMutation, { data, loading, error }] = useRegenerateTokenMutation({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useRegenerateTokenMutation(baseOptions?: Apollo.MutationHookOptions<RegenerateTokenMutation, RegenerateTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RegenerateTokenMutation, RegenerateTokenMutationVariables>(RegenerateTokenDocument, options);
+      }
+export type RegenerateTokenMutationHookResult = ReturnType<typeof useRegenerateTokenMutation>;
+export type RegenerateTokenMutationResult = Apollo.MutationResult<RegenerateTokenMutation>;
+export type RegenerateTokenMutationOptions = Apollo.BaseMutationOptions<RegenerateTokenMutation, RegenerateTokenMutationVariables>;
 export const GetItemsDocument = gql`
     query GetItems($query: ItemQueryInput!, $pagination: Pagination) {
   searchItem(input: {query: $query, pagination: $pagination}) {
