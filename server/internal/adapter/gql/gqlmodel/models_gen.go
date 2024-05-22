@@ -806,6 +806,10 @@ type PublishModelPayload struct {
 type Query struct {
 }
 
+type RegenerateTokenInput struct {
+	IntegrationID ID `json:"integrationId"`
+}
+
 type RemoveIntegrationFromWorkspaceInput struct {
 	WorkspaceID   ID `json:"workspaceId"`
 	IntegrationID ID `json:"integrationId"`
