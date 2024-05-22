@@ -206,11 +206,11 @@ Permanently remove your Integration and all of its contents from the Re:Earth CM
 Once the integration is removed, it will disappear from all workspaces.: インテグレーション削除すると、このインテグレーションを利用しているすべてのワークスペースから取り除かれます。
 Remove Integration: インテグレーションを削除
 Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.: インテグレーションを削除します。この操作は取り消すことができません。
-Regenerate The Integration Token?: ''
-If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?: ''
-Reset: ''
+Regenerate The Integration Token?: インテグレーショントークンを再生成しますか？
+If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?: インテグレーショントークンを再生成すると、以前のトークンは無効になり、この操作は元に戻せません。本当に続行しますか？
+Reset: リセット
 Integration Token: インテグレーショントークン
-Regenerate: ''
+Regenerate: 再生成
 Code Example: コード例
 your model id here: モデルIDをここに入力してください
 Update: アップデート
@@ -487,8 +487,8 @@ Failed to update integration.: インテグレーションの更新に失敗し�
 Successfully updated integration!: インテグレーションの更新に成功しました。
 Failed to delete integration.: インテグレーションの削除に失敗しました。
 Successfully deleted integration!: インテグレーションの削除に成功しました。
-The attempt to regenerate the integration token has failed.: ''
-The integration token has been successfully regenerated!: ''
+The attempt to regenerate the integration token has failed.: インテグレーショントークンの再生成に失敗しました。
+The integration token has been successfully regenerated!: インテグレーショントークンが正常に再生成されました！
 Failed to create webhook.: Webhookの作成に失敗しました。
 Successfully created webhook!: Webhookの作成に成功しました。
 Failed to delete webhook.: Webhookの削除に失敗しました。
