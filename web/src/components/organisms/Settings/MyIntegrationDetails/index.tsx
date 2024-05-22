@@ -18,6 +18,7 @@ const MyIntegrationDetails: React.FC = () => {
     webhookInitialValues,
     handleIntegrationUpdate,
     handleIntegrationDelete,
+    handleRegenerateToken,
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
@@ -32,6 +33,7 @@ const MyIntegrationDetails: React.FC = () => {
       webhookInitialValues={webhookInitialValues}
       onIntegrationUpdate={handleIntegrationUpdate}
       onIntegrationDelete={handleIntegrationDelete}
+      onRegenerateToken={handleRegenerateToken}
       onWebhookCreate={handleWebhookCreate}
       onWebhookDelete={handleWebhookDelete}
       onWebhookUpdate={handleWebhookUpdate}
