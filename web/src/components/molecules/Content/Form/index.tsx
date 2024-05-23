@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Cartesian3, Viewer as CesiumViewer, Cartographic, Math } from "cesium";
+import { Cartesian3, Viewer as CesiumViewer, Cartographic, Math, SceneMode } from "cesium";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
@@ -504,6 +504,20 @@ const ContentForm: React.FC<Props> = ({
     }
   }, []);
 
+  const handleZoom = useCallback((isZoomIn: boolean) => {
+    if (viewer.current?.cesiumElement) {
+      const ellipsoid = viewer.current.cesiumElement.scene.globe.ellipsoid;
+      const camera = viewer.current.cesiumElement.camera;
+      const cameraHeight = ellipsoid.cartesianToCartographic(camera.position).height;
+      const moveRate = cameraHeight / 10;
+      if (isZoomIn) {
+        camera.moveForward(moveRate);
+      } else {
+        camera.moveBackward(moveRate);
+      }
+    }
+  }, []);
+
   return (
     <>
       <StyledForm
@@ -542,23 +556,41 @@ const ContentForm: React.FC<Props> = ({
           }
         />
         <FormItemsWrapper>
-          <Viewer
-            navigationHelpButton={false}
-            homeButton={false}
-            projectionPicker={false}
-            sceneModePicker={false}
-            baseLayerPicker={true}
-            fullscreenButton={false}
-            vrButton={false}
-            selectionIndicator={false}
-            timeline={false}
-            animation={false}
-            geocoder={false}
-            shouldAnimate={true}
-            onClick={movement => handleClick(movement, "polyline")}
-            infoBox={false}
-            ref={viewer}
-          />
+          <ViewerWrapper>
+            <StyledButton
+              top={50}
+              right={5}
+              icon={<Icon icon="plus" />}
+              onClick={() => {
+                handleZoom(true);
+              }}
+            />
+            <StyledButton
+              top={90}
+              right={5}
+              icon={<Icon icon="minus" />}
+              onClick={() => {
+                handleZoom(false);
+              }}
+            />
+            <Viewer
+              navigationHelpButton={false}
+              homeButton={false}
+              projectionPicker={false}
+              sceneModePicker={true}
+              sceneMode={SceneMode.SCENE2D}
+              baseLayerPicker={true}
+              fullscreenButton={true}
+              vrButton={false}
+              selectionIndicator={false}
+              timeline={false}
+              animation={false}
+              geocoder={false}
+              shouldAnimate={true}
+              onClick={movement => handleClick(movement, "polyline")}
+              ref={viewer}
+            />
+          </ViewerWrapper>
           {model?.schema.fields.map(field => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[
@@ -754,6 +786,17 @@ const FormItemsWrapper = styled.div`
   max-height: calc(100% - 72px);
   overflow-y: auto;
   padding: 36px;
+`;
+
+const ViewerWrapper = styled.div`
+  position: relative;
+`;
+
+const StyledButton = styled(Button)<{ top: number; right: number }>`
+  position: absolute;
+  top: ${({ top }) => `${top}px`};
+  right: ${({ right }) => `${right}px`};
+  z-index: 1;
 `;
 
 const SideBarWrapper = styled.div`
