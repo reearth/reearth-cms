@@ -2,6 +2,8 @@ package mongo
 
 import (
 	"context"
+	"testing"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -10,7 +12,6 @@ import (
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGroup_Filtered(t *testing.T) {
@@ -240,10 +241,8 @@ func TestGroupRepo_FindByIDs(t *testing.T) {
 
 			r := NewGroup(client)
 			ctx := context.Background()
-			for _, a := range tc.seeds {
-				err := r.Save(ctx, a.Clone())
-				assert.NoError(t, err)
-			}
+			err := r.SaveAll(ctx, tc.seeds)
+			assert.NoError(t, err)
 
 			if tc.filter != nil {
 				r = r.Filtered(*tc.filter)

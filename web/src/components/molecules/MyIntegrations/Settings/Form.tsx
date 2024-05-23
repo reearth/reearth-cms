@@ -1,11 +1,13 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Form from "@reearth-cms/components/atoms/Form";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
@@ -14,9 +16,14 @@ import { useT } from "@reearth-cms/i18n";
 export type Props = {
   integration: Integration;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  onRegenerateToken: () => Promise<void>;
 };
 
-const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }) => {
+const MyIntegrationForm: React.FC<Props> = ({
+  integration,
+  onIntegrationUpdate,
+  onRegenerateToken,
+}) => {
   const t = useT();
   const [form] = Form.useForm();
 
@@ -29,6 +36,26 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
       console.log("Validate Failed:", info);
     }
   }, [form, onIntegrationUpdate]);
+
+  const handleRegenerateToken = useCallback(() => {
+    Modal.confirm({
+      title: t("Regenerate The Integration Token?"),
+      content: t(
+        "If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
+      ),
+      okText: t("Reset"),
+      onOk() {
+        onRegenerateToken();
+      },
+    });
+  }, [t, onRegenerateToken]);
+
+  const copyIcon = useMemo(() => {
+    const onClick = () => {
+      if (integration.config.token) navigator.clipboard.writeText(integration.config.token);
+    };
+    return <Icon icon="copy" onClick={onClick} />;
+  }, [integration.config.token]);
 
   return (
     <Form form={form} layout="vertical" initialValues={integration}>
@@ -49,7 +76,14 @@ const MyIntegrationForm: React.FC<Props> = ({ integration, onIntegrationUpdate }
             <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
           <Form.Item label={t("Integration Token")}>
-            <Input.Password value={integration.config.token} contentEditable={false} />
+            <StyledTokenInput
+              value={integration.config.token}
+              contentEditable={false}
+              prefix={copyIcon}
+            />
+            <StyledRegenerateTokenButton type="primary" onClick={handleRegenerateToken}>
+              {t("Regenerate")}
+            </StyledRegenerateTokenButton>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" onClick={handleSubmit}>
@@ -98,6 +132,26 @@ const CodeImportant = styled.span`
 
 const StyledDivider = styled(Divider)`
   height: 100%;
+`;
+
+const StyledTokenInput = styled(Input.Password)`
+  width: calc(100% - 120px);
+  .ant-input-prefix {
+    order: 1;
+    margin-left: 4px;
+    color: rgb(0, 0, 0, 0.45);
+    :hover {
+      color: rgba(0, 0, 0, 0.88);
+    }
+  }
+  .ant-input-suffix {
+    order: 2;
+  }
+`;
+
+const StyledRegenerateTokenButton = styled(Button)`
+  width: "115px";
+  margin-left: 5px;
 `;
 
 export default MyIntegrationForm;

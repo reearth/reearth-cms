@@ -84,4 +84,6 @@ unsupported entity: サポートされていないエンティティ
 unsupported operation: サポートされていない処理です。
 uuid is required: UUIDは必須です。
 value is required: 値は必須です。
+views are not in the same model: ビューが同じモデルに存在していません。
+views length mismatch: ビューの総数が正しくありません。
 workspace id is required: ワークスペースIDは必須です。

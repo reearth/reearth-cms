@@ -101,6 +101,7 @@ export type Group = {
   description: string;
   key: string;
   schema: Schema;
+  order: number;
 };
 
 export type ModelFormValues = {
