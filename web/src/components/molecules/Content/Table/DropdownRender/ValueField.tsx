@@ -8,7 +8,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { FilterType } from "@reearth-cms/components/molecules/Content/Table/types";
 
 type Props = {
-  type: FilterType | "Person";
+  type?: FilterType | "Person";
   defaultValue?: string;
   options?: {
     value: string;
