@@ -6,20 +6,23 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Input from "@reearth-cms/components/atoms/Input";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
-import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
+import { ExtendedColumns, Operator } from "@reearth-cms/components/molecules/Content/Table/types";
+import { TimeOperator } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 import filterOptionsGet from "./filterOptionsGet";
+import ValueField from "./ValueField";
+import valueOptionsGet from "./valueOptionsGet";
 
 type Props = {
-  items?: (ItemType & { column: ExtendedColumns; members?: Member[] })[];
+  items?: (ItemType & { column: ExtendedColumns })[];
+  members?: Member[];
 };
 
-const AdvancedFilter: React.FC<Props> = ({ items }: Props) => {
+const AdvancedFilter: React.FC<Props> = ({ items, members }: Props) => {
   const t = useT();
   const [isShowInputField, setIsShowInputField] = useState(true);
   const [selectedColumn, setSelectedColumn] = useState<ExtendedColumns>();
@@ -33,9 +36,23 @@ const AdvancedFilter: React.FC<Props> = ({ items }: Props) => {
   }));
 
   const filterOptions = filterOptionsGet(true, selectedColumn);
+  const valueOptions = valueOptionsGet(members, selectedColumn);
 
   const onColumnSelect = useCallback((_: any, option: { column: ExtendedColumns }) => {
     setSelectedColumn(option.column);
+  }, []);
+
+  const onFilterSelect = useCallback((value: Operator, option: { operatorType: string }) => {
+    if (
+      option.operatorType === "nullable" ||
+      value === TimeOperator.OfThisWeek ||
+      value === TimeOperator.OfThisMonth ||
+      value === TimeOperator.OfThisYear
+    ) {
+      setIsShowInputField(false);
+    } else {
+      setIsShowInputField(true);
+    }
   }, []);
 
   return (
@@ -58,12 +75,13 @@ const AdvancedFilter: React.FC<Props> = ({ items }: Props) => {
                   <Select
                     style={{ width: 170 }}
                     options={filterOptions}
+                    onSelect={onFilterSelect}
                     getPopupContainer={trigger => trigger.parentNode}
                   />
                 </CustomFormItem>
-                {isShowInputField && (
+                {selectedColumn?.type && isShowInputField && (
                   <CustomFormItem>
-                    <Input placeholder="Value" />
+                    {<ValueField type={selectedColumn.type} options={valueOptions} />}
                   </CustomFormItem>
                 )}
               </Space>
@@ -85,19 +103,23 @@ const AdvancedFilter: React.FC<Props> = ({ items }: Props) => {
                       <Select
                         style={{ width: 170 }}
                         options={options}
+                        onSelect={onColumnSelect}
                         getPopupContainer={trigger => trigger.parentNode}
                       />
                     </CustomFormItem>
                     <CustomFormItem {...restField} name={[name, "condition"]}>
                       <Select
                         style={{ width: 170 }}
-                        options={options}
+                        options={filterOptions}
+                        onSelect={onFilterSelect}
                         getPopupContainer={trigger => trigger.parentNode}
                       />
                     </CustomFormItem>
-                    <CustomFormItem {...restField} name={[name, "value"]}>
-                      <Input placeholder="Value" />
-                    </CustomFormItem>
+                    {selectedColumn?.type && isShowInputField && (
+                      <CustomFormItem>
+                        {<ValueField type={selectedColumn.type} options={valueOptions} />}
+                      </CustomFormItem>
+                    )}
                   </Space>
                 </div>
               ))}

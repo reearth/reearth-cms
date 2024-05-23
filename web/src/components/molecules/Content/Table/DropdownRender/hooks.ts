@@ -1,5 +1,5 @@
 import { Dayjs } from "dayjs";
-import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
+import { useRef, useEffect, useCallback, useState, Dispatch, SetStateAction } from "react";
 
 import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -18,6 +18,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 
 import filterOptionsGet from "./filterOptionsGet";
+import valueOptionsGet from "./valueOptionsGet";
 
 export default (
   filter: DropdownFilterType,
@@ -44,41 +45,7 @@ export default (
 
   const options = filterOptionsGet(isFilter, filter);
 
-  const valueOptions = useMemo<
-    {
-      value: string;
-      label: string;
-      color?: string;
-    }[]
-  >(() => {
-    const options = [];
-
-    if (filter.type === "Select") {
-      if (filter.typeProperty?.values) {
-        for (const value of Object.values(filter.typeProperty.values)) {
-          options.push({ value, label: value });
-        }
-      }
-    } else if (filter.type === "Tag") {
-      if (filter?.typeProperty?.tags) {
-        for (const tag of Object.values(filter.typeProperty.tags)) {
-          options.push({ value: tag.id, label: tag.name, color: tag.color });
-        }
-      }
-    } else if (filter.type === "Person") {
-      if (filter?.members?.length) {
-        for (const member of Object.values(filter.members)) {
-          if ("user" in member) {
-            options.push({ value: member.user?.name, label: member.user?.name });
-          }
-        }
-      }
-    } else if (filter.type === "Bool" || filter.type === "Checkbox") {
-      options.push({ value: "true", label: "True" }, { value: "false", label: "False" });
-    }
-
-    return options;
-  }, [filter]);
+  const valueOptions = valueOptionsGet(filter?.members, filter);
 
   const filterOption = useRef<{ value: Operator | SortDirection; operatorType: string }>();
   const filterValue = useRef<string>();

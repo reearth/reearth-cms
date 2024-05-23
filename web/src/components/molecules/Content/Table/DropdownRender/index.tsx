@@ -1,16 +1,11 @@
 import styled from "@emotion/styled";
-import dayjs from "dayjs";
 import { Dispatch, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import DatePicker from "@reearth-cms/components/atoms/DatePicker";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Form from "@reearth-cms/components/atoms/Form";
-import Input from "@reearth-cms/components/atoms/Input";
-import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import Select from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
-import Tag from "@reearth-cms/components/atoms/Tag";
 import {
   DefaultFilterValueType,
   DropdownFilterType,
@@ -19,8 +14,7 @@ import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/V
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
-
-const { Option } = Select;
+import ValueField from "./ValueField";
 
 type Props = {
   filter: DropdownFilterType;
@@ -83,51 +77,17 @@ const DropdownRender: React.FC<Props> = ({
         </StyledFormItem>
         {isFilter && isShowInputField && (
           <StyledFormItem name="value">
-            {filter.type === "Select" ||
-            filter.type === "Tag" ||
-            filter.type === "Person" ||
-            filter.type === "Bool" ||
-            filter.type === "Checkbox" ? (
-              <Select
-                placeholder="Select the value"
+            {
+              <ValueField
+                type={filter.type}
+                defaultValue={defaultValue?.value}
+                options={valueOptions}
                 onSelect={onValueSelect}
-                defaultValue={defaultValue?.value?.toString()}
-                getPopupContainer={trigger => trigger.parentNode}>
-                {valueOptions.map(option => (
-                  <Option key={option.value} value={option.value} label={option.label}>
-                    {filter.type === "Tag" ? (
-                      <Tag color={option.color?.toLocaleLowerCase()}>{option.label}</Tag>
-                    ) : (
-                      option.label
-                    )}
-                  </Option>
-                ))}
-              </Select>
-            ) : filter.type === "Integer" /*|| filter.type === "Float"*/ ? (
-              <InputNumber
-                onChange={onNumberChange}
-                stringMode
-                defaultValue={defaultValue?.value}
-                style={{ width: "100%" }}
-                placeholder="Enter the value"
+                onNumberChange={onNumberChange}
+                onDateChange={onDateChange}
+                onInputChange={onInputChange}
               />
-            ) : filter.type === "Date" ? (
-              <DatePicker
-                onChange={onDateChange}
-                style={{ width: "100%" }}
-                placeholder="Select the date"
-                showNow={false}
-                defaultValue={
-                  defaultValue && defaultValue.value !== "" ? dayjs(defaultValue.value) : undefined
-                }
-              />
-            ) : (
-              <Input
-                onChange={onInputChange}
-                defaultValue={defaultValue?.value}
-                placeholder="Enter the value"
-              />
-            )}
+            }
           </StyledFormItem>
         )}
       </Container>

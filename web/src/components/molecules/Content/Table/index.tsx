@@ -467,7 +467,6 @@ const ContentTable: React.FC<Props> = ({
             key: column.key,
             label: column.title,
             column: column,
-            members: currentWorkspace?.members,
             onClick: () => {
               optionClick(isFilter.current, column);
             },
@@ -482,6 +481,7 @@ const ContentTable: React.FC<Props> = ({
       if (key === "advancedFilter") {
         setItems(getOptions(false));
         setConditionMenuOpen(true);
+        setSelectedFilter(undefined);
       } else {
         setInputValue("");
         setItems(getOptions(true));
@@ -658,11 +658,11 @@ const ContentTable: React.FC<Props> = ({
                 key={Math.random()}
               />
             ) : (
-              <AdvancedFilter items={items} />
+              <AdvancedFilter items={items} members={currentWorkspace?.members} />
             )
           }
           trigger={["click"]}
-          placement="bottom"
+          placement={selectedFilter ? "bottom" : "bottomRight"}
           arrow={false}
           open={conditionMenuOpen}
           onOpenChange={handleConditionMenuOpenChange}>
@@ -687,6 +687,7 @@ const ContentTable: React.FC<Props> = ({
     conditionMenuOpen,
     controlMenuOpen,
     currentView,
+    currentWorkspace?.members,
     filters.length,
     handleConditionMenuOpenChange,
     handleControlMenuOpenChange,
