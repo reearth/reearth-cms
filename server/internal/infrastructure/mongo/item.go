@@ -101,16 +101,6 @@ func (r *Item) FindByModel(ctx context.Context, modelID id.ModelID, ref *version
 	return res, pi, err
 }
 
-func (r *Item) FindByProject(ctx context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(projectID) {
-		return nil, usecasex.EmptyPageInfo(), repo.ErrOperationDenied
-	}
-	res, pi, err := r.paginate(ctx, bson.M{
-		"project": projectID.String(),
-	}, ref, nil, pagination)
-	return res, pi, err
-}
-
 func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fields []repo.FieldAndValue, ref *version.Ref) (item.VersionedList, error) {
 	filters := make([]bson.M, 0, len(fields))
 	for _, f := range fields {

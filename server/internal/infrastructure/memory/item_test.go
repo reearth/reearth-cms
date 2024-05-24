@@ -179,23 +179,6 @@ func TestItem_FindBySchema(t *testing.T) {
 	assert.Nil(t, got)
 }
 
-func TestItem_FindByProject(t *testing.T) {
-	ctx := context.Background()
-	pid := id.NewProjectID()
-	i1 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	i2 := item.New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID()).MustBuild()
-	r := NewItem().Filtered(repo.ProjectFilter{
-		Readable: []id.ProjectID{pid},
-		Writable: []id.ProjectID{pid},
-	})
-	_ = r.Save(ctx, i1)
-	_ = r.Save(ctx, i2)
-
-	got, _, err := r.FindByProject(ctx, pid, nil, nil)
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(got.Unwrap()))
-}
-
 func TestItem_FindByFieldValue(t *testing.T) {
 	ctx := context.Background()
 	mID := id.NewModelID()

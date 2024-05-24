@@ -2,9 +2,10 @@ package mongo
 
 import (
 	"context"
-	"github.com/reearth/reearthx/account/accountdomain"
 	"testing"
 	"time"
+
+	"github.com/reearth/reearthx/account/accountdomain"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
@@ -269,56 +270,6 @@ func TestItem_FindBySchema(t *testing.T) {
 			got, _, err := r.FindBySchema(ctx, tc.Input, nil, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
 			assert.Equal(tt, tc.Expected, got.Unwrap())
 			assert.Equal(tt, tc.ExpectedErr, err)
-		})
-	}
-}
-
-func TestItem_FindByProject(t *testing.T) {
-	defer util.MockNow(time.Now().Truncate(time.Millisecond).UTC())()
-	pid := id.NewProjectID()
-	sid := id.NewSchemaID()
-	i1 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
-	i2 := item.New().NewID().Schema(sid).Model(id.NewModelID()).Thread(id.NewThreadID()).Project(pid).MustBuild()
-	tests := []struct {
-		Name     string
-		Input    id.ProjectID
-		RepoData item.List
-		Expected item.List
-	}{
-		{
-			Name:     "must find two items (first 10)",
-			Input:    pid,
-			RepoData: item.List{i1, i2},
-			Expected: item.List{i1, i2},
-		},
-		{
-			Name:     "must not find any item",
-			Input:    id.NewProjectID(),
-			RepoData: item.List{i1, i2},
-		},
-	}
-
-	init := mongotest.Connect(t)
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.Name, func(tt *testing.T) {
-			tt.Parallel()
-
-			client := mongox.NewClientWithDatabase(init(t))
-
-			repo := NewItem(client).Filtered(repo.ProjectFilter{
-				Readable: []id.ProjectID{pid},
-				Writable: []id.ProjectID{pid},
-			})
-			ctx := context.Background()
-			for _, i := range tc.RepoData {
-				err := repo.Save(ctx, i)
-				assert.NoError(tt, err)
-			}
-
-			got, _, _ := repo.FindByProject(ctx, tc.Input, nil, usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap())
-			assert.Equal(tt, tc.Expected, got.Unwrap())
 		})
 	}
 }
