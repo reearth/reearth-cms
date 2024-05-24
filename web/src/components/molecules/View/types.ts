@@ -3,6 +3,7 @@ export type View = {
   name: string;
   modelId: string;
   projectId: string;
+  order: number;
   sort?: ItemSort;
   filter?: ConditionInput;
   columns?: Column[];

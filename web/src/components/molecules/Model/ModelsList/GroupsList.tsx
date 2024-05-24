@@ -14,7 +14,7 @@ type Props = {
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
-  onUpdateGroupsOrder: (groupIds: string[]) => void;
+  onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
 };
 
 const GroupsList: React.FC<Props> = ({

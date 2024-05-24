@@ -14,7 +14,7 @@ interface Props {
   onClose: () => void;
   onCreate?: (data: ModelFormValues) => Promise<void>;
   onModelSelect: (modelId: string) => void;
-  onUpdateModelsOrder: (modelIds: string[]) => void;
+  onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
 }
 
 const Models: React.FC<Props> = ({

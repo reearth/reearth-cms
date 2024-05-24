@@ -266,6 +266,96 @@ func TestIntegration_Update(t *testing.T) {
 	}
 }
 
+func TestIntegration_RegenerateToken(t *testing.T) {
+	ts := testSuite()
+
+	wid := accountdomain.NewWorkspaceID()
+	uId := accountdomain.NewUserID()
+	u := user.New().Name("aaa").ID(uId).Email("aaa@bbb.com").Workspace(wid).MustBuild()
+
+	type args struct {
+		id     integration.ID
+	}
+	tests := []struct {
+		name     string
+		operator *usecase.Operator
+		seeds    []*integration.Integration
+		args     args
+		want     *integration.Integration
+		wantErr  error
+	}{
+		{
+			name:     "update",
+			operator: ts.Op,
+			seeds:    []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+			},
+			want: func() *integration.Integration {
+				return ts.I1.Clone()
+			}(),
+			wantErr: nil,
+		},
+		{
+			name: "invalid operator",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{},
+			},
+			seeds: []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name: "operation denied",
+			operator: &usecase.Operator{
+				AcOperator: &accountusecase.Operator{
+					User:               lo.ToPtr(u.ID()),
+					ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+				},
+			},
+			seeds: []*integration.Integration{ts.I1},
+			args: args{
+				id: ts.IId1,
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			defer memory.MockNow(db, ts.Now)
+			for _, s := range tt.seeds {
+				err := db.Integration.Save(ctx, s.Clone())
+				assert.NoError(t, err)
+			}
+
+			i := Integration{
+				repos: db,
+			}
+			got, err := i.RegenerateToken(ctx, tt.args.id, tt.operator)
+			if tt.wantErr != nil {
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.False(t, got.ID().IsEmpty())
+			assertIntegrationEq(t, tt.want, got)
+
+			got, err = db.Integration.FindByID(ctx, tt.args.id)
+			assert.NoError(t, err)
+			assertIntegrationEq(t, tt.want, got)
+		})
+	}
+}
+
 func TestIntegration_Delete(t *testing.T) {
 	ts := testSuite()
 
