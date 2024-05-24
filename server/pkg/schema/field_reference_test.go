@@ -31,6 +31,16 @@ func TestFieldReference_CorrespondingFieldID(t *testing.T) {
 	assert.Equal(t, cf, f.CorrespondingFieldID())
 }
 
+func TestFieldReference_IsTowWay(t *testing.T) {
+	m := id.NewModelID()
+	s := id.NewSchemaID()
+	cf := id.NewFieldID().Ref()
+	f := NewReference(m, s, cf, nil)
+	assert.True(t, f.IsTowWay())
+	f = NewReference(m, s, nil, nil)
+	assert.False(t, f.IsTowWay())
+}
+
 func TestFieldReference_Model(t *testing.T) {
 	m := id.NewModelID()
 	s := id.NewSchemaID()

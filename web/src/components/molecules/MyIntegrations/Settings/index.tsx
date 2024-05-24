@@ -9,16 +9,22 @@ export type Props = {
   integration: Integration;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
   onIntegrationDelete: () => Promise<void>;
+  onRegenerateToken: () => Promise<void>;
 };
 
 const MyIntegrationSettings: React.FC<Props> = ({
   integration,
   onIntegrationUpdate,
   onIntegrationDelete,
+  onRegenerateToken,
 }) => {
   return (
     <Wrapper>
-      <MyIntegrationForm integration={integration} onIntegrationUpdate={onIntegrationUpdate} />
+      <MyIntegrationForm
+        integration={integration}
+        onIntegrationUpdate={onIntegrationUpdate}
+        onRegenerateToken={onRegenerateToken}
+      />
       <DangerZone onIntegrationDelete={onIntegrationDelete} />
     </Wrapper>
   );

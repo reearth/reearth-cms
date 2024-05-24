@@ -155,6 +155,32 @@ func (i Integration) Delete(ctx context.Context, integrationId id.IntegrationID,
 		})
 }
 
+func (i Integration) RegenerateToken(ctx context.Context, iId id.IntegrationID, operator *usecase.Operator) (*integration.Integration, error) {
+	if operator.AcOperator.User == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
+		func(ctx context.Context) (*integration.Integration, error) {
+			in, err := i.repos.Integration.FindByID(ctx, iId)
+			if err != nil {
+				return nil, err
+			}
+
+			if in.Developer() != *operator.AcOperator.User {
+				return nil, interfaces.ErrOperationDenied
+			}
+
+			in.RandomToken()
+			in.SetUpdatedAt(time.Now())
+
+			if err := i.repos.Integration.Save(ctx, in); err != nil {
+				return nil, err
+			}
+
+			return in, nil
+		})
+}
+
 func (i Integration) CreateWebhook(ctx context.Context, iId id.IntegrationID, param interfaces.CreateWebhookParam, operator *usecase.Operator) (*integration.Webhook, error) {
 	if operator.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
