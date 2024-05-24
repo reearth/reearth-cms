@@ -285,6 +285,10 @@ func (i Item) Create(ctx context.Context, param interfaces.CreateItemParam, oper
 			return nil, err
 		}
 
+		if isMetadata {
+			return vi, nil
+		}
+
 		if err := i.event(ctx, Event{
 			Project:   prj,
 			Workspace: s.Workspace(),
