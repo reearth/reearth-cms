@@ -70,8 +70,9 @@ import Linked from "./Icons/linked.svg";
 import UnlinkSolid from "./Icons/linkSlashSolid.svg";
 import LinkSolid from "./Icons/linkSolid.svg";
 import ListBullets from "./Icons/listBullets.svg";
+import MapPin from "./Icons/mapPin.svg";
+import MapPinFilled from "./Icons/mapPinFilled.svg";
 import MarkDown from "./Icons/markDown.svg";
-import Marker from "./Icons/marker.svg";
 import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
 import Polygon from "./Icons/polygon.svg";
@@ -162,7 +163,8 @@ export default {
   filter: FilterOutlined,
   workspaceSettings: WorkspaceSettings,
   geometry: Geometry,
-  marker: Marker,
+  mapPin: MapPin,
+  mapPinFilled: MapPinFilled,
   polyline: Polyline,
   polygon: Polygon,
 };
