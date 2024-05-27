@@ -3,13 +3,19 @@ import { Cartesian3, Viewer as CesiumViewer, Cartographic, Math, SceneMode } fro
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
-import { CesiumComponentRef, CesiumMovementEvent, Viewer } from "resium";
+import {
+  CesiumComponentRef,
+  CesiumMovementEvent,
+  Viewer,
+  ScreenSpaceCameraController,
+  RootEventTarget,
+} from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Marker from "@reearth-cms/components/atoms/Icon/Icons/marker.svg";
+import Marker from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
@@ -460,49 +466,72 @@ const ContentForm: React.FC<Props> = ({
 
   const viewer = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const positionsRef = useRef<number[][]>([]);
+  type GeoType = "point" | "polyline" | "polygon";
+  const [geoValues, setGeoValues] = useState<number[][]>([]);
+  const [geoType, setGeoType] = useState<GeoType>();
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
 
-  const handleClick = useCallback((_movement: CesiumMovementEvent, type = "point") => {
-    if (_movement.position && viewer.current?.cesiumElement) {
-      const ellipsoid = viewer.current.cesiumElement.scene.globe.ellipsoid;
-      const cartesian = viewer.current.cesiumElement.camera.pickEllipsoid(
-        _movement.position,
-        ellipsoid,
-      );
-      if (cartesian) {
-        if (type === "point") {
-          viewer.current.cesiumElement.entities.add({
-            position: cartesian,
-            billboard: {
-              image: Marker,
-              width: 30,
-              height: 30,
-            },
-          });
-        } else {
+  const geoTypeSet = useCallback((geoType?: GeoType) => {
+    setGeoType(geoType);
+  }, []);
+
+  const pinButtonClick = useCallback(() => {
+    geoTypeSet(geoType ? undefined : "point");
+  }, [geoType, geoTypeSet]);
+
+  const editButtonClick = useCallback(() => {
+    setIsEditMode(prev => !prev);
+    setEnableTranslate(prev => !prev);
+  }, []);
+
+  const handleClick = useCallback(
+    (_movement: CesiumMovementEvent) => {
+      if (!geoType) return;
+      if (_movement.position && viewer.current?.cesiumElement) {
+        const ellipsoid = viewer.current.cesiumElement.scene.globe.ellipsoid;
+        const cartesian = viewer.current.cesiumElement.camera.pickEllipsoid(
+          _movement.position,
+          ellipsoid,
+        );
+        if (cartesian) {
           const cartographic = Cartographic.fromCartesian(cartesian);
           const lon = Math.toDegrees(cartographic.longitude);
           const lat = Math.toDegrees(cartographic.latitude);
-          positionsRef.current?.push([lon, lat]);
-          if (type === "polyline") {
+          if (geoType === "point") {
             viewer.current.cesiumElement.entities.add({
               position: cartesian,
-              polyline: {
-                positions: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
+              billboard: {
+                image: Marker,
+                width: 30,
+                height: 30,
               },
             });
+            geoTypeSet();
+            setGeoValues(prev => [...prev, [lon, lat]]);
           } else {
-            viewer.current.cesiumElement.entities.add({
-              position: cartesian,
-              polygon: {
-                hierarchy: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
-                extrudedHeight: 50000,
-              },
-            });
+            positionsRef.current?.push([lon, lat]);
+            if (geoType === "polyline") {
+              viewer.current.cesiumElement.entities.add({
+                position: cartesian,
+                polyline: {
+                  positions: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
+                },
+              });
+            } else {
+              viewer.current.cesiumElement.entities.add({
+                position: cartesian,
+                polygon: {
+                  hierarchy: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
+                  extrudedHeight: 50000,
+                },
+              });
+            }
           }
         }
       }
-    }
-  }, []);
+    },
+    [geoType, geoTypeSet],
+  );
 
   const handleZoom = useCallback((isZoomIn: boolean) => {
     if (viewer.current?.cesiumElement) {
@@ -516,6 +545,52 @@ const ContentForm: React.FC<Props> = ({
         camera.moveBackward(moveRate);
       }
     }
+  }, []);
+
+  const [enableTranslate, setEnableTranslate] = useState(true);
+  const [entityId, setEntityId] = useState("");
+
+  const onMouseDown = useCallback(
+    (_: CesiumMovementEvent, target: RootEventTarget) => {
+      if (!isEditMode || !("id" in target) || typeof target.id === "string") return;
+      setEntityId(target.id?.id ?? "");
+      if (target?.id) {
+        setEnableTranslate(false);
+      } else {
+        setEnableTranslate(true);
+      }
+    },
+    [isEditMode],
+  );
+
+  const onMouseMove = useCallback(
+    (movement: CesiumMovementEvent, _: RootEventTarget) => {
+      if (entityId && viewer.current?.cesiumElement && movement.endPosition) {
+        const cartesian = viewer.current.cesiumElement.camera.pickEllipsoid(
+          movement.endPosition,
+          viewer.current.cesiumElement.scene.globe.ellipsoid,
+        );
+        const point = viewer.current.cesiumElement.entities.getById(entityId);
+        if (point && cartesian) {
+          point.position = cartesian as any;
+          const cartographic = Cartographic.fromCartesian(cartesian);
+          const lon = Math.toDegrees(cartographic.longitude);
+          const lat = Math.toDegrees(cartographic.latitude);
+          console.log(lon, lat);
+        }
+      }
+    },
+    [entityId],
+  );
+
+  const onMouseUp = useCallback(() => {
+    setEntityId("");
+  }, []);
+
+  const [fullScreen, setFullScreen] = useState(false);
+
+  const handleFullScreen = useCallback(() => {
+    setFullScreen(prev => !prev);
   }, []);
 
   return (
@@ -556,8 +631,24 @@ const ContentForm: React.FC<Props> = ({
           }
         />
         <FormItemsWrapper>
-          <ViewerWrapper>
-            <StyledButton
+          <ViewerWrapper fullScreen={fullScreen}>
+            <TopButton
+              top={7}
+              left={200}
+              icon={<Icon icon="mapPin" size={22} />}
+              onClick={pinButtonClick}
+              selected={geoType === "point"}
+            />
+            {geoValues.length > 0 && (
+              <TopButton
+                top={7}
+                left={240}
+                icon={<Icon icon="edit" size={20} />}
+                onClick={editButtonClick}
+                selected={isEditMode}
+              />
+            )}
+            <RightButton
               top={50}
               right={5}
               icon={<Icon icon="plus" />}
@@ -565,7 +656,7 @@ const ContentForm: React.FC<Props> = ({
                 handleZoom(true);
               }}
             />
-            <StyledButton
+            <RightButton
               top={90}
               right={5}
               icon={<Icon icon="minus" />}
@@ -573,23 +664,34 @@ const ContentForm: React.FC<Props> = ({
                 handleZoom(false);
               }}
             />
-            <Viewer
+            <RightButton
+              bottom={20}
+              right={5}
+              icon={<Icon icon="fullscreen" />}
+              onClick={handleFullScreen}
+            />
+            <StyledViewer
+              infoBox={false}
               navigationHelpButton={false}
               homeButton={false}
               projectionPicker={false}
               sceneModePicker={true}
               sceneMode={SceneMode.SCENE2D}
               baseLayerPicker={true}
-              fullscreenButton={true}
+              fullscreenButton={false}
               vrButton={false}
-              selectionIndicator={false}
+              selectionIndicator={true}
               timeline={false}
               animation={false}
               geocoder={false}
               shouldAnimate={true}
-              onClick={movement => handleClick(movement, "polyline")}
-              ref={viewer}
-            />
+              onClick={handleClick}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              ref={viewer}>
+              <ScreenSpaceCameraController enableTranslate={enableTranslate} />
+            </StyledViewer>
           </ViewerWrapper>
           {model?.schema.fields.map(field => {
             const FieldComponent =
@@ -788,15 +890,34 @@ const FormItemsWrapper = styled.div`
   padding: 36px;
 `;
 
-const ViewerWrapper = styled.div`
+const ViewerWrapper = styled.div<{ fullScreen: boolean }>`
   position: relative;
+  ${({ fullScreen }) =>
+    fullScreen &&
+    "position: fixed; left: 0; right: 0; top: 0; bottom: 0; background-color: #00000080; z-index: 1;"};
 `;
 
-const StyledButton = styled(Button)<{ top: number; right: number }>`
+const StyledViewer = styled(Viewer)`
+  height: 100%;
+`;
+
+const RightButton = styled(Button)<{
+  top?: number;
+  right?: number;
+  bottom?: number;
+  left?: number;
+}>`
   position: absolute;
-  top: ${({ top }) => `${top}px`};
-  right: ${({ right }) => `${right}px`};
+  top: ${({ top }) => (top ? `${top}px` : undefined)};
+  right: ${({ right }) => (right ? `${right}px` : undefined)};
+  bottom: ${({ bottom }) => (bottom ? `${bottom}px` : undefined)};
+  left: ${({ left }) => (left ? `${left}px` : undefined)};
   z-index: 1;
+`;
+
+const TopButton = styled(RightButton)<{ selected: boolean }>`
+  color: ${({ selected }) => (selected ? "#1677ff" : "#434343")};
+  background-color: ${({ selected }) => (selected ? "#e6f4ff" : undefined)};
 `;
 
 const SideBarWrapper = styled.div`
