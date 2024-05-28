@@ -81,6 +81,7 @@ import Tag from "./Icons/tag.svg";
 import TerminalWindow from "./Icons/terminalWindow.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
+import Trash from "./Icons/trash.svg";
 import Unzip from "./Icons/unzip.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
 
@@ -167,4 +168,5 @@ export default {
   mapPinFilled: MapPinFilled,
   polyline: Polyline,
   polygon: Polygon,
+  trash: Trash,
 };

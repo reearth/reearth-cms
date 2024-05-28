@@ -467,12 +467,14 @@ const ContentForm: React.FC<Props> = ({
   const viewer = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const positionsRef = useRef<number[][]>([]);
   type GeoType = "point" | "polyline" | "polygon";
-  const [geoValues, setGeoValues] = useState<number[][]>([]);
+  type ModeType = "add" | "edit" | "delete";
+  const [geoValues, setGeoValues] = useState<Map<string, number[]>>(new Map());
   const [geoType, setGeoType] = useState<GeoType>();
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [mode, setMode] = useState<ModeType>();
 
   const geoTypeSet = useCallback((geoType?: GeoType) => {
     setGeoType(geoType);
+    setMode(geoType && "add");
   }, []);
 
   const pinButtonClick = useCallback(() => {
@@ -480,8 +482,13 @@ const ContentForm: React.FC<Props> = ({
   }, [geoType, geoTypeSet]);
 
   const editButtonClick = useCallback(() => {
-    setIsEditMode(prev => !prev);
+    setMode(prev => (prev === "edit" ? undefined : "edit"));
     setEnableTranslate(prev => !prev);
+  }, []);
+
+  const deleteButtonClick = useCallback(() => {
+    setMode(prev => (prev === "delete" ? undefined : "delete"));
+    setEnableTranslate(true);
   }, []);
 
   const handleClick = useCallback(
@@ -498,7 +505,7 @@ const ContentForm: React.FC<Props> = ({
           const lon = Math.toDegrees(cartographic.longitude);
           const lat = Math.toDegrees(cartographic.latitude);
           if (geoType === "point") {
-            viewer.current.cesiumElement.entities.add({
+            const entity = viewer.current.cesiumElement.entities.add({
               position: cartesian,
               billboard: {
                 image: Marker,
@@ -507,7 +514,10 @@ const ContentForm: React.FC<Props> = ({
               },
             });
             geoTypeSet();
-            setGeoValues(prev => [...prev, [lon, lat]]);
+            setGeoValues(prev => {
+              prev.set(entity.id, [lon, lat]);
+              return new Map(prev);
+            });
           } else {
             positionsRef.current?.push([lon, lat]);
             if (geoType === "polyline") {
@@ -552,15 +562,25 @@ const ContentForm: React.FC<Props> = ({
 
   const onMouseDown = useCallback(
     (_: CesiumMovementEvent, target: RootEventTarget) => {
-      if (!isEditMode || !("id" in target) || typeof target.id === "string") return;
-      setEntityId(target.id?.id ?? "");
-      if (target?.id) {
-        setEnableTranslate(false);
-      } else {
-        setEnableTranslate(true);
+      if (!("id" in target) || typeof target.id === "string") return;
+      if (mode === "edit") {
+        if (target?.id) {
+          setEntityId(target.id.id);
+          setEnableTranslate(false);
+        } else {
+          setEntityId("");
+          setEnableTranslate(true);
+        }
+      } else if (mode === "delete" && viewer.current?.cesiumElement && target?.id) {
+        const id = target.id.id;
+        viewer.current.cesiumElement.entities.removeById(id);
+        setGeoValues(prev => {
+          prev.delete(id);
+          return new Map(prev);
+        });
       }
     },
-    [isEditMode],
+    [mode],
   );
 
   const onMouseMove = useCallback(
@@ -576,7 +596,10 @@ const ContentForm: React.FC<Props> = ({
           const cartographic = Cartographic.fromCartesian(cartesian);
           const lon = Math.toDegrees(cartographic.longitude);
           const lat = Math.toDegrees(cartographic.latitude);
-          console.log(lon, lat);
+          setGeoValues(prev => {
+            prev.set(entityId, [lon, lat]);
+            return new Map(prev);
+          });
         }
       }
     },
@@ -637,16 +660,25 @@ const ContentForm: React.FC<Props> = ({
               left={200}
               icon={<Icon icon="mapPin" size={22} />}
               onClick={pinButtonClick}
-              selected={geoType === "point"}
+              selected={mode === "add"}
             />
-            {geoValues.length > 0 && (
-              <TopButton
-                top={7}
-                left={240}
-                icon={<Icon icon="edit" size={20} />}
-                onClick={editButtonClick}
-                selected={isEditMode}
-              />
+            {geoValues.size > 0 && (
+              <>
+                <TopButton
+                  top={7}
+                  left={250}
+                  icon={<Icon icon="edit" size={20} />}
+                  onClick={editButtonClick}
+                  selected={mode === "edit"}
+                />
+                <TopButton
+                  top={7}
+                  left={300}
+                  icon={<Icon icon="trash" size={20} />}
+                  onClick={deleteButtonClick}
+                  selected={mode === "delete"}
+                />
+              </>
             )}
             <RightButton
               top={50}
