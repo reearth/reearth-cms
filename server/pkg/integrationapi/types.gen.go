@@ -26,6 +26,7 @@ const (
 
 // Defines values for AssetPreviewType.
 const (
+	Csv        AssetPreviewType = "csv"
 	Geo        AssetPreviewType = "geo"
 	Geo3dTiles AssetPreviewType = "geo_3d_Tiles"
 	GeoMvt     AssetPreviewType = "geo_mvt"
