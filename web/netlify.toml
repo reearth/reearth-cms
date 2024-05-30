@@ -7,4 +7,4 @@
   to = "/index.html"
 
 [context.deploy-preview.environment]
-  NODE_VERSION = "18.16.1"
+  NODE_VERSION = "20.11.0"
