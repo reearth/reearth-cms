@@ -47,7 +47,7 @@ func (l List) OrderByIDs(ids id.ViewIDList) List {
 			}
 		}
 	}
-	return res.Ordered()
+	return res
 }
 
 func (l List) Ordered() List {

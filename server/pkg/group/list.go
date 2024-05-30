@@ -51,7 +51,7 @@ func (l List) OrderByIDs(ids id.GroupIDList) List {
 			}
 		}
 	}
-	return res.Ordered()
+	return res
 }
 
 func (l List) Ordered() List {
