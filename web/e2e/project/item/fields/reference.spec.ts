@@ -120,7 +120,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("cell", { name: "text1" }).locator("span").first()).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.locator("#root").getByText("text1")).toBeVisible();
   await page.getByRole("button", { name: "Refer to item" }).click();
   await page.getByRole("row").getByRole("button").nth(1).hover();
@@ -270,7 +270,7 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await expect(
     page.getByRole("cell", { name: "text2", exact: true }).locator("span").first(),
   ).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await page.getByRole("button", { name: "Refer to item" }).click();
   await page.getByRole("row").getByRole("button").nth(0).hover();
   await page.getByRole("row").getByRole("button").nth(0).click();

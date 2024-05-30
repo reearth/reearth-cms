@@ -71,24 +71,6 @@ func (r *Item) FindBySchema(_ context.Context, schemaID id.SchemaID, ref *versio
 	return res, nil, nil
 }
 
-func (r *Item) FindByProject(_ context.Context, projectID id.ProjectID, ref *version.Ref, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
-	if r.err != nil {
-		return nil, nil, r.err
-	}
-
-	var res item.VersionedList
-	r.data.Range(func(k item.ID, v *version.Values[*item.Item]) bool {
-		itv := v.Get(ref.OrLatest().OrVersion())
-		it := itv.Value()
-		if it.Project() == projectID {
-			res = append(res, itv)
-		}
-		return true
-	})
-
-	return res, nil, nil
-}
-
 func (r *Item) FindByModel(_ context.Context, modelID id.ModelID, ref *version.Ref, sort *usecasex.Sort, pagination *usecasex.Pagination) (item.VersionedList, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err

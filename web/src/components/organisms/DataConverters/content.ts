@@ -103,6 +103,16 @@ export const fromGraphQLRequest = (request: GQLRequest | undefined): Request | u
       modelName: item?.item?.value.model.name,
       initialValues: initialValuesGet(item.item?.value.fields),
       schema: item.item?.value.schema ? item.item?.value.schema : undefined,
+      referencedItems:
+        item.item?.value.referencedItems?.map(item => ({
+          id: item.id,
+          title: item.title ?? "",
+          schemaId: item.schemaId,
+          createdBy: item.createdBy?.name ?? "",
+          status: item.status,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        })) ?? [],
     })),
   };
 };

@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
+import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import {
   Field,
   FieldModalTabs,
@@ -190,6 +191,21 @@ export default (
     }
   }, []);
 
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (selectedField) return;
+      keyAutoFill(e, { form, key: "key" });
+    },
+    [selectedField, form],
+  );
+
+  const handleKeyChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      keyReplace(e, { form, key: "key" });
+    },
+    [form],
+  );
+
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
@@ -239,6 +255,8 @@ export default (
     multipleValue,
     handleMultipleChange,
     handleTabChange,
+    handleNameChange,
+    handleKeyChange,
     handleSubmit,
     handleModalReset,
     handleModalCancel,

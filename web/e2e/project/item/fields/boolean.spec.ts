@@ -34,7 +34,7 @@ test("Boolean field creating and updating has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByRole("switch", { name: "close" })).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("boolean1").click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);

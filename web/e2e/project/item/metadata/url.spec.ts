@@ -51,7 +51,7 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByLabel("url1")).toHaveValue("http://test1.com");
   await page.getByLabel("Back").click();
   await expect(page.getByRole("link", { name: "http://test1.com" })).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("url1").click();
   await page.getByLabel("url1").fill("http://test2.com");
   await page.getByLabel("Back").click();
@@ -64,7 +64,7 @@ test("Url metadata creating and updating has succeeded", async ({ page }) => {
   await page.locator(".ant-table-body").click();
   await closeNotification(page);
   await expect(page.getByRole("link", { name: "http://test3.com" })).toBeVisible();
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByLabel("url1")).toHaveValue("http://test3.com");
 });
 
@@ -146,7 +146,7 @@ test("Url metadata editing has succeeded", async ({ page }) => {
   await page.getByPlaceholder("-").fill("http://new-default2.com");
   await page.getByRole("tooltip").getByText("new url1").click();
   await closeNotification(page);
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://new-default2.com");
   await page.getByRole("button", { name: "plus New" }).click();
   await page

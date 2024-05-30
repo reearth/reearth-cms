@@ -54,7 +54,7 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByLabel("text1")).toHaveValue("text1");
   await page.getByLabel("Back").click();
   await expect(page.getByPlaceholder("-")).toHaveValue("text1");
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await page.getByLabel("text1").click();
   await page.getByLabel("text1").fill("new text1");
   await page.getByLabel("Back").click();
@@ -66,7 +66,7 @@ test("Text metadata creating and updating has succeeded", async ({ page }) => {
   await page.locator(".ant-table-body").click();
   await closeNotification(page);
   await expect(page.getByPlaceholder("-")).toHaveValue("text1");
-  await page.getByRole("link", { name: "edit", exact: true }).click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
 
   await expect(page.getByLabel("text1")).toHaveValue("text1");
 });
@@ -150,7 +150,7 @@ test("Text metadata editing has succeeded", async ({ page }) => {
   await page.getByPlaceholder("-").nth(1).fill("text3");
   await page.getByRole("tooltip").getByText("new text1").click();
   await closeNotification(page);
-  await page.getByRole("link", { name: "edit", exact: true }).first().click();
+  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("text3");
   await page.getByRole("button", { name: "plus New" }).click();
   await page

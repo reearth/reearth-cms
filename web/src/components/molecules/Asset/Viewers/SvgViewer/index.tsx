@@ -12,9 +12,6 @@ const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const fetchData = useCallback(async () => {
     const res = await fetch(url, {
       method: "GET",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
     });
     if (res.status !== 200) {
       setSvgText(t("Could not display svg"));

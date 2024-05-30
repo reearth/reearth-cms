@@ -11,6 +11,7 @@ import {
   useCreateViewMutation,
   useDeleteViewMutation,
   useUpdateViewMutation,
+  useUpdateViewsOrderMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useModel } from "@reearth-cms/state";
@@ -150,6 +151,26 @@ export default ({ currentView, onViewChange }: Params) => {
     [deleteView, onViewChange, t],
   );
 
+  const [updateViewsOrder] = useUpdateViewsOrderMutation({
+    refetchQueries: ["GetViews"],
+  });
+
+  const handleUpdateViewsOrder = useCallback(
+    async (viewIds: string[]) => {
+      const view = await updateViewsOrder({
+        variables: {
+          viewIds,
+        },
+      });
+      if (view.errors) {
+        Notification.error({ message: t("Failed to update views order.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated views order!") });
+    },
+    [updateViewsOrder, t],
+  );
+
   return {
     modalState,
     handleViewRenameModalOpen,
@@ -161,5 +182,6 @@ export default ({ currentView, onViewChange }: Params) => {
     handleViewUpdate,
     handleViewRename,
     handleViewDelete,
+    handleUpdateViewsOrder,
   };
 };

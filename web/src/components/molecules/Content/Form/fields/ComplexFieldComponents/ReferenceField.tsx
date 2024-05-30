@@ -7,18 +7,19 @@ import { Field } from "@reearth-cms/components/molecules/Schema/types";
 interface ReferenceFieldProps {
   field: Field;
   itemGroupId?: string;
-  loading: boolean;
+  loading?: boolean;
   linkedItemsModalList?: FormItem[];
-  formItemsData: FormItem[];
-  linkItemModalTitle: string;
-  linkItemModalTotalCount: number;
-  linkItemModalPage: number;
-  linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
-  onSearchTerm: (term?: string) => void;
-  onLinkItemTableReload: () => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
-  onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  formItemsData?: FormItem[];
+  linkItemModalTitle?: string;
+  linkItemModalTotalCount?: number;
+  linkItemModalPage?: number;
+  linkItemModalPageSize?: number;
+  disabled?: boolean;
+  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
+  onSearchTerm?: (term?: string) => void;
+  onLinkItemTableReload?: () => void;
+  onLinkItemTableChange?: (page: number, pageSize: number) => void;
+  onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
 }
 
 const ReferenceField: React.FC<ReferenceFieldProps> = ({
@@ -31,6 +32,7 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
   linkItemModalTotalCount,
   linkItemModalPage,
   linkItemModalPageSize,
+  disabled,
   onReferenceModelUpdate,
   onSearchTerm,
   onLinkItemTableReload,
@@ -44,6 +46,7 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       <ReferenceFormItem
         key={field.id}
+        disabled={disabled}
         loading={loading}
         correspondingFieldId={field.id}
         formItemsData={formItemsData}

@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -7,7 +6,6 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
   FormItem,
   Item,
-  ItemValue,
   ItemStatus,
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
@@ -43,6 +41,8 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
+
+import { dateConvert } from "./utils";
 
 export default () => {
   const {
@@ -207,13 +207,19 @@ export default () => {
   const handleNavigateToModel = useCallback(
     (modelId?: string) => {
       navigate(
-        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}${
-          location.state ?? ""
-        }`,
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
       );
     },
-    [navigate, currentWorkspace?.id, currentProject?.id, location.state],
+    [navigate, currentWorkspace?.id, currentProject?.id],
   );
+
+  const handleBack = useCallback(() => {
+    navigate(
+      `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}`,
+      { state: location.state },
+    );
+  }, [currentModel?.id, currentProject?.id, currentWorkspace?.id, location.state, navigate]);
+
   const [createItem, { loading: itemCreationLoading }] = useCreateItemMutation({
     refetchQueries: ["SearchItem", "GetRequests"],
   });
@@ -343,48 +349,34 @@ export default () => {
     [createItem, currentItem, currentModel?.id, currentModel?.metadataSchema.id, t, updateItem],
   );
 
-  const dateConvert = useCallback((value?: ItemValue) => {
-    if (Array.isArray(value)) {
-      return (value as string[]).map(valueItem => (valueItem ? dayjs(valueItem) : ""));
-    } else {
-      return value ? dayjs(value as string) : "";
+  const valueGet = useCallback((field: Field) => {
+    switch (field.type) {
+      case "Select":
+        return field.typeProperty?.selectDefaultValue;
+      case "Integer":
+        return field.typeProperty?.integerDefaultValue;
+      case "Asset":
+        return field.typeProperty?.assetDefaultValue;
+      case "Date":
+        return dateConvert(field.typeProperty?.defaultValue);
+      default:
+        return field.typeProperty?.defaultValue;
     }
   }, []);
 
-  const valueGet = useCallback(
-    (field: Field) => {
-      switch (field.type) {
-        case "Select":
-          return field.typeProperty?.selectDefaultValue;
-        case "Integer":
-          return field.typeProperty?.integerDefaultValue;
-        case "Asset":
-          return field.typeProperty?.assetDefaultValue;
-        case "Date":
-          return dateConvert(field.typeProperty?.defaultValue);
-        default:
-          return field.typeProperty?.defaultValue;
-      }
-    },
-    [dateConvert],
-  );
-
-  const updateValueConvert = useCallback(
-    ({ type, value }: ItemField) => {
-      if (type === "Group") {
-        if (value) {
-          return value;
-        } else {
-          return newID();
-        }
-      } else if (type === "Date") {
-        return dateConvert(value);
-      } else {
+  const updateValueConvert = useCallback(({ type, value }: ItemField) => {
+    if (type === "Group") {
+      if (value) {
         return value;
+      } else {
+        return newID();
       }
-    },
-    [dateConvert],
-  );
+    } else if (type === "Date") {
+      return dateConvert(value);
+    } else {
+      return value;
+    }
+  }, []);
 
   const [initialFormValues, setInitialFormValues] = useState<{ [key: string]: any }>({});
 
@@ -462,7 +454,7 @@ export default () => {
       });
     }
     return initialValues;
-  }, [currentItem, currentModel, dateConvert, itemLoading]);
+  }, [currentItem, currentModel, itemLoading]);
 
   const workspaceUserMembers = useMemo((): UserMember[] => {
     return (
@@ -614,6 +606,7 @@ export default () => {
     handleItemUpdate,
     handleMetaItemUpdate,
     handleNavigateToModel,
+    handleBack,
     handleRequestCreate,
     handleRequestUpdate,
     handleModalClose,

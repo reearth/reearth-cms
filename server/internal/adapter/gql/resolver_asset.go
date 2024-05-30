@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/samber/lo"
 )
 
 func (r *Resolver) Asset() AssetResolver {
@@ -32,5 +33,8 @@ func (r *assetResolver) Thread(ctx context.Context, obj *gqlmodel.Asset) (*gqlmo
 }
 
 func (r *assetResolver) Items(ctx context.Context, obj *gqlmodel.Asset) ([]*gqlmodel.AssetItem, error) {
-	return dataloaders(ctx).AssetItems.Load(obj.ID)
+	res, err := dataloaders(ctx).AssetItems.Load(obj.ID)
+	return lo.Map(*res, func(i gqlmodel.AssetItem, _ int) *gqlmodel.AssetItem {
+		return &i
+	}), err
 }

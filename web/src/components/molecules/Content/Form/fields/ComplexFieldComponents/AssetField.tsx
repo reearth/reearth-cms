@@ -16,32 +16,33 @@ import { useT } from "@reearth-cms/i18n";
 interface AssetFieldProps {
   field: Field;
   itemGroupId?: string;
-  assetList: Asset[];
+  assetList?: Asset[];
   itemAssets?: ItemAsset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (
+  fileList?: UploadFile[];
+  loadingAssets?: boolean;
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
+  uploadUrl?: { url: string; autoUnzip: boolean };
+  uploadType?: UploadType;
+  totalCount?: number;
+  page?: number;
+  pageSize?: number;
+  disabled?: boolean;
+  onAssetTableChange?: (
     page: number,
     pageSize: number,
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
+  onUploadModalCancel?: () => void;
+  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadType?: (type: UploadType) => void;
+  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsGet?: () => void;
+  onAssetsReload?: () => void;
+  onAssetSearchTerm?: (term?: string | undefined) => void;
+  setFileList?: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility?: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
 }
 
@@ -59,6 +60,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
   totalCount,
   page,
   pageSize,
+  disabled,
   onAssetTableChange,
   onUploadModalCancel,
   setUploadUrl,
@@ -98,6 +100,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           totalCount={totalCount}
           page={page}
           pageSize={pageSize}
+          disabled={disabled}
           onAssetTableChange={onAssetTableChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}
@@ -125,6 +128,7 @@ const AssetField: React.FC<AssetFieldProps> = ({
           totalCount={totalCount}
           page={page}
           pageSize={pageSize}
+          disabled={disabled}
           onAssetTableChange={onAssetTableChange}
           onUploadModalCancel={onUploadModalCancel}
           setUploadUrl={setUploadUrl}

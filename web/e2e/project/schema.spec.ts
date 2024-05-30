@@ -4,7 +4,7 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { handleFieldForm } from "./utils/field";
-import { crudGroup } from "./utils/group";
+import { createGroup, crudGroup } from "./utils/group";
 import { createModel, crudModel } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 
@@ -85,20 +85,51 @@ test("Group creating from adding field has succeeded", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("e2e group name#e2e-group-key")).toBeVisible();
   await expect(page.getByText("FieldsMeta Data")).not.toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Reference" }).locator("div").first(),
-  ).not.toBeVisible();
-  await expect(
-    page.locator("li").filter({ hasText: "Group" }).locator("div").first(),
-  ).not.toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).not.toBeVisible();
+  await expect(page.locator("li").getByText("Group", { exact: true })).not.toBeVisible();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
   await page.getByText("e2e model name").click();
-  await page.locator("li").filter({ hasText: "Group" }).locator("div").first().click();
+  await page.locator("li").getByText("Group", { exact: true }).click();
   await expect(page.getByRole("heading", { name: "Create Group" })).toBeVisible();
   await page.getByLabel("Select Group").click();
   await expect(page.getByText("e2e group name #e2e-group-key")).toBeVisible();
   await page.getByRole("button", { name: "Cancel" }).click();
+});
+
+test("Group reordering has succeeded", async ({ page }) => {
+  await createGroup(page, "group1", "group1");
+  await createGroup(page, "group2", "group2");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(0),
+  ).toContainText("group1");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(1),
+  ).toContainText("group2");
+  await page
+    .getByRole("main")
+    .getByRole("menu")
+    .last()
+    .getByRole("menuitem")
+    .nth(1)
+    .dragTo(page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(0));
+  await closeNotification(page);
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(0),
+  ).toContainText("group2");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(1),
+  ).toContainText("group1");
+  await createGroup(page, "group3", "group3");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(0),
+  ).toContainText("group2");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(1),
+  ).toContainText("group1");
+  await expect(
+    page.getByRole("main").getByRole("menu").last().getByRole("menuitem").nth(2),
+  ).toContainText("group3");
 });
 
 test("Text field CRUD has succeeded", async ({ page }) => {

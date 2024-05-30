@@ -92,7 +92,7 @@ Tag: タグ
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
-Please input the alias of project!: プロジェクトのエイリアスを入力してください。
+Project alias is not valid: 無効なプロジェクトのエイリアスです
 Project description: プロジェクト概要
 Home: ホーム
 Overview: 概要
@@ -206,7 +206,11 @@ Permanently remove your Integration and all of its contents from the Re:Earth CM
 Once the integration is removed, it will disappear from all workspaces.: インテグレーション削除すると、このインテグレーションを利用しているすべてのワークスペースから取り除かれます。
 Remove Integration: インテグレーションを削除
 Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.: インテグレーションを削除します。この操作は取り消すことができません。
+Regenerate The Integration Token?: インテグレーショントークンを再生成しますか？
+If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?: インテグレーショントークンを再生成すると、以前のトークンは無効になり、この操作は元に戻せません。本当に続行しますか？
+Reset: リセット
 Integration Token: インテグレーショントークン
+Regenerate: 再生成
 Code Example: コード例
 your model id here: モデルIDをここに入力してください
 Update: アップデート
@@ -232,6 +236,7 @@ Edit: 編集
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
 Delete Project: プロジェクトを削除
 Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。
+Alias: エイリアス
 Write something here to describe this record.: このレコードの説明を入力してください。
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
@@ -427,12 +432,16 @@ Failed to rename view.: ビューの名前変更に失敗しました。
 Successfully renamed view!: ビューの名前変更に成功しました!
 Failed to delete view.: ビューの削除に失敗しました。
 Successfully deleted view!: ビューの削除に成功しました!
+Failed to update views order.: ビューの順序更新に失敗しました。
+Successfully updated views order!: ビューの順序変更に成功しました!
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to update models order.: モデルの順序更新に失敗しました。
 Successfully updated models order!: モデルの順序変更に成功しました!
 Failed to create group.: グループの作成に失敗しました。
 Successfully created group!: グループの作成に成功しました！
+Failed to update groups order.: グループの順序更新に失敗しました。
+Successfully updated groups order!: グループの順序変更に成功しました!
 Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。
@@ -480,6 +489,8 @@ Failed to update integration.: インテグレーションの更新に失敗し�
 Successfully updated integration!: インテグレーションの更新に成功しました。
 Failed to delete integration.: インテグレーションの削除に失敗しました。
 Successfully deleted integration!: インテグレーションの削除に成功しました。
+The attempt to regenerate the integration token has failed.: インテグレーショントークンの再生成に失敗しました。
+The integration token has been successfully regenerated!: インテグレーショントークンの再生成に成功しました！
 Failed to create webhook.: Webhookの作成に失敗しました。
 Successfully created webhook!: Webhookの作成に成功しました。
 Failed to delete webhook.: Webhookの削除に失敗しました。
