@@ -25,10 +25,16 @@ jobs:
     if: github.event.repository.full_name == 'reearth/reearth-cms' && github.event.workflow_run.name == 'ci-web' && github.event.workflow_run.conclusion != 'failure' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - name: get latest web artifact
         uses: dawidd6/action-download-artifact@v3.1.2
         with:
-          github_token: ${{ secrets.GPT }}
+          github_token: ${{ steps.app-token.outputs.token }}
           workflow: ci_web.yml
           workflow_conclusion: success
           branch: main
