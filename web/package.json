@@ -93,7 +93,7 @@
     "antd": "5.16.2",
     "apollo-upload-client": "18.0.1",
     "aws-amplify": "5.3.18",
-    "cesium": "1.116.0",
+    "cesium": "1.117.0",
     "cesium-mvt-imagery-provider": "1.4.0",
     "dayjs": "1.11.10",
     "formik": "2.4.5",
