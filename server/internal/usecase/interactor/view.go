@@ -33,7 +33,9 @@ func (i View) FindByIDs(ctx context.Context, IDs view.IDList, _ *usecase.Operato
 }
 
 func (i View) FindByModel(ctx context.Context, mID view.ModelID, _ *usecase.Operator) (view.List, error) {
-	return i.repos.View.FindByModel(ctx, mID)
+	v, err := i.repos.View.FindByModel(ctx, mID)
+	ordered := v.Ordered()
+	return ordered, err
 }
 
 func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *usecase.Operator) (*view.View, error) {

@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"errors"
+
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -38,7 +39,9 @@ func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecas
 }
 
 func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
-	return i.repos.Model.FindByProject(ctx, projectID, pagination)
+	m, p, err := i.repos.Model.FindByProject(ctx, projectID, pagination)
+	ordered := m.Ordered()
+	return ordered, p, err
 }
 
 func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {
