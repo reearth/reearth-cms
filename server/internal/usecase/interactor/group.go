@@ -41,8 +41,11 @@ func (i Group) FindByIDs(ctx context.Context, ids id.GroupIDList, operator *usec
 
 func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operator *usecase.Operator) (group.List, error) {
 	g, err := i.repos.Group.FindByProject(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
 	ordered := g.Ordered()
-	return ordered, err
+	return ordered, nil
 }
 
 func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, operator *usecase.Operator) (*group.Group, error) {
@@ -221,8 +224,11 @@ func (i Group) FindByModel(ctx context.Context, modelID id.ModelID, operator *us
 				}
 			}
 			g, err := i.repos.Group.FindByIDs(ctx, gids)
+			if err != nil {
+				return nil, err
+			}
 			ordered := g.Ordered()
-			return ordered, err
+			return ordered, nil
 		})
 }
 

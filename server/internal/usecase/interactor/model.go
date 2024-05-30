@@ -40,8 +40,11 @@ func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecas
 
 func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
 	m, p, err := i.repos.Model.FindByProject(ctx, projectID, pagination)
+	if err != nil {
+		return nil, nil, err
+	}
 	ordered := m.Ordered()
-	return ordered, p, err
+	return ordered, p, nil
 }
 
 func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {
