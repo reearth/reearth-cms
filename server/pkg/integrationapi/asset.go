@@ -97,6 +97,8 @@ func ToPreviewType(pt *asset.PreviewType) *AssetPreviewType {
 		return lo.ToPtr(Image)
 	case asset.PreviewTypeImageSvg:
 		return lo.ToPtr(ImageSvg)
+	case asset.PreviewTypeCSV:
+		return lo.ToPtr(Csv)
 	case asset.PreviewTypeUnknown:
 		return lo.ToPtr(Unknown)
 	default:

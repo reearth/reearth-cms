@@ -4983,6 +4983,7 @@ enum PreviewType {
   GEO_3D_TILES
   GEO_MVT
   MODEL_3D
+  CSV
   UNKNOWN
 }
 

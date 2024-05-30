@@ -2053,6 +2053,7 @@ const (
 	PreviewTypeGeo3dTiles PreviewType = "GEO_3D_TILES"
 	PreviewTypeGeoMvt     PreviewType = "GEO_MVT"
 	PreviewTypeModel3d    PreviewType = "MODEL_3D"
+	PreviewTypeCSV        PreviewType = "CSV"
 	PreviewTypeUnknown    PreviewType = "UNKNOWN"
 )
 
@@ -2063,12 +2064,13 @@ var AllPreviewType = []PreviewType{
 	PreviewTypeGeo3dTiles,
 	PreviewTypeGeoMvt,
 	PreviewTypeModel3d,
+	PreviewTypeCSV,
 	PreviewTypeUnknown,
 }
 
 func (e PreviewType) IsValid() bool {
 	switch e {
-	case PreviewTypeImage, PreviewTypeImageSVG, PreviewTypeGeo, PreviewTypeGeo3dTiles, PreviewTypeGeoMvt, PreviewTypeModel3d, PreviewTypeUnknown:
+	case PreviewTypeImage, PreviewTypeImageSVG, PreviewTypeGeo, PreviewTypeGeo3dTiles, PreviewTypeGeoMvt, PreviewTypeModel3d, PreviewTypeCSV, PreviewTypeUnknown:
 		return true
 	}
 	return false

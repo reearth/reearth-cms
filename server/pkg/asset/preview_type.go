@@ -19,6 +19,7 @@ const (
 	PreviewTypeGeo3dTiles PreviewType = "geo_3d_tiles"
 	PreviewTypeGeoMvt     PreviewType = "geo_mvt"
 	PreviewTypeModel3d    PreviewType = "model_3d"
+	PreviewTypeCSV        PreviewType = "csv"
 	PreviewTypeUnknown    PreviewType = "unknown"
 )
 
@@ -37,6 +38,8 @@ func PreviewTypeFrom(p string) (PreviewType, bool) {
 		return PreviewTypeGeoMvt, true
 	case PreviewTypeModel3d:
 		return PreviewTypeModel3d, true
+	case PreviewTypeCSV:
+		return PreviewTypeCSV, true
 	case PreviewTypeUnknown:
 		return PreviewTypeUnknown, true
 	default:
