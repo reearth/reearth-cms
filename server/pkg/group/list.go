@@ -24,8 +24,8 @@ func (l List) Projects() id.ProjectIDList {
 
 func (l List) AreGroupsInTheSameProject() bool {
 	if len(l) == 0 {
-        return true
-    }
+		return true
+	}
 
 	firstProjectID := l[0].Project().String()
 	for _, g := range l[1:] {
@@ -51,6 +51,14 @@ func (l List) OrderByIDs(ids id.GroupIDList) List {
 			}
 		}
 	}
+	return res
+}
+
+func (l List) Ordered() List {
+	res := slices.Clone(l)
+	slices.SortFunc(res, func(a, b *Group) int {
+		return a.Order() - b.Order()
+	})
 	return res
 }
 

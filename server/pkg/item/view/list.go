@@ -16,8 +16,8 @@ func (l List) Projects() id.ProjectIDList {
 
 func (l List) AreViewsInTheSameModel() bool {
 	if len(l) == 0 {
-        return true
-    }
+		return true
+	}
 
 	firstModelID := l[0].Model().String()
 	for _, v := range l[1:] {
@@ -47,5 +47,13 @@ func (l List) OrderByIDs(ids id.ViewIDList) List {
 			}
 		}
 	}
+	return res
+}
+
+func (l List) Ordered() List {
+	res := slices.Clone(l)
+	slices.SortFunc(res, func(a, b *View) int {
+		return a.Order() - b.Order()
+	})
 	return res
 }
