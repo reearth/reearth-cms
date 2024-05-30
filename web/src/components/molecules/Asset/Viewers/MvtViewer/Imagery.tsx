@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
 import { Cartesian3, Math, BoundingSphere, HeadingPitchRange } from "cesium";
-import { MVTImageryProvider } from "cesium-mvt-imagery-provider";
+import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCesium } from "resium";
@@ -91,7 +91,7 @@ export const Imagery: React.FC<Props> = ({ url, handleProperties }) => {
   }, [loadData, url]);
 
   useEffect(() => {
-    const imageryProvider = new MVTImageryProvider({
+    const imageryProvider = new CesiumMVTImageryProvider({
       urlTemplate,
       layerName: currentLayer,
       style,
