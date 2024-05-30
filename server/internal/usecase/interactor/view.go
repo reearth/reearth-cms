@@ -37,8 +37,7 @@ func (i View) FindByModel(ctx context.Context, mID view.ModelID, _ *usecase.Oper
 	if err != nil {
 		return nil, err
 	}
-	ordered := v.Ordered()
-	return ordered, nil
+	return v.Ordered(), nil
 }
 
 func (i View) Create(ctx context.Context, param interfaces.CreateViewParam, op *usecase.Operator) (*view.View, error) {

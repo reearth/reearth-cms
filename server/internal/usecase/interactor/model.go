@@ -43,8 +43,7 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	if err != nil {
 		return nil, nil, err
 	}
-	ordered := m.Ordered()
-	return ordered, p, nil
+	return m.Ordered(), p, nil
 }
 
 func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {

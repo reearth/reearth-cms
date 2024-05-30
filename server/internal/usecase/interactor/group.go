@@ -44,8 +44,7 @@ func (i Group) FindByProject(ctx context.Context, projectID id.ProjectID, operat
 	if err != nil {
 		return nil, err
 	}
-	ordered := g.Ordered()
-	return ordered, nil
+	return g.Ordered(), nil
 }
 
 func (i Group) FindByKey(ctx context.Context, pid id.ProjectID, group string, operator *usecase.Operator) (*group.Group, error) {
@@ -227,8 +226,7 @@ func (i Group) FindByModel(ctx context.Context, modelID id.ModelID, operator *us
 			if err != nil {
 				return nil, err
 			}
-			ordered := g.Ordered()
-			return ordered, nil
+			return g.Ordered(), nil
 		})
 }
 
