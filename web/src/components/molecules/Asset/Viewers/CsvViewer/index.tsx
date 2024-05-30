@@ -11,7 +11,7 @@ type Props = {
   workspaceSettings?: WorkspaceSettings;
 };
 
-const GltfViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
+const CsvViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) => {
   return (
     <ResiumViewer onGetViewer={onGetViewer} workspaceSettings={workspaceSettings}>
       <Imagery url={url} />
@@ -19,4 +19,4 @@ const GltfViewer: React.FC<Props> = ({ url, onGetViewer, workspaceSettings }) =>
   );
 };
 
-export default GltfViewer;
+export default CsvViewer;
