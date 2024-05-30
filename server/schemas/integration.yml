@@ -1102,6 +1102,7 @@ components:
             - geo_3d_Tiles
             - geo_mvt
             - model_3d
+            - csv
             - unknown
         totalSize:
           type: number
