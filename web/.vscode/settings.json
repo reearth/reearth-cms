@@ -1,8 +1,4 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "yaml.schemas": {
-    "https://json.schemastore.org/github-workflow": "/.github/workflows/**/*.yml"
-  },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
