@@ -1,5 +1,6 @@
 import config from "eslint-config-reearth";
 import playwright from "eslint-plugin-playwright";
+import storybook from "eslint-plugin-storybook";
 import globals from "globals";
 
 /** @type { import("eslint").Linter.FlatConfig[] } */
@@ -33,6 +34,12 @@ export default [
       "@typescript-eslint/consistent-type-definitions": "warn",
       "@typescript-eslint/array-type": "warn",
       "@typescript-eslint/consistent-indexed-object-style": "warn",
+    },
+  },
+  {
+    files: ["*.stories.@(ts|tsx|js|jsx|mjs|cjs)"],
+    plugins: {
+      storybook: storybook,
     },
   },
   {
