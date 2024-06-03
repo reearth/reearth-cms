@@ -7,7 +7,7 @@
   "browser": "./dist/reearth-cms.umd.js",
   "types": "./dist/reearth-cms.d.ts",
   "engines": {
-    "node": ">=18"
+    "node": ">=20.11.0"
   },
   "scripts": {
     "start": "yarn && vite",
@@ -93,8 +93,8 @@
     "antd": "5.16.2",
     "apollo-upload-client": "18.0.1",
     "aws-amplify": "5.3.18",
-    "cesium": "1.106.1",
-    "cesium-mvt-imagery-provider": "1.4.0",
+    "cesium": "1.117.0",
+    "cesium-mvt-imagery-provider": "1.4.1",
     "dayjs": "1.11.10",
     "formik": "2.4.5",
     "graphiql": "3.2.0",
@@ -117,7 +117,7 @@
     "react-router-dom": "6.22.3",
     "react-svg": "16.1.34",
     "remark-gfm": "4.0.0",
-    "resium": "1.16.1",
+    "resium": "1.17.4",
     "ulid": "2.3.0"
   }
 }
