@@ -2,7 +2,7 @@ import { Cartesian3 } from "cesium";
 import { useCallback, useEffect } from "react";
 import { useCesium } from "resium";
 
-import mapPin from "@reearth-cms/components/atoms/Icon/Icons/mapPin.svg";
+import mapPin from "./mapPin.svg";
 
 type Props = {
   url: string;
@@ -53,6 +53,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
               width: 30,
               height: 30,
             },
+            properties: obj,
           });
         } else {
           break;
