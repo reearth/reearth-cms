@@ -1,4 +1,4 @@
-import config from "eslint-config-reearth/flat/index.mjs";
+import config from "eslint-config-reearth";
 import playwright from "eslint-plugin-playwright";
 import globals from "globals";
 
