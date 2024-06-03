@@ -59,8 +59,9 @@ export const Imagery: React.FC<Props> = ({ url }) => {
           break;
         }
       }
+      viewer?.zoomTo(viewer.entities);
     },
-    [viewer?.entities],
+    [viewer],
   );
 
   const pointRender = useCallback(async () => {
