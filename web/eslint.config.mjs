@@ -38,15 +38,6 @@ export default [
     },
   },
   {
-    files: ["src/**"],
-    rules: {
-      "@typescript-eslint/no-explicit-any": ["warn"],
-      "@typescript-eslint/consistent-type-definitions": ["warn"],
-      "@typescript-eslint/array-type": ["warn"],
-      "@typescript-eslint/consistent-indexed-object-style": ["warn"],
-    },
-  },
-  {
     ignores: [
       "/dist",
       "/coverage",
