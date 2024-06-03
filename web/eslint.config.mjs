@@ -1,4 +1,6 @@
-import config from "eslint-config-reearth";
+import config from "eslint-config-reearth/flat/index.mjs";
+import playwright from "eslint-plugin-playwright";
+import globals from "globals";
 
 /** @type { import("eslint").Linter.FlatConfig[] } */
 
@@ -24,6 +26,15 @@ export default [
           },
         },
       ],
+    },
+  },
+  {
+    ...playwright.configs["flat/recommended"],
+    files: ["e2e/**/*"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
     },
   },
   {
