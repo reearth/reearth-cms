@@ -52,6 +52,7 @@ export const Imagery: React.FC<Props> = ({ url }) => {
               image: mapPin,
               width: 30,
               height: 30,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,
             },
             properties: obj,
           });
