@@ -18,6 +18,7 @@ export type ViewerType =
   | "image"
   | "image_svg"
   | "model_3d"
+  | "csv"
   | "unknown";
 
 export interface Asset {
