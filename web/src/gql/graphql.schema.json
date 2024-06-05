@@ -9070,6 +9070,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "CSV",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "GEO",
             "description": null,
             "isDeprecated": false,
