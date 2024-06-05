@@ -12,7 +12,7 @@ interface Props {
   onLanguageUpdate: (lang: string) => Promise<void>;
 };
 
-type FormType = {
+interface FormType {
   lang: string;
 }
 

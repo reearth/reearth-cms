@@ -11,7 +11,7 @@ interface Props {
   onWorkspaceUpdate: (name: string) => Promise<void>;
 };
 
-type FormType = {
+interface FormType {
   name: string;
 }
 

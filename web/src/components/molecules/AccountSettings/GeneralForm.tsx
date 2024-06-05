@@ -12,7 +12,7 @@ interface Props {
   onUserUpdate: (name: string, email: string) => Promise<void>;
 };
 
-type FormType = {
+interface FormType {
   name: string;
   email: string;
 }
