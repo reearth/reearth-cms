@@ -16,6 +16,7 @@ import {
   geo3dFormats,
   geoMvtFormat,
   model3dFormats,
+  csvFormats,
   imageFormats,
   imageSVGFormat,
   compressedFileFormats,
@@ -146,6 +147,9 @@ export default (assetId?: string) => {
       case selectedPreviewType === "MODEL_3D" &&
         (model3dFormats.includes(assetFileExt) || compressedFileFormats.includes(assetFileExt)):
         setViewerType("model_3d");
+        break;
+      case selectedPreviewType === "CSV" && csvFormats.includes(assetFileExt):
+        setViewerType("csv");
         break;
       case selectedPreviewType === "IMAGE" && imageFormats.includes(assetFileExt):
         setViewerType("image");

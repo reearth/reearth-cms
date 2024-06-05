@@ -25,6 +25,7 @@ import {
   SvgViewer,
   ImageViewer,
   GltfViewer,
+  CsvViewer,
   MvtViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
@@ -115,6 +116,10 @@ const AssetMolecule: React.FC<Props> = ({
             workspaceSettings={workspaceSettings}
           />
         );
+      case "csv":
+        return (
+          <CsvViewer url={assetUrl} onGetViewer={getViewer} workspaceSettings={workspaceSettings} />
+        );
       case "unknown":
       default:
         return <ViewerNotSupported />;
@@ -179,7 +184,7 @@ const AssetMolecule: React.FC<Props> = ({
       </BodyWrapper>
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
-          <StyledPreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
+          <PreviewTypeSelect value={selectedPreviewType} onTypeChange={onTypeChange} />
         </SideBarCard>
         <SideBarCard title={t("Created Time")}>{formattedCreatedAt}</SideBarCard>
         <SideBarCard title={t("Created By")}>
@@ -234,10 +239,6 @@ const BodyWrapper = styled.div`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
-`;
-
-const StyledPreviewTypeSelect = styled(PreviewTypeSelect)`
-  width: 75%;
 `;
 
 const StyledButton = styled(Button)`
