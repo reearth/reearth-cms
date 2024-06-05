@@ -41,8 +41,8 @@ const Members: React.FC = () => {
       />
       {selectedMember && (
         <MemberRoleModal
-          member={selectedMember}
           open={roleModalShown}
+          member={selectedMember}
           onClose={handleRoleModalClose}
           onSubmit={handleMemberOfWorkspaceUpdate}
         />
@@ -51,12 +51,12 @@ const Members: React.FC = () => {
         open={MemberAddModalShown}
         searchedUser={searchedUser}
         searchedUserList={searchedUserList}
-        changeSearchedUserList={changeSearchedUserList}
-        onClose={handleMemberAddModalClose}
         onUserSearch={handleUserSearch}
         onUserAdd={handleUserAdd}
-        changeSearchedUser={changeSearchedUser}
+        onClose={handleMemberAddModalClose}
         onSubmit={handleUsersAddToWorkspace}
+        changeSearchedUser={changeSearchedUser}
+        changeSearchedUserList={changeSearchedUserList}
       />
     </>
   );

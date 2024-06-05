@@ -8,10 +8,10 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { useT } from "@reearth-cms/i18n";
 
 interface Props {
-  commentsPanel?: JSX.Element;
+  commentsPanel: JSX.Element;
   requests: Request[];
   loading: boolean;
-  selectedRequest: Request | undefined;
+  selectedRequest?: Request;
   onRequestSelect: (assetId: string) => void;
   onEdit: (requestId: string) => void;
   searchTerm: string;

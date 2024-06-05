@@ -13,7 +13,7 @@ import { useT } from "@reearth-cms/i18n";
 import HeaderDropdown from "./Dropdown";
 
 interface Props {
-  username?: string;
+  username: string;
   personalWorkspace?: Workspace;
   currentWorkspace?: Workspace;
   workspaces?: Workspace[];

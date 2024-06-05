@@ -7,7 +7,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+interface Props {
   onWorkspaceDelete: () => Promise<void>;
 }
 

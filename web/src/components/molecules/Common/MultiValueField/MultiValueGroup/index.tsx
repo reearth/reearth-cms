@@ -21,7 +21,6 @@ import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 
 interface Props {
-  className?: string;
   value?: string[];
   onChange?: (value: string[]) => void;
   parentField: Field;
@@ -71,7 +70,6 @@ interface Props {
 }
 
 const MultiValueGroup: React.FC<Props> = ({
-  className,
   parentField,
   form,
   fields,
@@ -183,7 +181,7 @@ const MultiValueGroup: React.FC<Props> = ({
   }, [form, onChange, onGroupGet, parentField.typeProperty?.groupId, value]);
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => {
           return (

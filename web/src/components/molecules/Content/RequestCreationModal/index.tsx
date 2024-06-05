@@ -16,7 +16,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../types";
 
-export interface FormValues {
+interface FormValues {
   title: string;
   description: string;
   state: RequestState;
@@ -26,14 +26,14 @@ export interface FormValues {
   }[];
 }
 
-export interface Props {
-  open?: boolean;
+interface Props {
+  open: boolean;
   requestCreationLoading: boolean;
   itemId: string;
   unpublishedItems: FormItem[];
   workspaceUserMembers: UserMember[];
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (data: FormValues) => Promise<void>;
+  onClose: () => void;
+  onSubmit: (data: FormValues) => Promise<void>;
 }
 
 const initialValues: FormValues = {
@@ -89,8 +89,8 @@ const RequestCreationModal: React.FC<Props> = ({
           .map(key => ({ itemId: key })),
       ];
       values.state = "WAITING";
-      await onSubmit?.(values);
-      onClose?.(true);
+      await onSubmit(values);
+      onClose();
       form.resetFields();
     } catch (info) {
       console.log("Validate Failed:", info);
@@ -98,7 +98,7 @@ const RequestCreationModal: React.FC<Props> = ({
   }, [itemId, form, onClose, onSubmit, selectedItems]);
 
   const handleClose = useCallback(() => {
-    onClose?.(true);
+    onClose();
   }, [onClose]);
   return (
     <Modal

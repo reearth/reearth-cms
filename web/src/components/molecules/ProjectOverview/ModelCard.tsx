@@ -7,10 +7,10 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+interface Props {
   model: Model;
-  onSchemaNavigate?: (modelId: string) => void;
-  onContentNavigate?: (modelId: string) => void;
+  onSchemaNavigate: (modelId: string) => void;
+  onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
 }
@@ -44,8 +44,8 @@ const ModelCard: React.FC<Props> = ({
   return (
     <StyledCard
       actions={[
-        <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate?.(model.id)} />,
-        <Icon icon="table" key="content" onClick={() => onContentNavigate?.(model.id)} />,
+        <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
+        <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
         <Dropdown key="options" menu={{ items: MenuItems }} trigger={["click"]}>
           <a onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />

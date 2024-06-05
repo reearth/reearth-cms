@@ -24,9 +24,8 @@ interface Props {
   requestModalPage: number;
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
-  linkedRequest?: Request;
   requestList: Request[];
-  onChange?: (value: Request, itemIds: string[]) => void;
+  onChange: (value: Request, itemIds: string[]) => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
 }

@@ -18,7 +18,6 @@ import { moveItemInArray } from "../moveItemArray";
 
 interface Props {
   itemAssets?: ItemAsset[];
-  className?: string;
   value?: string[];
   onChange?: (value: string[]) => void;
   assetList?: Asset[];
@@ -52,7 +51,6 @@ interface Props {
 
 const MultiValueAsset: React.FC<Props> = ({
   itemAssets,
-  className,
   value = [],
   onChange,
   assetList,
@@ -104,7 +102,7 @@ const MultiValueAsset: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>

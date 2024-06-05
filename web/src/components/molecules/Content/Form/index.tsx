@@ -42,7 +42,7 @@ interface Props {
   item?: Item;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
-  showPublishAction?: boolean;
+  showPublishAction: boolean;
   requests: Request[];
   itemId?: string;
   initialFormValues: any;
@@ -280,8 +280,7 @@ const ContentForm: React.FC<Props> = ({
         btn,
         key,
         placement: "top",
-        // TODO: Change to false when antd is updated
-        closeIcon: <span />,
+        closeIcon: false,
       });
     };
     if (blocker.state === "blocked") {
@@ -293,7 +292,6 @@ const ContentForm: React.FC<Props> = ({
     const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
       if (changedKeys.current.size === 0) return;
       event.preventDefault();
-      event.returnValue = "";
     };
 
     window.addEventListener("beforeunload", handleBeforeUnloadEvent, true);
@@ -633,20 +631,19 @@ const ContentForm: React.FC<Props> = ({
       {itemId && (
         <>
           <RequestCreationModal
-            unpublishedItems={unpublishedItems}
-            itemId={itemId}
             open={requestModalShown}
+            requestCreationLoading={requestCreationLoading}
+            itemId={itemId}
+            unpublishedItems={unpublishedItems}
+            workspaceUserMembers={workspaceUserMembers}
             onClose={onModalClose}
             onSubmit={onRequestCreate}
-            requestCreationLoading={requestCreationLoading}
-            workspaceUserMembers={workspaceUserMembers}
           />
           <LinkItemRequestModal
             itemIds={[itemId]}
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
             visible={addItemToRequestModalShown}
-            linkedRequest={undefined}
             requestList={requests}
             onRequestTableChange={onRequestTableChange}
             requestModalLoading={requestModalLoading}

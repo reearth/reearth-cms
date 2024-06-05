@@ -14,10 +14,10 @@ export interface FormValues {
   description: string;
 }
 
-export interface Props {
-  open?: boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
 }
 
@@ -55,8 +55,8 @@ const ProjectCreationModal: React.FC<Props> = ({
     form
       .validateFields()
       .then(async values => {
-        await onSubmit?.(values);
-        onClose?.(true);
+        await onSubmit(values);
+        onClose();
         form.resetFields();
       })
       .catch(info => {
@@ -65,7 +65,7 @@ const ProjectCreationModal: React.FC<Props> = ({
   }, [form, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
-    onClose?.(true);
+    onClose();
     form.resetFields();
   }, [form, onClose]);
 

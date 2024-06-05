@@ -6,7 +6,7 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
-export interface Props {
+interface Props {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;

@@ -8,7 +8,7 @@ import SidebarCard from "@reearth-cms/components/molecules/Request/Details/Sideb
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-export interface Props {
+interface Props {
   item?: Item;
 }
 

@@ -27,8 +27,8 @@ interface Props {
   onSearchTerm?: (term?: string) => void;
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
-  onChange?: (value?: string) => void;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
+  onChange?: (value?: string) => void;
 }
 
 const ReferenceFormItem: React.FC<Props> = ({
@@ -55,7 +55,7 @@ const ReferenceFormItem: React.FC<Props> = ({
 
   const t = useT();
   const [visible, setVisible] = useState(false);
-  const [currentItem, setCurrentItem] = useState<FormItem | undefined>();
+  const [currentItem, setCurrentItem] = useState<FormItem>();
 
   const handleClick = useCallback(() => {
     if (!onReferenceModelUpdate || !modelId) return;

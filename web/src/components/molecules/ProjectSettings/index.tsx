@@ -7,8 +7,8 @@ import { useT } from "@reearth-cms/i18n";
 
 import { Project, Role } from "../Workspace/types";
 
-export interface Props {
-  project?: Project;
+interface Props {
+  project: Project;
   onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
   onProjectDelete: () => Promise<void>;
@@ -25,7 +25,7 @@ const ProjectSettings: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <InnerContent title={`${t("Project Settings")} / ${project?.name}`}>
+    <InnerContent title={`${t("Project Settings")} / ${project.name}`}>
       <ContentSection title={t("General")}>
         <ProjectGeneralForm
           project={project}

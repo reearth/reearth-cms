@@ -7,13 +7,17 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { localesWithLabel, useT } from "@reearth-cms/i18n";
 
-export interface Props {
-  user?: User;
-  onLanguageUpdate: (lang?: string | undefined) => Promise<void>;
+interface Props {
+  user: User;
+  onLanguageUpdate: (lang: string) => Promise<void>;
+};
+
+type FormType = {
+  lang: string;
 }
 
 const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
   const { Option } = Select;
   const t = useT();
 
@@ -30,7 +34,7 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
-    await onLanguageUpdate?.(values.lang);
+    await onLanguageUpdate(values.lang);
   }, [form, onLanguageUpdate]);
 
   return (

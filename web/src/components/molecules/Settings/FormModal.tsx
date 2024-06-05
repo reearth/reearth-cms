@@ -5,7 +5,6 @@ import Form, { Rule } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   TileType,
   TerrainType,
@@ -43,9 +42,8 @@ const TerrainTypeFormat: { [key in TerrainType]: string } = {
   CESIUM_ION: "Cesium Ion",
 };
 
-export interface Props {
-  model?: Model;
-  open?: boolean;
+interface Props {
+  open: boolean;
   onClose: () => void;
   tiles: TileInput[];
   terrains: TerrainInput[];

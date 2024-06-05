@@ -8,7 +8,7 @@ import {
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookList";
 
-export interface Props {
+interface Props {
   integration: Integration;
   webhookInitialValues?: WebhookValues;
   onWebhookCreate: (data: {

@@ -2,9 +2,9 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 
-export interface Props {
+interface Props {
   title: string;
-  collapsed?: boolean;
+  collapsed: boolean;
 }
 
 const ModelListHeader: React.FC<Props> = ({ title, collapsed }) => {

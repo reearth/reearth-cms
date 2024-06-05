@@ -4,13 +4,13 @@ import Groups from "@reearth-cms/components/molecules/Model/ModelsList/Groups";
 import ModelListBody from "@reearth-cms/components/molecules/Model/ModelsList/ModelListBody";
 import ModelListHeader from "@reearth-cms/components/molecules/Model/ModelsList/ModelListHeader";
 import Models from "@reearth-cms/components/molecules/Model/ModelsList/Models";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
+import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema/types";
 
 import useHooks from "./hooks";
 
 interface Props {
   title: string;
-  collapsed?: boolean;
+  collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
   onModelSelect: (modelId: string) => void;
@@ -55,9 +55,9 @@ const ModelsMenu: React.FC<Props> = ({
           collapsed={collapsed}
           selectedKey={schemaId}
           models={models}
-          onModelSelect={onModelSelect}
-          onModalOpen={handleModelModalOpen}
           open={modelModalShown}
+          onModalOpen={handleModelModalOpen}
+          onModelSelect={onModelSelect}
           onModelKeyCheck={handleModelKeyCheck}
           onClose={handleModelModalClose}
           onCreate={handleModelCreate}

@@ -13,7 +13,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+interface Props {
   integration: Integration;
   onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
   onRegenerateToken: () => Promise<void>;
@@ -31,7 +31,7 @@ const MyIntegrationForm: React.FC<Props> = ({
     try {
       const values = await form.validateFields();
       values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
-      onIntegrationUpdate?.(values);
+      onIntegrationUpdate(values);
     } catch (info) {
       console.log("Validate Failed:", info);
     }

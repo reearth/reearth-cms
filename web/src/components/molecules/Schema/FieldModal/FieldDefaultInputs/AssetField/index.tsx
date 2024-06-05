@@ -11,13 +11,12 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 interface Props {
-  multiple?: boolean;
+  multiple: boolean;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  defaultValue?: string;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;

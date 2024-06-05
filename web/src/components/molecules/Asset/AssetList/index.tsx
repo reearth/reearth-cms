@@ -16,7 +16,7 @@ import { useT } from "@reearth-cms/i18n";
 export type UploadType = "local" | "url";
 
 interface Props {
-  commentsPanel?: JSX.Element;
+  commentsPanel: JSX.Element;
   assetList: Asset[];
   fileList: UploadFile[];
   selection: {
@@ -27,7 +27,7 @@ interface Props {
   loading: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
-  selectedAsset: Asset | undefined;
+  selectedAsset?: Asset;
   totalCount: number;
   page: number;
   pageSize: number;

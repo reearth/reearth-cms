@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-export interface Props {
-  className?: string;
+interface Props {
   title?: string;
   danger?: boolean;
   headerActions?: ReactNode;

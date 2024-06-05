@@ -141,9 +141,12 @@ export interface FormValues {
 export type FormTypes = FormValues & {
   defaultValue?: any;
   maxLength?: number;
-  values: string[];
+  values?: string[];
   min?: number;
   max?: number;
-  tags: { color: string; id: string; name: string }[];
+  tags?: { color: string; id: string; name: string }[];
   group: string;
 };
+
+export type Tab = "fields" | "meta-data";
+export type SelectedSchemaType = "model" | "group";

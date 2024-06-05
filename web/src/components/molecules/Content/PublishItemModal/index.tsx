@@ -11,16 +11,16 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../types";
 
-export interface FormValues {
+interface FormValues {
   items: string[];
 }
 
-export interface Props {
-  open?: boolean;
+interface Props {
+  open: boolean;
   itemId: string;
   unpublishedItems: FormItem[];
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (data: string[]) => Promise<void>;
+  onClose: () => void;
+  onSubmit: (data: string[]) => Promise<void>;
 }
 
 const initialValues: FormValues = {
@@ -56,13 +56,13 @@ const PublishItemModal: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     try {
-      await onSubmit?.([
+      await onSubmit([
         itemId,
         ...Object.keys(selectedItems)
           .filter(key => selectedItems[key] === true)
           .map(key => key),
       ]);
-      onClose?.(true);
+      onClose();
       form.resetFields();
     } catch (info) {
       console.log("Validate Failed:", info);
@@ -70,7 +70,7 @@ const PublishItemModal: React.FC<Props> = ({
   }, [itemId, form, onClose, onSubmit, selectedItems]);
 
   const handleClose = useCallback(() => {
-    onClose?.(true);
+    onClose();
   }, [onClose]);
   return (
     <Modal open={open} onCancel={handleClose} onOk={handleSubmit} title={t("Publish")}>

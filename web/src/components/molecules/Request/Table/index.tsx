@@ -22,7 +22,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 interface Props {
   requests: Request[];
   loading: boolean;
-  selectedRequest: Request | undefined;
+  selectedRequest?: Request;
   onRequestSelect: (assetId: string) => void;
   onEdit: (requestId: string) => void;
   searchTerm: string;

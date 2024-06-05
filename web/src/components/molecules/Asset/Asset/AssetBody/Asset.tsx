@@ -5,7 +5,6 @@ import { useCallback, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import DownloadButton from "@reearth-cms/components/atoms/DownloadButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { DefaultOptionType } from "@reearth-cms/components/atoms/Select";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import Card from "@reearth-cms/components/molecules/Asset/Asset/AssetBody/card";
@@ -44,9 +43,9 @@ interface Props {
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onModalCancel: () => void;
-  onTypeChange: (value: PreviewType, option: DefaultOptionType | DefaultOptionType[]) => void;
+  onTypeChange: (value: PreviewType) => void;
   onChangeToFullScreen: () => void;
-  workspaceSettings?: WorkspaceSettings;
+  workspaceSettings: WorkspaceSettings;
 }
 
 export let viewerRef: CesiumViewer | undefined;
@@ -72,7 +71,7 @@ const AssetMolecule: React.FC<Props> = ({
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
   const formattedCreatedAt = dateTimeFormat(asset.createdAt);
 
-  const getViewer = (viewer: CesiumViewer | undefined) => {
+  const getViewer = (viewer?: CesiumViewer) => {
     viewerRef = viewer;
   };
 

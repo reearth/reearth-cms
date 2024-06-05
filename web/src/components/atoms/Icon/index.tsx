@@ -5,9 +5,9 @@ import { ReactSVG } from "react-svg";
 
 import Icons from "./icons";
 
-export type Icons = keyof typeof Icons;
+type Icons = keyof typeof Icons;
 
-export interface Props {
+interface Props {
   className?: string;
   icon?: string;
   size?: string | number;

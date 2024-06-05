@@ -8,14 +8,14 @@ import { useT } from "@reearth-cms/i18n";
 
 import { Project, Role } from "../Workspace/types";
 
-export interface RequestOptionsData {
+interface RequestOptionsData {
   id: string;
   role: string;
   needRequest: JSX.Element;
 }
 
-export interface Props {
-  project?: Project;
+interface Props {
+  project: Project;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
 }
 
@@ -24,17 +24,17 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
   const t = useT();
 
   useEffect(() => {
-    setRequestRoles(project?.requestRoles);
-  }, [project?.requestRoles]);
+    setRequestRoles(project.requestRoles);
+  }, [project.requestRoles]);
 
   const saveDisabled = useMemo(() => {
-    if (!requestRoles || !project?.requestRoles) return false;
-    if (requestRoles.length !== project?.requestRoles.length) return false;
+    if (!requestRoles || !project.requestRoles) return false;
+    if (requestRoles.length !== project.requestRoles.length) return false;
     const sortedArray1 = requestRoles.slice().sort();
-    const sortedArray2 = project?.requestRoles.slice().sort();
+    const sortedArray2 = project.requestRoles.slice().sort();
 
     return sortedArray1.every((element, index) => element === sortedArray2[index]);
-  }, [project?.requestRoles, requestRoles]);
+  }, [project.requestRoles, requestRoles]);
 
   const columns: TableColumnsType<RequestOptionsData> = [
     {
@@ -50,7 +50,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
     },
   ];
 
-  const dataSource: RequestOptionsData[] | undefined = useMemo(() => {
+  const dataSource: RequestOptionsData[] = useMemo(() => {
     const columns = [
       {
         id: "OWNER",

@@ -19,15 +19,15 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 interface Props {
-  commentsPanel?: JSX.Element;
+  commentsPanel: JSX.Element;
   viewsMenu: JSX.Element;
-  collapsed?: boolean;
+  collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];
   itemsDataLoading: boolean;
   contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
-  selectedItem: Item | undefined;
+  selectedItem?: Item;
   selection: {
     selectedRowKeys: string[];
   };

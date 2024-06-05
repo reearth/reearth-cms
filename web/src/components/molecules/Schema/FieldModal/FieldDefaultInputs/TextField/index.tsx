@@ -6,7 +6,7 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import { useT } from "@reearth-cms/i18n";
 
 interface Props {
-  multiple?: boolean;
+  multiple: boolean;
 }
 
 const TextField: React.FC<Props> = ({ multiple }) => {

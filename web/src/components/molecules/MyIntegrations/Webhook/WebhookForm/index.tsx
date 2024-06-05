@@ -17,7 +17,7 @@ import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 interface Props {
-  onBack?: () => void;
+  onBack: () => void;
   webhookInitialValues?: WebhookValues;
   onWebhookCreate: (data: {
     name: string;
@@ -36,6 +36,13 @@ interface Props {
   }) => Promise<void>;
 }
 
+interface FormType {
+  name: string;
+  url: string;
+  secret: string;
+  trigger: string[];
+}
+
 const WebhookForm: React.FC<Props> = ({
   onWebhookCreate,
   onWebhookUpdate,
@@ -44,7 +51,7 @@ const WebhookForm: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
 
   const itemOptions: CheckboxOptionType[] = [
     { label: t("Create"), value: "onItemCreate" },
@@ -63,22 +70,24 @@ const WebhookForm: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      const trigger: WebhookTrigger = ((values.trigger as string[]) ?? []).reduce(
+      const trigger: WebhookTrigger = (values.trigger ?? []).reduce(
         (ac, a) => ({ ...ac, [a]: true }),
         {},
-      ) as WebhookTrigger;
+      );
       const payload = {
         ...values,
         active: false,
         trigger,
       };
       if (webhookInitialValues?.id) {
-        payload.active = webhookInitialValues.active;
-        payload.webhookId = webhookInitialValues.id;
-        await onWebhookUpdate(payload);
+        await onWebhookUpdate({
+          ...payload,
+          active: webhookInitialValues.active,
+          webhookId: webhookInitialValues.id,
+        });
         onBack?.();
       } else {
-        await onWebhookCreate?.(payload);
+        await onWebhookCreate(payload);
         form.resetFields();
       }
     } catch (info) {
