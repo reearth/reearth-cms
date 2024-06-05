@@ -427,7 +427,9 @@ const ContentForm: React.FC<Props> = ({
       {
         key: "unpublish",
         label: t("Unpublish"),
-        onClick: () => itemId && (onUnpublish([itemId]) as any),
+        onClick: () => {
+          if (itemId) onUnpublish([itemId]);
+        },
       },
     ];
     if (showPublishAction) {
