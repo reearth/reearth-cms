@@ -28,17 +28,18 @@ export const Imagery: React.FC<Props> = ({ url }) => {
   }, [url]);
 
   const csvTextToObjects = useCallback((text: string) => {
-    const result = [];
+    const result: GeoObj[] = [];
     const lines = text.split(/\r\n|\n|\r/);
     const headers = lines[0].split(",");
-    for (let i = 1; i < lines.length; i++) {
+    lines.forEach((line, index) => {
+      if (index === 0) return;
       const obj: GeoObj = {};
-      const line = lines[i].split(",");
-      for (let j = 0; j < headers.length; j++) {
-        obj[headers[j]] = line[j];
-      }
+      const columns = line.split(",");
+      headers.forEach((header, headerIndex) => {
+        obj[header] = columns[headerIndex];
+      });
       result.push(obj);
-    }
+    });
     return result;
   }, []);
 
@@ -56,8 +57,6 @@ export const Imagery: React.FC<Props> = ({ url }) => {
             },
             properties: obj,
           });
-        } else {
-          break;
         }
       }
       viewer?.zoomTo(viewer.entities);
