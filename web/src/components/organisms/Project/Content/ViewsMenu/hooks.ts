@@ -16,10 +16,10 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useModel } from "@reearth-cms/state";
 
-type Params = {
+interface Params {
   currentView: CurrentView;
   onViewChange: () => void;
-};
+}
 
 export type modalStateType = "rename" | "create";
 

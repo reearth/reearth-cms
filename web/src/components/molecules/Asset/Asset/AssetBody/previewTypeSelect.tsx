@@ -12,20 +12,17 @@ export type PreviewType =
   | "MODEL_3D"
   | "UNKNOWN";
 
-type Props = {
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
+interface Props {
+  onTypeChange: (value: PreviewType, option: DefaultOptionType | DefaultOptionType[]) => void;
   style?: CSSProperties;
   value?: PreviewType;
-};
+}
 
-type PreviewTypeListItem = {
+interface PreviewTypeListItem {
   id: number;
   name: string;
   value: PreviewType;
-};
+}
 
 export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, style, value }) => {
   const t = useT();

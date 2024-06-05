@@ -133,6 +133,7 @@ test("Url metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://default1.com");
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "x2" }).click();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await expect(page.getByRole("tooltip").getByRole("link").nth(0)).toContainText(
     "http://default2.com",
@@ -161,9 +162,11 @@ test("Url metadata editing has succeeded", async ({ page }) => {
     .fill("http://default3.com");
   await page.getByText("url1 description").click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("button", { name: "arrow-up" }).nth(1).click();
   await closeNotification(page);

@@ -16,7 +16,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
-type Props = {
+interface Props {
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
   showPublishAction?: boolean;
@@ -24,8 +24,8 @@ type Props = {
   collapsed?: boolean;
   model?: Model;
   modelsMenu: React.ReactNode;
-  initialFormValues: { [key: string]: any };
-  initialMetaFormValues: { [key: string]: any };
+  initialFormValues: Record<string, any>;
+  initialMetaFormValues: Record<string, any>;
   item?: Item;
   itemId?: string;
   itemLoading: boolean;
@@ -104,7 +104,7 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
-};
+}
 
 const ContentDetailsMolecule: React.FC<Props> = ({
   loadingReference,

@@ -5,10 +5,10 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { RequestState } from "@reearth-cms/components/organisms/Project/Request/RequestList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   className?: string;
   requestState: RequestState;
-};
+}
 
 const RequestStatus: React.FC<Props> = ({ className, requestState }) => {
   const t = useT();

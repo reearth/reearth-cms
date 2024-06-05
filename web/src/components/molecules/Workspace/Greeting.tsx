@@ -3,9 +3,9 @@ import React from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   coverImageUrl?: string;
-};
+}
 
 const Greeting: React.FC<Props> = ({ coverImageUrl }) => {
   const t = useT();

@@ -126,7 +126,7 @@ export default (isItemsRequired: boolean) => {
               let cursor = "";
               let offset = 0;
               let uploadToken = "";
-              // eslint-disable-next-line no-constant-condition
+
               while (true) {
                 const createAssetUploadResult = await createAssetUploadMutation({
                   variables: {

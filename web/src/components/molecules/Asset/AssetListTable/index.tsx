@@ -28,7 +28,7 @@ import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import { compressedFileFormats } from "../../Common/Asset";
 
-type Props = {
+interface Props {
   assetList: Asset[];
   loading: boolean;
   selectedAsset: Asset | undefined;
@@ -51,7 +51,7 @@ type Props = {
     pageSize: number,
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
-};
+}
 
 const AssetListTable: React.FC<Props> = ({
   assetList,
@@ -236,7 +236,7 @@ const AssetListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: any) => {
+      onChange: (selectedRowKeys: Key[]) => {
         setSelection({
           ...selection,
           selectedRowKeys: selectedRowKeys,

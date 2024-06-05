@@ -8,13 +8,13 @@ import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
 
-type Props = {
+interface Props {
   className?: string;
   checked?: boolean[];
   onChange?: (value: (string | number | boolean)[]) => void;
   FieldInput: React.FunctionComponent<any>;
   disabled?: boolean;
-};
+}
 
 const MultiValueBooleanField: React.FC<Props> = ({
   className,

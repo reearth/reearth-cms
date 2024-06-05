@@ -33,8 +33,8 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("no request");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).not.toBeVisible();
-  await expect(page.locator("tbody").getByText("WAITING")).not.toBeVisible();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeHidden();
   await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
@@ -49,7 +49,7 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await closeNotification(page);
   await page.getByRole("button", { name: "Approve" }).click();
   await closeNotification(page);
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).not.toBeVisible();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
   await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
   await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
   await page.getByRole("button", { name: "OK" }).click();
@@ -65,8 +65,8 @@ test("Request closing and reopening has succeeded", async ({ page }) => {
 
   await page.getByRole("button", { name: "Close" }).click();
   await closeNotification(page);
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).not.toBeVisible();
-  await expect(page.locator("tbody").getByText("WAITING")).not.toBeVisible();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeHidden();
 
   await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
   await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
@@ -110,7 +110,7 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await expect(page.getByText("new comment").nth(1)).toBeVisible();
   await page.getByLabel("delete").locator("svg").click();
   await closeNotification(page);
-  await expect(page.getByText("new comment").nth(1)).not.toBeVisible();
+  await expect(page.getByText("new comment").nth(1)).toBeHidden();
 });
 
 test("Comment CRUD on Request page has succeeded", async ({ page }) => {

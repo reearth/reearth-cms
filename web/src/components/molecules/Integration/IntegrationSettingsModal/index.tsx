@@ -7,16 +7,16 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type FormValues = {
+export interface FormValues {
   role: Role;
-};
+}
 
-export type Props = {
+export interface Props {
   selectedIntegrationMember?: IntegrationMember;
   open?: boolean;
   onClose?: () => void;
   onSubmit?: (role: Role) => Promise<void> | void;
-};
+}
 
 const IntegrationSettingsModal: React.FC<Props> = ({
   open,

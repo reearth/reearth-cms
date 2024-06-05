@@ -8,13 +8,13 @@ import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
 
-type Props = {
+interface Props {
   className?: string;
   selectedValues?: string[];
   value?: string[];
   onChange?: (value: string[]) => void;
   disabled?: boolean;
-};
+}
 
 const MultiValueSelect: React.FC<Props> = ({
   className,

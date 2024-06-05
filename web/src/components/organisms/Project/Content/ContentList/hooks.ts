@@ -276,7 +276,7 @@ export default () => {
 
   const fieldsGet = useCallback(
     (item: Item) => {
-      const result: { [key: string]: any } = {};
+      const result: Record<string, any> = {};
       item?.fields?.map(field => {
         result[field.schemaFieldId] = fieldValueGet(field, item);
       });
@@ -286,7 +286,7 @@ export default () => {
   );
 
   const metadataGet = useCallback((fields?: ItemField[]) => {
-    const result: { [key: string]: any } = {};
+    const result: Record<string, any> = {};
     fields?.forEach(field => {
       if (Array.isArray(field.value) && field.value.length > 0) {
         result[field.schemaFieldId] = field.value.map(v => "" + v);

@@ -378,11 +378,11 @@ export default () => {
     }
   }, []);
 
-  const [initialFormValues, setInitialFormValues] = useState<{ [key: string]: any }>({});
+  const [initialFormValues, setInitialFormValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const handleInitialValuesSet = async () => {
-      const initialValues: { [key: string]: any } = {};
+      const initialValues: Record<string, any> = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
           initialValues[field.id] = {
@@ -429,8 +429,8 @@ export default () => {
     handleInitialValuesSet();
   }, [currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
 
-  const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
-    const initialValues: { [key: string]: any } = {};
+  const initialMetaFormValues: Record<string, any> = useMemo(() => {
+    const initialValues: Record<string, any> = {};
     if (!currentItem && !itemLoading) {
       currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {

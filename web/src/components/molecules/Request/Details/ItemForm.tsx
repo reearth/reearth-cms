@@ -13,7 +13,7 @@ import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 interface Props {
   schema?: Schema;
-  initialFormValues: any;
+  initialFormValues: Record<string, any>;
   referencedItems?: FormItem[];
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;

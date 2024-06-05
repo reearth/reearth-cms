@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { Rule } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
@@ -17,14 +17,14 @@ import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-type FormValues = {
+interface FormValues {
   type: TileType | TerrainType;
   name?: string;
   url?: string;
   image?: string;
   cesiumIonAssetId?: string;
   cesiumIonAccessToken?: string;
-};
+}
 
 const TileTypeFormat: { [key in TileType]: string } = {
   DEFAULT: "Default",
@@ -162,7 +162,7 @@ const FormModal: React.FC<Props> = ({
     () => [
       {
         message: t("URL is not valid"),
-        validator: async (_: any, value: string) => {
+        validator: async (_: Rule, value: string) => {
           return value && !validateURL(value) ? Promise.reject() : Promise.resolve();
         },
       },

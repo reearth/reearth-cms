@@ -40,7 +40,7 @@ const columns = [
   },
 ];
 
-type Props = {
+interface Props {
   me: {
     id?: string;
     myWorkspace?: string;
@@ -51,7 +51,7 @@ type Props = {
   handleRoleModalOpen: (member: UserMember) => void;
   handleMemberAddModalOpen: () => void;
   workspaceUserMembers?: UserMember[];
-};
+}
 
 const MemberTable: React.FC<Props> = ({
   me,

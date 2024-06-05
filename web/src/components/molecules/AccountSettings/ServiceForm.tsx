@@ -7,10 +7,10 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { localesWithLabel, useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   user?: User;
   onLanguageUpdate: (lang?: string | undefined) => Promise<void>;
-};
+}
 
 const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   const [form] = Form.useForm();

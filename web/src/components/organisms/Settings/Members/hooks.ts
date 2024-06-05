@@ -78,7 +78,9 @@ export default () => {
   }, [searchUserData?.searchUser, data?.me?.id]);
 
   const handleUserSearch = useCallback(
-    (nameOrEmail: string) => nameOrEmail && searchUserQuery({ variables: { nameOrEmail } }),
+    (nameOrEmail: string) => {
+      if (nameOrEmail) searchUserQuery({ variables: { nameOrEmail } });
+    },
     [searchUserQuery],
   );
 

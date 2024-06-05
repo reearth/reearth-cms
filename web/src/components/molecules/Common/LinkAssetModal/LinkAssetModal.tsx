@@ -23,7 +23,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
-type Props = {
+interface Props {
   visible: boolean;
   onLinkAssetModalCancel: () => void;
   linkedAsset?: ItemAsset;
@@ -52,7 +52,7 @@ type Props = {
   displayUploadModal: () => void;
   onUploadModalCancel?: () => void;
   onUploadAndLink: () => void;
-};
+}
 
 const LinkAssetModal: React.FC<Props> = ({
   visible,

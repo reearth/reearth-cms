@@ -8,13 +8,13 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   open: boolean;
   data?: Model | Group;
   onClose: () => void;
   onDelete: (modelId?: string) => Promise<void> | void;
   isModel: boolean;
-};
+}
 
 const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel }) => {
   const t = useT();

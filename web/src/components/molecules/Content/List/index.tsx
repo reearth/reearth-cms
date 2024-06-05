@@ -18,7 +18,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   commentsPanel?: JSX.Element;
   viewsMenu: JSX.Element;
   collapsed?: boolean;
@@ -60,7 +60,7 @@ type Props = {
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-};
+}
 
 const ContentListMolecule: React.FC<Props> = ({
   commentsPanel,

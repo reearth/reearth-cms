@@ -5,13 +5,13 @@ import { JSONTree } from "react-json-tree";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 
-type Props = {
+interface Props {
   infoBoxProps: any;
   infoBoxVisibility: boolean;
   title?: string;
   description?: string;
   onClose: () => void;
-};
+}
 
 const InfoBox: React.FC<Props> = ({
   infoBoxProps,

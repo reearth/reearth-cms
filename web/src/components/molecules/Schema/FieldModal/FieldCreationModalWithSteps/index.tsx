@@ -29,7 +29,7 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 const { Step } = Steps;
 
-export type Props = {
+export interface Props {
   selectedField?: Field | null;
   open?: boolean;
   selectedType: FieldType;
@@ -38,7 +38,7 @@ export type Props = {
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
   onUpdate?: (values: FormValues) => Promise<void> | void;
-};
+}
 
 const FieldCreationModalWithSteps: React.FC<Props> = ({
   selectedField,
@@ -162,7 +162,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           }
         }
       })
-      .catch(_ => {
+      .catch(() => {
         setActiveTab("settings");
       });
   }, [
@@ -187,14 +187,14 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
               schemaId: schemaIdRef.current ?? "",
               correspondingField: {
                 ...fields2Values,
-                fieldId: selectedField?.typeProperty?.correspondingField.id,
+                fieldId: selectedField?.typeProperty?.correspondingField?.id,
               },
             },
           };
           await onUpdate?.({ ...field1FormValues, fieldId: selectedField.id });
           onClose?.(true);
         })
-        .catch(_ => {
+        .catch(() => {
           setActiveTab("settings");
         });
     } else {
@@ -214,7 +214,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           await onSubmit?.(field1FormValues);
           onClose?.(true);
         })
-        .catch(_ => {
+        .catch(() => {
           setActiveTab("settings");
         });
     }

@@ -15,9 +15,9 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
-type Params = {
+interface Params {
   integrationId?: string;
-};
+}
 
 export default ({ integrationId }: Params) => {
   const navigate = useNavigate();

@@ -6,10 +6,10 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   workspaceName?: string;
   onWorkspaceUpdate: (name?: string | undefined) => Promise<void>;
-};
+}
 
 const WorkspaceGeneralForm: React.FC<Props> = ({ workspaceName, onWorkspaceUpdate }) => {
   const [form] = Form.useForm();

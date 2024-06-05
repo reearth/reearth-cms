@@ -6,12 +6,12 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 
 import { Imagery, Property } from "./Imagery";
 
-type Props = {
+interface Props {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
   url: string;
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
   workspaceSettings?: WorkspaceSettings;
-};
+}
 
 const MvtViewer: React.FC<Props> = ({ viewerProps, url, onGetViewer, workspaceSettings }) => {
   const [properties, setProperties] = useState<Property>();

@@ -72,7 +72,7 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByLabel("Description(optional)").fill("ref description");
   await expect(
     page.locator("label").filter({ hasText: "Support multiple values" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await page.getByLabel("Set field as unique").check();
@@ -81,13 +81,13 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("ref *#ref(unique)");
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await expect(page.getByText("ref model #ref-model")).toBeVisible();
-  await expect(page.getByLabel("Select the model to reference")).not.toBeEnabled();
+  await expect(page.getByLabel("Select the model to reference")).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "One-way reference" }).locator("span").first(),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "Two-way reference" }).locator("span").first(),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByLabel("Close", { exact: true }).first().click();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("ref");
@@ -105,12 +105,12 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByPlaceholder("input search text").fill("1");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByText("text1")).toBeVisible();
-  await expect(page.getByText("text2")).not.toBeVisible();
+  await expect(page.getByText("text2")).toBeHidden();
   await page.getByRole("row").getByRole("button").nth(0).hover();
   await page.getByRole("row").getByRole("button").nth(0).click();
   await expect(page.locator("#root").getByText("text1")).toBeVisible();
   await page.getByRole("button").nth(3).click();
-  await expect(page.locator("#root").getByText("text1")).not.toBeVisible();
+  await expect(page.locator("#root").getByText("text1")).toBeHidden();
   await page.getByRole("button", { name: "Refer to item" }).click();
   await expect(page.getByText("text1")).toBeVisible();
   await expect(page.getByText("text2")).toBeVisible();
@@ -185,12 +185,12 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByLabel("Description(optional)").fill("ref1 description");
   await expect(
     page.locator("label").filter({ hasText: "Support multiple values" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByRole("tab", { name: "Validation" }).click();
   await page.getByLabel("Make field required").check();
   await expect(
     page.locator("label").filter({ hasText: "Set field as unique" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByRole("button", { name: "Next" }).click();
 
   await page.getByLabel("Display name").click();
@@ -219,13 +219,13 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await expect(page.getByLabel("Fields")).toContainText("ref1 *#ref1");
   await page.locator("li").filter({ hasText: "ref1 *#ref1" }).locator("svg").nth(3).click();
   await expect(page.getByText("ref model #ref-model")).toBeVisible();
-  await expect(page.getByLabel("Select the model to reference")).not.toBeEnabled();
+  await expect(page.getByLabel("Select the model to reference")).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "One-way reference" }).locator("span").first(),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "Two-way reference" }).locator("span").first(),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByLabel("Close", { exact: true }).first().click();
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("ref1");
@@ -283,12 +283,12 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   ).toBeVisible();
   await expect(
     page.getByRole("cell", { name: "text2", exact: true }).locator("span").first(),
-  ).not.toBeVisible();
+  ).toBeHidden();
 
   await page.getByText("e2e model name").click();
   await expect(
     page.getByRole("cell", { name: "reference text1", exact: true }).locator("span").first(),
-  ).not.toBeVisible();
+  ).toBeHidden();
   await expect(
     page.getByRole("cell", { name: "reference text2", exact: true }).locator("span").first(),
   ).toBeVisible();

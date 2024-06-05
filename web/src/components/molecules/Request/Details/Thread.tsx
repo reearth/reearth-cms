@@ -11,7 +11,7 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
 
-export type Props = {
+export interface Props {
   me?: User;
   currentRequest: Request;
   emptyText?: string;
@@ -20,7 +20,7 @@ export type Props = {
   onCommentDelete: (commentId: string) => Promise<void>;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-};
+}
 
 const RequestThread: React.FC<Props> = ({
   me,

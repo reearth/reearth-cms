@@ -8,13 +8,13 @@ import { getExtension } from "@reearth-cms/utils/file";
 
 import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 
-type Props = {
+interface Props {
   viewerProps?: ComponentProps<typeof ResiumViewer>;
   url: string;
   onGetViewer: (viewer: CesiumViewer | undefined) => void;
   setAssetUrl: (url: string) => void;
   workspaceSettings?: WorkspaceSettings;
-};
+}
 
 const Geo3dViewer: React.FC<Props> = ({
   viewerProps,

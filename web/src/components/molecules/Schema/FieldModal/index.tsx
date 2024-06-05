@@ -32,7 +32,7 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
-export type Props = {
+export interface Props {
   groups?: Group[];
   open?: boolean;
   isMeta: boolean;
@@ -68,7 +68,7 @@ export type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+}
 
 const initialValues: FormValues = {
   fieldId: "",

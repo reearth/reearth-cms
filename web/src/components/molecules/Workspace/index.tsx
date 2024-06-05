@@ -9,7 +9,7 @@ import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import WorkspaceHeader from "@reearth-cms/components/molecules/Workspace/WorkspaceHeader";
 
-type Props = {
+interface Props {
   coverImageUrl?: string;
   projects?: Project[];
   projectModal?: boolean;
@@ -24,7 +24,7 @@ type Props = {
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-};
+}
 
 const WorkspaceWrapper: React.FC<Props> = ({
   coverImageUrl,

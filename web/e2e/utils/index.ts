@@ -1,9 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
 import { test as base, type Page } from "@playwright/test";
 
 import { config, getAccessToken, type Config } from "./config";
 
-// eslint-disable-next-line no-restricted-imports
 export { expect } from "@playwright/test";
 
 export type Reearth = {

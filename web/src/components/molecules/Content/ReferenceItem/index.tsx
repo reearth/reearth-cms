@@ -8,7 +8,7 @@ import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/
 
 import { ItemStatus } from "../types";
 
-type Props = {
+interface Props {
   value: string;
   title: string;
   modelId?: string;
@@ -16,7 +16,7 @@ type Props = {
   workspaceId?: string;
   projectId?: string;
   disabled?: boolean;
-};
+}
 
 const ReferenceItem: React.FC<Props> = ({
   value,

@@ -18,7 +18,7 @@ import { FormItem } from "../types";
 
 import useHooks from "./hooks";
 
-type Props = {
+interface Props {
   visible?: boolean;
   loading: boolean;
   correspondingFieldId: string;
@@ -34,7 +34,7 @@ type Props = {
   onLinkItemModalCancel: () => void;
   onChange?: (value: string) => void;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
-};
+}
 
 const LinkItemModal: React.FC<Props> = ({
   visible,

@@ -1,14 +1,14 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-export type Props = {
+export interface Props {
   className?: string;
   title?: string;
   danger?: boolean;
   headerActions?: ReactNode;
   children?: ReactNode;
   description?: string;
-};
+}
 
 const ContentSection: React.FC<Props> = ({
   title,

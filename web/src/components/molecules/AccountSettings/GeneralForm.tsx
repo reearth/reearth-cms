@@ -7,10 +7,10 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   user?: User;
   onUserUpdate: (name?: string | undefined, email?: string | undefined) => Promise<void>;
-};
+}
 
 const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
   const [form] = Form.useForm();

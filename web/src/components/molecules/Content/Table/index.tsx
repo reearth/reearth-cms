@@ -46,7 +46,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-type Props = {
+interface Props {
   className?: string;
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
@@ -83,7 +83,7 @@ type Props = {
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-};
+}
 
 const ContentTable: React.FC<Props> = ({
   contentTableFields,

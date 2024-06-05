@@ -16,7 +16,10 @@ export interface Props {
   addField: (fieldType: FieldType) => void;
 }
 
-type FieldListItem = { title: string; fields: FieldType[] };
+interface FieldListItem {
+  title: string;
+  fields: FieldType[];
+}
 
 const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();

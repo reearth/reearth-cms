@@ -7,12 +7,12 @@ import IntegrationCard from "@reearth-cms/components/molecules/Integration/Integ
 import { Integration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   integrations?: Integration[];
   open?: boolean;
   onClose: () => void;
   onSubmit: (integration?: Integration) => Promise<void> | void;
-};
+}
 
 const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose, onSubmit }) => {
   const t = useT();

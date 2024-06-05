@@ -9,13 +9,16 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
-import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import {
+  WebhookTrigger,
+  WebhookValues,
+} from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-type Props = {
+interface Props {
   onBack?: () => void;
-  webhookInitialValues?: any;
+  webhookInitialValues?: WebhookValues;
   onWebhookCreate: (data: {
     name: string;
     url: string;
@@ -31,7 +34,7 @@ type Props = {
     trigger: WebhookTrigger;
     secret?: string;
   }) => Promise<void>;
-};
+}
 
 const WebhookForm: React.FC<Props> = ({
   onWebhookCreate,

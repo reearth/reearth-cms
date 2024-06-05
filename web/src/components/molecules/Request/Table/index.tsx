@@ -19,7 +19,7 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-type Props = {
+interface Props {
   requests: Request[];
   loading: boolean;
   selectedRequest: Request | undefined;
@@ -46,7 +46,7 @@ type Props = {
   requestState: RequestState[];
   page: number;
   pageSize: number;
-};
+}
 
 const RequestListTable: React.FC<Props> = ({
   requests,

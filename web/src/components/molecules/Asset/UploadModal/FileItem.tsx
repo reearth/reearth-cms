@@ -8,10 +8,10 @@ import { useT } from "@reearth-cms/i18n";
 
 import { isImageUrl } from "./util";
 
-type Props = {
+interface Props {
   file: UploadFile<any>;
   remove: () => void;
-};
+}
 
 const FileItem: React.FC<Props> = ({ file, remove }) => {
   const t = useT();

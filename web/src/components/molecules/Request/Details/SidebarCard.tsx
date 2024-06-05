@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
-type Props = {
+interface Props {
   title: string;
   children?: ReactNode;
   style?: CSSProperties;
-};
+}
 
 const SidebarCard: React.FC<Props> = ({ title, children, style }) => {
   return (

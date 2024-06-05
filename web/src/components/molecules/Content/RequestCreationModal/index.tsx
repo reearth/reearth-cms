@@ -16,7 +16,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../types";
 
-export type FormValues = {
+export interface FormValues {
   title: string;
   description: string;
   state: RequestState;
@@ -24,9 +24,9 @@ export type FormValues = {
   items: {
     itemId: string;
   }[];
-};
+}
 
-export type Props = {
+export interface Props {
   open?: boolean;
   requestCreationLoading: boolean;
   itemId: string;
@@ -34,7 +34,7 @@ export type Props = {
   workspaceUserMembers: UserMember[];
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (data: FormValues) => Promise<void>;
-};
+}
 
 const initialValues: FormValues = {
   title: "",
@@ -59,7 +59,7 @@ const RequestCreationModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
-  const [selectedItems, setSelectedItems] = useState<{ [key: string]: boolean }>({});
+  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
 
   const reviewers: SelectProps["options"] = [];
   for (const member of workspaceUserMembers) {

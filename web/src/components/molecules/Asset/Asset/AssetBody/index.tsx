@@ -11,7 +11,7 @@ import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   asset?: Asset;
   assetFileExt?: string;
   selectedPreviewType: PreviewType;
@@ -22,16 +22,13 @@ export type Props = {
   commentsPanel?: JSX.Element;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
-  onTypeChange: (
-    value: PreviewType,
-    option: DefaultOptionType | DefaultOptionType[],
-  ) => void | undefined;
+  onTypeChange: (value: PreviewType, option: DefaultOptionType | DefaultOptionType[]) => void;
   onModalCancel: () => void;
   onChangeToFullScreen: () => void;
   onBack: () => void;
   onSave: () => void;
   workspaceSettings?: WorkspaceSettings;
-};
+}
 
 const AssetWrapper: React.FC<Props> = ({
   asset,

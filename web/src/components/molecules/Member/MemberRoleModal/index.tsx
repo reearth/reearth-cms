@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from "react";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Members/hooks";
 import { useT } from "@reearth-cms/i18n";
 
@@ -13,7 +14,7 @@ export interface FormValues {
 
 export interface Props {
   open?: boolean;
-  member?: any;
+  member: UserMember;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (userId: string, role: RoleUnion) => Promise<void>;
 }

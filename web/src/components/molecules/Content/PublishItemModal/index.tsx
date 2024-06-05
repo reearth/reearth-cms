@@ -11,17 +11,17 @@ import { useT } from "@reearth-cms/i18n";
 
 import { FormItem } from "../types";
 
-export type FormValues = {
+export interface FormValues {
   items: string[];
-};
+}
 
-export type Props = {
+export interface Props {
   open?: boolean;
   itemId: string;
   unpublishedItems: FormItem[];
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (data: string[]) => Promise<void>;
-};
+}
 
 const initialValues: FormValues = {
   items: [],
@@ -36,7 +36,7 @@ const PublishItemModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm();
-  const [selectedItems, setSelectedItems] = useState<{ [key: string]: boolean }>({});
+  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
 
   const handleCheckboxChange = useCallback(
     (itemId: string, checked: boolean) => {

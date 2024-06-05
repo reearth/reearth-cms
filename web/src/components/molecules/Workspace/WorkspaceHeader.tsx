@@ -6,11 +6,11 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   onProjectSearch: (value: string) => void;
   onProjectModalOpen: () => void;
   onWorkspaceModalOpen?: () => void;
-};
+}
 
 const WorkspaceHeader: React.FC<Props> = ({
   onProjectSearch,

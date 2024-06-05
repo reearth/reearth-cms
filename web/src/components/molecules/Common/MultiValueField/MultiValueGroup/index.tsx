@@ -20,7 +20,7 @@ import { newID } from "@reearth-cms/utils/id";
 import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 
-type Props = {
+interface Props {
   className?: string;
   value?: string[];
   onChange?: (value: string[]) => void;
@@ -68,7 +68,7 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-};
+}
 
 const MultiValueGroup: React.FC<Props> = ({
   className,
@@ -124,7 +124,7 @@ const MultiValueGroup: React.FC<Props> = ({
   const handleInputDelete = useCallback(
     (key: number) => {
       onChange?.(
-        value.filter((_: any, index: number) => {
+        value.filter((_, index: number) => {
           return index !== key;
         }),
       );

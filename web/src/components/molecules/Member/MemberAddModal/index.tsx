@@ -18,7 +18,7 @@ export interface FormValues {
 
 export interface Props {
   open?: boolean;
-  onUserSearch: (nameOrEmail: string) => "" | Promise<any>;
+  onUserSearch: (nameOrEmail: string) => void;
   onUserAdd: () => void;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (users: MemberInput[]) => void;

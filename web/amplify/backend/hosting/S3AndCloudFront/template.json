@@ -54,16 +54,9 @@
         "CorsConfiguration": {
           "CorsRules": [
             {
-              "AllowedHeaders": [
-                "Authorization",
-                "Content-Length"
-              ],
-              "AllowedMethods": [
-                "GET"
-              ],
-              "AllowedOrigins": [
-                "*"
-              ],
+              "AllowedHeaders": ["Authorization", "Content-Length"],
+              "AllowedMethods": ["GET"],
+              "AllowedOrigins": ["*"],
               "MaxAge": 3000
             }
           ]
@@ -83,10 +76,7 @@
               "Effect": "Allow",
               "Principal": {
                 "CanonicalUser": {
-                  "Fn::GetAtt": [
-                    "OriginAccessIdentity",
-                    "S3CanonicalUserId"
-                  ]
+                  "Fn::GetAtt": ["OriginAccessIdentity", "S3CanonicalUserId"]
                 }
               },
               "Action": "s3:GetObject",
@@ -120,20 +110,14 @@
     },
     "CloudFrontDistribution": {
       "Type": "AWS::CloudFront::Distribution",
-      "DependsOn": [
-        "S3Bucket",
-        "OriginAccessIdentity"
-      ],
+      "DependsOn": ["S3Bucket", "OriginAccessIdentity"],
       "Properties": {
         "DistributionConfig": {
           "HttpVersion": "http2",
           "Origins": [
             {
               "DomainName": {
-                "Fn::GetAtt": [
-                  "S3Bucket",
-                  "RegionalDomainName"
-                ]
+                "Fn::GetAtt": ["S3Bucket", "RegionalDomainName"]
               },
               "Id": "hostingS3Bucket",
               "S3OriginConfig": {
@@ -153,15 +137,7 @@
           ],
           "Enabled": "true",
           "DefaultCacheBehavior": {
-            "AllowedMethods": [
-              "DELETE",
-              "GET",
-              "HEAD",
-              "OPTIONS",
-              "PATCH",
-              "POST",
-              "PUT"
-            ],
+            "AllowedMethods": ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
             "TargetOriginId": "hostingS3Bucket",
             "ForwardedValues": {
               "QueryString": "false"
@@ -211,10 +187,7 @@
     },
     "WebsiteURL": {
       "Value": {
-        "Fn::GetAtt": [
-          "S3Bucket",
-          "WebsiteURL"
-        ]
+        "Fn::GetAtt": ["S3Bucket", "WebsiteURL"]
       },
       "Description": "URL for website hosted on S3"
     },
@@ -225,10 +198,7 @@
           [
             "https://",
             {
-              "Fn::GetAtt": [
-                "S3Bucket",
-                "DomainName"
-              ]
+              "Fn::GetAtt": ["S3Bucket", "DomainName"]
             }
           ]
         ]
@@ -242,10 +212,7 @@
     },
     "CloudFrontDomainName": {
       "Value": {
-        "Fn::GetAtt": [
-          "CloudFrontDistribution",
-          "DomainName"
-        ]
+        "Fn::GetAtt": ["CloudFrontDistribution", "DomainName"]
       }
     },
     "CloudFrontSecureURL": {
@@ -255,10 +222,7 @@
           [
             "https://",
             {
-              "Fn::GetAtt": [
-                "CloudFrontDistribution",
-                "DomainName"
-              ]
+              "Fn::GetAtt": ["CloudFrontDistribution", "DomainName"]
             }
           ]
         ]

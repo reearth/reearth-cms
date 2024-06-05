@@ -22,9 +22,9 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useWorkspace, useProject } from "@reearth-cms/state";
 
-type Params = {
+interface Params {
   modelId?: string;
-};
+}
 
 export default ({ modelId }: Params) => {
   const t = useT();

@@ -16,7 +16,7 @@ import {
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   workspaceSettings: WorkspaceSettings;
   hasPrivilege: boolean;
   onWorkspaceSettingsUpdate: (
@@ -24,7 +24,7 @@ export type Props = {
     terrains: TerrainInput[],
     isEnable?: boolean,
   ) => Promise<void>;
-};
+}
 
 const Settings: React.FC<Props> = ({
   workspaceSettings,

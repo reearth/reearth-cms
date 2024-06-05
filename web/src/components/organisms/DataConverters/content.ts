@@ -6,6 +6,7 @@ import {
   ItemAsset,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
+import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 import { initialValuesGet } from "@reearth-cms/components/organisms/Project/Request/RequestDetails/utils";
 import {
   Asset as GQLAsset,
@@ -102,7 +103,7 @@ export const fromGraphQLRequest = (request: GQLRequest | undefined): Request | u
       id: item.itemId,
       modelName: item?.item?.value.model.name,
       initialValues: initialValuesGet(item.item?.value.fields),
-      schema: item.item?.value.schema ? item.item?.value.schema : undefined,
+      schema: item.item?.value.schema ? (item.item?.value.schema as Schema) : undefined,
       referencedItems:
         item.item?.value.referencedItems?.map(item => ({
           id: item.id,

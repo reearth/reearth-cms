@@ -14,12 +14,12 @@ export interface FormValues {
   description: string;
 }
 
-export type Props = {
+export interface Props {
   open?: boolean;
   onClose?: (refetch?: boolean) => void;
   onSubmit?: (values: FormValues) => Promise<void> | void;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-};
+}
 
 const initialValues: FormValues = {
   name: "",

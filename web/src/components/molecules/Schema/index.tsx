@@ -14,7 +14,7 @@ import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldL
 import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   data?: Model | Group;
   collapsed?: boolean;
   onModalOpen: () => void;
@@ -27,7 +27,7 @@ type Props = {
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
-};
+}
 
 export type Tab = "fields" | "meta-data";
 export type SelectedSchemaType = "model" | "group";

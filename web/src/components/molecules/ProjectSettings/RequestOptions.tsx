@@ -8,16 +8,16 @@ import { useT } from "@reearth-cms/i18n";
 
 import { Project, Role } from "../Workspace/types";
 
-export type RequestOptionsData = {
+export interface RequestOptionsData {
   id: string;
   role: string;
   needRequest: JSX.Element;
-};
+}
 
-export type Props = {
+export interface Props {
   project?: Project;
   onProjectRequestRolesUpdate: (role?: Role[] | null) => Promise<void>;
-};
+}
 
 const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRolesUpdate }) => {
   const [requestRoles, setRequestRoles] = useState<Role[] | null | undefined>([]);
