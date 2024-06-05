@@ -9,7 +9,7 @@ import { useT } from "@reearth-cms/i18n";
 interface Props {
   workspaceName?: string;
   onWorkspaceUpdate: (name: string) => Promise<void>;
-};
+}
 
 interface FormType {
   name: string;

@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 interface Props {
   user: User;
   onUserUpdate: (name: string, email: string) => Promise<void>;
-};
+}
 
 interface FormType {
   name: string;

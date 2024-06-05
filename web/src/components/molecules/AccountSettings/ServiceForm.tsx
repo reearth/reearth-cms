@@ -10,7 +10,7 @@ import { localesWithLabel, useT } from "@reearth-cms/i18n";
 interface Props {
   user: User;
   onLanguageUpdate: (lang: string) => Promise<void>;
-};
+}
 
 interface FormType {
   lang: string;
