@@ -1,4 +1,4 @@
-export interface AmplifyDependentResourcesAttributes {
+export type AmplifyDependentResourcesAttributes = {
   hosting: {
     S3AndCloudFront: {
       CloudFrontDistributionID: "string";
@@ -11,4 +11,4 @@ export interface AmplifyDependentResourcesAttributes {
       WebsiteURL: "string";
     };
   };
-}
+};
