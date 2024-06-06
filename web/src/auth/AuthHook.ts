@@ -1,5 +1,5 @@
 export default interface AuthHook {
-  user: unknown;
+  user: unknown; // TODO: Replace 'unknown' with your user type
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;

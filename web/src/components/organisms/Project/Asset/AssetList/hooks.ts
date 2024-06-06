@@ -126,7 +126,6 @@ export default (isItemsRequired: boolean) => {
               let cursor = "";
               let offset = 0;
               let uploadToken = "";
-
               while (true) {
                 const createAssetUploadResult = await createAssetUploadMutation({
                   variables: {
