@@ -139,6 +139,7 @@ export interface FormValues {
 }
 
 export type FormTypes = FormValues & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   maxLength?: number;
   values?: string[];

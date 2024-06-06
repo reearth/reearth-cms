@@ -14,6 +14,7 @@ type Props = {
   value?: (string | number | Dayjs)[];
   onChange?: (value: (string | number | Dayjs)[]) => void;
   onBlur?: () => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
 } & TextAreaProps &
   InputProps;

@@ -237,7 +237,7 @@ const RequestListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: any) => {
+      onChange: (selectedRowKeys: Key[]) => {
         setSelection({
           ...selection,
           selectedRowKeys: selectedRowKeys,
@@ -264,6 +264,7 @@ const RequestListTable: React.FC<Props> = ({
   );
 
   const AlertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
         <Space size={16}>

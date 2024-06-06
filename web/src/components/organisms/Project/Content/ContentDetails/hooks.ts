@@ -378,10 +378,12 @@ export default () => {
     }
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [initialFormValues, setInitialFormValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const handleInitialValuesSet = async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const initialValues: Record<string, any> = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
@@ -429,8 +431,8 @@ export default () => {
     handleInitialValuesSet();
   }, [currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
 
-  const initialMetaFormValues: Record<string, any> = useMemo(() => {
-    const initialValues: Record<string, any> = {};
+  const initialMetaFormValues: Record<string, unknown> = useMemo(() => {
+    const initialValues: Record<string, unknown> = {};
     if (!currentItem && !itemLoading) {
       currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {

@@ -67,7 +67,7 @@ export interface OrConditionInput {
 export interface BasicFieldConditionInput {
   fieldId: FieldSelector;
   operator: BasicOperator;
-  value: any;
+  value: unknown;
 }
 
 export interface NullableFieldConditionInput {
@@ -78,7 +78,7 @@ export interface NullableFieldConditionInput {
 export interface MultipleFieldConditionInput {
   fieldId: FieldSelector;
   operator: MultipleOperator;
-  value: any[];
+  value: unknown[];
 }
 
 export interface BoolFieldConditionInput {
@@ -127,7 +127,7 @@ export interface OrCondition {
 export interface BasicFieldCondition {
   fieldId: FieldSelector;
   operator: BasicOperator;
-  value: any;
+  value: unknown;
 }
 
 export interface NullableFieldCondition {
@@ -138,7 +138,7 @@ export interface NullableFieldCondition {
 export interface MultipleFieldCondition {
   fieldId: FieldSelector;
   operator: MultipleOperator;
-  value: any[];
+  value: unknown[];
 }
 
 export interface BoolFieldCondition {

@@ -26,6 +26,7 @@ export function filterConvert(filter: GQLAndCondition): AndConditionInput | unde
     >[];
   } = { conditions: [] };
   let key;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for (const c of filter.conditions as any) {
     switch (c.__typename) {
       case "NullableFieldCondition":

@@ -10,6 +10,7 @@ import {
   ListToolBarProps,
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
+import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
@@ -194,6 +195,29 @@ const LinkAssetModal: React.FC<Props> = ({
     [hoveredAssetId, linkedAsset?.id, onLinkClick, t],
   );
 
+  const handleChange = useCallback(
+    (
+      pagination: TablePaginationConfig,
+      sorter: SorterResult<unknown> | SorterResult<unknown>[],
+    ) => {
+      const page = pagination.current ?? 1;
+      const pageSize = pagination.pageSize ?? 10;
+      const sort: { type?: AssetSortType; direction?: SortDirection } = {};
+      if (!Array.isArray(sorter)) {
+        sort.direction = sorter.order === "ascend" ? "ASC" : "DESC";
+        if (
+          sorter.columnKey === "DATE" ||
+          sorter.columnKey === "NAME" ||
+          sorter.columnKey === "SIZE"
+        ) {
+          sort.type = sorter.columnKey;
+        }
+      }
+      onAssetTableChange?.(page, pageSize, sort);
+    },
+    [onAssetTableChange],
+  );
+
   return (
     <StyledModal
       title={t("Link Asset")}
@@ -238,14 +262,8 @@ const LinkAssetModal: React.FC<Props> = ({
         pagination={pagination}
         toolbar={toolbar}
         loading={loading}
-        onChange={(pagination, _, sorter: any) => {
-          onAssetTableChange?.(
-            pagination.current ?? 1,
-            pagination.pageSize ?? 10,
-            sorter?.order
-              ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
-              : undefined,
-          );
+        onChange={(pagination, _, sorter) => {
+          handleChange(pagination, sorter);
         }}
         heightOffset={0}
       />

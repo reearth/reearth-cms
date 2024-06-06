@@ -21,7 +21,7 @@ export interface Request {
     id: string;
     modelName?: string;
     schema?: Schema;
-    initialValues: Record<string, any>;
+    initialValues: Record<string, unknown>;
     referencedItems: FormItem[];
   }[];
 }

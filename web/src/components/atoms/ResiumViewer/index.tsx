@@ -34,6 +34,7 @@ const ResiumViewer: React.FC<Props> = ({
   const [description, setDescription] = useState("");
   const mvtClickedFlag = useRef(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setSortedProperties = useCallback((properties: any) => {
     setProperties(sortProperties(properties));
   }, []);
@@ -50,6 +51,7 @@ const ResiumViewer: React.FC<Props> = ({
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let props: any = {};
       if (target instanceof Cesium3DTileFeature) {
         const propertyIds = target.getPropertyIds();

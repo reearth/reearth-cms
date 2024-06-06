@@ -54,11 +54,11 @@ export interface ContentTableField {
   schemaId: string;
   status: ItemStatus;
   modelId?: string;
-  fields: Record<string, any>;
+  fields: Record<string, unknown>;
   comments: Comment[];
   createdAt: Date;
   updatedAt: Date;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   metadataId: string;
   version: string;
 }

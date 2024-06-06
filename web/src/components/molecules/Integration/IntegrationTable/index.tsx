@@ -107,6 +107,7 @@ const IntegrationTable: React.FC<Props> = ({
   );
 
   const AlertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
         <Space size={16}>

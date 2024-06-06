@@ -174,6 +174,7 @@ const idFromGeometry = (
   return hash.hex();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseMetadata(json: any):
   | {
       layers: string[];
@@ -186,6 +187,7 @@ export function parseMetadata(json: any):
   let layers: string[] = [];
   if (typeof json.json === "string") {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       layers = JSON.parse(json.json)?.vector_layers?.map((l: any): string => l.id);
     } catch {
       // ignore

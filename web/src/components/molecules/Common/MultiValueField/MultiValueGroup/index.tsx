@@ -24,6 +24,7 @@ interface Props {
   value?: string[];
   onChange?: (value: string[]) => void;
   parentField: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
   fields?: Field[];
   loadingReference?: boolean;
@@ -146,6 +147,7 @@ const MultiValueGroup: React.FC<Props> = ({
     const group = await onGroupGet(parentField.typeProperty.groupId);
     group?.schema.fields.forEach((field: Field) => {
       const defaultValue = field.typeProperty?.defaultValue;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const setValue = (value: any) => {
         if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
           form?.setFieldValue([field.id, itemGroupId], value);

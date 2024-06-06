@@ -11,6 +11,7 @@ import { moveItemInArray } from "../moveItemArray";
 interface Props {
   checked?: boolean[];
   onChange?: (value: (string | number | boolean)[]) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
   disabled?: boolean;
 }

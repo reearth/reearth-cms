@@ -287,6 +287,7 @@ const ContentTable: React.FC<Props> = ({
   );
 
   const AlertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
         <Space size={16}>
@@ -463,6 +464,7 @@ const ContentTable: React.FC<Props> = ({
             onClick: () => {
               optionClick(isFilter.current, column);
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           })) as any),
       ];
     },

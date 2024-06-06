@@ -45,8 +45,9 @@ interface Props {
   showPublishAction: boolean;
   requests: Request[];
   itemId?: string;
-  initialFormValues: any;
-  initialMetaFormValues: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialFormValues: Record<string, any>;
+  initialMetaFormValues: Record<string, unknown>;
   loading: boolean;
   model?: Model;
   assetList: Asset[];
@@ -203,6 +204,7 @@ const ContentForm: React.FC<Props> = ({
   );
 
   const checkIfSingleGroupField = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (key: string, value: any) => {
       return (
         initialFormValues[key] &&
@@ -215,6 +217,7 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emptyConvert = useCallback((value: any) => {
     if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
       return undefined;
@@ -224,10 +227,12 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const handleValuesChange = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (changedValues: any) => {
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
         const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const changedFieldValue = (value as any)[groupFieldKey];
         if (
           JSON.stringify(emptyConvert(changedFieldValue)) ===

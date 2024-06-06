@@ -24,8 +24,9 @@ interface Props {
   collapsed: boolean;
   model?: Model;
   modelsMenu: React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
-  initialMetaFormValues: Record<string, any>;
+  initialMetaFormValues: Record<string, unknown>;
   item?: Item;
   itemId?: string;
   itemLoading: boolean;

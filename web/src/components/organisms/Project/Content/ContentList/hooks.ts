@@ -184,7 +184,7 @@ export default () => {
           } else {
             field.value = field.value ?? "";
           }
-          return field as typeof field & { value: any };
+          return field as typeof field & { value: unknown };
         });
         const item = await updateItemMutation({
           variables: {
@@ -276,6 +276,7 @@ export default () => {
 
   const fieldsGet = useCallback(
     (item: Item) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result: Record<string, any> = {};
       item?.fields?.map(field => {
         result[field.schemaFieldId] = fieldValueGet(field, item);
@@ -286,6 +287,7 @@ export default () => {
   );
 
   const metadataGet = useCallback((fields?: ItemField[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: Record<string, any> = {};
     fields?.forEach(field => {
       if (Array.isArray(field.value) && field.value.length > 0) {
@@ -353,6 +355,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (el: any) => renderField(el, field),
     }));
 
@@ -371,6 +374,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
             handleMetaItemUpdate(record.id, field.id, value, index);
