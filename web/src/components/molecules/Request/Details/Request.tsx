@@ -11,7 +11,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
-type Props = {
+interface Props {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;
@@ -26,7 +26,7 @@ type Props = {
   onBack: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-};
+}
 
 const RequestMolecule: React.FC<Props> = ({
   me,

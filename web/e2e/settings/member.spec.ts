@@ -16,7 +16,7 @@ test("Searching current members has succeeded", async ({ page }) => {
   await page.getByPlaceholder("search for a member").click();
   await page.getByPlaceholder("search for a member").fill("no member");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByRole("cell", { name: "OWNER" })).not.toBeVisible();
+  await expect(page.getByRole("cell", { name: "OWNER" })).toBeHidden();
   await page.getByRole("button", { name: "close-circle" }).click();
   await expect(page.getByRole("cell", { name: "OWNER" })).toBeVisible();
 });

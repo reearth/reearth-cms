@@ -9,7 +9,7 @@ import { useT } from "@reearth-cms/i18n";
 import Editor from "./Editor";
 import Thread from "./Thread";
 
-type Props = {
+interface Props {
   me?: User;
   comments?: Comment[];
   emptyText?: string;
@@ -18,7 +18,7 @@ type Props = {
   onCommentCreate: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-};
+}
 
 const CommentsPanel: React.FC<Props> = ({
   me,

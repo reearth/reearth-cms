@@ -11,16 +11,15 @@ import { useT } from "@reearth-cms/i18n";
 import { moveItemInArray } from "./moveItemArray";
 
 type Props = {
-  className?: string;
   value?: (string | number | Dayjs)[];
   onChange?: (value: (string | number | Dayjs)[]) => void;
   onBlur?: () => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
 } & TextAreaProps &
   InputProps;
 
 const MultiValueField: React.FC<Props> = ({
-  className,
   value = [],
   onChange,
   onBlur,
@@ -60,7 +59,7 @@ const MultiValueField: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>

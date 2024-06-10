@@ -14,7 +14,7 @@ import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/V
 
 import DropdownRender from "./DropdownRender";
 
-type Props = {
+interface Props {
   filter: DropdownFilterType;
   index: number;
   defaultValue: DefaultFilterValueType;
@@ -23,7 +23,7 @@ type Props = {
   currentView: CurrentView;
   setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   onFilterChange: (filter?: ConditionInput[]) => void;
-};
+}
 
 const FilterDropdown: React.FC<Props> = ({
   filter,

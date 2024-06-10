@@ -5,9 +5,9 @@ import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
-  multiple?: boolean;
-};
+interface Props {
+  multiple: boolean;
+}
 
 const IntegerField: React.FC<Props> = ({ multiple }) => {
   const t = useT();

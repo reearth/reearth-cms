@@ -11,17 +11,15 @@ import { useT } from "@reearth-cms/i18n";
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
 
-export interface Props {
-  className?: string;
-  fields?: Field[];
+interface Props {
   isMeta?: boolean;
-  onFieldReorder: (data: Field[]) => Promise<void> | void;
+  fields?: Field[];
+  onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
 }
 
 const ModelFieldList: React.FC<Props> = ({
-  className,
   fields,
   isMeta,
   onFieldReorder,
@@ -71,7 +69,7 @@ const ModelFieldList: React.FC<Props> = ({
   return (
     <>
       {isMeta && (
-        <FieldStyledList className={className} itemLayout="horizontal">
+        <FieldStyledList itemLayout="horizontal">
           <List.Item key="entryInformation" actions={[null]}>
             <List.Item.Meta
               avatar={
@@ -98,7 +96,7 @@ const ModelFieldList: React.FC<Props> = ({
         nodeSelector=".ant-list-item"
         lineClassName="dragLine"
         onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
-        <FieldStyledList className={className} itemLayout="horizontal">
+        <FieldStyledList itemLayout="horizontal">
           {data?.map((item, index) => (
             <List.Item
               className="draggable-item"

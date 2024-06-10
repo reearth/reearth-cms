@@ -10,10 +10,10 @@ export interface FormValues {
   name: string;
 }
 
-export interface Props {
-  open?: boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
 }
 
 const initialValues: FormValues = {
@@ -22,7 +22,7 @@ const initialValues: FormValues = {
 
 const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
   const [loading, setLoading] = useState(false);
 
   const handleOk = useCallback(() => {
@@ -30,8 +30,8 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
     form
       .validateFields()
       .then(async values => {
-        await onSubmit?.(values);
-        onClose?.(true);
+        await onSubmit(values);
+        onClose();
         form.resetFields();
       })
       .catch(info => {
@@ -43,7 +43,7 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
   }, [form, onClose, onSubmit]);
 
   const handleCancel = useCallback(() => {
-    onClose?.(true);
+    onClose();
   }, [onClose]);
 
   return (

@@ -1,11 +1,13 @@
 /// <reference types="vite/client" />
 
 declare module "*.yml" {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const yml: any;
   export default yml;
 }
 
 declare module "*.yaml" {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const yml: any;
   export default yml;
 }

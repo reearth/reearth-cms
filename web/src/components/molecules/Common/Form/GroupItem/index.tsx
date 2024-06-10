@@ -19,7 +19,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
-type Props = {
+interface Props {
   value?: string;
   onChange?: (value: string) => void;
   order?: number;
@@ -70,7 +70,7 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-};
+}
 
 const GroupItem: React.FC<Props> = ({
   value,

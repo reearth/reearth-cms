@@ -25,7 +25,7 @@ export default () => {
   });
 
   const handleWorkspaceUpdate = useCallback(
-    async (name?: string) => {
+    async (name: string) => {
       if (!workspaceId || !name) return;
       const res = await updateWorkspaceMutation({
         variables: {

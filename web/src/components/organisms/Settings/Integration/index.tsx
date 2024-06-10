@@ -40,15 +40,15 @@ const Integration: React.FC = () => {
       />
       <IntegrationConnectModal
         integrations={integrations}
-        onSubmit={handleIntegrationConnect}
         open={integrationConnectModalShown}
         onClose={handleIntegrationConnectModalClose}
+        onSubmit={handleIntegrationConnect}
       />
       <IntegrationSettingsModal
         selectedIntegrationMember={selectedIntegrationMember}
-        onSubmit={handleUpdateIntegration}
         open={integrationSettingsModalShown}
         onClose={handleIntegrationSettingsModalClose}
+        onSubmit={handleUpdateIntegration}
       />
     </>
   );

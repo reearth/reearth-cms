@@ -7,19 +7,24 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  user?: User;
-  onUserUpdate: (name?: string | undefined, email?: string | undefined) => Promise<void>;
-};
+interface Props {
+  user: User;
+  onUserUpdate: (name: string, email: string) => Promise<void>;
+}
+
+interface FormType {
+  name: string;
+  email: string;
+}
 
 const AccountGeneralForm: React.FC<Props> = ({ user, onUserUpdate }) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
   const t = useT();
 
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
-      await onUserUpdate?.(values.name, values.email);
+      await onUserUpdate(values.name, values.email);
     } catch (info) {
       console.log("Validate Failed:", info);
     }

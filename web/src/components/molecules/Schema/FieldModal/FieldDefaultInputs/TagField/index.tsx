@@ -6,9 +6,9 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 
-export interface Props {
+interface Props {
   selectedTags?: { id: string; name: string; color: string }[];
-  multiple?: boolean;
+  multiple: boolean;
 }
 
 const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {

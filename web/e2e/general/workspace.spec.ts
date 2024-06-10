@@ -21,7 +21,7 @@ test("Workspace CRUD has succeeded", async ({ reearth, page }) => {
   await closeNotification(page);
 
   await page.locator("a").first().click();
-  await expect(page.getByText("new workspace name")).not.toBeVisible();
+  await expect(page.getByText("new workspace name")).toBeHidden();
 });
 
 test("Workspace Creating from tab has succeeded", async ({ reearth, page }) => {
@@ -32,6 +32,7 @@ test("Workspace Creating from tab has succeeded", async ({ reearth, page }) => {
   await page.getByLabel("Workspace name").fill("workspace name");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
+  await expect(page.locator("header")).toContainText("workspace name");
 
   await page.getByText("Workspace", { exact: true }).click();
   await page.getByRole("button", { name: "Remove Workspace" }).click();

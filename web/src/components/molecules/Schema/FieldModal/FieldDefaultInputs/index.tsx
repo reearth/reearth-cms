@@ -21,16 +21,15 @@ import TextAreaField from "./TextArea";
 import TextField from "./TextField";
 import URLField from "./URLField";
 
-export interface Props {
-  selectedType: FieldType;
-  multiple?: boolean;
-  selectedValues: string[];
+interface Props {
+  multiple: boolean;
+  selectedValues?: string[];
   selectedTags?: { id: string; name: string; color: string }[];
+  selectedType: FieldType;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
   uploading: boolean;
-  defaultValue?: string;
   uploadModalVisibility: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
@@ -108,10 +107,10 @@ const FieldDefaultInputs: React.FC<Props> = ({
         uploadModalVisibility={uploadModalVisibility}
         uploadUrl={uploadUrl}
         uploadType={uploadType}
-        onAssetTableChange={onAssetTableChange}
         totalCount={totalCount}
         page={page}
         pageSize={pageSize}
+        onAssetTableChange={onAssetTableChange}
         onUploadModalCancel={onUploadModalCancel}
         setUploadUrl={setUploadUrl}
         setUploadType={setUploadType}

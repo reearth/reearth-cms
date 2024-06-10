@@ -9,7 +9,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import ModelCard from "./ModelCard";
 
-type Props = {
+interface Props {
   projectName?: string;
   projectDescription?: string;
   models?: Model[];
@@ -18,7 +18,7 @@ type Props = {
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
-};
+}
 
 const ProjectOverview: React.FC<Props> = ({
   projectName,

@@ -2,9 +2,9 @@ import { Cartesian3 } from "cesium";
 import { useCallback, useEffect } from "react";
 import { useCesium } from "resium";
 
-type Props = {
+interface Props {
   url: string;
-};
+}
 
 export const Imagery: React.FC<Props> = ({ url }) => {
   const { viewer } = useCesium();

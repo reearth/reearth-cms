@@ -78,9 +78,9 @@ const ProjectSchema: React.FC = () => {
   return (
     <>
       <SchemaMolecule
+        data={data}
         collapsed={collapsed}
         selectedSchemaType={selectedSchemaType}
-        data={data}
         onModalOpen={handleModalOpen}
         onDeletionModalOpen={handleDeletionModalOpen}
         modelsMenu={

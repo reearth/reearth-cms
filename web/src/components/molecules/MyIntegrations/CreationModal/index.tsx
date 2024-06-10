@@ -8,18 +8,18 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
-  open?: boolean;
+interface Props {
+  open: boolean;
   onClose: () => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
-};
+  onSubmit: (values: FormValues) => Promise<void>;
+}
 
-export type FormValues = {
+interface FormValues {
   name: string;
   description: string;
   logoUrl: string;
   type: IntegrationType;
-};
+}
 
 const initialValues: FormValues = {
   name: "",
@@ -30,15 +30,15 @@ const initialValues: FormValues = {
 
 const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
 
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then(async (values: FormValues) => {
+      .then(async values => {
         values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
         values.type = IntegrationType.Private;
-        await onSubmit?.(values);
+        await onSubmit(values);
         onClose();
         form.resetFields();
       })

@@ -7,9 +7,9 @@ import { useT } from "@reearth-cms/i18n";
 
 const { Dragger } = Upload;
 
-type Props = {
+interface Props {
   uploadProps: UploadProps;
-};
+}
 
 const LocalTab: React.FC<Props> = ({ uploadProps }) => {
   const t = useT();
@@ -18,8 +18,9 @@ const LocalTab: React.FC<Props> = ({ uploadProps }) => {
       <Dragger
         itemRender={(
           _originNode: ReactElement,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           file: UploadFile<any>,
-          _fileList: UploadFile<any>[],
+          _fileList,
           { remove },
         ) => <FileItem file={file} remove={remove} />}
         {...uploadProps}>

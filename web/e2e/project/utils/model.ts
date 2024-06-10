@@ -38,7 +38,7 @@ async function deleteModel(page: Page) {
   await page.getByText("Delete").click();
   await page.getByRole("button", { name: "Delete Model" }).click();
   await closeNotification(page);
-  await expect(page.getByTitle(updateModelName)).not.toBeVisible();
+  await expect(page.getByTitle(updateModelName)).toBeHidden();
 }
 
 export async function crudModel(page: Page) {

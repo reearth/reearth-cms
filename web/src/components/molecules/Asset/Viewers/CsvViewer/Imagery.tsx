@@ -4,15 +4,15 @@ import { useCesium } from "resium";
 
 import mapPin from "./mapPin.svg";
 
-type Props = {
+interface Props {
   url: string;
-};
+}
 
-type GeoObj = {
+interface GeoObj {
   lng?: string;
   lat?: string;
   [x: string]: string | undefined;
-};
+}
 
 export const Imagery: React.FC<Props> = ({ url }) => {
   const { viewer } = useCesium();

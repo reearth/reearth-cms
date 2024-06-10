@@ -75,10 +75,10 @@ test("Boolean field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(
     page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "Set field as unique" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "plus New" }).click();

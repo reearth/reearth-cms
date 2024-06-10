@@ -161,7 +161,7 @@ export default () => {
   );
 
   const handleWorkspaceNavigation = useCallback(
-    (id: number) => {
+    (id: string) => {
       navigate(`/workspace/${id}`);
     },
     [navigate],

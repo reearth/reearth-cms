@@ -6,7 +6,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import UploadModal from "../UploadModal/UploadModal";
 
-type Props = {
+interface Props {
   alsoLink?: boolean;
   uploadProps: UploadProps;
   fileList?: UploadFile<File>[];
@@ -20,7 +20,7 @@ type Props = {
   displayUploadModal: () => void;
   onUploadModalCancel?: () => void;
   onUpload: () => void;
-};
+}
 
 const UploadAsset: React.FC<Props> = ({
   alsoLink,

@@ -35,8 +35,8 @@ test("Boolean metadata creating and updating has succeeded", async ({ page }) =>
   );
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
   await page.getByRole("tab", { name: "Validation" }).click();
-  await expect(page.getByLabel("Make field required")).not.toBeEnabled();
-  await expect(page.getByLabel("Set field as unique")).not.toBeEnabled();
+  await expect(page.getByLabel("Make field required")).toBeDisabled();
+  await expect(page.getByLabel("Set field as unique")).toBeDisabled();
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Set default value")).toHaveAttribute("aria-checked", "false");
   await page.getByRole("button", { name: "Cancel" }).click();
@@ -138,15 +138,19 @@ test("Boolean metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("switch").nth(2).click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("switch").nth(4).click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);

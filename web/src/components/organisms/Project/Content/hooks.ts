@@ -43,9 +43,9 @@ export default () => {
 
   const requests: Request[] = useMemo(
     () =>
-      (data?.requests.nodes
-        .map(request => fromGraphQLRequest(request as GQLRequest))
-        .filter(request => !!request) as Request[]) ?? [],
+      data?.requests.nodes
+        .filter((request): request is GQLRequest => !!request)
+        .map(request => fromGraphQLRequest(request)) ?? [],
     [data?.requests.nodes],
   );
 

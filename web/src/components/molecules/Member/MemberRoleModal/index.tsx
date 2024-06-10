@@ -3,30 +3,29 @@ import React, { useCallback, useEffect } from "react";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
-import { RoleUnion } from "@reearth-cms/components/organisms/Settings/Members/hooks";
+import { RoleUnion } from "@reearth-cms/components/molecules/Member/types";
+import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export interface FormValues {
-  userId: string;
-  role: string;
+interface FormValues {
+  role: RoleUnion;
 }
 
-export interface Props {
-  open?: boolean;
-  member?: any;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (userId: string, role: RoleUnion) => Promise<void>;
+interface Props {
+  open: boolean;
+  member: UserMember;
+  onClose: () => void;
+  onSubmit: (userId: string, role: RoleUnion) => Promise<void>;
 }
 
-const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) => {
+const MemberRoleModal: React.FC<Props> = ({ open, member, onClose, onSubmit }) => {
   const t = useT();
   const { Option } = Select;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
 
   useEffect(() => {
     form.setFieldsValue({
-      userId: member?.userId,
-      role: member?.role,
+      role: member.role,
     });
   }, [form, member]);
 
@@ -34,18 +33,18 @@ const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) =
     form
       .validateFields()
       .then(async values => {
-        await onSubmit?.(member?.userId, values?.role);
-        onClose?.(true);
+        await onSubmit(member.userId, values.role);
+        onClose();
         form.resetFields();
       })
       .catch(info => {
         console.log("Validate Failed:", info);
       });
-  }, [form, onClose, onSubmit, member?.userId]);
+  }, [member, form, onSubmit, onClose]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
-    onClose?.(true);
+    onClose();
   }, [form, onClose]);
 
   return (
@@ -54,8 +53,7 @@ const MemberRoleModal: React.FC<Props> = ({ open, onClose, onSubmit, member }) =
         form={form}
         layout="vertical"
         initialValues={{
-          userId: member?.userId,
-          role: member?.role,
+          role: member.role,
         }}>
         <Form.Item
           name="role"

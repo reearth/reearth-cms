@@ -4,17 +4,16 @@ import React from "react";
 import Card from "@reearth-cms/components/atoms/Card";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 
-export interface Props {
-  className?: string;
+interface Props {
   project: Project;
   onProjectNavigation: (project: Project) => void;
 }
 
-const ProjectCard: React.FC<Props> = ({ className, project, onProjectNavigation }) => {
+const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
   const { Meta } = Card;
 
   return (
-    <CardWrapper className={className} key={project.id}>
+    <CardWrapper key={project.id}>
       <ProjectStyledCard
         onClick={() => onProjectNavigation(project)}
         cover={<Cover>{project.name.charAt(0)}</Cover>}>

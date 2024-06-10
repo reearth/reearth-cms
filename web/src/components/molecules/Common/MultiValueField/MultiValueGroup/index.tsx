@@ -20,11 +20,11 @@ import { newID } from "@reearth-cms/utils/id";
 import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 
-type Props = {
-  className?: string;
+interface Props {
   value?: string[];
   onChange?: (value: string[]) => void;
   parentField: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
   fields?: Field[];
   loadingReference?: boolean;
@@ -68,10 +68,9 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference?: (value: string, correspondingFieldId: string) => Promise<boolean>;
-};
+}
 
 const MultiValueGroup: React.FC<Props> = ({
-  className,
   parentField,
   form,
   fields,
@@ -124,7 +123,7 @@ const MultiValueGroup: React.FC<Props> = ({
   const handleInputDelete = useCallback(
     (key: number) => {
       onChange?.(
-        value.filter((_: any, index: number) => {
+        value.filter((_, index: number) => {
           return index !== key;
         }),
       );
@@ -148,6 +147,7 @@ const MultiValueGroup: React.FC<Props> = ({
     const group = await onGroupGet(parentField.typeProperty.groupId);
     group?.schema.fields.forEach((field: Field) => {
       const defaultValue = field.typeProperty?.defaultValue;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const setValue = (value: any) => {
         if (typeof newValues[field.id] === "object" && !Array.isArray(newValues[field.id])) {
           form?.setFieldValue([field.id, itemGroupId], value);
@@ -183,7 +183,7 @@ const MultiValueGroup: React.FC<Props> = ({
   }, [form, onChange, onGroupGet, parentField.typeProperty?.groupId, value]);
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => {
           return (

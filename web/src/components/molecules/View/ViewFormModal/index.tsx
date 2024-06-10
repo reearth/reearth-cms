@@ -8,19 +8,18 @@ import { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { modalStateType } from "@reearth-cms/components/organisms/Project/Content/ViewsMenu/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-interface FormValues {
-  viewId?: string;
-  name: string;
-}
-
 interface Props {
   currentView: CurrentView;
   open: boolean;
   modalState: modalStateType;
   submitting: boolean;
   onClose: () => void;
-  onCreate: (values: FormValues) => Promise<void>;
-  OnUpdate: (values: FormValues) => Promise<void>;
+  onCreate: (name: string) => Promise<void>;
+  OnUpdate: (viewId: string, name: string) => Promise<void>;
+}
+
+interface FormType {
+  name: string;
 }
 
 const ViewFormModal: React.FC<Props> = ({
@@ -33,7 +32,7 @@ const ViewFormModal: React.FC<Props> = ({
   OnUpdate,
 }) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
   useEffect(() => {
@@ -49,9 +48,9 @@ const ViewFormModal: React.FC<Props> = ({
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
     if (modalState === "create") {
-      await onCreate(values);
-    } else {
-      await OnUpdate({ viewId: currentView.id, ...values });
+      await onCreate(values.name);
+    } else if (currentView.id) {
+      await OnUpdate(currentView.id, values.name);
     }
     onClose();
     form.resetFields();

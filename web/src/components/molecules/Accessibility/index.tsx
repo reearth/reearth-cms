@@ -14,26 +14,26 @@ import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/typ
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
-type ModelDataType = {
+interface ModelDataType {
   id: string;
   name: string;
   public: JSX.Element;
   publicState: boolean;
   key?: string;
-};
+}
 
-type Props = {
+interface Props {
   models?: Model[];
   scope?: PublicScope;
   alias?: string;
   aliasState?: string;
   assetState?: boolean;
   isSaveDisabled: boolean;
-  handlePublicUpdate: () => void;
+  handlePublicUpdate: () => Promise<void>;
   handleUpdatedAssetState: (state: boolean) => void;
   handleUpdatedModels: (model: Model) => void;
-  handleSetScope?: (projectScope: PublicScope) => void;
-};
+  handleSetScope: (projectScope: PublicScope) => void;
+}
 
 const Accessibility: React.FC<Props> = ({
   models,

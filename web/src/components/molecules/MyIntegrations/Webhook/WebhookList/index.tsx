@@ -7,7 +7,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
-export type Props = {
+interface Props {
   webhooks?: Webhook[];
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {
@@ -19,7 +19,7 @@ export type Props = {
   }) => Promise<void>;
   onShowForm: () => void;
   onWebhookSelect: (id: string) => void;
-};
+}
 
 const WebhookList: React.FC<Props> = ({
   webhooks,

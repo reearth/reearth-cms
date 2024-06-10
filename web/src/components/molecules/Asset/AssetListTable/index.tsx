@@ -14,6 +14,7 @@ import {
   TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
+import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
@@ -28,10 +29,10 @@ import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import { compressedFileFormats } from "../../Common/Asset";
 
-type Props = {
+interface Props {
   assetList: Asset[];
   loading: boolean;
-  selectedAsset: Asset | undefined;
+  selectedAsset?: Asset;
   totalCount: number;
   page: number;
   pageSize: number;
@@ -51,7 +52,7 @@ type Props = {
     pageSize: number,
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
-};
+}
 
 const AssetListTable: React.FC<Props> = ({
   assetList,
@@ -236,7 +237,7 @@ const AssetListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: any) => {
+      onChange: (selectedRowKeys: Key[]) => {
         setSelection({
           ...selection,
           selectedRowKeys: selectedRowKeys,
@@ -263,6 +264,7 @@ const AssetListTable: React.FC<Props> = ({
   );
 
   const AlertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
         <Space size={16}>
@@ -279,6 +281,29 @@ const AssetListTable: React.FC<Props> = ({
     [onAssetDelete, t],
   );
 
+  const handleChange = useCallback(
+    (
+      pagination: TablePaginationConfig,
+      sorter: SorterResult<unknown> | SorterResult<unknown>[],
+    ) => {
+      const page = pagination.current ?? 1;
+      const pageSize = pagination.pageSize ?? 10;
+      const sort: { type?: AssetSortType; direction?: SortDirection } = {};
+      if (!Array.isArray(sorter)) {
+        sort.direction = sorter.order === "ascend" ? "ASC" : "DESC";
+        if (
+          sorter.columnKey === "DATE" ||
+          sorter.columnKey === "NAME" ||
+          sorter.columnKey === "SIZE"
+        ) {
+          sort.type = sorter.columnKey;
+        }
+      }
+      onAssetTableChange(page, pageSize, sort);
+    },
+    [onAssetTableChange],
+  );
+
   return (
     <ResizableProTable
       dataSource={assetList}
@@ -291,14 +316,8 @@ const AssetListTable: React.FC<Props> = ({
       toolbar={toolbar}
       rowSelection={rowSelection}
       loading={loading}
-      onChange={(pagination, _, sorter: any) => {
-        onAssetTableChange(
-          pagination.current ?? 1,
-          pagination.pageSize ?? 10,
-          sorter?.order
-            ? { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" }
-            : undefined,
-        );
+      onChange={(pagination, _, sorter) => {
+        handleChange(pagination, sorter);
       }}
       heightOffset={72}
     />

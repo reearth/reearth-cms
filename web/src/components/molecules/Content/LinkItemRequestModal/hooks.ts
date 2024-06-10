@@ -9,7 +9,7 @@ export default (
   requestModalTotalCount: number,
   requestModalPage: number,
   requestModalPageSize: number,
-  onChange?: (value: Request, itemIds: string[]) => void,
+  onChange: (value: Request, itemIds: string[]) => void,
 ) => {
   const resetFlag = useRef(false);
   const [selectedRequestId, setSelectedRequestId] = useState<string>();
@@ -25,7 +25,7 @@ export default (
   );
 
   const submit = useCallback(() => {
-    onChange?.(requestList.find(request => request.id === selectedRequestId) as Request, itemIds);
+    onChange(requestList.find(request => request.id === selectedRequestId) as Request, itemIds);
     setSelectedRequestId(undefined);
     onLinkItemRequestModalCancel();
   }, [itemIds, onChange, onLinkItemRequestModalCancel, requestList, selectedRequestId]);

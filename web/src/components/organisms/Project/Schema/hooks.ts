@@ -4,8 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  Field,
+  FieldType,
+  Group,
+  SelectedSchemaType,
+} from "@reearth-cms/components/molecules/Schema/types";
 import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";

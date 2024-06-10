@@ -50,9 +50,7 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("no integration");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(
-    page.getByRole("cell", { name: "e2e integration name", exact: true }),
-  ).not.toBeVisible();
+  await expect(page.getByRole("cell", { name: "e2e integration name", exact: true })).toBeHidden();
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("e2e integration name");
   await page.getByRole("button", { name: "search" }).click();

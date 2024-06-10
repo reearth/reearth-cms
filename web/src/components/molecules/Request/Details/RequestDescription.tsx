@@ -14,11 +14,11 @@ import RequestItemForm from "./ItemForm";
 
 const { Panel } = Collapse;
 
-type Props = {
+interface Props {
   currentRequest: Request;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-};
+}
 
 export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset, onGroupGet }) => {
   const fromNow = useMemo(

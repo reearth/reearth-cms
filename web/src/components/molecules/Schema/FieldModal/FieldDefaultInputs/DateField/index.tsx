@@ -6,9 +6,9 @@ import Form from "@reearth-cms/components/atoms/Form";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
-  multiple?: boolean;
-};
+interface Props {
+  multiple: boolean;
+}
 
 const DateField: React.FC<Props> = ({ multiple }) => {
   const t = useT();

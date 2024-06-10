@@ -14,6 +14,7 @@ import {
 
 interface GroupFieldProps {
   field: Field;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
   loadingReference?: boolean;
   linkedItemsModalList?: FormItem[];

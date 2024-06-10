@@ -8,15 +8,13 @@ import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 interface Props {
-  className?: string;
   projects?: Project[];
-  loading?: boolean;
+  loading: boolean;
   onProjectModalOpen: () => void;
   onProjectNavigation: (project: Project) => void;
 }
 
 const ProjectList: React.FC<Props> = ({
-  className,
   projects,
   loading,
   onProjectModalOpen,
@@ -25,7 +23,7 @@ const ProjectList: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <StyledDashboardBlock className={className}>
+    <StyledDashboardBlock>
       {loading || !projects ? (
         <Loading minHeight="400px" />
       ) : projects.length === 0 ? (

@@ -1,14 +1,14 @@
-export type IntegrationMember = {
+export interface IntegrationMember {
   id: string;
   integration?: Integration;
   integrationRole: Role;
   invitedById: string;
   active: boolean;
-};
+}
 
 export type Role = "WRITER" | "READER" | "OWNER" | "MAINTAINER";
 
-export type Integration = {
+export interface Integration {
   id: string;
   name: string;
   description?: string | null;
@@ -20,25 +20,25 @@ export type Integration = {
     token?: string;
     webhooks?: Webhook[];
   };
-};
+}
 
-export type Developer = {
+export interface Developer {
   id: string;
   name: string;
   email: string;
-};
+}
 
 export type IntegrationType = "Private" | "Public";
 
-export type Webhook = {
+export interface Webhook {
   id: string;
   name: string;
   url: string;
   active: boolean;
   trigger: WebhookTrigger;
-};
+}
 
-export type WebhookTrigger = {
+export interface WebhookTrigger {
   onItemCreate?: boolean | null;
   onItemUpdate?: boolean | null;
   onItemDelete?: boolean | null;
@@ -46,4 +46,4 @@ export type WebhookTrigger = {
   onAssetDelete?: boolean | null;
   onItemPublish?: boolean | null;
   onItemUnPublish?: boolean | null;
-};
+}

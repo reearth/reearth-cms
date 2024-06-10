@@ -6,9 +6,9 @@ import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
 
-type Props = {
+interface Props {
   children?: React.ReactNode;
-};
+}
 
 const Provider: React.FC<Props> = ({ children }) => {
   const endpoint = window.REEARTH_CONFIG?.api

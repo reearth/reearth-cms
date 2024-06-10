@@ -20,8 +20,8 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(page.locator("li").getByText("Group", { exact: true })).toBeVisible();
 
   await createGroup(page);
-  await expect(page.locator("li").getByText("Reference", { exact: true })).not.toBeVisible();
-  await expect(page.locator("li").getByText("Group", { exact: true })).not.toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeHidden();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeHidden();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text1");
@@ -47,12 +47,12 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(
     page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "Set field as unique" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByLabel("Set default value")).not.toBeEnabled();
+  await expect(page.getByLabel("Set default value")).toBeDisabled();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1#group1");
@@ -152,8 +152,8 @@ test("Group field editing has succeeded", async ({ page }) => {
   await expect(page.locator("li").getByText("Group", { exact: true })).toBeVisible();
 
   await createGroup(page);
-  await expect(page.locator("li").getByText("Reference", { exact: true })).not.toBeVisible();
-  await expect(page.locator("li").getByText("Group", { exact: true })).not.toBeVisible();
+  await expect(page.locator("li").getByText("Reference", { exact: true })).toBeHidden();
+  await expect(page.locator("li").getByText("Group", { exact: true })).toBeHidden();
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text1");
@@ -179,12 +179,12 @@ test("Group field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Validation" }).click();
   await expect(
     page.locator("label").filter({ hasText: "Make field required" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await expect(
     page.locator("label").filter({ hasText: "Set field as unique" }).locator("span").nth(1),
-  ).not.toBeEnabled();
+  ).toBeDisabled();
   await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByLabel("Set default value")).not.toBeEnabled();
+  await expect(page.getByLabel("Set default value")).toBeDisabled();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("group1#group1");

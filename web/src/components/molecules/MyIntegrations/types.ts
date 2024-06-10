@@ -1,4 +1,4 @@
-export type Integration = {
+export interface Integration {
   id: string;
   name: string;
   description?: string | null;
@@ -9,22 +9,22 @@ export type Integration = {
     token?: string;
     webhooks?: Webhook[];
   };
-};
+}
 
 export enum IntegrationType {
   Private = "Private",
   Public = "Public",
 }
 
-export type Webhook = {
+export interface Webhook {
   id: string;
   name: string;
   url: string;
   active: boolean;
   trigger: WebhookTrigger;
-};
+}
 
-export type WebhookTrigger = {
+export interface WebhookTrigger {
   onItemCreate?: boolean | null;
   onItemUpdate?: boolean | null;
   onItemDelete?: boolean | null;
@@ -33,4 +33,12 @@ export type WebhookTrigger = {
   onAssetUpload?: boolean | null;
   onAssetDecompress?: boolean | null;
   onAssetDelete?: boolean | null;
-};
+}
+
+export interface WebhookValues {
+  id: string;
+  name: string;
+  url: string;
+  active: boolean;
+  trigger: string[];
+}

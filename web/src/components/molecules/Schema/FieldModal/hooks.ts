@@ -16,14 +16,14 @@ import { transformDayjsToString } from "@reearth-cms/utils/format";
 export default (
   selectedType: FieldType,
   isMeta: boolean,
-  selectedField?: Field | null,
-  onClose?: (refetch?: boolean) => void,
-  onSubmit?: (values: FormValues) => Promise<void> | void,
+  selectedField: Field | null,
+  onClose: () => void,
+  onSubmit: (values: FormValues) => Promise<void>,
 ) => {
   const [form] = Form.useForm<FormTypes>();
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
-  const selectedValues: string[] = Form.useWatch("values", form);
+  const selectedValues = Form.useWatch("values", form);
   const selectedTags = Form.useWatch("tags", form);
   const [multipleValue, setMultipleValue] = useState(false);
 
@@ -145,7 +145,7 @@ export default (
           ? values.defaultValue.filter((value: string) => value)
           : values.defaultValue ?? "";
         return {
-          select: { defaultValue, values: values.values },
+          select: { defaultValue, values: values.values ?? [] },
         };
       }
       case "Integer": {
@@ -170,7 +170,7 @@ export default (
         };
       case "Tag":
         return {
-          tag: { defaultValue: values.defaultValue, tags: values.tags },
+          tag: { defaultValue: values.defaultValue, tags: values.tags ?? [] },
         };
       case "Checkbox":
         return {
@@ -213,12 +213,12 @@ export default (
         values.type = selectedType;
         values.typeProperty = typePropertyGet(values);
         values.metadata = isMeta;
-        await onSubmit?.({
+        await onSubmit({
           ...values,
           fieldId: selectedField?.id,
         });
         setMultipleValue(false);
-        onClose?.(true);
+        onClose();
       })
       .catch(info => {
         console.log("Validate Failed:", info);
@@ -232,7 +232,7 @@ export default (
 
   const handleModalCancel = useCallback(() => {
     setMultipleValue(false);
-    onClose?.(true);
+    onClose();
   }, [onClose]);
 
   const isRequiredDisabled = useMemo(

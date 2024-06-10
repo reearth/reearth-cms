@@ -85,12 +85,13 @@ test("Tag metadata creating and updating has succeeded", async ({ page }) => {
     .click();
   await closeNotification(page);
   await expect(page.locator("tbody").getByText("Tag1").first()).toBeVisible();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("cell", { name: "Tag1", exact: true }).locator("svg").click();
   await closeNotification(page);
-  await expect(page.locator("#root").getByText("Tag1", { exact: true }).first()).not.toBeVisible();
+  await expect(page.locator("#root").getByText("Tag1", { exact: true }).first()).toBeHidden();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.locator("#root").getByText("Tag1", { exact: true })).not.toBeVisible();
+  await expect(page.locator("#root").getByText("Tag1", { exact: true })).toBeHidden();
 });
 
 test("Tag metadata editing has succeeded", async ({ page }) => {
@@ -155,14 +156,14 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Update Tag").getByText("Tag2Tag3")).toBeVisible();
   await page.locator(".ant-select-selector").click();
-  await expect(page.getByText("Tag1").last()).not.toBeVisible();
+  await expect(page.getByText("Tag1").last()).toBeHidden();
   await page.locator(".ant-select-selector").click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await expect(page.getByLabel("Meta Data")).toContainText("new tag1 *#new-tag1(unique)");
   await page.getByText("Content").click();
   await expect(page.locator("thead")).toContainText("new tag1");
-  await expect(page.getByText("Tag1", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("Tag1", { exact: true })).toBeHidden();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await expect(page.locator("label")).toContainText("new tag1(unique)");
   await expect(page.getByText("Tag2Tag3")).toBeVisible();

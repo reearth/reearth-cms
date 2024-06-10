@@ -10,14 +10,13 @@ import {
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
-  multiple?: boolean;
+interface Props {
+  multiple: boolean;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
   uploading: boolean;
   uploadModalVisibility: boolean;
-  defaultValue?: string;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   totalCount: number;
@@ -39,7 +38,7 @@ type Props = {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+}
 const AssetField: React.FC<Props> = ({
   multiple,
   assetList,

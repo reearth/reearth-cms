@@ -35,8 +35,8 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
   );
   await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
   await page.getByRole("tab", { name: "Validation" }).click();
-  await expect(page.getByLabel("Make field required")).not.toBeEnabled();
-  await expect(page.getByLabel("Set field as unique")).not.toBeEnabled();
+  await expect(page.getByLabel("Make field required")).toBeDisabled();
+  await expect(page.getByLabel("Set field as unique")).toBeDisabled();
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Set default value")).not.toBeChecked();
   await page.getByRole("button", { name: "Cancel" }).click();
@@ -57,6 +57,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page }) =
   await expect(page.getByLabel("checkbox1")).toBeChecked();
   await page.getByLabel("Back").click();
   await expect(page.getByLabel("", { exact: true }).nth(1)).toBeChecked();
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByLabel("", { exact: true }).nth(1).uncheck();
   await closeNotification(page);
@@ -147,15 +148,19 @@ test("Checkbox metadata editing has succeeded", async ({ page }) => {
   await expect(page.getByLabel("", { exact: true }).nth(2)).toBeChecked();
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByLabel("", { exact: true }).nth(2).uncheck();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("button", { name: "plus New" }).click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByLabel("", { exact: true }).nth(4).click();
   await closeNotification(page);
+  // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100);
   await page.getByRole("button", { name: "delete" }).first().click();
   await closeNotification(page);

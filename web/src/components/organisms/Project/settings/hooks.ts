@@ -13,9 +13,9 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
-type Params = {
+interface Params {
   projectId?: string;
-};
+}
 
 export default ({ projectId }: Params) => {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export default ({ projectId }: Params) => {
   });
 
   const rawProject = useMemo(
-    () => data?.projects.nodes.find((p: any) => p?.id === projectId),
+    () => data?.projects.nodes.find(p => p?.id === projectId),
     [data, projectId],
   );
   const project = useMemo(

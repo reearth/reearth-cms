@@ -16,9 +16,8 @@ import { useT } from "@reearth-cms/i18n";
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
-type Props = {
+interface Props {
   itemAssets?: ItemAsset[];
-  className?: string;
   value?: string[];
   onChange?: (value: string[]) => void;
   assetList?: Asset[];
@@ -48,11 +47,10 @@ type Props = {
   setFileList?: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility?: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+}
 
 const MultiValueAsset: React.FC<Props> = ({
   itemAssets,
-  className,
   value = [],
   onChange,
   assetList,
@@ -104,7 +102,7 @@ const MultiValueAsset: React.FC<Props> = ({
   );
 
   return (
-    <div className={className}>
+    <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
           <FieldWrapper key={key}>

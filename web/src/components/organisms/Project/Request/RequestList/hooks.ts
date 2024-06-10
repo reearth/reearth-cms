@@ -30,7 +30,6 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
-  const [selectedRequests, _] = useState<string[]>([]);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
@@ -70,8 +69,6 @@ export default () => {
     refetch();
   }, [refetch]);
 
-  const isRequest = (request: any): request is Request => !!request;
-
   const requests: Request[] = useMemo(() => {
     if (!rawRequests?.requests.nodes) return [];
     const requests: Request[] = rawRequests?.requests.nodes
@@ -94,7 +91,7 @@ export default () => {
         };
         return request;
       })
-      .filter(r => isRequest(r)) as Request[];
+      .filter((r): r is Request => r !== undefined);
     return requests;
   }, [rawRequests?.requests.nodes]);
 
@@ -168,7 +165,6 @@ export default () => {
     loading: loading,
     collapsedCommentsPanel,
     collapseCommentsPanel,
-    selectedRequests,
     selectedRequest,
     selection,
     handleNavigateToRequest,

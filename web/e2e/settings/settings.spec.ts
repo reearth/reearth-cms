@@ -57,7 +57,7 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
     .click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByText("url", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("url", { exact: true })).toBeHidden();
 });
 
 test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
@@ -108,13 +108,13 @@ test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
   await page.getByLabel("delete").locator("svg").click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
-  await expect(page.getByText("name", { exact: true })).not.toBeVisible();
+  await expect(page.getByText("name", { exact: true })).toBeHidden();
 
   await page.getByRole("switch").click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
-  await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).toBeHidden();
 });
 
 test("Tiles reordering has succeeded", async ({ page }) => {

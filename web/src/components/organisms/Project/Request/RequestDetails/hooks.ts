@@ -55,8 +55,8 @@ export default () => {
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const currentRequest: Request | undefined = useMemo(() => {
-    if (!rawRequest) return;
-    return fromGraphQLRequest(rawRequest.node as GQLRequest | undefined);
+    if (!rawRequest?.node) return;
+    return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);
 
   const isCloseActionEnabled: boolean = useMemo(
