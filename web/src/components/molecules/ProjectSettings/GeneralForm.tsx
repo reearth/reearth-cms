@@ -10,11 +10,11 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 import { Project } from "../Workspace/types";
 
-export type Props = {
-  project?: Project;
+interface Props {
+  project: Project;
   onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-};
+}
 
 const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProjectAliasCheck }) => {
   const [form] = Form.useForm();

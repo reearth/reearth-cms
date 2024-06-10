@@ -21,7 +21,7 @@ export type ViewerType =
   | "csv"
   | "unknown";
 
-export type Asset = {
+export interface Asset {
   id: string;
   createdAt: string;
   createdBy: string;
@@ -36,15 +36,15 @@ export type Asset = {
   comments: Comment[];
   archiveExtractionStatus?: ArchiveExtractionStatus;
   items: AssetItem[];
-};
+}
 
-export type AssetItem = {
+export interface AssetItem {
   itemId: string;
   modelId: string;
-};
+}
 
-export type AssetFile = {
+export interface AssetFile {
   filePaths?: string[];
   name: string;
   path: string;
-};
+}

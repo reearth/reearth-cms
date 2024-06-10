@@ -6,7 +6,7 @@ import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
-export type Props = {
+interface Props {
   webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: {
@@ -17,7 +17,7 @@ export type Props = {
     trigger: WebhookTrigger;
   }) => Promise<void>;
   onWebhookSettings: (webhookId: string) => void;
-};
+}
 
 const WebhookCard: React.FC<Props> = ({
   webhook,

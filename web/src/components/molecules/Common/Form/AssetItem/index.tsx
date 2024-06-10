@@ -18,7 +18,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
-type Props = {
+interface Props {
   itemAssets?: ItemAsset[];
   assetList?: Asset[];
   fileList?: UploadFile[];
@@ -49,7 +49,7 @@ type Props = {
   onChange?: (value: string) => void;
   disabled?: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+}
 
 const AssetItem: React.FC<Props> = ({
   itemAssets,
@@ -136,7 +136,7 @@ const AssetItem: React.FC<Props> = ({
     showUploadList: true,
     accept: "*",
     listType: "picture",
-    onRemove: _file => {
+    onRemove: () => {
       setFileList?.([]);
     },
     beforeUpload: file => {

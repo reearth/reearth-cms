@@ -60,6 +60,7 @@ export default [
       "!.storybook/",
       ".storybook/public/*",
       "src/gql/graphql-client-api.tsx",
+      "amplify/*",
     ],
   },
 ];

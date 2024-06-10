@@ -5,17 +5,16 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { RequestState } from "@reearth-cms/components/organisms/Project/Request/RequestList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
-  className?: string;
+interface Props {
   requestState: RequestState;
-};
+}
 
-const RequestStatus: React.FC<Props> = ({ className, requestState }) => {
+const RequestStatus: React.FC<Props> = ({ requestState }) => {
   const t = useT();
   const { Step } = Steps;
 
   return (
-    <StyledSteps className={className} direction="vertical" current={1}>
+    <StyledSteps direction="vertical" current={1}>
       {requestState === "APPROVED" && (
         <Step
           icon={<Icon icon="checkCircle" color="#52C41A" size={32} />}

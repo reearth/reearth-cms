@@ -22,7 +22,7 @@ import useHooks from "./hooks";
 
 const { Option } = Select;
 
-type Props = {
+interface Props {
   filter: DropdownFilterType;
   close: () => void;
   defaultValue?: DefaultFilterValueType;
@@ -32,7 +32,7 @@ type Props = {
   currentView: CurrentView;
   setCurrentView: Dispatch<SetStateAction<CurrentView>>;
   onFilterChange: (filter?: ConditionInput[]) => void;
-};
+}
 
 const DropdownRender: React.FC<Props> = ({
   filter,

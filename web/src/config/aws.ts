@@ -1,6 +1,6 @@
 import { Amplify } from "aws-amplify";
 
-export type CognitoParams = {
+export interface CognitoParams {
   cognitoRegion?: string;
   cognitoUserPoolId?: string;
   cognitoUserPoolWebClientId?: string;
@@ -9,7 +9,7 @@ export type CognitoParams = {
   cognitoOauthRedirectSignIn?: string;
   cognitoOauthRedirectSignOut?: string;
   cognitoOauthResponseType?: string;
-};
+}
 
 export function configureCognito(cognito: CognitoParams) {
   const cognitoRegion = cognito.cognitoRegion;

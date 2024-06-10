@@ -109,7 +109,7 @@ function config(): Plugin {
   };
 }
 
-function loadJSON(path: string): any {
+function loadJSON(path: string): object {
   try {
     return JSON.parse(readFileSync(path, "utf8")) || {};
   } catch (err) {

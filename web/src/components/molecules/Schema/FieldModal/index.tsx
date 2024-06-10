@@ -32,16 +32,16 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
-export type Props = {
+interface Props {
   groups?: Group[];
-  open?: boolean;
-  isMeta: boolean;
-  fieldLoading: boolean;
   selectedType: FieldType;
-  selectedField?: Field | null;
+  isMeta: boolean;
+  open: boolean;
+  fieldLoading: boolean;
+  selectedField: Field | null;
   handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (values: FormValues) => Promise<void> | void;
+  onClose: () => void;
+  onSubmit: (values: FormValues) => Promise<void>;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
@@ -62,13 +62,13 @@ export type Props = {
   setUploadType: (type: UploadType) => void;
   onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetSearchTerm: (term?: string) => void;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
-};
+}
 
 const initialValues: FormValues = {
   fieldId: "",
@@ -239,6 +239,7 @@ const FieldModal: React.FC<Props> = ({
                       if (values.some((value: string) => value.length === 0)) {
                         return Promise.reject(new Error("Empty values are not allowed"));
                       }
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       const uniqueNames = new Set(values.map((valueObj: any) => valueObj.name));
                       if (uniqueNames.size !== values.length) {
                         return Promise.reject(new Error("Labels must be unique"));

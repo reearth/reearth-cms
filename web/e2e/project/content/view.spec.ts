@@ -76,7 +76,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByRole("main").getByLabel("setting").locator("svg").click();
   await expect(page.getByRole("columnheader", { name: "Status" })).toBeVisible();
   await page.locator(".ant-tree-checkbox").first().click();
-  await expect(page.getByRole("columnheader", { name: "Status" })).not.toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Status" })).toBeHidden();
 
   await page.getByRole("button", { name: "Save as new view" }).click();
   await page.getByLabel("View Name").click();
@@ -97,7 +97,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(
     page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
   ).not.toHaveClass(/active/);
-  await expect(page.getByRole("button", { name: "text close" })).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "text close" })).toBeHidden();
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("sample2");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample1");
   await expect(page.getByRole("columnheader", { name: "Status" })).toBeVisible();
@@ -127,7 +127,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
   await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
   await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
-  await expect(page.getByRole("columnheader", { name: "Status" })).not.toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Status" })).toBeHidden();
   await page.getByRole("main").getByLabel("setting").locator("svg").click();
   await expect(page.locator(".ant-tree-checkbox").first()).not.toHaveClass(
     /ant-tree-checkbox-checked/,
@@ -146,7 +146,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByText("Remove View").click();
   await page.getByRole("button", { name: "Remove" }).click();
   await closeNotification(page);
-  await expect(page.getByText("new view1")).not.toBeVisible();
+  await expect(page.getByText("new view1")).toBeHidden();
   await expect(page.getByText("view2")).toBeVisible();
   await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "true");
   await expect(

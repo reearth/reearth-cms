@@ -4,15 +4,15 @@ import PreviewModal from "@reearth-cms/components/molecules/Asset/Asset/AssetBod
 import { ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   url: string;
   isModalVisible: boolean;
-  viewerType?: ViewerType;
+  viewerType: ViewerType;
   handleCodeSourceClick: () => void;
   handleRenderClick: () => void;
   handleFullScreen: () => void;
   handleModalCancel: () => void;
-};
+}
 
 const PreviewToolbar: React.FC<Props> = ({
   url,

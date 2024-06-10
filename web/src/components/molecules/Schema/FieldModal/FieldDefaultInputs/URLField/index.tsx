@@ -6,9 +6,9 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
-type Props = {
-  multiple?: boolean;
-};
+interface Props {
+  multiple: boolean;
+}
 
 const URLField: React.FC<Props> = ({ multiple }) => {
   const t = useT();
