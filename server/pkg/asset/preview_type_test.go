@@ -209,19 +209,24 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 
 func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 	c1 := "image/png"
-	want1 := lo.ToPtr(PreviewTypeImage)
+	want1 := PreviewTypeImage
 	got1 := PreviewTypeFromContentType(c1)
 	assert.Equal(t, want1, got1)
 
 	c2 := "video/mp4"
-	want2 := lo.ToPtr(PreviewTypeUnknown)
+	want2 := PreviewTypeUnknown
 	got2 := PreviewTypeFromContentType(c2)
 	assert.Equal(t, want2, got2)
 
 	c3 := "image/svg"
-	want3 := lo.ToPtr(PreviewTypeImageSvg)
+	want3 := PreviewTypeImageSvg
 	got3 := PreviewTypeFromContentType(c3)
 	assert.Equal(t, want3, got3)
+
+	c4 := "text/csv"
+	want4 := PreviewTypeCSV
+	got4 := PreviewTypeFromContentType(c4)
+	assert.Equal(t, want4, got4)
 }
 
 func TestPreviewType_String(t *testing.T) {
