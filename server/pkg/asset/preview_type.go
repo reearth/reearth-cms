@@ -9,12 +9,12 @@ import (
 )
 
 var (
-	imageExtensions   = []string{"jpg", "jpeg", "png", "gif", "tiff", "webp"}
-	imageSVGExtension = "svg"
-	geoExtensions     = []string{"kml", "czml", "topojson", "geojson"}
-	geoMvtExtension   = "mvt"
-	model3dExtensions = []string{"gltf", "glb"}
-	csvExtension      = "csv"
+	imageExtensions   = []string{".jpg", ".jpeg", ".png", ".gif", ".tiff", ".webp"}
+	imageSVGExtension = ".svg"
+	geoExtensions     = []string{".kml", ".czml", ".topojson", ".geojson"}
+	geoMvtExtension   = ".mvt"
+	model3dExtensions = []string{".gltf", ".glb"}
+	csvExtension      = ".csv"
 )
 
 type PreviewType string

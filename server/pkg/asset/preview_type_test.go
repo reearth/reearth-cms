@@ -3,6 +3,7 @@ package asset
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -207,6 +208,24 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	}
 }
 
+func TestPreviewType_DetectPreviewType(t *testing.T) {
+	f1 := file.File{
+		Name:        "image.png",
+		ContentType: "image/png",
+	}	
+	want1 := PreviewTypeImage
+	got1 := DetectPreviewType(&f1)
+	assert.Equal(t, want1, *got1)
+
+	f2 := file.File{
+		Name:        "file.geojson",
+		ContentType: "application/json",
+	}	
+	want2 := PreviewTypeGeo
+	got2 := DetectPreviewType(&f2)
+	assert.Equal(t, want2, *got2)
+}
+
 func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 	c1 := "image/png"
 	want1 := PreviewTypeImage
@@ -227,6 +246,38 @@ func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 	want4 := PreviewTypeCSV
 	got4 := PreviewTypeFromContentType(c4)
 	assert.Equal(t, want4, got4)
+}
+
+func TestPreviewType_PreviewTypeFromExtension(t *testing.T) {
+	ext1 := ".png"
+	want1 := PreviewTypeImage
+	got1 := PreviewTypeFromExtension(ext1)
+	assert.Equal(t, want1, got1)
+
+	ext2 := ".kml"
+	want2 := PreviewTypeGeo
+	got2 := PreviewTypeFromExtension(ext2)
+	assert.Equal(t, want2, got2)
+
+	ext3 := ".svg"
+	want3 := PreviewTypeImageSvg
+	got3 := PreviewTypeFromExtension(ext3)
+	assert.Equal(t, want3, got3)
+
+	ext4 := ".csv"
+	want4 := PreviewTypeCSV
+	got4 := PreviewTypeFromExtension(ext4)
+	assert.Equal(t, want4, got4)
+
+	ext5 := ".glb"
+	want5 := PreviewTypeModel3d
+	got5 := PreviewTypeFromExtension(ext5)
+	assert.Equal(t, want5, got5)
+
+	ext6 := ".mvt"
+	want6 := PreviewTypeGeoMvt
+	got6 := PreviewTypeFromExtension(ext6)
+	assert.Equal(t, want6, got6)
 }
 
 func TestPreviewType_String(t *testing.T) {
