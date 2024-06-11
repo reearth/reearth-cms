@@ -37,11 +37,11 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
             <RequestText>{currentRequest.description}</RequestText>
           </RequestTextWrapper>
           <RequestItemsWrapper>
-            <Collapse>
-              {currentRequest.items
-                .filter(item => item.schema)
-                .map((item, index) => (
-                  <StyledPanel header={item.modelName} key={index}>
+            {currentRequest.items
+              .filter(item => item.schema)
+              .map((item, index) => (
+                <Collapse key={index}>
+                  <StyledPanel header={item.modelName} key={1}>
                     <RequestItemForm
                       key={index}
                       schema={item.schema}
@@ -51,8 +51,8 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
                       onGroupGet={onGroupGet}
                     />
                   </StyledPanel>
-                ))}
-            </Collapse>
+                </Collapse>
+              ))}
           </RequestItemsWrapper>
         </>
       }
@@ -109,6 +109,9 @@ const RequestText = styled.p`
 
 const RequestItemsWrapper = styled.div`
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   .ant-pro-card-body {
     padding: 0;
   }
