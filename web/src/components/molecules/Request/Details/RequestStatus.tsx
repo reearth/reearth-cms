@@ -24,7 +24,7 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
       {requestState === "CLOSED" && (
         <Step
           icon={<StyledIcon icon="closeCircle" color="#BFBFBF" size={28} />}
-          title={<StatusTitle>{t("Closed this request")}</StatusTitle>}
+          title={<StatusTitle>{t("Closed")}</StatusTitle>}
         />
       )}
     </StyledSteps>
