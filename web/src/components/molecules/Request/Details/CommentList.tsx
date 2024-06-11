@@ -45,7 +45,7 @@ const StyledListWrapper = styled.div`
         height: 24px;
         background-color: #d9d9d9;
         left: 16px;
-        top: -28px;
+        top: -30px;
       }
     }
   }

@@ -41,7 +41,7 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
               {currentRequest.items
                 .filter(item => item.schema)
                 .map((item, index) => (
-                  <Panel header={item.modelName} key={index}>
+                  <StyledPanel header={item.modelName} key={index}>
                     <RequestItemForm
                       key={index}
                       schema={item.schema}
@@ -50,7 +50,7 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
                       onGetAsset={onGetAsset}
                       onGroupGet={onGroupGet}
                     />
-                  </Panel>
+                  </StyledPanel>
                 ))}
             </Collapse>
           </RequestItemsWrapper>
@@ -80,7 +80,12 @@ const StyledAntDComment = styled(AntDComment)`
     }
   }
   .ant-comment-inner {
-    padding-top: 0;
+    padding: 0;
+  }
+  .ant-comment-avatar {
+    background-color: #f5f5f5;
+    margin-right: 0;
+    padding-right: 12px;
   }
   .ant-comment-content {
     background-color: #fff;
@@ -106,5 +111,12 @@ const RequestItemsWrapper = styled.div`
   padding: 12px;
   .ant-pro-card-body {
     padding: 0;
+  }
+`;
+
+const StyledPanel = styled(Panel)`
+  > .ant-collapse-content {
+    max-height: 640px;
+    overflow: auto;
   }
 `;
