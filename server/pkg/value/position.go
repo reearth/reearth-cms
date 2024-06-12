@@ -8,9 +8,9 @@ import (
 	"github.com/samber/lo"
 )
 
-const TypePoint Type = "point"
-const TypeLineString Type = "lineString"
-const TypePolygon Type = "polygon"
+// const TypePoint Type = "point"
+// const TypeLineString Type = "lineString"
+// const TypePolygon Type = "polygon"
 
 type propertyPosition struct{}
 
@@ -101,9 +101,13 @@ func (*propertyPosition) ToInterface(v any) (any, bool) {
 
 func (*propertyPosition) Validate(i any) bool {
 	v, ok := i.(Position)
-	return ok && len(v) >= 2
+	if !ok {
+		return false
+	}
+	return len(v) >= 2
 }
 
+// We might not need this
 func (*propertyPosition) IsEmpty(i any) bool {
 	if i == nil {
 		return true
@@ -120,6 +124,12 @@ func (v *Value) ValuePosition() (vv Position, ok bool) {
 		return
 	}
 	vv, ok = v.v.(Position)
+	if !ok {
+		return nil, false
+	}
+	if len(vv) > 3 {
+		return vv[:3], true // TODO: need to think about his case
+	}
 	return
 }
 
