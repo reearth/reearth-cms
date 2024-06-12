@@ -2,6 +2,7 @@ package value
 
 import (
 	"encoding/json"
+	"reflect"
 	"strconv"
 
 	"github.com/samber/lo"
@@ -19,98 +20,79 @@ func (p *propertyPosition) ToValue(i any) (any, bool) {
 	if i == nil {
 		return nil, true
 	}
-	if v, ok := i.([]float64); ok {
+
+	switch v := i.(type) {
+	case []float64:
 		return v, true
-	} else if v, ok := i.([]float32); ok {
-		s := lo.Map(v, func(n float32, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]string); ok {
-		var err error
-		s := lo.Map(v, func(s string, _ int) float64 {
-			vv, err2 := strconv.ParseFloat(s, 64)
-			if err2 != nil {
-				err = err2
-				return 0
-			}
-			return vv
-		})
-		if err != nil {
-			return nil, false
-		}
-		return s, true
-	} else if v, ok := i.([]int); ok {
-		s := lo.Map(v, func(n int, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]int8); ok {
-		s := lo.Map(v, func(n int8, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]int16); ok {
-		s := lo.Map(v, func(n int16, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]int32); ok {
-		s := lo.Map(v, func(n int32, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]int64); ok {
-		s := lo.Map(v, func(n int64, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]uint); ok {
-		s := lo.Map(v, func(n uint, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	}else if v, ok := i.([]uint8); ok {
-		s := lo.Map(v, func(n uint8, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	}else if v, ok := i.([]uint16); ok {
-		s := lo.Map(v, func(n uint16, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	}else if v, ok := i.([]uint32); ok {
-		s := lo.Map(v, func(n uint32, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]uint64); ok {
-		s := lo.Map(v, func(n uint64, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]uintptr); ok {
-		s := lo.Map(v, func(n uintptr, _ int) float64 {
-			return float64(n)
-		})
-		return s, true
-	} else if v, ok := i.([]json.Number); ok {
-		var err error
-		s := lo.Map(v, func(n json.Number, _ int) float64 {
-			vv, err2 := n.Float64()
-			if err2 != nil {
-				err = err2
-				return 0
-			}
-			return vv
-		})
-		if err != nil {
-			return nil, false
-		}
-		return s, true
+	case []float32:
+		return mapToFloat64(v), true
+	case []int:
+		return mapToFloat64(v), true
+	case []int8:
+		return mapToFloat64(v), true
+	case []int16:
+		return mapToFloat64(v), true
+	case []int32:
+		return mapToFloat64(v), true
+	case []int64:
+		return mapToFloat64(v), true
+	case []uint:
+		return mapToFloat64(v), true
+	case []uint8:
+		return mapToFloat64(v), true
+	case []uint16:
+		return mapToFloat64(v), true
+	case []uint32:
+		return mapToFloat64(v), true
+	case []uint64:
+		return mapToFloat64(v), true
+	case []uintptr:
+		return mapToFloat64(v), true
+	case []json.Number:
+		return mapJSONNumbersToFloat64(v)
+	case []string:
+		return mapStringsToFloat64(v)
+	default:
+		return nil, false
 	}
-	return nil, false
+}
+
+func mapToFloat64[T any](v []T) []float64 {
+	return lo.Map(v, func(n T, _ int) float64 {
+		return float64(reflect.ValueOf(n).Float())
+	})
+}
+
+func mapStringsToFloat64(v []string) ([]float64, bool) {
+	var err error
+	s := lo.Map(v, func(s string, _ int) float64 {
+		vv, err2 := strconv.ParseFloat(s, 64)
+		if err2 != nil {
+			err = err2
+			return 0
+		}
+		return vv
+	})
+	if err != nil {
+		return nil, false
+	}
+	return s, true
+}
+
+func mapJSONNumbersToFloat64(v []json.Number) ([]float64, bool) {
+	var err error
+	s := lo.Map(v, func(n json.Number, _ int) float64 {
+		vv, err2 := n.Float64()
+		if err2 != nil {
+			err = err2
+			return 0
+		}
+		return vv
+	})
+	if err != nil {
+		return nil, false
+	}
+	return s, true
 }
 
 func (*propertyPosition) ToInterface(v any) (any, bool) {
