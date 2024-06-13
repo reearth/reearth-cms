@@ -84,6 +84,8 @@ func toFloat64(v any) float64 {
 		return float64(val)
 	case uint64:
 		return float64(val)
+	case uintptr:
+		return float64(val)
 	case float32:
 		return float64(val)
 	case float64:
