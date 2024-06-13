@@ -2,7 +2,6 @@ package value
 
 import (
 	"encoding/json"
-	"reflect"
 	"strconv"
 
 	"github.com/samber/lo"
@@ -59,8 +58,39 @@ func (p *propertyPosition) ToValue(i any) (any, bool) {
 
 func mapToFloat64[T any](v []T) []float64 {
 	return lo.Map(v, func(n T, _ int) float64 {
-		return float64(reflect.ValueOf(n).Float())
+		return toFloat64(n)
 	})
+}
+
+func toFloat64(v any) float64 {
+	switch val := v.(type) {
+	case int:
+		return float64(val)
+	case int8:
+		return float64(val)
+	case int16:
+		return float64(val)
+	case int32:
+		return float64(val)
+	case int64:
+		return float64(val)
+	case uint:
+		return float64(val)
+	case uint8:
+		return float64(val)
+	case uint16:
+		return float64(val)
+	case uint32:
+		return float64(val)
+	case uint64:
+		return float64(val)
+	case float32:
+		return float64(val)
+	case float64:
+		return val
+	default:
+		return 0
+	}
 }
 
 func mapStringsToFloat64(v []string) ([]float64, bool) {
