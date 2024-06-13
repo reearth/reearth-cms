@@ -22,92 +22,92 @@ func Test_propertyPosition_ToValue(t *testing.T) {
 		},
 		{
 			name:  "string",
-			arg:   []string{"1", "2"},
-			want1: []float64{1, 2},
+			arg:   []string{"1.12345", "2.12345"},
+			want1: []float64{1.12345, 2.12345},
 			want2: true,
 		},
 		{
 			name:  "json.Number",
-			arg:   []json.Number{"1", "2"},
-			want1: []float64{1, 2},
+			arg:   []json.Number{"1.12345", "2.12345"},
+			want1: []float64{1.12345, 2.12345},
 			want2: true,
 		},
 		{
 			name:  "float64",
-			arg:   []float64{1, 2},
-			want1: []float64{1, 2},
+			arg:   []float64{1.12345, 2.12345},
+			want1: []float64{1.12345, 2.12345},
 			want2: true,
 		},
 		{
 			name:  "float32",
-			arg:   []float32{1, 2},
-			want1: []float64{1, 2},
+			arg:   []float32{1.1234567, 2.12345},
+			want1: []float64{1.1234567, 2.12345},
 			want2: true,
 		},
 		{
 			name:  "int",
 			arg:   []int{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "int8",
 			arg:   []int8{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "int16",
 			arg:   []int16{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "int32",
 			arg:   []int32{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "int64",
 			arg:   []int64{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "uint",
 			arg:   []uint{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "uint8",
 			arg:   []uint8{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "uint16",
 			arg:   []uint16{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "uint32",
 			arg:   []uint32{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "uint64",
 			arg:   []uint64{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 		{
 			name:  "uintptr",
 			arg:   []uintptr{1, 2},
-			want1: []float64{1, 2},
+			want1: []float64{1.0, 2.0},
 			want2: true,
 		},
 	}
@@ -125,7 +125,7 @@ func Test_propertyPosition_ToValue(t *testing.T) {
 }
 
 func Test_propertyPosition_ToInterface(t *testing.T) {
-	v := []float64{1, 2, 3}
+	v := []float64{1.1, 2.1, 3.1}
 	tt, ok := (&propertyPosition{}).ToInterface(v)
 	assert.Equal(t, v, tt)
 	assert.Equal(t, true, ok)
@@ -133,12 +133,12 @@ func Test_propertyPosition_ToInterface(t *testing.T) {
 
 func Test_propertyPosition_IsEmpty(t *testing.T) {
 	assert.True(t, (&propertyPosition{}).IsEmpty([]float64{}))
-	assert.False(t, (&propertyPosition{}).IsEmpty([]float64{1, 2, 3}))
+	assert.False(t, (&propertyPosition{}).IsEmpty([]float64{1.1, 2.1, 3.1}))
 }
 
 func Test_propertyPosition_Validate(t *testing.T) {
-	assert.True(t, (&propertyPosition{}).Validate([]float64{1, 2, 3}))
-	assert.False(t, (&propertyPosition{}).Validate([]float64{1}))
+	assert.True(t, (&propertyPosition{}).Validate([]float64{1.1, 2.1, 3.1}))
+	assert.False(t, (&propertyPosition{}).Validate([]float64{1.1}))
 	assert.False(t, (&propertyPosition{}).Validate([]int{1, 2, 3}))
 	assert.False(t, (&propertyPosition{}).Validate([]string{"1", "2", "3"}))
 	assert.False(t, (&propertyPosition{}).Validate(1))
@@ -146,9 +146,9 @@ func Test_propertyPosition_Validate(t *testing.T) {
 
 func Test_propertyPosition_Equal(t *testing.T) {
 	ps := &propertyPosition{}
-	assert.True(t, ps.Equal(Position{1, 2, 3}, Position{1, 2, 3}))
+	assert.True(t, ps.Equal(Position{1.1, 2.1, 3.1}, Position{1.1, 2.1, 3.1}))
 	ps1 := &propertyPosition{}
-	assert.False(t, ps1.Equal(Position{1, 2, 3}, Position{1, 2}))
+	assert.False(t, ps1.Equal(Position{1.1, 2.1, 3.1}, Position{1.1, 2.1}))
 }
 
 func TestValue_ValuePosition(t *testing.T) {
@@ -158,10 +158,10 @@ func TestValue_ValuePosition(t *testing.T) {
 	assert.Equal(t, false, ok)
 
 	v = &Value{
-		v: []float64{1, 2, 3},
+		v: []float64{1.1, 2.1, 3.1},
 	}
 	got, ok = v.ValuePosition()
-	assert.Equal(t, []float64{1, 2, 3}, got)
+	assert.Equal(t, []float64{1.1, 2.1, 3.1}, got)
 	assert.Equal(t, true, ok)
 }
 
@@ -172,8 +172,8 @@ func TestMultiple_ValuesPosition(t *testing.T) {
 	assert.Equal(t, expected, got)
 	assert.False(t, ok)
 
-	m = NewMultiple(TypePoint, []any{Position{1, 2, 3}, Position{1, 2, 3}, Position{1, 2, 3}})
-	expected = []Position{{1, 2, 3}, {1, 2, 3}, {1, 2, 3}}
+	m = NewMultiple(TypePoint, []any{Position{1.1, 2.1, 3.1}, Position{1.1, 2.1, 3.1}, Position{1.1, 2.1, 3.1}})
+	expected = []Position{{1.1, 2.1, 3.1}, {1.1, 2.1, 3.1}, {1.1, 2.1, 3.1}}
 	got, ok = m.ValuesPosition()
 	assert.Equal(t, expected, got)
 	assert.True(t, ok)
