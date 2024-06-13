@@ -332,4 +332,7 @@ const DeselectButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+  :hover {
+    color: #ff7875b3;
+  }
 `;

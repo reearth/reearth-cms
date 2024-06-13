@@ -48,10 +48,10 @@ const RequestThread: React.FC<Props> = ({
             />
           )}
         </CommentsContainer>
-        <StyledRequestStatus requestState={currentRequest.state} />
+        <RequestStatus requestState={currentRequest.state} />
       </ThreadWrapper>
       <ThreadDivider />
-      <AntDComment
+      <StyledAntDComment
         avatar={<UserAvatar username={me?.name} />}
         content={<RequestEditor onCommentCreate={onCommentCreate} />}
       />
@@ -61,12 +61,7 @@ const RequestThread: React.FC<Props> = ({
 
 export default RequestThread;
 
-const StyledRequestStatus = styled(RequestStatus)`
-  display: inline-block;
-`;
-
 const ThreadWrapper = styled.div`
-  padding: 0 12px;
   overflow: auto;
 `;
 
@@ -85,4 +80,16 @@ const ThreadDivider = styled.div`
   border-top: 1px solid #d9d9d9;
   width: calc(100% - 12px);
   padding: 0 12px;
+`;
+
+const StyledAntDComment = styled(AntDComment)`
+  margin-top: 16px;
+  background-color: #f5f5f5;
+  .ant-comment-inner {
+    padding: 0;
+  }
+  .ant-comment-avatar {
+    margin-right: 0;
+    padding-right: 12px;
+  }
 `;

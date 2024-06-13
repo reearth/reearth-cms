@@ -11,12 +11,13 @@ interface Props {
   personal: boolean;
 }
 
-const Dropdown: React.FC<Props> = ({ items, name, personal }) => {
+const Dropdown: React.FC<Props> = ({ items, name, personal, ...props }) => {
   return (
     <StyledDropdown
       menu={{ items }}
       trigger={["click"]}
-      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}>
+      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
+      {...props}>
       <a onClick={e => e.preventDefault()}>
         <Space>
           <UserAvatar username={name ?? ""} shape={personal ? "circle" : "square"} size={"small"} />

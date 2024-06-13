@@ -110,8 +110,9 @@ const Content = styled.div`
 `;
 
 const BodyWrapper = styled.div`
-  padding: 24px;
+  padding: 12px 0 0 24px;
   display: flex;
+  gap: 11px;
 `;
 
 const ThreadWrapper = styled.div`

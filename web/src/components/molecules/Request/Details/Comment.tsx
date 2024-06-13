@@ -87,7 +87,7 @@ const ThreadCommentMolecule: React.FC<Props> = ({
       content={
         <>
           <Form.Item hidden={!showEditor}>
-            <TextArea onChange={handleChange} value={value} rows={4} maxLength={1000} />
+            <TextArea onChange={handleChange} value={value} rows={4} />
           </Form.Item>
           <div hidden={showEditor}>{comment.content}</div>
         </>
@@ -106,6 +106,15 @@ const ThreadCommentMolecule: React.FC<Props> = ({
 export default ThreadCommentMolecule;
 
 const StyledAntDComment = styled(AntDComment)`
+  .ant-comment-inner {
+    padding: 0;
+    margin-top: 35px;
+  }
+  .ant-comment-avatar {
+    background-color: #f5f5f5;
+    margin-right: 0;
+    padding-right: 12px;
+  }
   .ant-comment-content {
     background-color: #fff;
     padding: 12px 24px;

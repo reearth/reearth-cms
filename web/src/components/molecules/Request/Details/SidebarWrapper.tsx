@@ -145,7 +145,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
-  padding: 7px;
+  padding: 8px;
   width: 272px;
 `;
 

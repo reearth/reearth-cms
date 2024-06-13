@@ -45,6 +45,7 @@ const CardValue = styled.p`
   line-height: 24px;
   color: rgba(0, 0, 0, 0.85);
   overflow-x: hidden;
+  margin-bottom: 4px;
 `;
 
 export default SidebarCard;
