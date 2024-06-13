@@ -2,12 +2,13 @@ package value
 
 import (
 	"encoding/json"
+	"slices"
 	"strconv"
 
 	"github.com/samber/lo"
 )
 
-// const TypePoint Type = "point"
+const TypePoint Type = "point"
 // const TypeLineString Type = "lineString"
 // const TypePolygon Type = "polygon"
 
@@ -137,6 +138,15 @@ func (*propertyPosition) Validate(i any) bool {
 		return false
 	}
 	return len(v) >= 2
+}
+
+func (*propertyPosition) Equal(v, w any) bool {
+	vv := v.(Position)
+	ww := w.(Position)
+	if len(vv) != len(ww) {
+		return false
+	}
+	return slices.Equal(vv, ww)
 }
 
 // We might not need this
