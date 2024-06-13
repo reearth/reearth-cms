@@ -25,29 +25,29 @@ func (p *propertyPosition) ToValue(i any) (any, bool) {
 	case []float64:
 		return v, true
 	case []float32:
-		return mapToFloat64(v), true
+		return mapFloat32ToFloat64(v)
 	case []int:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []int8:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []int16:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []int32:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []int64:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []uint:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []uint8:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []uint16:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []uint32:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []uint64:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []uintptr:
-		return mapToFloat64(v), true
+		return mapIntegersToFloat64(v), true
 	case []json.Number:
 		return mapJSONNumbersToFloat64(v)
 	case []string:
@@ -57,13 +57,13 @@ func (p *propertyPosition) ToValue(i any) (any, bool) {
 	}
 }
 
-func mapToFloat64[T any](v []T) []float64 {
+func mapIntegersToFloat64[T any](v []T) []float64 {
 	return lo.Map(v, func(n T, _ int) float64 {
-		return toFloat64(n)
+		return intToFloat64(n)
 	})
 }
 
-func toFloat64(v any) float64 {
+func intToFloat64(v any) float64 {
 	switch val := v.(type) {
 	case int:
 		return float64(val)
@@ -87,10 +87,6 @@ func toFloat64(v any) float64 {
 		return float64(val)
 	case uintptr:
 		return float64(val)
-	case float32:
-		return float64(val)
-	case float64:
-		return val
 	default:
 		return 0
 	}
@@ -116,6 +112,23 @@ func mapJSONNumbersToFloat64(v []json.Number) ([]float64, bool) {
 	var err error
 	s := lo.Map(v, func(n json.Number, _ int) float64 {
 		vv, err2 := n.Float64()
+		if err2 != nil {
+			err = err2
+			return 0
+		}
+		return vv
+	})
+	if err != nil {
+		return nil, false
+	}
+	return s, true
+}
+
+func mapFloat32ToFloat64(v []float32) ([]float64, bool) {
+	var err error
+	s := lo.Map(v, func(n float32, _ int) float64 {
+		ss := strconv.FormatFloat(float64(n), 'f', -1, 32)
+		vv, err2 := strconv.ParseFloat(ss, 64)
 		if err2 != nil {
 			err = err2
 			return 0
