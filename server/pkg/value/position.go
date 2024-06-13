@@ -149,7 +149,6 @@ func (*propertyPosition) Equal(v, w any) bool {
 	return slices.Equal(vv, ww)
 }
 
-// We might not need this
 func (*propertyPosition) IsEmpty(i any) bool {
 	if i == nil {
 		return true

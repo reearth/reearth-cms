@@ -144,6 +144,13 @@ func Test_propertyPosition_Validate(t *testing.T) {
 	assert.False(t, (&propertyPosition{}).Validate(1))
 }
 
+func Test_propertyPosition_Equal(t *testing.T) {
+	ps := &propertyPosition{}
+	assert.True(t, ps.Equal(Position{1, 2, 3}, Position{1, 2, 3}))
+	ps1 := &propertyPosition{}
+	assert.False(t, ps1.Equal(Position{1, 2, 3}, Position{1, 2}))
+}
+
 func TestValue_ValuePosition(t *testing.T) {
 	var v *Value
 	got, ok := v.ValuePosition()
@@ -165,9 +172,9 @@ func TestMultiple_ValuesPosition(t *testing.T) {
 	assert.Equal(t, expected, got)
 	assert.False(t, ok)
 
-	// m = NewMultiple(TypeText, []any{[]float64{1, 2, 3}, []float64{1, 2, 3}, []float64{1, 2, 3}})
-	// expected = []Position{[]float64{1, 2, 3}, []float64{1, 2, 3}, []float64{1, 2, 3}}
-	// got, ok = m.ValuesPosition()
-	// assert.Equal(t, expected, got)
-	// assert.True(t, ok)
+	m = NewMultiple(TypePoint, []any{Position{1, 2, 3}, Position{1, 2, 3}, Position{1, 2, 3}})
+	expected = []Position{{1, 2, 3}, {1, 2, 3}, {1, 2, 3}}
+	got, ok = m.ValuesPosition()
+	assert.Equal(t, expected, got)
+	assert.True(t, ok)
 }
