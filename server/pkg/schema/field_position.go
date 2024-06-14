@@ -32,8 +32,8 @@ func (f *FieldPosition) Validate(v *value.Value) error {
 		return ErrInvalidValue
 	}
 
-	_, ok := v.ValuePosition()
-	if !ok {
+	vp, ok := v.ValuePosition()
+	if !ok || len(vp) < 2 {
 		return ErrInvalidValue
 	}
 
