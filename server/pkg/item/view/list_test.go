@@ -3,8 +3,8 @@ package view
 import (
 	"testing"
 
-	"github.com/go-playground/assert/v2"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestList_Ordered(t *testing.T) {
