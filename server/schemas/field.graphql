@@ -13,6 +13,7 @@ enum SchemaFieldType {
   Checkbox
   URL
   Group
+  Point
 }
 
 enum SchemaFieldTagColor {
@@ -28,7 +29,6 @@ enum SchemaFieldTagColor {
   GEEKBLUE
   PURPLE
 }
-
 
 type SchemaField {
   id: ID!
@@ -53,7 +53,7 @@ type SchemaField {
 }
 
 union SchemaFieldTypeProperty =
-  SchemaFieldText
+    SchemaFieldText
   | SchemaFieldTextArea
   | SchemaFieldRichText
   | SchemaFieldMarkdown
@@ -67,6 +67,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldURL
   | SchemaFieldCheckbox
   | SchemaFieldGroup
+  | SchemaFieldPoint
 
 type SchemaFieldText {
   defaultValue: Any
@@ -142,6 +143,10 @@ type SchemaFieldGroup {
   groupId: ID!
 }
 
+type SchemaFieldPoint {
+  defaultValue: Any
+}
+
 # Inputs
 
 input SchemaFieldTextInput {
@@ -208,7 +213,7 @@ input CorrespondingFieldInput {
   key: String!
   description: String!
   required: Boolean!
-} 
+}
 
 input SchemaFieldReferenceInput {
   modelId: ID!
@@ -222,6 +227,10 @@ input SchemaFieldURLInput {
 
 input SchemaFieldGroupInput {
   groupId: ID!
+}
+
+input SchemaFieldPointInput {
+  defaultValue: Any
 }
 
 input SchemaFieldTypePropertyInput @onlyOne {
@@ -239,6 +248,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
+  point: SchemaFieldPointInput
 }
 
 input CreateFieldInput {
