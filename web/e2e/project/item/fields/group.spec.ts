@@ -107,8 +107,7 @@ test("Group field creating and updating has succeeded", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("new text1 description");
   await expect(page.getByLabel("new text1(unique)")).toHaveValue("new text1");
   await expect(page.getByText("/ 5")).toBeVisible();
-  await page.getByRole("button", { name: "Save" }).click();
-  await closeNotification(page, false);
+  await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
   await page.getByLabel("new text1(unique)").click();
   await page.getByLabel("new text1(unique)").fill("text1");
   await page.getByRole("button", { name: "Save" }).click();
