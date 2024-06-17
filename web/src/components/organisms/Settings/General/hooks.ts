@@ -47,18 +47,6 @@ export default () => {
       : defaultSettings;
   }, [data?.node, defaultSettings]);
 
-  const tiles: TileInput[] = useMemo(() => {
-    const tiles: TileInput[] = [];
-    workspaceSettings?.tiles?.resources?.map(resource => tiles.push({ tile: resource }));
-    return tiles;
-  }, [workspaceSettings?.tiles?.resources]);
-
-  const terrains: TerrainInput[] = useMemo(() => {
-    const terrains: TerrainInput[] = [];
-    workspaceSettings?.terrains?.resources?.map(resource => terrains.push({ terrain: resource }));
-    return terrains;
-  }, [workspaceSettings?.terrains?.resources]);
-
   const [updateWorkspaceMutation, { loading }] = useUpdateWorkspaceSettingsMutation();
 
   const handleWorkspaceSettingsUpdate = useCallback(
@@ -87,13 +75,6 @@ export default () => {
       refetch();
     },
     [refetch, t, updateWorkspaceMutation, workspaceId, workspaceSettings?.terrains?.enabled],
-  );
-
-  const handleTerrainToggle = useCallback(
-    (isEnable: boolean) => {
-      handleWorkspaceSettingsUpdate(tiles, terrains, isEnable);
-    },
-    [handleWorkspaceSettingsUpdate, tiles, terrains],
   );
 
   const { data: userData } = useGetMeQuery();
