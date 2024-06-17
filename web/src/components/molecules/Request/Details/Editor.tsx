@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { useCallback, useState, ChangeEvent } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -14,17 +14,23 @@ interface Props {
 
 const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
   const [submitting, setSubmitting] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [form] = Form.useForm();
   const t = useT();
 
+  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setIsDisabled(!e.target.value);
+  }, []);
+
   const handleSubmit = useCallback(async () => {
+    setSubmitting(true);
+    setIsDisabled(true);
     try {
-      setSubmitting(true);
       const values = await form.validateFields();
       await onCommentCreate?.(values.content);
       form.resetFields();
-    } catch (info) {
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsDisabled(false);
     } finally {
       setSubmitting(false);
     }
@@ -33,10 +39,10 @@ const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
   return (
     <StyledForm form={form} layout="vertical">
       <Form.Item name="content">
-        <TextArea rows={4} maxLength={1000} showCount />
+        <TextArea rows={4} maxLength={1000} showCount onChange={handleChange} />
       </Form.Item>
       <StyledFormItem>
-        <Button htmlType="submit" loading={submitting} onClick={handleSubmit} type="primary">
+        <Button disabled={isDisabled} loading={submitting} onClick={handleSubmit} type="primary">
           {t("Comment")}
         </Button>
       </StyledFormItem>

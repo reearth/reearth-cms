@@ -43,6 +43,7 @@ export default (assetId?: string) => {
   const [decompressing, setDecompressing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [collapsed, setCollapsed] = useState(true);
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
   const { data: rawAsset, loading } = useGetAssetItemQuery({
     variables: {
@@ -77,22 +78,21 @@ export default (assetId?: string) => {
       : undefined;
   }, [convertedAsset, rawFile?.assetFile]);
 
-  const [updateAssetMutation] = useUpdateAssetMutation();
+  const [updateAssetMutation, { loading: updateLoading }] = useUpdateAssetMutation();
   const handleAssetUpdate = useCallback(
-    (assetId: string, previewType?: PreviewType) =>
-      (async () => {
-        if (!assetId) return;
-        const result = await updateAssetMutation({
-          variables: { id: assetId, previewType: previewType as GQLPreviewType },
-          refetchQueries: ["GetAsset"],
-        });
-        if (result.errors || !result.data?.updateAsset) {
-          Notification.error({ message: t("Failed to update asset.") });
-        }
-        if (result) {
-          Notification.success({ message: t("Asset was successfully updated!") });
-        }
-      })(),
+    async (assetId: string, previewType?: PreviewType) => {
+      if (!assetId) return;
+      const result = await updateAssetMutation({
+        variables: { id: assetId, previewType: previewType as GQLPreviewType },
+        refetchQueries: ["GetAssetItem"],
+      });
+      if (result.errors || !result.data?.updateAsset) {
+        Notification.error({ message: t("Failed to update asset.") });
+      }
+      if (result) {
+        Notification.success({ message: t("Asset was successfully updated!") });
+      }
+    },
     [t, updateAssetMutation],
   );
 
@@ -104,7 +104,7 @@ export default (assetId?: string) => {
         setDecompressing(true);
         const result = await decompressAssetMutation({
           variables: { assetId },
-          refetchQueries: ["GetAsset"],
+          refetchQueries: ["GetAssetItem"],
         });
         setDecompressing(false);
         if (result.errors || !result.data?.decompressAsset) {
@@ -123,9 +123,17 @@ export default (assetId?: string) => {
     }
   }, [convertedAsset?.previewType]);
 
-  const handleTypeChange = useCallback((value: PreviewType) => {
-    setSelectedPreviewType(value);
-  }, []);
+  const handleTypeChange = useCallback(
+    (value: PreviewType) => {
+      setSelectedPreviewType(value);
+      if (value === convertedAsset?.previewType) {
+        setIsSaveDisabled(true);
+      } else {
+        setIsSaveDisabled(false);
+      }
+    },
+    [convertedAsset?.previewType],
+  );
 
   const [viewerType, setViewerType] = useState<ViewerType>("unknown");
   const assetFileExt = getExtension(convertedAsset?.fileName);
@@ -207,7 +215,12 @@ export default (assetId?: string) => {
 
   const handleSave = useCallback(async () => {
     if (assetId) {
-      await handleAssetUpdate(assetId, selectedPreviewType);
+      setIsSaveDisabled(true);
+      try {
+        await handleAssetUpdate(assetId, selectedPreviewType);
+      } catch (_) {
+        setIsSaveDisabled(false);
+      }
     }
   }, [assetId, handleAssetUpdate, selectedPreviewType]);
 
@@ -225,6 +238,8 @@ export default (assetId?: string) => {
     viewerType,
     displayUnzipFileList,
     decompressing,
+    isSaveDisabled,
+    updateLoading,
     handleAssetItemSelect,
     handleAssetDecompress,
     handleToggleCommentMenu,

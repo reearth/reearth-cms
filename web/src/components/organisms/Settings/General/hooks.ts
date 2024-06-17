@@ -59,7 +59,7 @@ export default () => {
     return terrains;
   }, [workspaceSettings?.terrains?.resources]);
 
-  const [updateWorkspaceMutation] = useUpdateWorkspaceSettingsMutation();
+  const [updateWorkspaceMutation, { loading }] = useUpdateWorkspaceSettingsMutation();
 
   const handleWorkspaceSettingsUpdate = useCallback(
     async (tiles: TileInput[], terrains: TerrainInput[], isEnable?: boolean) => {
@@ -106,10 +106,8 @@ export default () => {
 
   return {
     workspaceSettings,
-    tiles,
-    terrains,
-    handleWorkspaceSettingsUpdate,
-    handleTerrainToggle,
     hasPrivilege,
+    loading,
+    handleWorkspaceSettingsUpdate,
   };
 };

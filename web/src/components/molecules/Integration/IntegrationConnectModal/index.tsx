@@ -4,17 +4,24 @@ import { useCallback, useState } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import IntegrationCard from "@reearth-cms/components/molecules/Integration/IntegrationConnectModal/IntegrationCard";
-import { Integration } from "@reearth-cms/components/molecules/Integration/types";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 
 interface Props {
   integrations?: Integration[];
   open: boolean;
+  loading: boolean;
   onClose: () => void;
   onSubmit: (integration?: Integration) => Promise<void>;
 }
 
-const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose, onSubmit }) => {
+const IntegrationConnectModal: React.FC<Props> = ({
+  integrations,
+  open,
+  loading,
+  onClose,
+  onSubmit,
+}) => {
   const t = useT();
   const [selectedIntegration, SetSelectedIntegration] = useState<Integration | undefined>();
 
@@ -32,10 +39,15 @@ const IntegrationConnectModal: React.FC<Props> = ({ integrations, open, onClose,
       open={open}
       onCancel={onClose}
       footer={[
-        <Button key="back" onClick={onClose}>
+        <Button key="back" onClick={onClose} disabled={loading}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={() => onSubmit(selectedIntegration)}>
+        <Button
+          key="submit"
+          type="primary"
+          disabled={!selectedIntegration}
+          onClick={() => onSubmit(selectedIntegration)}
+          loading={loading}>
           {t("Connect")}
         </Button>,
       ]}>

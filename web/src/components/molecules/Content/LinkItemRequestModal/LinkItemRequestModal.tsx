@@ -45,7 +45,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
   onRequestTableReload,
 }) => {
   const t = useT();
-  const { pagination, submit, resetFlag, selectedRequestId, setSelectedRequestId } = useHooks(
+  const { pagination, submit, resetFlag, selectedRequestId, select, isDisabled } = useHooks(
     itemIds,
     onLinkItemRequestModalCancel,
     requestList,
@@ -68,7 +68,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
           return (
             <Radio.Group
               onChange={() => {
-                setSelectedRequestId(request.id);
+                select(request.id);
               }}
               value={selectedRequestId}>
               <Radio value={request.id} />
@@ -151,7 +151,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
     ],
-    [selectedRequestId, setSelectedRequestId, t],
+    [selectedRequestId, select, t],
   );
 
   const options = useMemo(
@@ -189,7 +189,8 @@ const LinkItemRequestModal: React.FC<Props> = ({
       }}
       afterClose={() => {
         resetFlag.current = !resetFlag.current;
-      }}>
+      }}
+      okButtonProps={{ disabled: isDisabled }}>
       <ResizableProTable
         dataSource={requestList}
         columns={columns}
