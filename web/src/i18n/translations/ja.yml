@@ -244,6 +244,8 @@ Write something here to describe this record.: このレコードの説明を入
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
 If this option is chosen, all new model within the project will default follow it: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
+Leave your comment...: コメントを入力してください。
+Add Comment: コメントを追加
 Close: クローズ
 Reopen: 再開
 Approve: 承認

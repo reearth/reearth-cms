@@ -37,26 +37,26 @@ const RequestEditor: React.FC<Props> = ({ onCommentCreate }) => {
   }, [form, onCommentCreate]);
 
   return (
-    <StyledForm form={form} layout="vertical">
-      <Form.Item name="content">
-        <TextArea rows={4} maxLength={1000} showCount onChange={handleChange} />
-      </Form.Item>
-      <StyledFormItem>
+    <Form form={form} layout="vertical">
+      <TextAreaItem name="content">
+        <TextArea rows={4} placeholder={t("Leave your comment...")} onChange={handleChange} />
+      </TextAreaItem>
+      <ButtonItem>
         <Button disabled={isDisabled} loading={submitting} onClick={handleSubmit} type="primary">
-          {t("Comment")}
+          {t("Add Comment")}
         </Button>
-      </StyledFormItem>
-    </StyledForm>
+      </ButtonItem>
+    </Form>
   );
 };
 
 export default RequestEditor;
 
-const StyledForm = styled(Form)`
-  padding: 0 12px;
+const TextAreaItem = styled(Form.Item)`
+  margin-bottom: 12px;
 `;
 
-const StyledFormItem = styled(Form.Item)`
-  margin: 0 4px 4px 0;
-  float: right;
+const ButtonItem = styled(Form.Item)`
+  margin: 0px;
+  text-align: right;
 `;
