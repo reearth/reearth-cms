@@ -9,12 +9,13 @@ export default (
   requestModalTotalCount: number,
   requestModalPage: number,
   requestModalPageSize: number,
-  onChange: (value: Request, itemIds: string[]) => void,
+  onChange: (value: Request, itemIds: string[]) => Promise<void>,
 ) => {
   const resetFlag = useRef(false);
   const selectedRequest = useRef<Request>();
   const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const [isDisabled, setIsDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const pagination = useMemo(
     () => ({
@@ -35,13 +36,21 @@ export default (
     selectedRequest.current = requestList.find(request => request.id === selectedRequestId);
   }, [selectedRequestId]);
 
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     if (selectedRequest.current) {
-      onChange(selectedRequest.current, itemIds);
-      setSelectedRequestId(undefined);
-      onLinkItemRequestModalCancel();
+      setIsDisabled(true);
+      setIsLoading(true);
+      try {
+        await onChange(selectedRequest.current, itemIds);
+        setSelectedRequestId(undefined);
+        onLinkItemRequestModalCancel();
+      } catch (_) {
+        setIsDisabled(false);
+      } finally {
+        setIsLoading(false);
+      }
     }
   }, [itemIds, onChange, onLinkItemRequestModalCancel, requestList, selectedRequestId]);
 
-  return { pagination, submit, resetFlag, selectedRequestId, select, isDisabled };
+  return { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading };
 };

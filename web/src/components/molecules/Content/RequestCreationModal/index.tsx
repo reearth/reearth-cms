@@ -118,6 +118,7 @@ const RequestCreationModal: React.FC<Props> = ({
       onOk={handleSubmit}
       confirmLoading={requestCreationLoading}
       title={t("New Request")}
+      cancelButtonProps={{ disabled: requestCreationLoading }}
       okButtonProps={{ disabled: isDisabled }}>
       <Form
         form={form}

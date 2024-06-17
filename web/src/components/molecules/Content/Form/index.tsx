@@ -114,7 +114,7 @@ interface Props {
       itemId: string;
     }[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => void;
+  onChange: (request: Request, itemIds: string[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;

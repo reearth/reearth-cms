@@ -55,7 +55,7 @@ interface Props {
   onItemDelete: (itemIds: string[]) => Promise<void>;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;

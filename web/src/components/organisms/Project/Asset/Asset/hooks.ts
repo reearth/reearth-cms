@@ -126,11 +126,7 @@ export default (assetId?: string) => {
   const handleTypeChange = useCallback(
     (value: PreviewType) => {
       setSelectedPreviewType(value);
-      if (value === convertedAsset?.previewType) {
-        setIsSaveDisabled(true);
-      } else {
-        setIsSaveDisabled(false);
-      }
+      setIsSaveDisabled(value === convertedAsset?.previewType);
     },
     [convertedAsset?.previewType],
   );
