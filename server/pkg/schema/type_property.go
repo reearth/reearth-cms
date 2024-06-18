@@ -27,6 +27,7 @@ type TypeProperty struct {
 	reference *FieldReference
 	url       *FieldURL
 	group     *FieldGroup
+	point     *FieldPoint
 }
 
 type TypePropertyMatch struct {
@@ -45,6 +46,7 @@ type TypePropertyMatch struct {
 	Reference func(*FieldReference)
 	URL       func(*FieldURL)
 	Group     func(*FieldGroup)
+	Point     func(*FieldPoint)
 	Default   func()
 }
 
@@ -64,6 +66,7 @@ type TypePropertyMatch1[T any] struct {
 	Reference func(*FieldReference) T
 	URL       func(*FieldURL) T
 	Group     func(*FieldGroup) T
+	Point     func(*FieldPoint) T
 	Default   func() T
 }
 
@@ -118,6 +121,9 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		Group: func(f *FieldGroup) error {
 			return f.Validate(v)
 		},
+		Point: func(f *FieldPoint) error {
+			return f.Validate(v)
+		},
 	})
 }
 
@@ -163,6 +169,9 @@ func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
 			return f.ValidateMultiple(v)
 		},
 		Group: func(f *FieldGroup) error {
+			return f.ValidateMultiple(v)
+		},
+		Point: func(f *FieldPoint) error {
 			return f.ValidateMultiple(v)
 		},
 	})
@@ -252,6 +261,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.URL(t.url)
 			return
 		}
+	case value.TypePoint:
+		if m.Point != nil {
+			m.Point(t.point)
+			return
+		}
 	}
 
 	if m.Default != nil {
@@ -281,6 +295,7 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		reference: t.reference.Clone(),
 		group:     t.group.Clone(),
 		url:       t.url.Clone(),
+		point:     t.point.Clone(),
 	}
 }
 
@@ -352,6 +367,10 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypeGroup:
 		if m.Group != nil {
 			return m.Group(t.group)
+		}
+	case value.TypePoint:
+		if m.Point != nil {
+			return m.Point(t.point)
 		}
 	}
 

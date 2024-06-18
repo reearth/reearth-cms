@@ -1000,6 +1000,16 @@ type SchemaFieldMarkdown struct {
 
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldPoint struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+func (SchemaFieldPoint) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldPointInput struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
 type SchemaFieldReference struct {
 	ModelID              ID           `json:"modelId"`
 	SchemaID             ID           `json:"schemaId"`
@@ -1103,6 +1113,7 @@ type SchemaFieldTypePropertyInput struct {
 	Reference    *SchemaFieldReferenceInput `json:"reference,omitempty"`
 	URL          *SchemaFieldURLInput       `json:"url,omitempty"`
 	Group        *SchemaFieldGroupInput     `json:"group,omitempty"`
+	Point        *SchemaFieldPointInput     `json:"point,omitempty"`
 }
 
 type SchemaFieldURL struct {
@@ -2306,6 +2317,7 @@ const (
 	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
 	SchemaFieldTypeGroup        SchemaFieldType = "Group"
+	SchemaFieldTypePoint        SchemaFieldType = "Point"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
@@ -2323,11 +2335,12 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
 	SchemaFieldTypeGroup,
+	SchemaFieldTypePoint,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypePoint:
 		return true
 	}
 	return false
