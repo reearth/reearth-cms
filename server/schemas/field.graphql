@@ -14,6 +14,7 @@ enum SchemaFieldType {
   URL
   Group
   Point
+  LineString
 }
 
 enum SchemaFieldTagColor {
@@ -68,6 +69,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldCheckbox
   | SchemaFieldGroup
   | SchemaFieldPoint
+  | SchemaFieldLineString
 
 type SchemaFieldText {
   defaultValue: Any
@@ -144,6 +146,10 @@ type SchemaFieldGroup {
 }
 
 type SchemaFieldPoint {
+  defaultValue: Any
+}
+
+type SchemaFieldLineString {
   defaultValue: Any
 }
 
@@ -233,6 +239,10 @@ input SchemaFieldPointInput {
   defaultValue: Any
 }
 
+input SchemaFieldLineStringInput {
+  defaultValue: Any
+}
+
 input SchemaFieldTypePropertyInput @onlyOne {
   text: SchemaFieldTextInput
   textArea: SchemaFieldTextAreaInput
@@ -249,6 +259,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
   point: SchemaFieldPointInput
+  lineString: SchemaFieldLineStringInput
 }
 
 input CreateFieldInput {
