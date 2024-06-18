@@ -57,7 +57,7 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, onClose, onSubmit }) =
         }}>
         <Form.Item
           name="role"
-          label="Role"
+          label={t("Role")}
           rules={[
             {
               required: true,

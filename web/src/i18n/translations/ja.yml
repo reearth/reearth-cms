@@ -190,10 +190,12 @@ Role Settings: ロール設定
 Please input the appropriate role for this member!: このメンバーに付与するロールを入力してください
 Are you sure to remove this member?: 本当にメンバーをこのワークスペースから削除してもよろしいですか？
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
+Thumbnail: サムネイル
+Email: メールアドレス
+Action: 操作
 Change Role?: ロールを変更
 Members: メンバー
 New Member: メンバーを追加
-search for a member: 検索
 Groups: グループ
 Add: 追加
 Models: モデル
@@ -486,8 +488,8 @@ Failed to add one or more members.: メンバーの追加に失敗しました�
 Successfully added member(s) to the workspace!: メンバーの追加に成功しました。
 Failed to update member's role.: メンバーのロールの更新に失敗しました。
 Successfully updated member's role!: メンバーのロールの更新に成功しました。
-Failed to delete member from the workspace.: メンバーの削除に失敗しました。
-Successfully removed member from the workspace!: メンバーの削除に成功しました。
+Failed to remove member(s) from the workspace.: メンバーの削除に失敗しました。
+Successfully removed member(s) from the workspace!: メンバーの削除に成功しました。
 Failed to update integration.: インテグレーションの更新に失敗しました。
 Successfully updated integration!: インテグレーションの更新に成功しました。
 Failed to delete integration.: インテグレーションの削除に失敗しました。

@@ -26,6 +26,11 @@ interface Props {
   onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
+  page: number;
+  pageSize: number;
+  onTableChange: (page: number, pageSize: number) => void;
+  loading: boolean;
+  onReload: () => void;
 }
 
 const IntegrationTable: React.FC<Props> = ({
@@ -36,6 +41,11 @@ const IntegrationTable: React.FC<Props> = ({
   onIntegrationSettingsModalOpen,
   setSelection,
   onIntegrationRemove,
+  page,
+  pageSize,
+  onTableChange,
+  loading,
+  onReload,
 }) => {
   const t = useT();
 
@@ -93,6 +103,15 @@ const IntegrationTable: React.FC<Props> = ({
     [onSearchTerm, t],
   );
 
+  const pagination = useMemo(
+    () => ({
+      showSizeChanger: true,
+      current: page,
+      pageSize: pageSize,
+    }),
+    [page, pageSize],
+  );
+
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
@@ -106,7 +125,7 @@ const IntegrationTable: React.FC<Props> = ({
     [selection, setSelection],
   );
 
-  const AlertOptions = useCallback(
+  const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
@@ -114,7 +133,7 @@ const IntegrationTable: React.FC<Props> = ({
           <DeselectButton onClick={props.onCleanSelected}>
             <Icon icon="clear" /> {t("Deselect")}
           </DeselectButton>
-          <DeleteButton onClick={() => onIntegrationRemove?.(props.selectedRowKeys)}>
+          <DeleteButton onClick={() => onIntegrationRemove(props.selectedRowKeys)}>
             <Icon icon="delete" /> {t("Remove")}
           </DeleteButton>
         </Space>
@@ -126,10 +145,9 @@ const IntegrationTable: React.FC<Props> = ({
   const options = useMemo(
     () => ({
       fullScreen: true,
-      reload: false,
-      setting: true,
+      reload: onReload,
     }),
-    [],
+    [onReload],
   );
 
   return (
@@ -160,18 +178,24 @@ const IntegrationTable: React.FC<Props> = ({
             </Suggestion>
           </EmptyTableWrapper>
         )}>
-        <ResizableProTable
-          dataSource={integrationMembers}
-          columns={columns}
-          tableAlertOptionRender={AlertOptions}
-          search={false}
-          rowKey="id"
-          options={options}
-          pagination={false}
-          toolbar={toolbar}
-          rowSelection={rowSelection}
-          heightOffset={72}
-        />
+        <TableWrapper>
+          <ResizableProTable
+            dataSource={integrationMembers}
+            columns={columns}
+            tableAlertOptionRender={alertOptions}
+            search={false}
+            rowKey="id"
+            options={options}
+            pagination={pagination}
+            toolbar={toolbar}
+            rowSelection={rowSelection}
+            loading={loading}
+            heightOffset={0}
+            onChange={pagination => {
+              onTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
+            }}
+          />
+        </TableWrapper>
       </ConfigProvider>
     </Wrapper>
   );
@@ -207,8 +231,6 @@ const Title = styled.h1`
   color: #000;
 `;
 
-export default IntegrationTable;
-
 const DeselectButton = styled.a`
   display: flex;
   align-items: center;
@@ -226,3 +248,11 @@ const StyledIcon = styled(Icon)`
   color: #1890ff;
   font-size: 18px;
 `;
+
+const TableWrapper = styled.div`
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+  height: calc(100% - 72px);
+`;
+
+export default IntegrationTable;
