@@ -77,28 +77,36 @@ const MemberTable: React.FC<Props> = ({
       title: t("Name"),
       dataIndex: "name",
       key: "name",
+      width: 256,
+      minWidth: 256,
     },
     {
       title: t("Thumbnail"),
       dataIndex: "thumbnail",
       key: "thumbnail",
       width: 128,
+      minWidth: 128,
     },
     {
       title: t("Email"),
       dataIndex: "email",
       key: "email",
+      width: 256,
+      minWidth: 256,
     },
     {
       title: t("Role"),
       dataIndex: "role",
       key: "role",
       width: 128,
+      minWidth: 128,
     },
     {
       title: t("Action"),
       dataIndex: "action",
       key: "action",
+      width: 128,
+      minWidth: 128,
     },
   ];
 
