@@ -672,6 +672,10 @@ type ComplexityRoot struct {
 		Min          func(childComplexity int) int
 	}
 
+	SchemaFieldLineString struct {
+		DefaultValue func(childComplexity int) int
+	}
+
 	SchemaFieldMarkdown struct {
 		DefaultValue func(childComplexity int) int
 		MaxLength    func(childComplexity int) int
@@ -3946,6 +3950,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldInteger.Min(childComplexity), true
 
+	case "SchemaFieldLineString.defaultValue":
+		if e.complexity.SchemaFieldLineString.DefaultValue == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldLineString.DefaultValue(childComplexity), true
+
 	case "SchemaFieldMarkdown.defaultValue":
 		if e.complexity.SchemaFieldMarkdown.DefaultValue == nil {
 			break
@@ -4719,6 +4730,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldDateInput,
 		ec.unmarshalInputSchemaFieldGroupInput,
 		ec.unmarshalInputSchemaFieldIntegerInput,
+		ec.unmarshalInputSchemaFieldLineStringInput,
 		ec.unmarshalInputSchemaFieldPointInput,
 		ec.unmarshalInputSchemaFieldReferenceInput,
 		ec.unmarshalInputSchemaFieldRichTextInput,
@@ -5126,6 +5138,7 @@ extend type Mutation {
   URL
   Group
   Point
+  LineString
 }
 
 enum SchemaFieldTagColor {
@@ -5180,6 +5193,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldCheckbox
   | SchemaFieldGroup
   | SchemaFieldPoint
+  | SchemaFieldLineString
 
 type SchemaFieldText {
   defaultValue: Any
@@ -5256,6 +5270,10 @@ type SchemaFieldGroup {
 }
 
 type SchemaFieldPoint {
+  defaultValue: Any
+}
+
+type SchemaFieldLineString {
   defaultValue: Any
 }
 
@@ -5345,6 +5363,10 @@ input SchemaFieldPointInput {
   defaultValue: Any
 }
 
+input SchemaFieldLineStringInput {
+  defaultValue: Any
+}
+
 input SchemaFieldTypePropertyInput @onlyOne {
   text: SchemaFieldTextInput
   textArea: SchemaFieldTextAreaInput
@@ -5361,6 +5383,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
   point: SchemaFieldPointInput
+  lineString: SchemaFieldLineStringInput
 }
 
 input CreateFieldInput {
@@ -26647,6 +26670,47 @@ func (ec *executionContext) fieldContext_SchemaFieldInteger_max(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldLineString_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldLineString) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldLineString_defaultValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldLineString_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldLineString",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Any does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldMarkdown_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldMarkdown) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldMarkdown_defaultValue(ctx, field)
 	if err != nil {
@@ -36104,6 +36168,33 @@ func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldLineStringInput, error) {
+	var it gqlmodel.SchemaFieldLineStringInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"defaultValue"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "defaultValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
+			data, err := ec.unmarshalOAny2interface(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DefaultValue = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSchemaFieldPointInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldPointInput, error) {
 	var it gqlmodel.SchemaFieldPointInput
 	asMap := map[string]interface{}{}
@@ -36390,7 +36481,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url", "group", "point"}
+	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url", "group", "point", "lineString"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36755,6 +36846,30 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 				it.Point = nil
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldPointInput`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "lineString":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lineString"))
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOSchemaFieldLineStringInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldLineStringInput(ctx, v)
+			}
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.OnlyOne == nil {
+					return nil, errors.New("directive onlyOne is not implemented")
+				}
+				return ec.directives.OnlyOne(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*gqlmodel.SchemaFieldLineStringInput); ok {
+				it.LineString = data
+			} else if tmp == nil {
+				it.LineString = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldLineStringInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		}
@@ -38563,6 +38678,13 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldPoint(ctx, sel, obj)
+	case gqlmodel.SchemaFieldLineString:
+		return ec._SchemaFieldLineString(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldLineString:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SchemaFieldLineString(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -44293,6 +44415,42 @@ func (ec *executionContext) _SchemaFieldInteger(ctx context.Context, sel ast.Sel
 			out.Values[i] = ec._SchemaFieldInteger_min(ctx, field, obj)
 		case "max":
 			out.Values[i] = ec._SchemaFieldInteger_max(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var schemaFieldLineStringImplementors = []string{"SchemaFieldLineString", "SchemaFieldTypeProperty"}
+
+func (ec *executionContext) _SchemaFieldLineString(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldLineString) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldLineStringImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldLineString")
+		case "defaultValue":
+			out.Values[i] = ec._SchemaFieldLineString_defaultValue(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -50439,6 +50597,14 @@ func (ec *executionContext) unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputSchemaFieldIntegerInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOSchemaFieldLineStringInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldLineStringInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldLineStringInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSchemaFieldLineStringInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

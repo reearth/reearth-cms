@@ -11,63 +11,66 @@ var ErrInvalidValue = rerror.NewE(i18n.T("invalid value"))
 // TypeProperty Represent special attributes for some field
 // only one of the type properties should be not nil
 type TypeProperty struct {
-	t         value.Type
-	asset     *FieldAsset
-	text      *FieldText
-	textArea  *FieldTextArea
-	richText  *FieldRichText
-	markdown  *FieldMarkdown
-	dateTime  *FieldDateTime
-	bool      *FieldBool
-	checkbox  *FieldCheckbox
-	selectt   *FieldSelect
-	tag       *FieldTag
-	integer   *FieldInteger
-	number    *FieldNumber
-	reference *FieldReference
-	url       *FieldURL
-	group     *FieldGroup
-	point     *FieldPoint
+	t          value.Type
+	asset      *FieldAsset
+	text       *FieldText
+	textArea   *FieldTextArea
+	richText   *FieldRichText
+	markdown   *FieldMarkdown
+	dateTime   *FieldDateTime
+	bool       *FieldBool
+	checkbox   *FieldCheckbox
+	selectt    *FieldSelect
+	tag        *FieldTag
+	integer    *FieldInteger
+	number     *FieldNumber
+	reference  *FieldReference
+	url        *FieldURL
+	group      *FieldGroup
+	point      *FieldPoint
+	lineString *FieldLineString
 }
 
 type TypePropertyMatch struct {
-	Text      func(*FieldText)
-	TextArea  func(*FieldTextArea)
-	RichText  func(text *FieldRichText)
-	Markdown  func(*FieldMarkdown)
-	Asset     func(*FieldAsset)
-	DateTime  func(*FieldDateTime)
-	Bool      func(*FieldBool)
-	Checkbox  func(checkbox *FieldCheckbox)
-	Select    func(*FieldSelect)
-	Tag       func(*FieldTag)
-	Integer   func(*FieldInteger)
-	Number    func(*FieldNumber)
-	Reference func(*FieldReference)
-	URL       func(*FieldURL)
-	Group     func(*FieldGroup)
-	Point     func(*FieldPoint)
-	Default   func()
+	Text       func(*FieldText)
+	TextArea   func(*FieldTextArea)
+	RichText   func(text *FieldRichText)
+	Markdown   func(*FieldMarkdown)
+	Asset      func(*FieldAsset)
+	DateTime   func(*FieldDateTime)
+	Bool       func(*FieldBool)
+	Checkbox   func(checkbox *FieldCheckbox)
+	Select     func(*FieldSelect)
+	Tag        func(*FieldTag)
+	Integer    func(*FieldInteger)
+	Number     func(*FieldNumber)
+	Reference  func(*FieldReference)
+	URL        func(*FieldURL)
+	Group      func(*FieldGroup)
+	Point      func(*FieldPoint)
+	LineString func(*FieldLineString)
+	Default    func()
 }
 
 type TypePropertyMatch1[T any] struct {
-	Text      func(*FieldText) T
-	TextArea  func(*FieldTextArea) T
-	RichText  func(text *FieldRichText) T
-	Markdown  func(*FieldMarkdown) T
-	Asset     func(*FieldAsset) T
-	DateTime  func(*FieldDateTime) T
-	Bool      func(*FieldBool) T
-	Checkbox  func(checkbox *FieldCheckbox) T
-	Select    func(*FieldSelect) T
-	Tag       func(*FieldTag) T
-	Integer   func(*FieldInteger) T
-	Number    func(*FieldNumber) T
-	Reference func(*FieldReference) T
-	URL       func(*FieldURL) T
-	Group     func(*FieldGroup) T
-	Point     func(*FieldPoint) T
-	Default   func() T
+	Text       func(*FieldText) T
+	TextArea   func(*FieldTextArea) T
+	RichText   func(text *FieldRichText) T
+	Markdown   func(*FieldMarkdown) T
+	Asset      func(*FieldAsset) T
+	DateTime   func(*FieldDateTime) T
+	Bool       func(*FieldBool) T
+	Checkbox   func(checkbox *FieldCheckbox) T
+	Select     func(*FieldSelect) T
+	Tag        func(*FieldTag) T
+	Integer    func(*FieldInteger) T
+	Number     func(*FieldNumber) T
+	Reference  func(*FieldReference) T
+	URL        func(*FieldURL) T
+	Group      func(*FieldGroup) T
+	Point      func(*FieldPoint) T
+	LineString func(*FieldLineString) T
+	Default    func() T
 }
 
 func (t *TypeProperty) Type() value.Type {
@@ -124,6 +127,9 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		Point: func(f *FieldPoint) error {
 			return f.Validate(v)
 		},
+		LineString: func(f *FieldLineString) error {
+			return f.Validate(v)
+		},
 	})
 }
 
@@ -172,6 +178,9 @@ func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
 			return f.ValidateMultiple(v)
 		},
 		Point: func(f *FieldPoint) error {
+			return f.ValidateMultiple(v)
+		},
+		LineString: func(f *FieldLineString) error {
 			return f.ValidateMultiple(v)
 		},
 	})
@@ -266,6 +275,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.Point(t.point)
 			return
 		}
+	case value.TypeLineString:
+		if m.LineString != nil {
+			m.LineString(t.lineString)
+			return
+		}
 	}
 
 	if m.Default != nil {
@@ -279,23 +293,24 @@ func (t *TypeProperty) Clone() *TypeProperty {
 	}
 
 	return &TypeProperty{
-		t:         t.t,
-		text:      t.text.Clone(),
-		textArea:  t.textArea.Clone(),
-		richText:  t.richText.Clone(),
-		markdown:  t.markdown.Clone(),
-		asset:     t.asset.Clone(),
-		dateTime:  t.dateTime.Clone(),
-		bool:      t.bool.Clone(),
-		checkbox:  t.checkbox.Clone(),
-		selectt:   t.selectt.Clone(),
-		number:    t.number.Clone(),
-		tag:       t.tag.Clone(),
-		integer:   t.integer.Clone(),
-		reference: t.reference.Clone(),
-		group:     t.group.Clone(),
-		url:       t.url.Clone(),
-		point:     t.point.Clone(),
+		t:          t.t,
+		text:       t.text.Clone(),
+		textArea:   t.textArea.Clone(),
+		richText:   t.richText.Clone(),
+		markdown:   t.markdown.Clone(),
+		asset:      t.asset.Clone(),
+		dateTime:   t.dateTime.Clone(),
+		bool:       t.bool.Clone(),
+		checkbox:   t.checkbox.Clone(),
+		selectt:    t.selectt.Clone(),
+		number:     t.number.Clone(),
+		tag:        t.tag.Clone(),
+		integer:    t.integer.Clone(),
+		reference:  t.reference.Clone(),
+		group:      t.group.Clone(),
+		url:        t.url.Clone(),
+		point:      t.point.Clone(),
+		lineString: t.lineString.Clone(),
 	}
 }
 
@@ -371,6 +386,10 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypePoint:
 		if m.Point != nil {
 			return m.Point(t.point)
+		}
+	case value.TypeLineString:
+		if m.LineString != nil {
+			return m.LineString(t.lineString)
 		}
 	}
 

@@ -993,6 +993,16 @@ type SchemaFieldIntegerInput struct {
 	Max          *int        `json:"max,omitempty"`
 }
 
+type SchemaFieldLineString struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+func (SchemaFieldLineString) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldLineStringInput struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
 type SchemaFieldMarkdown struct {
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 	MaxLength    *int        `json:"maxLength,omitempty"`
@@ -1099,21 +1109,22 @@ type SchemaFieldTextInput struct {
 }
 
 type SchemaFieldTypePropertyInput struct {
-	Text         *SchemaFieldTextInput      `json:"text,omitempty"`
-	TextArea     *SchemaFieldTextAreaInput  `json:"textArea,omitempty"`
-	RichText     *SchemaFieldRichTextInput  `json:"richText,omitempty"`
-	MarkdownText *SchemaMarkdownTextInput   `json:"markdownText,omitempty"`
-	Asset        *SchemaFieldAssetInput     `json:"asset,omitempty"`
-	Date         *SchemaFieldDateInput      `json:"date,omitempty"`
-	Bool         *SchemaFieldBoolInput      `json:"bool,omitempty"`
-	Select       *SchemaFieldSelectInput    `json:"select,omitempty"`
-	Tag          *SchemaFieldTagInput       `json:"tag,omitempty"`
-	Checkbox     *SchemaFieldCheckboxInput  `json:"checkbox,omitempty"`
-	Integer      *SchemaFieldIntegerInput   `json:"integer,omitempty"`
-	Reference    *SchemaFieldReferenceInput `json:"reference,omitempty"`
-	URL          *SchemaFieldURLInput       `json:"url,omitempty"`
-	Group        *SchemaFieldGroupInput     `json:"group,omitempty"`
-	Point        *SchemaFieldPointInput     `json:"point,omitempty"`
+	Text         *SchemaFieldTextInput       `json:"text,omitempty"`
+	TextArea     *SchemaFieldTextAreaInput   `json:"textArea,omitempty"`
+	RichText     *SchemaFieldRichTextInput   `json:"richText,omitempty"`
+	MarkdownText *SchemaMarkdownTextInput    `json:"markdownText,omitempty"`
+	Asset        *SchemaFieldAssetInput      `json:"asset,omitempty"`
+	Date         *SchemaFieldDateInput       `json:"date,omitempty"`
+	Bool         *SchemaFieldBoolInput       `json:"bool,omitempty"`
+	Select       *SchemaFieldSelectInput     `json:"select,omitempty"`
+	Tag          *SchemaFieldTagInput        `json:"tag,omitempty"`
+	Checkbox     *SchemaFieldCheckboxInput   `json:"checkbox,omitempty"`
+	Integer      *SchemaFieldIntegerInput    `json:"integer,omitempty"`
+	Reference    *SchemaFieldReferenceInput  `json:"reference,omitempty"`
+	URL          *SchemaFieldURLInput        `json:"url,omitempty"`
+	Group        *SchemaFieldGroupInput      `json:"group,omitempty"`
+	Point        *SchemaFieldPointInput      `json:"point,omitempty"`
+	LineString   *SchemaFieldLineStringInput `json:"lineString,omitempty"`
 }
 
 type SchemaFieldURL struct {
@@ -2318,6 +2329,7 @@ const (
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
 	SchemaFieldTypeGroup        SchemaFieldType = "Group"
 	SchemaFieldTypePoint        SchemaFieldType = "Point"
+	SchemaFieldTypeLineString   SchemaFieldType = "LineString"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
@@ -2336,11 +2348,12 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeURL,
 	SchemaFieldTypeGroup,
 	SchemaFieldTypePoint,
+	SchemaFieldTypeLineString,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypePoint:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypePoint, SchemaFieldTypeLineString:
 		return true
 	}
 	return false
