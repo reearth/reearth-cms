@@ -3,12 +3,12 @@ package schema
 import "github.com/reearth/reearth-cms/server/pkg/value"
 
 type FieldLineString struct {
-	p FieldLineString
+	t value.Type
 }
 
-func NewLineString() *FieldLineString {
+func NewLineString(t value.Type) *FieldLineString {
 	return &FieldLineString{
-		p: NewLineString(value.TypeLineString),
+		t: t,
 	}
 }
 
@@ -28,12 +28,12 @@ func (f *FieldLineString) Clone() *FieldLineString {
 		return nil
 	}
 	return &FieldLineString{
-		p: f.p.Clone(),
+		t: f.t,
 	}
 }
 
 func (f *FieldLineString) Validate(v *value.Value) error {
-	return f.p.Validate(v)
+	return nil
 }
 
 func (f *FieldLineString) ValidateMultiple(v *value.Multiple) error {

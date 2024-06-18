@@ -1,8 +1,6 @@
 package value
 
 import (
-	"slices"
-
 	"github.com/samber/lo"
 )
 
@@ -25,7 +23,7 @@ func (*propertyLineString) ToInterface(v any) (any, bool) {
 }
 
 func (*propertyLineString) Validate(i any) bool {
-	v, ok := i.(Position)
+	v, ok := i.(LineString)
 	if !ok {
 		return false
 	}
@@ -33,30 +31,31 @@ func (*propertyLineString) Validate(i any) bool {
 }
 
 func (*propertyLineString) Equal(v, w any) bool {
-	vv := v.(Position)
-	ww := w.(Position)
-	if len(vv) != len(ww) {
-		return false
-	}
-	return slices.Equal(vv, ww)
+	// vv := v.(LineString)
+	// ww := w.(LineString)
+	// if len(vv) != len(ww) {
+	// 	return false
+	// }
+	// return slices.Equal(vv, ww)
+	return false
 }
 
 func (*propertyLineString) IsEmpty(i any) bool {
 	if i == nil {
 		return true
 	}
-	v, ok := i.(Position)
+	v, ok := i.(LineString)
 	if !ok {
 		return true
 	}
 	return len(v) == 0
 }
 
-func (v *Value) ValuePosition() (vv Position, ok bool) {
+func (v *Value) ValueLineString() (vv LineString, ok bool) {
 	if v == nil {
 		return
 	}
-	vv, ok = v.v.(Position)
+	vv, ok = v.v.(LineString)
 	if !ok {
 		return nil, false
 	}
@@ -66,12 +65,12 @@ func (v *Value) ValuePosition() (vv Position, ok bool) {
 	return
 }
 
-func (m *Multiple) ValuesPosition() (vv []Position, ok bool) {
+func (m *Multiple) ValuesLineString() (vv []LineString, ok bool) {
 	if m == nil {
 		return
 	}
-	vv = lo.FilterMap(m.v, func(v *Value, _ int) (Position, bool) {
-		return v.ValuePosition()
+	vv = lo.FilterMap(m.v, func(v *Value, _ int) (LineString, bool) {
+		return v.ValueLineString()
 	})
 	if len(vv) != len(m.v) {
 		return nil, false

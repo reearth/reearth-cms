@@ -9,8 +9,6 @@ import (
 )
 
 const TypePoint Type = "point"
-// const TypeLineString Type = "lineString"
-// const TypePolygon Type = "polygon"
 
 type propertyPosition struct{}
 
