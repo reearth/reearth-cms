@@ -127,18 +127,16 @@ const IntegrationTable: React.FC<Props> = ({
 
   const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (props: any) => {
-      return (
-        <Space size={16}>
-          <DeselectButton onClick={props.onCleanSelected}>
-            <Icon icon="clear" /> {t("Deselect")}
-          </DeselectButton>
-          <DeleteButton onClick={() => onIntegrationRemove(props.selectedRowKeys)}>
-            <Icon icon="delete" /> {t("Remove")}
-          </DeleteButton>
-        </Space>
-      );
-    },
+    (props: any) => (
+      <Space size={16}>
+        <DeselectButton onClick={props.onCleanSelected}>
+          <Icon icon="clear" /> {t("Deselect")}
+        </DeselectButton>
+        <DeleteButton onClick={() => onIntegrationRemove(props.selectedRowKeys)}>
+          <Icon icon="delete" /> {t("Remove")}
+        </DeleteButton>
+      </Space>
+    ),
     [onIntegrationRemove, t],
   );
 
