@@ -247,6 +247,19 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				DefaultValue: v,
 			}
 		},
+		LineString: func(f *schema.FieldLineString) {
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesLineString()
+				} else {
+					v, _ = dv.First().ValueLineString()
+				}
+			}
+			res = &SchemaFieldLineString{
+				DefaultValue: v,
+			}
+		},
 	})
 	return
 }
@@ -514,6 +527,17 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = FromValue(SchemaFieldTypePoint, x.DefaultValue).AsMultiple()
 		}
 		tpRes = schema.NewPoint().TypeProperty()
+	case SchemaFieldTypeLineString:
+		x := tp.LineString
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeLineString, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeLineString, x.DefaultValue).AsMultiple()
+		}
+		tpRes = schema.NewLineString().TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty
 	}

@@ -214,6 +214,11 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			args: args{tp: schema.NewPoint().TypeProperty()},
 			want: &SchemaFieldPoint{DefaultValue: nil},
 		},
+		{
+			name: "line-string",
+			args: args{tp: schema.NewLineString().TypeProperty()},
+			want: &SchemaFieldLineString{DefaultValue: nil},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -342,6 +347,14 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			},
 			argsT:     SchemaFieldTypePoint,
 			wantTp: schema.NewPoint().TypeProperty(),
+		},
+		{
+			name: "line-string",
+			argsInp: &SchemaFieldTypePropertyInput{
+				LineString: &SchemaFieldLineStringInput{DefaultValue: nil},
+			},
+			argsT:     SchemaFieldTypeLineString,
+			wantTp: schema.NewLineString().TypeProperty(),
 		},
 		{
 			name: "tags empty",
