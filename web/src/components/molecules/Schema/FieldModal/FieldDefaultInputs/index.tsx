@@ -12,6 +12,7 @@ import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";
 import CheckboxField from "./CheckboxField";
 import DateField from "./DateField";
+import GeometryField from "./GeometryField";
 import GroupField from "./GroupField";
 import IntegerField from "./IntegerField";
 import MarkdownField from "./Markdown";
@@ -82,57 +83,65 @@ const FieldDefaultInputs: React.FC<Props> = ({
   setUploadModalVisibility,
   onGetAsset,
 }) => {
-  return selectedType ? (
-    selectedType === "TextArea" ? (
-      <TextAreaField multiple={multiple} />
-    ) : selectedType === "MarkdownText" ? (
-      <MarkdownField multiple={multiple} />
-    ) : selectedType === "Integer" ? (
-      <IntegerField multiple={multiple} />
-    ) : selectedType === "Bool" ? (
-      <BooleanField multiple={multiple} />
-    ) : selectedType === "Date" ? (
-      <DateField multiple={multiple} />
-    ) : selectedType === "Tag" ? (
-      <TagField selectedTags={selectedTags} multiple={multiple} />
-    ) : selectedType === "Checkbox" ? (
-      <CheckboxField multiple={multiple} />
-    ) : selectedType === "Asset" ? (
-      <AssetField
-        multiple={multiple}
-        assetList={assetList}
-        fileList={fileList}
-        loadingAssets={loadingAssets}
-        uploading={uploading}
-        uploadModalVisibility={uploadModalVisibility}
-        uploadUrl={uploadUrl}
-        uploadType={uploadType}
-        totalCount={totalCount}
-        page={page}
-        pageSize={pageSize}
-        onAssetTableChange={onAssetTableChange}
-        onUploadModalCancel={onUploadModalCancel}
-        setUploadUrl={setUploadUrl}
-        setUploadType={setUploadType}
-        onAssetsCreate={onAssetsCreate}
-        onAssetCreateFromUrl={onAssetCreateFromUrl}
-        onAssetSearchTerm={onAssetSearchTerm}
-        onAssetsGet={onAssetsGet}
-        onAssetsReload={onAssetsReload}
-        setFileList={setFileList}
-        setUploadModalVisibility={setUploadModalVisibility}
-        onGetAsset={onGetAsset}
-      />
-    ) : selectedType === "Select" ? (
-      <SelectField selectedValues={selectedValues} multiple={multiple} />
-    ) : selectedType === "URL" ? (
-      <URLField multiple={multiple} />
-    ) : selectedType === "Group" ? (
-      <GroupField />
-    ) : (
-      <TextField multiple={multiple} />
-    )
-  ) : null;
+  switch (selectedType) {
+    case "TextArea":
+      return <TextAreaField multiple={multiple} />;
+    case "MarkdownText":
+      return <MarkdownField multiple={multiple} />;
+    case "Integer":
+      return <IntegerField multiple={multiple} />;
+    case "Bool":
+      return <BooleanField multiple={multiple} />;
+    case "Date":
+      return <DateField multiple={multiple} />;
+    case "Tag":
+      return <TagField selectedTags={selectedTags} multiple={multiple} />;
+    case "Checkbox":
+      return <CheckboxField multiple={multiple} />;
+    case "Asset":
+      return (
+        <AssetField
+          multiple={multiple}
+          assetList={assetList}
+          fileList={fileList}
+          loadingAssets={loadingAssets}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          uploadUrl={uploadUrl}
+          uploadType={uploadType}
+          totalCount={totalCount}
+          page={page}
+          pageSize={pageSize}
+          onAssetTableChange={onAssetTableChange}
+          onUploadModalCancel={onUploadModalCancel}
+          setUploadUrl={setUploadUrl}
+          setUploadType={setUploadType}
+          onAssetsCreate={onAssetsCreate}
+          onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetSearchTerm={onAssetSearchTerm}
+          onAssetsGet={onAssetsGet}
+          onAssetsReload={onAssetsReload}
+          setFileList={setFileList}
+          setUploadModalVisibility={setUploadModalVisibility}
+          onGetAsset={onGetAsset}
+        />
+      );
+    case "Select":
+      return <SelectField selectedValues={selectedValues} multiple={multiple} />;
+    case "URL":
+      return <URLField multiple={multiple} />;
+    case "Group":
+      return <GroupField />;
+    case "Point":
+      return <GeometryField />;
+    case "Polyline":
+      return <GeometryField />;
+    case "Polygon":
+      return <GeometryField />;
+    case "Text":
+    default:
+      return <TextField multiple={multiple} />;
+  }
 };
 
 export default FieldDefaultInputs;

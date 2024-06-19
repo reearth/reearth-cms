@@ -40,7 +40,6 @@ export type FieldType =
   | "Checkbox"
   | "URL"
   | "Group"
-  | "Geometry"
   | "Point"
   | "Polyline"
   | "Polygon";
@@ -85,8 +84,12 @@ export interface FieldTypePropertyInput {
   date?: { defaultValue: string };
   bool?: { defaultValue?: boolean };
   select?: { defaultValue: string; values: string[] };
+  tag?: {
+    defaultValue?: string;
+    tags: { color: string; id?: string; name: string }[];
+  };
+  checkbox?: { defaultValue?: boolean };
   integer?: { defaultValue: number | ""; min: number | null; max: number | null };
-  url?: { defaultValue: string };
   reference?: {
     modelId: string;
     schemaId: string;
@@ -97,14 +100,13 @@ export interface FieldTypePropertyInput {
       required: boolean;
     } | null;
   };
+  url?: { defaultValue: string };
   group?: {
     groupId: string;
   };
-  tag?: {
-    defaultValue?: string;
-    tags: { color: string; id?: string; name: string }[];
-  };
-  checkbox?: { defaultValue?: boolean };
+  point?: { defaultValue: string };
+  polyline?: { defaultValue: string };
+  polygon?: { defaultValue: string };
 }
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";

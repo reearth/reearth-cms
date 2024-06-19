@@ -59,7 +59,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
   const geometry: FieldListItem = useMemo(
     () => ({
       title: t("Geometry"),
-      fields: ["Geometry", "Point", "Polyline", "Polygon"],
+      fields: ["Point", "Polyline", "Polygon"],
     }),
     [t],
   );

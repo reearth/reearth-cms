@@ -136,6 +136,7 @@ const FieldModal: React.FC<Props> = ({
     handleSubmit,
     handleModalReset,
     handleModalCancel,
+    isMultipleDisabled,
     isRequiredDisabled,
     isUniqueDisabled,
     isTitleDisabled,
@@ -269,8 +270,14 @@ const FieldModal: React.FC<Props> = ({
             <Form.Item
               name="multiple"
               valuePropName="checked"
-              extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+              extra={
+                isMultipleDisabled
+                  ? t("Create multiple points in one field")
+                  : t("Stores a list of values instead of a single value")
+              }>
+              <Checkbox
+                disabled={isMultipleDisabled}
+                onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
                 {t("Support multiple values")}
               </Checkbox>
             </Form.Item>

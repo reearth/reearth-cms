@@ -61,7 +61,6 @@ import ColorPalette from "./Icons/colorPalette.svg";
 import Control from "./Icons/control.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
-import Geometry from "./Icons/geometry.svg";
 import Group from "./Icons/group.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
@@ -163,7 +162,6 @@ export default {
   sortAscending: SortAscendingOutlined,
   filter: FilterOutlined,
   workspaceSettings: WorkspaceSettings,
-  geometry: Geometry,
   mapPin: MapPin,
   mapPinFilled: MapPinFilled,
   polyline: Polyline,

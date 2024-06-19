@@ -88,14 +88,8 @@ export const fieldTypes: {
     description: i18next.t("Customize a group of fields"),
     color: "#36CFC9",
   },
-  Geometry: {
-    icon: "geometry",
-    title: i18next.t("Geometry"),
-    description: i18next.t("Create multiple types of features on map"),
-    color: "#73D13D",
-  },
   Point: {
-    icon: "marker",
+    icon: "mapPin",
     title: i18next.t("Point"),
     description: i18next.t("Create point on map"),
     color: "#73D13D",

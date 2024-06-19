@@ -184,6 +184,19 @@ export default (
         return {
           group: { groupId: values.group },
         };
+      case "Point":
+        return {
+          point: { defaultValue: values.defaultValue },
+        };
+      case "Polyline":
+        return {
+          polyline: { defaultValue: values.defaultValue },
+        };
+      case "Polygon":
+        return {
+          polygon: { defaultValue: values.defaultValue },
+        };
+      case "Text":
       default:
         return {
           text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
@@ -235,6 +248,11 @@ export default (
     onClose();
   }, [onClose]);
 
+  const isMultipleDisabled = useMemo(
+    () => selectedType === "Point" || selectedType === "Polyline" || selectedType === "Polygon",
+    [selectedType],
+  );
+
   const isRequiredDisabled = useMemo(
     () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
     [selectedType],
@@ -249,7 +267,6 @@ export default (
     () =>
       isMeta ||
       selectedType === "Group" ||
-      selectedType === "Geometry" ||
       selectedType === "Point" ||
       selectedType === "Polyline" ||
       selectedType === "Polygon",
@@ -271,6 +288,7 @@ export default (
     handleSubmit,
     handleModalReset,
     handleModalCancel,
+    isMultipleDisabled,
     isRequiredDisabled,
     isUniqueDisabled,
     isTitleDisabled,
