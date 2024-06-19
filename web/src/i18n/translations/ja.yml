@@ -21,8 +21,10 @@ Delete Personal Account: アカウントを削除
 Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: アカウントとそれに関連するすべてのコンテンツを削除します。この操作は取り消すことができません。よろしいですか？
 Account Name: アカウント名
 This is your ID that is used between Re:Earth and Re:Earth CMS.: アカウントのIDです。
+Please input Account Name!: アカウント名を入力してください!
 Your Email: メールアドレス
 Please enter the email address you want to use to log in with Re:Earth CMS.: ログインに利用するメールアドレスを入力してください。
+Please input Your Email!: メールアドレスを入力してください!
 Save: 保存
 Account Settings: アカウント設定
 General: 一般
@@ -103,7 +105,7 @@ Request: リクエスト
 Settings: 設定
 OK: ''
 Workspace name: ワークスペース名
-Please input the title of the current workspace!: こののワークスペース名を入力してください。
+Please input the title of the new workspace!: 新しいワークスペースの名前を入力してください!
 Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
@@ -366,7 +368,6 @@ Enable: 有効
 Add new Terrain option: 新しい地形を追加
 New View: 新しいビュー
 Update View: ビューを更新します
-Submitting: 送信
 View Name: ビュー名
 This is the title of the view: ビューのタイトル
 Please input the view name!: ビュー名を入力してください！
@@ -384,6 +385,7 @@ Remove Workspace: ワークスペースを削除
 Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: 現在のワークスペースを削除します。ワークスペースに関連するすべてのデータが削除されます。この操作を取り消すことはできません。
 Workspace Name: ワークスペース名
 This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ワークスペース名はワークスペースを判別するために表示されます。あなたの会社名、部署名、その他プロジェクトのテーマなどを利用することをお勧めします。
+Please input a new workspace name!: 新しいワークスペース名を入力してください。
 Workspace Settings: ワークスペース設定
 Failed to update user.: ユーザーの更新に失敗しました。
 Successfully updated user!: ユーザーの更新に成功しました。
