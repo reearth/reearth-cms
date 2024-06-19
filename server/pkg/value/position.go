@@ -15,6 +15,9 @@ type propertyPosition struct{}
 type Position = []float64
 
 func (p *propertyPosition) ToValue(i any) (any, bool) {
+	if i == nil {
+		return nil, true
+	}
 	return toPositionValue(i)
 }
 

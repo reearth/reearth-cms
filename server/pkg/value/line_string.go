@@ -11,6 +11,9 @@ type propertyLineString struct{}
 type LineString = []Position
 
 func (p *propertyLineString) ToValue(i any) (any, bool) {
+	if i == nil {
+		return nil, true
+	}
 	return toLineStringValue(i)
 }
 
