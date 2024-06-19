@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
 import Divider from "@reearth-cms/components/atoms/Divider";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -15,25 +15,58 @@ import { useT } from "@reearth-cms/i18n";
 
 interface Props {
   integration: Integration;
-  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  updateIntegrationLoading: boolean;
+  regenerateLoading: boolean;
+  onIntegrationUpdate: (data: {
+    name: string;
+    description: string;
+    logoUrl: string;
+  }) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
+}
+
+interface FormType {
+  name: string;
+  description: string;
+  logoUrl: string;
 }
 
 const MyIntegrationForm: React.FC<Props> = ({
   integration,
+  updateIntegrationLoading,
+  regenerateLoading,
   onIntegrationUpdate,
   onRegenerateToken,
 }) => {
   const t = useT();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
+  const [isDisabled, setIsDisabled] = useState(true);
+
+  const handleValuesChange = useCallback(
+    async (_: unknown, values: FormType) => {
+      const hasError = await form
+        .validateFields()
+        .then(() => false)
+        .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+      if (hasError) {
+        setIsDisabled(true);
+      } else {
+        setIsDisabled(
+          integration.name === values.name && integration.description === values.description,
+        );
+      }
+    },
+    [form, integration.description, integration.name],
+  );
 
   const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
     try {
       const values = await form.validateFields();
       values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
-      onIntegrationUpdate(values);
-    } catch (info) {
-      console.log("Validate Failed:", info);
+      await onIntegrationUpdate(values);
+    } catch (_) {
+      setIsDisabled(false);
     }
   }, [form, onIntegrationUpdate]);
 
@@ -58,7 +91,11 @@ const MyIntegrationForm: React.FC<Props> = ({
   }, [integration.config.token]);
 
   return (
-    <Form form={form} layout="vertical" initialValues={integration}>
+    <Form
+      form={form}
+      layout="vertical"
+      initialValues={integration}
+      onValuesChange={handleValuesChange}>
       <Row gutter={32}>
         <Col span={11}>
           <Form.Item
@@ -81,12 +118,19 @@ const MyIntegrationForm: React.FC<Props> = ({
               contentEditable={false}
               prefix={copyIcon}
             />
-            <StyledRegenerateTokenButton type="primary" onClick={handleRegenerateToken}>
+            <StyledRegenerateTokenButton
+              type="primary"
+              onClick={handleRegenerateToken}
+              loading={regenerateLoading}>
               {t("Regenerate")}
             </StyledRegenerateTokenButton>
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              disabled={isDisabled}
+              loading={updateIntegrationLoading}>
               {t("Save")}
             </Button>
           </Form.Item>
@@ -150,7 +194,7 @@ const StyledTokenInput = styled(Input.Password)`
 `;
 
 const StyledRegenerateTokenButton = styled(Button)`
-  width: "115px";
+  width: 115px;
   margin-left: 5px;
 `;
 

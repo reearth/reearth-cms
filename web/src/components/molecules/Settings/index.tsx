@@ -19,6 +19,7 @@ import { useT } from "@reearth-cms/i18n";
 interface Props {
   workspaceSettings: WorkspaceSettings;
   hasPrivilege: boolean;
+  loading: boolean;
   onWorkspaceSettingsUpdate: (
     tiles: TileInput[],
     terrains: TerrainInput[],
@@ -29,16 +30,22 @@ interface Props {
 const Settings: React.FC<Props> = ({
   workspaceSettings,
   hasPrivilege,
+  loading,
   onWorkspaceSettingsUpdate,
 }) => {
   const t = useT();
 
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState<WorkspaceSettings>();
+  const [isDisabled, setIsDisabled] = useState(true);
 
   useEffect(() => {
     setSettings(workspaceSettings);
   }, [workspaceSettings]);
+
+  useEffect(() => {
+    setIsDisabled(JSON.stringify(workspaceSettings) === JSON.stringify(settings));
+  }, [workspaceSettings, settings]);
 
   const tiles: TileInput[] = useMemo(() => {
     if (!settings?.tiles?.resources) return [];
@@ -162,7 +169,11 @@ const Settings: React.FC<Props> = ({
           </>
         )}
         <ButtonWrapper>
-          <Button type="primary" onClick={handleWorkspaceSettingsSave}>
+          <Button
+            type="primary"
+            onClick={handleWorkspaceSettingsSave}
+            disabled={isDisabled}
+            loading={loading}>
             {t("Save")}
           </Button>
         </ButtonWrapper>

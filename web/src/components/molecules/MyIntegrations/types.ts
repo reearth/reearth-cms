@@ -4,11 +4,18 @@ export interface Integration {
   description?: string | null;
   logoUrl: string;
   developerId: string;
+  developer: Developer;
   iType: IntegrationType;
   config: {
     token?: string;
     webhooks?: Webhook[];
   };
+}
+
+export interface Developer {
+  id: string;
+  name: string;
+  email: string;
 }
 
 export enum IntegrationType {
@@ -21,6 +28,7 @@ export interface Webhook {
   name: string;
   url: string;
   active: boolean;
+  secret: string;
   trigger: WebhookTrigger;
 }
 
@@ -40,5 +48,6 @@ export interface WebhookValues {
   name: string;
   url: string;
   active: boolean;
+  secret: string;
   trigger: string[];
 }

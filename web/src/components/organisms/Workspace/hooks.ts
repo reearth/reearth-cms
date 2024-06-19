@@ -146,6 +146,7 @@ export default () => {
   );
 
   return {
+    coverImageUrl,
     projects,
     projectModalShown,
     loadingProjects,
@@ -159,6 +160,5 @@ export default () => {
     handleWorkspaceModalOpen,
     handleWorkspaceCreate,
     handleProjectAliasCheck,
-    coverImageUrl,
   };
 };
