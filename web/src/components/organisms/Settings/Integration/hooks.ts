@@ -27,12 +27,6 @@ export default (workspaceId?: string) => {
   const workspaces = useMemo(() => data?.me?.workspaces, [data?.me?.workspaces]);
   const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
 
-  const integrations = useMemo(() => {
-    return data?.me?.integrations
-      ?.map(integration => fromGraphQLIntegration(integration))
-      .filter((integration): integration is Integration => !!integration);
-  }, [data?.me?.integrations]);
-
   const workspaceIntegrationMembers = useMemo(() => {
     return workspace?.members
       ?.map<IntegrationMember | undefined>(member =>
@@ -52,6 +46,19 @@ export default (workspaceId?: string) => {
           integrationMember.integration.name.toLowerCase().includes(searchTerm ?? ""),
       );
   }, [workspace, searchTerm]);
+
+  const integrations = useMemo(
+    () =>
+      data?.me?.integrations
+        ?.map(integration => fromGraphQLIntegration(integration))
+        .filter(
+          integration =>
+            !workspaceIntegrationMembers?.some(
+              workspaceIntegration => workspaceIntegration.id === integration.id,
+            ),
+        ),
+    [data?.me?.integrations, workspaceIntegrationMembers],
+  );
 
   const handleIntegrationConnectModalClose = useCallback(() => {
     setIntegrationConnectModalShown(false);
