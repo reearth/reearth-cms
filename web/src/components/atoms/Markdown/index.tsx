@@ -5,12 +5,11 @@ import ReactMarkdown from "react-markdown";
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 
 type Props = {
-  className?: string;
   value?: string;
   onChange?: (value: string) => void;
 } & TextAreaProps;
 
-const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...props }) => {
+const MarkdownInput: React.FC<Props> = ({ value = "", onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
 
@@ -30,7 +29,7 @@ const MarkdownInput: React.FC<Props> = ({ className, value = "", onChange, ...pr
   }, [props.disabled]);
 
   return (
-    <MarkdownWrapper className={className}>
+    <MarkdownWrapper>
       <TextArea
         {...props}
         onChange={e => onChange?.(e)}

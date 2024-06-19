@@ -18,16 +18,16 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
-  commentsPanel?: JSX.Element;
+interface Props {
+  commentsPanel: JSX.Element;
   viewsMenu: JSX.Element;
-  collapsed?: boolean;
+  collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];
   itemsDataLoading: boolean;
   contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
-  selectedItem: Item | undefined;
+  selectedItem?: Item;
   selection: {
     selectedRowKeys: string[];
   };
@@ -55,12 +55,12 @@ type Props = {
   onItemDelete: (itemIds: string[]) => Promise<void>;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-};
+}
 
 const ContentListMolecule: React.FC<Props> = ({
   commentsPanel,

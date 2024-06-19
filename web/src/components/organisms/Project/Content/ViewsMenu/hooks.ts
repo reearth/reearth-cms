@@ -16,10 +16,10 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useModel } from "@reearth-cms/state";
 
-type Params = {
+interface Params {
   currentView: CurrentView;
   onViewChange: () => void;
-};
+}
 
 export type modalStateType = "rename" | "create";
 
@@ -27,7 +27,6 @@ export default ({ currentView, onViewChange }: Params) => {
   const t = useT();
   const [viewModalShown, setViewModalShown] = useState(false);
   const [modalState, setModalState] = useState<modalStateType>("create");
-  const [submitting, setSubmitting] = useState(false);
   const [currentProject] = useProject();
   const [currentModel] = useModel();
 
@@ -43,19 +42,17 @@ export default ({ currentView, onViewChange }: Params) => {
 
   const handleViewModalReset = useCallback(() => {
     setViewModalShown(false);
-    setSubmitting(false);
-  }, [setViewModalShown, setSubmitting]);
+  }, [setViewModalShown]);
 
-  const [createNewView] = useCreateViewMutation({
+  const [createNewView, { loading: createLoading }] = useCreateViewMutation({
     refetchQueries: ["GetViews"],
   });
 
   const handleViewCreate = useCallback(
-    async (data: { name: string }) => {
-      setSubmitting(true);
+    async (name: string) => {
       const view = await createNewView({
         variables: {
-          name: data.name,
+          name,
           projectId: currentProject?.id ?? "",
           modelId: currentModel?.id ?? "",
           sort: toGraphItemSort(currentView.sort),
@@ -83,18 +80,16 @@ export default ({ currentView, onViewChange }: Params) => {
     ],
   );
 
-  const [updateNewView] = useUpdateViewMutation({
+  const [updateNewView, { loading: updateLoading }] = useUpdateViewMutation({
     refetchQueries: ["GetViews"],
   });
 
   const handleViewUpdate = useCallback(
     async (viewId: string, name: string) => {
-      if (!viewId) return;
-      setSubmitting(true);
       const view = await updateNewView({
         variables: {
-          viewId: viewId,
-          name: name,
+          viewId,
+          name,
           sort: toGraphItemSort(currentView.sort),
           columns: toGraphColumnSelectionInput(currentView.columns),
           filter: toGraphConditionInput(currentView.filter),
@@ -111,13 +106,11 @@ export default ({ currentView, onViewChange }: Params) => {
   );
 
   const handleViewRename = useCallback(
-    async (data: { viewId?: string; name: string }) => {
-      if (!data.viewId) return;
-      setSubmitting(true);
+    async (viewId: string, name: string) => {
       const view = await updateNewView({
         variables: {
-          viewId: data.viewId,
-          name: data.name,
+          viewId,
+          name,
           sort: toGraphItemSort(currentView?.sort),
           columns: toGraphColumnSelectionInput(currentView.columns),
           filter: toGraphConditionInput(currentView.filter),
@@ -130,7 +123,7 @@ export default ({ currentView, onViewChange }: Params) => {
       Notification.success({ message: t("Successfully renamed view!") });
       handleViewModalReset();
     },
-    [handleViewModalReset, t, updateNewView, setSubmitting, currentView],
+    [handleViewModalReset, t, updateNewView, currentView],
   );
 
   const [deleteView] = useDeleteViewMutation({
@@ -138,8 +131,7 @@ export default ({ currentView, onViewChange }: Params) => {
   });
 
   const handleViewDelete = useCallback(
-    async (viewId?: string) => {
-      if (!viewId) return;
+    async (viewId: string) => {
       const res = await deleteView({ variables: { viewId } });
       if (res.errors || !res.data?.deleteView) {
         Notification.error({ message: t("Failed to delete view.") });
@@ -176,7 +168,7 @@ export default ({ currentView, onViewChange }: Params) => {
     handleViewRenameModalOpen,
     handleViewCreateModalOpen,
     viewModalShown,
-    submitting,
+    submitting: createLoading || updateLoading,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,

@@ -6,6 +6,7 @@ import {
   Integration,
   IntegrationType,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { fromGraphQLIntegration } from "@reearth-cms/components/organisms/DataConverters/setting";
 import { useCreateIntegrationMutation, useGetMeQuery } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -15,28 +16,13 @@ export default () => {
 
   const { data } = useGetMeQuery();
 
-  const [createNewIntegration] = useCreateIntegrationMutation({
+  const [createNewIntegration, { loading: createLoading }] = useCreateIntegrationMutation({
     refetchQueries: ["GetMe"],
   });
 
   const integrations = useMemo(() => {
     return data?.me?.integrations
-      ?.map<Integration | undefined>(integration =>
-        integration
-          ? {
-              id: integration.id,
-              name: integration.name,
-              description: integration.description,
-              logoUrl: integration.logoUrl,
-              developerId: integration.developerId,
-              iType: integration.iType,
-              config: {
-                token: integration.config?.token,
-                webhooks: integration.config?.webhooks,
-              },
-            }
-          : undefined,
-      )
+      ?.map(integration => fromGraphQLIntegration(integration))
       .filter((integration): integration is Integration => !!integration);
   }, [data?.me?.integrations]);
 
@@ -78,6 +64,7 @@ export default () => {
   return {
     integrations,
     integrationModalShown,
+    createLoading,
     handleIntegrationCreate,
     handleIntegrationModalOpen,
     handleIntegrationModalClose,

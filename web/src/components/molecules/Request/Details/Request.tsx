@@ -11,7 +11,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
-type Props = {
+interface Props {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;
@@ -26,7 +26,7 @@ type Props = {
   onBack: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-};
+}
 
 const RequestMolecule: React.FC<Props> = ({
   me,
@@ -110,8 +110,9 @@ const Content = styled.div`
 `;
 
 const BodyWrapper = styled.div`
-  padding: 24px;
+  padding: 12px 0 0 24px;
   display: flex;
+  gap: 11px;
 `;
 
 const ThreadWrapper = styled.div`

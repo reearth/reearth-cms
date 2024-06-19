@@ -19,13 +19,14 @@ export default () => {
   const workspaceId = currentWorkspace?.id;
   const workspaceName = currentWorkspace?.name;
 
-  const [updateWorkspaceMutation] = useUpdateWorkspaceMutation();
+  const [updateWorkspaceMutation, { loading: updateWorkspaceLoading }] =
+    useUpdateWorkspaceMutation();
   const [deleteWorkspaceMutation] = useDeleteWorkspaceMutation({
     refetchQueries: ["GetMe"],
   });
 
   const handleWorkspaceUpdate = useCallback(
-    async (name?: string) => {
+    async (name: string) => {
       if (!workspaceId || !name) return;
       const res = await updateWorkspaceMutation({
         variables: {
@@ -59,6 +60,7 @@ export default () => {
 
   return {
     workspaceName,
+    updateWorkspaceLoading,
     handleWorkspaceUpdate,
     handleWorkspaceDelete,
   };

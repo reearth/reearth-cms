@@ -1000,6 +1000,16 @@ type SchemaFieldMarkdown struct {
 
 func (SchemaFieldMarkdown) IsSchemaFieldTypeProperty() {}
 
+type SchemaFieldPoint struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
+func (SchemaFieldPoint) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldPointInput struct {
+	DefaultValue interface{} `json:"defaultValue,omitempty"`
+}
+
 type SchemaFieldReference struct {
 	ModelID              ID           `json:"modelId"`
 	SchemaID             ID           `json:"schemaId"`
@@ -1103,6 +1113,7 @@ type SchemaFieldTypePropertyInput struct {
 	Reference    *SchemaFieldReferenceInput `json:"reference,omitempty"`
 	URL          *SchemaFieldURLInput       `json:"url,omitempty"`
 	Group        *SchemaFieldGroupInput     `json:"group,omitempty"`
+	Point        *SchemaFieldPointInput     `json:"point,omitempty"`
 }
 
 type SchemaFieldURL struct {
@@ -2053,6 +2064,7 @@ const (
 	PreviewTypeGeo3dTiles PreviewType = "GEO_3D_TILES"
 	PreviewTypeGeoMvt     PreviewType = "GEO_MVT"
 	PreviewTypeModel3d    PreviewType = "MODEL_3D"
+	PreviewTypeCSV        PreviewType = "CSV"
 	PreviewTypeUnknown    PreviewType = "UNKNOWN"
 )
 
@@ -2063,12 +2075,13 @@ var AllPreviewType = []PreviewType{
 	PreviewTypeGeo3dTiles,
 	PreviewTypeGeoMvt,
 	PreviewTypeModel3d,
+	PreviewTypeCSV,
 	PreviewTypeUnknown,
 }
 
 func (e PreviewType) IsValid() bool {
 	switch e {
-	case PreviewTypeImage, PreviewTypeImageSVG, PreviewTypeGeo, PreviewTypeGeo3dTiles, PreviewTypeGeoMvt, PreviewTypeModel3d, PreviewTypeUnknown:
+	case PreviewTypeImage, PreviewTypeImageSVG, PreviewTypeGeo, PreviewTypeGeo3dTiles, PreviewTypeGeoMvt, PreviewTypeModel3d, PreviewTypeCSV, PreviewTypeUnknown:
 		return true
 	}
 	return false
@@ -2304,6 +2317,7 @@ const (
 	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
 	SchemaFieldTypeURL          SchemaFieldType = "URL"
 	SchemaFieldTypeGroup        SchemaFieldType = "Group"
+	SchemaFieldTypePoint        SchemaFieldType = "Point"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
@@ -2321,11 +2335,12 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
 	SchemaFieldTypeGroup,
+	SchemaFieldTypePoint,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypePoint:
 		return true
 	}
 	return false

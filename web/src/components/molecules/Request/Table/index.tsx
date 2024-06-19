@@ -19,10 +19,10 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-type Props = {
+interface Props {
   requests: Request[];
   loading: boolean;
-  selectedRequest: Request | undefined;
+  selectedRequest?: Request;
   onRequestSelect: (assetId: string) => void;
   onEdit: (requestId: string) => void;
   searchTerm: string;
@@ -46,7 +46,7 @@ type Props = {
   requestState: RequestState[];
   page: number;
   pageSize: number;
-};
+}
 
 const RequestListTable: React.FC<Props> = ({
   requests,
@@ -237,7 +237,7 @@ const RequestListTable: React.FC<Props> = ({
   const rowSelection: TableRowSelection = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
-      onChange: (selectedRowKeys: any) => {
+      onChange: (selectedRowKeys: Key[]) => {
         setSelection({
           ...selection,
           selectedRowKeys: selectedRowKeys,
@@ -264,6 +264,7 @@ const RequestListTable: React.FC<Props> = ({
   );
 
   const AlertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
         <Space size={16}>
@@ -331,4 +332,7 @@ const DeselectButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+  :hover {
+    color: #ff7875b3;
+  }
 `;

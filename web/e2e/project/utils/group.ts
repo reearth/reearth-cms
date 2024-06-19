@@ -37,7 +37,7 @@ async function deleteGroup(page: Page) {
   await page.getByText("Delete").click();
   await page.getByRole("button", { name: "Delete Group" }).click();
   await closeNotification(page);
-  await expect(page.getByTitle(updateGroupName)).not.toBeVisible();
+  await expect(page.getByTitle(updateGroupName)).toBeHidden();
 }
 
 export async function crudGroup(page: Page) {

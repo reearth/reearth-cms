@@ -15,8 +15,8 @@ import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
 
-type Props = {
-  commentsPanel?: JSX.Element;
+interface Props {
+  commentsPanel: JSX.Element;
   assetList: Asset[];
   fileList: UploadFile[];
   selection: {
@@ -27,7 +27,7 @@ type Props = {
   loading: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
-  selectedAsset: Asset | undefined;
+  selectedAsset?: Asset;
   totalCount: number;
   page: number;
   pageSize: number;
@@ -51,7 +51,7 @@ type Props = {
     pageSize: number,
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
-};
+}
 
 const AssetList: React.FC<Props> = ({
   commentsPanel,

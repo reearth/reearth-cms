@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
@@ -10,40 +10,55 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 import { Project } from "../Workspace/types";
 
-export type Props = {
-  project?: Project;
+interface Props {
+  project: Project;
   onProjectUpdate: (name?: string, alias?: string, description?: string) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
-};
+}
+
+interface FormType {
+  name: string;
+  alias: string;
+  description: string;
+}
 
 const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProjectAliasCheck }) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormType>();
   const t = useT();
-  const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        await onProjectUpdate(values.name, values.alias, values.description);
-      })
-      .catch(fieldsError => {
-        console.log("Validate Failed:", fieldsError);
-      });
+  const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
+    setIsLoading(true);
+    try {
+      const values = await form.validateFields();
+      await onProjectUpdate(values.name, values.alias, values.description);
+    } catch (_) {
+      setIsDisabled(false);
+    } finally {
+      setIsLoading(false);
+    }
   }, [form, onProjectUpdate]);
 
-  const handleFormValues = useCallback(() => {
-    form
-      .validateFields()
-      .then(() => {
-        setButtonDisabled(false);
-      })
-      .catch(fieldsError => {
-        setButtonDisabled(
-          fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-        );
-      });
-  }, [form]);
+  const handleValuesChange = useCallback(
+    async (_: unknown, values: FormType) => {
+      if (
+        project.name === values.name &&
+        project.alias === values.alias &&
+        project.description === values.description
+      ) {
+        setIsDisabled(true);
+        return;
+      }
+      const hasError = await form
+        .validateFields()
+        .then(() => false)
+        .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+      setIsDisabled(hasError);
+    },
+    [form, project.alias, project.description, project.name],
+  );
 
   return (
     <StyledForm
@@ -52,7 +67,7 @@ const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProje
       autoComplete="off"
       initialValues={project}
       onFinish={handleSubmit}
-      onValuesChange={handleFormValues}>
+      onValuesChange={handleValuesChange}>
       <Form.Item
         name="name"
         label={t("Name")}
@@ -86,7 +101,7 @@ const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProje
         <TextArea rows={4} />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" disabled={buttonDisabled}>
+        <Button type="primary" htmlType="submit" disabled={isDisabled} loading={isLoading}>
           {t("Save changes")}
         </Button>
       </Form.Item>
@@ -94,7 +109,7 @@ const ProjectGeneralForm: React.FC<Props> = ({ project, onProjectUpdate, onProje
   );
 };
 
-const StyledForm = styled(Form)`
+const StyledForm = styled(Form<FormType>)`
   max-width: 400px;
 `;
 

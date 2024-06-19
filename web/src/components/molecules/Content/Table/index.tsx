@@ -46,12 +46,11 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-type Props = {
-  className?: string;
+interface Props {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
-  selectedItem: Item | undefined;
+  selectedItem?: Item;
   selection: {
     selectedRowKeys: string[];
   };
@@ -77,13 +76,13 @@ type Props = {
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-};
+}
 
 const ContentTable: React.FC<Props> = ({
   contentTableFields,
@@ -288,6 +287,7 @@ const ContentTable: React.FC<Props> = ({
   );
 
   const AlertOptions = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
         <Space size={16}>
@@ -464,6 +464,7 @@ const ContentTable: React.FC<Props> = ({
             onClick: () => {
               optionClick(isFilter.current, column);
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           })) as any),
       ];
     },
@@ -791,23 +792,20 @@ const ContentTable: React.FC<Props> = ({
           heightOffset={102}
         />
       ) : null}
-      {selection && (
-        <LinkItemRequestModal
-          itemIds={selection.selectedRowKeys}
-          onChange={onAddItemToRequest}
-          onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
-          visible={addItemToRequestModalShown}
-          linkedRequest={undefined}
-          requestList={requests}
-          onRequestTableChange={onRequestTableChange}
-          requestModalLoading={requestModalLoading}
-          requestModalTotalCount={requestModalTotalCount}
-          requestModalPage={requestModalPage}
-          requestModalPageSize={requestModalPageSize}
-          onRequestSearchTerm={onRequestSearchTerm}
-          onRequestTableReload={onRequestTableReload}
-        />
-      )}
+      <LinkItemRequestModal
+        itemIds={selection.selectedRowKeys}
+        onChange={onAddItemToRequest}
+        onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
+        visible={addItemToRequestModalShown}
+        requestList={requests}
+        onRequestTableChange={onRequestTableChange}
+        requestModalLoading={requestModalLoading}
+        requestModalTotalCount={requestModalTotalCount}
+        requestModalPage={requestModalPage}
+        requestModalPageSize={requestModalPageSize}
+        onRequestSearchTerm={onRequestSearchTerm}
+        onRequestTableReload={onRequestTableReload}
+      />
     </>
   );
 };
@@ -826,6 +824,9 @@ const PrimaryButton = styled.a`
 
 const DeleteButton = styled.a`
   color: #ff7875;
+  :hover {
+    color: #ff7875b3;
+  }
 `;
 
 const StyledBadge = styled(Badge)`

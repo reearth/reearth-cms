@@ -16,6 +16,7 @@ export const bytesFormat = (bytes: number, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const transformDayjsToString = (value: any) => {
   if (dayjs.isDayjs(value)) {
     return value.format("YYYY-MM-DDTHH:mm:ssZ");

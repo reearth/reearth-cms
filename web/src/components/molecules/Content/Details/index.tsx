@@ -16,16 +16,17 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 
-type Props = {
+interface Props {
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
-  showPublishAction?: boolean;
+  showPublishAction: boolean;
   requests: Request[];
-  collapsed?: boolean;
+  collapsed: boolean;
   model?: Model;
   modelsMenu: React.ReactNode;
-  initialFormValues: { [key: string]: any };
-  initialMetaFormValues: { [key: string]: any };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialFormValues: Record<string, any>;
+  initialMetaFormValues: Record<string, unknown>;
   item?: Item;
   itemId?: string;
   itemLoading: boolean;
@@ -67,7 +68,7 @@ type Props = {
     pageSize: number,
     sorter?: { type?: AssetSortType; direction?: SortDirection },
   ) => void;
-  onCollapse?: (collapse: boolean) => void;
+  onCollapse: (collapse: boolean) => void;
   onUploadModalCancel: () => void;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
@@ -84,7 +85,7 @@ type Props = {
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetSearchTerm: (term?: string) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onRequestCreate: (data: {
@@ -96,7 +97,7 @@ type Props = {
       itemId: string;
     }[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => void;
+  onChange: (request: Request, itemIds: string[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -104,7 +105,7 @@ type Props = {
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onCheckItemReference: (value: string, correspondingFieldId: string) => Promise<boolean>;
-};
+}
 
 const ContentDetailsMolecule: React.FC<Props> = ({
   loadingReference,

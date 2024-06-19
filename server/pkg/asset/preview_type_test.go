@@ -3,6 +3,7 @@ package asset
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -86,6 +87,16 @@ func TestPreviewType_PreviewTypeFrom(t *testing.T) {
 			},
 		},
 		{
+			Name: "csv",
+			Expected: struct {
+				TA   PreviewType
+				Bool bool
+			}{
+				TA:   PreviewTypeCSV,
+				Bool: true,
+			},
+		},
+		{
 			Name: "unknown",
 			Expected: struct {
 				TA   PreviewType
@@ -125,6 +136,7 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	g3d := PreviewTypeGeo3dTiles
 	mvt := PreviewTypeGeoMvt
 	m := PreviewTypeModel3d
+	c := PreviewTypeCSV
 	u := PreviewTypeUnknown
 
 	tests := []struct {
@@ -168,6 +180,11 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 			Expected: &m,
 		},
 		{
+			Name:     "csv",
+			Input:    lo.ToPtr("csv"),
+			Expected: &c,
+		},
+		{
 			Name:     "unknown",
 			Input:    lo.ToPtr("unknown"),
 			Expected: &u,
@@ -191,21 +208,76 @@ func TestPreviewType_PreviewTypeFromRef(t *testing.T) {
 	}
 }
 
+func TestPreviewType_DetectPreviewType(t *testing.T) {
+	f1 := file.File{
+		Name:        "image.png",
+		ContentType: "image/png",
+	}	
+	want1 := PreviewTypeImage
+	got1 := DetectPreviewType(&f1)
+	assert.Equal(t, want1, *got1)
+
+	f2 := file.File{
+		Name:        "file.geojson",
+		ContentType: "application/json",
+	}	
+	want2 := PreviewTypeGeo
+	got2 := DetectPreviewType(&f2)
+	assert.Equal(t, want2, *got2)
+}
+
 func TestPreviewType_PreviewTypeFromContentType(t *testing.T) {
 	c1 := "image/png"
-	want1 := lo.ToPtr(PreviewTypeImage)
+	want1 := PreviewTypeImage
 	got1 := PreviewTypeFromContentType(c1)
 	assert.Equal(t, want1, got1)
 
 	c2 := "video/mp4"
-	want2 := lo.ToPtr(PreviewTypeUnknown)
+	want2 := PreviewTypeUnknown
 	got2 := PreviewTypeFromContentType(c2)
 	assert.Equal(t, want2, got2)
 
 	c3 := "image/svg"
-	want3 := lo.ToPtr(PreviewTypeImageSvg)
+	want3 := PreviewTypeImageSvg
 	got3 := PreviewTypeFromContentType(c3)
 	assert.Equal(t, want3, got3)
+
+	c4 := "text/csv"
+	want4 := PreviewTypeCSV
+	got4 := PreviewTypeFromContentType(c4)
+	assert.Equal(t, want4, got4)
+}
+
+func TestPreviewType_PreviewTypeFromExtension(t *testing.T) {
+	ext1 := ".png"
+	want1 := PreviewTypeImage
+	got1 := PreviewTypeFromExtension(ext1)
+	assert.Equal(t, want1, got1)
+
+	ext2 := ".kml"
+	want2 := PreviewTypeGeo
+	got2 := PreviewTypeFromExtension(ext2)
+	assert.Equal(t, want2, got2)
+
+	ext3 := ".svg"
+	want3 := PreviewTypeImageSvg
+	got3 := PreviewTypeFromExtension(ext3)
+	assert.Equal(t, want3, got3)
+
+	ext4 := ".csv"
+	want4 := PreviewTypeCSV
+	got4 := PreviewTypeFromExtension(ext4)
+	assert.Equal(t, want4, got4)
+
+	ext5 := ".glb"
+	want5 := PreviewTypeModel3d
+	got5 := PreviewTypeFromExtension(ext5)
+	assert.Equal(t, want5, got5)
+
+	ext6 := ".mvt"
+	want6 := PreviewTypeGeoMvt
+	got6 := PreviewTypeFromExtension(ext6)
+	assert.Equal(t, want6, got6)
 }
 
 func TestPreviewType_String(t *testing.T) {

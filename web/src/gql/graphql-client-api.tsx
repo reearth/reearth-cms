@@ -1199,6 +1199,7 @@ export type Pagination = {
 };
 
 export enum PreviewType {
+  Csv = 'CSV',
   Geo = 'GEO',
   Geo_3DTiles = 'GEO_3D_TILES',
   GeoMvt = 'GEO_MVT',

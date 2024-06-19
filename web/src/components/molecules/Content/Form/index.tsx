@@ -51,11 +51,12 @@ interface Props {
   item?: Item;
   loadingReference: boolean;
   linkedItemsModalList?: FormItem[];
-  showPublishAction?: boolean;
+  showPublishAction: boolean;
   requests: Request[];
   itemId?: string;
-  initialFormValues: any;
-  initialMetaFormValues: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialFormValues: Record<string, any>;
+  initialMetaFormValues: Record<string, unknown>;
   loading: boolean;
   model?: Model;
   assetList: Asset[];
@@ -122,7 +123,7 @@ interface Props {
       itemId: string;
     }[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => void;
+  onChange: (request: Request, itemIds: string[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -203,6 +204,7 @@ const ContentForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const changedKeys = useRef(new Set<string>());
   const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
@@ -212,6 +214,7 @@ const ContentForm: React.FC<Props> = ({
   );
 
   const checkIfSingleGroupField = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (key: string, value: any) => {
       return (
         initialFormValues[key] &&
@@ -224,6 +227,7 @@ const ContentForm: React.FC<Props> = ({
     [initialFormValues],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emptyConvert = useCallback((value: any) => {
     if (value === "" || value === null || (Array.isArray(value) && value.length === 0)) {
       return undefined;
@@ -233,10 +237,12 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const handleValuesChange = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (changedValues: any) => {
       const [key, value] = Object.entries(changedValues)[0];
       if (checkIfSingleGroupField(key, value)) {
         const [groupFieldKey, groupFieldValue] = Object.entries(initialFormValues[key])[0];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const changedFieldValue = (value as any)[groupFieldKey];
         if (
           JSON.stringify(emptyConvert(changedFieldValue)) ===
@@ -253,6 +259,7 @@ const ContentForm: React.FC<Props> = ({
       } else {
         changedKeys.current.add(key);
       }
+      setIsDisabled(changedKeys.current.size === 0);
     },
     [checkIfSingleGroupField, emptyConvert, initialFormValues],
   );
@@ -289,8 +296,7 @@ const ContentForm: React.FC<Props> = ({
         btn,
         key,
         placement: "top",
-        // TODO: Change to false when antd is updated
-        closeIcon: <span />,
+        closeIcon: false,
       });
     };
     if (blocker.state === "blocked") {
@@ -302,7 +308,6 @@ const ContentForm: React.FC<Props> = ({
     const handleBeforeUnloadEvent = (event: BeforeUnloadEvent) => {
       if (changedKeys.current.size === 0) return;
       event.preventDefault();
-      event.returnValue = "";
     };
 
     window.addEventListener("beforeunload", handleBeforeUnloadEvent, true);
@@ -335,6 +340,7 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
     try {
       const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
       const groupFields = new Map<string, Field>();
@@ -402,8 +408,8 @@ const ContentForm: React.FC<Props> = ({
           fields,
         });
       }
-    } catch (info) {
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsDisabled(false);
     }
   }, [model, form, metaForm, itemId, onGroupGet, inputValueGet, onItemUpdate, onItemCreate]);
 
@@ -438,7 +444,9 @@ const ContentForm: React.FC<Props> = ({
       {
         key: "unpublish",
         label: t("Unpublish"),
-        onClick: () => itemId && (onUnpublish([itemId]) as any),
+        onClick: () => {
+          if (itemId) onUnpublish([itemId]);
+        },
       },
     ];
     if (showPublishAction) {
@@ -628,7 +636,7 @@ const ContentForm: React.FC<Props> = ({
           onBack={onBack}
           extra={
             <>
-              <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
+              <Button onClick={handleSubmit} loading={loading} disabled={!!itemId && isDisabled}>
                 {t("Save")}
               </Button>
               {itemId && (
@@ -865,20 +873,19 @@ const ContentForm: React.FC<Props> = ({
       {itemId && (
         <>
           <RequestCreationModal
-            unpublishedItems={unpublishedItems}
-            itemId={itemId}
             open={requestModalShown}
+            requestCreationLoading={requestCreationLoading}
+            itemId={itemId}
+            unpublishedItems={unpublishedItems}
+            workspaceUserMembers={workspaceUserMembers}
             onClose={onModalClose}
             onSubmit={onRequestCreate}
-            requestCreationLoading={requestCreationLoading}
-            workspaceUserMembers={workspaceUserMembers}
           />
           <LinkItemRequestModal
             itemIds={[itemId]}
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
             visible={addItemToRequestModalShown}
-            linkedRequest={undefined}
             requestList={requests}
             onRequestTableChange={onRequestTableChange}
             requestModalLoading={requestModalLoading}

@@ -39,22 +39,24 @@ const Members: React.FC = () => {
         handleMemberAddModalOpen={handleMemberAddModalOpen}
         workspaceUserMembers={workspaceUserMembers}
       />
-      <MemberRoleModal
-        member={selectedMember}
-        open={roleModalShown}
-        onClose={handleRoleModalClose}
-        onSubmit={handleMemberOfWorkspaceUpdate}
-      />
+      {selectedMember && (
+        <MemberRoleModal
+          open={roleModalShown}
+          member={selectedMember}
+          onClose={handleRoleModalClose}
+          onSubmit={handleMemberOfWorkspaceUpdate}
+        />
+      )}
       <MemberAddModal
         open={MemberAddModalShown}
         searchedUser={searchedUser}
         searchedUserList={searchedUserList}
-        changeSearchedUserList={changeSearchedUserList}
-        onClose={handleMemberAddModalClose}
         onUserSearch={handleUserSearch}
         onUserAdd={handleUserAdd}
-        changeSearchedUser={changeSearchedUser}
+        onClose={handleMemberAddModalClose}
         onSubmit={handleUsersAddToWorkspace}
+        changeSearchedUser={changeSearchedUser}
+        changeSearchedUserList={changeSearchedUserList}
       />
     </>
   );

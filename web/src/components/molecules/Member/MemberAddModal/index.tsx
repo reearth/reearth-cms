@@ -11,20 +11,20 @@ import { User } from "@reearth-cms/components/molecules/Member/types";
 import { MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
-export interface FormValues {
+interface FormValues {
   name: string;
   names: User[];
 }
 
-export interface Props {
-  open?: boolean;
-  onUserSearch: (nameOrEmail: string) => "" | Promise<any>;
-  onUserAdd: () => void;
-  onClose?: (refetch?: boolean) => void;
-  onSubmit?: (users: MemberInput[]) => void;
-  searchedUser: User | undefined;
-  changeSearchedUser: (user: User | undefined) => void;
+interface Props {
+  open: boolean;
+  searchedUser?: User;
   searchedUserList: User[];
+  onUserSearch: (nameOrEmail: string) => void;
+  onUserAdd: () => void;
+  onClose: () => void;
+  onSubmit: (users: MemberInput[]) => Promise<void>;
+  changeSearchedUser: (user: User | undefined) => void;
   changeSearchedUserList: React.Dispatch<React.SetStateAction<User[]>>;
 }
 
@@ -35,24 +35,24 @@ const initialValues: FormValues = {
 
 const MemberAddModal: React.FC<Props> = ({
   open,
-  onClose,
-  onSubmit,
+  searchedUser,
+  searchedUserList,
   onUserSearch,
   onUserAdd,
-  searchedUser,
+  onClose,
+  onSubmit,
   changeSearchedUser,
-  searchedUserList,
   changeSearchedUserList,
 }) => {
   const t = useT();
   const { Search } = Input;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
 
   const handleMemberNameChange = useCallback<NonNullable<SearchProps["onSearch"]>>(
     (value, event) => {
       event?.preventDefault();
       form.setFieldValue("name", value);
-      onUserSearch?.(value);
+      onUserSearch(value);
     },
     [onUserSearch, form],
   );
@@ -70,8 +70,8 @@ const MemberAddModal: React.FC<Props> = ({
     form
       .validateFields()
       .then(() => {
-        if (searchedUserList?.length > 0) {
-          onSubmit?.(
+        if (searchedUserList.length > 0) {
+          onSubmit(
             searchedUserList.map(user => {
               return {
                 userId: user.id,
@@ -82,7 +82,7 @@ const MemberAddModal: React.FC<Props> = ({
         }
         changeSearchedUser(undefined);
         changeSearchedUserList([]);
-        onClose?.(true);
+        onClose();
         form.resetFields();
       })
       .catch(info => {
@@ -93,7 +93,7 @@ const MemberAddModal: React.FC<Props> = ({
   const handleClose = useCallback(() => {
     form.resetFields();
     changeSearchedUser(undefined);
-    onClose?.(true);
+    onClose();
   }, [onClose, changeSearchedUser, form]);
 
   return (
@@ -125,7 +125,6 @@ const MemberAddModal: React.FC<Props> = ({
               </SearchedUserAvatar>
               <SearchedUserName>{searchedUser.name}</SearchedUserName>
               <SearchedUserEmail>{searchedUser.email}</SearchedUserEmail>
-
               <IconButton onClick={onUserAdd}>
                 <Icon icon="userAdd" />
               </IconButton>
@@ -135,17 +134,16 @@ const MemberAddModal: React.FC<Props> = ({
             name="names"
             label={`${t("Selected Members")} (${searchedUserList.length})`}>
             {searchedUserList &&
-              searchedUserList?.length > 0 &&
+              searchedUserList.length > 0 &&
               searchedUserList
                 .filter(user => Boolean(user))
                 .map(user => (
-                  <SearchedUserResult key={user?.id}>
+                  <SearchedUserResult key={user.id}>
                     <SearchedUserAvatar>
-                      <UserAvatar username={user?.name} />
+                      <UserAvatar username={user.name} />
                     </SearchedUserAvatar>
-                    <SearchedUserName>{user?.name}</SearchedUserName>
-                    <SearchedUserEmail>{user?.email}</SearchedUserEmail>
-
+                    <SearchedUserName>{user.name}</SearchedUserName>
+                    <SearchedUserEmail>{user.email}</SearchedUserEmail>
                     <IconButton onClick={() => handleMemberRemove(user.id)}>
                       <Icon icon="close" />
                     </IconButton>

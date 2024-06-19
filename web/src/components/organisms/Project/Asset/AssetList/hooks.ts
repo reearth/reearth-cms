@@ -126,7 +126,6 @@ export default (isItemsRequired: boolean) => {
               let cursor = "";
               let offset = 0;
               let uploadToken = "";
-              // eslint-disable-next-line no-constant-condition
               while (true) {
                 const createAssetUploadResult = await createAssetUploadMutation({
                   variables: {
@@ -153,6 +152,7 @@ export default (isItemsRequired: boolean) => {
                 const headers = contentType ? { "content-type": contentType } : undefined;
                 await fetch(url, {
                   method: "PUT",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   body: (file as any).slice(offset, offset + contentLength),
                   headers,
                 });

@@ -7,9 +7,9 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+export interface Props {
   onProjectDelete: () => Promise<void>;
-};
+}
 
 const DangerZone: React.FC<Props> = ({ onProjectDelete }) => {
   const t = useT();

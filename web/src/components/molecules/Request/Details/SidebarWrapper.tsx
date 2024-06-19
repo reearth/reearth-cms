@@ -14,11 +14,11 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { Option } = Select;
 
-type Props = {
-  currentRequest?: Request;
+interface Props {
+  currentRequest: Request;
   workspaceUserMembers: UserMember[];
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
-};
+}
 
 const RequestSidebarWrapper: React.FC<Props> = ({
   currentRequest,
@@ -57,7 +57,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     }
 
     try {
-      await onRequestUpdate?.({
+      await onRequestUpdate({
         requestId: requestId,
         title: currentRequest?.title,
         description: currentRequest?.description,
@@ -145,7 +145,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 
 const SideBarWrapper = styled.div`
   background-color: #fafafa;
-  padding: 7px;
+  padding: 8px;
   width: 272px;
 `;
 
