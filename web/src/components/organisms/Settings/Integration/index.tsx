@@ -14,10 +14,12 @@ const Integration: React.FC = () => {
     workspaceIntegrationMembers,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
+    addLoading,
     handleIntegrationConnect,
     handleIntegrationRemove,
     integrationConnectModalShown,
     handleUpdateIntegration,
+    updateLoading,
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,
@@ -51,12 +53,14 @@ const Integration: React.FC = () => {
       <IntegrationConnectModal
         integrations={integrations}
         open={integrationConnectModalShown}
+        loading={addLoading}
         onClose={handleIntegrationConnectModalClose}
         onSubmit={handleIntegrationConnect}
       />
       <IntegrationSettingsModal
         selectedIntegrationMember={selectedIntegrationMember}
         open={integrationSettingsModalShown}
+        loading={updateLoading}
         onClose={handleIntegrationSettingsModalClose}
         onSubmit={handleUpdateIntegration}
       />

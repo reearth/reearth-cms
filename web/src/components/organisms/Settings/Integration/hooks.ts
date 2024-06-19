@@ -1,11 +1,8 @@
 import { Key, useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import {
-  Integration,
-  IntegrationMember,
-  Role,
-} from "@reearth-cms/components/molecules/Integration/types";
+import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
+import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { fromGraphQLIntegration } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetMeQuery,
@@ -37,7 +34,7 @@ export default (workspaceId?: string) => {
 
   const integrations = useMemo(() => {
     return data?.me?.integrations
-      ?.map<Integration | undefined>(integration => fromGraphQLIntegration(integration))
+      ?.map(integration => fromGraphQLIntegration(integration))
       .filter((integration): integration is Integration => !!integration);
   }, [data?.me?.integrations]);
 
@@ -78,7 +75,8 @@ export default (workspaceId?: string) => {
     setIntegrationSettingsModalShown(true);
   }, []);
 
-  const [addIntegrationToWorkspaceMutation] = useAddIntegrationToWorkspaceMutation();
+  const [addIntegrationToWorkspaceMutation, { loading: addLoading }] =
+    useAddIntegrationToWorkspaceMutation();
 
   const handleIntegrationConnect = useCallback(
     async (integration?: Integration) => {
@@ -101,7 +99,8 @@ export default (workspaceId?: string) => {
     [addIntegrationToWorkspaceMutation, workspaceId, refetch, t],
   );
 
-  const [updateIntegrationToWorkspaceMutation] = useUpdateIntegrationOfWorkspaceMutation();
+  const [updateIntegrationToWorkspaceMutation, { loading: updateLoading }] =
+    useUpdateIntegrationOfWorkspaceMutation();
 
   const handleUpdateIntegration = useCallback(
     async (role: Role) => {
@@ -170,10 +169,12 @@ export default (workspaceId?: string) => {
     workspaceIntegrationMembers,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
+    addLoading,
     handleIntegrationConnect,
     handleIntegrationRemove,
     integrationConnectModalShown,
     handleUpdateIntegration,
+    updateLoading,
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,

@@ -7,6 +7,7 @@ const MyIntegrations: React.FC = () => {
   const {
     integrations,
     integrationModalShown,
+    createLoading,
     handleIntegrationCreate,
     handleIntegrationModalOpen,
     handleIntegrationModalClose,
@@ -22,6 +23,7 @@ const MyIntegrations: React.FC = () => {
       />
       <IntegrationCreationModal
         open={integrationModalShown}
+        loading={createLoading}
         onClose={handleIntegrationModalClose}
         onSubmit={handleIntegrationCreate}
       />

@@ -209,6 +209,11 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			args: args{tp: schema.NewSelect([]string{"v1"}).TypeProperty()},
 			want: &SchemaFieldSelect{Values: []string{"v1"}, DefaultValue: nil},
 		},
+		{
+			name: "point",
+			args: args{tp: schema.NewPoint().TypeProperty()},
+			want: &SchemaFieldPoint{DefaultValue: nil},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -329,6 +334,14 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			},
 			argsT:     SchemaFieldTypeSelect,
 			wantError: ErrEmptyOptions,
+		},
+		{
+			name: "point",
+			argsInp: &SchemaFieldTypePropertyInput{
+				Point: &SchemaFieldPointInput{DefaultValue: nil},
+			},
+			argsT:     SchemaFieldTypePoint,
+			wantTp: schema.NewPoint().TypeProperty(),
 		},
 		{
 			name: "tags empty",

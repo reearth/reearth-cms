@@ -7,13 +7,21 @@ import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/ty
 
 interface Props {
   integration: Integration;
-  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  updateIntegrationLoading: boolean;
+  regenerateLoading: boolean;
+  onIntegrationUpdate: (data: {
+    name: string;
+    description: string;
+    logoUrl: string;
+  }) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
   onRegenerateToken: () => Promise<void>;
 }
 
 const MyIntegrationSettings: React.FC<Props> = ({
   integration,
+  updateIntegrationLoading,
+  regenerateLoading,
   onIntegrationUpdate,
   onIntegrationDelete,
   onRegenerateToken,
@@ -22,6 +30,8 @@ const MyIntegrationSettings: React.FC<Props> = ({
     <Wrapper>
       <MyIntegrationForm
         integration={integration}
+        updateIntegrationLoading={updateIntegrationLoading}
+        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
       />

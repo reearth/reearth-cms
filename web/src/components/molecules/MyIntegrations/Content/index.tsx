@@ -13,7 +13,15 @@ import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 interface Props {
   integration: Integration;
   webhookInitialValues?: WebhookValues;
-  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  updateIntegrationLoading: boolean;
+  regenerateLoading: boolean;
+  createWebhookLoading: boolean;
+  updateWebhookLoading: boolean;
+  onIntegrationUpdate: (data: {
+    name: string;
+    description: string;
+    logoUrl: string;
+  }) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
   onRegenerateToken: () => Promise<void>;
   onWebhookCreate: (data: {
@@ -39,6 +47,10 @@ interface Props {
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
   webhookInitialValues,
+  updateIntegrationLoading,
+  regenerateLoading,
+  createWebhookLoading,
+  updateWebhookLoading,
   onIntegrationUpdate,
   onRegenerateToken,
   onWebhookCreate,
@@ -57,6 +69,8 @@ const MyIntegrationContent: React.FC<Props> = ({
         <TabPane tab="General" key="integration">
           <MyIntegrationSettings
             integration={integration}
+            updateIntegrationLoading={updateIntegrationLoading}
+            regenerateLoading={regenerateLoading}
             onIntegrationUpdate={onIntegrationUpdate}
             onIntegrationDelete={onIntegrationDelete}
             onRegenerateToken={onRegenerateToken}
@@ -66,6 +80,8 @@ const MyIntegrationContent: React.FC<Props> = ({
           <Webhook
             integration={integration}
             webhookInitialValues={webhookInitialValues}
+            createWebhookLoading={createWebhookLoading}
+            updateWebhookLoading={updateWebhookLoading}
             onWebhookCreate={onWebhookCreate}
             onWebhookDelete={onWebhookDelete}
             onWebhookUpdate={onWebhookUpdate}
