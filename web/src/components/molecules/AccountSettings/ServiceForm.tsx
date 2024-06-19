@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -20,6 +20,8 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
   const [form] = Form.useForm<FormType>();
   const { Option } = Select;
   const t = useT();
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const langItems = useMemo(
     () => [
@@ -32,9 +34,24 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
     [t],
   );
 
+  const handleSelect = useCallback(
+    (value: string) => {
+      setIsDisabled(value === user?.lang);
+    },
+    [user?.lang],
+  );
+
   const handleSubmit = useCallback(async () => {
-    const values = await form.validateFields();
-    await onLanguageUpdate(values.lang);
+    setIsDisabled(true);
+    setIsLoading(true);
+    try {
+      const values = await form.validateFields();
+      await onLanguageUpdate(values.lang);
+    } catch (_) {
+      setIsDisabled(false);
+    } finally {
+      setIsLoading(false);
+    }
   }, [form, onLanguageUpdate]);
 
   return (
@@ -43,7 +60,7 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
         name="lang"
         label={t("Service Language")}
         extra={t("This will change the UI language")}>
-        <Select placeholder={t("Language")}>
+        <Select placeholder={t("Language")} onSelect={handleSelect}>
           {langItems?.map(langItem => (
             <Option key={langItem.key} value={langItem.key}>
               {langItem.label}
@@ -51,7 +68,7 @@ const AccountServiceForm: React.FC<Props> = ({ user, onLanguageUpdate }) => {
           ))}
         </Select>
       </Form.Item>
-      <Button onClick={handleSubmit} type="primary" htmlType="submit">
+      <Button onClick={handleSubmit} type="primary" disabled={isDisabled} loading={isLoading}>
         {t("Save")}
       </Button>
     </StyledForm>

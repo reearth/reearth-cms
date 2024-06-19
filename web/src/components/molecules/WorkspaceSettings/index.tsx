@@ -6,12 +6,14 @@ import { useT } from "@reearth-cms/i18n";
 
 interface Props {
   workspaceName?: string;
+  updateWorkspaceLoading: boolean;
   onWorkspaceUpdate: (name: string) => Promise<void>;
   onWorkspaceDelete: () => Promise<void>;
 }
 
 const WorkspaceSettings: React.FC<Props> = ({
   workspaceName,
+  updateWorkspaceLoading,
   onWorkspaceUpdate,
   onWorkspaceDelete,
 }) => {
@@ -20,7 +22,11 @@ const WorkspaceSettings: React.FC<Props> = ({
   return (
     <InnerContent title={t("Workspace Settings")}>
       <ContentSection title={t("General")}>
-        <WorkspaceGeneralForm workspaceName={workspaceName} onWorkspaceUpdate={onWorkspaceUpdate} />
+        <WorkspaceGeneralForm
+          workspaceName={workspaceName}
+          updateWorkspaceLoading={updateWorkspaceLoading}
+          onWorkspaceUpdate={onWorkspaceUpdate}
+        />
       </ContentSection>
       <DangerZone onWorkspaceDelete={onWorkspaceDelete} />
     </InnerContent>

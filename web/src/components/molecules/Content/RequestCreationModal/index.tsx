@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Row from "@reearth-cms/components/atoms/Row";
@@ -60,6 +60,7 @@ const RequestCreationModal: React.FC<Props> = ({
   const t = useT();
   const [form] = Form.useForm();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
+  const [isDisabled, setIsDisabled] = useState(true);
 
   const reviewers: SelectProps["options"] = [];
   for (const member of workspaceUserMembers) {
@@ -68,6 +69,14 @@ const RequestCreationModal: React.FC<Props> = ({
       value: member.userId,
     });
   }
+
+  const handleValuesChange = useCallback(async () => {
+    const hasError = await form
+      .validateFields()
+      .then(() => false)
+      .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+    setIsDisabled(hasError);
+  }, [form]);
 
   const handleCheckboxChange = useCallback(
     (itemId: string, checked: boolean) => {
@@ -80,6 +89,7 @@ const RequestCreationModal: React.FC<Props> = ({
   );
 
   const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
     try {
       const values = await form.validateFields();
       values.items = [
@@ -92,22 +102,29 @@ const RequestCreationModal: React.FC<Props> = ({
       await onSubmit(values);
       onClose();
       form.resetFields();
-    } catch (info) {
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsDisabled(false);
     }
   }, [itemId, form, onClose, onSubmit, selectedItems]);
 
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
+
   return (
     <Modal
       open={open}
       onCancel={handleClose}
       onOk={handleSubmit}
       confirmLoading={requestCreationLoading}
-      title={t("New Request")}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+      title={t("New Request")}
+      cancelButtonProps={{ disabled: requestCreationLoading }}
+      okButtonProps={{ disabled: isDisabled }}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={handleValuesChange}>
         <Form.Item
           name="title"
           label={t("Title")}

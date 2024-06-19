@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 
-import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -35,7 +35,8 @@ const ProjectCreationModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
-  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,35 +52,33 @@ const ProjectCreationModal: React.FC<Props> = ({
     [form],
   );
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        await onSubmit(values);
-        onClose();
-        form.resetFields();
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
+  const handleSubmit = useCallback(async () => {
+    setIsLoading(true);
+    setIsDisabled(true);
+    try {
+      const values = await form.validateFields();
+      await onSubmit(values);
+      onClose();
+      form.resetFields();
+    } catch (_) {
+      setIsDisabled(false);
+    } finally {
+      setIsLoading(false);
+    }
   }, [form, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
     onClose();
     form.resetFields();
+    setIsDisabled(true);
   }, [form, onClose]);
 
-  const handleFormValues = useCallback(() => {
-    form
+  const handleValuesChange = useCallback(async () => {
+    const hasError = await form
       .validateFields()
-      .then(() => {
-        setButtonDisabled(false);
-      })
-      .catch(fieldsError => {
-        setButtonDisabled(
-          fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-        );
-      });
+      .then(() => false)
+      .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+    setIsDisabled(hasError);
   }, [form]);
 
   return (
@@ -87,12 +86,14 @@ const ProjectCreationModal: React.FC<Props> = ({
       open={open}
       onCancel={handleClose}
       onOk={handleSubmit}
-      okButtonProps={{ disabled: buttonDisabled }}>
+      confirmLoading={isLoading}
+      cancelButtonProps={{ disabled: isLoading }}
+      okButtonProps={{ disabled: isDisabled }}>
       <Form
         form={form}
         layout="vertical"
         initialValues={initialValues}
-        onValuesChange={handleFormValues}>
+        onValuesChange={handleValuesChange}>
         <Form.Item
           name="name"
           label={t("Project name")}

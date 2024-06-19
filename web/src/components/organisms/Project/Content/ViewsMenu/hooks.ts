@@ -27,7 +27,6 @@ export default ({ currentView, onViewChange }: Params) => {
   const t = useT();
   const [viewModalShown, setViewModalShown] = useState(false);
   const [modalState, setModalState] = useState<modalStateType>("create");
-  const [submitting, setSubmitting] = useState(false);
   const [currentProject] = useProject();
   const [currentModel] = useModel();
 
@@ -43,16 +42,14 @@ export default ({ currentView, onViewChange }: Params) => {
 
   const handleViewModalReset = useCallback(() => {
     setViewModalShown(false);
-    setSubmitting(false);
-  }, [setViewModalShown, setSubmitting]);
+  }, [setViewModalShown]);
 
-  const [createNewView] = useCreateViewMutation({
+  const [createNewView, { loading: createLoading }] = useCreateViewMutation({
     refetchQueries: ["GetViews"],
   });
 
   const handleViewCreate = useCallback(
     async (name: string) => {
-      setSubmitting(true);
       const view = await createNewView({
         variables: {
           name,
@@ -83,13 +80,12 @@ export default ({ currentView, onViewChange }: Params) => {
     ],
   );
 
-  const [updateNewView] = useUpdateViewMutation({
+  const [updateNewView, { loading: updateLoading }] = useUpdateViewMutation({
     refetchQueries: ["GetViews"],
   });
 
   const handleViewUpdate = useCallback(
     async (viewId: string, name: string) => {
-      setSubmitting(true);
       const view = await updateNewView({
         variables: {
           viewId,
@@ -111,7 +107,6 @@ export default ({ currentView, onViewChange }: Params) => {
 
   const handleViewRename = useCallback(
     async (viewId: string, name: string) => {
-      setSubmitting(true);
       const view = await updateNewView({
         variables: {
           viewId,
@@ -128,7 +123,7 @@ export default ({ currentView, onViewChange }: Params) => {
       Notification.success({ message: t("Successfully renamed view!") });
       handleViewModalReset();
     },
-    [handleViewModalReset, t, updateNewView, setSubmitting, currentView],
+    [handleViewModalReset, t, updateNewView, currentView],
   );
 
   const [deleteView] = useDeleteViewMutation({
@@ -173,7 +168,7 @@ export default ({ currentView, onViewChange }: Params) => {
     handleViewRenameModalOpen,
     handleViewCreateModalOpen,
     viewModalShown,
-    submitting,
+    submitting: createLoading || updateLoading,
     handleViewModalReset,
     handleViewCreate,
     handleViewUpdate,

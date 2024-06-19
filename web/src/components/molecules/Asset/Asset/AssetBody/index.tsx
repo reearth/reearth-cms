@@ -19,6 +19,8 @@ interface Props {
   viewerType: ViewerType;
   displayUnzipFileList: boolean;
   decompressing: boolean;
+  isSaveDisabled: boolean;
+  updateLoading: boolean;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetDecompress: (assetId: string) => void;
   onTypeChange: (value: PreviewType) => void;
@@ -38,6 +40,8 @@ const AssetWrapper: React.FC<Props> = ({
   displayUnzipFileList,
   decompressing,
   commentsPanel,
+  isSaveDisabled,
+  updateLoading,
   onAssetItemSelect,
   onAssetDecompress,
   onTypeChange,
@@ -55,7 +59,11 @@ const AssetWrapper: React.FC<Props> = ({
         <Wrapper>
           <PageHeader
             title={`${t("Asset")}/${asset?.fileName}`}
-            extra={<Button onClick={onSave}>{t("Save")}</Button>}
+            extra={
+              <Button onClick={onSave} disabled={isSaveDisabled} loading={updateLoading}>
+                {t("Save")}
+              </Button>
+            }
             onBack={onBack}
           />
           <AssetMolecule

@@ -19,7 +19,8 @@ export default () => {
   const workspaceId = currentWorkspace?.id;
   const workspaceName = currentWorkspace?.name;
 
-  const [updateWorkspaceMutation] = useUpdateWorkspaceMutation();
+  const [updateWorkspaceMutation, { loading: updateWorkspaceLoading }] =
+    useUpdateWorkspaceMutation();
   const [deleteWorkspaceMutation] = useDeleteWorkspaceMutation({
     refetchQueries: ["GetMe"],
   });
@@ -59,6 +60,7 @@ export default () => {
 
   return {
     workspaceName,
+    updateWorkspaceLoading,
     handleWorkspaceUpdate,
     handleWorkspaceDelete,
   };

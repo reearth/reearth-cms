@@ -20,21 +20,20 @@ interface Props {
 }
 
 const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRolesUpdate }) => {
-  const [requestRoles, setRequestRoles] = useState<Role[] | null | undefined>([]);
   const t = useT();
+  const [requestRoles, setRequestRoles] = useState<Role[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setRequestRoles(project.requestRoles);
+    setRequestRoles(project.requestRoles ?? []);
   }, [project.requestRoles]);
 
-  const saveDisabled = useMemo(() => {
-    if (!requestRoles || !project.requestRoles) return false;
-    if (requestRoles.length !== project.requestRoles.length) return false;
-    const sortedArray1 = requestRoles.slice().sort();
-    const sortedArray2 = project.requestRoles.slice().sort();
-
-    return sortedArray1.every((element, index) => element === sortedArray2[index]);
-  }, [project.requestRoles, requestRoles]);
+  const isDisabled = useMemo(
+    () =>
+      requestRoles.length === project.requestRoles?.length &&
+      requestRoles.every(value => project.requestRoles?.includes(value)),
+    [project.requestRoles, requestRoles],
+  );
 
   const columns: TableColumnsType<RequestOptionsData> = [
     {
@@ -138,8 +137,13 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
     return columns;
   }, [requestRoles]);
 
-  const handleRequestRoleChange = useCallback(() => {
-    onProjectRequestRolesUpdate(requestRoles);
+  const handleSave = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await onProjectRequestRolesUpdate(requestRoles);
+    } finally {
+      setIsLoading(false);
+    }
   }, [onProjectRequestRolesUpdate, requestRoles]);
 
   return (
@@ -150,11 +154,7 @@ const ProjectRequestOptions: React.FC<Props> = ({ project, onProjectRequestRoles
       <TableWrapper>
         <Table dataSource={dataSource} columns={columns} pagination={false} />
       </TableWrapper>
-      <Button
-        type="primary"
-        disabled={saveDisabled}
-        htmlType="submit"
-        onClick={handleRequestRoleChange}>
+      <Button type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
         {t("Save changes")}
       </Button>
     </>

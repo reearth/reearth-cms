@@ -114,7 +114,7 @@ interface Props {
       itemId: string;
     }[];
   }) => Promise<void>;
-  onChange: (request: Request, itemIds: string[]) => void;
+  onChange: (request: Request, itemIds: string[]) => Promise<void>;
   onModalClose: () => void;
   onModalOpen: () => void;
   onAddItemToRequestModalClose: () => void;
@@ -195,6 +195,7 @@ const ContentForm: React.FC<Props> = ({
   const [form] = Form.useForm();
   const [metaForm] = Form.useForm();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const changedKeys = useRef(new Set<string>());
   const formItemsData = useMemo(() => item?.referencedItems ?? [], [item?.referencedItems]);
 
@@ -249,6 +250,7 @@ const ContentForm: React.FC<Props> = ({
       } else {
         changedKeys.current.add(key);
       }
+      setIsDisabled(changedKeys.current.size === 0);
     },
     [checkIfSingleGroupField, emptyConvert, initialFormValues],
   );
@@ -329,6 +331,7 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
     try {
       const modelFields = new Map((model?.schema.fields || []).map(field => [field.id, field]));
       const groupFields = new Map<string, Field>();
@@ -396,8 +399,8 @@ const ContentForm: React.FC<Props> = ({
           fields,
         });
       }
-    } catch (info) {
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsDisabled(false);
     }
   }, [model, form, metaForm, itemId, onGroupGet, inputValueGet, onItemUpdate, onItemCreate]);
 
@@ -472,7 +475,7 @@ const ContentForm: React.FC<Props> = ({
           onBack={onBack}
           extra={
             <>
-              <Button htmlType="submit" onClick={handleSubmit} loading={loading}>
+              <Button onClick={handleSubmit} loading={loading} disabled={!!itemId && isDisabled}>
                 {t("Save")}
               </Button>
               {itemId && (

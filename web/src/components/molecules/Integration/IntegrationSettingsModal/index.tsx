@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -14,6 +14,7 @@ interface FormValues {
 interface Props {
   selectedIntegrationMember?: IntegrationMember;
   open: boolean;
+  loading: boolean;
   onClose: () => void;
   onSubmit: (role: Role) => Promise<void>;
 }
@@ -21,12 +22,14 @@ interface Props {
 const IntegrationSettingsModal: React.FC<Props> = ({
   selectedIntegrationMember,
   open,
+  loading,
   onClose,
   onSubmit,
 }) => {
   const t = useT();
   const { Option } = Select;
   const [form] = Form.useForm<FormValues>();
+  const [isDisabled, setIsDisabled] = useState(true);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -35,26 +38,47 @@ const IntegrationSettingsModal: React.FC<Props> = ({
   }, [form, selectedIntegrationMember]);
 
   const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
     try {
       const values = await form.validateFields();
       await onSubmit(values.role);
       onClose();
       form.resetFields();
-    } catch (info) {
-      console.log("Validate Failed:", info);
+    } catch (_) {
+      setIsDisabled(false);
     }
   }, [form, onClose, onSubmit]);
 
+  const handleSelect = useCallback(
+    (value: string) => {
+      setIsDisabled(value === selectedIntegrationMember?.integrationRole);
+    },
+    [selectedIntegrationMember?.integrationRole],
+  );
+
+  const handleAfterClose = useCallback(() => {
+    form.setFieldsValue({
+      role: selectedIntegrationMember?.integrationRole,
+    });
+    setIsDisabled(true);
+  }, [form, selectedIntegrationMember?.integrationRole]);
+
   return (
     <Modal
+      afterClose={handleAfterClose}
       title={t("Integration Setting") + "  " + selectedIntegrationMember?.integration?.name}
       open={open}
       onCancel={onClose}
       footer={[
-        <Button key="back" onClick={onClose}>
+        <Button key="back" onClick={onClose} disabled={loading}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          disabled={isDisabled}
+          loading={loading}>
           {t("Save")}
         </Button>,
       ]}>
@@ -71,7 +95,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
               message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
-          <Select placeholder={t("select role")}>
+          <Select placeholder={t("select role")} onSelect={handleSelect}>
             <Option value="READER">{t("Reader")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>

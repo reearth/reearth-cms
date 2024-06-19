@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
 
-import Form, { FieldError } from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -37,7 +37,8 @@ const FormModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormType>();
-  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
 
   useEffect(() => {
     if (open) {
@@ -65,15 +66,23 @@ const FormModal: React.FC<Props> = ({
   );
 
   const handleSubmit = useCallback(async () => {
-    const values = await form.validateFields();
-    await onKeyCheck(values.key, data?.key);
-    if (data?.id) {
-      await onUpdate?.({ id: data.id, ...values });
-    } else {
-      await onCreate?.(values);
+    setIsDisabled(true);
+    setIsLoading(true);
+    try {
+      const values = await form.validateFields();
+      await onKeyCheck(values.key, data?.key);
+      if (data?.id) {
+        await onUpdate?.({ id: data.id, ...values });
+      } else {
+        await onCreate?.(values);
+      }
+      onClose();
+      form.resetFields();
+    } catch (_) {
+      setIsDisabled(false);
+    } finally {
+      setIsLoading(false);
     }
-    onClose();
-    form.resetFields();
   }, [onKeyCheck, data, form, onClose, onCreate, onUpdate]);
 
   const handleClose = useCallback(() => {
@@ -81,7 +90,27 @@ const FormModal: React.FC<Props> = ({
       form.resetFields();
     }
     onClose();
+    setIsDisabled(true);
   }, [form, data, onClose]);
+
+  const handleValuesChange = useCallback(
+    async (_: unknown, values: FormType) => {
+      if (
+        data?.name === values.name &&
+        data.description === values.description &&
+        data.key === values.key
+      ) {
+        setIsDisabled(true);
+        return;
+      }
+      const hasError = await form
+        .validateFields()
+        .then(() => false)
+        .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+      setIsDisabled(hasError);
+    },
+    [data?.description, data?.key, data?.name, form],
+  );
 
   const title = useMemo(
     () =>
@@ -123,23 +152,11 @@ const FormModal: React.FC<Props> = ({
       open={open}
       onCancel={handleClose}
       onOk={handleSubmit}
-      okButtonProps={{ disabled: buttonDisabled }}
+      cancelButtonProps={{ disabled: isLoading }}
+      okButtonProps={{ disabled: isDisabled }}
+      confirmLoading={isLoading}
       title={title}>
-      <Form
-        form={form}
-        layout="vertical"
-        onValuesChange={() => {
-          form
-            .validateFields()
-            .then(() => {
-              setButtonDisabled(false);
-            })
-            .catch(fieldsError => {
-              setButtonDisabled(
-                fieldsError.errorFields.some((item: FieldError) => item.errors.length > 0),
-              );
-            });
-        }}>
+      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <Form.Item
           name="name"
           label={nameLabel}
@@ -161,8 +178,8 @@ const FormModal: React.FC<Props> = ({
           rules={[
             ({ getFieldValue }) => ({
               async validator() {
-                const value = getFieldValue("key");
-                if (value && validateKey(value)) {
+                const value: string = getFieldValue("key");
+                if (value.length >= 3 && validateKey(value)) {
                   const isKeyAvailable = await onKeyCheck(value, data?.key);
                   if (isKeyAvailable) {
                     return Promise.resolve();

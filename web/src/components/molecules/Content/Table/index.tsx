@@ -76,7 +76,7 @@ interface Props {
   onItemsReload: () => void;
   requests: Request[];
   addItemToRequestModalShown: boolean;
-  onAddItemToRequest: (request: Request, itemIds: string[]) => void;
+  onAddItemToRequest: (request: Request, itemIds: string[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
   modelKey?: string;

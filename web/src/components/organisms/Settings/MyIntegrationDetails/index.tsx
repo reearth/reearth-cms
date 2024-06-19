@@ -16,6 +16,10 @@ const MyIntegrationDetails: React.FC = () => {
   const {
     selectedIntegration,
     webhookInitialValues,
+    updateIntegrationLoading,
+    regenerateLoading,
+    createWebhookLoading,
+    updateWebhookLoading,
     handleIntegrationUpdate,
     handleIntegrationDelete,
     handleRegenerateToken,
@@ -31,6 +35,10 @@ const MyIntegrationDetails: React.FC = () => {
     <MyIntegrationContent
       integration={selectedIntegration}
       webhookInitialValues={webhookInitialValues}
+      updateIntegrationLoading={updateIntegrationLoading}
+      regenerateLoading={regenerateLoading}
+      createWebhookLoading={createWebhookLoading}
+      updateWebhookLoading={updateWebhookLoading}
       onIntegrationUpdate={handleIntegrationUpdate}
       onIntegrationDelete={handleIntegrationDelete}
       onRegenerateToken={handleRegenerateToken}

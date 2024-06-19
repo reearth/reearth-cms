@@ -11,6 +11,8 @@ import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/Webhoo
 interface Props {
   integration: Integration;
   webhookInitialValues?: WebhookValues;
+  createWebhookLoading: boolean;
+  updateWebhookLoading: boolean;
   onWebhookCreate: (data: {
     name: string;
     url: string;
@@ -33,6 +35,8 @@ interface Props {
 const Webhook: React.FC<Props> = ({
   integration,
   webhookInitialValues,
+  createWebhookLoading,
+  updateWebhookLoading,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
@@ -73,10 +77,11 @@ const Webhook: React.FC<Props> = ({
 
   return showWebhookForm ? (
     <WebhookForm
+      webhookInitialValues={webhookInitialValues}
+      loading={createWebhookLoading || updateWebhookLoading}
       onBack={handleBack}
       onWebhookCreate={handleWebhookCreate}
       onWebhookUpdate={onWebhookUpdate}
-      webhookInitialValues={webhookInitialValues}
     />
   ) : (
     <WebhookList

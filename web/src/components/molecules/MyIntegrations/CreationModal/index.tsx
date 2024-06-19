@@ -1,7 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Form from "@reearth-cms/components/atoms/Form";
+import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -10,6 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 
 interface Props {
   open: boolean;
+  loading: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
 }
@@ -28,29 +29,38 @@ const initialValues: FormValues = {
   type: IntegrationType.Private,
 };
 
-const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const IntegrationCreationModal: React.FC<Props> = ({ open, loading, onClose, onSubmit }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
+  const [isDisabled, setIsDisabled] = useState(true);
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
-        values.type = IntegrationType.Private;
-        await onSubmit(values);
-        onClose();
-        form.resetFields();
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
+  const handleSubmit = useCallback(async () => {
+    setIsDisabled(true);
+    try {
+      const values = await form.validateFields();
+      values.logoUrl = "_"; // TODO: should be implemented when assets upload is ready to use
+      values.type = IntegrationType.Private;
+      await onSubmit(values);
+      onClose();
+      form.resetFields();
+    } catch (_) {
+      setIsDisabled(false);
+    }
   }, [form, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
     onClose();
+    setIsDisabled(true);
   }, [onClose, form]);
+
+  const handleValuesChange = useCallback(async () => {
+    const hasError = await form
+      .validateFields()
+      .then(() => false)
+      .catch((errorInfo: ValidateErrorEntity) => errorInfo.errorFields.length > 0);
+    setIsDisabled(hasError);
+  }, [form]);
 
   return (
     <Modal
@@ -59,14 +69,23 @@ const IntegrationCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) 
       onOk={handleSubmit}
       title={t("New Integration")}
       footer={[
-        <Button key="back" onClick={handleClose}>
+        <Button key="back" onClick={handleClose} disabled={loading}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          disabled={isDisabled}
+          loading={loading}>
           {t("Create")}
         </Button>,
       ]}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={handleValuesChange}>
         <Form.Item
           name="name"
           label={t("Integration Name")}
