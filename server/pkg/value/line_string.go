@@ -11,10 +11,26 @@ type propertyLineString struct{}
 type LineString = []Position
 
 func (p *propertyLineString) ToValue(i any) (any, bool) {
+	return toLineStringValue(i)
+}
+
+func toLineStringValue(i any) (LineString, bool) {
 	if i == nil {
 		return nil, true
 	}
 
+	v, ok := i.([]any)
+	if ok {
+		res := make(LineString, len(v))
+		for i, vv := range v {
+			var ok bool
+			res[i], ok = toPositionValue(vv)
+			if !ok {
+				return nil, false
+			}
+		}
+		return res, true
+	}
 	return nil, false
 }
 
@@ -31,13 +47,21 @@ func (*propertyLineString) Validate(i any) bool {
 }
 
 func (*propertyLineString) Equal(v, w any) bool {
-	// vv := v.(LineString)
-	// ww := w.(LineString)
-	// if len(vv) != len(ww) {
-	// 	return false
-	// }
-	// return slices.Equal(vv, ww)
-	return false
+	return lineStringEqual(v, w)
+}
+
+func lineStringEqual(v, w any) bool {
+	vv := v.(LineString)
+	ww := w.(LineString)
+	if len(vv) != len(ww) {
+		return false
+	}
+	for i := range vv {
+		if !positionEqual(vv[i], ww[i]) {
+			return false
+		}
+	}
+	return true
 }
 
 func (*propertyLineString) IsEmpty(i any) bool {
@@ -58,9 +82,6 @@ func (v *Value) ValueLineString() (vv LineString, ok bool) {
 	vv, ok = v.v.(LineString)
 	if !ok {
 		return nil, false
-	}
-	if len(vv) > 3 {
-		return vv[:3], true // TODO: need to think about his case
 	}
 	return
 }

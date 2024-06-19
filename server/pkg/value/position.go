@@ -15,6 +15,10 @@ type propertyPosition struct{}
 type Position = []float64
 
 func (p *propertyPosition) ToValue(i any) (any, bool) {
+	return toPositionValue(i)
+}
+
+func toPositionValue(i any) (Position, bool) {
 	if i == nil {
 		return nil, true
 	}
@@ -152,6 +156,10 @@ func (*propertyPosition) Validate(i any) bool {
 }
 
 func (*propertyPosition) Equal(v, w any) bool {
+	return positionEqual(v, w)
+}
+
+func positionEqual(v, w any) bool {
 	vv := v.(Position)
 	ww := w.(Position)
 	if len(vv) != len(ww) {
