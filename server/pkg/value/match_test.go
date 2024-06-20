@@ -50,6 +50,14 @@ func TestValue_Match(t *testing.T) {
 	res = nil
 	(&Value{t: TypeBool}).Match(Match{Default: func() { res = "default" }})
 	assert.Equal(t, "default", res)
+
+	res = nil
+	(&Value{t: TypePoint}).Match(Match{Default: func() { res = "default" }})
+	assert.Equal(t, "default", res)
+
+	res = nil
+	(&Value{t: TypeLineString}).Match(Match{Default: func() { res = "default" }})
+	assert.Equal(t, "default", res)
 }
 
 func TestOptional_Match(t *testing.T) {
