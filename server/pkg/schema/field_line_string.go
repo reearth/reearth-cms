@@ -2,7 +2,7 @@ package schema
 
 import "github.com/reearth/reearth-cms/server/pkg/value"
 
-type FieldLineString struct {}
+type FieldLineString struct{}
 
 func NewLineString() *FieldLineString {
 	return &FieldLineString{}
@@ -29,7 +29,9 @@ func (f *FieldLineString) Clone() *FieldLineString {
 func (f *FieldLineString) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		LineString: func(a value.LineString) {
-			// ok
+			if len(a) < 2 {
+				err = ErrInvalidValue
+			}
 		},
 		Default: func() {
 			err = ErrInvalidValue
