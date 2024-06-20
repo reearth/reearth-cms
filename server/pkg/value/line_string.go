@@ -1,6 +1,8 @@
 package value
 
 import (
+	"encoding/json"
+
 	"github.com/samber/lo"
 )
 
@@ -22,19 +24,58 @@ func toLineStringValue(i any) (LineString, bool) {
 		return nil, true
 	}
 
-	v, ok := i.([]any)
-	if ok {
-		res := make(LineString, len(v))
-		for i, vv := range v {
-			var ok bool
-			res[i], ok = toPositionValue(vv)
-			if !ok {
-				return nil, false
-			}
-		}
-		return res, true
+	switch v := i.(type) {
+	case [][]float64:
+		return v, true
+	case [][]float32:
+		return convertToFloat64WithCheck(v, mapFloat32ToFloat64)
+	case [][]int:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]int8:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]int16:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]int32:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]int64:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]uint:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]uint8:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]uint16:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]uint32:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]uint64:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]uintptr:
+		return convertToFloat64(v, mapIntegersToFloat64)
+	case [][]json.Number:
+		return convertToFloat64WithCheck(v, mapJSONNumbersToFloat64)
+	case [][]string:
+		return convertToFloat64WithCheck(v, mapStringsToFloat64)
+	default:
+		return nil, false
 	}
-	return nil, false
+}
+
+func convertToFloat64[T any](v [][]T, mapper func([]T) []float64) (LineString, bool) {
+	return lo.Map(v, func(n []T, _ int) Position {
+		return mapper(n)
+	}), true
+}
+
+func convertToFloat64WithCheck[T any](v [][]T, mapper func([]T) ([]float64, bool)) (LineString, bool) {
+	res := make(LineString, len(v))
+	for i, vv := range v {
+		var ok bool
+		res[i], ok = mapper(vv)
+		if !ok {
+			return nil, false
+		}
+	}
+	return res, true
 }
 
 func (*propertyLineString) ToInterface(v any) (any, bool) {
