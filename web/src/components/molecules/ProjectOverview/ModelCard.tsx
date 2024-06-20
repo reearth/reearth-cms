@@ -36,6 +36,7 @@ const ModelCard: React.FC<Props> = ({
         key: "delete",
         label: t("Delete"),
         onClick: () => onModelDeletionModalOpen(model),
+        danger: true,
       },
     ],
     [t, model, onModelUpdateModalOpen, onModelDeletionModalOpen],

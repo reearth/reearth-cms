@@ -21,7 +21,12 @@ export default (workspaceId?: string) => {
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
-  const { data, refetch } = useGetMeQuery();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const { data, refetch, loading } = useGetMeQuery({
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+  });
   const t = useT();
 
   const workspaces = useMemo(() => data?.me?.workspaces, [data?.me?.workspaces]);
@@ -122,32 +127,41 @@ export default (workspaceId?: string) => {
   const [removeIntegrationFromWorkspaceMutation] = useRemoveIntegrationFromWorkspaceMutation();
 
   const handleIntegrationRemove = useCallback(
-    (integrationIds: string[]) =>
-      (async () => {
-        if (!workspaceId) return;
-        const results = await Promise.all(
-          integrationIds.map(async integrationId => {
-            const result = await removeIntegrationFromWorkspaceMutation({
-              variables: { workspaceId, integrationId },
-              refetchQueries: ["GetMe"],
-            });
-            if (result.errors) {
-              Notification.error({ message: t("Failed to delete one or more intagrations.") });
-            }
-          }),
-        );
-        if (results) {
-          Notification.success({
-            message: t("One or more integrations were successfully deleted!"),
+    async (integrationIds: string[]) => {
+      if (!workspaceId) return;
+      const results = await Promise.all(
+        integrationIds.map(async integrationId => {
+          const result = await removeIntegrationFromWorkspaceMutation({
+            variables: { workspaceId, integrationId },
+            refetchQueries: ["GetMe"],
           });
-          setSelection({ selectedRowKeys: [] });
-        }
-      })(),
+          if (result.errors) {
+            Notification.error({ message: t("Failed to delete one or more intagrations.") });
+          }
+        }),
+      );
+      if (results) {
+        Notification.success({
+          message: t("One or more integrations were successfully deleted!"),
+        });
+        setSelection({ selectedRowKeys: [] });
+      }
+    },
     [t, removeIntegrationFromWorkspaceMutation, workspaceId],
   );
 
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term);
+    setPage(1);
+  }, []);
+
+  const handleReload = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleTableChange = useCallback((page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
   }, []);
 
   return {
@@ -168,5 +182,10 @@ export default (workspaceId?: string) => {
     selection,
     handleSearchTerm,
     setSelection,
+    page,
+    pageSize,
+    handleTableChange,
+    loading,
+    handleReload,
   };
 };
