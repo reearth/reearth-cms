@@ -37,8 +37,9 @@ const MyIntegrationList: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
+  min-height: calc(100% - 16px);
   background: #fff;
-  min-height: 100%;
+  margin: 16px 16px 0;
 `;
 
 const ListWrapper = styled.div`
