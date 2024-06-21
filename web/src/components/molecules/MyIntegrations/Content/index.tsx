@@ -94,8 +94,9 @@ const MyIntegrationContent: React.FC<Props> = ({
 };
 
 const MyIntegrationWrapper = styled.div`
-  min-height: 100%;
+  min-height: calc(100% - 16px);
   background-color: #fff;
+  margin: 16px 16px 0;
 `;
 
 const MyIntegrationTabs = styled(Tabs)`
