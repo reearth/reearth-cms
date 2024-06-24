@@ -74,23 +74,6 @@ export default () => {
     fetchPolicy: "no-cache",
   });
 
-  const handleUserSearch = useCallback(
-    async (nameOrEmail: string) => {
-      if (nameOrEmail) {
-        const res = await searchUserQuery({ variables: { nameOrEmail } });
-        if (res.data?.searchUser && res.data.searchUser?.id !== data?.me?.id) {
-          const isMember = !!workspaceUserMembers?.some(
-            member => member.userId === res.data?.searchUser?.id,
-          );
-          changeSearchedUser({ ...res.data?.searchUser, isMember });
-        } else {
-          changeSearchedUser(undefined);
-        }
-      }
-    },
-    [searchUserQuery],
-  );
-
   const handleUserAdd = useCallback(() => {
     if (
       searchedUser &&
@@ -118,6 +101,23 @@ export default () => {
       )
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [currentWorkspace, searchTerm]);
+
+  const handleUserSearch = useCallback(
+    async (nameOrEmail: string) => {
+      if (nameOrEmail) {
+        const res = await searchUserQuery({ variables: { nameOrEmail } });
+        if (res.data?.searchUser && res.data.searchUser?.id !== data?.me?.id) {
+          const isMember = !!workspaceUserMembers?.some(
+            member => member.userId === res.data?.searchUser?.id,
+          );
+          changeSearchedUser({ ...res.data?.searchUser, isMember });
+        } else {
+          changeSearchedUser(undefined);
+        }
+      }
+    },
+    [searchUserQuery, workspaceUserMembers],
+  );
 
   const [addUsersToWorkspaceMutation] = useAddUsersToWorkspaceMutation();
 
