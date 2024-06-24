@@ -18,7 +18,6 @@ test("Integration CRUD and searching has succeeded", async ({ reearth, page }) =
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
 
-  await page.locator("div").filter({ hasText: "Create new integration" }).nth(4).click();
   await page
     .locator("div")
     .filter({ hasText: /^Create new integration$/ })

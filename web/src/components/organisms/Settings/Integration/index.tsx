@@ -12,21 +12,26 @@ const Integration: React.FC = () => {
   const {
     integrations,
     workspaceIntegrationMembers,
-    handleIntegrationConnect,
     handleIntegrationConnectModalClose,
     handleIntegrationConnectModalOpen,
     addLoading,
+    handleIntegrationConnect,
+    handleIntegrationRemove,
     integrationConnectModalShown,
+    handleUpdateIntegration,
+    updateLoading,
     handleIntegrationSettingsModalClose,
     handleIntegrationSettingsModalOpen,
     integrationSettingsModalShown,
-    handleUpdateIntegration,
-    updateLoading,
     selectedIntegrationMember,
     selection,
     handleSearchTerm,
     setSelection,
-    handleIntegrationRemove,
+    page,
+    pageSize,
+    handleTableChange,
+    loading,
+    handleReload,
   } = useHooks(workspaceId);
 
   return (
@@ -39,6 +44,11 @@ const Integration: React.FC = () => {
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
         setSelection={setSelection}
         onIntegrationRemove={handleIntegrationRemove}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={handleTableChange}
+        loading={loading}
+        onReload={handleReload}
       />
       <IntegrationConnectModal
         integrations={integrations}

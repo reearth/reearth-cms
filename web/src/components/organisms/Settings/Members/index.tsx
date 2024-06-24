@@ -26,6 +26,13 @@ const Members: React.FC = () => {
     handleMemberAddModalOpen,
     MemberAddModalShown,
     workspaceUserMembers,
+    selection,
+    setSelection,
+    page,
+    pageSize,
+    handleTableChange,
+    loading,
+    handleReload,
   } = useHooks();
 
   return (
@@ -38,6 +45,13 @@ const Members: React.FC = () => {
         handleRoleModalOpen={handleRoleModalOpen}
         handleMemberAddModalOpen={handleMemberAddModalOpen}
         workspaceUserMembers={workspaceUserMembers}
+        selection={selection}
+        setSelection={setSelection}
+        page={page}
+        pageSize={pageSize}
+        onTableChange={handleTableChange}
+        loading={loading}
+        onReload={handleReload}
       />
       {selectedMember && (
         <MemberRoleModal
