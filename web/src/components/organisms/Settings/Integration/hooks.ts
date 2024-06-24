@@ -38,13 +38,15 @@ export default (workspaceId?: string) => {
     return foundWorkspace && fromGraphQLWorkspace(foundWorkspace as GQLWorkspace);
   }, [data?.me?.workspaces]);
 
-  const workspaceIntegrationMembers = useMemo(() => {
-    return workspace?.members?.filter(
-      (member): member is IntegrationMember =>
-        "integration" in member &&
-        !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""),
-    );
-  }, [workspace?.members, searchTerm]);
+  const workspaceIntegrationMembers = useMemo(
+    () =>
+      workspace?.members?.filter(
+        (member): member is IntegrationMember =>
+          "integration" in member &&
+          !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""),
+      ),
+    [workspace?.members, searchTerm],
+  );
 
   const integrations = useMemo(
     () =>
