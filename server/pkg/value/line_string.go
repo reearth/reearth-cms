@@ -28,49 +28,43 @@ func toLineStringValue(i any) (LineString, bool) {
 	case [][]float64:
 		return v, true
 	case [][]float32:
-		return convertToFloat64WithCheck(v, mapFloat32ToFloat64)
+		return convertToFloat64(v)
 	case [][]int:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]int8:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]int16:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]int32:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]int64:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]uint:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]uint8:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]uint16:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]uint32:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]uint64:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]uintptr:
-		return convertToFloat64(v, mapIntegersToFloat64)
+		return convertToFloat64(v)
 	case [][]json.Number:
-		return convertToFloat64WithCheck(v, mapJSONNumbersToFloat64)
+		return convertToFloat64(v)
 	case [][]string:
-		return convertToFloat64WithCheck(v, mapStringsToFloat64)
+		return convertToFloat64(v)
 	default:
 		return nil, false
 	}
 }
 
-func convertToFloat64[T any](v [][]T, mapper func([]T) []float64) (LineString, bool) {
-	return lo.Map(v, func(n []T, _ int) Position {
-		return mapper(n)
-	}), true
-}
-
-func convertToFloat64WithCheck[T any](v [][]T, mapper func([]T) ([]float64, bool)) (LineString, bool) {
+func convertToFloat64[T any](v [][]T) (LineString, bool) {
 	res := make(LineString, len(v))
 	for i, vv := range v {
 		var ok bool
-		res[i], ok = mapper(vv)
+		res[i], ok = toPositionValue(vv)
 		if !ok {
 			return nil, false
 		}
