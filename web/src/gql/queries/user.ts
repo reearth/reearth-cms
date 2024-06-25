@@ -37,11 +37,17 @@ export const GET_ME = gql`
             role
           }
           ... on WorkspaceIntegrationMember {
+            integrationId
             integration {
               ...integrationFragment
             }
-            integrationRole: role
+            role
             active
+            invitedBy {
+              id
+              name
+              email
+            }
             invitedById
           }
         }
