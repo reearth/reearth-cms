@@ -18,13 +18,13 @@ interface FormValues {
 
 interface Props {
   open: boolean;
-  searchedUser?: User;
+  searchedUser?: User & { isMember: boolean };
   searchedUserList: User[];
-  onUserSearch: (nameOrEmail: string) => void;
+  onUserSearch: (nameOrEmail: string) => Promise<void>;
   onUserAdd: () => void;
   onClose: () => void;
   onSubmit: (users: MemberInput[]) => Promise<void>;
-  changeSearchedUser: (user: User | undefined) => void;
+  changeSearchedUser: (user?: User & { isMember: boolean }) => void;
   changeSearchedUserList: React.Dispatch<React.SetStateAction<User[]>>;
 }
 
@@ -116,7 +116,7 @@ const MemberAddModal: React.FC<Props> = ({
       {open && (
         <Form title="Search user" form={form} layout="vertical" initialValues={initialValues}>
           <Form.Item name="name" label={t("Email address or user name")}>
-            <Search size="large" onSearch={handleMemberNameChange} type="text" />
+            <Search size="large" onSearch={handleMemberNameChange} type="text" allowClear />
           </Form.Item>
           {searchedUser && (
             <SearchedUserResult>
@@ -125,41 +125,39 @@ const MemberAddModal: React.FC<Props> = ({
               </SearchedUserAvatar>
               <SearchedUserName>{searchedUser.name}</SearchedUserName>
               <SearchedUserEmail>{searchedUser.email}</SearchedUserEmail>
-              <IconButton onClick={onUserAdd}>
-                <Icon icon="userAdd" />
-              </IconButton>
+              <Button
+                type="text"
+                shape="circle"
+                onClick={onUserAdd}
+                icon={<Icon icon="userAdd" />}
+                disabled={searchedUser.isMember}
+              />
             </SearchedUserResult>
           )}
           <StyledFormItem
             name="names"
             label={`${t("Selected Members")} (${searchedUserList.length})`}>
-            {searchedUserList &&
-              searchedUserList.length > 0 &&
-              searchedUserList
-                .filter(user => Boolean(user))
-                .map(user => (
-                  <SearchedUserResult key={user.id}>
-                    <SearchedUserAvatar>
-                      <UserAvatar username={user.name} />
-                    </SearchedUserAvatar>
-                    <SearchedUserName>{user.name}</SearchedUserName>
-                    <SearchedUserEmail>{user.email}</SearchedUserEmail>
-                    <IconButton onClick={() => handleMemberRemove(user.id)}>
-                      <Icon icon="close" />
-                    </IconButton>
-                  </SearchedUserResult>
-                ))}
+            {searchedUserList.map(user => (
+              <SearchedUserResult key={user.id}>
+                <SearchedUserAvatar>
+                  <UserAvatar username={user.name} />
+                </SearchedUserAvatar>
+                <SearchedUserName>{user.name}</SearchedUserName>
+                <SearchedUserEmail>{user.email}</SearchedUserEmail>
+                <Button
+                  type="text"
+                  shape="circle"
+                  onClick={() => handleMemberRemove(user.id)}
+                  icon={<Icon icon="close" />}
+                />
+              </SearchedUserResult>
+            ))}
           </StyledFormItem>
         </Form>
       )}
     </Modal>
   );
 };
-
-const IconButton = styled.button`
-  all: unset;
-  cursor: pointer;
-`;
 
 const StyledFormItem = styled(Form.Item)`
   margin-top: 16px;
