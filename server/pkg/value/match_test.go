@@ -52,11 +52,7 @@ func TestValue_Match(t *testing.T) {
 	assert.Equal(t, "default", res)
 
 	res = nil
-	(&Value{t: TypePoint}).Match(Match{Default: func() { res = "default" }})
-	assert.Equal(t, "default", res)
-
-	res = nil
-	(&Value{t: TypeLineString}).Match(Match{Default: func() { res = "default" }})
+	(&Value{t: TypeGeometry}).Match(Match{Default: func() { res = "default" }})
 	assert.Equal(t, "default", res)
 }
 

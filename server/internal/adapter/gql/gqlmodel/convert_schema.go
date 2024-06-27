@@ -234,30 +234,18 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				DefaultValue: v,
 			}
 		},
-		Point: func(f *schema.FieldPoint) {
+		Geometry: func(f *schema.FieldGeometry) {
 			var v any = nil
 			if dv != nil {
 				if multiple {
-					v, _ = dv.ValuesPosition()
+					v, _ = dv.ValuesString()
 				} else {
-					v, _ = dv.First().ValuePosition()
+					v, _ = dv.First().ValueString()
 				}
 			}
-			res = &SchemaFieldPoint{
-				DefaultValue: v,
-			}
-		},
-		LineString: func(f *schema.FieldLineString) {
-			var v any = nil
-			if dv != nil {
-				if multiple {
-					v, _ = dv.ValuesLineString()
-				} else {
-					v, _ = dv.First().ValueLineString()
-				}
-			}
-			res = &SchemaFieldLineString{
-				DefaultValue: v,
+			res = &SchemaFieldGeometry{
+				DefaultValue:   v,
+				SupportedTypes: nil,
 			}
 		},
 	})
@@ -516,28 +504,17 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = FromValue(SchemaFieldTypeURL, x.DefaultValue).AsMultiple()
 		}
 		tpRes = schema.NewURL().TypeProperty()
-	case SchemaFieldTypePoint:
-		x := tp.Point
+	case SchemaFieldTypeGeometry:
+		x := tp.Geometry
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
 		if multiple {
-			dv = value.NewMultiple(value.TypePoint, unpackArray(x.DefaultValue))
+			dv = value.NewMultiple(value.TypeGeometry, unpackArray(x.DefaultValue))
 		} else {
-			dv = FromValue(SchemaFieldTypePoint, x.DefaultValue).AsMultiple()
+			dv = FromValue(SchemaFieldTypeGeometry, x.DefaultValue).AsMultiple()
 		}
-		tpRes = schema.NewPoint().TypeProperty()
-	case SchemaFieldTypeLineString:
-		x := tp.LineString
-		if x == nil {
-			return nil, nil, ErrInvalidTypeProperty
-		}
-		if multiple {
-			dv = value.NewMultiple(value.TypeLineString, unpackArray(x.DefaultValue))
-		} else {
-			dv = FromValue(SchemaFieldTypeLineString, x.DefaultValue).AsMultiple()
-		}
-		tpRes = schema.NewLineString().TypeProperty()
+		tpRes = schema.NewGeometry().TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty
 	}

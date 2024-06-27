@@ -210,14 +210,9 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			want: &SchemaFieldSelect{Values: []string{"v1"}, DefaultValue: nil},
 		},
 		{
-			name: "point",
-			args: args{tp: schema.NewPoint().TypeProperty()},
-			want: &SchemaFieldPoint{DefaultValue: nil},
-		},
-		{
-			name: "line-string",
-			args: args{tp: schema.NewLineString().TypeProperty()},
-			want: &SchemaFieldLineString{DefaultValue: nil},
+			name: "geometry",
+			args: args{tp: schema.NewGeometry().TypeProperty()},
+			want: &SchemaFieldGeometry{DefaultValue: nil},
 		},
 	}
 	for _, tt := range tests {
@@ -341,20 +336,12 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			wantError: ErrEmptyOptions,
 		},
 		{
-			name: "point",
+			name: "geometry",
 			argsInp: &SchemaFieldTypePropertyInput{
-				Point: &SchemaFieldPointInput{DefaultValue: nil},
+				Geometry: &SchemaFieldGeometryInput{DefaultValue: nil},
 			},
-			argsT:     SchemaFieldTypePoint,
-			wantTp: schema.NewPoint().TypeProperty(),
-		},
-		{
-			name: "line-string",
-			argsInp: &SchemaFieldTypePropertyInput{
-				LineString: &SchemaFieldLineStringInput{DefaultValue: nil},
-			},
-			argsT:     SchemaFieldTypeLineString,
-			wantTp: schema.NewLineString().TypeProperty(),
+			argsT:  SchemaFieldTypeGeometry,
+			wantTp: schema.NewGeometry().TypeProperty(),
 		},
 		{
 			name: "tags empty",

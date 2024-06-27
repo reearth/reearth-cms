@@ -17,22 +17,21 @@ func TestTypeProperty_Type(t *testing.T) {
 func TestMatchTypeProperty(t *testing.T) {
 	val := ""
 	m := TypePropertyMatch{
-		Text:       func(_ *FieldText) { val = "Text" },
-		TextArea:   func(_ *FieldTextArea) { val = "TextArea" },
-		RichText:   func(_ *FieldRichText) { val = "RichText" },
-		Markdown:   func(_ *FieldMarkdown) { val = "Markdown" },
-		Asset:      func(_ *FieldAsset) { val = "Asset" },
-		DateTime:   func(_ *FieldDateTime) { val = "DateTime" },
-		Bool:       func(_ *FieldBool) { val = "Bool" },
-		Select:     func(_ *FieldSelect) { val = "Select" },
-		Tag:        func(_ *FieldTag) { val = "Tag" },
-		Integer:    func(_ *FieldInteger) { val = "Integer" },
-		Number:     func(_ *FieldNumber) { val = "Number" },
-		Reference:  func(_ *FieldReference) { val = "Reference" },
-		URL:        func(_ *FieldURL) { val = "URL" },
-		Point:      func(_ *FieldPoint) { val = "Point" },
-		LineString: func(_ *FieldLineString) { val = "LineString" },
-		Default:    func() { val = "Default" },
+		Text:      func(_ *FieldText) { val = "Text" },
+		TextArea:  func(_ *FieldTextArea) { val = "TextArea" },
+		RichText:  func(_ *FieldRichText) { val = "RichText" },
+		Markdown:  func(_ *FieldMarkdown) { val = "Markdown" },
+		Asset:     func(_ *FieldAsset) { val = "Asset" },
+		DateTime:  func(_ *FieldDateTime) { val = "DateTime" },
+		Bool:      func(_ *FieldBool) { val = "Bool" },
+		Select:    func(_ *FieldSelect) { val = "Select" },
+		Tag:       func(_ *FieldTag) { val = "Tag" },
+		Integer:   func(_ *FieldInteger) { val = "Integer" },
+		Number:    func(_ *FieldNumber) { val = "Number" },
+		Reference: func(_ *FieldReference) { val = "Reference" },
+		URL:       func(_ *FieldURL) { val = "URL" },
+		Geometry:  func(_ *FieldGeometry) { val = "Geometry" },
+		Default:   func() { val = "Default" },
 	}
 
 	type args struct {
@@ -158,20 +157,12 @@ func TestMatchTypeProperty(t *testing.T) {
 			want: "URL",
 		},
 		{
-			name: "Point",
+			name: "Geometry",
 			args: args{
-				tp: &TypeProperty{t: value.TypePoint, point: &FieldPoint{}},
+				tp: &TypeProperty{t: value.TypeGeometry, geometry: &FieldGeometry{}},
 				m:  m,
 			},
-			want: "Point",
-		},
-		{
-			name: "LineString",
-			args: args{
-				tp: &TypeProperty{t: value.TypeLineString, lineString: &FieldLineString{}},
-				m:  m,
-			},
-			want: "LineString",
+			want: "Geometry",
 		},
 		{
 			name: "Default",
@@ -197,22 +188,21 @@ func TestMatchTypeProperty(t *testing.T) {
 
 func TestMatchTypeProperty1(t *testing.T) {
 	m := TypePropertyMatch1[string]{
-		Text:       func(_ *FieldText) string { return "Text" },
-		TextArea:   func(_ *FieldTextArea) string { return "TextArea" },
-		RichText:   func(_ *FieldRichText) string { return "RichText" },
-		Markdown:   func(_ *FieldMarkdown) string { return "Markdown" },
-		Asset:      func(_ *FieldAsset) string { return "Asset" },
-		DateTime:   func(_ *FieldDateTime) string { return "DateTime" },
-		Bool:       func(_ *FieldBool) string { return "Bool" },
-		Select:     func(_ *FieldSelect) string { return "Select" },
-		Tag:        func(_ *FieldTag) string { return "Tag" },
-		Integer:    func(_ *FieldInteger) string { return "Integer" },
-		Number:     func(_ *FieldNumber) string { return "Number" },
-		Reference:  func(_ *FieldReference) string { return "Reference" },
-		URL:        func(_ *FieldURL) string { return "URL" },
-		Point:      func(_ *FieldPoint) string { return "Point" },
-		LineString: func(_ *FieldLineString) string { return "LineString" },
-		Default:    func() string { return "Default" },
+		Text:      func(_ *FieldText) string { return "Text" },
+		TextArea:  func(_ *FieldTextArea) string { return "TextArea" },
+		RichText:  func(_ *FieldRichText) string { return "RichText" },
+		Markdown:  func(_ *FieldMarkdown) string { return "Markdown" },
+		Asset:     func(_ *FieldAsset) string { return "Asset" },
+		DateTime:  func(_ *FieldDateTime) string { return "DateTime" },
+		Bool:      func(_ *FieldBool) string { return "Bool" },
+		Select:    func(_ *FieldSelect) string { return "Select" },
+		Tag:       func(_ *FieldTag) string { return "Tag" },
+		Integer:   func(_ *FieldInteger) string { return "Integer" },
+		Number:    func(_ *FieldNumber) string { return "Number" },
+		Reference: func(_ *FieldReference) string { return "Reference" },
+		URL:       func(_ *FieldURL) string { return "URL" },
+		Geometry:  func(_ *FieldGeometry) string { return "Geometry" },
+		Default:   func() string { return "Default" },
 	}
 
 	type args struct {
@@ -338,20 +328,12 @@ func TestMatchTypeProperty1(t *testing.T) {
 			want: "URL",
 		},
 		{
-			name: "Point",
+			name: "Geometry",
 			args: args{
-				tp: &TypeProperty{t: value.TypePoint, point: &FieldPoint{}},
+				tp: &TypeProperty{t: value.TypeGeometry, geometry: &FieldGeometry{}},
 				m:  m,
 			},
-			want: "Point",
-		},
-		{
-			name: "LineString",
-			args: args{
-				tp: &TypeProperty{t: value.TypeLineString, lineString: &FieldLineString{}},
-				m:  m,
-			},
-			want: "LineString",
+			want: "Geometry",
 		},
 		{
 			name: "Default",
@@ -500,18 +482,10 @@ func TestTypeProperty_Validate(t *testing.T) {
 			want: nil,
 		},
 		{
-			name: "Point",
+			name: "Geometry",
 			args: args{
-				tp:    &TypeProperty{t: value.TypePoint, point: NewPoint()},
-				value: value.TypePoint.Value([]float64{1.1, 2.1}),
-			},
-			want: nil,
-		},
-		{
-			name: "LineString",
-			args: args{
-				tp:    &TypeProperty{t: value.TypeLineString, lineString: NewLineString()},
-				value: value.TypeLineString.Value([][]float64{{1.1, 2.1}, {1.1, 2.1}}),
+				tp:    &TypeProperty{t: value.TypeGeometry, geometry: NewGeometry()},
+				value: value.TypeGeometry.Value("{}"),
 			},
 			want: nil,
 		},
