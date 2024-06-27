@@ -46,7 +46,7 @@ export default (workspaceId?: string) => {
               id: member.integration.id,
               active: member.active,
               integration: fromGraphQLIntegration(member.integration),
-              integrationRole: member.integrationRole,
+              integrationRole: t(member.integrationRole),
               invitedById: member.invitedById,
             }
           : undefined,

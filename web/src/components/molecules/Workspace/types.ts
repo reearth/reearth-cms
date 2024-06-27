@@ -33,6 +33,10 @@ export interface MemberInput {
 }
 
 export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
+// t("WRITER");
+// t("READER");
+// t("MAINTAINER");
+// t("OWNER");
 
 export interface Workspace {
   id: string;

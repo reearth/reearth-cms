@@ -92,6 +92,7 @@ Go to Editor: エディタへ移動
 Link Asset: アセットをリンク
 New: 追加
 Tag: タグ
+OK: ''
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
@@ -103,7 +104,6 @@ Schema: スキーマ
 Content: コンテンツ
 Request: リクエスト
 Settings: 設定
-OK: ''
 Workspace name: ワークスペース名
 Please input the title of the new workspace!: 新しいワークスペースの名前を入力してください!
 Member: メンバー
@@ -169,14 +169,14 @@ Control: 操作
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
+Role: ロール
 Please input the appropriate role for this integration!: このインテグレーションに適切なロールを付与してください
 select role: ロールを選択
 Reader: 閲覧者
 Writer: 編集者
-Maintainer: メインテイナー
+Maintainer: メンテナー
 Owner: オーナー
 Name: 名前
-Role: ロール
 Creator: 作成者
 Remove: 削除
 No Integration yet: まだインテグレーションはありません
@@ -198,9 +198,10 @@ Action: 操作
 Change Role?: ロールを変更
 Members: メンバー
 New Member: メンバーを追加
-Groups: グループ
+GROUPS: グループ
 Add: 追加
-Models: モデル
+MODELS: モデル
+Webhook: ''
 New Integration: 新規インテグレーション
 Create: 作成
 Integration Name: インテグレーション名
@@ -218,6 +219,7 @@ Integration Token: インテグレーショントークン
 Regenerate: 再生成
 Code Example: コード例
 your model id here: モデルIDをここに入力してください
+your Integration Token here: インテグレーショントークンをここに入力してください
 Update: アップデート
 Decompress: 圧縮
 This is your webhook name: Webhookの名前です
@@ -232,10 +234,10 @@ Trigger Event: イベント
 Item: アイテム
 New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
-'Create a new ': 新規作成
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
 New Project: 新規プロジェクト
+Models: モデル
 New Model: 新規モデル
 Edit: 編集
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
@@ -261,13 +263,13 @@ WAITING: レビュー待ち
 Current user: 現在のユーザー
 Delete Model: モデルを削除
 Delete Group: グループを削除
-Are you sure you want to delete the model: 本当にこのモデルを削除してよろしいですか？
-Are you sure you want to delete the group: 本当にグループを削除しますか？
+Are you sure you want to delete this model: 本当に<strong>{{name}}</strong>を削除してもよろしいですか？
+Are you sure you want to delete this group: 本当に<strong>{{name}}</strong>を削除してもよろしいですか？
 This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
 This action will permanently delete the selected group and cannot be reversed.: この操作は選択したグループを永久に削除し、元に戻すことはできません。
 Warning: 注意
 Text: テキスト
-Time: ''
+Time: 時間
 Boolean: ブーリアン
 Select: セレクト
 Number: 数値
@@ -275,10 +277,13 @@ Relation: 関係
 Group: グループ
 Meta Data: メタデータ
 Add Field: フィールドを追加
-Field: フィールド
-Previous: 前
-Next: 次
+optional: 任意
+Update Field: '{{field}}フィールドを更新'
+Create Field: '{{field}}フィールドを作成'
+Previous: 戻る
+Next: 次へ
 Reference setting: 参照設定
+Field: フィールド
 Corresponding field: 対応フィールド
 Select the model to reference: 参照するモデルを選択してください
 Please select the model!: モデルを選択してください！
@@ -289,6 +294,7 @@ Two-way reference: 双方向の参照
 A bidirectional relationship where two items refer to each other: 2つの項目が互いを参照する双方向の関係
 Display name: 表示名
 Please input the display name of field!: このフィールドの表示名を入力してください
+Field Key: フィールドキー
 Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.: フィールドのキーは1文字以上かつ一意である必要があります。アンダースコア、ダッシュ、文字、数値が利用できます。
 Key is not valid: 無効なキーです
 Set Options: オプションを設定
@@ -296,6 +302,7 @@ Stores a list of values instead of a single value: このフィールドに複�
 Support multiple values: 複数値の設定を許可
 Only one field can be used as the title: タイトルとして使用できるフィールドは1つだけです。
 Use as title: タイトルとして使用
+Validation: バリデーション
 Prevents saving an entry if this field is empty: このフィールドを必須項目とします
 Make field required: このフィールドを必須項目にする
 Ensures that a multiple entries can't have the same value for this field: 複数のアイテム間でこのフィールドの値がユニークであることを担保します
@@ -305,36 +312,35 @@ Default value must be a valid URL and start with 'http://' or 'https://'.: デ�
 Set maximum length: 最大長
 Set minimum value: 最小値
 Set maximum value: 最大値
-Field Key: フィールドキー
 Set Tags: タグを設定する
 Select Group: グループを選択
 Please select the group!: グループを選択してください！
-Validation: バリデーション
+options: オプション
 Ensures that multiple entries can't have the same value for this field: このフィールドには同じ値のエントリーを持つことができません。
 Default value: デフォルト値
 Heading and titles, one-line field: タイトルなどに利用する1行のフィールドです。
-TextArea: テキストエリア
 Multi line text: 複数行テキスト
-Markdown text: マークダウン
 Rich text which supports md style: マークダウン対応のリッチテキスト
 Asset file: アセット
 true/false field: 真偽
-Option: 選択
 Multiple select: 複数選択
-Int: 整数値
-Integer: 整数値
+Integer: 整数
 http/https URL: URL
-Reference: 参照
 Reference other models and items: 他のモデルやアイテムを参照
-Date: 日付
 Date picker: 日付ピッカー
 Select from a list of tags: タグのリストから選択する
-Check Box: チェックボックス
 Select from a list of checkboxes: チェックボックスのリストから選択する
 Customize a group of fields: フィールドのグループをカスタマイズ
+TextArea: テキストエリア
+Markdown text: マークダウン
+Option: 選択
+Int: 整数
+Date: 日付
+Reference: 参照
+Check Box: チェックボックス
 Update Model: モデルを更新
-Update Group: 更新グループ
-New Group: 新グループ
+Update Group: グループを更新
+New Group: 新規グループ
 Model name: モデル名
 Group name: グループ名
 Please input the name of the model!: このモデル名を入力してください
@@ -348,8 +354,12 @@ Group key must be unique and at least 1 character long. It can only contain lett
 Fields: フィールド
 Are you sure you want to delete this field?: このフィールドを削除します、よろしいですか？
 Publish Status: 公開ステータス
+Empty Schema design.: スキーマ設定が空です。
+Please add some field from right panel.: 右のパネルからフィールドを追加してください。
 New Tiles: 新しいタイル
 New Terrain: 新しい地形
+Update Tiles: タイルを更新
+Update Terrain: 地形を更新
 Tiles type: タイルの種類
 Terrain type: 地形の種類
 Name of tiles: タイルの名前
@@ -380,6 +390,10 @@ Deleting the view is a permanent action. However, the contents will remain unaff
 Please proceed with caution as this action cannot be undone.: この操作は元に戻せませんので、注意して行ってください。
 Save as new view: 新しいビューとして保存します
 Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
+WRITER: 編集者
+READER: 閲覧者
+MAINTAINER: メンテナー
+OWNER: オーナー
 search projects: 検索
 Create a Workspace: 新規ワークスペース
 Are you sure you want to delete this workspace?: このワークスペースを削除します。よろしいですか？
