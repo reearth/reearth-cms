@@ -37,7 +37,7 @@ export default () => {
     setPage(1);
   }, []);
 
-  const [searchedUser, changeSearchedUser] = useState<User>();
+  const [searchedUser, changeSearchedUser] = useState<User & { isMember: boolean }>();
   const [searchedUserList, changeSearchedUserList] = useState<User[]>([]);
 
   const { data, refetch, loading } = useGetWorkspacesQuery({
@@ -70,24 +70,9 @@ export default () => {
     setWorkspace(workspaces?.find(workspace => workspace.id === workspaceId));
   }, [setWorkspace, workspaces, data?.me, workspaceId]);
 
-  const [searchUserQuery, { data: searchUserData }] = useGetUserBySearchLazyQuery({
+  const [searchUserQuery] = useGetUserBySearchLazyQuery({
     fetchPolicy: "no-cache",
   });
-
-  useEffect(() => {
-    changeSearchedUser(
-      searchUserData?.searchUser && searchUserData?.searchUser?.id !== data?.me?.id
-        ? searchUserData.searchUser
-        : undefined,
-    );
-  }, [searchUserData?.searchUser, data?.me?.id]);
-
-  const handleUserSearch = useCallback(
-    (nameOrEmail: string) => {
-      if (nameOrEmail) searchUserQuery({ variables: { nameOrEmail } });
-    },
-    [searchUserQuery],
-  );
 
   const handleUserAdd = useCallback(() => {
     if (
@@ -116,6 +101,23 @@ export default () => {
       )
       .sort((user1, user2) => stringSortCallback(user1.userId, user2.userId));
   }, [currentWorkspace, searchTerm]);
+
+  const handleUserSearch = useCallback(
+    async (nameOrEmail: string) => {
+      if (nameOrEmail) {
+        const res = await searchUserQuery({ variables: { nameOrEmail } });
+        if (res.data?.searchUser && res.data.searchUser?.id !== data?.me?.id) {
+          const isMember = !!workspaceUserMembers?.some(
+            member => member.userId === res.data?.searchUser?.id,
+          );
+          changeSearchedUser({ ...res.data?.searchUser, isMember });
+        } else {
+          changeSearchedUser(undefined);
+        }
+      }
+    },
+    [searchUserQuery, workspaceUserMembers],
+  );
 
   const [addUsersToWorkspaceMutation] = useAddUsersToWorkspaceMutation();
 

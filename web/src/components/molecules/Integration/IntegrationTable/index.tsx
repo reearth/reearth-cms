@@ -63,6 +63,7 @@ const IntegrationTable: React.FC<Props> = ({
         title: t("Role"),
         dataIndex: "integrationRole",
         key: "role",
+        render: text => (typeof text === "string" ? t(text) : text),
         width: 100,
         minWidth: 100,
       },

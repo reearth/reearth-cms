@@ -3,13 +3,17 @@ import { Key, useCallback, useMemo, useState } from "react";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { IntegrationMember, Role } from "@reearth-cms/components/molecules/Integration/types";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { fromGraphQLIntegration } from "@reearth-cms/components/organisms/DataConverters/setting";
+import {
+  fromGraphQLIntegration,
+  fromGraphQLWorkspace,
+} from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
   useGetMeQuery,
   useAddIntegrationToWorkspaceMutation,
   Role as GQLRole,
   useUpdateIntegrationOfWorkspaceMutation,
   useRemoveIntegrationFromWorkspaceMutation,
+  Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
@@ -29,34 +33,33 @@ export default (workspaceId?: string) => {
   });
   const t = useT();
 
-  const workspaces = useMemo(() => data?.me?.workspaces, [data?.me?.workspaces]);
-  const workspace = workspaces?.find(workspace => workspace.id === workspaceId);
+  const workspace = useMemo(() => {
+    const foundWorkspace = data?.me?.workspaces?.find(workspace => workspace.id === workspaceId);
+    return foundWorkspace && fromGraphQLWorkspace(foundWorkspace as GQLWorkspace);
+  }, [data?.me?.workspaces]);
 
-  const integrations = useMemo(() => {
-    return data?.me?.integrations
-      ?.map(integration => fromGraphQLIntegration(integration))
-      .filter((integration): integration is Integration => !!integration);
-  }, [data?.me?.integrations]);
+  const workspaceIntegrationMembers = useMemo(
+    () =>
+      workspace?.members?.filter(
+        (member): member is IntegrationMember =>
+          "integration" in member &&
+          !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""),
+      ),
+    [workspace?.members, searchTerm],
+  );
 
-  const workspaceIntegrationMembers = useMemo(() => {
-    return workspace?.members
-      ?.map<IntegrationMember | undefined>(member =>
-        member && member.__typename === "WorkspaceIntegrationMember" && member.integration
-          ? {
-              id: member.integration.id,
-              active: member.active,
-              integration: fromGraphQLIntegration(member.integration),
-              integrationRole: t(member.integrationRole),
-              invitedById: member.invitedById,
-            }
-          : undefined,
-      )
-      .filter(
-        (integrationMember): integrationMember is IntegrationMember =>
-          !!integrationMember?.integration &&
-          integrationMember.integration.name.toLowerCase().includes(searchTerm ?? ""),
-      );
-  }, [workspace, searchTerm]);
+  const integrations = useMemo(
+    () =>
+      data?.me?.integrations
+        ?.map(integration => fromGraphQLIntegration(integration))
+        .filter(
+          integration =>
+            !workspaceIntegrationMembers?.some(
+              workspaceIntegration => workspaceIntegration.id === integration.id,
+            ),
+        ),
+    [data?.me?.integrations, workspaceIntegrationMembers],
+  );
 
   const handleIntegrationConnectModalClose = useCallback(() => {
     setIntegrationConnectModalShown(false);
