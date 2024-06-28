@@ -1,22 +1,31 @@
 package schema
 
-import "github.com/reearth/reearth-cms/server/pkg/value"
+import (
+	"github.com/reearth/reearth-cms/server/pkg/value"
+	"golang.org/x/exp/slices"
+)
+
+type GeometrySupportedTypeList []GeometrySupportedType
 
 type FieldGeometry struct {
-	p *FieldString
+	st GeometrySupportedTypeList
 }
 
-func NewGeometry() *FieldGeometry {
+func NewGeometry(supportedTypes GeometrySupportedTypeList) *FieldGeometry {
 	return &FieldGeometry{
-		p: NewString(value.TypeGeometry, nil),
+		st: supportedTypes,
 	}
 }
 
 func (f *FieldGeometry) TypeProperty() *TypeProperty {
 	return &TypeProperty{
-		t:     f.Type(),
+		t:        f.Type(),
 		geometry: f,
 	}
+}
+
+func (f *FieldGeometry) SupportedTypes() GeometrySupportedTypeList {
+	return slices.Clone(f.st)
 }
 
 func (f *FieldGeometry) Type() value.Type {
@@ -28,14 +37,35 @@ func (f *FieldGeometry) Clone() *FieldGeometry {
 		return nil
 	}
 	return &FieldGeometry{
-		p: f.p.Clone(),
+		st: f.SupportedTypes(),
 	}
 }
 
-func (f *FieldGeometry) Validate(v *value.Value) error {
-	return f.p.Validate(v)
+func (f *FieldGeometry) Validate(v *value.Value) (err error) {
+	v.Match(value.Match{
+		Geometry: func(a value.String) {
+			if a == "" {
+				err = ErrInvalidValue
+			}
+		},
+		Default: func() {
+			err = ErrInvalidValue
+		},
+	})
+	return
 }
 
-func (f *FieldGeometry) ValidateMultiple(v *value.Multiple) error {
-	return nil
+func (f *FieldGeometry) ValidateMultiple(v *value.Multiple) (err error) {
+	vs, ok := v.ValuesString()
+	if !ok {
+		return ErrInvalidValue
+	}
+	gmap := make(map[string]struct{})
+	for _, i := range vs {
+		if _, ok := gmap[i]; ok {
+			return ErrDuplicatedTag
+		}
+		gmap[i] = struct{}{}
+	}
+	return
 }

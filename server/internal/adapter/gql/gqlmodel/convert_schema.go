@@ -245,7 +245,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 			}
 			res = &SchemaFieldGeometry{
 				DefaultValue:   v,
-				SupportedTypes: nil,
+				SupportedTypes: lo.Map(f.SupportedTypes(), func(v schema.GeometrySupportedType, _ int) GeometrySupportedType { return GeometrySupportedType(v) }),
 			}
 		},
 	})
@@ -514,7 +514,9 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 		} else {
 			dv = FromValue(SchemaFieldTypeGeometry, x.DefaultValue).AsMultiple()
 		}
-		tpRes = schema.NewGeometry().TypeProperty()
+		tpRes = schema.NewGeometry(lo.Map(x.SupportedTypes, func(v GeometrySupportedType, _ int) schema.GeometrySupportedType {
+			return schema.GeometrySupportedType(v)
+		})).TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty
 	}
