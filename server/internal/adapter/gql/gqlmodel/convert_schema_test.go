@@ -390,3 +390,61 @@ func TestFromCorrespondingField(t *testing.T) {
 	got = FromCorrespondingField(cf)
 	assert.Equal(t, want, got)
 }
+
+func TestToGeometrySupportedType(t *testing.T) {
+	tests := []struct {
+		name string
+		arg  schema.GeometrySupportedType
+		want GeometrySupportedType
+	}{
+		{
+			name: "point",
+			arg:  schema.GeometrySupportedTypePoint,
+			want: GeometrySupportedTypePoint,
+		},
+		{
+			name: "multiPoint",
+			arg:  schema.GeometrySupportedTypeMultiPoint,
+			want: GeometrySupportedTypeMultipoint,
+		},
+		{
+			name: "lineString",
+			arg:  schema.GeometrySupportedTypeLineString,
+			want: GeometrySupportedTypeLinestring,
+		},
+		{
+			name: "multiLineString",
+			arg:  schema.GeometrySupportedTypeMultiLineString,
+			want: GeometrySupportedTypeMultilinestring,
+		},
+		{
+			name: "polygon",
+			arg:  schema.GeometrySupportedTypePolygon,
+			want: GeometrySupportedTypePolygon,
+		},
+		{
+			name: "multiPolygon",
+			arg:  schema.GeometrySupportedTypeMultiPolygon,
+			want: GeometrySupportedTypeMultipolygon,
+		},
+		{
+			name: "geometryCollection",
+			arg:  schema.GeometrySupportedTypeGeometryCollection,
+			want: GeometrySupportedTypeGeometrycollection,
+		},
+		{
+			name: "default",
+			arg:  "foo",
+			want: "",
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(tt *testing.T) {
+			tt.Parallel()
+			assert.Equal(tt, tc.want, ToGeometrySupportedType(tc.arg))
+		})
+	}
+}
+

@@ -58,6 +58,7 @@ func TestGeometrySupportedTypeFrom(t *testing.T) {
 			want: "",
 		},
 	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
