@@ -484,7 +484,7 @@ func TestTypeProperty_Validate(t *testing.T) {
 		{
 			name: "Geometry",
 			args: args{
-				tp:    &TypeProperty{t: value.TypeGeometry, geometry: NewGeometry(GeometrySupportedTypeList{"point"})},
+				tp:    &TypeProperty{t: value.TypeGeometry, geometry: NewGeometry(GeometrySupportedTypeList{"POINT"})},
 				value: value.TypeGeometry.Value("{}"),
 			},
 			want: nil,

@@ -18,33 +18,38 @@ func TestGeometrySupportedTypeFrom(t *testing.T) {
 			want: GeometrySupportedTypePoint,
 		},
 		{
+			name: "point",
+			arg:  "POINT",
+			want: GeometrySupportedTypePoint,
+		},
+		{
 			name: "multiPoint",
-			arg:  "multiPoint",
+			arg:  "MULTIPOINT",
 			want: GeometrySupportedTypeMultiPoint,
 		},
 		{
 			name: "lineString",
-			arg:  "lineString",
+			arg:  "LINESTRING",
 			want: GeometrySupportedTypeLineString,
 		},
 		{
 			name: "multiLineString",
-			arg:  "multiLineString",
+			arg:  "MULTILINESTRING",
 			want: GeometrySupportedTypeMultiLineString,
 		},
 		{
 			name: "polygon",
-			arg:  "polygon",
+			arg:  "POLYGON",
 			want: GeometrySupportedTypePolygon,
 		},
 		{
 			name: "multiPolygon",
-			arg:  "multiPolygon",
+			arg:  "MULTIPOLYGON",
 			want: GeometrySupportedTypeMultiPolygon,
 		},
 		{
 			name: "geometryCollection",
-			arg:  "geometryCollection",
+			arg:  "GEOMETRYCOLLECTION",
 			want: GeometrySupportedTypeGeometryCollection,
 		},
 		{

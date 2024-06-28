@@ -211,8 +211,8 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "geometry",
-			args: args{tp: schema.NewGeometry().TypeProperty()},
-			want: &SchemaFieldGeometry{DefaultValue: nil},
+			args: args{tp: schema.NewGeometry(schema.GeometrySupportedTypeList{"POINT"}).TypeProperty()},
+			want: &SchemaFieldGeometry{SupportedTypes: []GeometrySupportedType{"POINT"}, DefaultValue: nil},
 		},
 	}
 	for _, tt := range tests {
@@ -338,10 +338,10 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 		{
 			name: "geometry",
 			argsInp: &SchemaFieldTypePropertyInput{
-				Geometry: &SchemaFieldGeometryInput{DefaultValue: nil},
+				Geometry: &SchemaFieldGeometryInput{SupportedTypes: []GeometrySupportedType{"POINT"} ,DefaultValue: nil},
 			},
 			argsT:  SchemaFieldTypeGeometry,
-			wantTp: schema.NewGeometry().TypeProperty(),
+			wantTp: schema.NewGeometry(schema.GeometrySupportedTypeList{"POINT"}).TypeProperty(),
 		},
 		{
 			name: "tags empty",

@@ -9,9 +9,9 @@ import (
 
 func TestNewGeometry(t *testing.T) {
 	expected := &FieldGeometry{
-		st: GeometrySupportedTypeList{"point"},
+		st: GeometrySupportedTypeList{"POINT"},
 	}
-	res := NewGeometry(GeometrySupportedTypeList{"point"})
+	res := NewGeometry(GeometrySupportedTypeList{"POINT"})
 	assert.Equal(t, expected, res)
 }
 
