@@ -33,7 +33,12 @@ func TestFieldGeometry_Clone(t *testing.T) {
 
 func TestFieldGeometry_Validate(t *testing.T) {
 	supportedType := GeometrySupportedTypePoint
-	assert.NoError(t, (&FieldGeometry{st: GeometrySupportedTypeList{supportedType}}).Validate(value.TypeGeometry.Value("{}")))
+	geojson := `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`
+	assert.NoError(t, (&FieldGeometry{st: GeometrySupportedTypeList{supportedType}}).Validate(value.TypeGeometry.Value(geojson)))
+	assert.Equal(t, ErrInvalidValue, (&FieldGeometry{}).Validate(value.TypeText.Value("{}")))
 	assert.Equal(t, ErrInvalidValue, (&FieldGeometry{}).Validate(value.TypeText.Value(float64(1))))
 }
 
