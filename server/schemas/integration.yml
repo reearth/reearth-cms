@@ -4,7 +4,11 @@ info:
   description: ReEarth-CMS Integration API
   version: 1.0.0
 paths:
-  '/projects':
+  '/{workspaceId}/projects':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/perPageParam'
     get:
       operationId: ProjectFilter
       security:
@@ -38,6 +42,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
         '500':
           description: Internal server error
   '/projects/{projectIdOrAlias}/models':
@@ -1136,10 +1142,17 @@ paths:
 
 components:
   parameters:
+    workspaceIdParam:
+      name: workspaceId
+      in: path
+      description: ID of the selected workspace
+      required: true
+      schema:
+        x-go-type: accountdomain.WorkspaceID
     projectIdParam:
       name: projectId
       in: path
-      description: ID of the selected project within the selected workspace
+      description: ID of the selected project
       required: true
       schema:
         x-go-type: id.ProjectID
@@ -1575,6 +1588,8 @@ components:
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
+    NotFoundError:
+      description: The requested resource was not found
   securitySchemes:
     bearerAuth:
       type: http
