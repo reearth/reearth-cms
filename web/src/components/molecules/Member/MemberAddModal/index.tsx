@@ -20,6 +20,7 @@ interface Props {
   open: boolean;
   searchedUser?: User & { isMember: boolean };
   searchedUserList: User[];
+  addLoading: boolean;
   onUserSearch: (nameOrEmail: string) => Promise<void>;
   onUserAdd: () => void;
   onClose: () => void;
@@ -37,6 +38,7 @@ const MemberAddModal: React.FC<Props> = ({
   open,
   searchedUser,
   searchedUserList,
+  addLoading,
   onUserSearch,
   onUserAdd,
   onClose,
@@ -66,28 +68,18 @@ const MemberAddModal: React.FC<Props> = ({
     [changeSearchedUserList],
   );
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(() => {
-        if (searchedUserList.length > 0) {
-          onSubmit(
-            searchedUserList.map(user => {
-              return {
-                userId: user.id,
-                role: "READER",
-              };
-            }),
-          );
-        }
-        changeSearchedUser(undefined);
-        changeSearchedUserList([]);
-        onClose();
-        form.resetFields();
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
+  const handleSubmit = useCallback(async () => {
+    if (searchedUserList.length === 0) return;
+    await onSubmit(
+      searchedUserList.map(user => ({
+        userId: user.id,
+        role: "READER",
+      })),
+    );
+    changeSearchedUser(undefined);
+    changeSearchedUserList([]);
+    onClose();
+    form.resetFields();
   }, [form, searchedUserList, changeSearchedUser, changeSearchedUserList, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
@@ -102,13 +94,14 @@ const MemberAddModal: React.FC<Props> = ({
       open={open}
       onCancel={handleClose}
       footer={[
-        <Button key="back" onClick={handleClose}>
+        <Button key="back" onClick={handleClose} disabled={addLoading}>
           {t("Cancel")}
         </Button>,
         <Button
           key="submit"
           type="primary"
           onClick={handleSubmit}
+          loading={addLoading}
           disabled={searchedUserList.length === 0}>
           {t("Add to workspace")}
         </Button>,

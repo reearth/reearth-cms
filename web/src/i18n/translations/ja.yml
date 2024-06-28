@@ -11,11 +11,12 @@ Assets: アセット
 Private: 非公開
 Public: 公開
 Accessibility: 公開設定
-Public Scope: 公開
+Public Scope: 公開範囲
 Choose the scope of your project. This affects all the models shown below that are switched on.: プロジェクトの公開範囲を選択してください。この操作は以下のすべてのモデルに影響します。
 Project Alias: プロジェクトエイリアス
 Save changes: 変更を保存
 Are you sure you want to delete your account?: 本当にアカウントを削除してよろしいですか？
+Cancel: キャンセル
 Danger Zone: 重要操作
 Delete Personal Account: アカウントを削除
 Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: アカウントとそれに関連するすべてのコンテンツを削除します。この操作は取り消すことができません。よろしいですか？
@@ -71,13 +72,12 @@ Auto Unzip: 自動解凍
 Remove file: ファイルを削除
 Click or drag files to this area to upload: このエリアにファイルをクリックまたはドラッグしてアップロードします
 Single or multiple file upload is supported: 複数のファイルのアップロードが可能です。
-Asset Uploader: アセットアップローダー
-Local: ローカル
-URL: ''
-Cancel: キャンセル
 Uploading: アップロード中
 Upload and Link: アップロードとリンク
 Upload: アップロード
+Asset Uploader: アセットアップローダー
+Local: ローカル
+URL: ''
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
@@ -127,7 +127,7 @@ Item Information: アイテムの情報
 Updated At: 更新日時
 Updated By: 更新者
 Publish State: 公開状態
-This item has been referenced: このアイテムは参照されました
+This item has been referenced: このアイテムは参照されています
 Are you going to refer to it? The previous reference will be canceled automatically: 参照しますか？以前の参照は自動的に解除されますがよろしいですか？
 State: ステータス
 Reviewers: レビュワー
@@ -166,6 +166,9 @@ Filter: フィルター
 Add Filter: 絞り込む
 Add Sort: 並び替える
 Control: 操作
+DRAFT: ドラフト
+PUBLIC: 公開
+REVIEW: レビュー
 Connect Integration: インテグレーションを連携
 Connect: 連携
 Integration Setting: インテグレーション設定
@@ -254,7 +257,6 @@ Approve: 承認
 Approved: 承認済み
 Closed: クローズ済み
 Assign to: 割り当てる
-DRAFT: ドラフト
 APPROVED: 承認済
 CLOSED: クローズ済
 WAITING: レビュー待ち
@@ -472,6 +474,7 @@ Failed to update group.: グループの更新に失敗しました。
 Successfully updated group!: グループの更新に成功しました！
 No available Group: グループなし
 Please create a Group first to use the field: フィールドを使用するには、まずグループを作成してください。
+Create Group: グループを作成
 Failed to update project.: プロジェクトの更新に失敗しました。
 Successfully updated project!: プロジェクトの更新に成功しました。
 Failed to update request roles.: リクエストロールの更新に失敗しました。

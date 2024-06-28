@@ -510,7 +510,7 @@ export default () => {
     [createRequestMutation, currentProject?.id, t],
   );
 
-  const [updateRequestMutation] = useUpdateRequestMutation({
+  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation({
     refetchQueries: ["GetRequests"],
   });
 
@@ -610,6 +610,7 @@ export default () => {
     handleNavigateToModel,
     handleBack,
     handleRequestCreate,
+    updateRequestLoading,
     handleRequestUpdate,
     handleModalClose,
     handleModalOpen,

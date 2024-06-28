@@ -49,6 +49,8 @@ const ProjectSchema: React.FC = () => {
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
+    deleteModelLoading,
+    deleteGroupLoading,
     setCollapsed,
     selectedSchemaType,
     handleModelSelect,
@@ -112,6 +114,7 @@ const ProjectSchema: React.FC = () => {
       <DeletionModal
         data={data}
         open={modelDeletionModalShown || groupDeletionModalShown}
+        deleteLoading={deleteModelLoading || deleteGroupLoading}
         onDelete={handleSchemaDelete}
         onClose={handleDeletionModalClose}
         isModel={modelDeletionModalShown}

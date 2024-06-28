@@ -24,7 +24,9 @@ interface Props {
   collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];
-  itemsDataLoading: boolean;
+  loading: boolean;
+  deleteLoading: boolean;
+  unpublishLoading: boolean;
   contentTableColumns?: ExtendedColumns[];
   modelsMenu: React.ReactNode;
   selectedItem?: Item;
@@ -70,7 +72,9 @@ const ContentListMolecule: React.FC<Props> = ({
   contentTableFields,
   contentTableColumns,
   modelsMenu,
-  itemsDataLoading,
+  loading,
+  deleteLoading,
+  unpublishLoading,
   selectedItem,
   selection,
   totalCount,
@@ -139,7 +143,9 @@ const ContentListMolecule: React.FC<Props> = ({
             searchTerm={searchTerm}
             page={page}
             pageSize={pageSize}
-            loading={itemsDataLoading}
+            loading={loading}
+            deleteLoading={deleteLoading}
+            unpublishLoading={unpublishLoading}
             selectedItem={selectedItem}
             selection={selection}
             onUnpublish={onUnpublish}

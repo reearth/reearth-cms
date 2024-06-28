@@ -25,6 +25,7 @@ interface Props {
   onSearchTerm: (term?: string) => void;
   onIntegrationSettingsModalOpen: (integrationMember: IntegrationMember) => void;
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
+  deleteLoading: boolean;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
   page: number;
   pageSize: number;
@@ -40,6 +41,7 @@ const IntegrationTable: React.FC<Props> = ({
   onSearchTerm,
   onIntegrationSettingsModalOpen,
   setSelection,
+  deleteLoading,
   onIntegrationRemove,
   page,
   pageSize,
@@ -128,16 +130,26 @@ const IntegrationTable: React.FC<Props> = ({
   const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => (
-      <Space size={16}>
-        <DeselectButton onClick={props.onCleanSelected}>
-          <Icon icon="clear" /> {t("Deselect")}
-        </DeselectButton>
-        <DeleteButton onClick={() => onIntegrationRemove(props.selectedRowKeys)}>
-          <Icon icon="delete" /> {t("Remove")}
-        </DeleteButton>
+      <Space size={4}>
+        <Button
+          type="link"
+          size="small"
+          icon={<Icon icon="clear" />}
+          onClick={props.onCleanSelected}>
+          {t("Deselect")}
+        </Button>
+        <Button
+          type="link"
+          size="small"
+          icon={<Icon icon="delete" />}
+          onClick={() => onIntegrationRemove(props.selectedRowKeys)}
+          danger
+          loading={deleteLoading}>
+          {t("Remove")}
+        </Button>
       </Space>
     ),
-    [onIntegrationRemove, t],
+    [deleteLoading, onIntegrationRemove, t],
   );
 
   const options = useMemo(
@@ -227,19 +239,6 @@ const Title = styled.h1`
   font-size: 16px;
   line-height: 24px;
   color: #000;
-`;
-
-const DeselectButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
-  :hover {
-    color: #ff7875b3;
-  }
 `;
 
 const StyledIcon = styled(Icon)`

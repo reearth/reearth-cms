@@ -18,6 +18,8 @@ const ContentList: React.FC = () => {
     selectedItem,
     selection,
     loading,
+    deleteLoading,
+    unpublishLoading,
     totalCount,
     views,
     currentView,
@@ -92,7 +94,9 @@ const ContentList: React.FC = () => {
       selectedItem={selectedItem}
       onItemSelect={handleItemSelect}
       collapsed={collapsedModelMenu}
-      itemsDataLoading={loading}
+      loading={loading}
+      deleteLoading={deleteLoading}
+      unpublishLoading={unpublishLoading}
       currentView={currentView}
       setCurrentView={setCurrentView}
       totalCount={totalCount}

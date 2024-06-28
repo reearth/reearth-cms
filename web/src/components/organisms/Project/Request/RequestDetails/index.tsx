@@ -10,7 +10,9 @@ const RequestDetails: React.FC = () => {
     isCloseActionEnabled,
     isApproveActionEnabled,
     currentRequest,
-    loading: loadingRequest,
+    loading,
+    deleteLoading,
+    approveLoading,
     handleRequestApprove,
     handleRequestDelete,
     handleCommentCreate,
@@ -21,7 +23,8 @@ const RequestDetails: React.FC = () => {
 
   const { handleGetAsset } = useAssetHooks(false);
 
-  const { workspaceUserMembers, handleRequestUpdate, handleGroupGet } = useContentHooks();
+  const { workspaceUserMembers, updateRequestLoading, handleRequestUpdate, handleGroupGet } =
+    useContentHooks();
 
   return (
     <RequestDetailsMolecule
@@ -30,6 +33,9 @@ const RequestDetails: React.FC = () => {
       isApproveActionEnabled={isApproveActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
+      deleteLoading={deleteLoading}
+      approveLoading={approveLoading}
+      updateLoading={updateRequestLoading}
       onRequestApprove={handleRequestApprove}
       onRequestUpdate={handleRequestUpdate}
       onRequestDelete={handleRequestDelete}
@@ -37,7 +43,7 @@ const RequestDetails: React.FC = () => {
       onCommentUpdate={handleCommentUpdate}
       onCommentDelete={handleCommentDelete}
       onBack={handleNavigateToRequestsList}
-      loading={loadingRequest}
+      loading={loading}
       onGetAsset={handleGetAsset}
       onGroupGet={handleGroupGet}
     />

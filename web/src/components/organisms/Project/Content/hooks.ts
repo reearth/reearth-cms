@@ -95,7 +95,7 @@ export default () => {
     [publishItem, t],
   );
 
-  const [unpublishItem] = useUnpublishItemMutation();
+  const [unpublishItem, { loading: unpublishLoading }] = useUnpublishItemMutation();
 
   const handleUnpublish = useCallback(
     async (itemIds: string[]) => {
@@ -157,6 +157,7 @@ export default () => {
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     loading,
+    unpublishLoading,
     totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,

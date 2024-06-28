@@ -11,12 +11,20 @@ import { useT } from "@reearth-cms/i18n";
 interface Props {
   open: boolean;
   data?: Model | Group;
+  deleteLoading: boolean;
   onClose: () => void;
   onDelete: (modelId?: string) => Promise<void>;
   isModel: boolean;
 }
 
-const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel }) => {
+const DeletionModal: React.FC<Props> = ({
+  open,
+  data,
+  deleteLoading,
+  onClose,
+  onDelete,
+  isModel,
+}) => {
   const t = useT();
   const title = useMemo(() => (isModel ? t("Delete Model") : t("Delete Group")), [isModel, t]);
   const confirmation = useMemo(
@@ -40,10 +48,15 @@ const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel
       open={open}
       onCancel={onClose}
       footer={[
-        <Button key="back" onClick={onClose}>
+        <Button key="back" onClick={onClose} disabled={deleteLoading}>
           {t("Cancel")}
         </Button>,
-        <Button key="submit" type="primary" onClick={() => onDelete(data?.id)} danger>
+        <Button
+          key="submit"
+          type="primary"
+          onClick={() => onDelete(data?.id)}
+          danger
+          loading={deleteLoading}>
           {title}
         </Button>,
       ]}>
