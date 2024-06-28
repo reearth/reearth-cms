@@ -1,6 +1,10 @@
 package schema
 
 import (
+	"encoding/json"
+	"strings"
+
+	geojson "github.com/paulmach/go.geojson"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"golang.org/x/exp/slices"
 )
@@ -41,10 +45,38 @@ func (f *FieldGeometry) Clone() *FieldGeometry {
 	}
 }
 
+// IsValidGeoJSON uses the go.geojson library to validate a GeoJSON string
+func IsValidGeoJSON(data string) bool {
+	if len(strings.TrimSpace(data)) == 0 {
+		return false
+	}
+
+	var raw map[string]interface{}
+	if err := json.Unmarshal([]byte(data), &raw); err != nil {
+		return false
+	}
+
+	geoType, ok := raw["type"].(string)
+	if !ok {
+		return false
+	}
+
+	switch geoType {
+	case "Feature":
+		_, err := geojson.UnmarshalFeature([]byte(data))
+		return err == nil
+	case "Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon", "GeometryCollection":
+		_, err := geojson.UnmarshalGeometry([]byte(data))
+		return err == nil
+	default:
+		return false
+	}
+}
+
 func (f *FieldGeometry) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Geometry: func(a value.String) {
-			if a == "" {
+			if !IsValidGeoJSON(a) {
 				err = ErrInvalidValue
 			}
 		},
@@ -56,16 +88,5 @@ func (f *FieldGeometry) Validate(v *value.Value) (err error) {
 }
 
 func (f *FieldGeometry) ValidateMultiple(v *value.Multiple) (err error) {
-	vs, ok := v.ValuesString()
-	if !ok {
-		return ErrInvalidValue
-	}
-	gmap := make(map[string]struct{})
-	for _, i := range vs {
-		if _, ok := gmap[i]; ok {
-			return ErrDuplicatedTag
-		}
-		gmap[i] = struct{}{}
-	}
-	return
+	return nil
 }

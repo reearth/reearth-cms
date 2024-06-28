@@ -25,6 +25,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/oapi-codegen/runtime v1.1.1
+	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.15.0
 	github.com/reearth/reearthx v0.0.0-20240308140749-72a08570c19b
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68

@@ -36,3 +36,58 @@ func TestFieldGeometry_Validate(t *testing.T) {
 	assert.NoError(t, (&FieldGeometry{st: GeometrySupportedTypeList{supportedType}}).Validate(value.TypeGeometry.Value("{}")))
 	assert.Equal(t, ErrInvalidValue, (&FieldGeometry{}).Validate(value.TypeText.Value(float64(1))))
 }
+
+func TestIsValidGeoJSON(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected bool
+	}{
+		{
+			name: "valid GeoJSON feature",
+			input: `{
+				"type": "Feature",
+				"geometry": {
+					"type": "Point",
+					"coordinates": [102.0, 0.5]
+				},
+				"properties": {
+					"prop0": "value0"
+				}
+			}`,
+			expected: true,
+		},
+		{
+			name: "valid GeoJSON geometry",
+			input: `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`,
+			expected: true,
+		},
+		{
+			name: "invalid GeoJSON type",
+			input: `{
+				"type": "InvalidType",
+				"coordinates": [102.0, 0.5]
+			}`,
+			expected: false,
+		},
+		{
+			name:     "empty string",
+			input:    ``,
+			expected: false,
+		},
+		{
+			name:     "random string",
+			input:    `random string`,
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, IsValidGeoJSON(tt.input))
+		})
+	}
+}
