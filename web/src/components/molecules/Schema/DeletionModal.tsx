@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import { useMemo } from "react";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
@@ -6,7 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { useT } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 
 interface Props {
   open: boolean;
@@ -21,11 +20,14 @@ const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel
   const title = useMemo(() => (isModel ? t("Delete Model") : t("Delete Group")), [isModel, t]);
   const confirmation = useMemo(
     () =>
-      isModel
-        ? t("Are you sure you want to delete the model")
-        : t("Are you sure you want to delete the group"),
-    [isModel, t],
+      isModel ? (
+        <Trans i18nKey="Are you sure you want to delete this model" values={{ name: data?.name }} />
+      ) : (
+        <Trans i18nKey="Are you sure you want to delete this group" values={{ name: data?.name }} />
+      ),
+    [data?.name, isModel],
   );
+
   const description = useMemo(
     () =>
       isModel
@@ -47,17 +49,10 @@ const DeletionModal: React.FC<Props> = ({ open, data, onClose, onDelete, isModel
           {title}
         </Button>,
       ]}>
-      <p>
-        {confirmation}
-        <Name> {data?.name} </Name>?
-      </p>
+      <p>{confirmation}</p>
       <Alert message={t("Warning")} description={description} type="warning" showIcon />
     </Modal>
   );
 };
 
 export default DeletionModal;
-
-const Name = styled.span`
-  font-weight: 600;
-`;

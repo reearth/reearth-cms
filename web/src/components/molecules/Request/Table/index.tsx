@@ -142,8 +142,8 @@ const RequestListTable: React.FC<Props> = ({
           { text: t("DRAFT"), value: "DRAFT" },
         ],
         defaultFilteredValue: requestState,
-        width: 100,
-        minWidth: 100,
+        width: 130,
+        minWidth: 130,
       },
       {
         title: t("Created By"),
