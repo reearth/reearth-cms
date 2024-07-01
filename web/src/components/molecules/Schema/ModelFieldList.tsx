@@ -132,18 +132,18 @@ const ModelFieldList: React.FC<Props> = ({
                     <FieldThumbnail>
                       <DragIcon icon="menu" className="grabbable" />
                       <StyledIcon
-                        icon={fieldTypes[(item as Field).type].icon}
-                        color={fieldTypes[(item as Field).type].color}
+                        icon={fieldTypes[item.type].icon}
+                        color={fieldTypes[item.type].color}
                       />
                     </FieldThumbnail>
                   }
                   title={
                     <ItemTitle>
-                      <ItemTitleHeading>{(item as Field).title}</ItemTitleHeading>
-                      {(item as Field).required ? " *" : ""}
-                      <ItemKey>#{(item as Field).key}</ItemKey>
-                      {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
-                      {(item as Field).isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
+                      <ItemTitleHeading>{item.title}</ItemTitleHeading>
+                      {item.required ? " *" : ""}
+                      <ItemKey>#{item.key}</ItemKey>
+                      {item.unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
+                      {item.isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
                     </ItemTitle>
                   }
                 />
