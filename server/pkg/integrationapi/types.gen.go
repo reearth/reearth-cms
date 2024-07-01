@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 const (
@@ -341,6 +342,9 @@ type SortDirParam string
 // SortParam defines model for sortParam.
 type SortParam string
 
+// WorkspaceIdParam defines model for workspaceIdParam.
+type WorkspaceIdParam = accountdomain.WorkspaceID
+
 // AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
 type AssetCommentCreateJSONBody struct {
 	Content *string `json:"content,omitempty"`
@@ -562,6 +566,15 @@ type AssetUploadCreateJSONBody struct {
 	ContentLength *int    `json:"contentLength,omitempty"`
 	Cursor        *string `json:"cursor,omitempty"`
 	Name          *string `json:"name,omitempty"`
+}
+
+// ProjectFilterParams defines parameters for ProjectFilter.
+type ProjectFilterParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
 }
 
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
