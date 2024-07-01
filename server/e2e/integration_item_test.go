@@ -3,8 +3,6 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 	"net/http"
 	"net/url"
 	"testing"
@@ -31,10 +29,13 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/slices"
 )
 
 var (
 	secret = "secret_1234567890"
+	wId0   = accountdomain.NewWorkspaceID()
 	uId    = accountdomain.NewUserID()
 	iId    = id.NewIntegrationID()
 	mId1   = id.NewModelID()
@@ -111,7 +112,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	w := workspace.New().NewID().
+	w := workspace.New().
+		ID(wId0).
 		Name("e2e").
 		Personal(false).
 		Members(map[accountdomain.UserID]workspace.Member{uId: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
@@ -121,7 +123,8 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	p := project.New().ID(pid).
+	p := project.New().
+		ID(pid).
 		Name("p1").
 		Description("p1 desc").
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
