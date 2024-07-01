@@ -27,7 +27,7 @@ func (s *Server) ProjectFilter(ctx context.Context, request ProjectFilterRequest
 	if err != nil {
 		return nil, err
 	}
-	if res == nil || len(res) == 0 {
+	if len(res) == 0 {
 		return ProjectFilter200JSONResponse{
 			Projects:   nil,
 			Page:       lo.ToPtr(Page(*p.Offset)),
