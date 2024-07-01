@@ -53,7 +53,7 @@ const WebhookList: React.FC<Props> = ({
         <EmptyListWrapper>
           <Title>{t("No Webhook yet")}</Title>
           <Suggestion>
-            {t("Create a new ")}
+            <Text>{t("Create a new")}</Text>
             <Button onClick={onShowForm} type="primary" icon={<Icon icon="plus" />}>
               {t("New Webhook")}
             </Button>
@@ -72,11 +72,15 @@ const ActionWrapper = styled.div`
 `;
 
 const Suggestion = styled.p`
-  margin: 8px 0;
+  margin-bottom: 8px;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
   color: #00000073;
+`;
+
+const Text = styled.span`
+  margin-right: 8px;
 `;
 
 const EmptyListWrapper = styled.div`
@@ -92,11 +96,12 @@ const ListWrapper = styled.div`
   padding: 12px;
 `;
 
-const Title = styled.h1`
+const Title = styled.p`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
   color: #000;
+  margin-bottom: 24px;
 `;
 
 export default WebhookList;

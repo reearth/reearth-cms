@@ -115,7 +115,7 @@ const MemberTable: React.FC<Props> = ({
     name: member.user.name,
     thumbnail: <UserAvatar username={member.user.name} />,
     email: member.user.email,
-    role: member.role,
+    role: t(member.role),
     action: member.userId !== me?.id && (
       <RoleButton type="link" onClick={() => handleRoleModalOpen(member)} disabled={!owner}>
         {t("Change Role?")}
