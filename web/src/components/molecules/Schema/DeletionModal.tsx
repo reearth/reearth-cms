@@ -1,12 +1,11 @@
 import { useMemo } from "react";
-import { Trans } from "react-i18next";
 
 import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { useT } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 
 interface Props {
   open: boolean;

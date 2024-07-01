@@ -113,6 +113,7 @@ Workspace: ワークスペース
 Account: アカウント
 Please input field!: フィールドを入力してください。
 Please select an option!: オプションを選択してください。
+URL is not valid: 無効なURLです
 unique: ユニーク
 Title: タイトル
 Leave: 離れる
@@ -226,7 +227,6 @@ This is your webhook name: Webhookの名前です
 Please input the name of the webhook!: Webhookの名前を入力してください
 Url: URL
 Please note that all webhook URLs must start with http://.: WebhookのURLがhttp://で始まることを確認してください
-URL is not valid: 無効なURLです
 Secret: 選択
 This secret will be used to sign Webhook request: このシークレットはWebhookのリクエストを署名する時に使用されます。
 Please input secret!: シークレットを入力してください。
@@ -319,25 +319,25 @@ options: オプション
 Ensures that multiple entries can't have the same value for this field: このフィールドには同じ値のエントリーを持つことができません。
 Default value: デフォルト値
 Heading and titles, one-line field: タイトルなどに利用する1行のフィールドです。
+TextArea: テキストエリア
 Multi line text: 複数行テキスト
+Markdown text: マークダウン
 Rich text which supports md style: マークダウン対応のリッチテキスト
 Asset file: アセット
 true/false field: 真偽
+Option: 選択
 Multiple select: 複数選択
+Int: 整数
 Integer: 整数
 http/https URL: URL
+Reference: 参照
 Reference other models and items: 他のモデルやアイテムを参照
+Date: 日付
 Date picker: 日付ピッカー
 Select from a list of tags: タグのリストから選択する
+Check Box: チェックボックス
 Select from a list of checkboxes: チェックボックスのリストから選択する
 Customize a group of fields: フィールドのグループをカスタマイズ
-TextArea: テキストエリア
-Markdown text: マークダウン
-Option: 選択
-Int: 整数
-Date: 日付
-Reference: 参照
-Check Box: チェックボックス
 Update Model: モデルを更新
 Update Group: グループを更新
 New Group: 新規グループ

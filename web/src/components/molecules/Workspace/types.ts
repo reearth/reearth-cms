@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
 
@@ -33,10 +35,10 @@ export interface MemberInput {
 }
 
 export type Role = "WRITER" | "READER" | "MAINTAINER" | "OWNER";
-// t("WRITER");
-// t("READER");
-// t("MAINTAINER");
-// t("OWNER");
+t("WRITER");
+t("READER");
+t("MAINTAINER");
+t("OWNER");
 
 export interface Workspace {
   id: string;

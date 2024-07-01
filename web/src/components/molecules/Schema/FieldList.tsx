@@ -100,7 +100,7 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}
-                  description={fieldTypes[field].description}
+                  description={t(fieldTypes[field].description)}
                 />
               </List.Item>
             ))}
