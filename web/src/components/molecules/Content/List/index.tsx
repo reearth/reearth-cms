@@ -123,57 +123,61 @@ const ContentListMolecule: React.FC<Props> = ({
       }
       center={
         <Content>
-          <StyledPageHeder
-            title={model?.name}
-            subTitle={model?.key ? `#${model.key}` : null}
-            extra={
-              <Button
-                type="primary"
-                onClick={onItemAdd}
-                icon={<Icon icon="plus" />}
-                disabled={!model}>
-                {t("New Item")}
-              </Button>
-            }
-          />
-          {viewsMenu}
-          <ContentTable
-            totalCount={totalCount}
-            currentView={currentView}
-            searchTerm={searchTerm}
-            page={page}
-            pageSize={pageSize}
-            loading={loading}
-            deleteLoading={deleteLoading}
-            unpublishLoading={unpublishLoading}
-            selectedItem={selectedItem}
-            selection={selection}
-            onUnpublish={onUnpublish}
-            onSearchTerm={onSearchTerm}
-            onFilterChange={onFilterChange}
-            onContentTableChange={onContentTableChange}
-            setSelection={setSelection}
-            onItemSelect={onItemSelect}
-            onItemsReload={onItemsReload}
-            onItemEdit={onItemEdit}
-            contentTableFields={contentTableFields}
-            contentTableColumns={contentTableColumns}
-            onItemDelete={onItemDelete}
-            requests={requests}
-            addItemToRequestModalShown={addItemToRequestModalShown}
-            onAddItemToRequest={onAddItemToRequest}
-            onAddItemToRequestModalClose={onAddItemToRequestModalClose}
-            onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
-            onRequestTableChange={onRequestTableChange}
-            requestModalLoading={requestModalLoading}
-            requestModalTotalCount={requestModalTotalCount}
-            requestModalPage={requestModalPage}
-            requestModalPageSize={requestModalPageSize}
-            setCurrentView={setCurrentView}
-            modelKey={model?.key}
-            onRequestSearchTerm={onRequestSearchTerm}
-            onRequestTableReload={onRequestTableReload}
-          />
+          {model && (
+            <>
+              <StyledPageHeder
+                title={model?.name}
+                subTitle={model?.key ? `#${model.key}` : null}
+                extra={
+                  <Button
+                    type="primary"
+                    onClick={onItemAdd}
+                    icon={<Icon icon="plus" />}
+                    disabled={!model}>
+                    {t("New Item")}
+                  </Button>
+                }
+              />
+              {viewsMenu}
+              <ContentTable
+                totalCount={totalCount}
+                currentView={currentView}
+                searchTerm={searchTerm}
+                page={page}
+                pageSize={pageSize}
+                loading={loading}
+                deleteLoading={deleteLoading}
+                unpublishLoading={unpublishLoading}
+                selectedItem={selectedItem}
+                selection={selection}
+                onUnpublish={onUnpublish}
+                onSearchTerm={onSearchTerm}
+                onFilterChange={onFilterChange}
+                onContentTableChange={onContentTableChange}
+                setSelection={setSelection}
+                onItemSelect={onItemSelect}
+                onItemsReload={onItemsReload}
+                onItemEdit={onItemEdit}
+                contentTableFields={contentTableFields}
+                contentTableColumns={contentTableColumns}
+                onItemDelete={onItemDelete}
+                requests={requests}
+                addItemToRequestModalShown={addItemToRequestModalShown}
+                onAddItemToRequest={onAddItemToRequest}
+                onAddItemToRequestModalClose={onAddItemToRequestModalClose}
+                onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
+                onRequestTableChange={onRequestTableChange}
+                requestModalLoading={requestModalLoading}
+                requestModalTotalCount={requestModalTotalCount}
+                requestModalPage={requestModalPage}
+                requestModalPageSize={requestModalPageSize}
+                setCurrentView={setCurrentView}
+                modelKey={model?.key}
+                onRequestSearchTerm={onRequestSearchTerm}
+                onRequestTableReload={onRequestTableReload}
+              />
+            </>
+          )}
         </Content>
       }
       right={commentsPanel}

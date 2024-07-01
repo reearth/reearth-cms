@@ -129,8 +129,8 @@ const AssetListTable: React.FC<Props> = ({
         title: t("Preview Type"),
         dataIndex: "previewType",
         key: "previewType",
-        width: 120,
-        minWidth: 120,
+        width: 145,
+        minWidth: 145,
       },
       {
         title: t("Status"),

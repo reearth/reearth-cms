@@ -95,55 +95,63 @@ const ModelFieldList: React.FC<Props> = ({
           </List.Item>
         </FieldStyledList>
       )}
-      <ReactDragListView
-        nodeSelector=".ant-list-item"
-        lineClassName="dragLine"
-        onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
-        <FieldStyledList itemLayout="horizontal">
-          {data?.map((item, index) => (
-            <List.Item
-              className="draggable-item"
-              key={index}
-              actions={[
-                <Button
-                  type="text"
-                  shape="circle"
-                  size="small"
-                  onClick={() => handleFieldDeleteConfirmation(item.id)}
-                  icon={<Icon icon="delete" color="#8c8c8c" />}
-                />,
-                <Button
-                  type="text"
-                  shape="circle"
-                  size="small"
-                  onClick={() => handleFieldUpdateModalOpen(item)}
-                  icon={<Icon icon="ellipsis" color="#8c8c8c" />}
-                />,
-              ]}>
-              <List.Item.Meta
-                avatar={
-                  <FieldThumbnail>
-                    <DragIcon icon="menu" className="grabbable" />
-                    <StyledIcon
-                      icon={fieldTypes[(item as Field).type].icon}
-                      color={fieldTypes[(item as Field).type].color}
-                    />
-                  </FieldThumbnail>
-                }
-                title={
-                  <ItemTitle>
-                    <ItemTitleHeading>{(item as Field).title}</ItemTitleHeading>
-                    {(item as Field).required ? " *" : ""}
-                    <ItemKey>#{(item as Field).key}</ItemKey>
-                    {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
-                    {(item as Field).isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
-                  </ItemTitle>
-                }
-              />
-            </List.Item>
-          ))}
-        </FieldStyledList>
-      </ReactDragListView>
+      {!isMeta && !fields?.length ? (
+        <EmptyText>
+          {t("Empty Schema design.")}
+          <br />
+          {t("Please add some field from right panel.")}
+        </EmptyText>
+      ) : (
+        <ReactDragListView
+          nodeSelector=".ant-list-item"
+          lineClassName="dragLine"
+          onDragEnd={onDragEnd}>
+          <FieldStyledList itemLayout="horizontal">
+            {data?.map((item, index) => (
+              <List.Item
+                className="draggable-item"
+                key={index}
+                actions={[
+                  <Button
+                    type="text"
+                    shape="circle"
+                    size="small"
+                    onClick={() => handleFieldDeleteConfirmation(item.id)}
+                    icon={<Icon icon="delete" color="#8c8c8c" />}
+                  />,
+                  <Button
+                    type="text"
+                    shape="circle"
+                    size="small"
+                    onClick={() => handleFieldUpdateModalOpen(item)}
+                    icon={<Icon icon="ellipsis" color="#8c8c8c" />}
+                  />,
+                ]}>
+                <List.Item.Meta
+                  avatar={
+                    <FieldThumbnail>
+                      <DragIcon icon="menu" className="grabbable" />
+                      <StyledIcon
+                        icon={fieldTypes[(item as Field).type].icon}
+                        color={fieldTypes[(item as Field).type].color}
+                      />
+                    </FieldThumbnail>
+                  }
+                  title={
+                    <ItemTitle>
+                      <ItemTitleHeading>{(item as Field).title}</ItemTitleHeading>
+                      {(item as Field).required ? " *" : ""}
+                      <ItemKey>#{(item as Field).key}</ItemKey>
+                      {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
+                      {(item as Field).isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
+                    </ItemTitle>
+                  }
+                />
+              </List.Item>
+            ))}
+          </FieldStyledList>
+        </ReactDragListView>
+      )}
     </>
   );
 };
@@ -176,7 +184,7 @@ const FieldThumbnail = styled.div`
 `;
 
 const FieldStyledList = styled(List)`
-  padding-top: 24px;
+  padding-top: 12px;
   .ant-list-empty-text {
     display: none;
   }
@@ -240,6 +248,12 @@ const ItemTitleTag = styled(Tag)`
   margin-left: 4px;
   color: rgba(0, 0, 0, 0.45);
   background-color: #fafafa;
+`;
+
+const EmptyText = styled.p`
+  margin: 25vh auto 0;
+  color: #898989;
+  text-align: center;
 `;
 
 export default ModelFieldList;

@@ -125,6 +125,7 @@ const ProjectSchema: React.FC = () => {
           selectedType={selectedType}
           selectedField={selectedField}
           open={fieldModalShown}
+          isLoading={fieldUpdateLoading || fieldCreationLoading}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldModalClose}
           onSubmit={handleFieldCreate}
