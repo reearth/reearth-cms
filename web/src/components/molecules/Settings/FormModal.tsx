@@ -94,6 +94,18 @@ const FormModal: React.FC<Props> = ({
     }
   }, [form, index, isTile, open, options, terrains, tiles]);
 
+  const title = useMemo(
+    () =>
+      index === undefined
+        ? isTile
+          ? t("New Tiles")
+          : t("New Terrain")
+        : isTile
+          ? t("Update Tiles")
+          : t("Update Terrain"),
+    [index, isTile, t],
+  );
+
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -172,7 +184,7 @@ const FormModal: React.FC<Props> = ({
     <Modal
       open={open}
       onCancel={handleClose}
-      title={isTile ? t("New Tiles") : t("New Terrain")}
+      title={title}
       footer={[
         <Button key="submit" type="primary" onClick={handleSubmit}>
           OK
