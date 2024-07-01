@@ -88,7 +88,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
         initialValues={{ role: selectedIntegrationMember?.integrationRole }}>
         <Form.Item
           name="role"
-          label="Role"
+          label={t("Role")}
           rules={[
             {
               required: true,

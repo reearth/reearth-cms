@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -151,11 +152,20 @@ const FormModal: React.FC<Props> = ({
     <Modal
       open={open}
       onCancel={handleClose}
-      onOk={handleSubmit}
-      cancelButtonProps={{ disabled: isLoading }}
-      okButtonProps={{ disabled: isDisabled }}
-      confirmLoading={isLoading}
-      title={title}>
+      title={title}
+      footer={[
+        <Button key="cancel" onClick={handleClose} disabled={isLoading}>
+          {t("Cancel")}
+        </Button>,
+        <Button
+          key="ok"
+          type="primary"
+          loading={isLoading}
+          onClick={handleSubmit}
+          disabled={isDisabled}>
+          {t("OK")}
+        </Button>,
+      ]}>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <Form.Item
           name="name"

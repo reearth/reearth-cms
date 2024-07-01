@@ -191,6 +191,14 @@ export default (
     }
   }, []);
 
+  const values = Form.useWatch([], form);
+  useEffect(() => {
+    form
+      .validateFields({ validateOnly: true })
+      .then(() => setButtonDisabled(false))
+      .catch(() => setButtonDisabled(true));
+  }, [form, values]);
+
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (selectedField) return;
@@ -232,6 +240,7 @@ export default (
 
   const handleModalCancel = useCallback(() => {
     setMultipleValue(false);
+    setButtonDisabled(true);
     onClose();
   }, [onClose]);
 
@@ -248,7 +257,6 @@ export default (
   return {
     form,
     buttonDisabled,
-    setButtonDisabled,
     activeTab,
     selectedValues,
     selectedTags,

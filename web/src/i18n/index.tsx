@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+export { Trans } from "react-i18next";
 export { default as Provider } from "./provider";
 export { localesWithLabel } from "./locale";
 

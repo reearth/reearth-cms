@@ -25,8 +25,6 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text");
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill("text");
   await page.getByLabel("Use as title").check();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
@@ -34,8 +32,6 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.locator("li").filter({ hasText: "Boolean" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("boolean");
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill("boolean");
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await page.getByText("Content").click();
@@ -66,8 +62,6 @@ test("One-way reference field creating and updating has succeeded", async ({ pag
   await page.getByRole("button", { name: "Next" }).click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("ref");
-  await page.getByLabel("Field Key").click();
-  await page.getByLabel("Field Key").fill("ref");
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("ref description");
   await expect(
@@ -144,8 +138,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text");
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill("text");
   await page.getByLabel("Use as title").check();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
@@ -167,8 +159,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("text");
-  await page.getByLabel("Settings").locator("#key").click();
-  await page.getByLabel("Settings").locator("#key").fill("text");
   await page.getByLabel("Use as title").check();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
@@ -179,8 +169,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "Next" }).click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("ref1");
-  await page.getByLabel("Field Key").click();
-  await page.getByLabel("Field Key").fill("ref1");
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("ref1 description");
   await expect(
@@ -195,8 +183,6 @@ test("Two-way reference field editing has succeeded", async ({ page }) => {
 
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("ref2");
-  await page.getByLabel("Field Key").click();
-  await page.getByLabel("Field Key").fill("ref2");
   await page.getByLabel("Description(optional)").click();
   await page.getByLabel("Description(optional)").fill("ref2 description");
   await page.getByRole("tab", { name: "Validation" }).click();

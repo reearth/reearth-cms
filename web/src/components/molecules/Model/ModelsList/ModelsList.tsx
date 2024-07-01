@@ -81,7 +81,7 @@ const ModelsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("Models")}</SchemaStyledMenuTitle>
+            <SchemaStyledMenuTitle>{t("MODELS")}</SchemaStyledMenuTitle>
             <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
               {!collapsed && t("Add")}
             </SchemaAddButton>
@@ -137,7 +137,6 @@ const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-right: 1px solid #f0f0f0;
 `;
 
 const MenuWrapper = styled.div`

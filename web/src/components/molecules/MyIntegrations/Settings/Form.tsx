@@ -146,7 +146,7 @@ const MyIntegrationForm: React.FC<Props> = ({
             <CodeImportant>“{t("your model id here")}”</CodeImportant>/items&apos;&nbsp;\
             <br />
             --header &apos;Authorization: Bearer&nbsp;
-            <CodeImportant>“your Integration Token here”</CodeImportant>&apos;
+            <CodeImportant>“{t("your Integration Token here")}”</CodeImportant>&apos;
           </CodeExample>
         </Col>
       </Row>
