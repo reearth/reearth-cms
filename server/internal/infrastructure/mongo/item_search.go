@@ -287,6 +287,7 @@ func textSearchFieldKeys(sp schema.Package) []string {
 		}
 		keys = append(keys, k)
 	}
+	keys = append(keys, "id", "__temp.createdBy", "__temp.updatedBy")
 	return keys
 }
 

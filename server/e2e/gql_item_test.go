@@ -697,6 +697,32 @@ func TestSearchItem(t *testing.T) {
 	})
 	// endregion
 
+	// region search by id
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"schema":  sId,
+		"q":       i1Id,
+	}, nil, nil, map[string]any{
+		"first": 10,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id})
+
+	res = SearchItem(e, map[string]any{
+		"project": pId,
+		"model":   mId,
+		"schema":  sId,
+		"q":       i2Id,
+	}, nil, nil, map[string]any{
+		"first": 10,
+	})
+
+	res.Path("$.data.searchItem.totalCount").Number().IsEqual(1)
+	res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id})
+	// endregion
+
 	// region fetch by schema
 	res = SearchItem(e, map[string]any{
 		"project": pId,
