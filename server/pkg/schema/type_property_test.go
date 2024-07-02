@@ -30,6 +30,7 @@ func TestMatchTypeProperty(t *testing.T) {
 		Number:    func(_ *FieldNumber) { val = "Number" },
 		Reference: func(_ *FieldReference) { val = "Reference" },
 		URL:       func(_ *FieldURL) { val = "URL" },
+		Geometry:  func(_ *FieldGeometry) { val = "Geometry" },
 		Default:   func() { val = "Default" },
 	}
 
@@ -156,6 +157,14 @@ func TestMatchTypeProperty(t *testing.T) {
 			want: "URL",
 		},
 		{
+			name: "Geometry",
+			args: args{
+				tp: &TypeProperty{t: value.TypeGeometry, geometry: &FieldGeometry{}},
+				m:  m,
+			},
+			want: "Geometry",
+		},
+		{
 			name: "Default",
 			args: args{
 				tp: &TypeProperty{t: value.TypeAsset, asset: &FieldAsset{}},
@@ -192,6 +201,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		Number:    func(_ *FieldNumber) string { return "Number" },
 		Reference: func(_ *FieldReference) string { return "Reference" },
 		URL:       func(_ *FieldURL) string { return "URL" },
+		Geometry:  func(_ *FieldGeometry) string { return "Geometry" },
 		Default:   func() string { return "Default" },
 	}
 
@@ -316,6 +326,14 @@ func TestMatchTypeProperty1(t *testing.T) {
 				m:  m,
 			},
 			want: "URL",
+		},
+		{
+			name: "Geometry",
+			args: args{
+				tp: &TypeProperty{t: value.TypeGeometry, geometry: &FieldGeometry{}},
+				m:  m,
+			},
+			want: "Geometry",
 		},
 		{
 			name: "Default",
@@ -460,6 +478,17 @@ func TestTypeProperty_Validate(t *testing.T) {
 			args: args{
 				tp:    &TypeProperty{t: value.TypeURL, url: NewURL()},
 				value: value.TypeURL.Value("https://test.hugo"),
+			},
+			want: nil,
+		},
+		{
+			name: "Geometry",
+			args: args{
+				tp:    &TypeProperty{t: value.TypeGeometry, geometry: NewGeometry(GeometrySupportedTypeList{"POINT"})},
+				value: value.TypeGeometry.Value(`{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`),
 			},
 			want: nil,
 		},
