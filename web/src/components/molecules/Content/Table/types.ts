@@ -1,5 +1,3 @@
-import { t } from "i18next";
-
 import { StretchColumn } from "@reearth-cms/components/atoms/ProTable";
 import { ContentTableField } from "@reearth-cms/components/molecules/Content/types";
 import { FieldType, TypeProperty } from "@reearth-cms/components/molecules/Schema/types";
@@ -13,6 +11,7 @@ import {
   MultipleOperator,
 } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { t } from "@reearth-cms/i18n";
 
 export type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";

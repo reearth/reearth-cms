@@ -34,9 +34,13 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onSu
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
-    await onSubmit(member.userId, values.role);
-    onClose();
-    form.resetFields();
+    try {
+      await onSubmit(member.userId, values.role);
+      onClose();
+      form.resetFields();
+    } catch (error) {
+      console.error(error);
+    }
   }, [member, form, onSubmit, onClose]);
 
   const handleClose = useCallback(() => {

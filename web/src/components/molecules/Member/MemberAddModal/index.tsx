@@ -70,16 +70,20 @@ const MemberAddModal: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     if (searchedUserList.length === 0) return;
-    await onSubmit(
-      searchedUserList.map(user => ({
-        userId: user.id,
-        role: "READER",
-      })),
-    );
-    changeSearchedUser(undefined);
-    changeSearchedUserList([]);
-    onClose();
-    form.resetFields();
+    try {
+      await onSubmit(
+        searchedUserList.map(user => ({
+          userId: user.id,
+          role: "READER",
+        })),
+      );
+      changeSearchedUser(undefined);
+      changeSearchedUserList([]);
+      onClose();
+      form.resetFields();
+    } catch (error) {
+      console.error(error);
+    }
   }, [form, searchedUserList, changeSearchedUser, changeSearchedUserList, onClose, onSubmit]);
 
   const handleClose = useCallback(() => {
