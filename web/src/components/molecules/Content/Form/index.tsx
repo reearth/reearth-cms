@@ -64,6 +64,7 @@ interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
+  publishLoading: boolean;
   requestModalLoading: boolean;
   requestModalTotalCount: number;
   requestModalPage: number;
@@ -152,6 +153,7 @@ const ContentForm: React.FC<Props> = ({
   onRequestTableChange,
   onRequestSearchTerm,
   onRequestTableReload,
+  publishLoading,
   requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
@@ -481,7 +483,7 @@ const ContentForm: React.FC<Props> = ({
               {itemId && (
                 <>
                   {showPublishAction && (
-                    <Button type="primary" onClick={handlePublishSubmit}>
+                    <Button type="primary" onClick={handlePublishSubmit} loading={publishLoading}>
                       {t("Publish")}
                     </Button>
                   )}
@@ -664,9 +666,10 @@ const ContentForm: React.FC<Props> = ({
             onRequestTableReload={onRequestTableReload}
           />
           <PublishItemModal
-            unpublishedItems={unpublishedItems}
-            itemId={itemId}
             open={publishModalOpen}
+            loading={publishLoading}
+            itemId={itemId}
+            unpublishedItems={unpublishedItems}
             onClose={handlePublishItemClose}
             onSubmit={onPublish}
           />

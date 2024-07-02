@@ -13,6 +13,7 @@ const AssetList: React.FC = () => {
     uploading,
     uploadModalVisibility,
     loading,
+    deleteLoading,
     uploadUrl,
     uploadType,
     selectedAsset,
@@ -66,6 +67,7 @@ const AssetList: React.FC = () => {
       uploading={uploading}
       uploadModalVisibility={uploadModalVisibility}
       loading={loading}
+      deleteLoading={deleteLoading}
       uploadUrl={uploadUrl}
       uploadType={uploadType}
       onAssetItemSelect={handleAssetItemSelect}

@@ -63,7 +63,7 @@ export default () => {
     setModelDeletionModalShown(false);
   }, [setSelectedModel, setModelDeletionModalShown]);
 
-  const [deleteModel] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteLoading }] = useDeleteModelMutation({
     refetchQueries: ["GetModels"],
   });
 
@@ -136,6 +136,7 @@ export default () => {
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
+    deleteLoading,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,

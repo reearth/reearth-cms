@@ -156,7 +156,7 @@ test("Option field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus New" }).click();
   await page.locator(".ant-select-selection-item").nth(1).click();
   await page.getByTitle("new third").locator("div").last().click();
-  await page.getByRole("button", { name: "delete" }).nth(1).click();
+  await page.getByLabel("Update Option").getByRole("button", { name: "delete" }).last().click();
   await page.getByRole("button", { name: "plus New" }).click();
   await page.locator(".ant-select-selection-item").nth(1).click();
   await page.getByTitle("new third").locator("div").last().click();

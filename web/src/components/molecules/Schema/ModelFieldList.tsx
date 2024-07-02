@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 import ReactDragListView from "react-drag-listview";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -34,8 +35,10 @@ const ModelFieldList: React.FC<Props> = ({
       confirm({
         title: t("Are you sure you want to delete this field?"),
         icon: <Icon icon="exclamationCircle" />,
-        onOk() {
-          onFieldDelete(fieldId);
+        cancelText: t("Cancel"),
+        maskClosable: true,
+        async onOk() {
+          await onFieldDelete(fieldId);
         },
       });
     },
@@ -109,15 +112,19 @@ const ModelFieldList: React.FC<Props> = ({
                 className="draggable-item"
                 key={index}
                 actions={[
-                  <Icon
-                    icon="delete"
-                    onClick={() => handleFieldDeleteConfirmation((item as Field).id)}
-                    key="delete"
+                  <Button
+                    type="text"
+                    shape="circle"
+                    size="small"
+                    onClick={() => handleFieldDeleteConfirmation(item.id)}
+                    icon={<Icon icon="delete" color="#8c8c8c" />}
                   />,
-                  <Icon
-                    icon="ellipsis"
-                    onClick={() => handleFieldUpdateModalOpen(item as Field)}
-                    key="edit"
+                  <Button
+                    type="text"
+                    shape="circle"
+                    size="small"
+                    onClick={() => handleFieldUpdateModalOpen(item)}
+                    icon={<Icon icon="ellipsis" color="#8c8c8c" />}
                   />,
                 ]}>
                 <List.Item.Meta
@@ -125,18 +132,18 @@ const ModelFieldList: React.FC<Props> = ({
                     <FieldThumbnail>
                       <DragIcon icon="menu" className="grabbable" />
                       <StyledIcon
-                        icon={fieldTypes[(item as Field).type].icon}
-                        color={fieldTypes[(item as Field).type].color}
+                        icon={fieldTypes[item.type].icon}
+                        color={fieldTypes[item.type].color}
                       />
                     </FieldThumbnail>
                   }
                   title={
                     <ItemTitle>
-                      <ItemTitleHeading>{(item as Field).title}</ItemTitleHeading>
-                      {(item as Field).required ? " *" : ""}
-                      <ItemKey>#{(item as Field).key}</ItemKey>
-                      {(item as Field).unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
-                      {(item as Field).isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
+                      <ItemTitleHeading>{item.title}</ItemTitleHeading>
+                      {item.required ? " *" : ""}
+                      <ItemKey>#{item.key}</ItemKey>
+                      {item.unique ? <ItemUnique>({t("unique")})</ItemUnique> : ""}
+                      {item.isTitle ? <ItemTitleTag>{t("Title")}</ItemTitleTag> : ""}
                     </ItemTitle>
                   }
                 />
@@ -198,6 +205,9 @@ const FieldStyledList = styled(List)`
         margin: 0;
       }
       align-items: center;
+    }
+    .ant-list-item-action > li {
+      padding: 0 3px;
     }
   }
 
