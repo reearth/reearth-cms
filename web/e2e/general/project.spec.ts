@@ -23,7 +23,7 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
 
   await expect(page.getByText("project name", { exact: true })).toBeVisible();
   await expect(page.getByText("project description", { exact: true })).toBeVisible();
-  await page.locator(".ant-input-affix-wrapper").click();
+  await page.getByPlaceholder("search projects").click();
   await page.getByPlaceholder("search projects").fill("no project");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByText("project name", { exact: true })).toBeHidden();

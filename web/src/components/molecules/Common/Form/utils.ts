@@ -1,4 +1,5 @@
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 export const keyAutoFill = (
   e: React.ChangeEvent<HTMLInputElement>,
@@ -9,7 +10,9 @@ export const keyAutoFill = (
   const currentAlias = form.getFieldValue(key);
   if (!currentAlias || currentAlias.toLowerCase() === prevName.toLowerCase()) {
     const currentName = e.currentTarget.value.replaceAll(" ", "-").toLowerCase();
-    form.setFieldValue(key, currentName);
+    if (validateKey(currentName) || currentName === "") {
+      form.setFieldValue(key, currentName);
+    }
   }
 };
 
