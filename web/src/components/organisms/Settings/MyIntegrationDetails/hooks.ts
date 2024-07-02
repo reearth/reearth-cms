@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
@@ -15,20 +15,18 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
-interface Params {
-  integrationId?: string;
-}
-
-export default ({ integrationId }: Params) => {
+export default () => {
+  const { workspaceId, integrationId } = useParams();
   const navigate = useNavigate();
   const { integrations } = integrationHooks();
   const t = useT();
   const [webhookId, setwebhookId] = useState<string>();
   const [currentWorkspace] = useWorkspace();
 
-  const selectedIntegration = useMemo(() => {
-    return integrations?.find(integration => integration.id === integrationId);
-  }, [integrations, integrationId]);
+  const selectedIntegration = useMemo(
+    () => integrations?.find(integration => integration.id === integrationId),
+    [integrations, integrationId],
+  );
 
   const webhookInitialValues = useMemo(() => {
     if (!selectedIntegration?.config.webhooks || !webhookId) return;
@@ -196,6 +194,10 @@ export default ({ integrationId }: Params) => {
     [setwebhookId],
   );
 
+  const handleIntegrationHeaderBack = useCallback(() => {
+    navigate(`/workspace/${workspaceId}/myIntegrations`);
+  }, [navigate, workspaceId]);
+
   return {
     integrations,
     selectedIntegration,
@@ -211,5 +213,6 @@ export default ({ integrationId }: Params) => {
     handleWebhookDelete,
     handleWebhookUpdate,
     handleWebhookSelect,
+    handleIntegrationHeaderBack,
   };
 };

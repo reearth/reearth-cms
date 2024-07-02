@@ -113,23 +113,22 @@ export default () => {
     [currentWorkspace?.id, navigate, page, pageSize, projectId, searchTerm],
   );
 
-  const [deleteRequestMutation] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(
-    (requestsId: string[]) =>
-      (async () => {
-        if (!projectId) return;
-        const result = await deleteRequestMutation({
-          variables: { projectId, requestsId },
-          refetchQueries: ["GetRequests"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to delete one or more requests.") });
-        }
-        if (result) {
-          Notification.success({ message: t("One or more requests were successfully closed!") });
-          setSelection({ selectedRowKeys: [] });
-        }
-      })(),
+    async (requestsId: string[]) => {
+      if (!projectId) return;
+      const result = await deleteRequestMutation({
+        variables: { projectId, requestsId },
+        refetchQueries: ["GetRequests"],
+      });
+      if (result.errors) {
+        Notification.error({ message: t("Failed to delete one or more requests.") });
+      }
+      if (result) {
+        Notification.success({ message: t("One or more requests were successfully closed!") });
+        setSelection({ selectedRowKeys: [] });
+      }
+    },
     [t, projectId, deleteRequestMutation],
   );
 
@@ -171,6 +170,7 @@ export default () => {
     setSelection,
     handleRequestSelect,
     handleRequestsReload,
+    deleteLoading,
     handleRequestDelete,
     searchTerm,
     handleSearchTerm,

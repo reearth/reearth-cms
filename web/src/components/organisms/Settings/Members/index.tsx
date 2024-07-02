@@ -15,7 +15,9 @@ const Members: React.FC = () => {
     changeSearchedUserList,
     handleUserSearch,
     handleUserAdd,
+    addLoading,
     handleUsersAddToWorkspace,
+    updateLoading,
     handleMemberOfWorkspaceUpdate,
     selectedMember,
     roleModalShown,
@@ -57,6 +59,7 @@ const Members: React.FC = () => {
         <MemberRoleModal
           open={roleModalShown}
           member={selectedMember}
+          loading={updateLoading}
           onClose={handleRoleModalClose}
           onSubmit={handleMemberOfWorkspaceUpdate}
         />
@@ -65,6 +68,7 @@ const Members: React.FC = () => {
         open={MemberAddModalShown}
         searchedUser={searchedUser}
         searchedUserList={searchedUserList}
+        addLoading={addLoading}
         onUserSearch={handleUserSearch}
         onUserAdd={handleUserAdd}
         onClose={handleMemberAddModalClose}

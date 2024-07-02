@@ -17,6 +17,7 @@ const RequestList: React.FC = () => {
     collapseCommentsPanel,
     handleRequestSelect,
     handleRequestsReload,
+    deleteLoading,
     handleRequestDelete,
     searchTerm,
     handleSearchTerm,
@@ -50,6 +51,7 @@ const RequestList: React.FC = () => {
       onRequestSelect={handleRequestSelect}
       loading={loading}
       onRequestsReload={handleRequestsReload}
+      deleteLoading={deleteLoading}
       onRequestDelete={handleRequestDelete}
       selectedRequest={selectedRequest}
       searchTerm={searchTerm}

@@ -10,7 +10,7 @@ interface Props {
   view: View;
   onViewRenameModalOpen: (view: View) => void;
   onUpdate: (viewId: string, name: string) => Promise<void>;
-  onDelete: (viewId: string) => void;
+  onDelete: (viewId: string) => Promise<void>;
 }
 
 const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate, onDelete }) => {
@@ -52,8 +52,9 @@ const ViewsMenuItem: React.FC<Props> = ({ view, onViewRenameModalOpen, onUpdate,
           icon: <Icon icon="exclamationCircle" />,
           okText: t("Remove"),
           okButtonProps: { danger: true },
-          onOk() {
-            onDelete(view.id);
+          maskClosable: true,
+          async onOk() {
+            await onDelete(view.id);
           },
         });
       },
