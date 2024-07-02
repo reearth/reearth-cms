@@ -1,4 +1,4 @@
-import { t } from "i18next";
+import { t } from "@reearth-cms/i18n";
 
 import type { FieldType } from "./types";
 

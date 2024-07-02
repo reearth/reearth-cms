@@ -50,6 +50,8 @@ interface Props {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
+  deleteLoading: boolean;
+  unpublishLoading: boolean;
   selectedItem?: Item;
   selection: {
     selectedRowKeys: string[];
@@ -88,6 +90,8 @@ const ContentTable: React.FC<Props> = ({
   contentTableFields,
   contentTableColumns,
   loading,
+  deleteLoading,
+  unpublishLoading,
   selectedItem,
   selection,
   totalCount,
@@ -173,16 +177,16 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "STATUS",
         key: "STATUS",
         render: (_, item) => {
-          const itemStatus: StateType[] = item.status.split("_") as StateType[];
+          const itemStatus = item.status.split("_") as StateType[];
           return (
             <>
-              {itemStatus.map((state, index) => {
-                if (index === itemStatus.length - 1) {
-                  return <StyledBadge key={index} color={stateColors[state]} text={t(state)} />;
-                } else {
-                  return <StyledBadge key={index} color={stateColors[state]} />;
-                }
-              })}
+              {itemStatus.map((state, index) => (
+                <StyledBadge
+                  key={index}
+                  color={stateColors[state]}
+                  text={index === itemStatus.length - 1 ? t(state) : undefined}
+                />
+              ))}
             </>
           );
         },
@@ -286,27 +290,46 @@ const ContentTable: React.FC<Props> = ({
     [selection, setSelection],
   );
 
-  const AlertOptions = useCallback(
+  const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={16}>
-          <PrimaryButton onClick={() => onAddItemToRequestModalOpen()}>
-            <Icon icon="plus" /> {t("Add to Request")}
-          </PrimaryButton>
-          <PrimaryButton onClick={() => onUnpublish(props.selectedRowKeys)}>
-            <Icon icon="eyeInvisible" /> {t("Unpublish")}
-          </PrimaryButton>
-          <PrimaryButton onClick={props.onCleanSelected}>
-            <Icon icon="clear" /> {t("Deselect")}
-          </PrimaryButton>
-          <DeleteButton onClick={() => onItemDelete?.(props.selectedRowKeys)}>
-            <Icon icon="delete" /> {t("Delete")}
-          </DeleteButton>
+        <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="plus" />}
+            onClick={() => onAddItemToRequestModalOpen()}>
+            {t("Add to Request")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="eyeInvisible" />}
+            onClick={() => onUnpublish(props.selectedRowKeys)}
+            loading={unpublishLoading}>
+            {t("Unpublish")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="clear" />}
+            onClick={props.onCleanSelected}>
+            {t("Deselect")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="delete" />}
+            onClick={() => onItemDelete(props.selectedRowKeys)}
+            danger
+            loading={deleteLoading}>
+            {t("Delete")}
+          </Button>
         </Space>
       );
     },
-    [onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t],
+    [deleteLoading, onAddItemToRequestModalOpen, onItemDelete, onUnpublish, t, unpublishLoading],
   );
 
   const defaultFilterValues = useRef<DefaultFilterValueType[]>([]);
@@ -758,7 +781,7 @@ const ContentTable: React.FC<Props> = ({
           toolbar={handleToolbarEvents}
           toolBarRender={toolBarRender}
           dataSource={contentTableFields}
-          tableAlertOptionRender={AlertOptions}
+          tableAlertOptionRender={alertOptions}
           rowSelection={rowSelection}
           columns={tableColumns}
           columnsState={{
@@ -814,19 +837,6 @@ export default ContentTable;
 
 const StyledButton = styled(Button)`
   padding: 0;
-`;
-
-const PrimaryButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
-  :hover {
-    color: #ff7875b3;
-  }
 `;
 
 const StyledBadge = styled(Badge)`

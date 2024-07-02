@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -17,6 +18,7 @@ interface FormValues {
 
 interface Props {
   open: boolean;
+  loading: boolean;
   itemId: string;
   unpublishedItems: FormItem[];
   onClose: () => void;
@@ -29,6 +31,7 @@ const initialValues: FormValues = {
 
 const PublishItemModal: React.FC<Props> = ({
   open,
+  loading,
   itemId,
   unpublishedItems,
   onClose,
@@ -72,8 +75,20 @@ const PublishItemModal: React.FC<Props> = ({
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
+
   return (
-    <Modal open={open} onCancel={handleClose} onOk={handleSubmit} title={t("Publish")}>
+    <Modal
+      open={open}
+      onCancel={handleClose}
+      title={t("Publish")}
+      footer={[
+        <Button onClick={handleClose} disabled={loading}>
+          {t("Cancel")}
+        </Button>,
+        <Button type="primary" loading={loading} onClick={handleSubmit}>
+          {t("OK")}
+        </Button>,
+      ]}>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         {unpublishedItems?.length !== 0 && (
           <WarningText

@@ -1,18 +1,8 @@
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-
 import MyIntegrationContent from "@reearth-cms/components/molecules/MyIntegrations/Content";
 
 import useHooks from "./hooks";
 
 const MyIntegrationDetails: React.FC = () => {
-  const { workspaceId, integrationId } = useParams();
-  const navigate = useNavigate();
-
-  const handleIntegrationHeaderBack = useCallback(() => {
-    navigate(`/workspace/${workspaceId}/myIntegrations`);
-  }, [navigate, workspaceId]);
-
   const {
     selectedIntegration,
     webhookInitialValues,
@@ -27,9 +17,8 @@ const MyIntegrationDetails: React.FC = () => {
     handleWebhookDelete,
     handleWebhookUpdate,
     handleWebhookSelect,
-  } = useHooks({
-    integrationId,
-  });
+    handleIntegrationHeaderBack,
+  } = useHooks();
 
   return selectedIntegration ? (
     <MyIntegrationContent
@@ -45,8 +34,8 @@ const MyIntegrationDetails: React.FC = () => {
       onWebhookCreate={handleWebhookCreate}
       onWebhookDelete={handleWebhookDelete}
       onWebhookUpdate={handleWebhookUpdate}
-      onIntegrationHeaderBack={handleIntegrationHeaderBack}
       onWebhookSelect={handleWebhookSelect}
+      onIntegrationHeaderBack={handleIntegrationHeaderBack}
     />
   ) : null;
 };

@@ -16,6 +16,7 @@ const Integration: React.FC = () => {
     handleIntegrationConnectModalOpen,
     addLoading,
     handleIntegrationConnect,
+    deleteLoading,
     handleIntegrationRemove,
     integrationConnectModalShown,
     handleUpdateIntegration,
@@ -43,6 +44,7 @@ const Integration: React.FC = () => {
         onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
         onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
         setSelection={setSelection}
+        deleteLoading={deleteLoading}
         onIntegrationRemove={handleIntegrationRemove}
         page={page}
         pageSize={pageSize}

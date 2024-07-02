@@ -56,6 +56,7 @@ test("View CRUD has succeeded", async ({ page }) => {
   await page.getByText("Remove View").click();
   await page.getByRole("button", { name: "Remove" }).click();
   await closeNotification(page, false);
+  await page.getByRole("button", { name: "Cancel" }).click();
 
   await page.getByText("text", { exact: true }).click();
   await expect(

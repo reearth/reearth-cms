@@ -1,7 +1,6 @@
-import { t } from "i18next";
-
 import { PublicScope } from "@reearth-cms/components/molecules/Accessibility/types";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
+import { t } from "@reearth-cms/i18n";
 
 export interface Project {
   id: string;

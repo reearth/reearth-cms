@@ -56,14 +56,25 @@ const UploadModal: React.FC<Props> = ({
       centered
       open={visible}
       onCancel={onCancel}
-      footer={null}
+      footer={
+        <>
+          <Button type="default" disabled={uploading} onClick={onCancel}>
+            {t("Cancel")}
+          </Button>
+          <Button
+            type="primary"
+            onClick={onUpload}
+            disabled={fileList?.length === 0 && !uploadUrl.url}
+            loading={uploading}>
+            {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
+          </Button>
+        </>
+      }
       width="50vw"
       afterClose={onUploadModalClose}
       styles={{
         body: {
           minHeight: "50vh",
-          position: "relative",
-          paddingBottom: "80px",
         },
       }}>
       <div>
@@ -77,18 +88,6 @@ const UploadModal: React.FC<Props> = ({
           <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
         </TabPane>
       </Tabs>
-      <Footer>
-        <CancelButton type="default" disabled={uploading} onClick={onCancel}>
-          {t("Cancel")}
-        </CancelButton>
-        <Button
-          type="primary"
-          onClick={onUpload}
-          disabled={fileList?.length === 0 && !uploadUrl.url}
-          loading={uploading}>
-          {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
-        </Button>
-      </Footer>
     </StyledModal>
   );
 };
@@ -100,17 +99,6 @@ const StyledModal = styled(Modal)`
     align-items: center;
     width: 100%;
   }
-`;
-
-const Footer = styled.div`
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  padding: 10px;
-`;
-
-const CancelButton = styled(Button)`
-  margin-right: 8px;
 `;
 
 export default UploadModal;

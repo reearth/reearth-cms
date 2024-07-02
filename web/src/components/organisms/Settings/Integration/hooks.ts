@@ -127,7 +127,8 @@ export default (workspaceId?: string) => {
     [updateIntegrationToWorkspaceMutation, selectedIntegrationMember, workspaceId, refetch, t],
   );
 
-  const [removeIntegrationFromWorkspaceMutation] = useRemoveIntegrationFromWorkspaceMutation();
+  const [removeIntegrationFromWorkspaceMutation, { loading: deleteLoading }] =
+    useRemoveIntegrationFromWorkspaceMutation();
 
   const handleIntegrationRemove = useCallback(
     async (integrationIds: string[]) => {
@@ -174,6 +175,7 @@ export default (workspaceId?: string) => {
     handleIntegrationConnectModalOpen,
     addLoading,
     handleIntegrationConnect,
+    deleteLoading,
     handleIntegrationRemove,
     integrationConnectModalShown,
     handleUpdateIntegration,

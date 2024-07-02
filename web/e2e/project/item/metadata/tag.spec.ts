@@ -152,7 +152,7 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await page.getByText("Tag3").nth(2).click();
   await expect(page.getByLabel("Update Tag").getByText("Tag1Tag2Tag3")).toBeVisible();
   await page.getByRole("tab", { name: "Settings" }).click();
-  await page.getByRole("button", { name: "delete" }).first().click();
+  await page.getByLabel("Update Tag").getByRole("button", { name: "delete" }).first().click();
   await page.getByRole("tab", { name: "Default value" }).click();
   await expect(page.getByLabel("Update Tag").getByText("Tag2Tag3")).toBeVisible();
   await page.locator(".ant-select-selector").click();
@@ -177,6 +177,7 @@ test("Tag metadata editing has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
   await expect(page.getByText("Tag3")).toBeVisible();
+  await page.getByLabel("close-circle").locator("svg").hover();
   await page.getByLabel("close-circle").locator("svg").click();
   await expect(page.getByText("Please input field!")).toBeVisible();
   await page.locator(".ant-select-selector").click();

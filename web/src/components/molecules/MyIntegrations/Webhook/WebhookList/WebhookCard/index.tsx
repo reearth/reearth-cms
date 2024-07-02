@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
-import { Switch } from "antd";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Space from "@reearth-cms/components/atoms/Space";
+import Switch from "@reearth-cms/components/atoms/Switch";
 import { Webhook, WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 interface Props {
@@ -25,8 +27,15 @@ const WebhookCard: React.FC<Props> = ({
   onWebhookUpdate,
   onWebhookSettings,
 }) => {
-  const handleWebhookDelete = useCallback(() => {
-    onWebhookDelete(webhook.id);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleWebhookDelete = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await onWebhookDelete(webhook.id);
+    } finally {
+      setIsLoading(false);
+    }
   }, [onWebhookDelete, webhook.id]);
 
   const handleWebhookUpdate = useCallback(
@@ -50,10 +59,23 @@ const WebhookCard: React.FC<Props> = ({
         </>
       }
       extra={
-        <>
-          <Icon icon="settings" size={16} onClick={() => onWebhookSettings(webhook.id)} />
-          <StyledIcon icon="delete" size={16} onClick={handleWebhookDelete} />
-        </>
+        <Space size={4}>
+          <Button
+            type="text"
+            shape="circle"
+            size="small"
+            onClick={() => onWebhookSettings(webhook.id)}
+            icon={<Icon icon="settings" size={16} />}
+          />
+          <Button
+            type="text"
+            shape="circle"
+            size="small"
+            onClick={handleWebhookDelete}
+            loading={isLoading}
+            icon={<Icon icon="delete" size={16} />}
+          />
+        </Space>
       }>
       {webhook.url}
     </StyledCard>
@@ -67,10 +89,6 @@ const WebhookTitle = styled.span`
 
 const StyledCard = styled(Card)`
   margin-top: 16px;
-`;
-
-const StyledIcon = styled(Icon)`
-  margin-left: 12px;
 `;
 
 export default WebhookCard;

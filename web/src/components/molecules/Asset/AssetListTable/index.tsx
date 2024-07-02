@@ -31,7 +31,11 @@ import { compressedFileFormats } from "../../Common/Asset";
 
 interface Props {
   assetList: Asset[];
+  selection: {
+    selectedRowKeys: Key[];
+  };
   loading: boolean;
+  deleteLoading: boolean;
   selectedAsset?: Asset;
   totalCount: number;
   page: number;
@@ -41,9 +45,6 @@ interface Props {
   onAssetSelect: (assetId: string) => void;
   onEdit: (assetId: string) => void;
   onSearchTerm: (term?: string) => void;
-  selection: {
-    selectedRowKeys: Key[];
-  };
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
@@ -58,6 +59,7 @@ const AssetListTable: React.FC<Props> = ({
   assetList,
   selection,
   loading,
+  deleteLoading,
   selectedAsset,
   totalCount,
   page,
@@ -263,22 +265,32 @@ const AssetListTable: React.FC<Props> = ({
     [onSearchTerm, searchTerm, t],
   );
 
-  const AlertOptions = useCallback(
+  const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={16}>
-          <DeselectButton onClick={props.onCleanSelected}>
-            <Icon icon="clear" /> {t("Deselect")}
-          </DeselectButton>
+        <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="clear" />}
+            onClick={props.onCleanSelected}>
+            {t("Deselect")}
+          </Button>
           <DownloadButton displayDefaultIcon type="link" selected={props.selectedRows} />
-          <DeleteButton onClick={() => onAssetDelete?.(props.selectedRowKeys)}>
-            <Icon icon="delete" /> {t("Delete")}
-          </DeleteButton>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="delete" />}
+            onClick={() => onAssetDelete(props.selectedRowKeys)}
+            danger
+            loading={deleteLoading}>
+            {t("Delete")}
+          </Button>
         </Space>
       );
     },
-    [onAssetDelete, t],
+    [deleteLoading, onAssetDelete, t],
   );
 
   const handleChange = useCallback(
@@ -308,7 +320,7 @@ const AssetListTable: React.FC<Props> = ({
     <ResizableProTable
       dataSource={assetList}
       columns={columns}
-      tableAlertOptionRender={AlertOptions}
+      tableAlertOptionRender={alertOptions}
       search={false}
       rowKey="id"
       options={options}
@@ -328,19 +340,6 @@ export default AssetListTable;
 
 const CommentsButton = styled(Button)`
   padding: 0;
-`;
-
-const DeselectButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
-  :hover {
-    color: #ff7875b3;
-  }
 `;
 
 const MoreItemsButton = styled(Button)`

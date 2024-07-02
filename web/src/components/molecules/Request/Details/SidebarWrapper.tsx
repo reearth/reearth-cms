@@ -95,7 +95,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
   return (
     <SideBarWrapper>
       <SidebarCard title={t("State")}>
-        <Badge color={badgeColor} text={currentRequest?.state} />
+        <Badge color={badgeColor} text={t(currentRequest?.state)} />
       </SidebarCard>
       <SidebarCard title={t("Created By")}>
         <StyledSpace>

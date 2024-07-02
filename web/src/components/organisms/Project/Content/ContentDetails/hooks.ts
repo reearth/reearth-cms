@@ -60,6 +60,7 @@ export default () => {
     handleRequestSearchTerm,
     handleRequestTableReload,
     loading,
+    publishLoading,
     totalCount,
     page,
     pageSize,
@@ -510,7 +511,7 @@ export default () => {
     [createRequestMutation, currentProject?.id, t],
   );
 
-  const [updateRequestMutation] = useUpdateRequestMutation({
+  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation({
     refetchQueries: ["GetRequests"],
   });
 
@@ -595,6 +596,7 @@ export default () => {
     handleRequestTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    publishLoading,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,
@@ -610,6 +612,7 @@ export default () => {
     handleNavigateToModel,
     handleBack,
     handleRequestCreate,
+    updateRequestLoading,
     handleRequestUpdate,
     handleModalClose,
     handleModalOpen,

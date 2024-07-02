@@ -76,6 +76,7 @@ const MyIntegrationForm: React.FC<Props> = ({
       content: t(
         "If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
       ),
+      cancelText: t("Cancel"),
       okText: t("Reset"),
       onOk() {
         onRegenerateToken();

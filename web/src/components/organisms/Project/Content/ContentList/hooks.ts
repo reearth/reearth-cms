@@ -67,6 +67,7 @@ export default () => {
     handleRequestSearchTerm,
     handleRequestTableReload,
     loading: requestModalLoading,
+    unpublishLoading,
     totalCount: requestModalTotalCount,
     page: requestModalPage,
     pageSize: requestModalPageSize,
@@ -446,7 +447,7 @@ export default () => {
     ],
   );
 
-  const [deleteItemMutation] = useDeleteItemMutation();
+  const [deleteItemMutation, { loading: deleteLoading }] = useDeleteItemMutation();
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
@@ -520,6 +521,8 @@ export default () => {
   return {
     currentModel,
     loading,
+    deleteLoading,
+    unpublishLoading,
     contentTableFields,
     contentTableColumns,
     collapsedModelMenu,

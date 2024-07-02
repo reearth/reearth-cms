@@ -64,8 +64,8 @@ const MemberTable: React.FC<Props> = ({
         content: t(
           "Remove this member from workspace means this member will not view any content of this workspace.",
         ),
-        onOk() {
-          handleMemberRemoveFromWorkspace(userIds);
+        async onOk() {
+          await handleMemberRemoveFromWorkspace(userIds);
         },
       });
     },

@@ -119,7 +119,7 @@ export default () => {
     [searchUserQuery, workspaceUserMembers],
   );
 
-  const [addUsersToWorkspaceMutation] = useAddUsersToWorkspaceMutation();
+  const [addUsersToWorkspaceMutation, { loading: addLoading }] = useAddUsersToWorkspaceMutation();
 
   const handleUsersAddToWorkspace = useCallback(
     async (users: MemberInput[]) => {
@@ -139,7 +139,8 @@ export default () => {
     [workspaceId, addUsersToWorkspaceMutation, setWorkspace, t],
   );
 
-  const [updateMemberOfWorkspaceMutation] = useUpdateMemberOfWorkspaceMutation();
+  const [updateMemberOfWorkspaceMutation, { loading: updateLoading }] =
+    useUpdateMemberOfWorkspaceMutation();
 
   const handleMemberOfWorkspaceUpdate = useCallback(
     async (userId: string, role: RoleUnion) => {
@@ -234,7 +235,9 @@ export default () => {
     changeSearchedUserList,
     handleUserSearch,
     handleUserAdd,
+    addLoading,
     handleUsersAddToWorkspace,
+    updateLoading,
     handleMemberOfWorkspaceUpdate,
     selectedMember,
     roleModalShown,

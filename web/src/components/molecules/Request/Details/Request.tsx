@@ -17,6 +17,9 @@ interface Props {
   isApproveActionEnabled: boolean;
   currentRequest: Request;
   workspaceUserMembers: UserMember[];
+  deleteLoading: boolean;
+  approveLoading: boolean;
+  updateLoading: boolean;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -34,6 +37,9 @@ const RequestMolecule: React.FC<Props> = ({
   isApproveActionEnabled,
   currentRequest,
   workspaceUserMembers,
+  deleteLoading,
+  approveLoading,
+  updateLoading,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
@@ -55,11 +61,13 @@ const RequestMolecule: React.FC<Props> = ({
           <>
             <Button
               disabled={!isCloseActionEnabled}
+              loading={deleteLoading}
               onClick={() => onRequestDelete([currentRequest.id])}>
               {t("Close")}
             </Button>
             <Button
               hidden={currentRequest.state !== "CLOSED"}
+              loading={updateLoading}
               onClick={() =>
                 onRequestUpdate({
                   requestId: currentRequest.id,
@@ -73,6 +81,7 @@ const RequestMolecule: React.FC<Props> = ({
             </Button>
             <Button
               disabled={!isApproveActionEnabled}
+              loading={approveLoading}
               type="primary"
               onClick={() => onRequestApprove(currentRequest.id)}>
               {t("Approve")}

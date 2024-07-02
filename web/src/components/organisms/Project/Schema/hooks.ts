@@ -282,7 +282,7 @@ export default () => {
     skip: !schemaId || selectedSchemaType !== "group",
   });
 
-  const [deleteGroup] = useDeleteGroupMutation({
+  const [deleteGroup, { loading: deleteGroupLoading }] = useDeleteGroupMutation({
     refetchQueries: ["GetGroups"],
   });
 
@@ -384,8 +384,7 @@ export default () => {
         confirm({
           title: t("No available Group"),
           content: t("Please create a Group first to use the field"),
-          okText: "Create Group",
-          okType: "primary",
+          okText: t("Create Group"),
           cancelText: t("Cancel"),
           onOk() {
             handleGroupModalOpen();
@@ -420,7 +419,7 @@ export default () => {
     [setModelDeletionModalShown],
   );
 
-  const [deleteModel] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteModelLoading }] = useDeleteModelMutation({
     refetchQueries: ["GetModels"],
   });
 
@@ -547,6 +546,8 @@ export default () => {
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
+    deleteModelLoading,
+    deleteGroupLoading,
     setCollapsed,
     selectedSchemaType,
     handleModelSelect,
