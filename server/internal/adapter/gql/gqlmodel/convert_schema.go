@@ -80,6 +80,50 @@ func ToSchemaFieldTagColor(c schema.TagColor) SchemaFieldTagColor {
 
 }
 
+func ToGeometrySupportedType(g schema.GeometrySupportedType) GeometrySupportedType {
+	switch g {
+	case schema.GeometrySupportedTypePoint:
+		return GeometrySupportedTypePoint
+	case schema.GeometrySupportedTypeMultiPoint:
+		return GeometrySupportedTypeMultipoint
+	case schema.GeometrySupportedTypeLineString:
+		return GeometrySupportedTypeLinestring
+	case schema.GeometrySupportedTypeMultiLineString:
+		return GeometrySupportedTypeMultilinestring
+	case schema.GeometrySupportedTypePolygon:
+		return GeometrySupportedTypePolygon
+	case schema.GeometrySupportedTypeMultiPolygon:
+		return GeometrySupportedTypeMultipolygon
+	case schema.GeometrySupportedTypeGeometryCollection:
+		return GeometrySupportedTypeGeometrycollection
+
+	default:
+		return ""
+	}
+}
+
+func FromGeometrySupportedType(g GeometrySupportedType) schema.GeometrySupportedType {
+	switch g {
+	case GeometrySupportedTypePoint:
+		return schema.GeometrySupportedTypePoint
+	case GeometrySupportedTypeMultipoint:
+		return schema.GeometrySupportedTypeMultiPoint
+	case GeometrySupportedTypeLinestring:
+		return schema.GeometrySupportedTypeLineString
+	case GeometrySupportedTypeMultilinestring:
+		return schema.GeometrySupportedTypeMultiLineString
+	case GeometrySupportedTypePolygon:
+		return schema.GeometrySupportedTypePolygon
+	case GeometrySupportedTypeMultipolygon:
+		return schema.GeometrySupportedTypeMultiPolygon
+	case GeometrySupportedTypeGeometrycollection:
+		return schema.GeometrySupportedTypeGeometryCollection
+
+	default:
+		return ""
+	}
+}
+
 func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, multiple bool) (res SchemaFieldTypeProperty) {
 	tp.Match(schema.TypePropertyMatch{
 		Text: func(f *schema.FieldText) {
@@ -234,17 +278,18 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				DefaultValue: v,
 			}
 		},
-		Point: func(f *schema.FieldPoint) {
+		Geometry: func(f *schema.FieldGeometry) {
 			var v any = nil
 			if dv != nil {
 				if multiple {
-					v, _ = dv.ValuesPosition()
+					v, _ = dv.ValuesString()
 				} else {
-					v, _ = dv.First().ValuePosition()
+					v, _ = dv.First().ValueString()
 				}
 			}
-			res = &SchemaFieldPoint{
-				DefaultValue: v,
+			res = &SchemaFieldGeometry{
+				DefaultValue:   v,
+				SupportedTypes: lo.Map(f.SupportedTypes(), func(v schema.GeometrySupportedType, _ int) GeometrySupportedType { return ToGeometrySupportedType(v) }),
 			}
 		},
 	})
@@ -503,17 +548,19 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = FromValue(SchemaFieldTypeURL, x.DefaultValue).AsMultiple()
 		}
 		tpRes = schema.NewURL().TypeProperty()
-	case SchemaFieldTypePoint:
-		x := tp.Point
+	case SchemaFieldTypeGeometry:
+		x := tp.Geometry
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
 		if multiple {
-			dv = value.NewMultiple(value.TypePoint, unpackArray(x.DefaultValue))
+			dv = value.NewMultiple(value.TypeGeometry, unpackArray(x.DefaultValue))
 		} else {
-			dv = FromValue(SchemaFieldTypePoint, x.DefaultValue).AsMultiple()
+			dv = FromValue(SchemaFieldTypeGeometry, x.DefaultValue).AsMultiple()
 		}
-		tpRes = schema.NewPoint().TypeProperty()
+		tpRes = schema.NewGeometry(lo.Map(x.SupportedTypes, func(v GeometrySupportedType, _ int) schema.GeometrySupportedType {
+			return FromGeometrySupportedType(v)
+		})).TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty
 	}

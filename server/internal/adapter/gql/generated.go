@@ -662,6 +662,11 @@ type ComplexityRoot struct {
 		DefaultValue func(childComplexity int) int
 	}
 
+	SchemaFieldGeometry struct {
+		DefaultValue   func(childComplexity int) int
+		SupportedTypes func(childComplexity int) int
+	}
+
 	SchemaFieldGroup struct {
 		GroupID func(childComplexity int) int
 	}
@@ -675,10 +680,6 @@ type ComplexityRoot struct {
 	SchemaFieldMarkdown struct {
 		DefaultValue func(childComplexity int) int
 		MaxLength    func(childComplexity int) int
-	}
-
-	SchemaFieldPoint struct {
-		DefaultValue func(childComplexity int) int
 	}
 
 	SchemaFieldReference struct {
@@ -3918,6 +3919,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SchemaFieldDate.DefaultValue(childComplexity), true
 
+	case "SchemaFieldGeometry.defaultValue":
+		if e.complexity.SchemaFieldGeometry.DefaultValue == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldGeometry.DefaultValue(childComplexity), true
+
+	case "SchemaFieldGeometry.supportedTypes":
+		if e.complexity.SchemaFieldGeometry.SupportedTypes == nil {
+			break
+		}
+
+		return e.complexity.SchemaFieldGeometry.SupportedTypes(childComplexity), true
+
 	case "SchemaFieldGroup.groupId":
 		if e.complexity.SchemaFieldGroup.GroupID == nil {
 			break
@@ -3959,13 +3974,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SchemaFieldMarkdown.MaxLength(childComplexity), true
-
-	case "SchemaFieldPoint.defaultValue":
-		if e.complexity.SchemaFieldPoint.DefaultValue == nil {
-			break
-		}
-
-		return e.complexity.SchemaFieldPoint.DefaultValue(childComplexity), true
 
 	case "SchemaFieldReference.correspondingField":
 		if e.complexity.SchemaFieldReference.CorrespondingField == nil {
@@ -4717,9 +4725,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSchemaFieldBoolInput,
 		ec.unmarshalInputSchemaFieldCheckboxInput,
 		ec.unmarshalInputSchemaFieldDateInput,
+		ec.unmarshalInputSchemaFieldGeometryInput,
 		ec.unmarshalInputSchemaFieldGroupInput,
 		ec.unmarshalInputSchemaFieldIntegerInput,
-		ec.unmarshalInputSchemaFieldPointInput,
+		ec.unmarshalInputSchemaFieldLineStringInput,
 		ec.unmarshalInputSchemaFieldReferenceInput,
 		ec.unmarshalInputSchemaFieldRichTextInput,
 		ec.unmarshalInputSchemaFieldSelectInput,
@@ -5125,7 +5134,7 @@ extend type Mutation {
   Checkbox
   URL
   Group
-  Point
+  Geometry
 }
 
 enum SchemaFieldTagColor {
@@ -5140,6 +5149,16 @@ enum SchemaFieldTagColor {
   BLUE
   GEEKBLUE
   PURPLE
+}
+
+enum GeometrySupportedType {
+  POINT
+  MULTIPOINT
+  LINESTRING
+  MULTILINESTRING
+  POLYGON
+  MULTIPOLYGON
+  GEOMETRYCOLLECTION
 }
 
 type SchemaField {
@@ -5179,7 +5198,7 @@ union SchemaFieldTypeProperty =
   | SchemaFieldURL
   | SchemaFieldCheckbox
   | SchemaFieldGroup
-  | SchemaFieldPoint
+  | SchemaFieldGeometry
 
 type SchemaFieldText {
   defaultValue: Any
@@ -5255,8 +5274,9 @@ type SchemaFieldGroup {
   groupId: ID!
 }
 
-type SchemaFieldPoint {
+type SchemaFieldGeometry {
   defaultValue: Any
+  supportedTypes: [GeometrySupportedType!]!
 }
 
 # Inputs
@@ -5341,7 +5361,12 @@ input SchemaFieldGroupInput {
   groupId: ID!
 }
 
-input SchemaFieldPointInput {
+input SchemaFieldGeometryInput {
+  defaultValue: Any
+  supportedTypes: [GeometrySupportedType!]!
+}
+
+input SchemaFieldLineStringInput {
   defaultValue: Any
 }
 
@@ -5360,7 +5385,7 @@ input SchemaFieldTypePropertyInput @onlyOne {
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
-  point: SchemaFieldPointInput
+  geometry: SchemaFieldGeometryInput
 }
 
 input CreateFieldInput {
@@ -26480,6 +26505,91 @@ func (ec *executionContext) fieldContext_SchemaFieldDate_defaultValue(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SchemaFieldGeometry_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldGeometry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldGeometry_defaultValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(interface{})
+	fc.Result = res
+	return ec.marshalOAny2interface(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldGeometry_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldGeometry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Any does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SchemaFieldGeometry_supportedTypes(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldGeometry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SchemaFieldGeometry_supportedTypes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SupportedTypes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.GeometrySupportedType)
+	fc.Result = res
+	return ec.marshalNGeometrySupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometrySupportedTypeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SchemaFieldGeometry_supportedTypes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SchemaFieldGeometry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GeometrySupportedType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SchemaFieldGroup_groupId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldGroup) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SchemaFieldGroup_groupId(ctx, field)
 	if err != nil {
@@ -26724,47 +26834,6 @@ func (ec *executionContext) fieldContext_SchemaFieldMarkdown_maxLength(ctx conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SchemaFieldPoint_defaultValue(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.SchemaFieldPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SchemaFieldPoint_defaultValue(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DefaultValue, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(interface{})
-	fc.Result = res
-	return ec.marshalOAny2interface(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SchemaFieldPoint_defaultValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SchemaFieldPoint",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	return fc, nil
@@ -36036,6 +36105,40 @@ func (ec *executionContext) unmarshalInputSchemaFieldDateInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSchemaFieldGeometryInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldGeometryInput, error) {
+	var it gqlmodel.SchemaFieldGeometryInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"defaultValue", "supportedTypes"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "defaultValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("defaultValue"))
+			data, err := ec.unmarshalOAny2interface(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DefaultValue = data
+		case "supportedTypes":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("supportedTypes"))
+			data, err := ec.unmarshalNGeometrySupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometrySupportedTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SupportedTypes = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSchemaFieldGroupInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldGroupInput, error) {
 	var it gqlmodel.SchemaFieldGroupInput
 	asMap := map[string]interface{}{}
@@ -36104,8 +36207,8 @@ func (ec *executionContext) unmarshalInputSchemaFieldIntegerInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSchemaFieldPointInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldPointInput, error) {
-	var it gqlmodel.SchemaFieldPointInput
+func (ec *executionContext) unmarshalInputSchemaFieldLineStringInput(ctx context.Context, obj interface{}) (gqlmodel.SchemaFieldLineStringInput, error) {
+	var it gqlmodel.SchemaFieldLineStringInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -36390,7 +36493,7 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url", "group", "point"}
+	fieldsInOrder := [...]string{"text", "textArea", "richText", "markdownText", "asset", "date", "bool", "select", "tag", "checkbox", "integer", "reference", "url", "group", "geometry"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -36733,10 +36836,10 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldGroupInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
-		case "point":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("point"))
+		case "geometry":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("geometry"))
 			directive0 := func(ctx context.Context) (interface{}, error) {
-				return ec.unmarshalOSchemaFieldPointInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldPointInput(ctx, v)
+				return ec.unmarshalOSchemaFieldGeometryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryInput(ctx, v)
 			}
 			directive1 := func(ctx context.Context) (interface{}, error) {
 				if ec.directives.OnlyOne == nil {
@@ -36749,12 +36852,12 @@ func (ec *executionContext) unmarshalInputSchemaFieldTypePropertyInput(ctx conte
 			if err != nil {
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
-			if data, ok := tmp.(*gqlmodel.SchemaFieldPointInput); ok {
-				it.Point = data
+			if data, ok := tmp.(*gqlmodel.SchemaFieldGeometryInput); ok {
+				it.Geometry = data
 			} else if tmp == nil {
-				it.Point = nil
+				it.Geometry = nil
 			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldPointInput`, tmp)
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel.SchemaFieldGeometryInput`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		}
@@ -38556,13 +38659,13 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 			return graphql.Null
 		}
 		return ec._SchemaFieldGroup(ctx, sel, obj)
-	case gqlmodel.SchemaFieldPoint:
-		return ec._SchemaFieldPoint(ctx, sel, &obj)
-	case *gqlmodel.SchemaFieldPoint:
+	case gqlmodel.SchemaFieldGeometry:
+		return ec._SchemaFieldGeometry(ctx, sel, &obj)
+	case *gqlmodel.SchemaFieldGeometry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SchemaFieldPoint(ctx, sel, obj)
+		return ec._SchemaFieldGeometry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -44237,6 +44340,47 @@ func (ec *executionContext) _SchemaFieldDate(ctx context.Context, sel ast.Select
 	return out
 }
 
+var schemaFieldGeometryImplementors = []string{"SchemaFieldGeometry", "SchemaFieldTypeProperty"}
+
+func (ec *executionContext) _SchemaFieldGeometry(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldGeometry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldGeometryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SchemaFieldGeometry")
+		case "defaultValue":
+			out.Values[i] = ec._SchemaFieldGeometry_defaultValue(ctx, field, obj)
+		case "supportedTypes":
+			out.Values[i] = ec._SchemaFieldGeometry_supportedTypes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var schemaFieldGroupImplementors = []string{"SchemaFieldGroup", "SchemaFieldTypeProperty"}
 
 func (ec *executionContext) _SchemaFieldGroup(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldGroup) graphql.Marshaler {
@@ -44331,42 +44475,6 @@ func (ec *executionContext) _SchemaFieldMarkdown(ctx context.Context, sel ast.Se
 			out.Values[i] = ec._SchemaFieldMarkdown_defaultValue(ctx, field, obj)
 		case "maxLength":
 			out.Values[i] = ec._SchemaFieldMarkdown_maxLength(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var schemaFieldPointImplementors = []string{"SchemaFieldPoint", "SchemaFieldTypeProperty"}
-
-func (ec *executionContext) _SchemaFieldPoint(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.SchemaFieldPoint) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, schemaFieldPointImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SchemaFieldPoint")
-		case "defaultValue":
-			out.Values[i] = ec._SchemaFieldPoint_defaultValue(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -47032,6 +47140,77 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) unmarshalNGeometrySupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometrySupportedType(ctx context.Context, v interface{}) (gqlmodel.GeometrySupportedType, error) {
+	var res gqlmodel.GeometrySupportedType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGeometrySupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometrySupportedType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.GeometrySupportedType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNGeometrySupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometrySupportedTypeᚄ(ctx context.Context, v interface{}) ([]gqlmodel.GeometrySupportedType, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]gqlmodel.GeometrySupportedType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNGeometrySupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometrySupportedType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNGeometrySupportedType2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometrySupportedTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.GeometrySupportedType) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGeometrySupportedType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGeometrySupportedType(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNGroup2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Group) graphql.Marshaler {
@@ -50426,6 +50605,14 @@ func (ec *executionContext) unmarshalOSchemaFieldDateInput2ᚖgithubᚗcomᚋree
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOSchemaFieldGeometryInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGeometryInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldGeometryInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSchemaFieldGeometryInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOSchemaFieldGroupInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldGroupInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldGroupInput, error) {
 	if v == nil {
 		return nil, nil
@@ -50439,14 +50626,6 @@ func (ec *executionContext) unmarshalOSchemaFieldIntegerInput2ᚖgithubᚗcomᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputSchemaFieldIntegerInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOSchemaFieldPointInput2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐSchemaFieldPointInput(ctx context.Context, v interface{}) (*gqlmodel.SchemaFieldPointInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputSchemaFieldPointInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
