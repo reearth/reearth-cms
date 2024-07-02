@@ -231,11 +231,15 @@ export default (
     values.type = selectedType;
     values.typeProperty = typePropertyGet(values);
     values.metadata = isMeta;
-    await onSubmit({
-      ...values,
-      fieldId: selectedField?.id,
-    });
-    handleModalReset();
+    try {
+      await onSubmit({
+        ...values,
+        fieldId: selectedField?.id,
+      });
+      handleModalReset();
+    } catch (error) {
+      console.error(error);
+    }
   }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
 
   const isRequiredDisabled = useMemo(
