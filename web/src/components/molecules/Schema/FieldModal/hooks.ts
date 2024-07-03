@@ -1,6 +1,6 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
@@ -12,6 +12,7 @@ import {
   FormTypes,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 export default (
   selectedType: FieldType,
@@ -19,6 +20,7 @@ export default (
   selectedField: Field | null,
   onClose: () => void,
   onSubmit: (values: FormValues) => Promise<void>,
+  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean,
 ) => {
   const [form] = Form.useForm<FormTypes>();
   const [buttonDisabled, setButtonDisabled] = useState(true);
@@ -26,6 +28,7 @@ export default (
   const selectedValues = Form.useWatch("values", form);
   const selectedTags = Form.useWatch("tags", form);
   const [multipleValue, setMultipleValue] = useState(false);
+  const prevKey = useRef<string>();
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
@@ -252,6 +255,18 @@ export default (
     [selectedType],
   );
 
+  const keyValidate = useCallback((value: string) => {
+    if (prevKey.current === value) {
+      return Promise.resolve();
+    } else {
+      prevKey.current = value;
+      if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
+        return Promise.resolve();
+      }
+    }
+    return Promise.reject();
+  }, []);
+
   return {
     form,
     buttonDisabled,
@@ -267,5 +282,6 @@ export default (
     handleModalReset,
     isRequiredDisabled,
     isUniqueDisabled,
+    keyValidate,
   };
 };
