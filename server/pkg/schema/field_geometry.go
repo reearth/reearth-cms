@@ -113,12 +113,14 @@ func rfc7946Validation(g *geojson.Geometry) bool {
 		for _, ls := range g.MultiLineString {
 			b = b && len(ls) > 1
 		}
+		return b
 	case "MultiPolygon":
 		for _, polygon := range g.MultiPolygon {
 			for _, r := range polygon {
 				b = b && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
 			}
 		}
+		return b
 	}
 	return false
 }
