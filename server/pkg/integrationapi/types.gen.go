@@ -63,6 +63,7 @@ const (
 	ValueTypeBool      ValueType = "bool"
 	ValueTypeCheckbox  ValueType = "checkbox"
 	ValueTypeDate      ValueType = "date"
+	ValueTypeGeometry  ValueType = "geometry"
 	ValueTypeGroup     ValueType = "group"
 	ValueTypeInteger   ValueType = "integer"
 	ValueTypeMarkdown  ValueType = "markdown"

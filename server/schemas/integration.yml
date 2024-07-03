@@ -1365,6 +1365,7 @@ components:
         - url
         - group
         - tag
+        - geometry
     tagResponse:
       type: object
       properties:
