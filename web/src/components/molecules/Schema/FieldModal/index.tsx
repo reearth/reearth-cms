@@ -29,7 +29,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
@@ -135,7 +135,6 @@ const FieldModal: React.FC<Props> = ({
     handleKeyChange,
     handleSubmit,
     handleModalReset,
-    handleModalCancel,
     isRequiredDisabled,
     isUniqueDisabled,
   } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit);
@@ -162,10 +161,9 @@ const FieldModal: React.FC<Props> = ({
       }
       width={572}
       open={open}
-      onCancel={handleModalCancel}
-      afterClose={handleModalReset}
+      onCancel={handleModalReset}
       footer={[
-        <Button key="cancel" onClick={handleModalCancel} disabled={fieldLoading}>
+        <Button key="cancel" onClick={handleModalReset} disabled={fieldLoading}>
           {t("Cancel")}
         </Button>,
         <Button
@@ -196,16 +194,15 @@ const FieldModal: React.FC<Props> = ({
                 {
                   message: t("Key is not valid"),
                   required: true,
-                  validator: async (_, value) => {
+                  validator: (_, value) => {
                     if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
                       return Promise.resolve();
-                    } else {
-                      return Promise.reject();
                     }
+                    return Promise.reject();
                   },
                 },
               ]}>
-              <Input onChange={handleKeyChange} />
+              <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />

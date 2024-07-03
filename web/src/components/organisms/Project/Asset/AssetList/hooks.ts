@@ -45,14 +45,13 @@ export default (isItemsRequired: boolean) => {
     autoUnzip: true,
   });
   const [uploadType, setUploadType] = useState<UploadType>("local");
-  const [uploading, setUploading] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [page, setPage] = useState(location.state?.page ?? 1);
   const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
   const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm ?? "");
 
-  const [createAssetMutation] = useCreateAssetMutation();
-  const [createAssetUploadMutation] = useCreateAssetUploadMutation();
+  const [createAssetMutation, { loading: createLoading }] = useCreateAssetMutation();
+  const [createAssetUploadMutation, { loading: uploadLoading }] = useCreateAssetUploadMutation();
 
   const [sort, setSort] = useState(location.state?.sort);
 
@@ -106,83 +105,80 @@ export default (isItemsRequired: boolean) => {
 
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
-    setUploading(false);
     setFileList([]);
     setUploadUrl({ url: "", autoUnzip: true });
     setUploadType("local");
-  }, [setUploadModalVisibility, setUploading, setFileList, setUploadUrl, setUploadType]);
+  }, [setUploadModalVisibility, setFileList, setUploadUrl, setUploadType]);
 
   const handleAssetsCreate = useCallback(
-    (files: UploadFile<File>[]) =>
-      (async () => {
-        if (!projectId) return [];
-        setUploading(true);
-        const results = (
-          await Promise.all(
-            files.map(async file => {
-              let cursor = "";
-              let offset = 0;
-              let uploadToken = "";
-              while (true) {
-                const createAssetUploadResult = await createAssetUploadMutation({
-                  variables: {
-                    projectId,
-                    filename: file.name,
-                    contentLength: file.size ?? 0,
-                    cursor,
-                  },
-                });
-                if (
-                  createAssetUploadResult.errors ||
-                  !createAssetUploadResult.data?.createAssetUpload
-                ) {
-                  Notification.error({ message: t("Failed to add one or more assets.") });
-                  handleUploadModalCancel();
-                  return undefined;
-                }
-                const { url, token, contentType, contentLength, next } =
-                  createAssetUploadResult.data.createAssetUpload;
-                uploadToken = token ?? "";
-                if (url === "") {
-                  break;
-                }
-                const headers = contentType ? { "content-type": contentType } : undefined;
-                await fetch(url, {
-                  method: "PUT",
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  body: (file as any).slice(offset, offset + contentLength),
-                  headers,
-                });
-                if (!next) {
-                  break;
-                }
-                cursor = next;
-                offset += contentLength;
-              }
-              const result = await createAssetMutation({
+    async (files: UploadFile<File>[]) => {
+      if (!projectId) return [];
+      const results = (
+        await Promise.all(
+          files.map(async file => {
+            let cursor = "";
+            let offset = 0;
+            let uploadToken = "";
+            while (true) {
+              const createAssetUploadResult = await createAssetUploadMutation({
                 variables: {
                   projectId,
-                  token: uploadToken,
-                  file: uploadToken === "" ? file : null,
-                  skipDecompression: !!file.skipDecompression,
+                  filename: file.name,
+                  contentLength: file.size ?? 0,
+                  cursor,
                 },
               });
-              if (result.errors || !result.data?.createAsset) {
+              if (
+                createAssetUploadResult.errors ||
+                !createAssetUploadResult.data?.createAssetUpload
+              ) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
                 handleUploadModalCancel();
                 return undefined;
               }
-              return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
-            }),
-          )
-        ).filter(Boolean);
-        if (results?.length > 0) {
-          Notification.success({ message: t("Successfully added one or more assets!") });
-          await refetch();
-        }
-        handleUploadModalCancel();
-        return results;
-      })(),
+              const { url, token, contentType, contentLength, next } =
+                createAssetUploadResult.data.createAssetUpload;
+              uploadToken = token ?? "";
+              if (url === "") {
+                break;
+              }
+              const headers = contentType ? { "content-type": contentType } : undefined;
+              await fetch(url, {
+                method: "PUT",
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                body: (file as any).slice(offset, offset + contentLength),
+                headers,
+              });
+              if (!next) {
+                break;
+              }
+              cursor = next;
+              offset += contentLength;
+            }
+            const result = await createAssetMutation({
+              variables: {
+                projectId,
+                token: uploadToken,
+                file: uploadToken === "" ? file : null,
+                skipDecompression: !!file.skipDecompression,
+              },
+            });
+            if (result.errors || !result.data?.createAsset) {
+              Notification.error({ message: t("Failed to add one or more assets.") });
+              handleUploadModalCancel();
+              return undefined;
+            }
+            return fromGraphQLAsset(result.data.createAsset.asset as GQLAsset);
+          }),
+        )
+      ).filter(Boolean);
+      if (results?.length > 0) {
+        Notification.success({ message: t("Successfully added one or more assets!") });
+        await refetch();
+      }
+      handleUploadModalCancel();
+      return results;
+    },
     [
       projectId,
       handleUploadModalCancel,
@@ -196,7 +192,6 @@ export default (isItemsRequired: boolean) => {
   const handleAssetCreateFromUrl = useCallback(
     async (url: string, autoUnzip: boolean) => {
       if (!projectId) return undefined;
-      setUploading(true);
       try {
         const result = await createAssetMutation({
           variables: {
@@ -221,27 +216,26 @@ export default (isItemsRequired: boolean) => {
     [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
   );
 
-  const [deleteAssetMutation] = useDeleteAssetMutation();
+  const [deleteAssetMutation, { loading: deleteLoading }] = useDeleteAssetMutation();
   const handleAssetDelete = useCallback(
-    (assetIds: string[]) =>
-      (async () => {
-        if (!projectId) return;
-        const results = await Promise.all(
-          assetIds.map(async assetId => {
-            const result = await deleteAssetMutation({
-              variables: { assetId },
-            });
-            if (result.errors) {
-              Notification.error({ message: t("Failed to delete one or more assets.") });
-            }
-          }),
-        );
-        if (results) {
-          await refetch();
-          Notification.success({ message: t("One or more assets were successfully deleted!") });
-          setSelection({ selectedRowKeys: [] });
-        }
-      })(),
+    async (assetIds: string[]) => {
+      if (!projectId) return;
+      const results = await Promise.all(
+        assetIds.map(async assetId => {
+          const result = await deleteAssetMutation({
+            variables: { assetId },
+          });
+          if (result.errors) {
+            Notification.error({ message: t("Failed to delete one or more assets.") });
+          }
+        }),
+      );
+      if (results) {
+        await refetch();
+        Notification.success({ message: t("One or more assets were successfully deleted!") });
+        setSelection({ selectedRowKeys: [] });
+      }
+    },
     [t, deleteAssetMutation, refetch, projectId],
   );
 
@@ -306,9 +300,10 @@ export default (isItemsRequired: boolean) => {
     assetList,
     selection,
     fileList,
-    uploading,
+    uploading: createLoading || uploadLoading,
     uploadModalVisibility,
     loading,
+    deleteLoading,
     uploadUrl,
     uploadType,
     selectedAsset,
@@ -326,7 +321,6 @@ export default (isItemsRequired: boolean) => {
     setUploadType,
     setSelection,
     setFileList,
-    setUploading,
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,

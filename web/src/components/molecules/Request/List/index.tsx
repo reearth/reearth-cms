@@ -21,6 +21,7 @@ interface Props {
   };
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
+  deleteLoading: boolean;
   onRequestDelete: (requestIds: string[]) => void;
   onRequestTableChange: (
     page: number,
@@ -49,6 +50,7 @@ const RequestListMolecule: React.FC<Props> = ({
   selection,
   setSelection,
   onRequestsReload,
+  deleteLoading,
   onRequestDelete,
   onRequestTableChange,
   totalCount,
@@ -72,6 +74,7 @@ const RequestListMolecule: React.FC<Props> = ({
             searchTerm={searchTerm}
             onSearchTerm={onSearchTerm}
             onEdit={onEdit}
+            deleteLoading={deleteLoading}
             onRequestDelete={onRequestDelete}
             onRequestsReload={onRequestsReload}
             setSelection={setSelection}

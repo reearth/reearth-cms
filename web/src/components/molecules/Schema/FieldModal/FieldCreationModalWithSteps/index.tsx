@@ -25,7 +25,7 @@ import {
   FormValues,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { validateKey } from "@reearth-cms/utils/regex";
+import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 
 const { Step } = Steps;
 const { TabPane } = Tabs;
@@ -66,10 +66,14 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const isDisabledCache = useRef<boolean>(true);
 
   const formValidate = useCallback((form: FormInstance) => {
-    form
-      .validateFields({ validateOnly: true })
-      .then(() => setIsDisabled(false))
-      .catch(() => setIsDisabled(true));
+    if (form.getFieldValue("model") || (form.getFieldValue("title") && form.getFieldValue("key"))) {
+      form
+        .validateFields()
+        .then(() => setIsDisabled(false))
+        .catch(() => setIsDisabled(true));
+    } else {
+      setIsDisabled(true);
+    }
   }, []);
 
   const SettingValues = Form.useWatch([], modelForm);
@@ -433,6 +437,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   onChange={e => {
                     handleKeyChange(e, field1Form);
                   }}
+                  showCount
+                  maxLength={MAX_KEY_LENGTH}
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
@@ -534,6 +540,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   onChange={e => {
                     handleKeyChange(e, field2Form);
                   }}
+                  showCount
+                  maxLength={MAX_KEY_LENGTH}
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>

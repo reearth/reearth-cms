@@ -11,6 +11,7 @@ const ProjectOverview: React.FC = () => {
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
+    deleteLoading,
     handleSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,
@@ -48,6 +49,7 @@ const ProjectOverview: React.FC = () => {
       <DeletionModal
         open={modelDeletionModalShown}
         data={selectedModel}
+        deleteLoading={deleteLoading}
         onDelete={handleModelDelete}
         onClose={handleModelDeletionModalClose}
         isModel

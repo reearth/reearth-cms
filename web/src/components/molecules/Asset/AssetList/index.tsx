@@ -21,6 +21,7 @@ interface Props {
   uploading: boolean;
   uploadModalVisibility: boolean;
   loading: boolean;
+  deleteLoading: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType: UploadType;
   selectedAsset?: Asset;
@@ -54,6 +55,7 @@ const AssetList: React.FC<Props> = ({
   uploading,
   uploadModalVisibility,
   loading,
+  deleteLoading,
   uploadUrl,
   uploadType,
   selectedAsset,
@@ -138,6 +140,7 @@ const AssetList: React.FC<Props> = ({
             assetList={assetList}
             selection={selection}
             loading={loading}
+            deleteLoading={deleteLoading}
             selectedAsset={selectedAsset}
             totalCount={totalCount}
             page={page}
