@@ -17,12 +17,13 @@ import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
-import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import {
+  Asset,
+  AssetItem,
   AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+  SortType,
+} from "@reearth-cms/components/molecules/Asset/types";
+import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
 import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
@@ -36,6 +37,7 @@ interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
+  sort?: SortType;
   searchTerm: string;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
@@ -47,11 +49,7 @@ interface Props {
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
 }
 
 const AssetListTable: React.FC<Props> = ({
@@ -62,6 +60,7 @@ const AssetListTable: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  sort,
   searchTerm,
   onAssetItemSelect,
   onAssetSelect,
@@ -73,6 +72,12 @@ const AssetListTable: React.FC<Props> = ({
   onAssetTableChange,
 }) => {
   const t = useT();
+
+  const sortOrderGet = useCallback(
+    (key: AssetSortType) =>
+      sort?.type === key ? (sort.direction === "ASC" ? "ascend" : "descend") : null,
+    [sort?.direction, sort?.type],
+  );
 
   const columns: StretchColumn<Asset>[] = useMemo(
     () => [
@@ -110,6 +115,7 @@ const AssetListTable: React.FC<Props> = ({
         dataIndex: "fileName",
         key: "NAME",
         sorter: true,
+        sortOrder: sortOrderGet("NAME"),
         width: 340,
         minWidth: 340,
         ellipsis: true,
@@ -119,6 +125,7 @@ const AssetListTable: React.FC<Props> = ({
         dataIndex: "size",
         key: "SIZE",
         sorter: true,
+        sortOrder: sortOrderGet("SIZE"),
         render: (_text, record) => bytesFormat(record.size),
         width: 100,
         minWidth: 100,
@@ -150,6 +157,7 @@ const AssetListTable: React.FC<Props> = ({
         dataIndex: "createdAt",
         key: "DATE",
         sorter: true,
+        sortOrder: sortOrderGet("DATE"),
         render: (_text, record) => dateTimeFormat(record.createdAt),
         width: 150,
         minWidth: 150,
@@ -212,7 +220,7 @@ const AssetListTable: React.FC<Props> = ({
         minWidth: 230,
       },
     ],
-    [onAssetItemSelect, onAssetSelect, onEdit, selectedAsset?.id, t],
+    [onAssetItemSelect, onAssetSelect, onEdit, selectedAsset?.id, sortOrderGet, t],
   );
 
   const options: OptionConfig = useMemo(
@@ -288,16 +296,15 @@ const AssetListTable: React.FC<Props> = ({
     ) => {
       const page = pagination.current ?? 1;
       const pageSize = pagination.pageSize ?? 10;
-      const sort: { type?: AssetSortType; direction?: SortDirection } = {};
-      if (!Array.isArray(sorter)) {
-        sort.direction = sorter.order === "ascend" ? "ASC" : "DESC";
-        if (
-          sorter.columnKey === "DATE" ||
+      let sort: SortType | undefined;
+      if (
+        !Array.isArray(sorter) &&
+        (sorter.columnKey === "DATE" ||
           sorter.columnKey === "NAME" ||
-          sorter.columnKey === "SIZE"
-        ) {
-          sort.type = sorter.columnKey;
-        }
+          sorter.columnKey === "SIZE") &&
+        sorter.order
+      ) {
+        sort = { type: sorter.columnKey, direction: sorter.order === "ascend" ? "ASC" : "DESC" };
       }
       onAssetTableChange(page, pageSize, sort);
     },

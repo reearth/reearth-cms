@@ -20,6 +20,7 @@ const AssetList: React.FC = () => {
     totalCount,
     page,
     pageSize,
+    sort,
     searchTerm,
     handleToggleCommentMenu,
     handleAssetItemSelect,
@@ -60,6 +61,7 @@ const AssetList: React.FC = () => {
       totalCount={totalCount}
       page={page}
       pageSize={pageSize}
+      sort={sort}
       searchTerm={searchTerm}
       fileList={fileList}
       selection={selection}

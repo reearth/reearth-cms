@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   useGetAssetsLazyQuery,
@@ -18,8 +18,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 
-export type AssetSortType = "DATE" | "NAME" | "SIZE";
-export type SortDirection = "ASC" | "DESC";
 type UploadType = "local" | "url";
 
 export default (isItemsRequired: boolean) => {
@@ -32,6 +30,7 @@ export default (isItemsRequired: boolean) => {
   const location: {
     state?: {
       searchTerm?: string;
+      sort: SortType;
       page: number;
       pageSize: number;
     } | null;
@@ -55,12 +54,7 @@ export default (isItemsRequired: boolean) => {
   const [createAssetMutation] = useCreateAssetMutation();
   const [createAssetUploadMutation] = useCreateAssetUploadMutation();
 
-  const [sort, setSort] = useState<{ type?: AssetSortType; direction?: SortDirection } | undefined>(
-    {
-      type: "DATE",
-      direction: "DESC",
-    },
-  );
+  const [sort, setSort] = useState(location.state?.sort);
 
   const [getAsset] = useGetAssetLazyQuery();
 
@@ -83,8 +77,11 @@ export default (isItemsRequired: boolean) => {
       projectId: projectId ?? "",
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
       sort: sort
-        ? { sortBy: sort.type as GQLSortType, direction: sort.direction as GQLSortDirection }
-        : undefined,
+        ? {
+            sortBy: sort.type as GQLSortType,
+            direction: sort.direction as GQLSortDirection,
+          }
+        : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
       keyword: searchTerm,
     },
     notifyOnNetworkStatusChange: true,
@@ -263,7 +260,7 @@ export default (isItemsRequired: boolean) => {
 
   const handleNavigateToAsset = (assetId: string) => {
     navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${assetId}`, {
-      state: { searchTerm, page, pageSize },
+      state: { searchTerm, sort, page, pageSize },
     });
   };
 
@@ -297,17 +294,10 @@ export default (isItemsRequired: boolean) => {
   );
 
   const handleAssetTableChange = useCallback(
-    (
-      page: number,
-      pageSize: number,
-      sorter?: { type?: AssetSortType; direction?: SortDirection },
-    ) => {
+    (page: number, pageSize: number, sorter?: SortType) => {
       setPage(page);
       setPageSize(pageSize);
-      setSort({
-        type: sorter?.type ? sorter.type : "DATE",
-        direction: sorter?.direction ? sorter.direction : "DESC",
-      });
+      setSort(sorter);
     },
     [],
   );

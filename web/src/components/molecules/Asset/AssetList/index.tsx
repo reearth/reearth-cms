@@ -5,12 +5,8 @@ import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/co
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
-import { Asset, AssetItem } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 
 export type UploadType = "local" | "url";
@@ -31,6 +27,7 @@ interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
+  sort?: SortType;
   searchTerm: string;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
@@ -46,11 +43,7 @@ interface Props {
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   onAssetsReload: () => void;
-  onAssetTableChange: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
 }
 
 const AssetList: React.FC<Props> = ({
@@ -67,6 +60,7 @@ const AssetList: React.FC<Props> = ({
   totalCount,
   page,
   pageSize,
+  sort,
   searchTerm,
   onAssetItemSelect,
   onAssetSelect,
@@ -148,6 +142,7 @@ const AssetList: React.FC<Props> = ({
             totalCount={totalCount}
             page={page}
             pageSize={pageSize}
+            sort={sort}
             searchTerm={searchTerm}
             onAssetItemSelect={onAssetItemSelect}
             onAssetSelect={onAssetSelect}
