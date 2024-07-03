@@ -374,6 +374,7 @@ func TestCreateItem(t *testing.T) {
 		{"schemaFieldId": fids.selectFId, "value": "s1", "type": "Select"},
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.1s.com", "type": "URL"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\t\t\t\"type\": \"Point\",\n\t\t\t\t\"coordinates\": [102.0, 0.5]\n\t\t\t}", "type": "Geometry"},
 	})
 
 }
@@ -404,6 +405,7 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00Z", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": tagIds[0], "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": true, "type": "Checkbox"},
+		{"schemaFieldId": fids.geometryFid, "value": true, "type": "Geometry"},
 	})
 	fields := r1.Path("$.data.createItem.item.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
@@ -422,6 +424,7 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": "", "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": "", "type": "Checkbox"},
+		{"schemaFieldId": fids.geometryFid, "value": "", "type": "Geometry"},
 	})
 	fields = r2.Path("$.data.updateItem.item.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
@@ -440,6 +443,7 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": "", "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": "", "type": "Checkbox"},
+		{"schemaFieldId": fids.geometryFid, "value": "", "type": "Geometry"},
 	})
 	_, r3 := getItem(e, iid2)
 	fields2 := r3.Path("$.data.node.fields[:].value").Raw().([]any)
@@ -667,6 +671,7 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test1.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00.000Z", "type": "Date"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\t\t\t\"type\": \"Point\",\n\t\t\t\t\"coordinates\": [102.0, 0.5]\n\t\t\t}", "type": "Geometry"},
 	})
 	r1.Path("$.data.createItem.item.isMetadata").IsEqual(false)
 
@@ -694,6 +699,7 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 2, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test2.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-02T00:00:00.000Z", "type": "Date"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\t\t\t\"type\": \"Point\",\n\t\t\t\t\"coordinates\": [102.0, 0.5]\n\t\t\t}", "type": "Geometry"},
 	})
 	// endregion
 

@@ -1,12 +1,12 @@
 package e2e
 
 import (
-	"github.com/samber/lo"
 	"net/http"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/samber/lo"
 )
 
 func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *httpexpect.Value) {
@@ -212,6 +212,11 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 							  defaultValue
 							  __typename
 							}
+							... on SchemaFieldGeometry {
+							  defaultValue
+								supportedTypes
+							  __typename
+							}
 							__typename
 						  }
 						  __typename
@@ -277,6 +282,11 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 							}
 							... on SchemaFieldURL {
 							  defaultValue
+							  __typename
+							}
+							... on SchemaFieldGeometry {
+							  defaultValue
+								supportedTypes
 							  __typename
 							}
 							__typename
