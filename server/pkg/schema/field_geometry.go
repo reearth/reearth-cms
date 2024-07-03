@@ -2,15 +2,16 @@ package schema
 
 import (
 	"encoding/json"
-	"errors"
 	"strings"
 
 	geojson "github.com/paulmach/go.geojson"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/exp/slices"
 )
 
-var ErrUnsupportedType = errors.New("unsupported geometry type")
+var ErrUnsupportedType = rerror.NewE(i18n.T("unsupported geometry type"))
 
 type GeometrySupportedTypeList []GeometrySupportedType
 
