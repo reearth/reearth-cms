@@ -374,7 +374,7 @@ func TestCreateItem(t *testing.T) {
 		{"schemaFieldId": fids.selectFId, "value": "s1", "type": "Select"},
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.1s.com", "type": "URL"},
-		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\t\t\t\"type\": \"Point\",\n\t\t\t\t\"coordinates\": [102.0, 0.5]\n\t\t\t}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "Geometry"},
 	})
 
 }
@@ -405,7 +405,7 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00Z", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": tagIds[0], "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": true, "type": "Checkbox"},
-		{"schemaFieldId": fids.geometryFid, "value": true, "type": "Geometry"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "Geometry"},
 	})
 	fields := r1.Path("$.data.createItem.item.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
@@ -671,7 +671,7 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test1.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00.000Z", "type": "Date"},
-		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\t\t\t\"type\": \"Point\",\n\t\t\t\t\"coordinates\": [102.0, 0.5]\n\t\t\t}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "Geometry"},
 	})
 	r1.Path("$.data.createItem.item.isMetadata").IsEqual(false)
 
@@ -699,7 +699,7 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 2, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test2.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-02T00:00:00.000Z", "type": "Date"},
-		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\t\t\t\"type\": \"Point\",\n\t\t\t\t\"coordinates\": [102.0, 0.5]\n\t\t\t}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "Geometry"},
 	})
 	// endregion
 
