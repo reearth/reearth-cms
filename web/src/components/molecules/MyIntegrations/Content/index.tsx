@@ -6,13 +6,23 @@ import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrati
 import {
   Integration,
   WebhookTrigger,
+  WebhookValues,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
+import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   integration: Integration;
-  webhookInitialValues?: any;
-  onIntegrationUpdate: (data: { name: string; description: string; logoUrl: string }) => void;
+  webhookInitialValues?: WebhookValues;
+  updateIntegrationLoading: boolean;
+  regenerateLoading: boolean;
+  createWebhookLoading: boolean;
+  updateWebhookLoading: boolean;
+  onIntegrationUpdate: (data: {
+    name: string;
+    description: string;
+    logoUrl: string;
+  }) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
   onRegenerateToken: () => Promise<void>;
   onWebhookCreate: (data: {
@@ -33,11 +43,15 @@ type Props = {
   }) => Promise<void>;
   onIntegrationHeaderBack: () => void;
   onWebhookSelect: (id: string) => void;
-};
+}
 
 const MyIntegrationContent: React.FC<Props> = ({
   integration,
   webhookInitialValues,
+  updateIntegrationLoading,
+  regenerateLoading,
+  createWebhookLoading,
+  updateWebhookLoading,
   onIntegrationUpdate,
   onRegenerateToken,
   onWebhookCreate,
@@ -48,23 +62,28 @@ const MyIntegrationContent: React.FC<Props> = ({
   onWebhookSelect,
 }) => {
   const { TabPane } = Tabs;
+  const t = useT();
 
   return (
     <MyIntegrationWrapper>
       <PageHeader title={integration.name} onBack={onIntegrationHeaderBack} />
       <MyIntegrationTabs defaultActiveKey="integration">
-        <TabPane tab="General" key="integration">
+        <TabPane tab={t("General")} key="integration">
           <MyIntegrationSettings
             integration={integration}
+            updateIntegrationLoading={updateIntegrationLoading}
+            regenerateLoading={regenerateLoading}
             onIntegrationUpdate={onIntegrationUpdate}
             onIntegrationDelete={onIntegrationDelete}
             onRegenerateToken={onRegenerateToken}
           />
         </TabPane>
-        <TabPane tab="Webhook" key="webhooks">
+        <TabPane tab={t("Webhook")} key="webhooks">
           <Webhook
             integration={integration}
             webhookInitialValues={webhookInitialValues}
+            createWebhookLoading={createWebhookLoading}
+            updateWebhookLoading={updateWebhookLoading}
             onWebhookCreate={onWebhookCreate}
             onWebhookDelete={onWebhookDelete}
             onWebhookUpdate={onWebhookUpdate}
@@ -77,8 +96,9 @@ const MyIntegrationContent: React.FC<Props> = ({
 };
 
 const MyIntegrationWrapper = styled.div`
-  min-height: 100%;
+  min-height: calc(100% - 16px);
   background-color: #fff;
+  margin: 16px 16px 0;
 `;
 
 const MyIntegrationTabs = styled(Tabs)`

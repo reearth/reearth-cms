@@ -10,6 +10,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/account/accountdomain"
 )
 
 const (
@@ -26,6 +28,7 @@ const (
 
 // Defines values for AssetPreviewType.
 const (
+	Csv        AssetPreviewType = "csv"
 	Geo        AssetPreviewType = "geo"
 	Geo3dTiles AssetPreviewType = "geo_3d_Tiles"
 	GeoMvt     AssetPreviewType = "geo_mvt"
@@ -225,6 +228,16 @@ type Model struct {
 	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`
 }
 
+// Project defines model for project.
+type Project struct {
+	Alias       *string       `json:"alias,omitempty"`
+	CreatedAt   *time.Time    `json:"createdAt,omitempty"`
+	Description *string       `json:"description,omitempty"`
+	Id          *id.ProjectID `json:"id,omitempty"`
+	Name        *string       `json:"name,omitempty"`
+	UpdatedAt   *time.Time    `json:"updatedAt,omitempty"`
+}
+
 // RefOrVersion defines model for refOrVersion.
 type RefOrVersion struct {
 	Ref     *RefOrVersionRef    `json:"ref,omitempty"`
@@ -247,6 +260,7 @@ type Schema struct {
 type SchemaField struct {
 	Id       *id.FieldID `json:"id,omitempty"`
 	Key      *string     `json:"key,omitempty"`
+	Multiple *bool       `json:"multiple,omitempty"`
 	Required *bool       `json:"required,omitempty"`
 	Type     *ValueType  `json:"type,omitempty"`
 }
@@ -292,6 +306,12 @@ type AssetParam = AssetEmbedding
 // CommentIdParam defines model for commentIdParam.
 type CommentIdParam = id.CommentID
 
+// FieldIdOrKeyParam defines model for fieldIdOrKeyParam.
+type FieldIdOrKeyParam = schema.FieldIDOrKey
+
+// FieldIdParam defines model for fieldIdParam.
+type FieldIdParam = id.FieldID
+
 // ItemIdParam defines model for itemIdParam.
 type ItemIdParam = id.ItemID
 
@@ -321,6 +341,9 @@ type SortDirParam string
 
 // SortParam defines model for sortParam.
 type SortParam string
+
+// WorkspaceIdParam defines model for workspaceIdParam.
+type WorkspaceIdParam = accountdomain.WorkspaceID
 
 // AssetCommentCreateJSONBody defines parameters for AssetCommentCreate.
 type AssetCommentCreateJSONBody struct {
@@ -359,6 +382,29 @@ type ItemCommentCreateJSONBody struct {
 // ItemCommentUpdateJSONBody defines parameters for ItemCommentUpdate.
 type ItemCommentUpdateJSONBody struct {
 	Content *string `json:"content,omitempty"`
+}
+
+// ModelUpdateJSONBody defines parameters for ModelUpdate.
+type ModelUpdateJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
+
+// FieldCreateJSONBody defines parameters for FieldCreate.
+type FieldCreateJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
+}
+
+// FieldUpdateJSONBody defines parameters for FieldUpdate.
+type FieldUpdateJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
 }
 
 // ItemFilterParams defines parameters for ItemFilter.
@@ -404,6 +450,45 @@ type ModelFilterParams struct {
 
 	// PerPage Used to select the page
 	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
+// ModelCreateJSONBody defines parameters for ModelCreate.
+type ModelCreateJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
+
+// ModelCreateParams defines parameters for ModelCreate.
+type ModelCreateParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
+// ModelUpdateWithProjectJSONBody defines parameters for ModelUpdateWithProject.
+type ModelUpdateWithProjectJSONBody struct {
+	Description *string `json:"description,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Name        *string `json:"name,omitempty"`
+}
+
+// FieldCreateWithProjectJSONBody defines parameters for FieldCreateWithProject.
+type FieldCreateWithProjectJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
+}
+
+// FieldUpdateWithProjectJSONBody defines parameters for FieldUpdateWithProject.
+type FieldUpdateWithProjectJSONBody struct {
+	Key      *string    `json:"key,omitempty"`
+	Multiple *bool      `json:"multiple,omitempty"`
+	Required *bool      `json:"required,omitempty"`
+	Type     *ValueType `json:"type,omitempty"`
 }
 
 // ItemFilterWithProjectParams defines parameters for ItemFilterWithProject.
@@ -483,6 +568,15 @@ type AssetUploadCreateJSONBody struct {
 	Name          *string `json:"name,omitempty"`
 }
 
+// ProjectFilterParams defines parameters for ProjectFilter.
+type ProjectFilterParams struct {
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+}
+
 // AssetCommentCreateJSONRequestBody defines body for AssetCommentCreate for application/json ContentType.
 type AssetCommentCreateJSONRequestBody AssetCommentCreateJSONBody
 
@@ -498,8 +592,29 @@ type ItemCommentCreateJSONRequestBody ItemCommentCreateJSONBody
 // ItemCommentUpdateJSONRequestBody defines body for ItemCommentUpdate for application/json ContentType.
 type ItemCommentUpdateJSONRequestBody ItemCommentUpdateJSONBody
 
+// ModelUpdateJSONRequestBody defines body for ModelUpdate for application/json ContentType.
+type ModelUpdateJSONRequestBody ModelUpdateJSONBody
+
+// FieldCreateJSONRequestBody defines body for FieldCreate for application/json ContentType.
+type FieldCreateJSONRequestBody FieldCreateJSONBody
+
+// FieldUpdateJSONRequestBody defines body for FieldUpdate for application/json ContentType.
+type FieldUpdateJSONRequestBody FieldUpdateJSONBody
+
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
+
+// ModelCreateJSONRequestBody defines body for ModelCreate for application/json ContentType.
+type ModelCreateJSONRequestBody ModelCreateJSONBody
+
+// ModelUpdateWithProjectJSONRequestBody defines body for ModelUpdateWithProject for application/json ContentType.
+type ModelUpdateWithProjectJSONRequestBody ModelUpdateWithProjectJSONBody
+
+// FieldCreateWithProjectJSONRequestBody defines body for FieldCreateWithProject for application/json ContentType.
+type FieldCreateWithProjectJSONRequestBody FieldCreateWithProjectJSONBody
+
+// FieldUpdateWithProjectJSONRequestBody defines body for FieldUpdateWithProject for application/json ContentType.
+type FieldUpdateWithProjectJSONRequestBody FieldUpdateWithProjectJSONBody
 
 // ItemCreateWithProjectJSONRequestBody defines body for ItemCreateWithProject for application/json ContentType.
 type ItemCreateWithProjectJSONRequestBody ItemCreateWithProjectJSONBody

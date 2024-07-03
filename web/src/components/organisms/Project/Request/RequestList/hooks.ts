@@ -30,7 +30,6 @@ export default () => {
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [collapsedCommentsPanel, collapseCommentsPanel] = useState(true);
-  const [selectedRequests, _] = useState<string[]>([]);
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });
@@ -70,8 +69,6 @@ export default () => {
     refetch();
   }, [refetch]);
 
-  const isRequest = (request: any): request is Request => !!request;
-
   const requests: Request[] = useMemo(() => {
     if (!rawRequests?.requests.nodes) return [];
     const requests: Request[] = rawRequests?.requests.nodes
@@ -94,7 +91,7 @@ export default () => {
         };
         return request;
       })
-      .filter(r => isRequest(r)) as Request[];
+      .filter((r): r is Request => r !== undefined);
     return requests;
   }, [rawRequests?.requests.nodes]);
 
@@ -116,23 +113,22 @@ export default () => {
     [currentWorkspace?.id, navigate, page, pageSize, projectId, searchTerm],
   );
 
-  const [deleteRequestMutation] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(
-    (requestsId: string[]) =>
-      (async () => {
-        if (!projectId) return;
-        const result = await deleteRequestMutation({
-          variables: { projectId, requestsId },
-          refetchQueries: ["GetRequests"],
-        });
-        if (result.errors) {
-          Notification.error({ message: t("Failed to delete one or more requests.") });
-        }
-        if (result) {
-          Notification.success({ message: t("One or more requests were successfully closed!") });
-          setSelection({ selectedRowKeys: [] });
-        }
-      })(),
+    async (requestsId: string[]) => {
+      if (!projectId) return;
+      const result = await deleteRequestMutation({
+        variables: { projectId, requestsId },
+        refetchQueries: ["GetRequests"],
+      });
+      if (result.errors) {
+        Notification.error({ message: t("Failed to delete one or more requests.") });
+      }
+      if (result) {
+        Notification.success({ message: t("One or more requests were successfully closed!") });
+        setSelection({ selectedRowKeys: [] });
+      }
+    },
     [t, projectId, deleteRequestMutation],
   );
 
@@ -168,13 +164,13 @@ export default () => {
     loading: loading,
     collapsedCommentsPanel,
     collapseCommentsPanel,
-    selectedRequests,
     selectedRequest,
     selection,
     handleNavigateToRequest,
     setSelection,
     handleRequestSelect,
     handleRequestsReload,
+    deleteLoading,
     handleRequestDelete,
     searchTerm,
     handleSearchTerm,

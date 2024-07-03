@@ -6,12 +6,15 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
-export type Props = {
+interface Props {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;
   currentRequest?: Request;
   workspaceUserMembers: UserMember[];
+  deleteLoading: boolean;
+  approveLoading: boolean;
+  updateLoading: boolean;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -22,7 +25,7 @@ export type Props = {
   loading: boolean;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-};
+}
 
 const RequestDetailsMolecule: React.FC<Props> = ({
   me,
@@ -30,6 +33,9 @@ const RequestDetailsMolecule: React.FC<Props> = ({
   isApproveActionEnabled,
   currentRequest,
   workspaceUserMembers,
+  deleteLoading,
+  approveLoading,
+  updateLoading,
   onRequestApprove,
   onRequestUpdate,
   onRequestDelete,
@@ -50,6 +56,9 @@ const RequestDetailsMolecule: React.FC<Props> = ({
       isApproveActionEnabled={isApproveActionEnabled}
       currentRequest={currentRequest}
       workspaceUserMembers={workspaceUserMembers}
+      deleteLoading={deleteLoading}
+      approveLoading={approveLoading}
+      updateLoading={updateLoading}
       onRequestApprove={onRequestApprove}
       onRequestUpdate={onRequestUpdate}
       onRequestDelete={onRequestDelete}

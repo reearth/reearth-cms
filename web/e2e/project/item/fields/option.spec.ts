@@ -87,7 +87,7 @@ test("Option field editing has succeeded", async ({ page }) => {
   await page.getByRole("tab", { name: "Default value" }).click();
   await page.getByLabel("Set default value").click();
   await expect(page.getByTitle("first").locator("div")).toBeVisible();
-  await expect(page.getByTitle("second").locator("div")).not.toBeVisible();
+  await expect(page.getByTitle("second").locator("div")).toBeHidden();
   await expect(page.getByTitle("third").locator("div")).toBeVisible();
   await expect(page.getByTitle("forth").locator("div")).toBeVisible();
   await page.getByTitle("third").locator("div").click();
@@ -144,7 +144,7 @@ test("Option field editing has succeeded", async ({ page }) => {
   await page.locator("#values").nth(3).click();
   await page.locator("#values").nth(3).fill("new fifth");
   await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByText("third")).not.toBeVisible();
+  await expect(page.getByText("third")).toBeHidden();
 
   await page.getByRole("button", { name: "plus New" }).click();
   await page.locator(".ant-select-selection-item").nth(0).click();
@@ -156,7 +156,7 @@ test("Option field editing has succeeded", async ({ page }) => {
   await page.getByRole("button", { name: "plus New" }).click();
   await page.locator(".ant-select-selection-item").nth(1).click();
   await page.getByTitle("new third").locator("div").last().click();
-  await page.getByRole("button", { name: "delete" }).nth(1).click();
+  await page.getByLabel("Update Option").getByRole("button", { name: "delete" }).last().click();
   await page.getByRole("button", { name: "plus New" }).click();
   await page.locator(".ant-select-selection-item").nth(1).click();
   await page.getByTitle("new third").locator("div").last().click();

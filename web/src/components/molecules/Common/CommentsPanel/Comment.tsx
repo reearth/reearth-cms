@@ -17,12 +17,12 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { TextArea } = Input;
 
-type Props = {
+interface Props {
   me?: User;
   comment: Comment;
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-};
+}
 
 const CommentMolecule: React.FC<Props> = ({ me, comment, onCommentUpdate, onCommentDelete }) => {
   const [showEditor, setShowEditor] = useState(false);

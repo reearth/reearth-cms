@@ -11,26 +11,29 @@ import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
-import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  Field,
+  FieldType,
+  Group,
+  Tab,
+  SelectedSchemaType,
+} from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   data?: Model | Group;
-  collapsed?: boolean;
+  collapsed: boolean;
   onModalOpen: () => void;
   onDeletionModalOpen: () => void;
-  modelsMenu?: JSX.Element;
+  modelsMenu: JSX.Element;
   selectedSchemaType: SelectedSchemaType;
-  setIsMeta?: (isMeta: boolean) => void;
-  onCollapse?: (collapse: boolean) => void;
-  onFieldReorder: (data: Field[]) => Promise<void> | void;
+  setIsMeta: (isMeta: boolean) => void;
+  onCollapse: (collapse: boolean) => void;
+  onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: FieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
-};
-
-export type Tab = "fields" | "meta-data";
-export type SelectedSchemaType = "model" | "group";
+}
 
 const Schema: React.FC<Props> = ({
   data,
@@ -183,11 +186,15 @@ const FieldListWrapper = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  padding: 24px 24px 0;
   max-height: calc(100% - 72px);
+  .ant-tabs-nav {
+    padding: 0 24px;
+    margin-bottom: 12px;
+    background: #fff;
+  }
   .ant-tabs-content-holder {
     overflow-y: auto;
-    padding-bottom: 24px;
+    padding: 0 24px 24px;
   }
 `;
 

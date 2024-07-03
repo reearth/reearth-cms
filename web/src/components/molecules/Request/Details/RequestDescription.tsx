@@ -14,11 +14,11 @@ import RequestItemForm from "./ItemForm";
 
 const { Panel } = Collapse;
 
-type Props = {
+interface Props {
   currentRequest: Request;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-};
+}
 
 export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset, onGroupGet }) => {
   const fromNow = useMemo(
@@ -37,11 +37,11 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
             <RequestText>{currentRequest.description}</RequestText>
           </RequestTextWrapper>
           <RequestItemsWrapper>
-            <Collapse>
-              {currentRequest.items
-                .filter(item => item.schema)
-                .map((item, index) => (
-                  <Panel header={item.modelName} key={index}>
+            {currentRequest.items
+              .filter(item => item.schema)
+              .map((item, index) => (
+                <Collapse key={index}>
+                  <StyledPanel header={item.modelName} key={1}>
                     <RequestItemForm
                       key={index}
                       schema={item.schema}
@@ -50,9 +50,9 @@ export const RequestDescription: React.FC<Props> = ({ currentRequest, onGetAsset
                       onGetAsset={onGetAsset}
                       onGroupGet={onGroupGet}
                     />
-                  </Panel>
-                ))}
-            </Collapse>
+                  </StyledPanel>
+                </Collapse>
+              ))}
           </RequestItemsWrapper>
         </>
       }
@@ -80,7 +80,12 @@ const StyledAntDComment = styled(AntDComment)`
     }
   }
   .ant-comment-inner {
-    padding-top: 0;
+    padding: 0;
+  }
+  .ant-comment-avatar {
+    background-color: #f5f5f5;
+    margin-right: 0;
+    padding-right: 12px;
   }
   .ant-comment-content {
     background-color: #fff;
@@ -104,7 +109,17 @@ const RequestText = styled.p`
 
 const RequestItemsWrapper = styled.div`
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   .ant-pro-card-body {
     padding: 0;
+  }
+`;
+
+const StyledPanel = styled(Panel)`
+  > .ant-collapse-content {
+    max-height: 640px;
+    overflow: auto;
   }
 `;

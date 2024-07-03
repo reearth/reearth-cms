@@ -19,6 +19,8 @@ const Asset: React.FC = () => {
     viewerType,
     displayUnzipFileList,
     decompressing,
+    isSaveDisabled,
+    updateLoading,
     handleAssetDecompress,
     handleAssetItemSelect,
     handleToggleCommentMenu,
@@ -51,6 +53,8 @@ const Asset: React.FC = () => {
       viewerType={viewerType}
       displayUnzipFileList={displayUnzipFileList}
       decompressing={decompressing}
+      isSaveDisabled={isSaveDisabled}
+      updateLoading={updateLoading}
       onAssetItemSelect={handleAssetItemSelect}
       onAssetDecompress={handleAssetDecompress}
       onTypeChange={handleTypeChange}

@@ -6,6 +6,7 @@ import { afterEach, expect } from "vitest";
 
 declare global {
   namespace Vi {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     interface JestAssertion<T = any> extends jest.Matchers<void, T>, EmotionMatchers {
       toHaveStyleRule: EmotionMatchers["toHaveStyleRule"];
     }
@@ -13,6 +14,7 @@ declare global {
 }
 
 expect.extend(domMatchers);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 expect.extend(emotionMatchers as any);
 
 afterEach(cleanup);

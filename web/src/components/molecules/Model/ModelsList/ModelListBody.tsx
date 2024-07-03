@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-export type Props = {
+interface Props {
   children: ReactNode;
-};
+}
 
 const ModelListBody: React.FC<Props> = ({ children }) => {
   return <Container>{children}</Container>;

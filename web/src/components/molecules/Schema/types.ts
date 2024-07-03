@@ -1,14 +1,16 @@
-export type MetaDataSchema = {
+import { Key } from "react";
+
+export interface MetaDataSchema {
   id?: string;
   fields?: Field[];
-};
+}
 
-export type Schema = {
+export interface Schema {
   id: string;
   fields: Field[];
-};
+}
 
-export type Field = {
+export interface Field {
   id: string;
   type: FieldType;
   title: string;
@@ -20,7 +22,7 @@ export type Field = {
   isTitle: boolean;
   metadata?: boolean;
   typeProperty?: TypeProperty;
-};
+}
 
 export type FieldType =
   | "Text"
@@ -39,9 +41,13 @@ export type FieldType =
   | "URL"
   | "Group";
 
-type Tag = { id: string; name: string; color: string };
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+}
 
-export type TypeProperty = {
+export interface TypeProperty {
   defaultValue?: string | boolean | string[] | boolean[];
   maxLength?: number;
   assetDefaultValue?: string;
@@ -49,15 +55,25 @@ export type TypeProperty = {
   integerDefaultValue?: number;
   min?: number;
   max?: number;
-  correspondingField?: any;
+  correspondingField?: {
+    id: string;
+    type: FieldType;
+    title: string;
+    key: Key;
+    description: string;
+    required: boolean;
+    unique: boolean;
+    multiple: boolean;
+    order: number;
+  };
   modelId?: string;
   groupId?: string;
   tags?: Tag[];
   values?: string[];
   schema?: { titleFieldId: string | null };
-};
+}
 
-export type FieldTypePropertyInput = {
+export interface FieldTypePropertyInput {
   text?: { defaultValue?: string; maxLength?: number };
   textArea?: { defaultValue?: string; maxLength?: number };
   markdownText?: { defaultValue?: string; maxLength?: number };
@@ -85,11 +101,11 @@ export type FieldTypePropertyInput = {
     tags: { color: string; id?: string; name: string }[];
   };
   checkbox?: { defaultValue?: boolean };
-};
+}
 
 export type FieldModalTabs = "settings" | "validation" | "defaultValue";
 
-export type Group = {
+export interface Group {
   id: string;
   schemaId: string;
   projectId: string;
@@ -98,16 +114,16 @@ export type Group = {
   key: string;
   schema: Schema;
   order: number;
-};
+}
 
-export type ModelFormValues = {
+export interface ModelFormValues {
   id?: string;
   name: string;
   description: string;
   key: string;
-};
+}
 
-export type FormValues = {
+export interface FormValues {
   fieldId?: string;
   groupId?: string;
   title: string;
@@ -120,14 +136,18 @@ export type FormValues = {
   required: boolean;
   type?: FieldType;
   typeProperty: FieldTypePropertyInput;
-};
+}
 
 export type FormTypes = FormValues & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   maxLength?: number;
-  values: string[];
+  values?: string[];
   min?: number;
   max?: number;
-  tags: { color: string; id: string; name: string }[];
+  tags?: { color: string; id: string; name: string }[];
   group: string;
 };
+
+export type Tab = "fields" | "meta-data";
+export type SelectedSchemaType = "model" | "group";

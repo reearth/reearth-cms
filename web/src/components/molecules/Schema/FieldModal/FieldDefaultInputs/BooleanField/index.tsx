@@ -5,9 +5,9 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
-  multiple?: boolean;
-};
+interface Props {
+  multiple: boolean;
+}
 
 const BooleanField: React.FC<Props> = ({ multiple }) => {
   const t = useT();

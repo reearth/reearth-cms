@@ -6,14 +6,14 @@ import {
 
 import useHooks from "./hooks";
 
-type Props = {
+interface Props {
   emptyText?: string;
   threadId?: string;
   comments?: Comment[];
   collapsed: boolean;
   onCollapse: (value: boolean) => void;
   refetchQueries: RefetchQueries;
-};
+}
 
 const CommentsPanel: React.FC<Props> = ({
   emptyText,

@@ -3,20 +3,21 @@ import React, { useMemo } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
-import { SelectedSchemaType, Tab } from "@reearth-cms/components/molecules/Schema";
 import { useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
-import { FieldType } from "./types";
+import { FieldType, Tab, SelectedSchemaType } from "./types";
 
-export interface Props {
-  className?: string;
-  currentTab?: Tab;
-  selectedSchemaType?: SelectedSchemaType;
+interface Props {
+  currentTab: Tab;
+  selectedSchemaType: SelectedSchemaType;
   addField: (fieldType: FieldType) => void;
 }
 
-type FieldListItem = { title: string; fields: FieldType[] };
+interface FieldListItem {
+  title: string;
+  fields: FieldType[];
+}
 
 const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }) => {
   const t = useT();
@@ -93,9 +94,9 @@ const FieldList: React.FC<Props> = ({ currentTab, selectedSchemaType, addField }
         dataSource={dataSource}
         renderItem={item => (
           <>
-            <FieldCategoryTitle>{(item as FieldListItem).title}</FieldCategoryTitle>
-            {(item as FieldListItem).fields?.map(field => (
-              <List.Item key={field} onClick={() => addField(field as FieldType)}>
+            <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
+            {item.fields.map(field => (
+              <List.Item key={field} onClick={() => addField(field)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}
@@ -123,7 +124,7 @@ const FieldCategoryTitle = styled.h2`
   color: rgba(0, 0, 0, 0.45);
 `;
 
-const FieldStyledList = styled(List)`
+const FieldStyledList = styled(List<FieldListItem>)`
   max-height: calc(100% - 34px);
   overflow-y: auto;
   padding-bottom: 24px;

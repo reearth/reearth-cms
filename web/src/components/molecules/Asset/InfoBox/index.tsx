@@ -5,13 +5,14 @@ import { JSONTree } from "react-json-tree";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 
-type Props = {
+interface Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   infoBoxProps: any;
   infoBoxVisibility: boolean;
   title?: string;
   description?: string;
   onClose: () => void;
-};
+}
 
 const InfoBox: React.FC<Props> = ({
   infoBoxProps,

@@ -67,6 +67,7 @@ export default () => {
     handleRequestSearchTerm,
     handleRequestTableReload,
     loading: requestModalLoading,
+    unpublishLoading,
     totalCount: requestModalTotalCount,
     page: requestModalPage,
     pageSize: requestModalPageSize,
@@ -184,7 +185,7 @@ export default () => {
           } else {
             field.value = field.value ?? "";
           }
-          return field as typeof field & { value: any };
+          return field as typeof field & { value: unknown };
         });
         const item = await updateItemMutation({
           variables: {
@@ -276,7 +277,8 @@ export default () => {
 
   const fieldsGet = useCallback(
     (item: Item) => {
-      const result: { [key: string]: any } = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: Record<string, any> = {};
       item?.fields?.map(field => {
         result[field.schemaFieldId] = fieldValueGet(field, item);
       });
@@ -286,7 +288,8 @@ export default () => {
   );
 
   const metadataGet = useCallback((fields?: ItemField[]) => {
-    const result: { [key: string]: any } = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: Record<string, any> = {};
     fields?.forEach(field => {
       if (Array.isArray(field.value) && field.value.length > 0) {
         result[field.schemaFieldId] = field.value.map(v => "" + v);
@@ -353,6 +356,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (el: any) => renderField(el, field),
     }));
 
@@ -371,6 +375,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           return renderField(el, field, (value?: string | string[] | boolean, index?: number) => {
             handleMetaItemUpdate(record.id, field.id, value, index);
@@ -442,7 +447,7 @@ export default () => {
     ],
   );
 
-  const [deleteItemMutation] = useDeleteItemMutation();
+  const [deleteItemMutation, { loading: deleteLoading }] = useDeleteItemMutation();
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
@@ -516,6 +521,8 @@ export default () => {
   return {
     currentModel,
     loading,
+    deleteLoading,
+    unpublishLoading,
     contentTableFields,
     contentTableColumns,
     collapsedModelMenu,

@@ -27,6 +27,7 @@ type TypeProperty struct {
 	reference *FieldReference
 	url       *FieldURL
 	group     *FieldGroup
+	geometry  *FieldGeometry
 }
 
 type TypePropertyMatch struct {
@@ -45,6 +46,7 @@ type TypePropertyMatch struct {
 	Reference func(*FieldReference)
 	URL       func(*FieldURL)
 	Group     func(*FieldGroup)
+	Geometry  func(*FieldGeometry)
 	Default   func()
 }
 
@@ -64,6 +66,7 @@ type TypePropertyMatch1[T any] struct {
 	Reference func(*FieldReference) T
 	URL       func(*FieldURL) T
 	Group     func(*FieldGroup) T
+	Geometry  func(*FieldGeometry) T
 	Default   func() T
 }
 
@@ -118,6 +121,9 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		Group: func(f *FieldGroup) error {
 			return f.Validate(v)
 		},
+		Geometry: func(f *FieldGeometry) error {
+			return f.Validate(v)
+		},
 	})
 }
 
@@ -163,6 +169,9 @@ func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
 			return f.ValidateMultiple(v)
 		},
 		Group: func(f *FieldGroup) error {
+			return f.ValidateMultiple(v)
+		},
+		Geometry: func(f *FieldGeometry) error {
 			return f.ValidateMultiple(v)
 		},
 	})
@@ -252,6 +261,11 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.URL(t.url)
 			return
 		}
+	case value.TypeGeometry:
+		if m.Geometry != nil {
+			m.Geometry(t.geometry)
+			return
+		}
 	}
 
 	if m.Default != nil {
@@ -281,6 +295,7 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		reference: t.reference.Clone(),
 		group:     t.group.Clone(),
 		url:       t.url.Clone(),
+		geometry:  t.geometry.Clone(),
 	}
 }
 
@@ -352,6 +367,10 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 	case value.TypeGroup:
 		if m.Group != nil {
 			return m.Group(t.group)
+		}
+	case value.TypeGeometry:
+		if m.Geometry != nil {
+			return m.Geometry(t.geometry)
 		}
 	}
 

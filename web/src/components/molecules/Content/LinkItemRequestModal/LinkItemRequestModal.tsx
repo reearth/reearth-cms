@@ -15,7 +15,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
-type Props = {
+interface Props {
   itemIds: string[];
   visible: boolean;
   onLinkItemRequestModalCancel: () => void;
@@ -24,12 +24,11 @@ type Props = {
   requestModalPage: number;
   requestModalPageSize: number;
   onRequestTableChange: (page: number, pageSize: number) => void;
-  linkedRequest?: Request;
   requestList: Request[];
-  onChange?: (value: Request, itemIds: string[]) => void;
+  onChange: (value: Request, itemIds: string[]) => Promise<void>;
   onRequestSearchTerm: (term: string) => void;
   onRequestTableReload: () => void;
-};
+}
 
 const LinkItemRequestModal: React.FC<Props> = ({
   itemIds,
@@ -46,15 +45,16 @@ const LinkItemRequestModal: React.FC<Props> = ({
   onRequestTableReload,
 }) => {
   const t = useT();
-  const { pagination, submit, resetFlag, selectedRequestId, setSelectedRequestId } = useHooks(
-    itemIds,
-    onLinkItemRequestModalCancel,
-    requestList,
-    requestModalTotalCount,
-    requestModalPage,
-    requestModalPageSize,
-    onChange,
-  );
+  const { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading } =
+    useHooks(
+      itemIds,
+      onLinkItemRequestModalCancel,
+      requestList,
+      requestModalTotalCount,
+      requestModalPage,
+      requestModalPageSize,
+      onChange,
+    );
 
   const columns: StretchColumn<Request>[] = useMemo(
     () => [
@@ -69,7 +69,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
           return (
             <Radio.Group
               onChange={() => {
-                setSelectedRequestId(request.id);
+                select(request.id);
               }}
               value={selectedRequestId}>
               <Radio value={request.id} />
@@ -152,7 +152,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
         render: (_text, record) => dateTimeFormat(record.createdAt),
       },
     ],
-    [selectedRequestId, setSelectedRequestId, t],
+    [selectedRequestId, select, t],
   );
 
   const options = useMemo(
@@ -190,7 +190,10 @@ const LinkItemRequestModal: React.FC<Props> = ({
       }}
       afterClose={() => {
         resetFlag.current = !resetFlag.current;
-      }}>
+      }}
+      confirmLoading={isLoading}
+      cancelButtonProps={{ disabled: isLoading }}
+      okButtonProps={{ disabled: isDisabled }}>
       <ResizableProTable
         dataSource={requestList}
         columns={columns}

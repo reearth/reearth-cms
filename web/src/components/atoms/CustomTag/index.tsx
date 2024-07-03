@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 import { CSSProperties } from "react";
 
-type CustomTagProps = {
+interface CustomTagProps {
   value?: number | string;
   color?: CSSProperties["color"];
-};
+}
 
 const CustomTag: React.FC<CustomTagProps> = ({ value, color }) => {
   return (

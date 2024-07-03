@@ -16,14 +16,14 @@ import { transformDayjsToString } from "@reearth-cms/utils/format";
 export default (
   selectedType: FieldType,
   isMeta: boolean,
-  selectedField?: Field | null,
-  onClose?: (refetch?: boolean) => void,
-  onSubmit?: (values: FormValues) => Promise<void> | void,
+  selectedField: Field | null,
+  onClose: () => void,
+  onSubmit: (values: FormValues) => Promise<void>,
 ) => {
   const [form] = Form.useForm<FormTypes>();
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
-  const selectedValues: string[] = Form.useWatch("values", form);
+  const selectedValues = Form.useWatch("values", form);
   const selectedTags = Form.useWatch("tags", form);
   const [multipleValue, setMultipleValue] = useState(false);
 
@@ -145,7 +145,7 @@ export default (
           ? values.defaultValue.filter((value: string) => value)
           : values.defaultValue ?? "";
         return {
-          select: { defaultValue, values: values.values },
+          select: { defaultValue, values: values.values ?? [] },
         };
       }
       case "Integer": {
@@ -170,7 +170,7 @@ export default (
         };
       case "Tag":
         return {
-          tag: { defaultValue: values.defaultValue, tags: values.tags },
+          tag: { defaultValue: values.defaultValue, tags: values.tags ?? [] },
         };
       case "Checkbox":
         return {
@@ -184,12 +184,25 @@ export default (
         return {
           group: { groupId: values.group },
         };
+      case "Text":
       default:
         return {
           text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
         };
     }
   }, []);
+
+  const values = Form.useWatch([], form);
+  useEffect(() => {
+    if (form.getFieldValue("title") && form.getFieldValue("key")) {
+      form
+        .validateFields()
+        .then(() => setButtonDisabled(false))
+        .catch(() => setButtonDisabled(true));
+    } else {
+      setButtonDisabled(true);
+    }
+  }, [form, values]);
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,34 +219,28 @@ export default (
     [form],
   );
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        values.type = selectedType;
-        values.typeProperty = typePropertyGet(values);
-        values.metadata = isMeta;
-        await onSubmit?.({
-          ...values,
-          fieldId: selectedField?.id,
-        });
-        setMultipleValue(false);
-        onClose?.(true);
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
-  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
-
   const handleModalReset = useCallback(() => {
     form.resetFields();
     setActiveTab("settings");
-  }, [form]);
-
-  const handleModalCancel = useCallback(() => {
     setMultipleValue(false);
-    onClose?.(true);
-  }, [onClose]);
+    onClose();
+  }, [form, onClose]);
+
+  const handleSubmit = useCallback(async () => {
+    const values = await form.validateFields();
+    values.type = selectedType;
+    values.typeProperty = typePropertyGet(values);
+    values.metadata = isMeta;
+    try {
+      await onSubmit({
+        ...values,
+        fieldId: selectedField?.id,
+      });
+      handleModalReset();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
 
   const isRequiredDisabled = useMemo(
     () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
@@ -248,7 +255,6 @@ export default (
   return {
     form,
     buttonDisabled,
-    setButtonDisabled,
     activeTab,
     selectedValues,
     selectedTags,
@@ -259,7 +265,6 @@ export default (
     handleKeyChange,
     handleSubmit,
     handleModalReset,
-    handleModalCancel,
     isRequiredDisabled,
     isUniqueDisabled,
   };

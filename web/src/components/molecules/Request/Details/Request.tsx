@@ -11,12 +11,15 @@ import { useT } from "@reearth-cms/i18n";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
-type Props = {
+interface Props {
   me?: User;
   isCloseActionEnabled: boolean;
   isApproveActionEnabled: boolean;
   currentRequest: Request;
   workspaceUserMembers: UserMember[];
+  deleteLoading: boolean;
+  approveLoading: boolean;
+  updateLoading: boolean;
   onRequestApprove: (requestId: string) => Promise<void>;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
   onRequestDelete: (requestsId: string[]) => Promise<void>;
@@ -26,7 +29,7 @@ type Props = {
   onBack: () => void;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-};
+}
 
 const RequestMolecule: React.FC<Props> = ({
   me,
@@ -34,6 +37,9 @@ const RequestMolecule: React.FC<Props> = ({
   isApproveActionEnabled,
   currentRequest,
   workspaceUserMembers,
+  deleteLoading,
+  approveLoading,
+  updateLoading,
   onCommentCreate,
   onCommentUpdate,
   onCommentDelete,
@@ -55,11 +61,13 @@ const RequestMolecule: React.FC<Props> = ({
           <>
             <Button
               disabled={!isCloseActionEnabled}
+              loading={deleteLoading}
               onClick={() => onRequestDelete([currentRequest.id])}>
               {t("Close")}
             </Button>
             <Button
               hidden={currentRequest.state !== "CLOSED"}
+              loading={updateLoading}
               onClick={() =>
                 onRequestUpdate({
                   requestId: currentRequest.id,
@@ -73,6 +81,7 @@ const RequestMolecule: React.FC<Props> = ({
             </Button>
             <Button
               disabled={!isApproveActionEnabled}
+              loading={approveLoading}
               type="primary"
               onClick={() => onRequestApprove(currentRequest.id)}>
               {t("Approve")}
@@ -110,8 +119,9 @@ const Content = styled.div`
 `;
 
 const BodyWrapper = styled.div`
-  padding: 24px;
+  padding: 12px 0 0 24px;
   display: flex;
+  gap: 11px;
 `;
 
 const ThreadWrapper = styled.div`

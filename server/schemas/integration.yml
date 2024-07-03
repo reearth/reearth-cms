@@ -4,6 +4,48 @@ info:
   description: ReEarth-CMS Integration API
   version: 1.0.0
 paths:
+  '/{workspaceId}/projects':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/perPageParam'
+    get:
+      operationId: ProjectFilter
+      security:
+        - bearerAuth: []
+      summary: Returns a list of projects.
+      tags:
+        - Projects
+      description: Returns a list of projects
+      responses:
+        '200':
+          description: A JSON array of projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/project'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          description: Internal server error
   '/projects/{projectIdOrAlias}/models':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
@@ -46,6 +88,37 @@ paths:
           description: Not found
         '500':
           description: Internal server error
+    post:
+      operationId: ModelCreate
+      summary: create a model
+      tags:
+        - Models
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: A JSON object of model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
   '/models/{modelId}':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
@@ -72,6 +145,155 @@ paths:
           description: Not found
         '500':
           description: Internal server error
+    patch:
+      operationId: ModelUpdate
+      security:
+        - bearerAuth: []
+      summary: Update a model.
+      tags:
+        - Models
+      description: Update a model.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: A JSON object of model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      operationId: ModelDelete
+      summary: delete a model
+      tags:
+          - Models
+      security:
+          - bearerAuth: []
+      responses:
+          '200':
+            description: delete a model
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    id:
+                      x-go-type: id.ModelID
+                      type: string
+          '400':
+            description: Invalid request parameter value
+          '401':
+            $ref: '#/components/responses/UnauthorizedError'
+  '/models/{modelId}/fields':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    post:
+      operationId: FieldCreate
+      summary: create a field
+      tags:
+        - Fields
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/valueType'
+                key:
+                  type: string
+                required:
+                  type: boolean
+                multiple:
+                  type: boolean
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/schemaField'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/models/{modelId}/fields/{fieldIdOrKey}':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/fieldIdOrKeyParam'
+    patch:
+      operationId: FieldUpdate
+      summary: update a field
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/valueType'
+                key:
+                  type: string
+                required:
+                  type: boolean
+                multiple:
+                  type: boolean
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaField'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      operationId: FieldDelete
+      summary: delete a field
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.FieldID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
   '/models/{modelId}/items':
     parameters:
       - $ref: '#/components/parameters/modelIdParam'
@@ -171,6 +393,171 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/model'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    patch:
+      operationId: ModelUpdateWithProject
+      security:
+        - bearerAuth: [ ]
+      summary: Update a model.
+      tags:
+        - Models
+      description: Update a model.
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  key:
+                    type: string
+      responses:
+        '200':
+          description: A JSON object of model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    delete:
+      operationId: ModelDeleteWithProject
+      security:
+        - bearerAuth: [ ]
+      summary: Delete a model.
+      tags:
+        - Models
+      description: Delete a model.
+      responses:
+        '200':
+          description: The model id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.ModelID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    post:
+      operationId: FieldCreateWithProject
+      summary: create a field
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/valueType'
+                key:
+                  type: string
+                required:
+                  type: boolean
+                multiple:
+                  type: boolean
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaField'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey}':
+    parameters:
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+      - $ref: '#/components/parameters/fieldIdOrKeyParam'
+    patch:
+      operationId: FieldUpdateWithProject
+      summary: update a field
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/valueType'
+                key:
+                  type: string
+                required:
+                  type: boolean
+                multiple:
+                  type: boolean
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaField'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      operationId: FieldDeleteWithProject
+      security:
+        - bearerAuth: [ ]
+      summary: Delete a field.
+      tags:
+        - Fields
+      description: Returns the field id.
+      responses:
+        '200':
+          description: A field id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.FieldID
+                    type: string
         '400':
           description: Invalid request parameter value
         '401':
@@ -755,10 +1142,17 @@ paths:
 
 components:
   parameters:
+    workspaceIdParam:
+      name: workspaceId
+      in: path
+      description: ID of the selected workspace
+      required: true
+      schema:
+        x-go-type: accountdomain.WorkspaceID
     projectIdParam:
       name: projectId
       in: path
-      description: ID of the selected project within the selected workspace
+      description: ID of the selected project
       required: true
       schema:
         x-go-type: id.ProjectID
@@ -778,6 +1172,14 @@ components:
       schema:
         type: string
         x-go-type: id.ModelID
+    fieldIdParam:
+      name: fieldId
+      in: path
+      description: ID of the field in the models schema
+      required: true
+      schema:
+        type: string
+        x-go-type: id.FieldID
     modelIdOrKeyParam:
       name: modelIdOrKey
       in: path
@@ -786,6 +1188,14 @@ components:
       schema:
         type: string
         x-go-type: model.IDOrKey
+    fieldIdOrKeyParam:
+      name: fieldIdOrKey
+      in: path
+      description: ID or key of the field in the models schema
+      required: true
+      schema:
+        type: string
+        x-go-type: schema.FieldIDOrKey
     itemIdParam:
       name: itemId
       in: path
@@ -869,6 +1279,24 @@ components:
       schema:
         $ref: '#/components/schemas/assetEmbedding'
   schemas:
+    project:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ProjectID
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        alias:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     model:
       type: object
       properties:
@@ -958,6 +1386,8 @@ components:
         key:
           type: string
         required:
+          type: boolean
+        multiple:
           type: boolean
     version:
       type: object
@@ -1102,6 +1532,7 @@ components:
             - geo_3d_Tiles
             - geo_mvt
             - model_3d
+            - csv
             - unknown
         totalSize:
           type: number
@@ -1157,6 +1588,8 @@ components:
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
+    NotFoundError:
+      description: The requested resource was not found
   securitySchemes:
     bearerAuth:
       type: http

@@ -3,7 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
-type Props = { url: string; svgRender: boolean };
+interface Props {
+  url: string;
+  svgRender: boolean;
+}
 
 const SvgViewer: React.FC<Props> = ({ url, svgRender }) => {
   const t = useT();

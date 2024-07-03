@@ -7,9 +7,9 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+interface Props {
   onUserDelete: () => Promise<void>;
-};
+}
 
 const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
   const t = useT();
@@ -19,8 +19,9 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
     confirm({
       title: t("Are you sure you want to delete your account?"),
       icon: <Icon icon="exclamationCircle" />,
-      onOk() {
-        onUserDelete();
+      cancelText: t("Cancel"),
+      async onOk() {
+        await onUserDelete();
       },
     });
   }, [confirm, onUserDelete, t]);

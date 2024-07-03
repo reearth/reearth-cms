@@ -8,14 +8,14 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = {
+interface Props {
   selectedKey?: string;
   groups?: Group[];
   collapsed?: boolean;
   onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
   onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
-};
+}
 
 const GroupsList: React.FC<Props> = ({
   selectedKey,
@@ -76,7 +76,7 @@ const GroupsList: React.FC<Props> = ({
       ) : (
         <Header>
           <SchemaAction>
-            <SchemaStyledMenuTitle>{t("Groups")}</SchemaStyledMenuTitle>
+            <SchemaStyledMenuTitle>{t("GROUPS")}</SchemaStyledMenuTitle>
             <SchemaAddButton onClick={onModalOpen} icon={<Icon icon="plus" />} type="text">
               {!collapsed && t("Add")}
             </SchemaAddButton>
@@ -132,7 +132,6 @@ const SchemaStyledMenu = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-right: 1px solid #f0f0f0;
 `;
 
 const MenuWrapper = styled.div`

@@ -5,12 +5,12 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import ThreadCommentMolecule from "@reearth-cms/components/molecules/Request/Details/Comment";
 
-type Props = {
+interface Props {
   me?: User;
   comments: Comment[];
   onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
-};
+}
 
 export const RequestCommentList: React.FC<Props> = ({
   me,
@@ -45,7 +45,7 @@ const StyledListWrapper = styled.div`
         height: 24px;
         background-color: #d9d9d9;
         left: 16px;
-        top: -28px;
+        top: -30px;
       }
     }
   }

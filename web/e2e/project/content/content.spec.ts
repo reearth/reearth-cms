@@ -29,7 +29,7 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.getByPlaceholder("input search text").click();
   await page.getByPlaceholder("input search text").fill("no field");
   await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByRole("cell", { name: "text", exact: true })).not.toBeVisible();
+  await expect(page.getByRole("cell", { name: "text", exact: true })).toBeHidden();
   await page.getByPlaceholder("input search text").fill("");
   await page.getByRole("button", { name: "search" }).click();
   await expect(page.getByRole("cell", { name: "text", exact: true })).toBeVisible();
@@ -45,7 +45,7 @@ test("Item CRUD and searching has succeeded", async ({ page }) => {
   await page.getByLabel("", { exact: true }).check();
   await page.getByText("Delete").click();
   await closeNotification(page);
-  await expect(page.getByRole("cell", { name: "new text" })).not.toBeVisible();
+  await expect(page.getByRole("cell", { name: "new text" })).toBeHidden();
 });
 
 test("Publishing and Unpublishing item has succeeded", async ({ page }) => {

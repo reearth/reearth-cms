@@ -8,9 +8,9 @@ import SidebarCard from "@reearth-cms/components/molecules/Request/Details/Sideb
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-export type Props = {
+interface Props {
   item?: Item;
-};
+}
 
 const ContentSidebarWrapper: React.FC<Props> = ({ item }) => {
   const t = useT();

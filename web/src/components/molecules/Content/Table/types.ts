@@ -11,18 +11,23 @@ import {
   MultipleOperator,
 } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
+import { t } from "@reearth-cms/i18n";
 
 export type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
-export type DefaultFilterValueType = {
+t("DRAFT");
+t("PUBLIC");
+t("REVIEW");
+
+export interface DefaultFilterValueType {
   operatorType: string;
   operator: Operator;
   value?: string;
-};
+}
 
 export type FilterType = FieldType | "Person";
 
-export type DropdownFilterType = {
+export interface DropdownFilterType {
   dataIndex: string | string[];
   title: string;
   type: FilterType;
@@ -31,7 +36,7 @@ export type DropdownFilterType = {
   id: string;
   multiple: boolean;
   required: boolean;
-};
+}
 
 export type Operator =
   | BasicOperator

@@ -1,22 +1,23 @@
 import styled from "@emotion/styled";
 import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
-import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
 import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
+import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 
 import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
-type Props = {
-  onGetViewer: (viewer: CesiumViewer | undefined) => void;
-  children?: React.ReactNode;
-  properties?: any;
+interface Props {
+  onGetViewer: (viewer?: CesiumViewer) => void;
+  children: React.ReactNode;
+  properties?: Property;
   showDescription?: boolean;
-  onSelect?: (id: string | undefined) => void;
-  workspaceSettings?: WorkspaceSettings;
-} & ComponentProps<typeof Viewer>;
+  onSelect?: (id?: string) => void;
+  workspaceSettings: WorkspaceSettings;
+}
 
 const ResiumViewer: React.FC<Props> = ({
   onGetViewer,
@@ -25,15 +26,15 @@ const ResiumViewer: React.FC<Props> = ({
   showDescription,
   onSelect,
   workspaceSettings,
-  ...props
 }) => {
   const viewer = useRef<CesiumComponentRef<CesiumViewer>>(null);
-  const [properties, setProperties] = useState<any>();
+  const [properties, setProperties] = useState<Property>();
   const [infoBoxVisibility, setInfoBoxVisibility] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const mvtClickedFlag = useRef(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setSortedProperties = useCallback((properties: any) => {
     setProperties(sortProperties(properties));
   }, []);
@@ -50,6 +51,7 @@ const ResiumViewer: React.FC<Props> = ({
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let props: any = {};
       if (target instanceof Cesium3DTileFeature) {
         const propertyIds = target.getPropertyIds();
@@ -93,14 +95,14 @@ const ResiumViewer: React.FC<Props> = ({
   }, [passedProps, setSortedProperties]);
 
   const imagery = useMemo(() => {
-    return workspaceSettings?.tiles ? imageryGet(workspaceSettings.tiles.resources) : [];
-  }, [workspaceSettings?.tiles]);
+    return workspaceSettings.tiles ? imageryGet(workspaceSettings.tiles.resources) : [];
+  }, [workspaceSettings.tiles]);
 
   const terrain = useMemo(() => {
-    return workspaceSettings?.terrains?.enabled
+    return workspaceSettings.terrains?.enabled
       ? terrainGet(workspaceSettings.terrains.resources)
       : [];
-  }, [workspaceSettings?.terrains]);
+  }, [workspaceSettings.terrains]);
 
   return (
     <Container>
@@ -122,8 +124,7 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        ref={viewer}
-        {...props}>
+        ref={viewer}>
         {children}
       </StyledViewer>
       <InfoBox

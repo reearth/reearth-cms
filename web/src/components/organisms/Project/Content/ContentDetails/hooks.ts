@@ -60,6 +60,7 @@ export default () => {
     handleRequestSearchTerm,
     handleRequestTableReload,
     loading,
+    publishLoading,
     totalCount,
     page,
     pageSize,
@@ -378,11 +379,13 @@ export default () => {
     }
   }, []);
 
-  const [initialFormValues, setInitialFormValues] = useState<{ [key: string]: any }>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [initialFormValues, setInitialFormValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const handleInitialValuesSet = async () => {
-      const initialValues: { [key: string]: any } = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const initialValues: Record<string, any> = {};
       const groupInitialValuesUpdate = (group: Group, itemGroupId: string) => {
         group?.schema?.fields?.forEach(field => {
           initialValues[field.id] = {
@@ -429,8 +432,8 @@ export default () => {
     handleInitialValuesSet();
   }, [currentItem, currentModel, handleGroupGet, updateValueConvert, valueGet]);
 
-  const initialMetaFormValues: { [key: string]: any } = useMemo(() => {
-    const initialValues: { [key: string]: any } = {};
+  const initialMetaFormValues: Record<string, unknown> = useMemo(() => {
+    const initialValues: Record<string, unknown> = {};
     if (!currentItem && !itemLoading) {
       currentModel?.metadataSchema?.fields?.forEach(field => {
         switch (field.type) {
@@ -508,7 +511,7 @@ export default () => {
     [createRequestMutation, currentProject?.id, t],
   );
 
-  const [updateRequestMutation] = useUpdateRequestMutation({
+  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation({
     refetchQueries: ["GetRequests"],
   });
 
@@ -593,6 +596,7 @@ export default () => {
     handleRequestTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    publishLoading,
     requestModalLoading: loading,
     requestModalTotalCount: totalCount,
     requestModalPage: page,
@@ -608,6 +612,7 @@ export default () => {
     handleNavigateToModel,
     handleBack,
     handleRequestCreate,
+    updateRequestLoading,
     handleRequestUpdate,
     handleModalClose,
     handleModalOpen,

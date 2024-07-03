@@ -28,7 +28,7 @@ export default () => {
   const location = useLocation();
 
   const { data: userData } = useGetMeQuery();
-  const { data: rawRequest, loading: requestLoading } = useGetRequestQuery({
+  const { data: rawRequest, loading } = useGetRequestQuery({
     variables: { requestId: requestId ?? "" },
     skip: !requestId,
     fetchPolicy: "cache-and-network",
@@ -55,8 +55,8 @@ export default () => {
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
   const currentRequest: Request | undefined = useMemo(() => {
-    if (!rawRequest) return;
-    return fromGraphQLRequest(rawRequest.node as GQLRequest | undefined);
+    if (!rawRequest?.node) return;
+    return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);
 
   const isCloseActionEnabled: boolean = useMemo(
@@ -78,7 +78,7 @@ export default () => {
     [currentRequest?.reviewers, currentRequest?.state, me?.id, myRole],
   );
 
-  const [deleteRequestMutation] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
   const handleRequestDelete = useCallback(
     (requestsId: string[]) =>
       (async () => {
@@ -98,7 +98,7 @@ export default () => {
     [t, projectId, currentWorkspace?.id, navigate, deleteRequestMutation],
   );
 
-  const [approveRequestMutation] = useApproveRequestMutation();
+  const [approveRequestMutation, { loading: approveLoading }] = useApproveRequestMutation();
   const handleRequestApprove = useCallback(
     (requestId: string) =>
       (async () => {
@@ -203,7 +203,9 @@ export default () => {
   return {
     me,
     isCloseActionEnabled,
-    loading: requestLoading,
+    loading,
+    deleteLoading,
+    approveLoading,
     isApproveActionEnabled,
     currentRequest,
     handleRequestDelete,

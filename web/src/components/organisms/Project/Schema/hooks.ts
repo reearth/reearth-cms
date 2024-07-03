@@ -4,8 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema";
-import { Field, FieldType, Group } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  Field,
+  FieldType,
+  Group,
+  SelectedSchemaType,
+} from "@reearth-cms/components/molecules/Schema/types";
 import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
@@ -278,7 +282,7 @@ export default () => {
     skip: !schemaId || selectedSchemaType !== "group",
   });
 
-  const [deleteGroup] = useDeleteGroupMutation({
+  const [deleteGroup, { loading: deleteGroupLoading }] = useDeleteGroupMutation({
     refetchQueries: ["GetGroups"],
   });
 
@@ -380,8 +384,7 @@ export default () => {
         confirm({
           title: t("No available Group"),
           content: t("Please create a Group first to use the field"),
-          okText: "Create Group",
-          okType: "primary",
+          okText: t("Create Group"),
           cancelText: t("Cancel"),
           onOk() {
             handleGroupModalOpen();
@@ -416,7 +419,7 @@ export default () => {
     [setModelDeletionModalShown],
   );
 
-  const [deleteModel] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteModelLoading }] = useDeleteModelMutation({
     refetchQueries: ["GetModels"],
   });
 
@@ -543,6 +546,8 @@ export default () => {
     collapsed,
     fieldCreationLoading,
     fieldUpdateLoading,
+    deleteModelLoading,
+    deleteGroupLoading,
     setCollapsed,
     selectedSchemaType,
     handleModelSelect,

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { WebhookTrigger } from "@reearth-cms/components/molecules/MyIntegrations/types";
@@ -15,33 +15,32 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 
-type Params = {
-  integrationId?: string;
-};
-
-export default ({ integrationId }: Params) => {
+export default () => {
+  const { workspaceId, integrationId } = useParams();
   const navigate = useNavigate();
   const { integrations } = integrationHooks();
   const t = useT();
   const [webhookId, setwebhookId] = useState<string>();
   const [currentWorkspace] = useWorkspace();
 
-  const selectedIntegration = useMemo(() => {
-    return integrations?.find(integration => integration.id === integrationId);
-  }, [integrations, integrationId]);
+  const selectedIntegration = useMemo(
+    () => integrations?.find(integration => integration.id === integrationId),
+    [integrations, integrationId],
+  );
 
   const webhookInitialValues = useMemo(() => {
-    if (!selectedIntegration?.config.webhooks || !webhookId) return {};
+    if (!selectedIntegration?.config.webhooks || !webhookId) return;
     const selectedWebhook = selectedIntegration.config.webhooks.find(
       webhook => webhook.id === webhookId,
     );
-    if (!selectedWebhook) return {};
+    if (!selectedWebhook) return;
     const trigger: string[] = [];
     Object.entries(selectedWebhook?.trigger).forEach(([key, value]) => value && trigger.push(key));
     return { ...selectedWebhook, trigger };
   }, [selectedIntegration, webhookId]);
 
-  const [updateIntegrationMutation] = useUpdateIntegrationMutation();
+  const [updateIntegrationMutation, { loading: updateIntegrationLoading }] =
+    useUpdateIntegrationMutation();
 
   const handleIntegrationUpdate = useCallback(
     async (data: { name: string; description: string; logoUrl: string }) => {
@@ -78,7 +77,7 @@ export default ({ integrationId }: Params) => {
     }
   }, [currentWorkspace, integrationId, deleteIntegrationMutation, navigate, t]);
 
-  const [regenerateTokenMutation] = useRegenerateTokenMutation({
+  const [regenerateTokenMutation, { loading: regenerateLoading }] = useRegenerateTokenMutation({
     refetchQueries: ["GetMe"],
   });
 
@@ -100,7 +99,7 @@ export default ({ integrationId }: Params) => {
     }
   }, [integrationId, regenerateTokenMutation, t]);
 
-  const [createNewWebhook] = useCreateWebhookMutation({
+  const [createNewWebhook, { loading: createWebhookLoading }] = useCreateWebhookMutation({
     refetchQueries: ["GetMe"],
   });
 
@@ -154,7 +153,7 @@ export default ({ integrationId }: Params) => {
     [deleteWebhook, integrationId, t],
   );
 
-  const [updateWebhook] = useUpdateWebhookMutation({
+  const [updateWebhook, { loading: updateWebhookLoading }] = useUpdateWebhookMutation({
     refetchQueries: ["GetMe"],
   });
 
@@ -195,10 +194,18 @@ export default ({ integrationId }: Params) => {
     [setwebhookId],
   );
 
+  const handleIntegrationHeaderBack = useCallback(() => {
+    navigate(`/workspace/${workspaceId}/myIntegrations`);
+  }, [navigate, workspaceId]);
+
   return {
     integrations,
     selectedIntegration,
     webhookInitialValues,
+    updateIntegrationLoading,
+    regenerateLoading,
+    createWebhookLoading,
+    updateWebhookLoading,
     handleIntegrationUpdate,
     handleIntegrationDelete,
     handleRegenerateToken,
@@ -206,5 +213,6 @@ export default ({ integrationId }: Params) => {
     handleWebhookDelete,
     handleWebhookUpdate,
     handleWebhookSelect,
+    handleIntegrationHeaderBack,
   };
 };

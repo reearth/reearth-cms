@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-export type Props = {
+export interface Props {
   left?: ReactNode;
   center?: ReactNode;
   right?: ReactNode;
-};
+}
 
 const ComplexInnerContents: React.FC<Props> = ({ left, center, right }) => {
   return (

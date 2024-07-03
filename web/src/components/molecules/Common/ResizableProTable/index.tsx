@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 

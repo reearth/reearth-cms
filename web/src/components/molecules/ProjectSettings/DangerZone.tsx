@@ -7,9 +7,9 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
-export type Props = {
+interface Props {
   onProjectDelete: () => Promise<void>;
-};
+}
 
 const DangerZone: React.FC<Props> = ({ onProjectDelete }) => {
   const t = useT();
@@ -19,6 +19,7 @@ const DangerZone: React.FC<Props> = ({ onProjectDelete }) => {
     confirm({
       title: t("Are you sure you want to delete this project?"),
       icon: <Icon icon="exclamationCircle" />,
+      cancelText: t("Cancel"),
       onOk() {
         onProjectDelete();
       },
