@@ -409,7 +409,7 @@ func TestClearItemValues(t *testing.T) {
 	})
 	fields := r1.Path("$.data.createItem.item.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
-		"Text", "TextArea", "MarkdownText", aid.String(), true, "s1", float64(1), "https://www.1s.com", "2023-01-01T00:00:00Z", tagIds[0], true,
+		"Text", "TextArea", "MarkdownText", aid.String(), true, "s1", float64(1), "https://www.1s.com", "2023-01-01T00:00:00Z", tagIds[0], true, "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 	}, fields)
 	i1ver, _ := getItem(e, iid)
 	_, r2 := updateItem(e, iid, i1ver, []map[string]any{
@@ -428,7 +428,7 @@ func TestClearItemValues(t *testing.T) {
 	})
 	fields = r2.Path("$.data.updateItem.item.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 	}, fields)
 
 	iid2, _ := createItem(e, mId, sId, nil, []map[string]any{
@@ -448,7 +448,7 @@ func TestClearItemValues(t *testing.T) {
 	_, r3 := getItem(e, iid2)
 	fields2 := r3.Path("$.data.node.fields[:].value").Raw().([]any)
 	assert.Equal(t, []any{
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 	}, fields2)
 
 }
