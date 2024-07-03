@@ -2,6 +2,8 @@ package schema
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strings"
 
 	geojson "github.com/paulmach/go.geojson"
@@ -9,7 +11,15 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+var ErrUnsupportedType = errors.New("unsupported geometry type")
+
 type GeometrySupportedTypeList []GeometrySupportedType
+
+func (l GeometrySupportedTypeList) Has(st GeometrySupportedType) bool {
+	return slices.ContainsFunc(l, func(t GeometrySupportedType) bool {
+		return t == st
+	})
+}
 
 type FieldGeometry struct {
 	st GeometrySupportedTypeList
@@ -46,38 +56,84 @@ func (f *FieldGeometry) Clone() *FieldGeometry {
 }
 
 // IsValidGeoJSON uses the go.geojson library to validate a GeoJSON string
-func IsValidGeoJSON(data string) bool {
+func IsValidGeoJSON(data string) (geojson.GeometryType, bool) {
 	if len(strings.TrimSpace(data)) == 0 {
-		return false
+		return "", false
 	}
 
 	var raw map[string]interface{}
 	if err := json.Unmarshal([]byte(data), &raw); err != nil {
-		return false
+		return "", false
 	}
 
 	geoType, ok := raw["type"].(string)
 	if !ok {
-		return false
+		return "", false
 	}
-
+	var t geojson.GeometryType
 	switch geoType {
-	case "Feature":
-		_, err := geojson.UnmarshalFeature([]byte(data))
-		return err == nil
-	case "Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon", "GeometryCollection":
-		_, err := geojson.UnmarshalGeometry([]byte(data))
-		return err == nil
+	case "Point", "GeometryCollection", "MultiPoint":
+		g, err := geojson.UnmarshalGeometry([]byte(data))
+		if g != nil {
+			t = g.Type
+		}
+		return t, err == nil
+	case "LineString":
+		g, err := geojson.UnmarshalGeometry([]byte(data))
+		if g != nil {
+			t = g.Type
+		}
+		return t, err == nil && len(g.LineString) > 1
+	case "Polygon":
+		g, err := geojson.UnmarshalGeometry([]byte(data))
+		if g != nil {
+			t = g.Type
+		}
+		v := true
+		for _, r := range g.Polygon {
+			v = v && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
+		}
+
+		return t, err == nil && v
+	case "MultiLineString":
+		g, err := geojson.UnmarshalGeometry([]byte(data))
+		if g != nil {
+			t = g.Type
+		}
+		v := true
+		for _, ls := range g.MultiLineString {
+			v = v && len(ls) > 1
+			fmt.Println(len(ls))
+		}
+		return t, err == nil && v
+	case "MultiPolygon":
+		g, err := geojson.UnmarshalGeometry([]byte(data))
+		if g != nil {
+			t = g.Type
+		}
+		v := true
+		for _, polygon := range g.MultiPolygon {
+			for _, r := range polygon {
+				v = v && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
+			}
+		}
+
+		return t, err == nil && v
 	default:
-		return false
+		return "", false
 	}
 }
 
 func (f *FieldGeometry) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Geometry: func(a value.String) {
-			if !IsValidGeoJSON(a) {
+			t, ok := IsValidGeoJSON(a)
+			if !ok {
 				err = ErrInvalidValue
+			}
+			ok2 := f.SupportedTypes().Has(GeometrySupportedTypeFrom(string(t)))
+			if !ok2 {
+				err = ErrUnsupportedType
 			}
 		},
 		Default: func() {
