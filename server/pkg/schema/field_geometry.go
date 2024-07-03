@@ -3,7 +3,6 @@ package schema
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strings"
 
 	geojson "github.com/paulmach/go.geojson"
@@ -103,7 +102,6 @@ func IsValidGeoJSON(data string) (geojson.GeometryType, bool) {
 		v := true
 		for _, ls := range g.MultiLineString {
 			v = v && len(ls) > 1
-			fmt.Println(len(ls))
 		}
 		return t, err == nil && v
 	case "MultiPolygon":
