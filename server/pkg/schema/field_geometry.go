@@ -72,55 +72,55 @@ func IsValidGeoJSON(data string) (geojson.GeometryType, bool) {
 	}
 	var t geojson.GeometryType
 	switch geoType {
-	case "Point", "GeometryCollection", "MultiPoint":
+	case "Point", "MultiPoint", "LineString", "Polygon", "MultiLineString", "MultiPolygon":
 		g, err := geojson.UnmarshalGeometry([]byte(data))
 		if g != nil {
 			t = g.Type
 		}
-		return t, err == nil
-	case "LineString":
-		g, err := geojson.UnmarshalGeometry([]byte(data))
-		if g != nil {
-			t = g.Type
-		}
-		return t, err == nil && len(g.LineString) > 1
-	case "Polygon":
-		g, err := geojson.UnmarshalGeometry([]byte(data))
-		if g != nil {
-			t = g.Type
-		}
-		v := true
-		for _, r := range g.Polygon {
-			v = v && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
-		}
+		return t, err == nil && rfc7946Validation(g)
 
-		return t, err == nil && v
-	case "MultiLineString":
+	case "GeometryCollection":
 		g, err := geojson.UnmarshalGeometry([]byte(data))
 		if g != nil {
 			t = g.Type
 		}
 		v := true
-		for _, ls := range g.MultiLineString {
-			v = v && len(ls) > 1
+		for _, geometry := range g.Geometries {
+			v = v && rfc7946Validation(geometry)
 		}
 		return t, err == nil && v
-	case "MultiPolygon":
-		g, err := geojson.UnmarshalGeometry([]byte(data))
-		if g != nil {
-			t = g.Type
-		}
-		v := true
-		for _, polygon := range g.MultiPolygon {
-			for _, r := range polygon {
-				v = v && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
-			}
-		}
 
-		return t, err == nil && v
 	default:
 		return "", false
 	}
+}
+func rfc7946Validation(g *geojson.Geometry) bool {
+	if g == nil {
+		return false
+	}
+	b := true
+	switch g.Type {
+	case "Point", "MultiPoint":
+		return true
+	case "LineString":
+		return len(g.LineString) > 1
+	case "Polygon":
+		for _, r := range g.Polygon {
+			b = b && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
+		}
+		return b
+	case "MultiLineString":
+		for _, ls := range g.MultiLineString {
+			b = b && len(ls) > 1
+		}
+	case "MultiPolygon":
+		for _, polygon := range g.MultiPolygon {
+			for _, r := range polygon {
+				b = b && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
+			}
+		}
+	}
+	return false
 }
 
 func (f *FieldGeometry) Validate(v *value.Value) (err error) {
