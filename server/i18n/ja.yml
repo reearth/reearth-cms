@@ -87,4 +87,3 @@ value is required: 値は必須です。
 views are not in the same model: ビューが同じモデルに存在していません。
 views length mismatch: ビューの総数が正しくありません。
 workspace id is required: ワークスペースIDは必須です。
-unsupported geometry type: サポートされていないジオメトリタイプ
