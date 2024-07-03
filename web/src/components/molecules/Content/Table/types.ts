@@ -9,6 +9,7 @@ import {
   TimeOperator,
   StringOperator,
   MultipleOperator,
+  FieldType as ColumnType,
 } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 
@@ -44,7 +45,7 @@ export type Operator =
 
 export type ExtendedColumns = StretchColumn<ContentTableField> & {
   type?: FieldType | "Person";
-  fieldType?: string;
+  fieldType: ColumnType | "EDIT_ICON" | "commentsCount";
   sortOrder?: "descend" | "ascend" | null;
   typeProperty?: TypeProperty;
   required?: boolean;

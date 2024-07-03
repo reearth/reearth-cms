@@ -344,7 +344,7 @@ export default () => {
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,
       dataIndex: ["fields", field.id],
-      fieldType: "FIELD",
+      fieldType: "FIELD" as const,
       key: field.id,
       ellipsis: true,
       type: field.type,
@@ -363,7 +363,7 @@ export default () => {
       currentModel?.metadataSchema?.fields?.map(field => ({
         title: renderTitle(field),
         dataIndex: ["metadata", field.id],
-        fieldType: "META_FIELD",
+        fieldType: "META_FIELD" as const,
         key: field.id,
         ellipsis: true,
         type: field.type,
