@@ -229,7 +229,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		map[string]any{
 			"geometry": map[string]any{
 				"defaultValue":   nil,
-				"supportedTypes": []string{"Point", "LineString", "Polygon"},
+				"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
 			},
 		})
 
