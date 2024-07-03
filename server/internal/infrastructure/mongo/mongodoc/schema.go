@@ -47,6 +47,7 @@ type TypePropertyDocument struct {
 	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
 	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
 	Group     *FieldGroupPropertyDocument     `bson:",omitempty"`
+	Geometry  *FieldGeometryPropertyDocument  `bson:",omitempty"`
 }
 
 type FieldTextPropertyDocument struct {
@@ -84,6 +85,10 @@ type FieldReferencePropertyDocument struct {
 
 type FieldGroupPropertyDocument struct {
 	Group string
+}
+
+type FieldGeometryPropertyDocument struct {
+	SupportedTypes []string
 }
 
 func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
@@ -175,6 +180,13 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 				}
 			},
 			URL: func(fp *schema.FieldURL) {},
+			Geometry: func(fp *schema.FieldGeometry) {
+				fd.TypeProperty.Geometry = &FieldGeometryPropertyDocument{
+					SupportedTypes: lo.Map(fp.SupportedTypes(), func(item schema.GeometrySupportedType, _ int) string {
+						return item.String()
+					}),
+				}
+			},
 		})
 		return fd
 	})
@@ -281,6 +293,11 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 			tp = schema.NewURL().TypeProperty()
 		case value.TypeGroup:
 			tp = schema.NewGroup(gid).TypeProperty()
+		case value.TypeGeometry:
+			tp = schema.NewGeometry(lo.Map(tpd.Geometry.SupportedTypes, func(item string, _ int) schema.GeometrySupportedType {
+				return schema.GeometrySupportedTypeFrom(item)
+			})).TypeProperty()
+
 		}
 
 		fid, err := id.FieldIDFrom(fd.ID)
