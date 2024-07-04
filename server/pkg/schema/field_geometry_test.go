@@ -8,11 +8,17 @@ import (
 )
 
 func TestNewGeometry(t *testing.T) {
-	expected := &FieldGeometry{
+	expected1 := &FieldGeometry{
 		st: GeometrySupportedTypeList{"POINT"},
 	}
-	res := NewGeometry(GeometrySupportedTypeList{"POINT"})
-	assert.Equal(t, expected, res)
+	res1 := NewGeometry(GeometrySupportedTypeList{"POINT"})
+	assert.Equal(t, expected1, res1)
+
+	expected2 := &FieldGeometry{
+		st: GeometrySupportedTypeList{"POINT"},
+	}
+	res2 := NewGeometry(GeometrySupportedTypeList{"POINT", "POINT"})
+	assert.Equal(t, expected2, res2)
 }
 
 func TestFieldGeometry_Type(t *testing.T) {

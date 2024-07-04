@@ -6,6 +6,7 @@ import (
 
 	geojson "github.com/paulmach/go.geojson"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -17,7 +18,7 @@ type FieldGeometry struct {
 
 func NewGeometry(supportedTypes GeometrySupportedTypeList) *FieldGeometry {
 	return &FieldGeometry{
-		st: supportedTypes,
+		st: lo.Uniq(supportedTypes),
 	}
 }
 
