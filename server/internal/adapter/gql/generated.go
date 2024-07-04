@@ -5159,6 +5159,7 @@ enum GeometrySupportedType {
   POLYGON
   MULTIPOLYGON
   GEOMETRYCOLLECTION
+  ANY
 }
 
 type SchemaField {

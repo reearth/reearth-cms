@@ -96,6 +96,8 @@ func ToGeometrySupportedType(g schema.GeometrySupportedType) GeometrySupportedTy
 		return GeometrySupportedTypeMultipolygon
 	case schema.GeometrySupportedTypeGeometryCollection:
 		return GeometrySupportedTypeGeometrycollection
+	case schema.GeometrySupportedTypeAny:
+		return GeometrySupportedTypeAny
 
 	default:
 		return ""
@@ -118,6 +120,8 @@ func FromGeometrySupportedType(g GeometrySupportedType) schema.GeometrySupported
 		return schema.GeometrySupportedTypeMultiPolygon
 	case GeometrySupportedTypeGeometrycollection:
 		return schema.GeometrySupportedTypeGeometryCollection
+	case GeometrySupportedTypeAny:
+		return schema.GeometrySupportedTypeAny
 
 	default:
 		return ""

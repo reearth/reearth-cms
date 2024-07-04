@@ -53,6 +53,11 @@ func TestGeometrySupportedTypeFrom(t *testing.T) {
 			want: GeometrySupportedTypeGeometryCollection,
 		},
 		{
+			name: "any",
+			arg:  "ANY",
+			want: GeometrySupportedTypeAny,
+		},
+		{
 			name: "default",
 			arg:  "foo",
 			want: "",

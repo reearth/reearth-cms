@@ -1750,6 +1750,7 @@ const (
 	GeometrySupportedTypePolygon            GeometrySupportedType = "POLYGON"
 	GeometrySupportedTypeMultipolygon       GeometrySupportedType = "MULTIPOLYGON"
 	GeometrySupportedTypeGeometrycollection GeometrySupportedType = "GEOMETRYCOLLECTION"
+	GeometrySupportedTypeAny                GeometrySupportedType = "ANY"
 )
 
 var AllGeometrySupportedType = []GeometrySupportedType{
@@ -1760,11 +1761,12 @@ var AllGeometrySupportedType = []GeometrySupportedType{
 	GeometrySupportedTypePolygon,
 	GeometrySupportedTypeMultipolygon,
 	GeometrySupportedTypeGeometrycollection,
+	GeometrySupportedTypeAny,
 }
 
 func (e GeometrySupportedType) IsValid() bool {
 	switch e {
-	case GeometrySupportedTypePoint, GeometrySupportedTypeMultipoint, GeometrySupportedTypeLinestring, GeometrySupportedTypeMultilinestring, GeometrySupportedTypePolygon, GeometrySupportedTypeMultipolygon, GeometrySupportedTypeGeometrycollection:
+	case GeometrySupportedTypePoint, GeometrySupportedTypeMultipoint, GeometrySupportedTypeLinestring, GeometrySupportedTypeMultilinestring, GeometrySupportedTypePolygon, GeometrySupportedTypeMultipolygon, GeometrySupportedTypeGeometrycollection, GeometrySupportedTypeAny:
 		return true
 	}
 	return false

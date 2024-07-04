@@ -12,6 +12,7 @@ const (
 	GeometrySupportedTypePolygon            GeometrySupportedType = "POLYGON"
 	GeometrySupportedTypeMultiPolygon       GeometrySupportedType = "MULTIPOLYGON"
 	GeometrySupportedTypeGeometryCollection GeometrySupportedType = "GEOMETRYCOLLECTION"
+	GeometrySupportedTypeAny                GeometrySupportedType = "ANY"
 )
 
 func (s GeometrySupportedType) String() string {
@@ -35,6 +36,8 @@ func GeometrySupportedTypeFrom(s string) GeometrySupportedType {
 		return GeometrySupportedTypeMultiPolygon
 	case GeometrySupportedTypeGeometryCollection:
 		return GeometrySupportedTypeGeometryCollection
+	case GeometrySupportedTypeAny:
+		return GeometrySupportedTypeAny
 
 	default:
 		return GeometrySupportedType("")
