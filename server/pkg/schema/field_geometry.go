@@ -77,7 +77,7 @@ func IsValidGeoJSON(data string) (geojson.GeometryType, bool) {
 		if g != nil {
 			t = g.Type
 		}
-		return t, err == nil && rfc7946Validation(g)
+		return t, err == nil && isValidRFC7946(g)
 
 	case "GeometryCollection":
 		g, err := geojson.UnmarshalGeometry([]byte(data))
@@ -86,7 +86,7 @@ func IsValidGeoJSON(data string) (geojson.GeometryType, bool) {
 		}
 		v := true
 		for _, geometry := range g.Geometries {
-			v = v && rfc7946Validation(geometry)
+			v = v && isValidRFC7946(geometry)
 		}
 		return t, err == nil && v
 
@@ -94,30 +94,49 @@ func IsValidGeoJSON(data string) (geojson.GeometryType, bool) {
 		return "", false
 	}
 }
-func rfc7946Validation(g *geojson.Geometry) bool {
+
+func isValidPosition(pos []float64) bool {
+	l := len(pos)
+	return l > 1 && l < 4
+}
+
+func isValidRFC7946(g *geojson.Geometry) bool {
 	if g == nil {
 		return false
 	}
 	b := true
 	switch g.Type {
 	case "Point", "MultiPoint":
-		return true
+		return isValidPosition(g.Point)
 	case "LineString":
-		return len(g.LineString) > 1
+		b = len(g.LineString) > 1
+		for _, fl := range g.LineString {
+			b = b && isValidPosition(fl)
+		}
+		return b
 	case "Polygon":
 		for _, r := range g.Polygon {
 			b = b && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
+			for _, fl := range r {
+				b = b && isValidPosition(fl)
+			}
 		}
 		return b
 	case "MultiLineString":
 		for _, ls := range g.MultiLineString {
 			b = b && len(ls) > 1
+			for _, fl := range ls {
+				b = b && isValidPosition(fl)
+			}
 		}
 		return b
 	case "MultiPolygon":
 		for _, polygon := range g.MultiPolygon {
 			for _, r := range polygon {
 				b = b && len(r) > 3 && slices.Equal(r[0], r[len(r)-1])
+				for _, fl := range r {
+					b = b && isValidPosition(fl)
+				}
 			}
 		}
 		return b

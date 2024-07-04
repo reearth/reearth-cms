@@ -76,6 +76,22 @@ func TestIsValidGeoJSON(t *testing.T) {
 			expected: true,
 		},
 		{
+			name: "invalid GeoJSON geometry",
+			input: `{
+				"type": "Point",
+				"coordinates": [102.0]
+			}`,
+			expected: false,
+		},
+		{
+			name: "invalid GeoJSON geometry",
+			input: `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5, 2.3, 4.2]
+			}`,
+			expected: false,
+		},
+		{
 			name: "valid GeoJSON geometry",
 			input: `{
 				"type": "LineString",
