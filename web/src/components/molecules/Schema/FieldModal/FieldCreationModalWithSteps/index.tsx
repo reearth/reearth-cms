@@ -37,8 +37,8 @@ interface Props {
   open: boolean;
   isLoading: boolean;
   handleReferencedModelGet: (modelId: string) => void;
-  handleCorrespondingFieldKeyUnique: (key: string, fieldId?: string) => boolean;
-  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
+  handleCorrespondingFieldKeyUnique: (key: string) => boolean;
+  handleFieldKeyUnique: (key: string) => boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   onUpdate: (values: FormValues) => Promise<void>;
@@ -300,7 +300,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     (value: string, prevKey: typeof prevFieldKey, handleKeyUnique: typeof handleFieldKeyUnique) => {
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (validateKey(value) && handleKeyUnique(value, selectedField?.id)) {
+      } else if (validateKey(value) && handleKeyUnique(value)) {
         prevKey.current = { key: value, isSuccess: true };
         return Promise.resolve();
       } else {
@@ -308,7 +308,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         return Promise.reject();
       }
     },
-    [selectedField?.id],
+    [],
   );
 
   return (
