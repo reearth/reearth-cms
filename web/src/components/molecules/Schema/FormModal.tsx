@@ -40,7 +40,7 @@ const FormModal: React.FC<Props> = ({
   const [form] = Form.useForm<FormType>();
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
-  const prevKey = useRef<string>();
+  const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
   const values = Form.useWatch([], form);
   useEffect(() => {
@@ -152,15 +152,15 @@ const FormModal: React.FC<Props> = ({
 
   const keyValidate = useCallback(
     async (value: string) => {
-      if (prevKey.current === value) {
+      if (prevKey.current?.key === value) {
+        return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
+      } else if (value.length >= 3 && validateKey(value) && (await onKeyCheck(value, data?.key))) {
+        prevKey.current = { key: value, isSuccess: true };
         return Promise.resolve();
       } else {
-        prevKey.current = value;
-        if (value.length >= 3 && validateKey(value) && (await onKeyCheck(value, data?.key))) {
-          return Promise.resolve();
-        }
+        prevKey.current = { key: value, isSuccess: false };
+        return Promise.reject();
       }
-      return Promise.reject();
     },
     [data?.key, onKeyCheck],
   );

@@ -38,7 +38,7 @@ const ProjectCreationModal: React.FC<Props> = ({
   const [form] = Form.useForm<FormValues>();
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
-  const prevAlias = useRef<string>();
+  const prevAlias = useRef<{ alias: string; isSuccess: boolean }>();
 
   const values = Form.useWatch([], form);
   useEffect(() => {
@@ -89,15 +89,15 @@ const ProjectCreationModal: React.FC<Props> = ({
 
   const aliasValidate = useCallback(
     async (value: string) => {
-      if (prevAlias.current === value) {
+      if (prevAlias.current?.alias === value) {
+        return prevAlias.current?.isSuccess ? Promise.resolve() : Promise.reject();
+      } else if (value.length >= 5 && validateKey(value) && (await onProjectAliasCheck(value))) {
+        prevAlias.current = { alias: value, isSuccess: true };
         return Promise.resolve();
       } else {
-        prevAlias.current = value;
-        if (value.length >= 5 && validateKey(value) && (await onProjectAliasCheck(value))) {
-          return Promise.resolve();
-        }
+        prevAlias.current = { alias: value, isSuccess: false };
+        return Promise.reject();
       }
-      return Promise.reject();
     },
     [onProjectAliasCheck],
   );
