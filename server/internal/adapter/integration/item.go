@@ -31,7 +31,8 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	items, pi, err := adapter.Usecases(ctx).Item.FindBySchema(ctx, sp.Schema().ID(), nil, p, op)
+	q := fromQuery(*sp, request)
+	items, pi, err := uc.Item.Search(ctx, *sp, q, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemFilter404Response{}, err
@@ -44,9 +45,6 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 		return ItemFilter500Response{}, err
 	}
 	metaSchemas, metaItems := getMetaSchemasAndItems(ctx, items)
-	if err != nil {
-		return ItemFilter400Response{}, err
-	}
 
 	res, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
 		metaItem, _ := lo.Find(metaItems, func(itm item.Versioned) bool {
