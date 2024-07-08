@@ -553,8 +553,8 @@ func TestIntegrationSearchItem(t *testing.T) {
 	//},
 	//)
 	//
-	//res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
-	//res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id, i1Id})
+	//res.Path("$.totalCount").Number().IsEqual(2)
+	//res.Path("$.items[:].id").Array().IsEqual([]string{i2Id, i1Id})
 	//
 	//// fetch by schema with sort
 	//res = IntegrationSearchItem(e, map[string]any{
@@ -571,20 +571,20 @@ func TestIntegrationSearchItem(t *testing.T) {
 	//	"first": 2,
 	//})
 	//
-	//res.Path("$.data.searchItem.totalCount").Number().IsEqual(2)
-	//res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i2Id, i1Id})
+	//res.Path("$.totalCount").Number().IsEqual(2)
+	//res.Path("$.items[:].id").Array().IsEqual([]string{i2Id, i1Id})
 	//// endregion
+
+	// region fetch by model
+	// res = IntegrationSearchItem(e, map[string]any{
+	// 	"project": pId,
+	// 	"model":   mId1,
+	// }, nil, nil, map[string]any{
+	// 	"first": 2,
+	// })
 	//
-	//// region fetch by model
-	//// res = IntegrationSearchItem(e, map[string]any{
-	//// 	"project": pId,
-	//// 	"model":   mId1,
-	//// }, nil, nil, map[string]any{
-	//// 	"first": 2,
-	//// })
-	////
-	//// res.Path("$.data.searchItem.totalCount").Number().IsEqual(3)
-	//// res.Path("$.data.searchItem.nodes[:].id").Array().IsEqual([]string{i1Id, mi1Id, i2Id})
+	// res.Path("$.totalCount").Number().IsEqual(3)
+	// res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, mi1Id, i2Id})
 
 	// fetch by model with search
 	res = IntegrationSearchItem(e, mId, 1, 2, "updated", "", "", nil)
@@ -593,7 +593,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 	// endregion
 
-	//// region filter basic
+	// region filter basic
 	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
@@ -670,6 +670,436 @@ func TestIntegrationSearchItem(t *testing.T) {
 
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationDate",
+				},
+				"operator": "notEquals",
+				"value":    time.Now(),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+	// endregion
+
+	// region filter nullable
+	i1ver, _ = getItem(e, i1Id)
+	updateItem(e, i1Id, i1ver, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "", "type": "Text"},
+	})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"nullable": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "empty",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"nullable": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notEmpty",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	i1ver, _ = getItem(e, i1Id)
+	updateItem(e, i1Id, i1ver, []map[string]any{
+		{"schemaFieldId": fids.textFId, "value": "test1 updated", "type": "Text"},
+	})
+	// endregion
+
+	// region filters number
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.integerFId,
+					"type":    "field",
+				},
+				"operator": "lessThan",
+				"value":    2,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.integerFId,
+					"type":    "field",
+				},
+				"operator": "lessThanOrEqualTo",
+				"value":    2,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.integerFId,
+					"type":    "field",
+				},
+				"operator": "greaterThan",
+				"value":    1,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"number": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.integerFId,
+					"type":    "field",
+				},
+				"operator": "greaterThanOrEqualTo",
+				"value":    1,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
+
+	// region filters text
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "contains",
+				"value":    "updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notContains",
+				"value":    "updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "startsWith",
+				"value":    "test",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notStartsWith",
+				"value":    "test",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "endsWith",
+				"value":    "updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"string": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.textFId,
+					"type":    "field",
+				},
+				"operator": "notEndsWith",
+				"value":    "updated",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+	// endregion
+
+	// region filters boolean
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"bool": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.boolFId,
+					"type":    "field",
+				},
+				"operator": "equals",
+				"value":    false,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"bool": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.boolFId,
+					"type":    "field",
+				},
+				"operator": "notEquals",
+				"value":    false,
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
+
+	// region filters select
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"multiple": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.selectFId,
+					"type":    "field",
+				},
+				"operator": "includesAny",
+				"value":    []string{"s1", "s2", "s3"},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"multiple": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.selectFId,
+					"type":    "field",
+				},
+				"operator": "includesAny",
+				"value":    []string{"s1", "s3"},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"multiple": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.selectFId,
+					"type":    "field",
+				},
+				"operator": "notIncludesAny",
+				"value":    []string{"s1", "s2", "s3"},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+	// endregion
+
+	// region filters and
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"and": []map[string]any{
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"fieldId": fids.textFId,
+							"type":    "field",
+						},
+						"operator": "startsWith",
+						"value":    "test",
+					},
+				},
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"fieldId": fids.textFId,
+							"type":    "field",
+						},
+						"operator": "endsWith",
+						"value":    "updated",
+					},
+				},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
+
+	// region filters or
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"or": []map[string]any{
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"fieldId": fids.textFId,
+							"type":    "field",
+						},
+						"operator": "startsWith",
+						"value":    "test1",
+					},
+				},
+				{
+					"string": map[string]any{
+						"fieldId": map[string]any{
+							"fieldId": fids.textFId,
+							"type":    "field",
+						},
+						"operator": "startsWith",
+						"value":    "test2",
+					},
+				},
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
+
+	// region filters date
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"time": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.dateFId,
+					"type":    "field",
+				},
+				"operator": "after",
+				"value":    "2023-01-01T00:00:00.000Z",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": fids.dateFId,
+					"type":    "field",
+				},
+				"operator": "equals",
+				"value":    "2023-01-01T00:00:00.000Z",
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"time": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationDate",
+				},
+				"operator": "after",
+				"value":    time.Now().Format(time.RFC3339),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(0)
+	res.Path("$.items").IsNull()
+
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"time": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": nil,
+					"type":    "creationDate",
+				},
+				"operator": "after",
+				"value":    time.Now().AddDate(0, 0, -1).Format(time.RFC3339),
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(2)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
+	// endregion
+
+	// region filters Metadata tags
+	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+		map[string]any{
+			"basic": map[string]any{
+				"fieldId": map[string]any{
+					"fieldId": mfids.tagFId,
+					"type":    "metaField",
+				},
+				"operator": "equals",
+				"value":    tagIds[0],
+			},
+		})
+
+	res.Path("$.totalCount").Number().IsEqual(1)
+	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
+	// endregion
 }
 
 // POST /models/{modelId}/items
