@@ -1,5 +1,5 @@
 import type { ParamsType } from "@ant-design/pro-provider";
-import ProTable, { ListToolBarProps, ProTableProps } from "@ant-design/pro-table";
+import ProTable, { ListToolBarProps, ProTableProps, ColumnsState } from "@ant-design/pro-table";
 import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
 import { ProColumns, TableRowSelection } from "@ant-design/pro-table/lib/typing";
 import { ConfigProvider } from "antd";
@@ -31,4 +31,5 @@ export type {
   OptionConfig,
   TableRowSelection,
   ParamsType,
+  ColumnsState,
 };

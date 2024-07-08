@@ -29,6 +29,8 @@ const RequestList: React.FC = () => {
     page,
     pageSize,
     handleRequestTableChange,
+    columns,
+    handleColumnsChange,
   } = useHooks();
 
   return (
@@ -66,6 +68,8 @@ const RequestList: React.FC = () => {
       page={page}
       onRequestTableChange={handleRequestTableChange}
       pageSize={pageSize}
+      columns={columns}
+      onColumnsChange={handleColumnsChange}
     />
   );
 };

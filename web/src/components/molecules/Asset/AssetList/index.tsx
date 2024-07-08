@@ -3,6 +3,7 @@ import { Key, useCallback } from "react";
 
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTable";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
@@ -30,6 +31,8 @@ interface Props {
   pageSize: number;
   sort?: SortType;
   searchTerm: string;
+  columns: Record<string, ColumnsState>;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onUploadModalCancel: () => void;
@@ -64,6 +67,8 @@ const AssetList: React.FC<Props> = ({
   pageSize,
   sort,
   searchTerm,
+  columns,
+  onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
   onUploadModalCancel,
@@ -147,6 +152,8 @@ const AssetList: React.FC<Props> = ({
             pageSize={pageSize}
             sort={sort}
             searchTerm={searchTerm}
+            columns={columns}
+            onColumnsChange={onColumnsChange}
             onAssetItemSelect={onAssetItemSelect}
             onAssetSelect={onAssetSelect}
             onEdit={onEdit}

@@ -23,6 +23,8 @@ const AssetList: React.FC = () => {
     pageSize,
     sort,
     searchTerm,
+    columns,
+    handleColumnsChange,
     handleToggleCommentMenu,
     handleAssetItemSelect,
     handleAssetSelect,
@@ -64,6 +66,8 @@ const AssetList: React.FC = () => {
       pageSize={pageSize}
       sort={sort}
       searchTerm={searchTerm}
+      columns={columns}
+      onColumnsChange={handleColumnsChange}
       fileList={fileList}
       selection={selection}
       uploading={uploading}

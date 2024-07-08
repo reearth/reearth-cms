@@ -1,4 +1,3 @@
-import { ColumnsState } from "@ant-design/pro-table";
 import styled from "@emotion/styled";
 import React, {
   Key,
@@ -17,7 +16,11 @@ import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
-import { TableRowSelection, ListToolBarProps } from "@reearth-cms/components/atoms/ProTable";
+import {
+  TableRowSelection,
+  ListToolBarProps,
+  ColumnsState,
+} from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";

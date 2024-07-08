@@ -12,6 +12,7 @@ import {
   StretchColumn,
   OptionConfig,
   TableRowSelection,
+  ColumnsState,
 } from "@reearth-cms/components/atoms/ProTable";
 import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
@@ -43,6 +44,8 @@ interface Props {
   pageSize: number;
   sort?: SortType;
   searchTerm: string;
+  columns: Record<string, ColumnsState>;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
   onAssetItemSelect: (item: AssetItem) => void;
   onAssetSelect: (assetId: string) => void;
   onEdit: (assetId: string) => void;
@@ -64,6 +67,8 @@ const AssetListTable: React.FC<Props> = ({
   pageSize,
   sort,
   searchTerm,
+  columns: columnsState,
+  onColumnsChange,
   onAssetItemSelect,
   onAssetSelect,
   onEdit,
@@ -89,6 +94,7 @@ const AssetListTable: React.FC<Props> = ({
         render: (_, asset) => (
           <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
         ),
+        key: "EDIT_ICON",
         align: "center",
         width: 48,
         minWidth: 48,
@@ -327,6 +333,11 @@ const AssetListTable: React.FC<Props> = ({
     <ResizableProTable
       dataSource={assetList}
       columns={columns}
+      columnsState={{
+        defaultValue: {},
+        value: columnsState,
+        onChange: onColumnsChange,
+      }}
       tableAlertOptionRender={alertOptions}
       search={false}
       rowKey="id"
