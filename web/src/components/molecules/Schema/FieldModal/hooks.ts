@@ -28,7 +28,7 @@ export default (
   const selectedValues = Form.useWatch("values", form);
   const selectedTags = Form.useWatch("tags", form);
   const [multipleValue, setMultipleValue] = useState(false);
-  const prevKey = useRef<string>();
+  const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
@@ -255,17 +255,20 @@ export default (
     [selectedType],
   );
 
-  const keyValidate = useCallback((value: string) => {
-    if (prevKey.current === value) {
-      return Promise.resolve();
-    } else {
-      prevKey.current = value;
-      if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
+  const keyValidate = useCallback(
+    (value: string) => {
+      if (prevKey.current?.key === value) {
+        return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
+      } else if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
+        prevKey.current = { key: value, isSuccess: true };
         return Promise.resolve();
+      } else {
+        prevKey.current = { key: value, isSuccess: false };
+        return Promise.reject();
       }
-    }
-    return Promise.reject();
-  }, []);
+    },
+    [selectedField?.id],
+  );
 
   return {
     form,
