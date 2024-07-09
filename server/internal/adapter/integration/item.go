@@ -69,6 +69,14 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}, nil
 }
 
+func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWithProjectAsGeoJSONRequestObject) (ItemsWithProjectAsGeoJSONResponseObject, error) {
+	panic("not implemented")
+}
+
+func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithProjectAsCSVRequestObject) (ItemsWithProjectAsCSVResponseObject, error) {
+	panic("not implemented")
+}
+
 func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
