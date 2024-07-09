@@ -185,7 +185,10 @@ func (i Schema) UpdateField(ctx context.Context, param interfaces.UpdateFieldPar
 		if f == nil {
 			return nil, interfaces.ErrFieldNotFound
 		}
-
+		f2 := s.FieldByIDOrKey(nil, id.NewKey(*param.Key).Ref())
+		if f2 != nil && f.ID() != f2.ID() {
+			return nil, schema.ErrInvalidKey
+		}
 		// check if type is reference
 		if f.Type() == value.TypeReference {
 			err := i.updateCorrespondingField(ctx, s, f, param)
