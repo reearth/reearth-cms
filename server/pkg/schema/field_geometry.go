@@ -55,8 +55,8 @@ func (f *FieldGeometry) Clone() *FieldGeometry {
 	}
 }
 
-// IsValidGeoJSON uses the go.geojson library to validate a GeoJSON string
-func IsValidGeoJSON(data string) (geojson.GeometryType, bool) {
+// isValidGeoJSON uses the go.geojson library to validate a GeoJSON string
+func isValidGeoJSON(data string) (geojson.GeometryType, bool) {
 	if len(strings.TrimSpace(data)) == 0 {
 		return "", false
 	}
@@ -147,7 +147,7 @@ func isValidRFC7946(g *geojson.Geometry) bool {
 func (f *FieldGeometry) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		Geometry: func(a value.String) {
-			t, ok := IsValidGeoJSON(a)
+			t, ok := isValidGeoJSON(a)
 			if !ok {
 				err = ErrInvalidValue
 			}
