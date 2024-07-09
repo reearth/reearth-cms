@@ -7,13 +7,9 @@ import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { FormItem, ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
-import {
-  AssetSortType,
-  SortDirection,
-} from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
@@ -50,11 +46,7 @@ interface Props {
   onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
   onLinkItemTableReload?: () => void;
   onLinkItemTableChange?: (page: number, pageSize: number) => void;
-  onAssetTableChange?: (
-    page: number,
-    pageSize: number,
-    sorter?: { type?: AssetSortType; direction?: SortDirection },
-  ) => void;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
   onUploadModalCancel?: () => void;
   setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
