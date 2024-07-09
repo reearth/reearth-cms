@@ -704,9 +704,9 @@ paths:
       description: Returns a CSV that has a list of items as features.
       responses:
         '200':
-          description: A CSV object
+          description: A string in CSV format
           content:
-            application/json:
+            text/csv:
               schema:
                 type: string
         '400':
