@@ -32,6 +32,7 @@ interface Props {
   };
   setSelection: (input: { selectedRowKeys: Key[] }) => void;
   onRequestsReload: () => void;
+  deleteLoading: boolean;
   onRequestDelete: (requestIds: string[]) => void;
   onRequestTableChange: (
     page: number,
@@ -59,6 +60,7 @@ const RequestListTable: React.FC<Props> = ({
   selection,
   setSelection,
   onRequestsReload,
+  deleteLoading,
   onRequestDelete,
   onRequestTableChange,
   totalCount,
@@ -142,8 +144,8 @@ const RequestListTable: React.FC<Props> = ({
           { text: t("DRAFT"), value: "DRAFT" },
         ],
         defaultFilteredValue: requestState,
-        width: 100,
-        minWidth: 100,
+        width: 130,
+        minWidth: 130,
       },
       {
         title: t("Created By"),
@@ -263,28 +265,38 @@ const RequestListTable: React.FC<Props> = ({
     [onSearchTerm, searchTerm, t],
   );
 
-  const AlertOptions = useCallback(
+  const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={16}>
-          <DeselectButton onClick={props.onCleanSelected}>
-            <Icon icon="clear" /> {t("Deselect")}
-          </DeselectButton>
-          <DeleteButton onClick={() => onRequestDelete?.(props.selectedRowKeys)}>
-            <Icon icon="delete" /> {t("Close")}
-          </DeleteButton>
+        <Space size={4}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="clear" />}
+            onClick={props.onCleanSelected}>
+            {t("Deselect")}
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<Icon icon="delete" />}
+            onClick={() => onRequestDelete(props.selectedRowKeys)}
+            danger
+            loading={deleteLoading}>
+            {t("Close")}
+          </Button>
         </Space>
       );
     },
-    [onRequestDelete, t],
+    [deleteLoading, onRequestDelete, t],
   );
 
   return (
     <ResizableProTable
       dataSource={requests}
       columns={columns}
-      tableAlertOptionRender={AlertOptions}
+      tableAlertOptionRender={alertOptions}
       search={false}
       rowKey="id"
       options={options}
@@ -321,18 +333,5 @@ const StyledUserAvatar = styled(UserAvatar)`
   }
   :nth-child(n + 2) {
     margin-left: -18px;
-  }
-`;
-
-const DeselectButton = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DeleteButton = styled.a`
-  color: #ff7875;
-  :hover {
-    color: #ff7875b3;
   }
 `;

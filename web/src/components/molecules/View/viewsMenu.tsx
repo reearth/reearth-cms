@@ -13,7 +13,7 @@ const { DragColumn } = ReactDragListView;
 interface Props {
   views: View[];
   onViewRenameModalOpen: (view: View) => void;
-  onDelete: (viewId: string) => void;
+  onDelete: (viewId: string) => Promise<void>;
   onUpdate: (viewId: string, name: string) => Promise<void>;
   currentView: CurrentView;
   onViewCreateModalOpen: () => void;

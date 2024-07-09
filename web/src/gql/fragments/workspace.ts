@@ -17,10 +17,11 @@ export const workspaceFragment = gql`
         role
       }
       ... on WorkspaceIntegrationMember {
+        integrationId
         integration {
           ...integrationFragment
         }
-        integrationRole: role
+        role
         active
         invitedBy {
           id

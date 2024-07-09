@@ -76,6 +76,7 @@ const MyIntegrationForm: React.FC<Props> = ({
       content: t(
         "If you regenerate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
       ),
+      cancelText: t("Cancel"),
       okText: t("Reset"),
       onOk() {
         onRegenerateToken();
@@ -146,7 +147,7 @@ const MyIntegrationForm: React.FC<Props> = ({
             <CodeImportant>“{t("your model id here")}”</CodeImportant>/items&apos;&nbsp;\
             <br />
             --header &apos;Authorization: Bearer&nbsp;
-            <CodeImportant>“your Integration Token here”</CodeImportant>&apos;
+            <CodeImportant>“{t("your Integration Token here")}”</CodeImportant>&apos;
           </CodeExample>
         </Col>
       </Row>

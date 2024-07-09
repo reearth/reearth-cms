@@ -46,6 +46,7 @@ interface Props {
   totalCount: number;
   page: number;
   pageSize: number;
+  publishLoading: boolean;
   requestModalLoading: boolean;
   requestModalTotalCount: number;
   requestModalPage: number;
@@ -140,6 +141,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
   onRequestTableChange,
   onRequestSearchTerm,
   onRequestTableReload,
+  publishLoading,
   requestModalLoading,
   requestModalTotalCount,
   requestModalPage,
@@ -213,6 +215,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
             onRequestTableChange={onRequestTableChange}
             onRequestSearchTerm={onRequestSearchTerm}
             onRequestTableReload={onRequestTableReload}
+            publishLoading={publishLoading}
             requestModalLoading={requestModalLoading}
             requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}

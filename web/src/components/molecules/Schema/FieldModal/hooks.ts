@@ -204,6 +204,18 @@ export default (
     }
   }, []);
 
+  const values = Form.useWatch([], form);
+  useEffect(() => {
+    if (form.getFieldValue("title") && form.getFieldValue("key")) {
+      form
+        .validateFields()
+        .then(() => setButtonDisabled(false))
+        .catch(() => setButtonDisabled(true));
+    } else {
+      setButtonDisabled(true);
+    }
+  }, [form, values]);
+
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (selectedField) return;
@@ -219,34 +231,28 @@ export default (
     [form],
   );
 
-  const handleSubmit = useCallback(() => {
-    form
-      .validateFields()
-      .then(async values => {
-        values.type = selectedType;
-        values.typeProperty = typePropertyGet(values);
-        values.metadata = isMeta;
-        await onSubmit({
-          ...values,
-          fieldId: selectedField?.id,
-        });
-        setMultipleValue(false);
-        onClose();
-      })
-      .catch(info => {
-        console.log("Validate Failed:", info);
-      });
-  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
-
   const handleModalReset = useCallback(() => {
     form.resetFields();
     setActiveTab("settings");
-  }, [form]);
-
-  const handleModalCancel = useCallback(() => {
     setMultipleValue(false);
     onClose();
-  }, [onClose]);
+  }, [form, onClose]);
+
+  const handleSubmit = useCallback(async () => {
+    const values = await form.validateFields();
+    values.type = selectedType;
+    values.typeProperty = typePropertyGet(values);
+    values.metadata = isMeta;
+    try {
+      await onSubmit({
+        ...values,
+        fieldId: selectedField?.id,
+      });
+      handleModalReset();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
 
   const isMultipleDisabled = useMemo(
     () => selectedType === "Point" || selectedType === "Polyline" || selectedType === "Polygon",
@@ -276,7 +282,6 @@ export default (
   return {
     form,
     buttonDisabled,
-    setButtonDisabled,
     activeTab,
     selectedValues,
     selectedTags,
@@ -287,7 +292,6 @@ export default (
     handleKeyChange,
     handleSubmit,
     handleModalReset,
-    handleModalCancel,
     isMultipleDisabled,
     isRequiredDisabled,
     isUniqueDisabled,

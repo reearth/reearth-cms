@@ -39,6 +39,7 @@ const ContentDetails: React.FC = () => {
     handleRequestTableChange,
     handleRequestTableReload,
     handleRequestSearchTerm,
+    publishLoading,
     requestModalLoading,
     requestModalTotalCount,
     requestModalPage,
@@ -105,10 +106,11 @@ const ContentDetails: React.FC = () => {
       onRequestTableChange={handleRequestTableChange}
       onRequestSearchTerm={handleRequestSearchTerm}
       onRequestTableReload={handleRequestTableReload}
+      publishLoading={publishLoading}
+      requestModalLoading={requestModalLoading}
       requestModalTotalCount={requestModalTotalCount}
       requestModalPage={requestModalPage}
       requestModalPageSize={requestModalPageSize}
-      requestModalLoading={requestModalLoading}
       collapsed={collapsedModelMenu}
       onCollapse={collapseModelMenu}
       commentsPanel={
