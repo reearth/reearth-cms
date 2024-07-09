@@ -680,7 +680,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/geojson'
+                $ref: '#/components/schemas/GeoJSON'
         '400':
           description: Invalid request parameter value
         '401':
@@ -1502,28 +1502,31 @@ components:
         updatedAt:
           type: string
           format: date-time
-    geojson:
-      oneOf:
-        - $ref: '#/components/schemas/featureCollection'
-        - $ref: '#/components/schemas/feature'
-        - $ref: '#/components/schemas/geometryCollection'
-        - $ref: '#/components/schemas/point'
-        - $ref: '#/components/schemas/multiPoint'
-        - $ref: '#/components/schemas/lineString'
-        - $ref: '#/components/schemas/multiLineString'
-        - $ref: '#/components/schemas/polygon'
-        - $ref: '#/components/schemas/multiPolygon'
-    featureCollection:
+    GeoJSON:
+      properties:
+        type:
+          type: string
+          enum:
+          - Feature
+          - FeatureCollection
+          - Point
+          - MultiPoint
+          - LineString
+          - MultiLineString
+          - Polygon
+          - MultiPolygon
+          - GeometryCollection
+    FeatureCollection:
       type: object
       properties:
         type:
           type: string
           enum: [FeatureCollection]
-        features:
+        Features:
           type: array
           items:
-            $ref: '#/components/schemas/feature'
-    feature:
+            $ref: '#/components/schemas/Feature'
+    Feature:
       type: object
       properties:
         id:
@@ -1533,10 +1536,10 @@ components:
           type: string
           enum: [Feature]
         geometry:
-          $ref: '#/components/schemas/geometry'
+          $ref: '#/components/schemas/Geometry'
         properties:
           type: object
-    geometry:
+    Geometry:
       type: object
       properties:
         type:
@@ -1544,17 +1547,17 @@ components:
           enum: [Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, GeometryCollection]
         coordinates:
           oneOf:
-            - $ref: '#/components/schemas/point'
-            - $ref: '#/components/schemas/multiPoint'
-            - $ref: '#/components/schemas/lineString'
-            - $ref: '#/components/schemas/multiLineString'
-            - $ref: '#/components/schemas/polygon'
-            - $ref: '#/components/schemas/multiPolygon'
+            - $ref: '#/components/schemas/Point'
+            - $ref: '#/components/schemas/MultiPoint'
+            - $ref: '#/components/schemas/LineString'
+            - $ref: '#/components/schemas/MultiLineString'
+            - $ref: '#/components/schemas/Polygon'
+            - $ref: '#/components/schemas/MultiPolygon'
         geometries:
           type: array
           items:
-            $ref: '#/components/schemas/geometry'
-    geometryCollection:
+            $ref: '#/components/schemas/Geometry'
+    GeometryCollection:
       type: object
       properties:
         type:
@@ -1563,37 +1566,37 @@ components:
         geometries:
           type: array
           items:
-            $ref: '#/components/schemas/geometry'
-    point:
+            $ref: '#/components/schemas/Geometry'
+    Point:
       type: array
       items:
         type: number
       minItems: 2
       maxItems: 3
-    multiPoint:
+    MultiPoint:
       type: array
       items:
-        $ref: '#/components/schemas/point'
-    lineString:
+        $ref: '#/components/schemas/Point'
+    LineString:
       type: array
       items:
-        $ref: '#/components/schemas/point'
+        $ref: '#/components/schemas/Point'
       minItems: 2
-    multiLineString:
+    MultiLineString:
       type: array
       items:
-        $ref: '#/components/schemas/lineString'
-    polygon:
+        $ref: '#/components/schemas/LineString'
+    Polygon:
       type: array
       items:
         type: array
         items:
-          $ref: '#/components/schemas/point'
+          $ref: '#/components/schemas/Point'
       minItems: 4
-    multiPolygon:
+    MultiPolygon:
       type: array
       items:
-        $ref: '#/components/schemas/polygon'
+        $ref: '#/components/schemas/Polygon'
     versionedItem:
       type: object
       properties:

@@ -20,6 +20,45 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for FeatureType.
+const (
+	FeatureTypeFeature FeatureType = "Feature"
+)
+
+// Defines values for FeatureCollectionType.
+const (
+	FeatureCollectionTypeFeatureCollection FeatureCollectionType = "FeatureCollection"
+)
+
+// Defines values for GeoJSONType.
+const (
+	GeoJSONTypeFeature            GeoJSONType = "Feature"
+	GeoJSONTypeFeatureCollection  GeoJSONType = "FeatureCollection"
+	GeoJSONTypeGeometryCollection GeoJSONType = "GeometryCollection"
+	GeoJSONTypeLineString         GeoJSONType = "LineString"
+	GeoJSONTypeMultiLineString    GeoJSONType = "MultiLineString"
+	GeoJSONTypeMultiPoint         GeoJSONType = "MultiPoint"
+	GeoJSONTypeMultiPolygon       GeoJSONType = "MultiPolygon"
+	GeoJSONTypePoint              GeoJSONType = "Point"
+	GeoJSONTypePolygon            GeoJSONType = "Polygon"
+)
+
+// Defines values for GeometryType.
+const (
+	GeometryTypeGeometryCollection GeometryType = "GeometryCollection"
+	GeometryTypeLineString         GeometryType = "LineString"
+	GeometryTypeMultiLineString    GeometryType = "MultiLineString"
+	GeometryTypeMultiPoint         GeometryType = "MultiPoint"
+	GeometryTypeMultiPolygon       GeometryType = "MultiPolygon"
+	GeometryTypePoint              GeometryType = "Point"
+	GeometryTypePolygon            GeometryType = "Polygon"
+)
+
+// Defines values for GeometryCollectionType.
+const (
+	GeometryCollectionTypeGeometryCollection GeometryCollectionType = "GeometryCollection"
+)
+
 // Defines values for AssetArchiveExtractionStatus.
 const (
 	Done       AssetArchiveExtractionStatus = "done"
@@ -108,16 +147,6 @@ const (
 	OfThisYear  ConditionTimeOperator = "ofThisYear"
 )
 
-// Defines values for FeatureType.
-const (
-	FeatureTypeFeature FeatureType = "Feature"
-)
-
-// Defines values for FeatureCollectionType.
-const (
-	FeatureCollectionTypeFeatureCollection FeatureCollectionType = "FeatureCollection"
-)
-
 // Defines values for FieldSelectorType.
 const (
 	FieldSelectorTypeCreationDate     FieldSelectorType = "creationDate"
@@ -128,22 +157,6 @@ const (
 	FieldSelectorTypeModificationDate FieldSelectorType = "modificationDate"
 	FieldSelectorTypeModificationUser FieldSelectorType = "modificationUser"
 	FieldSelectorTypeStatus           FieldSelectorType = "status"
-)
-
-// Defines values for GeometryType.
-const (
-	GeometryTypeGeometryCollection GeometryType = "GeometryCollection"
-	GeometryTypeLineString         GeometryType = "LineString"
-	GeometryTypeMultiLineString    GeometryType = "MultiLineString"
-	GeometryTypeMultiPoint         GeometryType = "MultiPoint"
-	GeometryTypeMultiPolygon       GeometryType = "MultiPolygon"
-	GeometryTypePoint              GeometryType = "Point"
-	GeometryTypePolygon            GeometryType = "Polygon"
-)
-
-// Defines values for GeometryCollectionType.
-const (
-	GeometryCollectionTypeGeometryCollection GeometryCollectionType = "GeometryCollection"
 )
 
 // Defines values for RefOrVersionRef.
@@ -242,6 +255,76 @@ const (
 	AssetFilterParamsDirDesc AssetFilterParamsDir = "desc"
 )
 
+// Feature defines model for Feature.
+type Feature struct {
+	Geometry   *Geometry               `json:"geometry,omitempty"`
+	Id         *id.ItemID              `json:"id,omitempty"`
+	Properties *map[string]interface{} `json:"properties,omitempty"`
+	Type       *FeatureType            `json:"type,omitempty"`
+}
+
+// FeatureType defines model for Feature.Type.
+type FeatureType string
+
+// FeatureCollection defines model for FeatureCollection.
+type FeatureCollection struct {
+	Features *[]Feature             `json:"Features,omitempty"`
+	Type     *FeatureCollectionType `json:"type,omitempty"`
+}
+
+// FeatureCollectionType defines model for FeatureCollection.Type.
+type FeatureCollectionType string
+
+// GeoJSON defines model for GeoJSON.
+type GeoJSON struct {
+	Type *GeoJSONType `json:"type,omitempty"`
+}
+
+// GeoJSONType defines model for GeoJSON.Type.
+type GeoJSONType string
+
+// Geometry defines model for Geometry.
+type Geometry struct {
+	Coordinates *Geometry_Coordinates `json:"coordinates,omitempty"`
+	Geometries  *[]Geometry           `json:"geometries,omitempty"`
+	Type        *GeometryType         `json:"type,omitempty"`
+}
+
+// Geometry_Coordinates defines model for Geometry.Coordinates.
+type Geometry_Coordinates struct {
+	union json.RawMessage
+}
+
+// GeometryType defines model for Geometry.Type.
+type GeometryType string
+
+// GeometryCollection defines model for GeometryCollection.
+type GeometryCollection struct {
+	Geometries *[]Geometry             `json:"geometries,omitempty"`
+	Type       *GeometryCollectionType `json:"type,omitempty"`
+}
+
+// GeometryCollectionType defines model for GeometryCollection.Type.
+type GeometryCollectionType string
+
+// LineString defines model for LineString.
+type LineString = []Point
+
+// MultiLineString defines model for MultiLineString.
+type MultiLineString = []LineString
+
+// MultiPoint defines model for MultiPoint.
+type MultiPoint = []Point
+
+// MultiPolygon defines model for MultiPolygon.
+type MultiPolygon = []Polygon
+
+// Point defines model for Point.
+type Point = []float32
+
+// Polygon defines model for Polygon.
+type Polygon = [][]Point
+
 // Asset defines model for asset.
 type Asset struct {
 	ArchiveExtractionStatus *AssetArchiveExtractionStatus `json:"archiveExtractionStatus,omitempty"`
@@ -339,26 +422,6 @@ type ConditionStringOperator string
 // ConditionTimeOperator defines model for Condition.Time.Operator.
 type ConditionTimeOperator string
 
-// Feature defines model for feature.
-type Feature struct {
-	Geometry   *Geometry               `json:"geometry,omitempty"`
-	Id         *id.ItemID              `json:"id,omitempty"`
-	Properties *map[string]interface{} `json:"properties,omitempty"`
-	Type       *FeatureType            `json:"type,omitempty"`
-}
-
-// FeatureType defines model for Feature.Type.
-type FeatureType string
-
-// FeatureCollection defines model for featureCollection.
-type FeatureCollection struct {
-	Features *[]Feature             `json:"features,omitempty"`
-	Type     *FeatureCollectionType `json:"type,omitempty"`
-}
-
-// FeatureCollectionType defines model for FeatureCollection.Type.
-type FeatureCollectionType string
-
 // Field defines model for field.
 type Field struct {
 	Group *id.ItemGroupID `json:"group,omitempty"`
@@ -386,35 +449,6 @@ type File struct {
 	Size        *float32 `json:"size,omitempty"`
 }
 
-// Geojson defines model for geojson.
-type Geojson struct {
-	union json.RawMessage
-}
-
-// Geometry defines model for geometry.
-type Geometry struct {
-	Coordinates *Geometry_Coordinates `json:"coordinates,omitempty"`
-	Geometries  *[]Geometry           `json:"geometries,omitempty"`
-	Type        *GeometryType         `json:"type,omitempty"`
-}
-
-// Geometry_Coordinates defines model for Geometry.Coordinates.
-type Geometry_Coordinates struct {
-	union json.RawMessage
-}
-
-// GeometryType defines model for Geometry.Type.
-type GeometryType string
-
-// GeometryCollection defines model for geometryCollection.
-type GeometryCollection struct {
-	Geometries *[]Geometry             `json:"geometries,omitempty"`
-	Type       *GeometryCollectionType `json:"type,omitempty"`
-}
-
-// GeometryCollectionType defines model for GeometryCollection.Type.
-type GeometryCollectionType string
-
 // Item defines model for item.
 type Item struct {
 	CreatedAt      *time.Time `json:"createdAt,omitempty"`
@@ -426,9 +460,6 @@ type Item struct {
 	OriginalItemId *id.ItemID `json:"originalItemId,omitempty"`
 	UpdatedAt      *time.Time `json:"updatedAt,omitempty"`
 }
-
-// LineString defines model for lineString.
-type LineString = []Point
 
 // Model defines model for model.
 type Model struct {
@@ -444,21 +475,6 @@ type Model struct {
 	SchemaId         *id.SchemaID  `json:"schemaId,omitempty"`
 	UpdatedAt        *time.Time    `json:"updatedAt,omitempty"`
 }
-
-// MultiLineString defines model for multiLineString.
-type MultiLineString = []LineString
-
-// MultiPoint defines model for multiPoint.
-type MultiPoint = []Point
-
-// MultiPolygon defines model for multiPolygon.
-type MultiPolygon = []Polygon
-
-// Point defines model for point.
-type Point = []float32
-
-// Polygon defines model for polygon.
-type Polygon = [][]Point
 
 // Project defines model for project.
 type Project struct {
@@ -870,250 +886,6 @@ type AssetCreateMultipartRequestBody AssetCreateMultipartBody
 
 // AssetUploadCreateJSONRequestBody defines body for AssetUploadCreate for application/json ContentType.
 type AssetUploadCreateJSONRequestBody AssetUploadCreateJSONBody
-
-// AsFeatureCollection returns the union data inside the Geojson as a FeatureCollection
-func (t Geojson) AsFeatureCollection() (FeatureCollection, error) {
-	var body FeatureCollection
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromFeatureCollection overwrites any union data inside the Geojson as the provided FeatureCollection
-func (t *Geojson) FromFeatureCollection(v FeatureCollection) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeFeatureCollection performs a merge with any union data inside the Geojson, using the provided FeatureCollection
-func (t *Geojson) MergeFeatureCollection(v FeatureCollection) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsFeature returns the union data inside the Geojson as a Feature
-func (t Geojson) AsFeature() (Feature, error) {
-	var body Feature
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromFeature overwrites any union data inside the Geojson as the provided Feature
-func (t *Geojson) FromFeature(v Feature) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeFeature performs a merge with any union data inside the Geojson, using the provided Feature
-func (t *Geojson) MergeFeature(v Feature) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsGeometryCollection returns the union data inside the Geojson as a GeometryCollection
-func (t Geojson) AsGeometryCollection() (GeometryCollection, error) {
-	var body GeometryCollection
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromGeometryCollection overwrites any union data inside the Geojson as the provided GeometryCollection
-func (t *Geojson) FromGeometryCollection(v GeometryCollection) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeGeometryCollection performs a merge with any union data inside the Geojson, using the provided GeometryCollection
-func (t *Geojson) MergeGeometryCollection(v GeometryCollection) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsPoint returns the union data inside the Geojson as a Point
-func (t Geojson) AsPoint() (Point, error) {
-	var body Point
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromPoint overwrites any union data inside the Geojson as the provided Point
-func (t *Geojson) FromPoint(v Point) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergePoint performs a merge with any union data inside the Geojson, using the provided Point
-func (t *Geojson) MergePoint(v Point) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsMultiPoint returns the union data inside the Geojson as a MultiPoint
-func (t Geojson) AsMultiPoint() (MultiPoint, error) {
-	var body MultiPoint
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromMultiPoint overwrites any union data inside the Geojson as the provided MultiPoint
-func (t *Geojson) FromMultiPoint(v MultiPoint) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeMultiPoint performs a merge with any union data inside the Geojson, using the provided MultiPoint
-func (t *Geojson) MergeMultiPoint(v MultiPoint) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsLineString returns the union data inside the Geojson as a LineString
-func (t Geojson) AsLineString() (LineString, error) {
-	var body LineString
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromLineString overwrites any union data inside the Geojson as the provided LineString
-func (t *Geojson) FromLineString(v LineString) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeLineString performs a merge with any union data inside the Geojson, using the provided LineString
-func (t *Geojson) MergeLineString(v LineString) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsMultiLineString returns the union data inside the Geojson as a MultiLineString
-func (t Geojson) AsMultiLineString() (MultiLineString, error) {
-	var body MultiLineString
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromMultiLineString overwrites any union data inside the Geojson as the provided MultiLineString
-func (t *Geojson) FromMultiLineString(v MultiLineString) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeMultiLineString performs a merge with any union data inside the Geojson, using the provided MultiLineString
-func (t *Geojson) MergeMultiLineString(v MultiLineString) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsPolygon returns the union data inside the Geojson as a Polygon
-func (t Geojson) AsPolygon() (Polygon, error) {
-	var body Polygon
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromPolygon overwrites any union data inside the Geojson as the provided Polygon
-func (t *Geojson) FromPolygon(v Polygon) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergePolygon performs a merge with any union data inside the Geojson, using the provided Polygon
-func (t *Geojson) MergePolygon(v Polygon) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsMultiPolygon returns the union data inside the Geojson as a MultiPolygon
-func (t Geojson) AsMultiPolygon() (MultiPolygon, error) {
-	var body MultiPolygon
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromMultiPolygon overwrites any union data inside the Geojson as the provided MultiPolygon
-func (t *Geojson) FromMultiPolygon(v MultiPolygon) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeMultiPolygon performs a merge with any union data inside the Geojson, using the provided MultiPolygon
-func (t *Geojson) MergeMultiPolygon(v MultiPolygon) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t Geojson) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *Geojson) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
 
 // AsPoint returns the union data inside the Geometry_Coordinates as a Point
 func (t Geometry_Coordinates) AsPoint() (Point, error) {
