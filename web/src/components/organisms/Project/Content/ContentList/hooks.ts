@@ -104,8 +104,14 @@ export default () => {
       if (prevModelIdRef.current === modelId) {
         if (viewList.length > viewsRef.current.length) {
           setCurrentView(viewList[viewList.length - 1]);
+        } else if (viewList.length === viewsRef.current.length) {
+          if (Object.keys(currentView).length) {
+            setCurrentView(prev => viewList.find(view => view.id === prev.id) ?? viewList[0]);
+          } else {
+            setCurrentView(location.state?.currentView ?? viewList[0]);
+          }
         } else {
-          setCurrentView(prev => viewList.find(view => view.id === prev.id) ?? viewList[0]);
+          setCurrentView(viewList[0]);
         }
       } else {
         setCurrentView(location.state?.currentView ?? viewList[0]);
