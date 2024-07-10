@@ -36,7 +36,9 @@ interface Props {
   selectedField: Field | null;
   open: boolean;
   isLoading: boolean;
-  handleFieldKeyUnique: (key: string, fieldId?: string) => boolean;
+  handleReferencedModelGet: (modelId: string) => void;
+  handleCorrespondingFieldKeyUnique: (key: string) => boolean;
+  handleFieldKeyUnique: (key: string) => boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   onUpdate: (values: FormValues) => Promise<void>;
@@ -48,13 +50,15 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   selectedField,
   open,
   isLoading,
+  handleReferencedModelGet,
+  handleCorrespondingFieldKeyUnique,
   handleFieldKeyUnique,
   onClose,
   onSubmit,
   onUpdate,
 }) => {
   const t = useT();
-  const [selectedModel, setSelectedModel] = useState<string>();
+  const [selectedModelId, setSelectedModelId] = useState<string>();
   const schemaIdRef = useRef<string>();
   const [modelForm] = Form.useForm();
   const [field1Form] = Form.useForm();
@@ -64,6 +68,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const [isDisabled, setIsDisabled] = useState(true);
   const isDisabledCache = useRef<boolean>(true);
+  const prevFieldKey = useRef<{ key: string; isSuccess: boolean }>();
+  const prevCorrespondingKey = useRef<{ key: string; isSuccess: boolean }>();
 
   const formValidate = useCallback((form: FormInstance) => {
     if (form.getFieldValue("model") || (form.getFieldValue("title") && form.getFieldValue("key"))) {
@@ -97,7 +103,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       direction: selectedField?.typeProperty?.correspondingField ? 2 : 1,
     });
 
-    setSelectedModel(selectedField?.typeProperty?.modelId);
+    setSelectedModelId(selectedField?.typeProperty?.modelId);
     setNumSteps(selectedField?.typeProperty?.correspondingField ? 2 : 1);
     setIsDisabled(!selectedField);
     field1Form.setFieldsValue({
@@ -108,7 +114,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         ...selectedField.typeProperty.correspondingField,
       });
     }
-  }, [modelForm, selectedField, field1Form, field2Form, setNumSteps, setSelectedModel]);
+  }, [modelForm, selectedField, field1Form, field2Form, setNumSteps, setSelectedModelId]);
 
   const initialValues: FormValues = useMemo(
     () => ({
@@ -158,10 +164,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   const handleSelectModel = useCallback(
     (modelId: string, option: { schemaId: string }) => {
-      setSelectedModel(modelId);
+      setSelectedModelId(modelId);
       schemaIdRef.current = option.schemaId;
     },
-    [setSelectedModel],
+    [setSelectedModelId],
   );
 
   const clearFormFields = useCallback(() => {
@@ -187,6 +193,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     setIsDisabled(isDisabledCache.current);
   }, [currentStep]);
 
+  const handleSettingField = useCallback(() => {
+    if (numSteps === 2 && selectedModelId) {
+      handleReferencedModelGet(selectedModelId);
+    }
+    nextStep();
+  }, [handleReferencedModelGet, nextStep, numSteps, selectedModelId]);
+
   const handleFirstField = useCallback(() => {
     field1Form
       .validateFields()
@@ -194,7 +207,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         values.type = "Reference";
         values.typeProperty = {
           reference: {
-            modelId: selectedModel,
+            modelId: selectedModelId,
             schemaId: schemaIdRef.current,
             correspondingField: null,
           },
@@ -215,7 +228,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       });
   }, [
     field1Form,
-    selectedModel,
+    selectedModelId,
     currentStep,
     numSteps,
     nextStep,
@@ -231,7 +244,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         .then(async fields2Values => {
           field1FormValues.typeProperty = {
             reference: {
-              modelId: selectedModel ?? "",
+              modelId: selectedModelId ?? "",
               schemaId: schemaIdRef.current ?? "",
               correspondingField: {
                 ...fields2Values,
@@ -251,7 +264,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         .then(async fields2Values => {
           field1FormValues.typeProperty = {
             reference: {
-              modelId: selectedModel ?? "",
+              modelId: selectedModelId ?? "",
               schemaId: schemaIdRef.current ?? "",
               correspondingField: {
                 ...fields2Values,
@@ -266,7 +279,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           setActiveTab("settings");
         });
     }
-  }, [onClose, onSubmit, onUpdate, selectedField, field1FormValues, field2Form, selectedModel]);
+  }, [onClose, onSubmit, onUpdate, selectedField, field1FormValues, field2Form, selectedModelId]);
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, fieldForm: FormInstance) => {
@@ -279,6 +292,21 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const handleKeyChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, fieldForm: FormInstance) => {
       keyReplace(e, { form: fieldForm, key: "key" });
+    },
+    [],
+  );
+
+  const keyValidate = useCallback(
+    (value: string, prevKey: typeof prevFieldKey, handleKeyUnique: typeof handleFieldKeyUnique) => {
+      if (prevKey.current?.key === value) {
+        return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
+      } else if (validateKey(value) && handleKeyUnique(value)) {
+        prevKey.current = { key: value, isSuccess: true };
+        return Promise.resolve();
+      } else {
+        prevKey.current = { key: value, isSuccess: false };
+        return Promise.reject();
+      }
     },
     [],
   );
@@ -319,7 +347,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             <div key="placeholder" />
           )}
           {currentStep === 0 && (
-            <Button key="next" type="primary" onClick={nextStep} disabled={isDisabled}>
+            <Button key="next" type="primary" onClick={handleSettingField} disabled={isDisabled}>
               {t("Next")}
             </Button>
           )}
@@ -359,7 +387,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             name="model"
             label={t("Select the model to reference")}
             rules={[{ required: true, message: t("Please select the model!") }]}>
-            <Select value={selectedModel} onSelect={handleSelectModel} disabled={isUpdate}>
+            <Select value={selectedModelId} onSelect={handleSelectModel} disabled={isUpdate}>
               {models?.map(model => (
                 <Select.Option key={model.id} value={model.id} schemaId={model.schema.id}>
                   {model.name}{" "}
@@ -419,17 +447,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   {
                     message: t("Key is not valid"),
                     required: true,
-                    validator: (_, value) => {
-                      if (!validateKey(value)) return Promise.reject();
-                      const isKeyAvailable = handleFieldKeyUnique(
-                        value,
-                        selectedField ? selectedField?.id : undefined,
-                      );
-                      if (isKeyAvailable) {
-                        return Promise.resolve();
-                      } else {
-                        return Promise.reject();
-                      }
+                    validator: async (_, value) => {
+                      await keyValidate(value, prevFieldKey, handleFieldKeyUnique);
                     },
                   },
                 ]}>
@@ -450,7 +469,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   label={t("Set Options")}
                   rules={[
                     {
-                      validator: (_, values) => {
+                      validator: async (_, values) => {
                         if (!values || values.length < 1) {
                           return Promise.reject(new Error("At least 1 option"));
                         }
@@ -525,14 +544,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   {
                     message: t("Key is not valid"),
                     required: true,
-                    validator: (_, value) => {
-                      if (!validateKey(value)) return Promise.reject();
-                      const isKeyAvailable = handleFieldKeyUnique(value);
-                      if (isKeyAvailable) {
-                        return Promise.resolve();
-                      } else {
-                        return Promise.reject();
-                      }
+                    validator: async (_, value) => {
+                      await keyValidate(
+                        value,
+                        prevCorrespondingKey,
+                        handleCorrespondingFieldKeyUnique,
+                      );
                     },
                   },
                 ]}>
@@ -553,7 +570,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   label={t("Set Options")}
                   rules={[
                     {
-                      validator: (_, values) => {
+                      validator: async (_, values) => {
                         if (!values || values.length < 1) {
                           return Promise.reject(new Error("At least 1 option"));
                         }
