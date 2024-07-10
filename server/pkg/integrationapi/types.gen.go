@@ -30,19 +30,6 @@ const (
 	FeatureCollectionTypeFeatureCollection FeatureCollectionType = "FeatureCollection"
 )
 
-// Defines values for GeoJSONType.
-const (
-	GeoJSONTypeFeature            GeoJSONType = "Feature"
-	GeoJSONTypeFeatureCollection  GeoJSONType = "FeatureCollection"
-	GeoJSONTypeGeometryCollection GeoJSONType = "GeometryCollection"
-	GeoJSONTypeLineString         GeoJSONType = "LineString"
-	GeoJSONTypeMultiLineString    GeoJSONType = "MultiLineString"
-	GeoJSONTypeMultiPoint         GeoJSONType = "MultiPoint"
-	GeoJSONTypeMultiPolygon       GeoJSONType = "MultiPolygon"
-	GeoJSONTypePoint              GeoJSONType = "Point"
-	GeoJSONTypePolygon            GeoJSONType = "Polygon"
-)
-
 // Defines values for GeometryType.
 const (
 	GeometryTypeGeometryCollection GeometryType = "GeometryCollection"
@@ -277,11 +264,13 @@ type FeatureCollectionType string
 
 // GeoJSON defines model for GeoJSON.
 type GeoJSON struct {
-	Type *GeoJSONType `json:"type,omitempty"`
+	Body *GeoJSON_Body `json:"body,omitempty"`
 }
 
-// GeoJSONType defines model for GeoJSON.Type.
-type GeoJSONType string
+// GeoJSON_Body defines model for GeoJSON.Body.
+type GeoJSON_Body struct {
+	union json.RawMessage
+}
 
 // Geometry defines model for Geometry.
 type Geometry struct {
@@ -886,6 +875,250 @@ type AssetCreateMultipartRequestBody AssetCreateMultipartBody
 
 // AssetUploadCreateJSONRequestBody defines body for AssetUploadCreate for application/json ContentType.
 type AssetUploadCreateJSONRequestBody AssetUploadCreateJSONBody
+
+// AsFeatureCollection returns the union data inside the GeoJSON_Body as a FeatureCollection
+func (t GeoJSON_Body) AsFeatureCollection() (FeatureCollection, error) {
+	var body FeatureCollection
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromFeatureCollection overwrites any union data inside the GeoJSON_Body as the provided FeatureCollection
+func (t *GeoJSON_Body) FromFeatureCollection(v FeatureCollection) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeFeatureCollection performs a merge with any union data inside the GeoJSON_Body, using the provided FeatureCollection
+func (t *GeoJSON_Body) MergeFeatureCollection(v FeatureCollection) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsFeature returns the union data inside the GeoJSON_Body as a Feature
+func (t GeoJSON_Body) AsFeature() (Feature, error) {
+	var body Feature
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromFeature overwrites any union data inside the GeoJSON_Body as the provided Feature
+func (t *GeoJSON_Body) FromFeature(v Feature) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeFeature performs a merge with any union data inside the GeoJSON_Body, using the provided Feature
+func (t *GeoJSON_Body) MergeFeature(v Feature) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsGeometryCollection returns the union data inside the GeoJSON_Body as a GeometryCollection
+func (t GeoJSON_Body) AsGeometryCollection() (GeometryCollection, error) {
+	var body GeometryCollection
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGeometryCollection overwrites any union data inside the GeoJSON_Body as the provided GeometryCollection
+func (t *GeoJSON_Body) FromGeometryCollection(v GeometryCollection) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGeometryCollection performs a merge with any union data inside the GeoJSON_Body, using the provided GeometryCollection
+func (t *GeoJSON_Body) MergeGeometryCollection(v GeometryCollection) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPoint returns the union data inside the GeoJSON_Body as a Point
+func (t GeoJSON_Body) AsPoint() (Point, error) {
+	var body Point
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPoint overwrites any union data inside the GeoJSON_Body as the provided Point
+func (t *GeoJSON_Body) FromPoint(v Point) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePoint performs a merge with any union data inside the GeoJSON_Body, using the provided Point
+func (t *GeoJSON_Body) MergePoint(v Point) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMultiPoint returns the union data inside the GeoJSON_Body as a MultiPoint
+func (t GeoJSON_Body) AsMultiPoint() (MultiPoint, error) {
+	var body MultiPoint
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMultiPoint overwrites any union data inside the GeoJSON_Body as the provided MultiPoint
+func (t *GeoJSON_Body) FromMultiPoint(v MultiPoint) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMultiPoint performs a merge with any union data inside the GeoJSON_Body, using the provided MultiPoint
+func (t *GeoJSON_Body) MergeMultiPoint(v MultiPoint) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsLineString returns the union data inside the GeoJSON_Body as a LineString
+func (t GeoJSON_Body) AsLineString() (LineString, error) {
+	var body LineString
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromLineString overwrites any union data inside the GeoJSON_Body as the provided LineString
+func (t *GeoJSON_Body) FromLineString(v LineString) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeLineString performs a merge with any union data inside the GeoJSON_Body, using the provided LineString
+func (t *GeoJSON_Body) MergeLineString(v LineString) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMultiLineString returns the union data inside the GeoJSON_Body as a MultiLineString
+func (t GeoJSON_Body) AsMultiLineString() (MultiLineString, error) {
+	var body MultiLineString
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMultiLineString overwrites any union data inside the GeoJSON_Body as the provided MultiLineString
+func (t *GeoJSON_Body) FromMultiLineString(v MultiLineString) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMultiLineString performs a merge with any union data inside the GeoJSON_Body, using the provided MultiLineString
+func (t *GeoJSON_Body) MergeMultiLineString(v MultiLineString) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPolygon returns the union data inside the GeoJSON_Body as a Polygon
+func (t GeoJSON_Body) AsPolygon() (Polygon, error) {
+	var body Polygon
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPolygon overwrites any union data inside the GeoJSON_Body as the provided Polygon
+func (t *GeoJSON_Body) FromPolygon(v Polygon) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePolygon performs a merge with any union data inside the GeoJSON_Body, using the provided Polygon
+func (t *GeoJSON_Body) MergePolygon(v Polygon) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMultiPolygon returns the union data inside the GeoJSON_Body as a MultiPolygon
+func (t GeoJSON_Body) AsMultiPolygon() (MultiPolygon, error) {
+	var body MultiPolygon
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMultiPolygon overwrites any union data inside the GeoJSON_Body as the provided MultiPolygon
+func (t *GeoJSON_Body) FromMultiPolygon(v MultiPolygon) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMultiPolygon performs a merge with any union data inside the GeoJSON_Body, using the provided MultiPolygon
+func (t *GeoJSON_Body) MergeMultiPolygon(v MultiPolygon) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t GeoJSON_Body) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *GeoJSON_Body) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // AsPoint returns the union data inside the Geometry_Coordinates as a Point
 func (t Geometry_Coordinates) AsPoint() (Point, error) {

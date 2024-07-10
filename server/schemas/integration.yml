@@ -1503,19 +1503,19 @@ components:
           type: string
           format: date-time
     GeoJSON:
+      type: object
       properties:
-        type:
-          type: string
-          enum:
-          - Feature
-          - FeatureCollection
-          - Point
-          - MultiPoint
-          - LineString
-          - MultiLineString
-          - Polygon
-          - MultiPolygon
-          - GeometryCollection
+        body:
+          oneOf:
+            - $ref: '#/components/schemas/FeatureCollection'
+            - $ref: '#/components/schemas/Feature'
+            - $ref: '#/components/schemas/GeometryCollection'
+            - $ref: '#/components/schemas/Point'
+            - $ref: '#/components/schemas/MultiPoint'
+            - $ref: '#/components/schemas/LineString'
+            - $ref: '#/components/schemas/MultiLineString'
+            - $ref: '#/components/schemas/Polygon'
+            - $ref: '#/components/schemas/MultiPolygon'
     FeatureCollection:
       type: object
       properties:
