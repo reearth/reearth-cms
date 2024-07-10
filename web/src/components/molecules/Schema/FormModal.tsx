@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useMemo } from "react";
+import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -40,6 +40,7 @@ const FormModal: React.FC<Props> = ({
   const [form] = Form.useForm<FormType>();
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
+  const prevKey = useRef<{ key: string; isSuccess: boolean }>();
 
   const values = Form.useWatch([], form);
   useEffect(() => {
@@ -149,6 +150,21 @@ const FormModal: React.FC<Props> = ({
     [isModel, t],
   );
 
+  const keyValidate = useCallback(
+    async (value: string) => {
+      if (prevKey.current?.key === value) {
+        return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
+      } else if (value.length >= 3 && validateKey(value) && (await onKeyCheck(value, data?.key))) {
+        prevKey.current = { key: value, isSuccess: true };
+        return Promise.resolve();
+      } else {
+        prevKey.current = { key: value, isSuccess: false };
+        return Promise.reject();
+      }
+    },
+    [data?.key, onKeyCheck],
+  );
+
   return (
     <Modal
       open={open}
@@ -191,14 +207,7 @@ const FormModal: React.FC<Props> = ({
               message: t("Key is not valid"),
               required: true,
               validator: async (_, value) => {
-                if (
-                  value.length >= 3 &&
-                  validateKey(value) &&
-                  (await onKeyCheck(value, data?.key))
-                ) {
-                  return Promise.resolve();
-                }
-                return Promise.reject();
+                await keyValidate(value);
               },
             },
           ]}>
