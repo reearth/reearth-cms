@@ -7,6 +7,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Radio from "@reearth-cms/components/atoms/Radio";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -135,10 +136,11 @@ const FieldModal: React.FC<Props> = ({
     handleKeyChange,
     handleSubmit,
     handleModalReset,
-    isMultipleDisabled,
     isRequiredDisabled,
     isUniqueDisabled,
     isTitleDisabled,
+    ObjectSupportType,
+    EditorSupportType,
   } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit);
 
   const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
@@ -267,18 +269,38 @@ const FieldModal: React.FC<Props> = ({
                 </Select>
               </Form.Item>
             )}
+            {selectedType === "GeometryObject" && (
+              <Form.Item
+                name="supportedTypes"
+                label={t("Support Type")}
+                extra={t("Please select what type of Geometry this field will support")}
+                required>
+                <StyledCheckboxGroup>
+                  {ObjectSupportType.map(item => (
+                    <Checkbox value={item.value}>{item.label}</Checkbox>
+                  ))}
+                </StyledCheckboxGroup>
+              </Form.Item>
+            )}
+            {selectedType === "GeometryEditor" && (
+              <Form.Item
+                name="supportedTypes"
+                label={t("Support Type")}
+                extra={t("Please select what type of Geometry this field will support")}
+                required>
+                <Radio.Group defaultValue={EditorSupportType[0].value}>
+                  {EditorSupportType.map(item => (
+                    <Radio value={item.value}>{item.label}</Radio>
+                  ))}
+                </Radio.Group>
+              </Form.Item>
+            )}
             <OptionTitle>{t("options")}</OptionTitle>
             <Form.Item
               name="multiple"
               valuePropName="checked"
-              extra={
-                isMultipleDisabled
-                  ? t("Create multiple points in one field")
-                  : t("Stores a list of values instead of a single value")
-              }>
-              <Checkbox
-                disabled={isMultipleDisabled}
-                onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+              extra={t("Stores a list of values instead of a single value")}>
+              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
                 {t("Support multiple values")}
               </Checkbox>
             </Form.Item>
@@ -383,6 +405,12 @@ const StyledIcon = styled(Icon)`
 const StyledGroupKey = styled.span`
   font-size: 12px;
   margin-left: 4px;
+`;
+
+const StyledCheckboxGroup = styled(Checkbox.Group)`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0;
 `;
 
 export default FieldModal;

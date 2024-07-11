@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
-import { Cartesian3, Viewer as CesiumViewer, Cartographic, Math, SceneMode } from "cesium";
+import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
+import { Ion, Cartesian3, Viewer as CesiumViewer, Cartographic, Math, SceneMode } from "cesium";
 import dayjs from "dayjs";
+import { editor } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useBlocker } from "react-router-dom";
 import {
@@ -40,6 +42,7 @@ import {
   AssetSortType,
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
+import { config } from "@reearth-cms/config";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 
@@ -476,7 +479,7 @@ const ContentForm: React.FC<Props> = ({
 
   const viewer = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const positionsRef = useRef<number[][]>([]);
-  type GeoType = "point" | "polyline" | "polygon";
+  type GeoType = "point" | "lineString" | "polygon";
   type ModeType = "add" | "edit" | "delete";
   const [geoValues, setGeoValues] = useState<Map<string, number[]>>(new Map());
   const [geoType, setGeoType] = useState<GeoType>();
@@ -528,15 +531,35 @@ const ContentForm: React.FC<Props> = ({
               prev.set(entity.id, [lon, lat]);
               return new Map(prev);
             });
+            editorRef.current?.setValue(
+              JSON.stringify(
+                {
+                  type: "Point",
+                  coodinates: [lon, lat],
+                },
+                null,
+                2,
+              ),
+            );
           } else {
             positionsRef.current?.push([lon, lat]);
-            if (geoType === "polyline") {
+            if (geoType === "lineString") {
               viewer.current.cesiumElement.entities.add({
                 position: cartesian,
                 polyline: {
                   positions: Cartesian3.fromDegreesArray(positionsRef.current.flat()),
                 },
               });
+              editorRef.current?.setValue(
+                JSON.stringify(
+                  {
+                    type: "LineString",
+                    coodinates: positionsRef.current,
+                  },
+                  null,
+                  2,
+                ),
+              );
             } else {
               viewer.current.cesiumElement.entities.add({
                 position: cartesian,
@@ -545,6 +568,16 @@ const ContentForm: React.FC<Props> = ({
                   extrudedHeight: 50000,
                 },
               });
+              editorRef.current?.setValue(
+                JSON.stringify(
+                  {
+                    type: "Polygon",
+                    coodinates: [positionsRef.current],
+                  },
+                  null,
+                  2,
+                ),
+              );
             }
           }
         }
@@ -568,10 +601,12 @@ const ContentForm: React.FC<Props> = ({
   }, []);
 
   const [enableTranslate, setEnableTranslate] = useState(true);
+  const [isGrabbing, setIsGrabbing] = useState(false);
   const [entityId, setEntityId] = useState("");
 
   const onMouseDown = useCallback(
     (_: CesiumMovementEvent, target: RootEventTarget) => {
+      setIsGrabbing(true);
       if (!("id" in target) || typeof target.id === "string") return;
       if (mode === "edit") {
         if (target?.id) {
@@ -618,12 +653,83 @@ const ContentForm: React.FC<Props> = ({
 
   const onMouseUp = useCallback(() => {
     setEntityId("");
+    setIsGrabbing(false);
   }, []);
 
   const [fullScreen, setFullScreen] = useState(false);
 
   const handleFullScreen = useCallback(() => {
     setFullScreen(prev => !prev);
+  }, []);
+
+  const [isReady, setIsReady] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+  const editorRef = useRef<editor.IStandaloneCodeEditor>();
+
+  useEffect(() => {
+    Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
+    setIsReady(true);
+  }, []);
+
+  const options = useMemo(
+    () => ({
+      bracketPairColorization: {
+        enabled: true,
+      },
+      minimap: {
+        enabled: false,
+      },
+      readOnly: false,
+      wordWrap: "on" as const,
+      scrollBeyondLastLine: false,
+    }),
+    [],
+  );
+
+  const handleEditorDidMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
+  };
+
+  const handleEditorWillMount: BeforeMount = monaco => {
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      schemaValidation: "error",
+      schemas: [
+        {
+          uri: "",
+          fileMatch: ["*"],
+          schema: {
+            type: "object",
+            properties: {
+              type: {
+                enum: [
+                  "Point",
+                  "LineString",
+                  "Polygon",
+                  "MultiPoint",
+                  "MultiLineString",
+                  "MultiPolygon",
+                  "GeometryCollection",
+                ],
+              },
+              coodinates: {},
+            },
+          },
+        },
+      ],
+    });
+  };
+
+  const handleEditorOnChange = (value?: string) => {
+    value ? setIsEmpty(false) : setIsEmpty(true);
+  };
+
+  const copyButtonClick = useCallback(() => {
+    const value = editorRef.current?.getValue();
+    if (value) navigator.clipboard.writeText(value);
+  }, []);
+
+  const editorDeleteButtonClick = useCallback(() => {
+    editorRef.current?.setValue("");
   }, []);
 
   return (
@@ -664,77 +770,125 @@ const ContentForm: React.FC<Props> = ({
           }
         />
         <FormItemsWrapper>
-          <ViewerWrapper fullScreen={fullScreen}>
-            <TopButton
-              top={7}
-              left={200}
-              icon={<Icon icon="mapPin" size={22} />}
-              onClick={pinButtonClick}
-              selected={mode === "add"}
-            />
-            {geoValues.size > 0 && (
-              <>
+          <GeometryField>
+            <EditorWrapper>
+              <EditorButton
+                top={8}
+                right={17}
+                icon={<Icon icon="editorCopy" size={12} />}
+                size="small"
+                onClick={copyButtonClick}
+              />
+              <EditorButton
+                top={34}
+                right={17}
+                icon={<Icon icon="trash" size={12} />}
+                size="small"
+                onClick={editorDeleteButtonClick}
+              />
+              <MonacoEditor
+                height="100%"
+                language={"json"}
+                options={options}
+                value={JSON.stringify(
+                  {
+                    type: "Point",
+                    coodinates: [],
+                  },
+                  null,
+                  2,
+                )}
+                onChange={handleEditorOnChange}
+                onMount={handleEditorDidMount}
+                beforeMount={handleEditorWillMount}
+              />
+              <Placeholder isEmpty={isEmpty}>
+                {JSON.stringify(
+                  {
+                    type: "Point",
+                    coodinates: [],
+                  },
+                  null,
+                  2,
+                )}
+              </Placeholder>
+            </EditorWrapper>
+            {isReady && (
+              <ViewerWrapper fullScreen={fullScreen}>
                 <TopButton
                   top={7}
-                  left={250}
-                  icon={<Icon icon="edit" size={20} />}
-                  onClick={editButtonClick}
-                  selected={mode === "edit"}
+                  left={200}
+                  icon={<Icon icon="mapPin" size={22} />}
+                  onClick={pinButtonClick}
+                  selected={mode === "add"}
                 />
-                <TopButton
-                  top={7}
-                  left={300}
-                  icon={<Icon icon="trash" size={20} />}
-                  onClick={deleteButtonClick}
-                  selected={mode === "delete"}
+                {geoValues.size > 0 && (
+                  <>
+                    <TopButton
+                      top={7}
+                      left={250}
+                      icon={<Icon icon="edit" size={20} />}
+                      onClick={editButtonClick}
+                      selected={mode === "edit"}
+                    />
+                    <TopButton
+                      top={7}
+                      left={300}
+                      icon={<Icon icon="trash" size={20} />}
+                      onClick={deleteButtonClick}
+                      selected={mode === "delete"}
+                    />
+                  </>
+                )}
+                <RightButton
+                  top={50}
+                  right={5}
+                  icon={<Icon icon="plus" />}
+                  onClick={() => {
+                    handleZoom(true);
+                  }}
                 />
-              </>
+                <RightButton
+                  top={90}
+                  right={5}
+                  icon={<Icon icon="minus" />}
+                  onClick={() => {
+                    handleZoom(false);
+                  }}
+                />
+                <RightButton
+                  bottom={20}
+                  right={5}
+                  icon={<Icon icon="fullscreen" />}
+                  onClick={handleFullScreen}
+                />
+                <StyledViewer
+                  infoBox={false}
+                  navigationHelpButton={false}
+                  homeButton={false}
+                  projectionPicker={false}
+                  sceneModePicker={true}
+                  sceneMode={SceneMode.SCENE2D}
+                  baseLayerPicker={true}
+                  fullscreenButton={false}
+                  vrButton={false}
+                  selectionIndicator={true}
+                  timeline={false}
+                  animation={false}
+                  geocoder={false}
+                  shouldAnimate={true}
+                  onClick={handleClick}
+                  onMouseDown={onMouseDown}
+                  onMouseMove={onMouseMove}
+                  onMouseUp={onMouseUp}
+                  ref={viewer}
+                  isGrabbing={isGrabbing}
+                  isDrawMode={!!mode}>
+                  <ScreenSpaceCameraController enableTranslate={enableTranslate} />
+                </StyledViewer>
+              </ViewerWrapper>
             )}
-            <RightButton
-              top={50}
-              right={5}
-              icon={<Icon icon="plus" />}
-              onClick={() => {
-                handleZoom(true);
-              }}
-            />
-            <RightButton
-              top={90}
-              right={5}
-              icon={<Icon icon="minus" />}
-              onClick={() => {
-                handleZoom(false);
-              }}
-            />
-            <RightButton
-              bottom={20}
-              right={5}
-              icon={<Icon icon="fullscreen" />}
-              onClick={handleFullScreen}
-            />
-            <StyledViewer
-              infoBox={false}
-              navigationHelpButton={false}
-              homeButton={false}
-              projectionPicker={false}
-              sceneModePicker={true}
-              sceneMode={SceneMode.SCENE2D}
-              baseLayerPicker={true}
-              fullscreenButton={false}
-              vrButton={false}
-              selectionIndicator={true}
-              timeline={false}
-              animation={false}
-              geocoder={false}
-              shouldAnimate={true}
-              onClick={handleClick}
-              onMouseDown={onMouseDown}
-              onMouseMove={onMouseMove}
-              onMouseUp={onMouseUp}
-              ref={viewer}>
-              <ScreenSpaceCameraController enableTranslate={enableTranslate} />
-            </StyledViewer>
-          </ViewerWrapper>
+          </GeometryField>
           {model?.schema.fields.map(field => {
             const FieldComponent =
               FIELD_TYPE_COMPONENT_MAP[
@@ -934,13 +1088,16 @@ const FormItemsWrapper = styled.div`
 
 const ViewerWrapper = styled.div<{ fullScreen: boolean }>`
   position: relative;
+  flex: 1;
   ${({ fullScreen }) =>
     fullScreen &&
     "position: fixed; left: 0; right: 0; top: 0; bottom: 0; background-color: #00000080; z-index: 1;"};
 `;
 
-const StyledViewer = styled(Viewer)`
+const StyledViewer = styled(Viewer)<{ isDrawMode: boolean; isGrabbing: boolean }>`
   height: 100%;
+  cursor: ${({ isDrawMode, isGrabbing }) =>
+    isDrawMode ? "crosshair" : isGrabbing ? "grabbing" : "grab"};
 `;
 
 const RightButton = styled(Button)<{
@@ -955,6 +1112,10 @@ const RightButton = styled(Button)<{
   bottom: ${({ bottom }) => (bottom ? `${bottom}px` : undefined)};
   left: ${({ left }) => (left ? `${left}px` : undefined)};
   z-index: 1;
+`;
+
+const EditorButton = styled(RightButton)`
+  color: #8c8c8c;
 `;
 
 const TopButton = styled(RightButton)<{ selected: boolean }>`
@@ -979,6 +1140,34 @@ const MetaFormItemWrapper = styled.div`
   background: #ffffff;
   border: 1px solid #f0f0f0;
   border-radius: 2px;
+`;
+
+const GeometryField = styled.div`
+  display: flex;
+  /* height: 30vw; */
+  max-height: 432px;
+  /* width: 100%; */
+  aspect-ratio: 1.86 / 1;
+  box-shadow: 0px 2px 8px 0px #00000026;
+`;
+
+const EditorWrapper = styled.div`
+  width: 40%;
+  position: relative;
+`;
+
+const Placeholder = styled.div<{ isEmpty: boolean }>`
+  display: ${({ isEmpty }) => (isEmpty ? "block" : "none")};
+  position: absolute;
+  white-space: pre-wrap;
+  top: 0px;
+  left: 65px;
+  font-size: 14px;
+  color: #bfbfbf;
+  font-family: Consolas, "Courier New", monospace;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1.4;
 `;
 
 export default ContentForm;
