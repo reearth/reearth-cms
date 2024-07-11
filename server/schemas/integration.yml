@@ -1380,7 +1380,7 @@ components:
         - url
         - group
         - tag
-        - geometry
+        - geometryObject
         - geometryEditor
     tagResponse:
       type: object

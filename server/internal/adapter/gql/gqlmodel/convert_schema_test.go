@@ -211,8 +211,8 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 		},
 		{
 			name: "geometry",
-			args: args{tp: schema.NewGeometry(schema.GeometrySupportedTypeList{"POINT"}).TypeProperty()},
-			want: &SchemaFieldGeometry{SupportedTypes: []GeometrySupportedType{"POINT"}, DefaultValue: nil},
+			args: args{tp: schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{"POINT"}).TypeProperty()},
+			want: &SchemaFieldGeometryObject{SupportedTypes: []GeometryObjectSupportedType{"POINT"}, DefaultValue: nil},
 		},
 		{
 			name: "geometryEditor",
@@ -343,10 +343,10 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 		{
 			name: "geometry",
 			argsInp: &SchemaFieldTypePropertyInput{
-				Geometry: &SchemaFieldGeometryInput{SupportedTypes: []GeometrySupportedType{"POINT"}, DefaultValue: nil},
+				GeometryObject: &SchemaFieldGeometryObjectInput{SupportedTypes: []GeometryObjectSupportedType{"POINT"}, DefaultValue: nil},
 			},
-			argsT:  SchemaFieldTypeGeometry,
-			wantTp: schema.NewGeometry(schema.GeometrySupportedTypeList{"POINT"}).TypeProperty(),
+			argsT:  SchemaFieldTypeGeometryObject,
+			wantTp: schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{"POINT"}).TypeProperty(),
 		},
 		{
 			name: "geometryEditor",
@@ -404,46 +404,46 @@ func TestFromCorrespondingField(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-func TestToGeometrySupportedType(t *testing.T) {
+func TestToGeometryObjectSupportedType(t *testing.T) {
 	tests := []struct {
 		name string
-		arg  schema.GeometrySupportedType
-		want GeometrySupportedType
+		arg  schema.GeometryObjectSupportedType
+		want GeometryObjectSupportedType
 	}{
 		{
 			name: "point",
-			arg:  schema.GeometrySupportedTypePoint,
-			want: GeometrySupportedTypePoint,
+			arg:  schema.GeometryObjectSupportedTypePoint,
+			want: GeometryObjectSupportedTypePoint,
 		},
 		{
 			name: "multiPoint",
-			arg:  schema.GeometrySupportedTypeMultiPoint,
-			want: GeometrySupportedTypeMultipoint,
+			arg:  schema.GeometryObjectSupportedTypeMultiPoint,
+			want: GeometryObjectSupportedTypeMultipoint,
 		},
 		{
 			name: "lineString",
-			arg:  schema.GeometrySupportedTypeLineString,
-			want: GeometrySupportedTypeLinestring,
+			arg:  schema.GeometryObjectSupportedTypeLineString,
+			want: GeometryObjectSupportedTypeLinestring,
 		},
 		{
 			name: "multiLineString",
-			arg:  schema.GeometrySupportedTypeMultiLineString,
-			want: GeometrySupportedTypeMultilinestring,
+			arg:  schema.GeometryObjectSupportedTypeMultiLineString,
+			want: GeometryObjectSupportedTypeMultilinestring,
 		},
 		{
 			name: "polygon",
-			arg:  schema.GeometrySupportedTypePolygon,
-			want: GeometrySupportedTypePolygon,
+			arg:  schema.GeometryObjectSupportedTypePolygon,
+			want: GeometryObjectSupportedTypePolygon,
 		},
 		{
 			name: "multiPolygon",
-			arg:  schema.GeometrySupportedTypeMultiPolygon,
-			want: GeometrySupportedTypeMultipolygon,
+			arg:  schema.GeometryObjectSupportedTypeMultiPolygon,
+			want: GeometryObjectSupportedTypeMultipolygon,
 		},
 		{
 			name: "geometryCollection",
-			arg:  schema.GeometrySupportedTypeGeometryCollection,
-			want: GeometrySupportedTypeGeometrycollection,
+			arg:  schema.GeometryObjectSupportedTypeGeometryCollection,
+			want: GeometryObjectSupportedTypeGeometrycollection,
 		},
 		{
 			name: "default",
@@ -456,51 +456,51 @@ func TestToGeometrySupportedType(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			assert.Equal(tt, tc.want, ToGeometrySupportedType(tc.arg))
+			assert.Equal(tt, tc.want, ToGeometryObjectSupportedType(tc.arg))
 		})
 	}
 }
 
-func TestFromGeometrySupportedType(t *testing.T) {
+func TestFromGeometryObjectSupportedType(t *testing.T) {
 	tests := []struct {
 		name string
-		arg  GeometrySupportedType
-		want schema.GeometrySupportedType
+		arg  GeometryObjectSupportedType
+		want schema.GeometryObjectSupportedType
 	}{
 		{
 			name: "point",
-			arg:  GeometrySupportedTypePoint,
-			want: schema.GeometrySupportedTypePoint,
+			arg:  GeometryObjectSupportedTypePoint,
+			want: schema.GeometryObjectSupportedTypePoint,
 		},
 		{
 			name: "multiPoint",
-			arg:  GeometrySupportedTypeMultipoint,
-			want: schema.GeometrySupportedTypeMultiPoint,
+			arg:  GeometryObjectSupportedTypeMultipoint,
+			want: schema.GeometryObjectSupportedTypeMultiPoint,
 		},
 		{
 			name: "lineString",
-			arg:  GeometrySupportedTypeLinestring,
-			want: schema.GeometrySupportedTypeLineString,
+			arg:  GeometryObjectSupportedTypeLinestring,
+			want: schema.GeometryObjectSupportedTypeLineString,
 		},
 		{
 			name: "multiLineString",
-			arg:  GeometrySupportedTypeMultilinestring,
-			want: schema.GeometrySupportedTypeMultiLineString,
+			arg:  GeometryObjectSupportedTypeMultilinestring,
+			want: schema.GeometryObjectSupportedTypeMultiLineString,
 		},
 		{
 			name: "polygon",
-			arg:  GeometrySupportedTypePolygon,
-			want: schema.GeometrySupportedTypePolygon,
+			arg:  GeometryObjectSupportedTypePolygon,
+			want: schema.GeometryObjectSupportedTypePolygon,
 		},
 		{
 			name: "multiPolygon",
-			arg:  GeometrySupportedTypeMultipolygon,
-			want: schema.GeometrySupportedTypeMultiPolygon,
+			arg:  GeometryObjectSupportedTypeMultipolygon,
+			want: schema.GeometryObjectSupportedTypeMultiPolygon,
 		},
 		{
 			name: "geometryCollection",
-			arg:  GeometrySupportedTypeGeometrycollection,
-			want: schema.GeometrySupportedTypeGeometryCollection,
+			arg:  GeometryObjectSupportedTypeGeometrycollection,
+			want: schema.GeometryObjectSupportedTypeGeometryCollection,
 		},
 		{
 			name: "default",
@@ -513,7 +513,7 @@ func TestFromGeometrySupportedType(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			assert.Equal(tt, tc.want, FromGeometrySupportedType(tc.arg))
+			assert.Equal(tt, tc.want, FromGeometryObjectSupportedType(tc.arg))
 		})
 	}
 }

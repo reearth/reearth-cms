@@ -16,7 +16,7 @@ var defaultTypes = TypeRegistry{
 	TypeGroup:          &propertyGroup{},
 	TypeReference:      &propertyReference{},
 	TypeURL:            &propertyURL{},
-	TypeGeometry:       &propertyString{},
+	TypeGeometryObject: &propertyString{},
 	TypeGeometryEditor: &propertyString{},
 }
 

@@ -10,44 +10,44 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type GeometrySupportedTypeList []GeometrySupportedType
+type GeometryObjectSupportedTypeList []GeometryObjectSupportedType
 
-type FieldGeometry struct {
-	st GeometrySupportedTypeList
+type FieldGeometryObject struct {
+	st GeometryObjectSupportedTypeList
 }
 
-func NewGeometry(supportedTypes GeometrySupportedTypeList) *FieldGeometry {
-	return &FieldGeometry{
+func NewGeometryObject(supportedTypes GeometryObjectSupportedTypeList) *FieldGeometryObject {
+	return &FieldGeometryObject{
 		st: lo.Uniq(supportedTypes),
 	}
 }
 
-func (f *FieldGeometry) TypeProperty() *TypeProperty {
+func (f *FieldGeometryObject) TypeProperty() *TypeProperty {
 	return &TypeProperty{
-		t:        f.Type(),
-		geometry: f,
+		t:              f.Type(),
+		geometryObject: f,
 	}
 }
 
-func (f *FieldGeometry) SupportedTypes() GeometrySupportedTypeList {
+func (f *FieldGeometryObject) SupportedTypes() GeometryObjectSupportedTypeList {
 	return slices.Clone(f.st)
 }
 
-func (f *FieldGeometry) Type() value.Type {
-	return value.TypeGeometry
+func (f *FieldGeometryObject) Type() value.Type {
+	return value.TypeGeometryObject
 }
 
-func (f *FieldGeometry) Clone() *FieldGeometry {
+func (f *FieldGeometryObject) Clone() *FieldGeometryObject {
 	if f == nil {
 		return nil
 	}
-	return &FieldGeometry{
+	return &FieldGeometryObject{
 		st: f.SupportedTypes(),
 	}
 }
 
-// IsValidGeoJSON uses the go.geojson library to validate a GeoJSON string
-func IsValidGeoJSON(data string) bool {
+// IsValidGeometryObjectField uses the go.geojson library to validate the GeoJSON string inside the geometry object field
+func IsValidGeometryObjectField(data string) bool {
 	if len(strings.TrimSpace(data)) == 0 {
 		return false
 	}
@@ -74,10 +74,10 @@ func IsValidGeoJSON(data string) bool {
 	}
 }
 
-func (f *FieldGeometry) Validate(v *value.Value) (err error) {
+func (f *FieldGeometryObject) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
-		Geometry: func(a value.String) {
-			if !IsValidGeoJSON(a) {
+		GeometryObject: func(a value.String) {
+			if !IsValidGeometryObjectField(a) {
 				err = ErrInvalidValue
 			}
 		},
@@ -88,6 +88,6 @@ func (f *FieldGeometry) Validate(v *value.Value) (err error) {
 	return
 }
 
-func (f *FieldGeometry) ValidateMultiple(v *value.Multiple) (err error) {
+func (f *FieldGeometryObject) ValidateMultiple(v *value.Multiple) (err error) {
 	return nil
 }

@@ -56,7 +56,7 @@ func TestValue_Match(t *testing.T) {
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`
-	(&Value{t: TypeGeometry, v: g}).Match(Match{Geometry: func(v string) { res = v }})
+	(&Value{t: TypeGeometryObject, v: g}).Match(Match{GeometryObject: func(v string) { res = v }})
 	assert.Equal(t, g, res)
 
 	res = nil

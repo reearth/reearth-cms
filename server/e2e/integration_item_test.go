@@ -222,9 +222,9 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	st := schema.GeometrySupportedTypeList{schema.GeometrySupportedTypePoint, schema.GeometrySupportedTypeLineString}
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	sf7 := schema.NewField(schema.NewGeometry(st).TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
+	sf7 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
 	sf8 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).ID(fId8).Key(sfKey8).MustBuild()
 	s7 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf7, sf8}).MustBuild()
 	if err := r.Schema.Save(ctx, s7); err != nil {
@@ -308,7 +308,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		Thread(thId5).
 		IsMetadata(false).
 		Fields([]*item.Field{
-			item.NewField(fId7, value.MultipleFrom(value.TypeGeometry, []*value.Value{value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+			item.NewField(fId7, value.MultipleFrom(value.TypeGeometryObject, []*value.Value{value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
 			item.NewField(fId8, value.MultipleFrom(value.TypeGeometryEditor, []*value.Value{value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
 		}).
 		MustBuild()
@@ -362,9 +362,9 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
 	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 
-	st2 := schema.GeometrySupportedTypeList{schema.GeometrySupportedTypePoint, schema.GeometrySupportedTypeLineString}
+	gst2 := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	dvsf4 := schema.NewField(schema.NewGeometry(st2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 
 	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()

@@ -374,7 +374,7 @@ func TestCreateItem(t *testing.T) {
 		{"schemaFieldId": fids.selectFId, "value": "s1", "type": "Select"},
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.1s.com", "type": "URL"},
-		{"schemaFieldId": fids.geometryFid, "value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
 	})
 
@@ -406,7 +406,7 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00Z", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": tagIds[0], "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": true, "type": "Checkbox"},
-		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
 	})
 	fields := r1.Path("$.data.createItem.item.fields[:].value").Raw().([]any)
@@ -426,7 +426,7 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": "", "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": "", "type": "Checkbox"},
-		{"schemaFieldId": fids.geometryFid, "value": "", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "", "type": "GeometryObject"},
 		{"schemaFieldId": fids.geometryEditorFid, "value": "", "type": "GeometryEditor"},
 	})
 	fields = r2.Path("$.data.updateItem.item.fields[:].value").Raw().([]any)
@@ -446,7 +446,7 @@ func TestClearItemValues(t *testing.T) {
 		{"schemaFieldId": fids.dateFId, "value": "", "type": "Date"},
 		{"schemaFieldId": fids.tagFID, "value": "", "type": "Tag"},
 		{"schemaFieldId": fids.checkFid, "value": "", "type": "Checkbox"},
-		{"schemaFieldId": fids.geometryFid, "value": "", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "", "type": "GeometryObject"},
 		{"schemaFieldId": fids.geometryEditorFid, "value": "", "type": "GeometryEditor"},
 	})
 	_, r3 := getItem(e, iid2)
@@ -675,7 +675,7 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 1, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test1.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-01T00:00:00.000Z", "type": "Date"},
-		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
 	})
 	r1.Path("$.data.createItem.item.isMetadata").IsEqual(false)
@@ -704,7 +704,7 @@ func TestSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.integerFId, "value": 2, "type": "Integer"},
 		{"schemaFieldId": fids.urlFId, "value": "https://www.test2.com", "type": "URL"},
 		{"schemaFieldId": fids.dateFId, "value": "2023-01-02T00:00:00.000Z", "type": "Date"},
-		{"schemaFieldId": fids.geometryFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "Geometry"},
+		{"schemaFieldId": fids.geometryObjectFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryObject"},
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\n\t\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}", "type": "GeometryEditor"},
 	})
 	// endregion

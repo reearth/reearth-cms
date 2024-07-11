@@ -30,7 +30,7 @@ func TestMatchTypeProperty(t *testing.T) {
 		Number:         func(_ *FieldNumber) { val = "Number" },
 		Reference:      func(_ *FieldReference) { val = "Reference" },
 		URL:            func(_ *FieldURL) { val = "URL" },
-		Geometry:       func(_ *FieldGeometry) { val = "Geometry" },
+		GeometryObject: func(_ *FieldGeometryObject) { val = "GeometryObject" },
 		GeometryEditor: func(_ *FieldGeometryEditor) { val = "GeometryEditor" },
 		Default:        func() { val = "Default" },
 	}
@@ -158,12 +158,12 @@ func TestMatchTypeProperty(t *testing.T) {
 			want: "URL",
 		},
 		{
-			name: "Geometry",
+			name: "GeometryObject",
 			args: args{
-				tp: &TypeProperty{t: value.TypeGeometry, geometry: &FieldGeometry{}},
+				tp: &TypeProperty{t: value.TypeGeometryObject, geometryObject: &FieldGeometryObject{}},
 				m:  m,
 			},
-			want: "Geometry",
+			want: "GeometryObject",
 		},
 		{
 			name: "GeometryEditor",
@@ -210,7 +210,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 		Number:         func(_ *FieldNumber) string { return "Number" },
 		Reference:      func(_ *FieldReference) string { return "Reference" },
 		URL:            func(_ *FieldURL) string { return "URL" },
-		Geometry:       func(_ *FieldGeometry) string { return "Geometry" },
+		GeometryObject: func(_ *FieldGeometryObject) string { return "GeometryObject" },
 		GeometryEditor: func(_ *FieldGeometryEditor) string { return "GeometryEditor" },
 		Default:        func() string { return "Default" },
 	}
@@ -338,9 +338,9 @@ func TestMatchTypeProperty1(t *testing.T) {
 			want: "URL",
 		},
 		{
-			name: "Geometry",
+			name: "GeometryObject",
 			args: args{
-				tp: &TypeProperty{t: value.TypeGeometry, geometry: &FieldGeometry{}},
+				tp: &TypeProperty{t: value.TypeGeometryObject, geometryObject: &FieldGeometryObject{}},
 				m:  m,
 			},
 			want: "Geometry",
@@ -500,10 +500,10 @@ func TestTypeProperty_Validate(t *testing.T) {
 			want: nil,
 		},
 		{
-			name: "Geometry",
+			name: "GeometryObject",
 			args: args{
-				tp: &TypeProperty{t: value.TypeGeometry, geometry: NewGeometry(GeometrySupportedTypeList{"POINT"})},
-				value: value.TypeGeometry.Value(`{
+				tp: &TypeProperty{t: value.TypeGeometryObject, geometryObject: NewGeometryObject(GeometryObjectSupportedTypeList{"POINT"})},
+				value: value.TypeGeometryObject.Value(`{
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`),

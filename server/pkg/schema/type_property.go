@@ -27,7 +27,7 @@ type TypeProperty struct {
 	reference      *FieldReference
 	url            *FieldURL
 	group          *FieldGroup
-	geometry       *FieldGeometry
+	geometryObject *FieldGeometryObject
 	geometryEditor *FieldGeometryEditor
 }
 
@@ -47,7 +47,7 @@ type TypePropertyMatch struct {
 	Reference      func(*FieldReference)
 	URL            func(*FieldURL)
 	Group          func(*FieldGroup)
-	Geometry       func(*FieldGeometry)
+	GeometryObject func(*FieldGeometryObject)
 	GeometryEditor func(*FieldGeometryEditor)
 	Default        func()
 }
@@ -68,7 +68,7 @@ type TypePropertyMatch1[T any] struct {
 	Reference      func(*FieldReference) T
 	URL            func(*FieldURL) T
 	Group          func(*FieldGroup) T
-	Geometry       func(*FieldGeometry) T
+	GeometryObject func(*FieldGeometryObject) T
 	GeometryEditor func(*FieldGeometryEditor) T
 	Default        func() T
 }
@@ -124,7 +124,7 @@ func (t *TypeProperty) Validate(v *value.Value) error {
 		Group: func(f *FieldGroup) error {
 			return f.Validate(v)
 		},
-		Geometry: func(f *FieldGeometry) error {
+		GeometryObject: func(f *FieldGeometryObject) error {
 			return f.Validate(v)
 		},
 		GeometryEditor: func(f *FieldGeometryEditor) error {
@@ -177,7 +177,7 @@ func (t *TypeProperty) ValidateMultiple(v *value.Multiple) error {
 		Group: func(f *FieldGroup) error {
 			return f.ValidateMultiple(v)
 		},
-		Geometry: func(f *FieldGeometry) error {
+		GeometryObject: func(f *FieldGeometryObject) error {
 			return f.ValidateMultiple(v)
 		},
 		GeometryEditor: func(f *FieldGeometryEditor) error {
@@ -270,9 +270,9 @@ func (t *TypeProperty) Match(m TypePropertyMatch) {
 			m.URL(t.url)
 			return
 		}
-	case value.TypeGeometry:
-		if m.Geometry != nil {
-			m.Geometry(t.geometry)
+	case value.TypeGeometryObject:
+		if m.GeometryObject != nil {
+			m.GeometryObject(t.geometryObject)
 			return
 		}
 	case value.TypeGeometryEditor:
@@ -309,7 +309,7 @@ func (t *TypeProperty) Clone() *TypeProperty {
 		reference:      t.reference.Clone(),
 		group:          t.group.Clone(),
 		url:            t.url.Clone(),
-		geometry:       t.geometry.Clone(),
+		geometryObject: t.geometryObject.Clone(),
 		geometryEditor: t.geometryEditor.Clone(),
 	}
 }
@@ -383,9 +383,9 @@ func MatchTypeProperty1[T any](t *TypeProperty, m TypePropertyMatch1[T]) (res T)
 		if m.Group != nil {
 			return m.Group(t.group)
 		}
-	case value.TypeGeometry:
-		if m.Geometry != nil {
-			return m.Geometry(t.geometry)
+	case value.TypeGeometryObject:
+		if m.GeometryObject != nil {
+			return m.GeometryObject(t.geometryObject)
 		}
 	case value.TypeGeometryEditor:
 		if m.GeometryEditor != nil {

@@ -17,7 +17,7 @@ type Match struct {
 	Reference      func(Reference)
 	URL            func(URL)
 	Group          func(Group)
-	Geometry       func(String)
+	GeometryObject func(String)
 	GeometryEditor func(String)
 	Default        func()
 }
@@ -105,9 +105,9 @@ func (v *Value) Match(m Match) {
 			m.Group(v.v.(Group))
 			return
 		}
-	case TypeGeometry:
-		if m.Geometry != nil {
-			m.Geometry(v.v.(String))
+	case TypeGeometryObject:
+		if m.GeometryObject != nil {
+			m.GeometryObject(v.v.(String))
 			return
 		}
 	case TypeGeometryEditor:

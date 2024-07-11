@@ -138,7 +138,7 @@ type fIds struct {
 	dateFId           string
 	tagFID            string
 	checkFid          string
-	geometryFid       string
+	geometryObjectFid string
 	geometryEditorFid string
 }
 
@@ -225,10 +225,10 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 			"checkbox": map[string]any{},
 		})
 
-	geometryFId, _ := createField(e, mId, "geometry", "geometry", "geometry",
-		false, false, false, false, "Geometry",
+	geometryObjectFId, _ := createField(e, mId, "geometryObject", "geometryObject", "geometryObject",
+		false, false, false, false, "GeometryObject",
 		map[string]any{
-			"geometry": map[string]any{
+			"geometryObject": map[string]any{
 				"defaultValue":   nil,
 				"supportedTypes": []string{"POINT", "LINESTRING", "POLYGON"},
 			},
@@ -264,7 +264,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		dateFId,
 		tagFId,
 		checkboxFId,
-		geometryFId,
+		geometryObjectFId,
 		geometryEditorFId,
 	}, ids)
 
@@ -280,7 +280,7 @@ func createFieldOfEachType(t *testing.T, e *httpexpect.Expect, mId string) fIds 
 		dateFId:           dateFId,
 		tagFID:            tagFId,
 		checkFid:          checkboxFId,
-		geometryFid:       geometryFId,
+		geometryObjectFid: geometryObjectFId,
 		geometryEditorFid: geometryEditorFId,
 	}
 }

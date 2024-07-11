@@ -77,9 +77,9 @@ func TestValueType(t *testing.T) {
 			want: SchemaFieldTypeURL,
 		},
 		{
-			name: "TypeGeometry",
-			t:    value.TypeGeometry,
-			want: SchemaFieldTypeGeometry,
+			name: "TypeGeometryObject",
+			t:    value.TypeGeometryObject,
+			want: SchemaFieldTypeGeometryObject,
 		},
 		{
 			name: "TypeGeometryEditor",
@@ -173,8 +173,8 @@ func TestToValue(t *testing.T) {
 			want: "https://example.com",
 		},
 		{
-			name: "TypeGeometry",
-			v: value.TypeGeometry.Value(`{
+			name: "TypeGeometryObject",
+			v: value.TypeGeometryObject.Value(`{
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`),
@@ -289,13 +289,13 @@ func TestFromValue(t *testing.T) {
 			want: value.TypeURL.Value("https://example.com"),
 		},
 		{
-			name: "TypeGeometry",
-			t:    SchemaFieldTypeGeometry,
+			name: "TypeGeometryObject",
+			t:    SchemaFieldTypeGeometryObject,
 			v: `{
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`,
-			want: value.TypeGeometry.Value(`{
+			want: value.TypeGeometryObject.Value(`{
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`),
