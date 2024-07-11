@@ -59,8 +59,10 @@ import Boolean from "./Icons/boolean.svg";
 import CheckSquare from "./Icons/checkSquare.svg";
 import ColorPalette from "./Icons/colorPalette.svg";
 import Control from "./Icons/control.svg";
+import CurlyBrackets from "./Icons/curlyBrackets.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
+import EditorCopy from "./Icons/editorCopy.svg";
 import Group from "./Icons/group.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
@@ -74,6 +76,7 @@ import MapPinFilled from "./Icons/mapPinFilled.svg";
 import MarkDown from "./Icons/markDown.svg";
 import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
+import Pencil from "./Icons/pencil.svg";
 import Polygon from "./Icons/polygon.svg";
 import Polyline from "./Icons/polyline.svg";
 import Tag from "./Icons/tag.svg";
@@ -167,4 +170,7 @@ export default {
   polyline: Polyline,
   polygon: Polygon,
   trash: Trash,
+  curlyBrackets: CurlyBrackets,
+  pencil: Pencil,
+  editorCopy: EditorCopy,
 };
