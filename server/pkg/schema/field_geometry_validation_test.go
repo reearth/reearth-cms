@@ -1,64 +1,9 @@
 package schema
 
 import (
-	"testing"
-
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
-
-func TestNewGeometry(t *testing.T) {
-	expected := &FieldGeometry{
-		st: GeometrySupportedTypeList{"POINT"},
-	}
-	res := NewGeometry(GeometrySupportedTypeList{"POINT"})
-	assert.Equal(t, expected, res)
-}
-
-func TestFieldGeometry_Type(t *testing.T) {
-	assert.Equal(t, value.TypeGeometry, (&FieldGeometry{}).Type())
-}
-
-func TestFieldGeometry_TypeProperty(t *testing.T) {
-	f := FieldGeometry{}
-	assert.Equal(t, &TypeProperty{
-		t:        f.Type(),
-		geometry: &f,
-	}, (&f).TypeProperty())
-}
-func TestFieldGeometry_Clone(t *testing.T) {
-	assert.Nil(t, (*FieldGeometry)(nil).Clone())
-	assert.Equal(t, &FieldGeometry{}, (&FieldGeometry{}).Clone())
-}
-
-func TestFieldGeometry_Validate(t *testing.T) {
-	supportedType := GeometrySupportedTypePoint
-	geojson := `{
-				"type": "Point",
-				"coordinates": [102.0, 0.5]
-			}`
-	geojson2 := `{
-				"type": "LineString",
-				"coordinates": [
-          [
-            114.70437290715995,
-            -0.49283758513797693
-          ],
-          [
-            117.94574361321565,
-            1.6624101817629793
-          ],
-          [
-            122.18758253669148,
-            3.1330366417804214
-          ]
-        ]
-			}`
-	assert.NoError(t, (&FieldGeometry{st: GeometrySupportedTypeList{supportedType}}).Validate(value.TypeGeometry.Value(geojson)))
-	assert.Equal(t, (&FieldGeometry{st: GeometrySupportedTypeList{supportedType}}).Validate(value.TypeGeometry.Value(geojson2)), ErrUnsupportedType)
-	assert.Equal(t, ErrInvalidValue, (&FieldGeometry{}).Validate(value.TypeText.Value("{}")))
-	assert.Equal(t, ErrInvalidValue, (&FieldGeometry{}).Validate(value.TypeText.Value(float64(1))))
-}
 
 func TestIsValidGeoJSON(t *testing.T) {
 	tests := []struct {
@@ -66,7 +11,6 @@ func TestIsValidGeoJSON(t *testing.T) {
 		input    string
 		expected bool
 	}{
-
 		{
 			name: "valid GeoJSON geometry",
 			input: `{
@@ -96,19 +40,19 @@ func TestIsValidGeoJSON(t *testing.T) {
 			input: `{
 				"type": "LineString",
 				"coordinates": [
-          [
-            114.70437290715995,
-            -0.49283758513797693
-          ],
-          [
-            117.94574361321565,
-            1.6624101817629793
-          ],
-          [
-            122.18758253669148,
-            3.1330366417804214
-          ]
-        ]
+         [
+           114.70437290715995,
+           -0.49283758513797693
+         ],
+         [
+           117.94574361321565,
+           1.6624101817629793
+         ],
+         [
+           122.18758253669148,
+           3.1330366417804214
+         ]
+       ]
 			}`,
 
 			expected: true,
@@ -122,7 +66,7 @@ func TestIsValidGeoJSON(t *testing.T) {
 						114.70437290715995,
 						-0.49283758513797693
 					  ]
-        ]
+       ]
 			}`,
 
 			expected: false,
@@ -214,9 +158,9 @@ func TestIsValidGeoJSON(t *testing.T) {
 				122.18758253669148,
 				3.1330366417804214
 			  ]
-        	],
+       	],
 			[
- 			
+
 		    [105.0, 1.0, 40.0]
 			]
 		]
@@ -227,22 +171,22 @@ func TestIsValidGeoJSON(t *testing.T) {
 		{
 			name: "invalid GeoJSON geometry",
 			input: `{
-       "type": "MultiPolygon",
-       "coordinates": [
-           [
-               [
-                   [180.0, 40.0], [180.0, 50.0], [170.0, 50.0],
-                   [170.0, 40.0], [180.0, 41.0]
-               ]
-           ],
-           [
-               [
-                   [-170.0, 40.0], [-170.0, 50.0], [-180.0, 50.0],
-                   [-180.0, 40.0], [-170.0, 40.0]
-               ]
-           ]
-       ]
-   }`,
+      "type": "MultiPolygon",
+      "coordinates": [
+          [
+              [
+                  [180.0, 40.0], [180.0, 50.0], [170.0, 50.0],
+                  [170.0, 40.0], [180.0, 41.0]
+              ]
+          ],
+          [
+              [
+                  [-170.0, 40.0], [-170.0, 50.0], [-180.0, 50.0],
+                  [-180.0, 40.0], [-170.0, 40.0]
+              ]
+          ]
+      ]
+  }`,
 
 			expected: false,
 		},

@@ -2,58 +2,15 @@ package schema
 
 import (
 	"encoding/json"
+	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/rerror"
 	"strings"
 
 	geojson "github.com/paulmach/go.geojson"
-	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/rerror"
 	"golang.org/x/exp/slices"
 )
 
 var ErrUnsupportedType = rerror.NewE(i18n.T("unsupported geometry type"))
-
-type GeometrySupportedTypeList []GeometrySupportedType
-
-func (l GeometrySupportedTypeList) Has(st GeometrySupportedType) bool {
-	return slices.ContainsFunc(l, func(t GeometrySupportedType) bool {
-		return t == st
-	})
-}
-
-type FieldGeometry struct {
-	st GeometrySupportedTypeList
-}
-
-func NewGeometry(supportedTypes GeometrySupportedTypeList) *FieldGeometry {
-	return &FieldGeometry{
-		st: supportedTypes,
-	}
-}
-
-func (f *FieldGeometry) TypeProperty() *TypeProperty {
-	return &TypeProperty{
-		t:        f.Type(),
-		geometry: f,
-	}
-}
-
-func (f *FieldGeometry) SupportedTypes() GeometrySupportedTypeList {
-	return slices.Clone(f.st)
-}
-
-func (f *FieldGeometry) Type() value.Type {
-	return value.TypeGeometry
-}
-
-func (f *FieldGeometry) Clone() *FieldGeometry {
-	if f == nil {
-		return nil
-	}
-	return &FieldGeometry{
-		st: f.SupportedTypes(),
-	}
-}
 
 // isValidGeoJSON uses the go.geojson library to validate a GeoJSON string
 func isValidGeoJSON(data string) (geojson.GeometryType, bool) {
@@ -144,25 +101,21 @@ func isValidRFC7946(g *geojson.Geometry) bool {
 	return false
 }
 
-func (f *FieldGeometry) Validate(v *value.Value) (err error) {
-	v.Match(value.Match{
-		Geometry: func(a value.String) {
-			t, ok := isValidGeoJSON(a)
-			if !ok {
-				err = ErrInvalidValue
-			}
-			ok2 := f.SupportedTypes().Has(GeometrySupportedTypeFrom(string(t)))
-			if !ok2 {
-				err = ErrUnsupportedType
-			}
-		},
-		Default: func() {
-			err = ErrInvalidValue
-		},
-	})
-	return
-}
-
-func (f *FieldGeometry) ValidateMultiple(v *value.Multiple) (err error) {
-	return nil
-}
+//func (f *FieldGeometry) Validate(v *value.Value) (err error) {
+//	v.Match(value.Match{
+//		Geometry: func(a value.String) {
+//			t, ok := isValidGeoJSON(a)
+//			if !ok {
+//				err = ErrInvalidValue
+//			}
+//			ok2 := f.SupportedTypes().Has(GeometrySupportedTypeFrom(string(t)))
+//			if !ok2 {
+//				err = ErrUnsupportedType
+//			}
+//		},
+//		Default: func() {
+//			err = ErrInvalidValue
+//		},
+//	})
+//	return
+//}
