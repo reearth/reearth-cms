@@ -9,8 +9,9 @@ import (
 type GeometryEditorSupportedTypeList []GeometryEditorSupportedType
 
 func (l GeometryEditorSupportedTypeList) Has(st GeometryEditorSupportedType) bool {
+	hasAny := slices.Contains(l, GeometryEditorSupportedTypeAny)
 	return slices.ContainsFunc(l, func(t GeometryEditorSupportedType) bool {
-		return t == st
+		return t == st || (hasAny && st != "")
 	})
 }
 
@@ -49,7 +50,6 @@ func (f *FieldGeometryEditor) Clone() *FieldGeometryEditor {
 }
 
 func (f *FieldGeometryEditor) Validate(v *value.Value) (err error) {
-
 	v.Match(value.Match{
 		GeometryEditor: func(a value.String) {
 			t, ok := isValidGeoJSON(a)

@@ -60,8 +60,14 @@ func TestFieldGeometryEditorEditor_Validate(t *testing.T) {
 	         ]
 	       ]
 				}`
+	geojson3 := `{
+					"type": "MultiPoint",
+					"coordinates": [[102.0, 0.5]]
+				}`
 	assert.NoError(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{supportedType}}).Validate(value.TypeGeometryEditor.Value(geojson)))
 	assert.Equal(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{supportedType}}).Validate(value.TypeGeometryEditor.Value(geojson2)), ErrUnsupportedType)
+	assert.NoError(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{GeometryEditorSupportedTypeAny}}).Validate(value.TypeGeometryEditor.Value(geojson2)))
+	assert.Equal(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{GeometryEditorSupportedTypeAny}}).Validate(value.TypeGeometryEditor.Value(geojson3)), ErrUnsupportedType)
 	assert.Equal(t, ErrInvalidValue, (&FieldGeometryEditor{}).Validate(value.TypeText.Value("{}")))
 	assert.Equal(t, ErrInvalidValue, (&FieldGeometryEditor{}).Validate(value.TypeText.Value(float64(1))))
 }
