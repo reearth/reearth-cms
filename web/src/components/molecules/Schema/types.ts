@@ -40,9 +40,8 @@ export type FieldType =
   | "Checkbox"
   | "URL"
   | "Group"
-  | "Point"
-  | "Polyline"
-  | "Polygon";
+  | "GeometryObject"
+  | "GeometryEditor";
 
 interface Tag {
   id: string;
@@ -153,6 +152,7 @@ export type FormTypes = FormValues & {
   max?: number;
   tags?: { color: string; id: string; name: string }[];
   group: string;
+  supportedTypes?: string[] | string;
 };
 
 export type Tab = "fields" | "meta-data";

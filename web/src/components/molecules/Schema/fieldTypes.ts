@@ -88,22 +88,16 @@ export const fieldTypes: {
     description: "Customize a group of fields",
     color: "#36CFC9",
   },
-  Point: {
-    icon: "mapPin",
-    title: i18next.t("Point"),
-    description: i18next.t("Create point on map"),
+  GeometryObject: {
+    icon: "curlyBrackets",
+    title: "Geometry Object",
+    description: "Input GeoJSON and preview",
     color: "#73D13D",
   },
-  Polyline: {
-    icon: "polyline",
-    title: i18next.t("Polyline"),
-    description: i18next.t("Create polyline on map"),
-    color: "#73D13D",
-  },
-  Polygon: {
-    icon: "polygon",
-    title: i18next.t("Polygon"),
-    description: i18next.t("Create polygon on map"),
+  GeometryEditor: {
+    icon: "pencil",
+    title: "Geometry Editor",
+    description: "Draw the geometry on map",
     color: "#73D13D",
   },
 };
@@ -146,3 +140,9 @@ t("Select from a list of checkboxes");
 
 t("Group");
 t("Customize a group of fields");
+
+t("Geometry Object");
+t("Input GeoJSON and preview");
+
+t("Geometry Editor");
+t("Draw the geometry on map");

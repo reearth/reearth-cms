@@ -184,17 +184,15 @@ export default (
         return {
           group: { groupId: values.group },
         };
-      case "Point":
+      case "GeometryObject":
         return {
-          point: { defaultValue: values.defaultValue },
+          geometry: { defaultValue: values.defaultValue },
+          supportedTypes: values.supportedTypes,
         };
-      case "Polyline":
+      case "GeometryEditor":
         return {
-          polyline: { defaultValue: values.defaultValue },
-        };
-      case "Polygon":
-        return {
-          polygon: { defaultValue: values.defaultValue },
+          geometry: { defaultValue: values.defaultValue },
+          supportedTypes: [values.supportedTypes],
         };
       case "Text":
       default:
@@ -254,11 +252,6 @@ export default (
     }
   }, [form, selectedType, typePropertyGet, isMeta, onSubmit, selectedField?.id, onClose]);
 
-  const isMultipleDisabled = useMemo(
-    () => selectedType === "Point" || selectedType === "Polyline" || selectedType === "Polygon",
-    [selectedType],
-  );
-
   const isRequiredDisabled = useMemo(
     () => selectedType === "Group" || selectedType === "Bool" || selectedType === "Checkbox",
     [selectedType],
@@ -273,11 +266,27 @@ export default (
     () =>
       isMeta ||
       selectedType === "Group" ||
-      selectedType === "Point" ||
-      selectedType === "Polyline" ||
-      selectedType === "Polygon",
+      selectedType === "GeometryObject" ||
+      selectedType === "GeometryEditor",
     [isMeta, selectedType],
   );
+
+  const ObjectSupportType = [
+    { label: "Point", value: "POINT" },
+    { label: "Linestring", value: "LINESTRING" },
+    { label: "Polygon", value: "POLYGON" },
+    { label: "GeometryCollection", value: "GEOMETRYCOLLECTION" },
+    { label: "MultiPoint", value: "MULTIPOINT" },
+    { label: "MultiLinestring", value: "MULTILINESTRING" },
+    { label: "MultiPolygon", value: "MULTIPOLYGON" },
+  ];
+
+  const EditorSupportType = [
+    { label: "Point", value: "POINT" },
+    { label: "Linestring", value: "LINESTRING" },
+    { label: "Polygon", value: "POLYGON" },
+    { label: "Any", value: "GEOMETRYCOLLECTION" },
+  ];
 
   return {
     form,
@@ -292,9 +301,10 @@ export default (
     handleKeyChange,
     handleSubmit,
     handleModalReset,
-    isMultipleDisabled,
     isRequiredDisabled,
     isUniqueDisabled,
     isTitleDisabled,
+    ObjectSupportType,
+    EditorSupportType,
   };
 };
