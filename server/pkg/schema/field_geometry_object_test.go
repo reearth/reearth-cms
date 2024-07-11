@@ -48,7 +48,7 @@ func TestFieldGeometryObject_Validate(t *testing.T) {
 	assert.Equal(t, ErrInvalidValue, (&FieldGeometryObject{}).Validate(value.TypeText.Value(float64(1))))
 }
 
-func TestIsValidGeoJSON(t *testing.T) {
+func TestIsValidGeometryObjectField(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
@@ -58,7 +58,7 @@ func TestIsValidGeoJSON(t *testing.T) {
 			name: "valid GeoJSON feature",
 			input: `{
 				"type": "Feature",
-				"geometry": {
+				"geometryObject": {
 					"type": "Point",
 					"coordinates": [102.0, 0.5]
 				},

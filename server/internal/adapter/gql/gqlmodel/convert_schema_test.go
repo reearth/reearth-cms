@@ -210,7 +210,7 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			want: &SchemaFieldSelect{Values: []string{"v1"}, DefaultValue: nil},
 		},
 		{
-			name: "geometry",
+			name: "geometryObject",
 			args: args{tp: schema.NewGeometryObject(schema.GeometryObjectSupportedTypeList{"POINT"}).TypeProperty()},
 			want: &SchemaFieldGeometryObject{SupportedTypes: []GeometryObjectSupportedType{"POINT"}, DefaultValue: nil},
 		},
@@ -341,7 +341,7 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			wantError: ErrEmptyOptions,
 		},
 		{
-			name: "geometry",
+			name: "geometryObject",
 			argsInp: &SchemaFieldTypePropertyInput{
 				GeometryObject: &SchemaFieldGeometryObjectInput{SupportedTypes: []GeometryObjectSupportedType{"POINT"}, DefaultValue: nil},
 			},

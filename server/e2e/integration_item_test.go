@@ -1314,7 +1314,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		IsEqual([]any{
 			map[string]string{
 				"id":    fId7.String(),
-				"type":  "geometry",
+				"type":  "geometryObject",
 				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				"key":   sfKey7.String(),
 			},
@@ -1612,7 +1612,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				map[string]string{
 					"id":    fId7.String(),
 					"key":   sfKey7.String(),
-					"type":  "geometry",
+					"type":  "geometryObject",
 					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				},
 				map[string]string{
@@ -1632,7 +1632,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			map[string]string{
 				"id":    fId7.String(),
 				"key":   sfKey7.String(),
-				"type":  "geometry",
+				"type":  "geometryObject",
 				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 			},
 			map[string]string{
@@ -1770,7 +1770,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		IsEqual([]any{
 			map[string]any{
 				"id":    fId7.String(),
-				"type":  "geometry",
+				"type":  "geometryObject",
 				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				"key":   sfKey7.String(),
 			},

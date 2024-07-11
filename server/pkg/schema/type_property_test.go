@@ -343,7 +343,7 @@ func TestMatchTypeProperty1(t *testing.T) {
 				tp: &TypeProperty{t: value.TypeGeometryObject, geometryObject: &FieldGeometryObject{}},
 				m:  m,
 			},
-			want: "Geometry",
+			want: "GeometryObject",
 		},
 		{
 			name: "GeometryEditor",
