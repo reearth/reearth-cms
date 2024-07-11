@@ -6,51 +6,51 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGeometrySupportedTypeFrom(t *testing.T) {
+func TestGeometryObjectSupportedTypeFrom(t *testing.T) {
 	tests := []struct {
 		name string
 		arg  string
-		want GeometrySupportedType
+		want GeometryObjectSupportedType
 	}{
 		{
 			name: "point",
 			arg:  "point",
-			want: GeometrySupportedTypePoint,
+			want: GeometryObjectSupportedTypePoint,
 		},
 		{
 			name: "point",
 			arg:  "POINT",
-			want: GeometrySupportedTypePoint,
+			want: GeometryObjectSupportedTypePoint,
 		},
 		{
 			name: "multiPoint",
 			arg:  "MULTIPOINT",
-			want: GeometrySupportedTypeMultiPoint,
+			want: GeometryObjectSupportedTypeMultiPoint,
 		},
 		{
 			name: "lineString",
 			arg:  "LINESTRING",
-			want: GeometrySupportedTypeLineString,
+			want: GeometryObjectSupportedTypeLineString,
 		},
 		{
 			name: "multiLineString",
 			arg:  "MULTILINESTRING",
-			want: GeometrySupportedTypeMultiLineString,
+			want: GeometryObjectSupportedTypeMultiLineString,
 		},
 		{
 			name: "polygon",
 			arg:  "POLYGON",
-			want: GeometrySupportedTypePolygon,
+			want: GeometryObjectSupportedTypePolygon,
 		},
 		{
 			name: "multiPolygon",
 			arg:  "MULTIPOLYGON",
-			want: GeometrySupportedTypeMultiPolygon,
+			want: GeometryObjectSupportedTypeMultiPolygon,
 		},
 		{
 			name: "geometryCollection",
 			arg:  "GEOMETRYCOLLECTION",
-			want: GeometrySupportedTypeGeometryCollection,
+			want: GeometryObjectSupportedTypeGeometryCollection,
 		},
 		{
 			name: "default",
@@ -63,7 +63,7 @@ func TestGeometrySupportedTypeFrom(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			assert.Equal(tt, tc.want, GeometrySupportedTypeFrom(tc.arg))
+			assert.Equal(tt, tc.want, GeometryObjectSupportedTypeFrom(tc.arg))
 		})
 	}
 }

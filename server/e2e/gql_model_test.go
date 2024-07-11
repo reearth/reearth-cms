@@ -1,12 +1,12 @@
 package e2e
 
 import (
-	"github.com/samber/lo"
 	"net/http"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/samber/lo"
 )
 
 func createModel(e *httpexpect.Expect, pID, name, desc, key string) (string, *httpexpect.Value) {
