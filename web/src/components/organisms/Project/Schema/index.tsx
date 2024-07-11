@@ -59,6 +59,8 @@ const ProjectSchema: React.FC = () => {
     handleFieldUpdateModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleReferencedModelGet,
+    handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldOrder,
@@ -126,6 +128,8 @@ const ProjectSchema: React.FC = () => {
           selectedField={selectedField}
           open={fieldModalShown}
           isLoading={fieldUpdateLoading || fieldCreationLoading}
+          handleReferencedModelGet={handleReferencedModelGet}
+          handleCorrespondingFieldKeyUnique={handleCorrespondingFieldKeyUnique}
           handleFieldKeyUnique={handleFieldKeyUnique}
           onClose={handleFieldModalClose}
           onSubmit={handleFieldCreate}

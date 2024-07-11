@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -38,6 +38,7 @@ const ProjectCreationModal: React.FC<Props> = ({
   const [form] = Form.useForm<FormValues>();
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
+  const prevAlias = useRef<{ alias: string; isSuccess: boolean }>();
 
   const values = Form.useWatch([], form);
   useEffect(() => {
@@ -86,6 +87,21 @@ const ProjectCreationModal: React.FC<Props> = ({
     setIsDisabled(true);
   }, [form, onClose]);
 
+  const aliasValidate = useCallback(
+    async (value: string) => {
+      if (prevAlias.current?.alias === value) {
+        return prevAlias.current?.isSuccess ? Promise.resolve() : Promise.reject();
+      } else if (value.length >= 5 && validateKey(value) && (await onProjectAliasCheck(value))) {
+        prevAlias.current = { alias: value, isSuccess: true };
+        return Promise.resolve();
+      } else {
+        prevAlias.current = { alias: value, isSuccess: false };
+        return Promise.reject();
+      }
+    },
+    [onProjectAliasCheck],
+  );
+
   return (
     <Modal
       open={open}
@@ -121,10 +137,7 @@ const ProjectCreationModal: React.FC<Props> = ({
               message: t("Project alias is not valid"),
               required: true,
               validator: async (_, value) => {
-                if (value.length >= 5 && validateKey(value) && (await onProjectAliasCheck(value))) {
-                  return Promise.resolve();
-                }
-                return Promise.reject();
+                await aliasValidate(value);
               },
             },
           ]}>

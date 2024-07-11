@@ -312,6 +312,21 @@ paths:
         - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/refParam'
         - $ref: '#/components/parameters/assetParam'
+        - name: query
+          in: query
+          description: query string
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  $ref: '#/components/schemas/condition'
       responses:
         '200':
           description: A JSON array of user names
@@ -1586,6 +1601,150 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/file'
+    fieldSelector:
+      type: object
+      properties:
+        fieldId:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          type: string
+          enum:
+            - id
+            - creationDate
+            - creationUser
+            - modificationDate
+            - modificationUser
+            - status
+            - field
+            - metaField
+    condition:
+        type: object
+        properties:
+          and:
+            type: array
+            items:
+              $ref: '#/components/schemas/condition'
+          or:
+            type: array
+            items:
+              $ref: '#/components/schemas/condition'
+          basic:
+            type: object
+            properties:
+              fieldId:
+                $ref: '#/components/schemas/fieldSelector'
+              operator:
+                type: string
+                enum:
+                  - equals
+                  - notEquals
+              value: {}
+          nullable:
+            type: object
+            properties:
+              fieldId:
+                $ref: '#/components/schemas/fieldSelector'
+              operator:
+                type: string
+                enum:
+                  - empty
+                  - notEmpty
+          multiple:
+            type: object
+            properties:
+              fieldId:
+                $ref: '#/components/schemas/fieldSelector'
+              operator:
+                type: string
+                enum:
+                  - includesAny
+                  - notIncludesAny
+                  - includesAll
+                  - notIncludesAll
+              value:
+                type: array
+                items: {}
+            required:
+              - fieldId
+              - operator
+              - value
+          bool:
+            type: object
+            properties:
+              fieldId:
+                $ref: '#/components/schemas/fieldSelector'
+              operator:
+                type: string
+                enum:
+                  - equals
+                  - notEquals
+              value:
+                type: boolean
+            required:
+              - fieldId
+              - operator
+              - value
+          string:
+            type: object
+            properties:
+              fieldId:
+                $ref: '#/components/schemas/fieldSelector'
+              operator:
+                type: string
+                enum:
+                  - contains
+                  - notContains
+                  - startsWith
+                  - endsWith
+                  - notStartsWith
+                  - notEndsWith
+              value:
+                type: string
+            required:
+              - fieldId
+              - operator
+              - value
+          number:
+            type: object
+            properties:
+              fieldId:
+                $ref: '#/components/schemas/fieldSelector'
+              operator:
+                type: string
+                enum:
+                  - greaterThan
+                  - lessThan
+                  - greaterThanOrEqualTo
+                  - lessThanOrEqualTo
+              value:
+                type: number
+            required:
+              - fieldId
+              - operator
+              - value
+          time:
+            type: object
+            properties:
+              fieldId:
+                $ref: '#/components/schemas/fieldSelector'
+              operator:
+                type: string
+                enum:
+                  - before
+                  - after
+                  - beforeOrOn
+                  - afterOrOn
+                  - ofThisWeek
+                  - ofThisMonth
+                  - ofThisYear
+              value:
+                type: string
+                format: date-time
+            required:
+              - fieldId
+              - operator
+              - value
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
