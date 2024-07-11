@@ -148,55 +148,55 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	sf2 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
 	sf3 := schema.NewField(schema.NewReference(mId1, sid1, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId4).Key(sfKey4).MustBuild()
-	
+
 	s1 := schema.New().ID(sid1).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf1, sf2}).TitleField(sf1.ID().Ref()).MustBuild()
 	if err := r.Schema.Save(ctx, s1); err != nil {
 		return err
 	}
-	
+
 	s2 := schema.New().ID(sid2).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf3}).MustBuild()
 	if err := r.Schema.Save(ctx, s2); err != nil {
 		return err
 	}
-	
+
 	s3 := schema.New().ID(sid3).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf4}).MustBuild()
 	if err := r.Schema.Save(ctx, s3); err != nil {
 		return err
 	}
-	
+
 	m1 := model.New().
-	ID(mId1).
-	Name("m1").
-	Description("m1 desc").
-	Public(true).
-	Key(ikey1).
-	Project(p.ID()).
-	Schema(s1.ID()).
-	Metadata(s3.ID().Ref()).
-	MustBuild()
+		ID(mId1).
+		Name("m1").
+		Description("m1 desc").
+		Public(true).
+		Key(ikey1).
+		Project(p.ID()).
+		Schema(s1.ID()).
+		Metadata(s3.ID().Ref()).
+		MustBuild()
 	if err := r.Model.Save(ctx, m1); err != nil {
 		return err
 	}
-	
+
 	m2 := model.New().
-	ID(mId2).
-	Name("m2").
-	Description("m2 desc").
-	Public(true).
-	Key(ikey2).
-	Project(p.ID()).
-	Schema(s2.ID()).
-	MustBuild()
+		ID(mId2).
+		Name("m2").
+		Description("m2 desc").
+		Public(true).
+		Key(ikey2).
+		Project(p.ID()).
+		Schema(s2.ID()).
+		MustBuild()
 	if err := r.Model.Save(ctx, m2); err != nil {
 		return err
 	}
-	
+
 	sf5 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId5).Key(sfKey5).Multiple(true).MustBuild()
 	s4 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf5}).MustBuild()
 	if err := r.Schema.Save(ctx, s4); err != nil {
 		return err
 	}
-	
+
 	g := group.New().NewID().Name("group").Project(p.ID()).Key(gKey1).Schema(s4.ID()).MustBuild()
 	if err := r.Group.Save(ctx, g); err != nil {
 		return err
@@ -207,9 +207,6 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
-	if err := r.Schema.Save(ctx, s5); err != nil {
-		return err
-	}
 	m3 := model.New().
 		ID(mId3).
 		Name("m3").
@@ -226,7 +223,6 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	st := schema.GeometrySupportedTypeList{schema.GeometrySupportedTypePoint, schema.GeometrySupportedTypeLineString}
 	sf7 := schema.NewField(schema.NewGeometry(st).TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
 	s7 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf7}).MustBuild()
-
 	if err := r.Schema.Save(ctx, s7); err != nil {
 		return err
 	}
@@ -360,7 +356,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(key.Random()).MustBuild()
 	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
 	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
-	
+
 	st2 := schema.GeometrySupportedTypeList{schema.GeometrySupportedTypePoint, schema.GeometrySupportedTypeLineString}
 	dvsf4 := schema.NewField(schema.NewGeometry(st2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 
@@ -1302,7 +1298,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 		Status(http.StatusOK).
 		JSON().
 		Object()
-		obj2.
+	obj2.
 		Value("fields").
 		IsEqual([]any{
 			map[string]string{
@@ -1592,7 +1588,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-		e.PATCH("/api/items/{itemId}", itmId5).
+	e.PATCH("/api/items/{itemId}", itmId5).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1734,7 +1730,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
-		r3 := e.GET("/api/items/{itemId}", itmId5).
+	r3 := e.GET("/api/items/{itemId}", itmId5).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
