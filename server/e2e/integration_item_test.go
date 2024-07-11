@@ -41,6 +41,7 @@ var (
 	mId1   = id.NewModelID()
 	mId2   = id.NewModelID()
 	mId3   = id.NewModelID()
+	mId4   = id.NewModelID()
 	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
@@ -49,21 +50,25 @@ var (
 	itmId2 = id.NewItemID()
 	itmId3 = id.NewItemID()
 	itmId4 = id.NewItemID()
+	itmId5 = id.NewItemID()
 	fId1   = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
 	fId4   = id.NewFieldID()
 	fId5   = id.NewFieldID()
 	fId6   = id.NewFieldID()
+	fId7   = id.NewFieldID()
 	dvsfId = id.NewFieldID()
 	thId1  = id.NewThreadID()
 	thId2  = id.NewThreadID()
 	thId3  = id.NewThreadID()
 	thId4  = id.NewThreadID()
+	thId5  = id.NewThreadID()
 	icId   = id.NewCommentID()
 	ikey1  = key.Random()
 	ikey2  = key.Random()
 	ikey3  = key.Random()
+	ikey4  = key.Random()
 	pid    = id.NewProjectID()
 	sid1   = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
@@ -75,6 +80,7 @@ var (
 	sfKey4 = key.Random()
 	sfKey5 = id.NewKey("asset-key")
 	sfKey6 = id.NewKey("group-key")
+	sfKey7 = id.NewKey("geometry-key")
 	gKey1  = key.Random()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
@@ -142,55 +148,55 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	sf2 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId2).Key(sfKey2).MustBuild()
 	sf3 := schema.NewField(schema.NewReference(mId1, sid1, nil, nil).TypeProperty()).ID(fId3).Key(sfKey3).MustBuild()
 	sf4 := schema.NewField(schema.NewBool().TypeProperty()).ID(fId4).Key(sfKey4).MustBuild()
-
+	
 	s1 := schema.New().ID(sid1).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf1, sf2}).TitleField(sf1.ID().Ref()).MustBuild()
 	if err := r.Schema.Save(ctx, s1); err != nil {
 		return err
 	}
-
+	
 	s2 := schema.New().ID(sid2).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf3}).MustBuild()
 	if err := r.Schema.Save(ctx, s2); err != nil {
 		return err
 	}
-
+	
 	s3 := schema.New().ID(sid3).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf4}).MustBuild()
 	if err := r.Schema.Save(ctx, s3); err != nil {
 		return err
 	}
-
+	
 	m1 := model.New().
-		ID(mId1).
-		Name("m1").
-		Description("m1 desc").
-		Public(true).
-		Key(ikey1).
-		Project(p.ID()).
-		Schema(s1.ID()).
-		Metadata(s3.ID().Ref()).
-		MustBuild()
+	ID(mId1).
+	Name("m1").
+	Description("m1 desc").
+	Public(true).
+	Key(ikey1).
+	Project(p.ID()).
+	Schema(s1.ID()).
+	Metadata(s3.ID().Ref()).
+	MustBuild()
 	if err := r.Model.Save(ctx, m1); err != nil {
 		return err
 	}
-
+	
 	m2 := model.New().
-		ID(mId2).
-		Name("m2").
-		Description("m2 desc").
-		Public(true).
-		Key(ikey2).
-		Project(p.ID()).
-		Schema(s2.ID()).
-		MustBuild()
+	ID(mId2).
+	Name("m2").
+	Description("m2 desc").
+	Public(true).
+	Key(ikey2).
+	Project(p.ID()).
+	Schema(s2.ID()).
+	MustBuild()
 	if err := r.Model.Save(ctx, m2); err != nil {
 		return err
 	}
-
+	
 	sf5 := schema.NewField(schema.NewAsset().TypeProperty()).ID(fId5).Key(sfKey5).Multiple(true).MustBuild()
 	s4 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf5}).MustBuild()
 	if err := r.Schema.Save(ctx, s4); err != nil {
 		return err
 	}
-
+	
 	g := group.New().NewID().Name("group").Project(p.ID()).Key(gKey1).Schema(s4.ID()).MustBuild()
 	if err := r.Group.Save(ctx, g); err != nil {
 		return err
@@ -201,6 +207,9 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
+	if err := r.Schema.Save(ctx, s5); err != nil {
+		return err
+	}
 	m3 := model.New().
 		ID(mId3).
 		Name("m3").
@@ -214,6 +223,25 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
+	st := schema.GeometrySupportedTypeList{schema.GeometrySupportedTypePoint, schema.GeometrySupportedTypeLineString}
+	sf7 := schema.NewField(schema.NewGeometry(st).TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
+	s7 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf7}).MustBuild()
+
+	if err := r.Schema.Save(ctx, s7); err != nil {
+		return err
+	}
+	m4 := model.New().
+		ID(mId4).
+		Name("m4").
+		Description("m4 desc").
+		Public(true).
+		Key(ikey4).
+		Project(p.ID()).
+		Schema(s7.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m4); err != nil {
+		return err
+	}
 	// endregion
 
 	// region items
@@ -272,6 +300,20 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Item.Save(ctx, itm4); err != nil {
 		return err
 	}
+
+	itm5 := item.New().ID(itmId5).
+		Schema(s7.ID()).
+		Model(m4.ID()).
+		Project(p.ID()).
+		Thread(thId5).
+		IsMetadata(false).
+		Fields([]*item.Field{
+			item.NewField(fId7, value.MultipleFrom(value.TypeGeometry, []*value.Value{value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+		}).
+		MustBuild()
+	if err := r.Item.Save(ctx, itm5); err != nil {
+		return err
+	}
 	// endregion
 
 	// region thread & comment
@@ -318,8 +360,11 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	dvsf1 := schema.NewField(schema.NewText(nil).TypeProperty()).ID(dvsfId).Key(key.Random()).MustBuild()
 	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
 	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	
+	st2 := schema.GeometrySupportedTypeList{schema.GeometrySupportedTypePoint, schema.GeometrySupportedTypeLineString}
+	dvsf4 := schema.NewField(schema.NewGeometry(st2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 
-	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3}).MustBuild()
+	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
 		return err
 	}
@@ -439,6 +484,19 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
+
+	e.GET("/api/models/{modelId}/items", mId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("asset", "true").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
 }
 
 // POST /models/{modelId}/items
@@ -568,6 +626,32 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
+
+	obj2 := e.POST("/api/models/{modelId}/items", mId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey7.String(),
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+		obj2.
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId7.String(),
+				"type":  "geometry",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey7.String(),
+			},
+		})
+
 }
 
 func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
@@ -846,6 +930,32 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"key":   sfKey6.String(),
 			},
 		})
+
+		e.PATCH("/api/items/{itemId}", itmId5).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"id":    fId7.String(),
+					"key":   sfKey7.String(),
+					"type":  "geometry",
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId7.String(),
+				"key":   sfKey7.String(),
+				"type":  "geometry",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+			},
+		})
 }
 
 // GET /items/{itemId}
@@ -963,6 +1073,22 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
+		r3 := e.GET("/api/items/{itemId}", itmId5).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r3.Value("fields").
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId7.String(),
+				"type":  "geometry",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey7.String(),
+			},
+		})
 }
 
 // DELETE /items/{itemId}
