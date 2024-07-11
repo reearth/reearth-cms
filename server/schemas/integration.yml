@@ -1381,6 +1381,7 @@ components:
         - group
         - tag
         - geometry
+        - geometryEditor
     tagResponse:
       type: object
       properties:

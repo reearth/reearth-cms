@@ -36,18 +36,19 @@ type FieldDocument struct {
 }
 
 type TypePropertyDocument struct {
-	Type      string
-	Text      *FieldTextPropertyDocument      `bson:",omitempty"`
-	TextArea  *FieldTextPropertyDocument      `bson:",omitempty"`
-	RichText  *FieldTextPropertyDocument      `bson:",omitempty"`
-	Markdown  *FieldTextPropertyDocument      `bson:",omitempty"`
-	Select    *FieldSelectPropertyDocument    `bson:",omitempty"`
-	Tag       *FieldTagPropertyDocument       `bson:",omitempty"`
-	Number    *FieldNumberPropertyDocument    `bson:",omitempty"`
-	Integer   *FieldIntegerPropertyDocument   `bson:",omitempty"`
-	Reference *FieldReferencePropertyDocument `bson:",omitempty"`
-	Group     *FieldGroupPropertyDocument     `bson:",omitempty"`
-	Geometry  *FieldGeometryPropertyDocument  `bson:",omitempty"`
+	Type           string
+	Text           *FieldTextPropertyDocument           `bson:",omitempty"`
+	TextArea       *FieldTextPropertyDocument           `bson:",omitempty"`
+	RichText       *FieldTextPropertyDocument           `bson:",omitempty"`
+	Markdown       *FieldTextPropertyDocument           `bson:",omitempty"`
+	Select         *FieldSelectPropertyDocument         `bson:",omitempty"`
+	Tag            *FieldTagPropertyDocument            `bson:",omitempty"`
+	Number         *FieldNumberPropertyDocument         `bson:",omitempty"`
+	Integer        *FieldIntegerPropertyDocument        `bson:",omitempty"`
+	Reference      *FieldReferencePropertyDocument      `bson:",omitempty"`
+	Group          *FieldGroupPropertyDocument          `bson:",omitempty"`
+	Geometry       *FieldGeometryPropertyDocument       `bson:",omitempty"`
+	GeometryEditor *FieldGeometryEditorPropertyDocument `bson:",omitempty"`
 }
 
 type FieldTextPropertyDocument struct {
@@ -88,6 +89,10 @@ type FieldGroupPropertyDocument struct {
 }
 
 type FieldGeometryPropertyDocument struct {
+	SupportedTypes []string
+}
+
+type FieldGeometryEditorPropertyDocument struct {
 	SupportedTypes []string
 }
 
@@ -183,6 +188,13 @@ func NewSchema(s *schema.Schema) (*SchemaDocument, string) {
 			Geometry: func(fp *schema.FieldGeometry) {
 				fd.TypeProperty.Geometry = &FieldGeometryPropertyDocument{
 					SupportedTypes: lo.Map(fp.SupportedTypes(), func(item schema.GeometrySupportedType, _ int) string {
+						return item.String()
+					}),
+				}
+			},
+			GeometryEditor: func(fp *schema.FieldGeometryEditor) {
+				fd.TypeProperty.GeometryEditor = &FieldGeometryEditorPropertyDocument{
+					SupportedTypes: lo.Map(fp.SupportedTypes(), func(item schema.GeometryEditorSupportedType, _ int) string {
 						return item.String()
 					}),
 				}
@@ -296,6 +308,10 @@ func (d *SchemaDocument) Model() (*schema.Schema, error) {
 		case value.TypeGeometry:
 			tp = schema.NewGeometry(lo.Map(tpd.Geometry.SupportedTypes, func(item string, _ int) schema.GeometrySupportedType {
 				return schema.GeometrySupportedTypeFrom(item)
+			})).TypeProperty()
+		case value.TypeGeometryEditor:
+			tp = schema.NewGeometryEditor(lo.Map(tpd.GeometryEditor.SupportedTypes, func(item string, _ int) schema.GeometryEditorSupportedType {
+				return schema.GeometryEditorSupportedTypeFrom(item)
 			})).TypeProperty()
 
 		}

@@ -36,8 +36,6 @@ func GeometrySupportedTypeFrom(s string) GeometrySupportedType {
 		return GeometrySupportedTypeMultiPolygon
 	case GeometrySupportedTypeGeometryCollection:
 		return GeometrySupportedTypeGeometryCollection
-	case GeometrySupportedTypeAny:
-		return GeometrySupportedTypeAny
 
 	default:
 		return GeometrySupportedType("")

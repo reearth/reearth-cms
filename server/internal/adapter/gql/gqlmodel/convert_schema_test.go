@@ -214,6 +214,11 @@ func TestToSchemaFieldTypeProperty(t *testing.T) {
 			args: args{tp: schema.NewGeometry(schema.GeometrySupportedTypeList{"POINT"}).TypeProperty()},
 			want: &SchemaFieldGeometry{SupportedTypes: []GeometrySupportedType{"POINT"}, DefaultValue: nil},
 		},
+		{
+			name: "geometryEditor",
+			args: args{tp: schema.NewGeometryEditor(schema.GeometryEditorSupportedTypeList{"POINT"}).TypeProperty()},
+			want: &SchemaFieldGeometryEditor{SupportedTypes: []GeometryEditorSupportedType{"POINT"}, DefaultValue: nil},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -344,6 +349,14 @@ func TestFromSchemaFieldTypeProperty(t *testing.T) {
 			wantTp: schema.NewGeometry(schema.GeometrySupportedTypeList{"POINT"}).TypeProperty(),
 		},
 		{
+			name: "geometryEditor",
+			argsInp: &SchemaFieldTypePropertyInput{
+				GeometryEditor: &SchemaFieldGeometryEditorInput{SupportedTypes: []GeometryEditorSupportedType{"POINT"}, DefaultValue: nil},
+			},
+			argsT:  SchemaFieldTypeGeometryEditor,
+			wantTp: schema.NewGeometryEditor(schema.GeometryEditorSupportedTypeList{"POINT"}).TypeProperty(),
+		},
+		{
 			name: "tags empty",
 			argsInp: &SchemaFieldTypePropertyInput{
 				Tag: &SchemaFieldTagInput{
@@ -433,11 +446,6 @@ func TestToGeometrySupportedType(t *testing.T) {
 			want: GeometrySupportedTypeGeometrycollection,
 		},
 		{
-			name: "any",
-			arg:  schema.GeometrySupportedTypeAny,
-			want: GeometrySupportedTypeAny,
-		},
-		{
 			name: "default",
 			arg:  "foo",
 			want: "",
@@ -495,9 +503,45 @@ func TestFromGeometrySupportedType(t *testing.T) {
 			want: schema.GeometrySupportedTypeGeometryCollection,
 		},
 		{
+			name: "default",
+			arg:  "foo",
+			want: "",
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(tt *testing.T) {
+			tt.Parallel()
+			assert.Equal(tt, tc.want, FromGeometrySupportedType(tc.arg))
+		})
+	}
+}
+func TestToGeometryEditorSupportedType(t *testing.T) {
+	tests := []struct {
+		name string
+		arg  schema.GeometryEditorSupportedType
+		want GeometryEditorSupportedType
+	}{
+		{
+			name: "point",
+			arg:  schema.GeometryEditorSupportedTypePoint,
+			want: GeometryEditorSupportedTypePoint,
+		},
+		{
+			name: "lineString",
+			arg:  schema.GeometryEditorSupportedTypeLineString,
+			want: GeometryEditorSupportedTypeLinestring,
+		},
+		{
+			name: "polygon",
+			arg:  schema.GeometryEditorSupportedTypePolygon,
+			want: GeometryEditorSupportedTypePolygon,
+		},
+		{
 			name: "any",
-			arg:  GeometrySupportedTypeAny,
-			want: schema.GeometrySupportedTypeAny,
+			arg:  schema.GeometryEditorSupportedTypeAny,
+			want: GeometryEditorSupportedTypeAny,
 		},
 		{
 			name: "default",
@@ -510,7 +554,49 @@ func TestFromGeometrySupportedType(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			tt.Parallel()
-			assert.Equal(tt, tc.want, FromGeometrySupportedType(tc.arg))
+			assert.Equal(tt, tc.want, ToGeometryEditorSupportedType(tc.arg))
+		})
+	}
+}
+
+func TestFromGeometryEditorSupportedType(t *testing.T) {
+	tests := []struct {
+		name string
+		arg  GeometryEditorSupportedType
+		want schema.GeometryEditorSupportedType
+	}{
+		{
+			name: "point",
+			arg:  GeometryEditorSupportedTypePoint,
+			want: schema.GeometryEditorSupportedTypePoint,
+		},
+		{
+			name: "lineString",
+			arg:  GeometryEditorSupportedTypeLinestring,
+			want: schema.GeometryEditorSupportedTypeLineString,
+		},
+		{
+			name: "polygon",
+			arg:  GeometryEditorSupportedTypePolygon,
+			want: schema.GeometryEditorSupportedTypePolygon,
+		},
+		{
+			name: "any",
+			arg:  GeometryEditorSupportedTypeAny,
+			want: schema.GeometryEditorSupportedTypeAny,
+		},
+		{
+			name: "default",
+			arg:  "foo",
+			want: "",
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(tt *testing.T) {
+			tt.Parallel()
+			assert.Equal(tt, tc.want, FromGeometryEditorSupportedType(tc.arg))
 		})
 	}
 }

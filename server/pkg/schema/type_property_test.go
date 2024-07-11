@@ -17,21 +17,22 @@ func TestTypeProperty_Type(t *testing.T) {
 func TestMatchTypeProperty(t *testing.T) {
 	val := ""
 	m := TypePropertyMatch{
-		Text:      func(_ *FieldText) { val = "Text" },
-		TextArea:  func(_ *FieldTextArea) { val = "TextArea" },
-		RichText:  func(_ *FieldRichText) { val = "RichText" },
-		Markdown:  func(_ *FieldMarkdown) { val = "Markdown" },
-		Asset:     func(_ *FieldAsset) { val = "Asset" },
-		DateTime:  func(_ *FieldDateTime) { val = "DateTime" },
-		Bool:      func(_ *FieldBool) { val = "Bool" },
-		Select:    func(_ *FieldSelect) { val = "Select" },
-		Tag:       func(_ *FieldTag) { val = "Tag" },
-		Integer:   func(_ *FieldInteger) { val = "Integer" },
-		Number:    func(_ *FieldNumber) { val = "Number" },
-		Reference: func(_ *FieldReference) { val = "Reference" },
-		URL:       func(_ *FieldURL) { val = "URL" },
-		Geometry:  func(_ *FieldGeometry) { val = "Geometry" },
-		Default:   func() { val = "Default" },
+		Text:           func(_ *FieldText) { val = "Text" },
+		TextArea:       func(_ *FieldTextArea) { val = "TextArea" },
+		RichText:       func(_ *FieldRichText) { val = "RichText" },
+		Markdown:       func(_ *FieldMarkdown) { val = "Markdown" },
+		Asset:          func(_ *FieldAsset) { val = "Asset" },
+		DateTime:       func(_ *FieldDateTime) { val = "DateTime" },
+		Bool:           func(_ *FieldBool) { val = "Bool" },
+		Select:         func(_ *FieldSelect) { val = "Select" },
+		Tag:            func(_ *FieldTag) { val = "Tag" },
+		Integer:        func(_ *FieldInteger) { val = "Integer" },
+		Number:         func(_ *FieldNumber) { val = "Number" },
+		Reference:      func(_ *FieldReference) { val = "Reference" },
+		URL:            func(_ *FieldURL) { val = "URL" },
+		Geometry:       func(_ *FieldGeometry) { val = "Geometry" },
+		GeometryEditor: func(_ *FieldGeometryEditor) { val = "GeometryEditor" },
+		Default:        func() { val = "Default" },
 	}
 
 	type args struct {
@@ -165,6 +166,14 @@ func TestMatchTypeProperty(t *testing.T) {
 			want: "Geometry",
 		},
 		{
+			name: "GeometryEditor",
+			args: args{
+				tp: &TypeProperty{t: value.TypeGeometryEditor, geometryEditor: &FieldGeometryEditor{}},
+				m:  m,
+			},
+			want: "GeometryEditor",
+		},
+		{
 			name: "Default",
 			args: args{
 				tp: &TypeProperty{t: value.TypeAsset, asset: &FieldAsset{}},
@@ -188,21 +197,22 @@ func TestMatchTypeProperty(t *testing.T) {
 
 func TestMatchTypeProperty1(t *testing.T) {
 	m := TypePropertyMatch1[string]{
-		Text:      func(_ *FieldText) string { return "Text" },
-		TextArea:  func(_ *FieldTextArea) string { return "TextArea" },
-		RichText:  func(_ *FieldRichText) string { return "RichText" },
-		Markdown:  func(_ *FieldMarkdown) string { return "Markdown" },
-		Asset:     func(_ *FieldAsset) string { return "Asset" },
-		DateTime:  func(_ *FieldDateTime) string { return "DateTime" },
-		Bool:      func(_ *FieldBool) string { return "Bool" },
-		Select:    func(_ *FieldSelect) string { return "Select" },
-		Tag:       func(_ *FieldTag) string { return "Tag" },
-		Integer:   func(_ *FieldInteger) string { return "Integer" },
-		Number:    func(_ *FieldNumber) string { return "Number" },
-		Reference: func(_ *FieldReference) string { return "Reference" },
-		URL:       func(_ *FieldURL) string { return "URL" },
-		Geometry:  func(_ *FieldGeometry) string { return "Geometry" },
-		Default:   func() string { return "Default" },
+		Text:           func(_ *FieldText) string { return "Text" },
+		TextArea:       func(_ *FieldTextArea) string { return "TextArea" },
+		RichText:       func(_ *FieldRichText) string { return "RichText" },
+		Markdown:       func(_ *FieldMarkdown) string { return "Markdown" },
+		Asset:          func(_ *FieldAsset) string { return "Asset" },
+		DateTime:       func(_ *FieldDateTime) string { return "DateTime" },
+		Bool:           func(_ *FieldBool) string { return "Bool" },
+		Select:         func(_ *FieldSelect) string { return "Select" },
+		Tag:            func(_ *FieldTag) string { return "Tag" },
+		Integer:        func(_ *FieldInteger) string { return "Integer" },
+		Number:         func(_ *FieldNumber) string { return "Number" },
+		Reference:      func(_ *FieldReference) string { return "Reference" },
+		URL:            func(_ *FieldURL) string { return "URL" },
+		Geometry:       func(_ *FieldGeometry) string { return "Geometry" },
+		GeometryEditor: func(_ *FieldGeometryEditor) string { return "GeometryEditor" },
+		Default:        func() string { return "Default" },
 	}
 
 	type args struct {
@@ -334,6 +344,14 @@ func TestMatchTypeProperty1(t *testing.T) {
 				m:  m,
 			},
 			want: "Geometry",
+		},
+		{
+			name: "GeometryEditor",
+			args: args{
+				tp: &TypeProperty{t: value.TypeGeometryEditor, geometryEditor: &FieldGeometryEditor{}},
+				m:  m,
+			},
+			want: "GeometryEditor",
 		},
 		{
 			name: "Default",
@@ -484,8 +502,19 @@ func TestTypeProperty_Validate(t *testing.T) {
 		{
 			name: "Geometry",
 			args: args{
-				tp:    &TypeProperty{t: value.TypeGeometry, geometry: NewGeometry(GeometrySupportedTypeList{"POINT"})},
+				tp: &TypeProperty{t: value.TypeGeometry, geometry: NewGeometry(GeometrySupportedTypeList{"POINT"})},
 				value: value.TypeGeometry.Value(`{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`),
+			},
+			want: nil,
+		},
+		{
+			name: "GeometryEditor",
+			args: args{
+				tp: &TypeProperty{t: value.TypeGeometryEditor, geometryEditor: NewGeometryEditor(GeometryEditorSupportedTypeList{"POINT"})},
+				value: value.TypeGeometryEditor.Value(`{
 				"type": "Point",
 				"coordinates": [102.0, 0.5]
 			}`),

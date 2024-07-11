@@ -41,6 +41,8 @@ func FromValueType(t *ValueType) value.Type {
 		return value.TypeGroup
 	case ValueTypeGeometry:
 		return value.TypeGeometry
+	case ValueTypeGeometryEditor:
+		return value.TypeGeometryEditor
 	default:
 		return value.TypeUnknown
 	}
@@ -78,6 +80,8 @@ func ToValueType(t value.Type) ValueType {
 		return ValueTypeCheckbox
 	case value.TypeGeometry:
 		return ValueTypeGeometry
+	case value.TypeGeometryEditor:
+		return ValueTypeGeometryEditor
 	default:
 		return ""
 	}

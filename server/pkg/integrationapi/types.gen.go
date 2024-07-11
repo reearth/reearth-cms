@@ -126,21 +126,22 @@ const (
 
 // Defines values for ValueType.
 const (
-	ValueTypeAsset     ValueType = "asset"
-	ValueTypeBool      ValueType = "bool"
-	ValueTypeCheckbox  ValueType = "checkbox"
-	ValueTypeDate      ValueType = "date"
-	ValueTypeGeometry  ValueType = "geometry"
-	ValueTypeGroup     ValueType = "group"
-	ValueTypeInteger   ValueType = "integer"
-	ValueTypeMarkdown  ValueType = "markdown"
-	ValueTypeReference ValueType = "reference"
-	ValueTypeRichText  ValueType = "richText"
-	ValueTypeSelect    ValueType = "select"
-	ValueTypeTag       ValueType = "tag"
-	ValueTypeText      ValueType = "text"
-	ValueTypeTextArea  ValueType = "textArea"
-	ValueTypeUrl       ValueType = "url"
+	ValueTypeAsset          ValueType = "asset"
+	ValueTypeBool           ValueType = "bool"
+	ValueTypeCheckbox       ValueType = "checkbox"
+	ValueTypeDate           ValueType = "date"
+	ValueTypeGeometry       ValueType = "geometry"
+	ValueTypeGeometryEditor ValueType = "geometryEditor"
+	ValueTypeGroup          ValueType = "group"
+	ValueTypeInteger        ValueType = "integer"
+	ValueTypeMarkdown       ValueType = "markdown"
+	ValueTypeReference      ValueType = "reference"
+	ValueTypeRichText       ValueType = "richText"
+	ValueTypeSelect         ValueType = "select"
+	ValueTypeTag            ValueType = "tag"
+	ValueTypeText           ValueType = "text"
+	ValueTypeTextArea       ValueType = "textArea"
+	ValueTypeUrl            ValueType = "url"
 )
 
 // Defines values for RefParam.

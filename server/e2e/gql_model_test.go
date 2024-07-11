@@ -217,6 +217,11 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 								supportedTypes
 							  __typename
 							}
+							... on SchemaFieldGeometryEditor {
+							  defaultValue
+								supportedTypes
+							  __typename
+							}
 							__typename
 						  }
 						  __typename
@@ -285,6 +290,11 @@ func getModel(e *httpexpect.Expect, mID string) (string, string, *httpexpect.Val
 							  __typename
 							}
 							... on SchemaFieldGeometry {
+							  defaultValue
+								supportedTypes
+							  __typename
+							}
+							... on SchemaFieldGeometryEditor {
 							  defaultValue
 								supportedTypes
 							  __typename

@@ -58,6 +58,7 @@ var (
 	fId5   = id.NewFieldID()
 	fId6   = id.NewFieldID()
 	fId7   = id.NewFieldID()
+	fId8   = id.NewFieldID()
 	dvsfId = id.NewFieldID()
 	thId1  = id.NewThreadID()
 	thId2  = id.NewThreadID()
@@ -81,6 +82,7 @@ var (
 	sfKey5 = id.NewKey("asset-key")
 	sfKey6 = id.NewKey("group-key")
 	sfKey7 = id.NewKey("geometry-key")
+	sfKey8 = id.NewKey("geometry-editor-key")
 	gKey1  = key.Random()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
@@ -221,8 +223,10 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	}
 
 	st := schema.GeometrySupportedTypeList{schema.GeometrySupportedTypePoint, schema.GeometrySupportedTypeLineString}
+	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 	sf7 := schema.NewField(schema.NewGeometry(st).TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
-	s7 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf7}).MustBuild()
+	sf8 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).ID(fId8).Key(sfKey8).MustBuild()
+	s7 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf7, sf8}).MustBuild()
 	if err := r.Schema.Save(ctx, s7); err != nil {
 		return err
 	}
@@ -305,6 +309,7 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		IsMetadata(false).
 		Fields([]*item.Field{
 			item.NewField(fId7, value.MultipleFrom(value.TypeGeometry, []*value.Value{value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometry.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+			item.NewField(fId8, value.MultipleFrom(value.TypeGeometryEditor, []*value.Value{value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm5); err != nil {
@@ -358,9 +363,11 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 
 	st2 := schema.GeometrySupportedTypeList{schema.GeometrySupportedTypePoint, schema.GeometrySupportedTypeLineString}
+	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
 	dvsf4 := schema.NewField(schema.NewGeometry(st2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 
-	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4}).MustBuild()
+	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
 		return err
 	}
@@ -1292,6 +1299,10 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 					"key":   sfKey7.String(),
 					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				},
+				map[string]string{
+					"key":   sfKey8.String(),
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
 			},
 		}).
 		Expect().
@@ -1306,6 +1317,12 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 				"type":  "geometry",
 				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				"key":   sfKey7.String(),
+			},
+			map[string]string{
+				"id":    fId8.String(),
+				"type":  "geometryEditor",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey8.String(),
 			},
 		})
 
@@ -1598,6 +1615,12 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 					"type":  "geometry",
 					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				},
+				map[string]string{
+					"id":    fId8.String(),
+					"key":   sfKey8.String(),
+					"type":  "geometryEditor",
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
 			},
 		}).
 		Expect().
@@ -1610,6 +1633,12 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"id":    fId7.String(),
 				"key":   sfKey7.String(),
 				"type":  "geometry",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+			},
+			map[string]string{
+				"id":    fId8.String(),
+				"key":   sfKey8.String(),
+				"type":  "geometryEditor",
 				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 			},
 		})
@@ -1744,6 +1773,12 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 				"type":  "geometry",
 				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
 				"key":   sfKey7.String(),
+			},
+			map[string]any{
+				"id":    fId8.String(),
+				"type":  "geometryEditor",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey8.String(),
 			},
 		})
 }
