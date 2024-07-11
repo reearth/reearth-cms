@@ -969,16 +969,28 @@ type SchemaFieldDateInput struct {
 	DefaultValue interface{} `json:"defaultValue,omitempty"`
 }
 
-type SchemaFieldGeometry struct {
-	DefaultValue   interface{}             `json:"defaultValue,omitempty"`
-	SupportedTypes []GeometrySupportedType `json:"supportedTypes"`
+type SchemaFieldGeometryEditor struct {
+	DefaultValue   interface{}                   `json:"defaultValue,omitempty"`
+	SupportedTypes []GeometryEditorSupportedType `json:"supportedTypes"`
 }
 
-func (SchemaFieldGeometry) IsSchemaFieldTypeProperty() {}
+func (SchemaFieldGeometryEditor) IsSchemaFieldTypeProperty() {}
 
-type SchemaFieldGeometryInput struct {
-	DefaultValue   interface{}             `json:"defaultValue,omitempty"`
-	SupportedTypes []GeometrySupportedType `json:"supportedTypes"`
+type SchemaFieldGeometryEditorInput struct {
+	DefaultValue   interface{}                   `json:"defaultValue,omitempty"`
+	SupportedTypes []GeometryEditorSupportedType `json:"supportedTypes"`
+}
+
+type SchemaFieldGeometryObject struct {
+	DefaultValue   interface{}                   `json:"defaultValue,omitempty"`
+	SupportedTypes []GeometryObjectSupportedType `json:"supportedTypes"`
+}
+
+func (SchemaFieldGeometryObject) IsSchemaFieldTypeProperty() {}
+
+type SchemaFieldGeometryObjectInput struct {
+	DefaultValue   interface{}                   `json:"defaultValue,omitempty"`
+	SupportedTypes []GeometryObjectSupportedType `json:"supportedTypes"`
 }
 
 type SchemaFieldGroup struct {
@@ -1105,21 +1117,22 @@ type SchemaFieldTextInput struct {
 }
 
 type SchemaFieldTypePropertyInput struct {
-	Text         *SchemaFieldTextInput      `json:"text,omitempty"`
-	TextArea     *SchemaFieldTextAreaInput  `json:"textArea,omitempty"`
-	RichText     *SchemaFieldRichTextInput  `json:"richText,omitempty"`
-	MarkdownText *SchemaMarkdownTextInput   `json:"markdownText,omitempty"`
-	Asset        *SchemaFieldAssetInput     `json:"asset,omitempty"`
-	Date         *SchemaFieldDateInput      `json:"date,omitempty"`
-	Bool         *SchemaFieldBoolInput      `json:"bool,omitempty"`
-	Select       *SchemaFieldSelectInput    `json:"select,omitempty"`
-	Tag          *SchemaFieldTagInput       `json:"tag,omitempty"`
-	Checkbox     *SchemaFieldCheckboxInput  `json:"checkbox,omitempty"`
-	Integer      *SchemaFieldIntegerInput   `json:"integer,omitempty"`
-	Reference    *SchemaFieldReferenceInput `json:"reference,omitempty"`
-	URL          *SchemaFieldURLInput       `json:"url,omitempty"`
-	Group        *SchemaFieldGroupInput     `json:"group,omitempty"`
-	Geometry     *SchemaFieldGeometryInput  `json:"geometry,omitempty"`
+	Text           *SchemaFieldTextInput           `json:"text,omitempty"`
+	TextArea       *SchemaFieldTextAreaInput       `json:"textArea,omitempty"`
+	RichText       *SchemaFieldRichTextInput       `json:"richText,omitempty"`
+	MarkdownText   *SchemaMarkdownTextInput        `json:"markdownText,omitempty"`
+	Asset          *SchemaFieldAssetInput          `json:"asset,omitempty"`
+	Date           *SchemaFieldDateInput           `json:"date,omitempty"`
+	Bool           *SchemaFieldBoolInput           `json:"bool,omitempty"`
+	Select         *SchemaFieldSelectInput         `json:"select,omitempty"`
+	Tag            *SchemaFieldTagInput            `json:"tag,omitempty"`
+	Checkbox       *SchemaFieldCheckboxInput       `json:"checkbox,omitempty"`
+	Integer        *SchemaFieldIntegerInput        `json:"integer,omitempty"`
+	Reference      *SchemaFieldReferenceInput      `json:"reference,omitempty"`
+	URL            *SchemaFieldURLInput            `json:"url,omitempty"`
+	Group          *SchemaFieldGroupInput          `json:"group,omitempty"`
+	GeometryObject *SchemaFieldGeometryObjectInput `json:"geometryObject,omitempty"`
+	GeometryEditor *SchemaFieldGeometryEditorInput `json:"geometryEditor,omitempty"`
 }
 
 type SchemaFieldURL struct {
@@ -1740,54 +1753,99 @@ func (e FieldType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-type GeometrySupportedType string
+type GeometryEditorSupportedType string
 
 const (
-	GeometrySupportedTypePoint              GeometrySupportedType = "POINT"
-	GeometrySupportedTypeMultipoint         GeometrySupportedType = "MULTIPOINT"
-	GeometrySupportedTypeLinestring         GeometrySupportedType = "LINESTRING"
-	GeometrySupportedTypeMultilinestring    GeometrySupportedType = "MULTILINESTRING"
-	GeometrySupportedTypePolygon            GeometrySupportedType = "POLYGON"
-	GeometrySupportedTypeMultipolygon       GeometrySupportedType = "MULTIPOLYGON"
-	GeometrySupportedTypeGeometrycollection GeometrySupportedType = "GEOMETRYCOLLECTION"
+	GeometryEditorSupportedTypePoint      GeometryEditorSupportedType = "POINT"
+	GeometryEditorSupportedTypeLinestring GeometryEditorSupportedType = "LINESTRING"
+	GeometryEditorSupportedTypePolygon    GeometryEditorSupportedType = "POLYGON"
+	GeometryEditorSupportedTypeAny        GeometryEditorSupportedType = "ANY"
 )
 
-var AllGeometrySupportedType = []GeometrySupportedType{
-	GeometrySupportedTypePoint,
-	GeometrySupportedTypeMultipoint,
-	GeometrySupportedTypeLinestring,
-	GeometrySupportedTypeMultilinestring,
-	GeometrySupportedTypePolygon,
-	GeometrySupportedTypeMultipolygon,
-	GeometrySupportedTypeGeometrycollection,
+var AllGeometryEditorSupportedType = []GeometryEditorSupportedType{
+	GeometryEditorSupportedTypePoint,
+	GeometryEditorSupportedTypeLinestring,
+	GeometryEditorSupportedTypePolygon,
+	GeometryEditorSupportedTypeAny,
 }
 
-func (e GeometrySupportedType) IsValid() bool {
+func (e GeometryEditorSupportedType) IsValid() bool {
 	switch e {
-	case GeometrySupportedTypePoint, GeometrySupportedTypeMultipoint, GeometrySupportedTypeLinestring, GeometrySupportedTypeMultilinestring, GeometrySupportedTypePolygon, GeometrySupportedTypeMultipolygon, GeometrySupportedTypeGeometrycollection:
+	case GeometryEditorSupportedTypePoint, GeometryEditorSupportedTypeLinestring, GeometryEditorSupportedTypePolygon, GeometryEditorSupportedTypeAny:
 		return true
 	}
 	return false
 }
 
-func (e GeometrySupportedType) String() string {
+func (e GeometryEditorSupportedType) String() string {
 	return string(e)
 }
 
-func (e *GeometrySupportedType) UnmarshalGQL(v interface{}) error {
+func (e *GeometryEditorSupportedType) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = GeometrySupportedType(str)
+	*e = GeometryEditorSupportedType(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid GeometrySupportedType", str)
+		return fmt.Errorf("%s is not a valid GeometryEditorSupportedType", str)
 	}
 	return nil
 }
 
-func (e GeometrySupportedType) MarshalGQL(w io.Writer) {
+func (e GeometryEditorSupportedType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type GeometryObjectSupportedType string
+
+const (
+	GeometryObjectSupportedTypePoint              GeometryObjectSupportedType = "POINT"
+	GeometryObjectSupportedTypeMultipoint         GeometryObjectSupportedType = "MULTIPOINT"
+	GeometryObjectSupportedTypeLinestring         GeometryObjectSupportedType = "LINESTRING"
+	GeometryObjectSupportedTypeMultilinestring    GeometryObjectSupportedType = "MULTILINESTRING"
+	GeometryObjectSupportedTypePolygon            GeometryObjectSupportedType = "POLYGON"
+	GeometryObjectSupportedTypeMultipolygon       GeometryObjectSupportedType = "MULTIPOLYGON"
+	GeometryObjectSupportedTypeGeometrycollection GeometryObjectSupportedType = "GEOMETRYCOLLECTION"
+)
+
+var AllGeometryObjectSupportedType = []GeometryObjectSupportedType{
+	GeometryObjectSupportedTypePoint,
+	GeometryObjectSupportedTypeMultipoint,
+	GeometryObjectSupportedTypeLinestring,
+	GeometryObjectSupportedTypeMultilinestring,
+	GeometryObjectSupportedTypePolygon,
+	GeometryObjectSupportedTypeMultipolygon,
+	GeometryObjectSupportedTypeGeometrycollection,
+}
+
+func (e GeometryObjectSupportedType) IsValid() bool {
+	switch e {
+	case GeometryObjectSupportedTypePoint, GeometryObjectSupportedTypeMultipoint, GeometryObjectSupportedTypeLinestring, GeometryObjectSupportedTypeMultilinestring, GeometryObjectSupportedTypePolygon, GeometryObjectSupportedTypeMultipolygon, GeometryObjectSupportedTypeGeometrycollection:
+		return true
+	}
+	return false
+}
+
+func (e GeometryObjectSupportedType) String() string {
+	return string(e)
+}
+
+func (e *GeometryObjectSupportedType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GeometryObjectSupportedType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GeometryObjectSupportedType", str)
+	}
+	return nil
+}
+
+func (e GeometryObjectSupportedType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -2360,21 +2418,22 @@ func (e SchemaFieldTagColor) MarshalGQL(w io.Writer) {
 type SchemaFieldType string
 
 const (
-	SchemaFieldTypeText         SchemaFieldType = "Text"
-	SchemaFieldTypeTextArea     SchemaFieldType = "TextArea"
-	SchemaFieldTypeRichText     SchemaFieldType = "RichText"
-	SchemaFieldTypeMarkdownText SchemaFieldType = "MarkdownText"
-	SchemaFieldTypeAsset        SchemaFieldType = "Asset"
-	SchemaFieldTypeDate         SchemaFieldType = "Date"
-	SchemaFieldTypeBool         SchemaFieldType = "Bool"
-	SchemaFieldTypeSelect       SchemaFieldType = "Select"
-	SchemaFieldTypeTag          SchemaFieldType = "Tag"
-	SchemaFieldTypeInteger      SchemaFieldType = "Integer"
-	SchemaFieldTypeReference    SchemaFieldType = "Reference"
-	SchemaFieldTypeCheckbox     SchemaFieldType = "Checkbox"
-	SchemaFieldTypeURL          SchemaFieldType = "URL"
-	SchemaFieldTypeGroup        SchemaFieldType = "Group"
-	SchemaFieldTypeGeometry     SchemaFieldType = "Geometry"
+	SchemaFieldTypeText           SchemaFieldType = "Text"
+	SchemaFieldTypeTextArea       SchemaFieldType = "TextArea"
+	SchemaFieldTypeRichText       SchemaFieldType = "RichText"
+	SchemaFieldTypeMarkdownText   SchemaFieldType = "MarkdownText"
+	SchemaFieldTypeAsset          SchemaFieldType = "Asset"
+	SchemaFieldTypeDate           SchemaFieldType = "Date"
+	SchemaFieldTypeBool           SchemaFieldType = "Bool"
+	SchemaFieldTypeSelect         SchemaFieldType = "Select"
+	SchemaFieldTypeTag            SchemaFieldType = "Tag"
+	SchemaFieldTypeInteger        SchemaFieldType = "Integer"
+	SchemaFieldTypeReference      SchemaFieldType = "Reference"
+	SchemaFieldTypeCheckbox       SchemaFieldType = "Checkbox"
+	SchemaFieldTypeURL            SchemaFieldType = "URL"
+	SchemaFieldTypeGroup          SchemaFieldType = "Group"
+	SchemaFieldTypeGeometryObject SchemaFieldType = "GeometryObject"
+	SchemaFieldTypeGeometryEditor SchemaFieldType = "GeometryEditor"
 )
 
 var AllSchemaFieldType = []SchemaFieldType{
@@ -2392,12 +2451,13 @@ var AllSchemaFieldType = []SchemaFieldType{
 	SchemaFieldTypeCheckbox,
 	SchemaFieldTypeURL,
 	SchemaFieldTypeGroup,
-	SchemaFieldTypeGeometry,
+	SchemaFieldTypeGeometryObject,
+	SchemaFieldTypeGeometryEditor,
 }
 
 func (e SchemaFieldType) IsValid() bool {
 	switch e {
-	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypeGeometry:
+	case SchemaFieldTypeText, SchemaFieldTypeTextArea, SchemaFieldTypeRichText, SchemaFieldTypeMarkdownText, SchemaFieldTypeAsset, SchemaFieldTypeDate, SchemaFieldTypeBool, SchemaFieldTypeSelect, SchemaFieldTypeTag, SchemaFieldTypeInteger, SchemaFieldTypeReference, SchemaFieldTypeCheckbox, SchemaFieldTypeURL, SchemaFieldTypeGroup, SchemaFieldTypeGeometryObject, SchemaFieldTypeGeometryEditor:
 		return true
 	}
 	return false
