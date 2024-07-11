@@ -12,7 +12,6 @@ const (
 	GeometryObjectSupportedTypePolygon            GeometryObjectSupportedType = "POLYGON"
 	GeometryObjectSupportedTypeMultiPolygon       GeometryObjectSupportedType = "MULTIPOLYGON"
 	GeometryObjectSupportedTypeGeometryCollection GeometryObjectSupportedType = "GEOMETRYCOLLECTION"
-	GeometryObjectSupportedTypeAny                GeometryObjectSupportedType = "ANY"
 )
 
 func (s GeometryObjectSupportedType) String() string {
