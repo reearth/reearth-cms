@@ -389,6 +389,60 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  '/models/{modelId}/items.geojson':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    get:
+      operationId: ItemsAsGeoJSON
+      security:
+        - bearerAuth: []
+      summary: Returns a GeoJSON that has a list of items as features.
+      tags:
+        - Items
+        - GeoJSON
+      description: Returns a GeoJSON that has a list of items as features.
+      responses:
+        '200':
+          description: A GeoJSON object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoJSON'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/models/{modelId}/items.csv':
+    parameters:
+      - $ref: '#/components/parameters/modelIdParam'
+    get:
+      operationId: ItemsAsCSV
+      security:
+        - bearerAuth: []
+      summary: Returns a CSV that has a list of items as features.
+      tags:
+        - Items project
+        - CSV
+      description: Returns a CSV that has a list of items as features.
+      responses:
+        '200':
+          description: A string in CSV format
+          content:
+            text/csv:
+              schema:
+                type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/projects/{projectIdOrAlias}/models/{modelIdOrKey}':
     parameters:
       - $ref: '#/components/parameters/projectIdOrAliasParam'

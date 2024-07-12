@@ -71,64 +71,12 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}, nil
 }
 
-func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWithProjectAsGeoJSONRequestObject) (ItemsWithProjectAsGeoJSONResponseObject, error) {
-    geoJSONMap := map[string]interface{}{
-			"type": "FeatureCollection",
-			"features": []interface{}{
-					map[string]interface{}{
-							"type": "Feature",
-							"id":   "xxxxxxxx",
-							"geometry": map[string]interface{}{
-									"type":        "Point",
-									"coordinates": []float64{139.7112596, 35.6424892},
-							},
-							"properties": map[string]interface{}{
-									"name": "Eukarya",
-									"desc": "hogehoge",
-							},
-					},
-					map[string]interface{}{
-							"type": "Feature",
-							"id":   "xxxxxxxx",
-							"geometry": map[string]interface{}{
-									"type":        "Point",
-									"coordinates": []float64{139.7476911, 35.6759842},
-							},
-							"properties": map[string]interface{}{
-									"name": "MLIT",
-									"desc": "foobar",
-							},
-					},
-			},
-	}
-
-	jsonData, err := json.Marshal(geoJSONMap)
-	if err != nil {
-			return nil, err
-	}
-
-	var geoJSON integrationapi.GeoJSON
-	if err := json.Unmarshal(jsonData, &geoJSON.Body); err != nil {
-		return nil, err
-	}
-
-	return ItemsWithProjectAsGeoJSON200JSONResponse{
-		Body: geoJSON.Body,
-	}, nil
+func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONRequestObject) (ItemsAsGeoJSONResponseObject, error) {
+	panic("not implemented")
 }
 
-func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithProjectAsCSVRequestObject) (ItemsWithProjectAsCSVResponseObject, error) {
-	text := `
-id,location_lat,location_lng,name,description
-xxxx,139.7112596,35.6424892,Euakrya,hogehoge
-xxxx,139.7476911,35.6759842,MLIT,foobar
-`
-	reader := strings.NewReader(text)
-	contentLength := reader.Len()
-	return ItemsWithProjectAsCSV200TextcsvResponse{
-		Body: reader,
-		ContentLength: int64(contentLength),
-	}, nil
+func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject) (ItemsAsCSVResponseObject, error) {
+	panic("not implemented")
 }
 
 func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error) {
@@ -197,6 +145,66 @@ func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWi
 		Page:       request.Params.Page,
 		PerPage:    request.Params.PerPage,
 		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+	}, nil
+}
+
+func (s *Server) ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWithProjectAsGeoJSONRequestObject) (ItemsWithProjectAsGeoJSONResponseObject, error) {
+	geoJSONMap := map[string]interface{}{
+		"type": "FeatureCollection",
+		"features": []interface{}{
+			map[string]interface{}{
+				"type": "Feature",
+				"id":   "xxxxxxxx",
+				"geometry": map[string]interface{}{
+					"type":        "Point",
+					"coordinates": []float64{139.7112596, 35.6424892},
+				},
+				"properties": map[string]interface{}{
+					"name": "Eukarya",
+					"desc": "hogehoge",
+				},
+			},
+			map[string]interface{}{
+				"type": "Feature",
+				"id":   "xxxxxxxx",
+				"geometry": map[string]interface{}{
+					"type":        "Point",
+					"coordinates": []float64{139.7476911, 35.6759842},
+				},
+				"properties": map[string]interface{}{
+					"name": "MLIT",
+					"desc": "foobar",
+				},
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(geoJSONMap)
+	if err != nil {
+		return nil, err
+	}
+
+	var geoJSON integrationapi.GeoJSON
+	if err := json.Unmarshal(jsonData, &geoJSON.Body); err != nil {
+		return nil, err
+	}
+
+	return ItemsWithProjectAsGeoJSON200JSONResponse{
+		Body: geoJSON.Body,
+	}, nil
+}
+
+func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithProjectAsCSVRequestObject) (ItemsWithProjectAsCSVResponseObject, error) {
+	text := `
+id,location_lat,location_lng,name,description
+xxxx,139.7112596,35.6424892,Euakrya,hogehoge
+xxxx,139.7476911,35.6759842,MLIT,foobar
+`
+	reader := strings.NewReader(text)
+	contentLength := reader.Len()
+	return ItemsWithProjectAsCSV200TextcsvResponse{
+		Body:          reader,
+		ContentLength: int64(contentLength),
 	}, nil
 }
 
