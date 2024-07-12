@@ -101,21 +101,3 @@ func isValidRFC7946(g *geojson.Geometry) bool {
 	return false
 }
 
-//func (f *FieldGeometry) Validate(v *value.Value) (err error) {
-//	v.Match(value.Match{
-//		Geometry: func(a value.String) {
-//			t, ok := isValidGeoJSON(a)
-//			if !ok {
-//				err = ErrInvalidValue
-//			}
-//			ok2 := f.SupportedTypes().Has(GeometrySupportedTypeFrom(string(t)))
-//			if !ok2 {
-//				err = ErrUnsupportedType
-//			}
-//		},
-//		Default: func() {
-//			err = ErrInvalidValue
-//		},
-//	})
-//	return
-//}
