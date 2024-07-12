@@ -5,10 +5,10 @@ import "strings"
 type GeometryEditorSupportedType string
 
 const (
-	GeometryEditorSupportedTypePoint              GeometryEditorSupportedType = "POINT"
-	GeometryEditorSupportedTypeLineString         GeometryEditorSupportedType = "LINESTRING"
-	GeometryEditorSupportedTypePolygon            GeometryEditorSupportedType = "POLYGON"
-	GeometryEditorSupportedTypeAny                GeometryEditorSupportedType = "ANY"
+	GeometryEditorSupportedTypePoint      GeometryEditorSupportedType = "POINT"
+	GeometryEditorSupportedTypeLineString GeometryEditorSupportedType = "LINESTRING"
+	GeometryEditorSupportedTypePolygon    GeometryEditorSupportedType = "POLYGON"
+	GeometryEditorSupportedTypeAny        GeometryEditorSupportedType = "ANY"
 )
 
 func (s GeometryEditorSupportedType) String() string {

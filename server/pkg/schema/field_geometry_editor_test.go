@@ -37,68 +37,37 @@ func TestFieldGeometryEditor_Clone(t *testing.T) {
 	assert.Equal(t, &FieldGeometryEditor{}, (&FieldGeometryEditor{}).Clone())
 }
 
-func TestFieldGeometryEditor_Validate(t *testing.T) {
+func TestFieldGeometryEditorEditor_Validate(t *testing.T) {
 	supportedType := GeometryEditorSupportedTypePoint
 	geojson := `{
-				"type": "Point",
-				"coordinates": [102.0, 0.5]
-			}`
-	assert.NoError(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{supportedType}}).Validate(value.TypeGeometryEditor.Value(geojson)))
-	assert.Equal(t, ErrInvalidValue, (&FieldGeometryEditor{}).Validate(value.TypeText.Value("{}")))
-	assert.Equal(t, ErrInvalidValue, (&FieldGeometryEditor{}).Validate(value.TypeText.Value(float64(1))))
-}
-
-func TestIsValidGeometryEditorField(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected bool
-	}{
-		{
-			name: "valid GeoJSON feature",
-			input: `{
-				"type": "Feature",
-				"geometryEditor": {
 					"type": "Point",
 					"coordinates": [102.0, 0.5]
-				},
-				"properties": {
-					"prop0": "value0"
-				}
-			}`,
-			expected: true,
-		},
-		{
-			name: "valid GeoJSON geometryEditor",
-			input: `{
-				"type": "Point",
-				"coordinates": [102.0, 0.5]
-			}`,
-			expected: true,
-		},
-		{
-			name: "invalid GeoJSON type",
-			input: `{
-				"type": "InvalidType",
-				"coordinates": [102.0, 0.5]
-			}`,
-			expected: false,
-		},
-		{
-			name:     "empty string",
-			input:    ``,
-			expected: false,
-		},
-		{
-			name:     "random string",
-			input:    `random string`,
-			expected: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, IsValidGeometryObjectField(tt.input))
-		})
-	}
+				}`
+	geojson2 := `{
+					"type": "LineString",
+					"coordinates": [
+	         [
+	           114.70437290715995,
+	           -0.49283758513797693
+	         ],
+	         [
+	           117.94574361321565,
+	           1.6624101817629793
+	         ],
+	         [
+	           122.18758253669148,
+	           3.1330366417804214
+	         ]
+	       ]
+				}`
+	geojson3 := `{
+					"type": "MultiPoint",
+					"coordinates": [[102.0, 0.5]]
+				}`
+	assert.NoError(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{supportedType}}).Validate(value.TypeGeometryEditor.Value(geojson)))
+	assert.Equal(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{supportedType}}).Validate(value.TypeGeometryEditor.Value(geojson2)), ErrUnsupportedType)
+	assert.NoError(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{GeometryEditorSupportedTypeAny}}).Validate(value.TypeGeometryEditor.Value(geojson2)))
+	assert.Equal(t, (&FieldGeometryEditor{st: GeometryEditorSupportedTypeList{GeometryEditorSupportedTypeAny}}).Validate(value.TypeGeometryEditor.Value(geojson3)), ErrUnsupportedType)
+	assert.Equal(t, ErrInvalidValue, (&FieldGeometryEditor{}).Validate(value.TypeText.Value("{}")))
+	assert.Equal(t, ErrInvalidValue, (&FieldGeometryEditor{}).Validate(value.TypeText.Value(float64(1))))
 }

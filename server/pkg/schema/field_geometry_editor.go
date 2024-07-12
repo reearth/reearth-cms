@@ -1,10 +1,6 @@
 package schema
 
 import (
-	"encoding/json"
-	"strings"
-
-	geojson "github.com/paulmach/go.geojson"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -12,6 +8,15 @@ import (
 
 type GeometryEditorSupportedTypeList []GeometryEditorSupportedType
 
+func (l GeometryEditorSupportedTypeList) Has(st GeometryEditorSupportedType) bool {
+	hasAny := slices.Contains(l, GeometryEditorSupportedTypeAny)
+	if hasAny && st != "" {
+	     return true
+	}
+	return slices.ContainsFunc(l, func(t GeometryEditorSupportedType) bool {
+		return t == st
+	})
+}
 type FieldGeometryEditor struct {
 	st GeometryEditorSupportedTypeList
 }
@@ -46,39 +51,16 @@ func (f *FieldGeometryEditor) Clone() *FieldGeometryEditor {
 	}
 }
 
-// IsValidGeometryEditorField uses the go.geojson library to validate the GeoJSON string inside the geometry editor field
-func IsValidGeometryEditorField(data string) bool {
-	if len(strings.TrimSpace(data)) == 0 {
-		return false
-	}
-
-	var raw map[string]interface{}
-	if err := json.Unmarshal([]byte(data), &raw); err != nil {
-		return false
-	}
-
-	geoType, ok := raw["type"].(string)
-	if !ok {
-		return false
-	}
-
-	switch geoType {
-	case "Feature":
-		_, err := geojson.UnmarshalFeature([]byte(data))
-		return err == nil
-	case "Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon", "GeometryEditorCollection":
-		_, err := geojson.UnmarshalGeometry([]byte(data))
-		return err == nil
-	default:
-		return false
-	}
-}
-
 func (f *FieldGeometryEditor) Validate(v *value.Value) (err error) {
 	v.Match(value.Match{
 		GeometryEditor: func(a value.String) {
-			if !IsValidGeometryEditorField(a) {
+			t, ok := isValidGeoJSON(a)
+			if !ok {
 				err = ErrInvalidValue
+			}
+			ok2 := f.SupportedTypes().Has(GeometryEditorSupportedTypeFrom(string(t)))
+			if !ok2 {
+				err = ErrUnsupportedType
 			}
 		},
 		Default: func() {
