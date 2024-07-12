@@ -1436,6 +1436,8 @@ components:
         - url
         - group
         - tag
+        - geometryObject
+        - geometryEditor
     tagResponse:
       type: object
       properties:

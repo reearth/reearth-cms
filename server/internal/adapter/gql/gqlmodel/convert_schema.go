@@ -80,44 +80,76 @@ func ToSchemaFieldTagColor(c schema.TagColor) SchemaFieldTagColor {
 
 }
 
-func ToGeometrySupportedType(g schema.GeometrySupportedType) GeometrySupportedType {
+func ToGeometryObjectSupportedType(g schema.GeometryObjectSupportedType) GeometryObjectSupportedType {
 	switch g {
-	case schema.GeometrySupportedTypePoint:
-		return GeometrySupportedTypePoint
-	case schema.GeometrySupportedTypeMultiPoint:
-		return GeometrySupportedTypeMultipoint
-	case schema.GeometrySupportedTypeLineString:
-		return GeometrySupportedTypeLinestring
-	case schema.GeometrySupportedTypeMultiLineString:
-		return GeometrySupportedTypeMultilinestring
-	case schema.GeometrySupportedTypePolygon:
-		return GeometrySupportedTypePolygon
-	case schema.GeometrySupportedTypeMultiPolygon:
-		return GeometrySupportedTypeMultipolygon
-	case schema.GeometrySupportedTypeGeometryCollection:
-		return GeometrySupportedTypeGeometrycollection
+	case schema.GeometryObjectSupportedTypePoint:
+		return GeometryObjectSupportedTypePoint
+	case schema.GeometryObjectSupportedTypeMultiPoint:
+		return GeometryObjectSupportedTypeMultipoint
+	case schema.GeometryObjectSupportedTypeLineString:
+		return GeometryObjectSupportedTypeLinestring
+	case schema.GeometryObjectSupportedTypeMultiLineString:
+		return GeometryObjectSupportedTypeMultilinestring
+	case schema.GeometryObjectSupportedTypePolygon:
+		return GeometryObjectSupportedTypePolygon
+	case schema.GeometryObjectSupportedTypeMultiPolygon:
+		return GeometryObjectSupportedTypeMultipolygon
+	case schema.GeometryObjectSupportedTypeGeometryCollection:
+		return GeometryObjectSupportedTypeGeometrycollection
 
 	default:
 		return ""
 	}
 }
 
-func FromGeometrySupportedType(g GeometrySupportedType) schema.GeometrySupportedType {
+func FromGeometryObjectSupportedType(g GeometryObjectSupportedType) schema.GeometryObjectSupportedType {
 	switch g {
-	case GeometrySupportedTypePoint:
-		return schema.GeometrySupportedTypePoint
-	case GeometrySupportedTypeMultipoint:
-		return schema.GeometrySupportedTypeMultiPoint
-	case GeometrySupportedTypeLinestring:
-		return schema.GeometrySupportedTypeLineString
-	case GeometrySupportedTypeMultilinestring:
-		return schema.GeometrySupportedTypeMultiLineString
-	case GeometrySupportedTypePolygon:
-		return schema.GeometrySupportedTypePolygon
-	case GeometrySupportedTypeMultipolygon:
-		return schema.GeometrySupportedTypeMultiPolygon
-	case GeometrySupportedTypeGeometrycollection:
-		return schema.GeometrySupportedTypeGeometryCollection
+	case GeometryObjectSupportedTypePoint:
+		return schema.GeometryObjectSupportedTypePoint
+	case GeometryObjectSupportedTypeMultipoint:
+		return schema.GeometryObjectSupportedTypeMultiPoint
+	case GeometryObjectSupportedTypeLinestring:
+		return schema.GeometryObjectSupportedTypeLineString
+	case GeometryObjectSupportedTypeMultilinestring:
+		return schema.GeometryObjectSupportedTypeMultiLineString
+	case GeometryObjectSupportedTypePolygon:
+		return schema.GeometryObjectSupportedTypePolygon
+	case GeometryObjectSupportedTypeMultipolygon:
+		return schema.GeometryObjectSupportedTypeMultiPolygon
+	case GeometryObjectSupportedTypeGeometrycollection:
+		return schema.GeometryObjectSupportedTypeGeometryCollection
+
+	default:
+		return ""
+	}
+}
+
+func ToGeometryEditorSupportedType(g schema.GeometryEditorSupportedType) GeometryEditorSupportedType {
+	switch g {
+	case schema.GeometryEditorSupportedTypePoint:
+		return GeometryEditorSupportedTypePoint
+	case schema.GeometryEditorSupportedTypeLineString:
+		return GeometryEditorSupportedTypeLinestring
+	case schema.GeometryEditorSupportedTypePolygon:
+		return GeometryEditorSupportedTypePolygon
+	case schema.GeometryEditorSupportedTypeAny:
+		return GeometryEditorSupportedTypeAny
+
+	default:
+		return ""
+	}
+}
+
+func FromGeometryEditorSupportedType(g GeometryEditorSupportedType) schema.GeometryEditorSupportedType {
+	switch g {
+	case GeometryEditorSupportedTypePoint:
+		return schema.GeometryEditorSupportedTypePoint
+	case GeometryEditorSupportedTypeLinestring:
+		return schema.GeometryEditorSupportedTypeLineString
+	case GeometryEditorSupportedTypePolygon:
+		return schema.GeometryEditorSupportedTypePolygon
+	case GeometryEditorSupportedTypeAny:
+		return schema.GeometryEditorSupportedTypeAny
 
 	default:
 		return ""
@@ -278,7 +310,7 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 				DefaultValue: v,
 			}
 		},
-		Geometry: func(f *schema.FieldGeometry) {
+		GeometryObject: func(f *schema.FieldGeometryObject) {
 			var v any = nil
 			if dv != nil {
 				if multiple {
@@ -287,9 +319,27 @@ func ToSchemaFieldTypeProperty(tp *schema.TypeProperty, dv *value.Multiple, mult
 					v, _ = dv.First().ValueString()
 				}
 			}
-			res = &SchemaFieldGeometry{
-				DefaultValue:   v,
-				SupportedTypes: lo.Map(f.SupportedTypes(), func(v schema.GeometrySupportedType, _ int) GeometrySupportedType { return ToGeometrySupportedType(v) }),
+			res = &SchemaFieldGeometryObject{
+				DefaultValue: v,
+				SupportedTypes: lo.Map(f.SupportedTypes(), func(v schema.GeometryObjectSupportedType, _ int) GeometryObjectSupportedType {
+					return ToGeometryObjectSupportedType(v)
+				}),
+			}
+		},
+		GeometryEditor: func(f *schema.FieldGeometryEditor) {
+			var v any = nil
+			if dv != nil {
+				if multiple {
+					v, _ = dv.ValuesString()
+				} else {
+					v, _ = dv.First().ValueString()
+				}
+			}
+			res = &SchemaFieldGeometryEditor{
+				DefaultValue: v,
+				SupportedTypes: lo.Map(f.SupportedTypes(), func(v schema.GeometryEditorSupportedType, _ int) GeometryEditorSupportedType {
+					return ToGeometryEditorSupportedType(v)
+				}),
 			}
 		},
 	})
@@ -548,18 +598,31 @@ func FromSchemaTypeProperty(tp *SchemaFieldTypePropertyInput, t SchemaFieldType,
 			dv = FromValue(SchemaFieldTypeURL, x.DefaultValue).AsMultiple()
 		}
 		tpRes = schema.NewURL().TypeProperty()
-	case SchemaFieldTypeGeometry:
-		x := tp.Geometry
+	case SchemaFieldTypeGeometryObject:
+		x := tp.GeometryObject
 		if x == nil {
 			return nil, nil, ErrInvalidTypeProperty
 		}
 		if multiple {
-			dv = value.NewMultiple(value.TypeGeometry, unpackArray(x.DefaultValue))
+			dv = value.NewMultiple(value.TypeGeometryObject, unpackArray(x.DefaultValue))
 		} else {
-			dv = FromValue(SchemaFieldTypeGeometry, x.DefaultValue).AsMultiple()
+			dv = FromValue(SchemaFieldTypeGeometryObject, x.DefaultValue).AsMultiple()
 		}
-		tpRes = schema.NewGeometry(lo.Map(x.SupportedTypes, func(v GeometrySupportedType, _ int) schema.GeometrySupportedType {
-			return FromGeometrySupportedType(v)
+		tpRes = schema.NewGeometryObject(lo.Map(x.SupportedTypes, func(v GeometryObjectSupportedType, _ int) schema.GeometryObjectSupportedType {
+			return FromGeometryObjectSupportedType(v)
+		})).TypeProperty()
+	case SchemaFieldTypeGeometryEditor:
+		x := tp.GeometryEditor
+		if x == nil {
+			return nil, nil, ErrInvalidTypeProperty
+		}
+		if multiple {
+			dv = value.NewMultiple(value.TypeGeometryEditor, unpackArray(x.DefaultValue))
+		} else {
+			dv = FromValue(SchemaFieldTypeGeometryEditor, x.DefaultValue).AsMultiple()
+		}
+		tpRes = schema.NewGeometryEditor(lo.Map(x.SupportedTypes, func(v GeometryEditorSupportedType, _ int) schema.GeometryEditorSupportedType {
+			return FromGeometryEditorSupportedType(v)
 		})).TypeProperty()
 	default:
 		return nil, nil, ErrInvalidTypeProperty
