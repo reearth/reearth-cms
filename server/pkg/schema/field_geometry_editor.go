@@ -10,11 +10,13 @@ type GeometryEditorSupportedTypeList []GeometryEditorSupportedType
 
 func (l GeometryEditorSupportedTypeList) Has(st GeometryEditorSupportedType) bool {
 	hasAny := slices.Contains(l, GeometryEditorSupportedTypeAny)
+	if hasAny && st != "" {
+	     return true
+	}
 	return slices.ContainsFunc(l, func(t GeometryEditorSupportedType) bool {
-		return t == st || (hasAny && st != "")
+		return t == st
 	})
 }
-
 type FieldGeometryEditor struct {
 	st GeometryEditorSupportedTypeList
 }
