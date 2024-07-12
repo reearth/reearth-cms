@@ -63,7 +63,7 @@ func isValidRFC7946(g *geojson.Geometry) bool {
 	}
 	b := true
 	switch g.Type {
-	case "Point", "MultiPoint":
+	case "Point":
 		return isValidPosition(g.Point)
 	case "LineString":
 		b = len(g.LineString) > 1
@@ -85,6 +85,11 @@ func isValidRFC7946(g *geojson.Geometry) bool {
 			for _, fl := range ls {
 				b = b && isValidPosition(fl)
 			}
+		}
+		return b
+	case "MultiPoint":
+		for _, fl := range g.MultiPoint {
+			b = b && isValidPosition(fl)
 		}
 		return b
 	case "MultiPolygon":

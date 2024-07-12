@@ -20,6 +20,14 @@ func TestIsValidGeoJSON(t *testing.T) {
 			expected: true,
 		},
 		{
+			name: "valid GeoJSON geometry",
+			input: `{
+				"type": "MultiPoint",
+				"coordinates": [[102.0, 0.5],[4.3,4,2]]
+			}`,
+			expected: true,
+		},
+		{
 			name: "invalid GeoJSON geometry",
 			input: `{
 				"type": "Point",
