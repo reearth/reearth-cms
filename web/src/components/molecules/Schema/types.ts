@@ -73,6 +73,16 @@ export interface TypeProperty {
   tags?: Tag[];
   values?: string[];
   schema?: { titleFieldId: string | null };
+  objectSupportedTypes?: (
+    | "POINT"
+    | "MULTIPOINT"
+    | "LINESTRING"
+    | "MULTILINESTRING"
+    | "POLYGON"
+    | "MULTIPOLYGON"
+    | "GEOMETRYCOLLECTION"
+  )[];
+  editorSupportedTypes?: ("POINT" | "LINESTRING" | "POLYGON" | "ANY")[];
 }
 
 export interface FieldTypePropertyInput {
