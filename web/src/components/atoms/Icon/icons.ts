@@ -66,6 +66,7 @@ import EditorCopy from "./Icons/editorCopy.svg";
 import Group from "./Icons/group.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
+import LineString from "./Icons/lineString.svg";
 import Link from "./Icons/link.svg";
 import Linked from "./Icons/linked.svg";
 import UnlinkSolid from "./Icons/linkSlashSolid.svg";
@@ -78,7 +79,6 @@ import MyIntegrations from "./Icons/myintegrations.svg";
 import NumberNine from "./Icons/numberNine.svg";
 import Pencil from "./Icons/pencil.svg";
 import Polygon from "./Icons/polygon.svg";
-import Polyline from "./Icons/polyline.svg";
 import Tag from "./Icons/tag.svg";
 import TerminalWindow from "./Icons/terminalWindow.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
@@ -167,7 +167,7 @@ export default {
   workspaceSettings: WorkspaceSettings,
   mapPin: MapPin,
   mapPinFilled: MapPinFilled,
-  polyline: Polyline,
+  lineString: LineString,
   polygon: Polygon,
   trash: Trash,
   curlyBrackets: CurlyBrackets,
