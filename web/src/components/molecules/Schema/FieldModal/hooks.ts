@@ -189,13 +189,17 @@ export default (
         };
       case "GeometryObject":
         return {
-          geometry: { defaultValue: values.defaultValue },
-          supportedTypes: values.supportedTypes,
+          geometryObject: {
+            defaultValue: values.defaultValue,
+            supportedTypes: values.supportedTypes,
+          },
         };
       case "GeometryEditor":
         return {
-          geometry: { defaultValue: values.defaultValue },
-          supportedTypes: [values.supportedTypes],
+          geometryEditor: {
+            defaultValue: values.defaultValue,
+            supportedTypes: [values.supportedTypes],
+          },
         };
       case "Text":
       default:

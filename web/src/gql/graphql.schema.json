@@ -4258,7 +4258,42 @@
       },
       {
         "kind": "ENUM",
-        "name": "GeometrySupportedType",
+        "name": "GeometryEditorSupportedType",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "ANY",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "LINESTRING",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "POINT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "POLYGON",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "GeometryObjectSupportedType",
         "description": null,
         "fields": null,
         "inputFields": null,
@@ -12135,7 +12170,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "SchemaFieldGeometry",
+        "name": "SchemaFieldGeometryEditor",
         "description": null,
         "fields": [
           {
@@ -12165,7 +12200,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "ENUM",
-                    "name": "GeometrySupportedType",
+                    "name": "GeometryEditorSupportedType",
                     "ofType": null
                   }
                 }
@@ -12182,7 +12217,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "SchemaFieldGeometryInput",
+        "name": "SchemaFieldGeometryEditorInput",
         "description": null,
         "fields": null,
         "inputFields": [
@@ -12212,7 +12247,101 @@
                   "name": null,
                   "ofType": {
                     "kind": "ENUM",
-                    "name": "GeometrySupportedType",
+                    "name": "GeometryEditorSupportedType",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "SchemaFieldGeometryObject",
+        "description": null,
+        "fields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "supportedTypes",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "GeometryObjectSupportedType",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "SchemaFieldGeometryObjectInput",
+        "description": null,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "defaultValue",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "supportedTypes",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "GeometryObjectSupportedType",
                     "ofType": null
                   }
                 }
@@ -13185,7 +13314,13 @@
             "deprecationReason": null
           },
           {
-            "name": "Geometry",
+            "name": "GeometryEditor",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "GeometryObject",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
@@ -13284,7 +13419,12 @@
           },
           {
             "kind": "OBJECT",
-            "name": "SchemaFieldGeometry",
+            "name": "SchemaFieldGeometryEditor",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "SchemaFieldGeometryObject",
             "ofType": null
           },
           {
@@ -13394,11 +13534,23 @@
             "deprecationReason": null
           },
           {
-            "name": "geometry",
+            "name": "geometryEditor",
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "SchemaFieldGeometryInput",
+              "name": "SchemaFieldGeometryEditorInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "geometryObject",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "SchemaFieldGeometryObjectInput",
               "ofType": null
             },
             "defaultValue": null,
