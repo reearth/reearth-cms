@@ -77,6 +77,16 @@ func TestValueType(t *testing.T) {
 			want: SchemaFieldTypeURL,
 		},
 		{
+			name: "TypeGeometryObject",
+			t:    value.TypeGeometryObject,
+			want: SchemaFieldTypeGeometryObject,
+		},
+		{
+			name: "TypeGeometryEditor",
+			t:    value.TypeGeometryEditor,
+			want: SchemaFieldTypeGeometryEditor,
+		},
+		{
 			name: "invalid",
 			t:    "some value",
 			want: "",
@@ -161,6 +171,28 @@ func TestToValue(t *testing.T) {
 			name: "TypeURL",
 			v:    value.TypeURL.Value("https://example.com"),
 			want: "https://example.com",
+		},
+		{
+			name: "TypeGeometryObject",
+			v: value.TypeGeometryObject.Value(`{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`),
+			want: `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`,
+		},
+		{
+			name: "TypeGeometryEditor",
+			v: value.TypeGeometryEditor.Value(`{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`),
+			want: `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`,
 		},
 		{
 			name: "nil",
@@ -255,6 +287,30 @@ func TestFromValue(t *testing.T) {
 			t:    SchemaFieldTypeURL,
 			v:    "https://example.com",
 			want: value.TypeURL.Value("https://example.com"),
+		},
+		{
+			name: "TypeGeometryObject",
+			t:    SchemaFieldTypeGeometryObject,
+			v: `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`,
+			want: value.TypeGeometryObject.Value(`{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`),
+		},
+		{
+			name: "TypeGeometryEditor",
+			t:    SchemaFieldTypeGeometryEditor,
+			v: `{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`,
+			want: value.TypeGeometryEditor.Value(`{
+				"type": "Point",
+				"coordinates": [102.0, 0.5]
+			}`),
 		},
 		{
 			name: "nil",

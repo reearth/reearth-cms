@@ -30,7 +30,7 @@ import {
   SortDirection,
 } from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
 
 import useHooks from "./hooks";
 
@@ -138,10 +138,11 @@ const FieldModal: React.FC<Props> = ({
     handleModalReset,
     isRequiredDisabled,
     isUniqueDisabled,
+    keyValidate,
     isTitleDisabled,
     ObjectSupportType,
     EditorSupportType,
-  } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit);
+  } = useHooks(selectedType, isMeta, selectedField, onClose, onSubmit, handleFieldKeyUnique);
 
   const requiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
     <>
@@ -198,11 +199,8 @@ const FieldModal: React.FC<Props> = ({
                 {
                   message: t("Key is not valid"),
                   required: true,
-                  validator: (_, value) => {
-                    if (validateKey(value) && handleFieldKeyUnique(value, selectedField?.id)) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject();
+                  validator: async (_, value) => {
+                    await keyValidate(value);
                   },
                 },
               ]}>
