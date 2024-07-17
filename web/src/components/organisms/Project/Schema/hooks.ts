@@ -21,6 +21,7 @@ import {
   useUpdateFieldMutation,
   useUpdateFieldsMutation,
   useGetModelsQuery,
+  useGetModelLazyQuery,
   useGetGroupsQuery,
   useGetGroupQuery,
   Model as GQLModel,
@@ -62,6 +63,24 @@ export default () => {
       ?.map<Model | undefined>(model => fromGraphQLModel(model as GQLModel))
       .filter((model): model is Model => !!model);
   }, [modelsData?.models.nodes]);
+
+  const [getModel, { data: modelData }] = useGetModelLazyQuery({
+    fetchPolicy: "cache-and-network",
+  });
+
+  const handleReferencedModelGet = useCallback(
+    (modelId: string) => {
+      getModel({
+        variables: { id: modelId },
+      });
+    },
+    [getModel],
+  );
+
+  const referencedModel = useMemo<Model | undefined>(
+    () => fromGraphQLModel(modelData?.node as GQLModel),
+    [modelData?.node],
+  );
 
   const { data: groupsData } = useGetGroupsQuery({
     variables: {
@@ -111,13 +130,20 @@ export default () => {
     [navigate, projectId, workspaceId],
   );
 
+  const keyUniqueCheck = useCallback((key: string, fieldId?: string, model?: Model) => {
+    const sameKeyField = model?.schema.fields.find(field => field.key === key);
+    return !sameKeyField || sameKeyField.id === fieldId;
+  }, []);
+
   const handleFieldKeyUnique = useCallback(
-    (key: string, fieldId?: string): boolean => {
-      return !currentModel?.schema.fields.some(
-        field => field.key === key && (!fieldId || (fieldId && fieldId !== field.id)),
-      );
-    },
-    [currentModel],
+    (key: string) => keyUniqueCheck(key, selectedField?.id, currentModel),
+    [selectedField?.id, currentModel],
+  );
+
+  const handleCorrespondingFieldKeyUnique = useCallback(
+    (key: string) =>
+      keyUniqueCheck(key, selectedField?.typeProperty?.correspondingField?.id, referencedModel),
+    [selectedField?.typeProperty?.correspondingField?.id, referencedModel],
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
@@ -556,6 +582,8 @@ export default () => {
     handleFieldUpdateModalOpen,
     handleFieldModalClose,
     handleFieldCreate,
+    handleReferencedModelGet,
+    handleCorrespondingFieldKeyUnique,
     handleFieldKeyUnique,
     handleFieldUpdate,
     handleFieldOrder,

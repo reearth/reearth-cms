@@ -41,6 +41,7 @@ var (
 	mId1   = id.NewModelID()
 	mId2   = id.NewModelID()
 	mId3   = id.NewModelID()
+	mId4   = id.NewModelID()
 	dvmId  = id.NewModelID()
 	aid1   = id.NewAssetID()
 	aid2   = id.NewAssetID()
@@ -49,21 +50,26 @@ var (
 	itmId2 = id.NewItemID()
 	itmId3 = id.NewItemID()
 	itmId4 = id.NewItemID()
+	itmId5 = id.NewItemID()
 	fId1   = id.NewFieldID()
 	fId2   = id.NewFieldID()
 	fId3   = id.NewFieldID()
 	fId4   = id.NewFieldID()
 	fId5   = id.NewFieldID()
 	fId6   = id.NewFieldID()
+	fId7   = id.NewFieldID()
+	fId8   = id.NewFieldID()
 	dvsfId = id.NewFieldID()
 	thId1  = id.NewThreadID()
 	thId2  = id.NewThreadID()
 	thId3  = id.NewThreadID()
 	thId4  = id.NewThreadID()
+	thId5  = id.NewThreadID()
 	icId   = id.NewCommentID()
 	ikey1  = key.Random()
 	ikey2  = key.Random()
 	ikey3  = key.Random()
+	ikey4  = key.Random()
 	pid    = id.NewProjectID()
 	sid1   = id.NewSchemaID()
 	sid2   = id.NewSchemaID()
@@ -75,6 +81,8 @@ var (
 	sfKey4 = key.Random()
 	sfKey5 = id.NewKey("asset-key")
 	sfKey6 = id.NewKey("group-key")
+	sfKey7 = id.NewKey("geometry-key")
+	sfKey8 = id.NewKey("geometry-editor-key")
 	gKey1  = key.Random()
 	gId1   = id.NewItemGroupID()
 	gId2   = id.NewItemGroupID()
@@ -214,6 +222,26 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 		return err
 	}
 
+	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
+	sf7 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(fId7).Key(sfKey7).MustBuild()
+	sf8 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).ID(fId8).Key(sfKey8).MustBuild()
+	s7 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf7, sf8}).MustBuild()
+	if err := r.Schema.Save(ctx, s7); err != nil {
+		return err
+	}
+	m4 := model.New().
+		ID(mId4).
+		Name("m4").
+		Description("m4 desc").
+		Public(true).
+		Key(ikey4).
+		Project(p.ID()).
+		Schema(s7.ID()).
+		MustBuild()
+	if err := r.Model.Save(ctx, m4); err != nil {
+		return err
+	}
 	// endregion
 
 	// region items
@@ -272,6 +300,21 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	if err := r.Item.Save(ctx, itm4); err != nil {
 		return err
 	}
+
+	itm5 := item.New().ID(itmId5).
+		Schema(s7.ID()).
+		Model(m4.ID()).
+		Project(p.ID()).
+		Thread(thId5).
+		IsMetadata(false).
+		Fields([]*item.Field{
+			item.NewField(fId7, value.MultipleFrom(value.TypeGeometryObject, []*value.Value{value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+			item.NewField(fId8, value.MultipleFrom(value.TypeGeometryEditor, []*value.Value{value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}"), value.TypeGeometryEditor.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [101.0, 1.5]\n}")}), nil),
+		}).
+		MustBuild()
+	if err := r.Item.Save(ctx, itm5); err != nil {
+		return err
+	}
 	// endregion
 
 	// region thread & comment
@@ -319,7 +362,12 @@ func baseSeeder(ctx context.Context, r *repo.Container) error {
 	dvsf2 := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Key(key.Random()).DefaultValue(schema.NewText(nil).TypeProperty().Type().Value("default").AsMultiple()).MustBuild()
 	dvsf3 := schema.NewField(schema.NewGroup(gp.ID()).TypeProperty()).NewID().Key(key.Random()).MustBuild()
 
-	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3}).MustBuild()
+	gst2 := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+	gest2 := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
+	dvsf4 := schema.NewField(schema.NewGeometryObject(gst2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+	dvsf5 := schema.NewField(schema.NewGeometryEditor(gest2).TypeProperty()).NewID().Key(key.Random()).MustBuild()
+
+	dvs1 := schema.New().NewID().Workspace(w.ID()).Project(pid).Fields([]*schema.Field{dvsf1, dvsf2, dvsf3, dvsf4, dvsf5}).MustBuild()
 	if err := r.Schema.Save(ctx, dvs1); err != nil {
 		return err
 	}
@@ -459,6 +507,19 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
+
+	e.GET("/api/models/{modelId}/items", mId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("asset", "true").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("page", 1).
+		HasValue("perPage", 5).
+		HasValue("totalCount", 1)
 }
 
 // GET /models/{modelId}/items
@@ -1229,6 +1290,42 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	raw := r2.Value("referencedItems").Array().Value(0).Object().Raw()
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
+
+	obj2 := e.POST("/api/models/{modelId}/items", mId4).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"key":   sfKey7.String(),
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+				map[string]string{
+					"key":   sfKey8.String(),
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	obj2.
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId7.String(),
+				"type":  "geometryObject",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey7.String(),
+			},
+			map[string]string{
+				"id":    fId8.String(),
+				"type":  "geometryEditor",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey8.String(),
+			},
+		})
+
 }
 
 func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
@@ -1507,6 +1604,44 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"key":   sfKey6.String(),
 			},
 		})
+
+	e.PATCH("/api/items/{itemId}", itmId5).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []interface{}{
+				map[string]string{
+					"id":    fId7.String(),
+					"key":   sfKey7.String(),
+					"type":  "geometryObject",
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+				map[string]string{
+					"id":    fId8.String(),
+					"key":   sfKey8.String(),
+					"type":  "geometryEditor",
+					"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("fields").
+		IsEqual([]any{
+			map[string]string{
+				"id":    fId7.String(),
+				"key":   sfKey7.String(),
+				"type":  "geometryObject",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+			},
+			map[string]string{
+				"id":    fId8.String(),
+				"key":   sfKey8.String(),
+				"type":  "geometryEditor",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+			},
+		})
 }
 
 // GET /items/{itemId}
@@ -1624,6 +1759,28 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
+	r3 := e.GET("/api/items/{itemId}", itmId5).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r3.Value("fields").
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId7.String(),
+				"type":  "geometryObject",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey7.String(),
+			},
+			map[string]any{
+				"id":    fId8.String(),
+				"type":  "geometryEditor",
+				"value": "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
+				"key":   sfKey8.String(),
+			},
+		})
 }
 
 // DELETE /items/{itemId}

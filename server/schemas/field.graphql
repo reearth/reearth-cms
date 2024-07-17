@@ -13,7 +13,8 @@ enum SchemaFieldType {
   Checkbox
   URL
   Group
-  Geometry
+  GeometryObject
+  GeometryEditor
 }
 
 enum SchemaFieldTagColor {
@@ -30,7 +31,7 @@ enum SchemaFieldTagColor {
   PURPLE
 }
 
-enum GeometrySupportedType {
+enum GeometryObjectSupportedType {
   POINT
   MULTIPOINT
   LINESTRING
@@ -38,6 +39,13 @@ enum GeometrySupportedType {
   POLYGON
   MULTIPOLYGON
   GEOMETRYCOLLECTION
+}
+
+enum GeometryEditorSupportedType {
+  POINT
+  LINESTRING
+  POLYGON
+  ANY
 }
 
 type SchemaField {
@@ -77,7 +85,8 @@ union SchemaFieldTypeProperty =
   | SchemaFieldURL
   | SchemaFieldCheckbox
   | SchemaFieldGroup
-  | SchemaFieldGeometry
+  | SchemaFieldGeometryObject
+  | SchemaFieldGeometryEditor
 
 type SchemaFieldText {
   defaultValue: Any
@@ -153,9 +162,14 @@ type SchemaFieldGroup {
   groupId: ID!
 }
 
-type SchemaFieldGeometry {
+type SchemaFieldGeometryObject {
   defaultValue: Any
-  supportedTypes: [GeometrySupportedType!]!
+  supportedTypes: [GeometryObjectSupportedType!]!
+}
+
+type SchemaFieldGeometryEditor {
+  defaultValue: Any
+  supportedTypes: [GeometryEditorSupportedType!]!
 }
 
 # Inputs
@@ -240,9 +254,14 @@ input SchemaFieldGroupInput {
   groupId: ID!
 }
 
-input SchemaFieldGeometryInput {
+input SchemaFieldGeometryObjectInput {
   defaultValue: Any
-  supportedTypes: [GeometrySupportedType!]!
+  supportedTypes: [GeometryObjectSupportedType!]!
+}
+
+input SchemaFieldGeometryEditorInput {
+  defaultValue: Any
+  supportedTypes: [GeometryEditorSupportedType!]!
 }
 
 input SchemaFieldLineStringInput {
@@ -264,7 +283,8 @@ input SchemaFieldTypePropertyInput @onlyOne {
   reference: SchemaFieldReferenceInput
   url: SchemaFieldURLInput
   group: SchemaFieldGroupInput
-  geometry: SchemaFieldGeometryInput
+  geometryObject: SchemaFieldGeometryObjectInput
+  geometryEditor: SchemaFieldGeometryEditorInput
 }
 
 input CreateFieldInput {
